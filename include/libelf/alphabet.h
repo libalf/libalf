@@ -1,4 +1,4 @@
-/* $Id: teacher.h 2 2008-08-27 21:43:32Z davidpiegdon $
+/* $Id$
  * vim: fdm=marker
  *
  * libalf - Automata Learning Factory
