@@ -9,6 +9,8 @@
  * see LICENSE file for licensing information.
  */
 
+#include <list>
+
 #include <libalf/alphabet.h>
 #include <libalf/automata.h>
 
@@ -19,7 +21,7 @@ class oracle {
 
 	// returns a list of counter-examples
 	virtual list< list< alphabet > >
-	equality_query(automata&);
+	equality_query(automata<alphabet>&);
 
 };
 

@@ -9,8 +9,6 @@
  * see LICENSE file for licensing information.
  */
 
-#include <alphabet.h>
-
 namespace libalf {
 
 }; // end namespace libalf

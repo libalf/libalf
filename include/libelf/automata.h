@@ -20,6 +20,7 @@ union automata_classes {
 	DETERMINISTIC_AUTOMATA
 };
 
+template <class alphabet>
 class automata {
 	public:
 		enum automata_type	type;

@@ -12,7 +12,16 @@
 namespace libalf {
 
 class statistics {
+	struct {
+		int bytes;
+		int members;
+		int words;
+	} table_size;
 
+	struct {
+		int membership;
+		int equality;
+	} query_count;
 };
 
 }; // end namespace libalf

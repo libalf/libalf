@@ -9,9 +9,13 @@
  * see LICENSE file for licensing information.
  */
 
+#include <list>
+
 #include <alphabet.h>
 
 namespace libalf {
+
+// possible <answer> class: e.g. extended bool or just bool
 
 enum extended_bool {
 	EB_TRUE,
@@ -19,10 +23,10 @@ enum extended_bool {
 	EB_UNKNOWN
 };
 
-template <class alphabet>
+template <class alphabet, class answer>
 class teacher {
 
-	virtual extended_bool membership_query(list< alphabet >) = 0;
+	virtual answer membership_query(list< alphabet >) = 0;
 
 	virtual void membership_query(BDD< alphabet >) = 0;
 

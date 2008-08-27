@@ -23,11 +23,11 @@ enum learning_algorithm {
 	LEARN_RIVEST_SHAPIRE
 };
 
-automata* learn_finite_automata( enum learning_algorithm, teacher, oracle, statistics * = NULL, logger * = NULL );
+template <class alphabet, class answer>
+automata<alphabet>* learn_finite_automata( enum learning_algorithm, teacher<alphabet, answer>, oracle, statistics * = NULL, logger * = NULL );
 
 
 
 
 }; // end namespace libalf
-
 
