@@ -9,9 +9,17 @@
  * see LICENSE file for licensing information.
  */
 
+#include <libalf/alphabet.h>
+#include <libalf/automata.h>
+
 namespace libalf {
 
+template <class alphabet>
 class oracle {
+
+	// returns a list of counter-examples
+	virtual list< list< alphabet > >
+	equality_query(automata&);
 
 };
 

@@ -18,7 +18,7 @@
 
 namespace libalf {
 
-enum learning_algorithms {
+enum learning_algorithm {
 	LEARN_ANGLUIN,
 	LEARN_RIVEST_SHAPIRE
 };
