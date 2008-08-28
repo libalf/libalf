@@ -25,8 +25,10 @@ enum logger_loglevel {
 };
 
 class logger : std::binary_function< enum logger_loglevel, string&, void > {
+
 	public:
 		virtual void operator()(enum logger_loglevel, string&) = 0;
+
 };
 
 }; // end namespace libalf

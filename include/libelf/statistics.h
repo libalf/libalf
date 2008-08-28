@@ -12,6 +12,7 @@
 namespace libalf {
 
 class statistics {
+
 	struct {
 		int bytes;
 		int members;
@@ -22,6 +23,7 @@ class statistics {
 		int membership;
 		int equality;
 	} query_count;
+
 };
 
 }; // end namespace libalf

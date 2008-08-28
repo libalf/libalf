@@ -12,23 +12,22 @@
 namespace libalf {
 
 enum automata_type {
-
-};
-
-union automata_classes {
 	NONDETERMINISTIC_FINITE_AUTOMATA,
 	DETERMINISTIC_AUTOMATA
 };
 
 template <class alphabet>
 class automata {
+
 	public:
 		enum automata_type	type;
+
 		union {
 			NFA *nfa;
 			DFA *dfa;
 			// ...
 		} a;
+
 };
 
 }; // end namespace libalf
