@@ -26,9 +26,10 @@ enum extended_bool {
 template <class alphabet, class answer>
 class teacher {
 
-	virtual answer membership_query(list< alphabet >) = 0;
+	public:
+		virtual answer membership_query(list< alphabet >) = 0;
 
-	virtual void membership_query(BDD< alphabet >) = 0;
+		virtual void membership_query(BDD< alphabet >) = 0;
 
 };
 
