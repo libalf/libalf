@@ -23,18 +23,62 @@ namespace libalf {
 template <class alphabet, class answer>
 class observationtable {
 
+		// horizontal members
+		// upper table: U
+		// lower talbe: U+{sigma}
 	public:
-		virtual bool is_closed() = 0;
+		observationtable() {
+			// should construct:
+			// upper table: epsilon
+			// lower table: {sigma}
+			// columns: epsilon
+		};
 
-		virtual bool is_consistent() = 0;
+		observationtable(list<list<alphabet> >, /*columns*/
+				 pair< list<list<alphabet> >, list<answers> >, /*upper table*/
+				 pair< list<list<alphabet> >, list<answers> >, /*lower table*/
+				) {};
 
-		virtual void add_entry(list< alphabet>, answer) = 0;
+		virtual void undo();
+
+		virtual void redo();
+
+		virtual void savetofile();
+		virtual void loadfromfile();
+
+		virtual list<alphabet> is_closed() = 0;
+		// all possible answer-rows in
+		// lower table already exist in upper table
+		// (for angluin)
+		//
+		// every answer-row from lower table can be simulated/combined
+		// by rows from the upper table
+		// (for RFSA [NFA])
+
+		virtual list<alphabet> is_consistent() = 0;
+		// for all _equal_ rows in upper table: all +1 successors over all
+		// members of alphabet have to be equal
+		// (for angluin)
+		//
+		// 1) if row 1 <= row 2 implies that row 1 + {alpha} <= row 2 + {alpha}
+		// 2) if row 1 = SUM(row n...m) implies that row 1 + {alpha} = SUM(row n {alpha} ... row m {alpha})
+		// (for RFSA [NFA])
+
+		virtual list< list<alphabet> > get_columns() = 0;
+
+		virtual void add_counterexample(list< answer >, answer) = 0;
+		// automatically prefix_close, postfix_close
+
 		virtual pair<bool, answer> check_entry(list< alphabet>) = 0;
 			// if status unknown, return (false, ?)
 			// otherwise return (true, <answer>)
 
-		virtual void close() = 0;
+		virtual void suffix_close(teacher) = 0;
 
+	protected:
+		virtual void prefix_close(teacher /* ? */) = 0;
+
+		virtual void postfix_close(teacher) = 0;
 };
 
 }; // end namespace libalf

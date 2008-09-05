@@ -20,7 +20,14 @@ namespace libalf {
 
 enum learning_algorithm {
 	LEARN_ANGLUIN,
-	LEARN_RIVEST_SHAPIRE
+	LEARN_RIVEST_SHAPIRE,
+	LEARN_LSTAR,
+	LEARN_RFSA,
+
+	LEARN_BIERMANN,
+	LEARN_RPNI,
+
+	LEARN_ANGLUIN_BIERMANN
 };
 
 template <class alphabet, class answer>

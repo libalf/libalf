@@ -24,6 +24,9 @@ class statistics {
 		int equality;
 	} query_count;
 
+	// rechenzeit
+
+	// speicherverbrauch
 };
 
 }; // end namespace libalf
