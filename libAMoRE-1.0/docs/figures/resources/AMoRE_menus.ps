@@ -1,0 +1,403 @@
+%!PS-Adobe-3.0
+%%Creator: A2ps version 4.3
+%%CreationDate: Wed Dec  6 12:06:50 2000
+%%Pages: (atend)
+%%DocumentFonts: Courier Courier-Bold Helvetica Helvetica-Bold
+%%EndComments
+% Copyright (c) 1993, 1994, Miguel Santana, M.Santana@frgu.bull.fr
+
+/$a2psdict 100 dict def
+$a2psdict begin
+
+% General macros.
+/xdef {exch def} bind def
+/getfont {exch findfont exch scalefont} bind def
+
+% Create Courier backspace font
+/backspacefont {
+    /Courier findfont dup length dict begin
+	{ % forall
+	    1 index /FID eq { pop pop } { def } ifelse
+	} forall
+	currentdict /UniqueID known { % if
+	    /UniqueID UniqueID 16#800000 xor def
+	} if
+	CharStrings length 1 add dict begin
+	    CharStrings { def } forall
+	    /backspace { -600 0 0 0 0 0 setcachedevice } bind def
+	    currentdict
+	end
+	/CharStrings exch def
+	/Encoding Encoding 256 array copy def
+	Encoding 8 /backspace put
+	currentdict
+    end
+    definefont pop
+} bind def
+
+% FUNCTIONS
+
+% Function filename: Initialize file printing.
+/fn
+{ /filenm xdef
+  /filenmwidth filenm stringwidth pop def
+  /filenmfont
+       filenmwidth fns gt
+       {
+	       filenmfontname
+	       fnfs fns mul filenmwidth div
+	     getfont
+       }
+       { sfnf }
+     ifelse
+  def
+} bind def
+
+% Function header: prints page header. no page
+% is passed as argument.
+/hp
+  { x sd get  y sd get hs sub 1 add  moveto
+    df setfont
+    gsave
+      x sd get y sd get moveto
+      0 hs 2 div neg rmoveto 
+      hs setlinewidth
+      0.95 setgray
+      pw 0 rlineto stroke
+    grestore
+    gsave
+      dfs hm rmoveto
+      d show				% date/hour
+    grestore
+    gsave
+      pnum cvs pop				% page pop up
+        pw (Page 999) stringwidth pop sub
+        hm
+	  rmoveto
+      (Page ) show pnum show		% page number
+    grestore
+    empty pnum copy pop
+    gsave
+      filenmfont setfont
+         fns filenm stringwidth pop sub 2 div dw add
+          bm 2 mul 
+        add 
+        hm
+      rmoveto
+        filenm show			% file name
+      grestore
+    } bind def
+
+% Function border: prints border page
+/border 
+{ x sd get y sd get moveto
+  gsave				% print four sides
+    0.7 setlinewidth		% of the square
+    pw 0 rlineto
+    0 ph neg rlineto
+    pw neg 0 rlineto
+    closepath stroke
+  grestore
+} bind def
+
+% Function hborder: completes border of the header.
+/hborder 
+{ gsave
+	0.7 setlinewidth
+	0 hs neg rmoveto
+	pw 0 rlineto
+	stroke
+  grestore
+} bind def
+
+% Function sheetnumber: prints the sheet number.
+/sn
+    { snx sny moveto
+      df setfont
+      pnum cvs
+	  dup stringwidth pop (0) stringwidth pop sub neg 0 rmoveto show
+      empty pnum copy pop
+    } bind def
+
+% Function loginprint: prints the login id of the requestor.
+/lgp
+    { lx ly moveto
+      df setfont
+      dup stringwidth pop neg 0 rmoveto show
+    } bind def
+
+% Function currentdate: prints the current date.
+/cd
+    { dx dy moveto
+      df setfont
+      (Printed: ) show
+      td show
+    } bind def
+
+% Function filename_footer: prints the file name at bottom of page.
+/fnf
+    { fnx fny moveto
+      df setfont
+      filenm center show
+    } bind def
+
+% Function center: centers text.
+/center
+    { dup stringwidth pop
+      2 div neg 0 rmoveto
+    } bind def
+
+% Function s: print a source line
+/s  { show
+      /y0 y0 bfs sub def
+      x0 y0 moveto
+    } bind def
+
+% Functions b and st: change to bold or standard font
+/b  { show
+      bdf setfont
+    } bind def
+/st { show
+      bf setfont
+    } bind def
+
+% Strings used to make easy printing numbers
+/pnum 12 string def
+/empty 12 string def
+
+% Global initializations
+
+/CourierBack backspacefont
+/filenmfontname /Helvetica-Bold def
+/inch {72 mul} bind def
+
+%
+% Meaning of some variables and functions (coded names)
+%
+%	twp:		twinpages?
+%	sd:		sheet side
+%	l:		line counter
+%	c:		column counter
+%	d:		date
+%	td:		current date (for today)
+%	lg:		login name
+%	fn:		filename printing function
+%	sn:		sheetnumber printing function
+%	cd:		current date printing function
+%	fnf:		filename footer printing function
+%	lgp:		login printing function
+%	hp:		header printing function
+%	y:		y coordinate for the logical page
+%	x:		x coordinate for the logical page
+%	sny:		y coordinate for the sheet number
+%	snx:		x coordinate for the sheet number
+%	dy:		y coordinate for the date
+%	dx:		x coordinate for the date
+%	ly:		y coordinate for the login
+%	lx:		x coordinate for the login
+%	scx:		x coordinate for the sheet center
+%	fny:		y coordinate for the filename (footer)
+%	fnx:		x coordinate for the filename (footer)
+%	fnfs:		filename font size
+%	bfs:		body font size
+%	dfs:		date font size
+%	bfs:		body font size
+%	df:		date font
+%	bf:		body font
+%	bdf:		bold font
+%	sfnf:		standard filename font
+%	dw:		date width
+%	pw:		page width
+%	sw:		sheet width
+%	ph:		page height
+%	sh:		sheet height
+%	hm:		header margin
+%	tm:		top margin
+%	bm:		body margin
+%	rm:		right margin
+%	lm:		left margin
+%	hs:		header size
+%	fns:		filename size
+
+% Initialize page description variables.
+/x0 0 def
+/y0 0 def
+/sh 11.64 inch def
+/sw 8.27 inch def
+/margin 1.4 inch def
+/rm margin 3 div def
+/lm margin 2 mul 3 div def
+/d () def
+/td (Dec  6 2000 12:06) def
+/lg (Printed from huygens) def
+%%EndProlog
+
+/docsave save def
+%%Page: 1 1
+/pagesave save def
+/twp true def
+/fnfs 11 def
+/dfs fnfs 0.8 mul def
+/df /Helvetica dfs getfont def
+/dw df setfont td stringwidth pop def
+/sfnf filenmfontname fnfs getfont def
+/hm fnfs 0.25 mul def
+/hs 0.22 inch def
+/bfs 6.8 def
+/bdf /Courier-Bold bfs getfont def
+/bm bfs 0.7 mul def
+/bf /CourierBack bfs getfont def
+/l 69 def
+/c 89 def
+/pw
+   bf setfont (0) stringwidth pop c mul bm dup add add
+   def
+/ph
+   bfs l mul bm dup add add hs add
+   def
+/fns
+      pw
+      fnfs 4 mul dw add (Page 999) stringwidth pop add
+    sub
+  def
+/tm margin twp {3} {2} ifelse div def
+/sd 0 def
+/y [ rm ph add bm add
+          dup ] def
+/sny dfs dfs add def
+/snx sh tm dfs add sub def
+/dy sny def
+/dx tm dfs add def
+/x [ tm			% left page
+          dup 2 mul pw add	% right page
+        ] def
+/scx sh 2 div def
+/fny dy def
+/fnx scx def
+/ly fnfs 2 div y sd get add def
+/lx snx def
+/d (Dec  6 2000 11:59) def
+( AMoRE_menus.txt ) fn
+sw 0 translate
+90 rotate
+1 hp
+border
+hborder
+/x0 x 0 get bm add def
+/y0 y 0 get bm bfs add hs add sub def
+x0 y0 moveto
+bf setfont
+( screen 1: repr.menu) s
+( _____________________________________________________________________________) s
+( ) s
+(           L A N G U A G E   R E P R E S E N T A T I O N S) s
+( ) s
+(   ====== Expressions =======  ======= Automata =========   ==== Languages ====) s
+(   |                        |  |                        |   |                 |) s
+(   | 1. regular expression  |  | 1. det. automaton      |   |  1.             |) s
+(   | 2. generalized expr.   |  | 2. ndet. automaton     |   |  2.             |) s
+(   | 3. starfree expression |  | 3. epsilon automaton   |   |  3.             |) s
+(   |                        |  |                        |   |  4.             |) s
+(   |________________________|  | 4. min. det. automaton |   |  5.             |) s
+(   === syntactic Monoid =====  | 5. red. ndet. automaton|   |  6.             |) s
+(   |                        |  |________________________|   |  7.             |) s
+(   | 1. elements,relations  |                               |  8.             |) s
+(   | 2. Green's relations   |                               |  9.             |) s
+(   | 3. multiplication table|                               |_________________|) s
+(   |                        |) s
+(   ============================ General commands ==============================) s
+(   |                                                                          |) s
+(   | 1. load     3. modify      5. print      7. test menu    9. save         |) s
+(   | 2. create   4. delete      6. display    8. assign menu  0. exit AMORE   |) s
+(   |__________________________________________________________________________|) s
+( ) s
+( ) s
+( ) s
+( ) s
+( ) s
+( ) s
+( ) s
+( ) s
+( ) s
+( ) s
+( _____________________________________________________________________________) s
+( ) s
+( screen 2: test menu) s
+( _____________________________________________________________________________) s
+( ) s
+(                          T E S T S) s
+( ) s
+(   ===== One language =======  ===== Two languages ======   ==== Languages ====) s
+(   |                        |  |                        |   |                 |) s
+(   | 1. L in FOLU         ? |  | 1. L={}  ?  2. L=A*  ? |   |  1.             |) s
+(   | 2. L starfree        ? |  |                        |   |  2.             |) s
+(   |                        |  | 3. L1 = L2 ?           |   |  3.             |) s
+(   |                        |  | 4. L1 in L2 ?          |   |  4.             |) s
+(   |                        |  | 5. L1 & L2 empty?      |   |  5.             |) s
+(   |                        |  |                        |   |  6.             |) s
+(   |                        |  |                        |   |  7.             |) s
+(   |                        |  |                        |   |  8.             |) s
+(   |                        |  |                        |   |  9.             |) s
+(   |________________________|  |________________________|   |_________________|) s
+( ) s
+(   ============================ General commands ==============================) s
+(   |                                                                          |) s
+(   | 1. load     3. modify      5. print      7. assign menu  9. save         |) s
+(   | 2. create   4. delete      6. display    8. repr. menu   0. exit AMORE   |) s
+(   |__________________________________________________________________________|) s
+( ) s
+( ) s
+( ) s
+( ) s
+( ) s
+( ) s
+( ) s
+( ) s
+( ) s
+( ) s
+( ) s
+/sd 1 def
+2 hp
+border
+hborder
+/x0 x 1 get bm add def
+/y0 y 1 get bm bfs add hs add sub def
+x0 y0 moveto
+bf setfont
+( ) s
+( _____________________________________________________________________________) s
+( ) s
+( screen 3: assignment menu ) s
+( _____________________________________________________________________________) s
+( ) s
+(                     A S S I G N M E N T S) s
+( ) s
+(   ==== Unary operation =====  === Binary operation =====   ==== Languages ====) s
+(   |                        |  |                        |   |                 |) s
+(   | 1. L2 := L1*           |  | 1. L3 := L1 U L2       |   |  1.             |) s
+(   | 2. L2 := L1+           |  | 2. L3 := L1 & L2       |   |  2.             |) s
+(   | 3. L2 := ~L1           |  | 3. L3 := L1 . L2       |   |  3.             |) s
+(   | 4. L2 := rev\(L1\)       |  | 4. L3 := L1 - L2       |   |  4.             |) s
+(   | 5. L2 := min\(L1\)       |  | 5. L3 := L1 W L2       |   |  5.             |) s
+(   | 6. L2 := max\(L1\)       |  | 6. L3 := L1 LQ L2      |   |  6.             |) s
+(   | 7. L2 := pref\(L1\)      |  | 7. L3 := L1 RQ L2      |   |  7.             |) s
+(   | 8. L2 := suff\(L1\)      |  |                        |   |  8.             |) s
+(   |                        |  |                        |   |  9.             |) s
+(   |________________________|  |________________________|   |_________________|) s
+( ) s
+(   ============================ General commands ==============================) s
+(   |                                                                          |) s
+(   | 1. load     3. modify      5. print      7. repr. menu   9. save         |) s
+(   | 2. create   4. delete      6. display    8. test menu    0. exit AMORE   |) s
+(   |__________________________________________________________________________|) s
+( ) s
+/sd 0 def
+1 sn
+fnf
+lg lgp
+pagesave restore
+showpage
+
+%%Trailer
+%%Pages: 1
+docsave restore end

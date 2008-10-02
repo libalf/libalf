@@ -1,0 +1,107 @@
+/*! \file
+ * \brief This file is only used to guide for doc generation.
+ *
+ * Check out doxygen! It's a brilliant piece of useful free software
+ 
+ *        written by Dimitri van Heesch and you can find it at
+ * \htmlonly <a href="http://www.doxygen.org/index.html">http://www.doxygen.org/index.html</a>
+ * \endhtmlonly
+ * \latexonly http://www.doxygen.org/index.html
+ * \endlatexonly
+ */
+
+/*! \mainpage libAMoRE 
+ *  libAMoRE is a library dealing with automata, monoids, and regular 
+ *  expressions.
+ *
+ * This documentation is intended to serve all people interested in 
+ *  understanding libAMoRE at the source code level, namely
+ * - C, C++ programmers wanting to access AMoRE algorithms and data structures
+ * - AMoRE maintainers
+ *
+ *  AMoRE provides efficient implementations of many algorithms,
+ *  classical and less known ones. While the former ones are 
+ *  implemented in an efficient way, of the latter, especially the
+ *  algorithms considering a regular language as semigroup (resp.monoid)
+ *  should be mentioned.
+ *
+ *  It was written by several people and kept them busy for a long while
+ *  
+ *  For documentation about the last version, and the theoretical
+ *   aspects read the "Report on the Program AMoRE" Potthoff, Valkema, 
+ * Matz, Thomas  and others.
+ *
+ *  The current version came out as the result of a major restructuring 
+ *  process as to
+ * -  make it possible for C programmers to use libAMoRE without the UI
+ * -  make it possible for Java programmers to use libAMoRE
+ * -  replace the text-based user interface with a (Java-) GUI.
+ * \section Hallo eine Hallo Sektion
+ * The results of the last two points are documented elsewhere.
+ *
+ * LDO means "Language Defining Object". (e.g. det. finite automaton)
+ *
+ * To get an overview, it is recommended to take a look at "LDO Declarations" 
+ * and "regular language" modules first, then at "Transformations A".
+ */
+
+/*!  \defgroup LDO_DECL        LDO Declarations
+ * LDO means "Language defining object". (e.g. det. finite automaton)
+ */
+/*!  \defgroup LANGUAGE        Regular Language object (=collection of LDOs)
+ * LDOs defining the same language are collected in a "language" object.
+ */
+/*!  \defgroup TRANSF_UNARY_A  Transformations A (preserving the language)
+ *  All transformations which take an LDO as
+ *  argument and produce another recognizing the same language.
+ *  (example: determinisation of a DFA)
+ *
+ *  \image html TransfUnaryA.png
+ *  \image latex TransfUnaryA.eps "Unary Transformations preserving the language" width=10 cm
+ */
+
+/*! \defgroup TRANSF_A_FROM_DFA Transformations taking DFA as input 
+ *  \ingroup TRANSF_UNARY_A
+ */
+/*! \defgroup TRANSF_A_FROM_NFA Transformations taking NFA as input 
+ *  \ingroup TRANSF_UNARY_A
+ */
+/*! \defgroup TRANSF_A_FROM_REGEXP Transformations taking REGEXP as input 
+ *  \ingroup TRANSF_UNARY_A
+ */
+/*! \defgroup TRANSF_A_FROM_MONOID Transformations taking MONOID as input 
+ *  \ingroup TRANSF_UNARY_A
+ */
+
+/*!  \defgroup TRANSF_UNARY_B  Transformations B (changing the language)
+ * All transformations which take an LDO and
+ * and produce another which recognizes another language (e.g. complement)
+ */
+/*!  \defgroup TRANSF_BINARY   Binary operations on languages
+ * All transformations taking two LDOs and producing an LDO which
+ * recognizes the result of a binary operation involving the two
+ * languages associated with these.
+ */
+/*!  \defgroup TEST_UNARY      Unary Tests
+ * Tests of properties of a language.
+ */
+/*!  \defgroup TEST_BINARY     Binary Tests
+ * Tests whether two language are the same, included in one another etc.
+ */
+/*!  \defgroup MISC            Miscellaneous
+ */
+/*!  \defgroup MISC_REGEXP     REGEXP functions
+ *   \ingroup MISC
+ */
+/*!  \defgroup MISC_MONOID     MONOID functions
+ *   \ingroup MISC
+ */
+/*!  \defgroup PARSER          Parser
+ * The parser. Since the alphabet varies, this parser also expects the 
+ * grammar as input.
+ */
+/*!  \defgroup FILE_IO         FileIO
+ * Functions for loading and saving whole languages  (not single LDOs).
+ * The functions writing/reading single LDOs from files are not visible 
+ * from the outside.
+ */
