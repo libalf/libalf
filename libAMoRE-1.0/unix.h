@@ -19,7 +19,7 @@
         void  exit();
         void *calloc();
         void  free();
-        int sprintf() ;
+//      int sprintf() ;
 #endif
 #ifdef BSD43
 /* 	int  exit(); */

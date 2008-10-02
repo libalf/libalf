@@ -58,9 +58,9 @@ extern char dummy[PILEN];
 /* extern char *lpdest;*/
 
 
-extern FILE *amrp;
+//extern FILE *amrp;
 /* extern char line[LINELEN1]; MOVED TO READAMR */
-extern char *text[];
+//extern char *text[];
 
 #endif
 
