@@ -15,6 +15,9 @@ namespace libalf {
 
 class amore_automata : public automata {
 	private:
+		union {
+			
+		}
 
 	public:
 		virtual ~automata() {
