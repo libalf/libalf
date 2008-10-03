@@ -11,8 +11,6 @@
 
 #include <list>
 
-#include <alphabet.h>
-
 namespace libalf {
 
 // possible <answer> class: e.g. extended bool or just bool
@@ -20,7 +18,7 @@ namespace libalf {
 
 
 // basic interface for different implementations (e.g. one table and one tree)
-template <class alphabet, class answer>
+template <class answer>
 class observationtable {
 
 		// horizontal members
@@ -34,9 +32,9 @@ class observationtable {
 			// columns: epsilon
 		};
 
-		observationtable(list<list<alphabet> >, /*columns*/
-				 pair< list<list<alphabet> >, list<answers> >, /*upper table*/
-				 pair< list<list<alphabet> >, list<answers> >, /*lower table*/
+		observationtable(list<int>, /*columns*/
+				 pair< list<list<int> >, list<answers> >, /*upper table*/
+				 pair< list<list<int> >, list<answers> >, /*lower table*/
 				) {};
 
 		virtual void undo();
@@ -46,7 +44,7 @@ class observationtable {
 		virtual void savetofile();
 		virtual void loadfromfile();
 
-		virtual list<alphabet> is_closed() = 0;
+		virtual list<int> is_closed() = 0;
 		// all possible answer-rows in
 		// lower table already exist in upper table
 		// (for angluin)
@@ -55,7 +53,7 @@ class observationtable {
 		// by rows from the upper table
 		// (for RFSA [NFA])
 
-		virtual list<alphabet> is_consistent() = 0;
+		virtual list<int> is_consistent() = 0;
 		// for all _equal_ rows in upper table: all +1 successors over all
 		// members of alphabet have to be equal
 		// (for angluin)
@@ -64,12 +62,12 @@ class observationtable {
 		// 2) if row 1 = SUM(row n...m) implies that row 1 + {alpha} = SUM(row n {alpha} ... row m {alpha})
 		// (for RFSA [NFA])
 
-		virtual list< list<alphabet> > get_columns() = 0;
+		virtual list< list<int> > get_columns() = 0;
 
 		virtual void add_counterexample(list< answer >, answer) = 0;
 		// automatically prefix_close, postfix_close
 
-		virtual pair<bool, answer> check_entry(list< alphabet>) = 0;
+		virtual pair<bool, answer> check_entry(list<int>) = 0;
 			// if status unknown, return (false, ?)
 			// otherwise return (true, <answer>)
 

@@ -11,8 +11,6 @@
 
 #include <list>
 
-#include <alphabet.h>
-
 namespace libalf {
 
 // possible <answer> class: e.g. extended bool or just bool
@@ -23,13 +21,13 @@ enum extended_bool {
 	EB_UNKNOWN
 };
 
-template <class alphabet, class answer>
+template <class answer>
 class teacher {
 
 	public:
-		virtual answer membership_query(list< alphabet >) = 0;
+		virtual answer membership_query(list< int >) = 0;
 
-		virtual void membership_query(BDD< alphabet >) = 0;
+		virtual void membership_query(BDD< int >) = 0;
 
 };
 

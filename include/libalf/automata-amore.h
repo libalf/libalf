@@ -11,5 +11,21 @@
 
 namespace libalf {
 
-}; // end namespace libalf
+#include <libalf/automata.h>
 
+class amore_automata : public automata {
+	private:
+
+	public:
+		virtual ~automata() {
+
+		};
+
+		virtual enum automata_type() {
+
+		}
+
+}
+
+
+}; // end namespace libalf

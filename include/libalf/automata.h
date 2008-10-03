@@ -13,20 +13,15 @@ namespace libalf {
 
 enum automata_type {
 	NONDETERMINISTIC_FINITE_AUTOMATA,
-	DETERMINISTIC_AUTOMATA
+	DETERMINISTIC_FINITE_AUTOMATA
 };
 
-template <class alphabet>
+// derive implementations from this interface (e.g. the amore implementation)
 class automata {
-
 	public:
-		enum automata_type	type;
+		virtual ~automata();
 
-		union {
-			NFA *nfa;
-			DFA *dfa;
-			// ...
-		} a;
+		virtual enum automata_type get_type() = 0;
 
 };
 
