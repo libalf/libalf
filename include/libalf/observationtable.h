@@ -33,8 +33,8 @@ class observationtable {
 		};
 
 		observationtable(list<int>, /*columns*/
-				 pair< list<list<int> >, list<answers> >, /*upper table*/
-				 pair< list<list<int> >, list<answers> >, /*lower table*/
+				 pair< list<list<int> >, list<answer> >, /*upper table*/
+				 pair< list<list<int> >, list<answer> >, /*lower table*/
 				) {};
 
 		virtual void undo();
