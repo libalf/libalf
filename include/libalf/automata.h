@@ -12,9 +12,16 @@
 namespace libalf {
 
 enum automata_type {
+	NO_AUTOMATA,
 	NONDETERMINISTIC_FINITE_AUTOMATA,
 	DETERMINISTIC_FINITE_AUTOMATA
 };
+
+// an automata implementation may throw this exception in case
+// a function/operation is not defined
+class automata_implementation_exception {
+	virtual const char* what() const throw() = 0;
+}
 
 // derive implementations from this interface (e.g. the amore implementation)
 class automata {
