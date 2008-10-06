@@ -81,6 +81,14 @@ class simple_observationtable :: observationtable<answer> {
 
 
 	protected:
+		virtual int search_upper_table(list<int>) {
+			
+		}
+
+		virtual int search_lower_table(list<int>) {
+			
+		}
+
 		virtual bool is_closed() {
 			for(int lti = 0; lti < lower_table.size(); lti++) {
 				simple_ot::simple_row<answer> & r = lower_table[lti];
@@ -99,7 +107,24 @@ class simple_observationtable :: observationtable<answer> {
 		};
 
 		virtual bool is_consistent() {
+			bool row_ok[] = new bool[upper_table.size()];
+			int uti;
+			for(uti = 0; uti < upper_table.size(); uti++)
+				row_ok[uti] = false;
 
+			for(uti = 0; uti < upper_table.size() - 1; uti++) {
+				if(row_ok[uti])
+					continue;
+				row_ok[uti] = true;
+
+				for(i = uti+1; i < upper_table.size(); i++) {
+					if(upper_table[uti].equal_acceptance(upper_table[i])) {
+						// test if all suffixes result in equal acceptance
+						// FIXME
+					}
+				}
+			}
+			return true;
 		};
 
 		virtual void complete() {
