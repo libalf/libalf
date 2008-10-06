@@ -16,11 +16,19 @@ namespace libalf {
 
 namespace simple_ot {
 template <class answer>
-class {
-	list<int> index;
-	vector<answer> acceptance;
-} simple_row;
-}
+class simple_row {
+	public:
+		list<int> index;
+		vector<answer> acceptance;
+
+		bool equal_acceptance(simple_row<answer> other) {
+			for( int col = 0; col < acceptance.size(); col++ )
+				if(acceptance[col] != other.acceptance[col])
+					return false;
+			return false;
+		}
+};
+};
 
 // simple observation table for angluin learning algorithm
 template <class answer>
@@ -62,18 +70,53 @@ class simple_observationtable :: observationtable<answer> {
 			set_teacher(t);
 		};
 
-		teacher<answer> * get_teacher() {
+		virtual teacher<answer> * get_teacher() {
 			return teacher;
 		};
 
-		void set_teacher(teacher<answer> * t) {
+		virtual void set_teacher(teacher<answer> * t) {
 			teacher = t;
-
-			// FIXME:
-			// close table with new teacher, if not closed.
+			complete();
 		}
 
-}
 
-}
+	protected:
+		virtual bool is_closed() {
+			for(int lti = 0; lti < lower_table.size(); lti++) {
+				simple_ot::simple_row<answer> & r = lower_table[lti];
+				bool match_found = false;
+
+				for(int uti = 0; uti < upper_table.size(); uti++) {
+					if(r.equal_acceptance(upper_table[uti])) {
+						match_found = true;
+						break;
+					}
+				}
+				if(!match_found)
+					return false;
+			}
+			return true;
+		};
+
+		virtual bool is_consistent() {
+
+		};
+
+		virtual void complete() {
+			// first complete all missing fields
+			// by querying the teacher for
+			// membership
+
+			// FIXME
+
+			// second check, if table is closed and consistent.
+			// if not, change it in that way and complete again.
+
+			// FIXME
+
+		}
+
+};
+
+};
 

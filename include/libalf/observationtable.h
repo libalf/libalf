@@ -44,24 +44,6 @@ class observationtable {
 		virtual void savetofile() = 0;
 		virtual void loadfromfile() = 0;
 
-		virtual list<int> is_closed() = 0;
-		// all possible answer-rows in
-		// lower table already exist in upper table
-		// (for angluin)
-		//
-		// every answer-row from lower table can be simulated/combined
-		// by rows from the upper table
-		// (for RFSA [NFA])
-
-		virtual list<int> is_consistent() = 0;
-		// for all _equal_ rows in upper table: all +1 successors over all
-		// members of alphabet have to be equal
-		// (for angluin)
-		//
-		// 1) if row 1 <= row 2 implies that row 1 + {alpha} <= row 2 + {alpha}
-		// 2) if row 1 = SUM(row n...m) implies that row 1 + {alpha} = SUM(row n {alpha} ... row m {alpha})
-		// (for RFSA [NFA])
-
 		virtual list< list<int> > get_columns() = 0;
 
 		virtual void add_counterexample(list< answer >, answer) = 0;
@@ -77,6 +59,25 @@ class observationtable {
 		virtual void prefix_close(teacher /* ? */) = 0;
 
 		virtual void postfix_close(teacher) = 0;
+
+		virtual bool is_closed() = 0;
+		// all possible answer-rows in
+		// lower table already exist in upper table
+		// (for angluin)
+		//
+		// every answer-row from lower table can be simulated/combined
+		// by rows from the upper table
+		// (for RFSA [NFA])
+
+		virtual bool is_consistent() = 0;
+		// for all _equal_ rows in upper table: all +1 successors over all
+		// members of alphabet have to be equal
+		// (for angluin)
+		//
+		// 1) if row 1 <= row 2 implies that row 1 + {alpha} <= row 2 + {alpha}
+		// 2) if row 1 = SUM(row n...m) implies that row 1 + {alpha} = SUM(row n {alpha} ... row m {alpha})
+		// (for RFSA [NFA])
+
 };
 
 }; // end namespace libalf
