@@ -26,23 +26,23 @@ class observationtable {
 		// lower talbe: U+{sigma}
 	public:
 		observationtable() {
-			// should construct:
+		};
+
+		observationtable(teacher<answer> *t, int alphabet_size) {
+			// should construct and query:
 			// upper table: epsilon
 			// lower table: {sigma}
 			// columns: epsilon
 		};
 
-		observationtable(list<int>, /*columns*/
-				 pair< list<list<int> >, list<answer> >, /*upper table*/
-				 pair< list<list<int> >, list<answer> >, /*lower table*/
-				) {};
+		virtual void set_teacher(teacher<answer> *) = 0;
+		virtual teacher<answer> * get_teacher() = 0;
 
-		virtual void undo();
+		virtual void undo() = 0;
+		virtual void redo() = 0;
 
-		virtual void redo();
-
-		virtual void savetofile();
-		virtual void loadfromfile();
+		virtual void savetofile() = 0;
+		virtual void loadfromfile() = 0;
 
 		virtual list<int> is_closed() = 0;
 		// all possible answer-rows in
