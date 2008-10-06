@@ -9,6 +9,9 @@
  * see LICENSE file for licensing information.
  */
 
+#include <algorithm>
+#include <functional>
+
 #include <libalf/observationtable.h>
 #include <libalf/alphabet.h>
 
@@ -81,15 +84,31 @@ class simple_observationtable :: observationtable<answer> {
 
 
 	protected:
-		virtual int search_upper_table(list<int>) {
-			
-		}
+		virtual int search_upper_table(list<int> &word)
+		{{{
+			for(int uit = 0; uit < upper_table.size(); uit++) {
+				if(word.size() != upper_table[uit].index.size())
+					continue;
+				if(word.end() == mismatch( upper_table[uit].index.begin(),
+							   word.begin(), equal<int>()).second)
+					return uit;
+			}
+			return -1;
+		}}}
 
-		virtual int search_lower_table(list<int>) {
-			
-		}
+		virtual int search_lower_table(list<int> &word)
+		{{{
+			for(int lit = 0; lit < lower_table.size(); lit++)
+				if(word.size() != lower_table[lit].index.size())
+					continue;
+				if(word.end() == mismatch( lower_table[lit].index.begin(),
+							   word.begin(), equal<int>()).second)
+					return lit;
+			return -1;
+		}}}
 
-		virtual bool is_closed() {
+		virtual bool is_closed()
+		{{{
 			for(int lti = 0; lti < lower_table.size(); lti++) {
 				simple_ot::simple_row<answer> & r = lower_table[lti];
 				bool match_found = false;
@@ -104,9 +123,10 @@ class simple_observationtable :: observationtable<answer> {
 					return false;
 			}
 			return true;
-		};
+		}}}
 
-		virtual bool is_consistent() {
+		virtual bool is_consistent()
+		{{{
 			bool row_ok[] = new bool[upper_table.size()];
 			int uti;
 			for(uti = 0; uti < upper_table.size(); uti++)
@@ -120,12 +140,12 @@ class simple_observationtable :: observationtable<answer> {
 				for(i = uti+1; i < upper_table.size(); i++) {
 					if(upper_table[uti].equal_acceptance(upper_table[i])) {
 						// test if all suffixes result in equal acceptance
-						// FIXME
+						
 					}
 				}
 			}
 			return true;
-		};
+		}}}
 
 		virtual void complete() {
 			// first complete all missing fields

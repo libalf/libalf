@@ -21,18 +21,8 @@ namespace libalf {
 template <class answer>
 class observationtable {
 
-		// horizontal members
-		// upper table: U
-		// lower talbe: U+{sigma}
 	public:
 		observationtable() {
-		};
-
-		observationtable(teacher<answer> *t, int alphabet_size) {
-			// should construct and query:
-			// upper table: epsilon
-			// lower table: {sigma}
-			// columns: epsilon
 		};
 
 		virtual void set_teacher(teacher<answer> *) = 0;
