@@ -45,10 +45,13 @@ class simple_observationtable :: observationtable<answer> {
 		teacher<answer> * teacher;
 
 	public:
-		simple_observationtable() {
-		};
+		simple_observationtable()
+		{{{
+			teacher = NULL;
+		}}}
 
-		simple_observationtable(teacher<answer> * t, int alphabet_size) {
+		simple_observationtable(teacher<answer> * t, int alphabet_size)
+		{{{
 
 			// add epsilon as column
 			list<int> word;
@@ -71,16 +74,18 @@ class simple_observationtable :: observationtable<answer> {
 			}
 
 			set_teacher(t);
-		};
-
-		virtual teacher<answer> * get_teacher() {
-			return teacher;
-		};
-
-		virtual void set_teacher(teacher<answer> * t) {
-			teacher = t;
 			complete();
-		}
+		}}}
+
+		virtual teacher<answer> * get_teacher()
+		{{{
+			return teacher;
+		}}}
+
+		virtual void set_teacher(teacher<answer> * t)
+		{{{
+			teacher = t;
+		}}}
 
 
 	protected:
@@ -141,6 +146,7 @@ class simple_observationtable :: observationtable<answer> {
 					if(upper_table[uti].equal_acceptance(upper_table[i])) {
 						// test if all suffixes result in equal acceptance
 						
+						// FIXME
 					}
 				}
 			}
