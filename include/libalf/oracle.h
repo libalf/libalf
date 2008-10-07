@@ -15,12 +15,12 @@
 
 namespace libalf {
 
+using namespace std;
+
 class oracle {
-
-	// returns a list of counter-examples
-	virtual list< list<int> >
-	equality_query(automata<int>&);
-
+	public:
+		// returns a list of counter-examples
+		virtual list< list<int> > equality_query(automata<int>&) = 0;
 };
 
 }; // end namespace libalf

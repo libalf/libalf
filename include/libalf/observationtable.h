@@ -10,8 +10,11 @@
  */
 
 #include <list>
+#include <utility>
 
 namespace libalf {
+
+using namespace std;
 
 // possible <answer> class: e.g. extended bool or just bool
 // (see teacher.h)
