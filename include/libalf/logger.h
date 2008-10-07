@@ -9,27 +9,61 @@
  * see LICENSE file for licensing information.
  */
 
-#include <string>
 #include <functional>
+#include <string>
+#include <iostream>
 
 namespace libalf {
 
 enum logger_loglevel {
-	LOGGER_NONE	 = 0,
-	LOGGER_ERROR	 = 1,
-	LOGGER_WARN	 = 2,
-	LOGGER_INFO	 = 3,
-	LOGGER_DEBUG	 = 4,
+	LOGGER_ERROR	 = 0,
+	LOGGER_WARN	 = 1,
+	LOGGER_INFO	 = 2,
+	LOGGER_DEBUG	 = 3,
 
-	LOGGER_ALGORITHM = 5
+	LOGGER_ALGORITHM = 10,
+
+	LOGGER_NONE	 = 99
 };
 
-class logger : std::binary_function< enum logger_loglevel, string&, void > {
+class logger : public std::binary_function< enum logger_loglevel, std::string&, void > {
 
 	public:
-		virtual void operator()(enum logger_loglevel, string&) = 0;
+		virtual void operator()(enum logger_loglevel, std::string&) = 0;
 
 };
 
-}; // end namespace libalf
+class stdout_logger : public logger {
+	private:
+		enum logger_loglevel minimal_loglevel;
+		bool log_algorithm;
+	public:
+		stdout_logger()
+		{{{
+			minimal_loglevel = LOGGER_ERROR;
+			log_algorithm = false;
+			this->log(LOGGER_NONE, "started logger instance");
+		}}}
+
+		stdout_logger(enum logger_loglevel minimal_loglevel, bool log_algorithm)
+		{{{
+			this->minimal_loglevel = minimal_loglevel;
+			this->log_algorithm = log_algorithm;
+			log(LOGGER_NONE, "started logger instance");
+		}}}
+
+		virtual void operator()(enum logger_loglevel l, std::string &s)
+		{{{
+			log(l, (char*)s.c_str());
+		}}}
+
+	protected:
+		virtual void log(enum logger_loglevel l, char* s)
+		{{{
+			if( (l<=minimal_loglevel) || (log_algorithm && l==LOGGER_ALGORITHM) || (l==LOGGER_NONE))
+				std::cout << s;
+		}}}
+};
+
+} // end namespace libalf
 
