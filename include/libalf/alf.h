@@ -9,11 +9,13 @@
  * see LICENSE file for licensing information.
  */
 
+#include <libalf/alphabet.h>
 #include <libalf/automata.h>
 #include <libalf/logger.h>
+#include <libalf/observationtable.h>
 #include <libalf/oracle.h>
-#include <libalf/teacher.h>
 #include <libalf/statistics.h>
+#include <libalf/teacher.h>
 
 
 namespace libalf {

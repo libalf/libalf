@@ -92,10 +92,7 @@ class simple_observationtable :: observationtable<answer> {
 		virtual int search_upper_table(list<int> &word)
 		{{{
 			for(int uit = 0; uit < upper_table.size(); uit++) {
-				if(word.size() != upper_table[uit].index.size())
-					continue;
-				if(word.end() == mismatch( upper_table[uit].index.begin(),
-							   word.begin(), equal<int>()).second)
+				if(wordcmp(word, upper_table[uit].index))
 					return uit;
 			}
 			return -1;
@@ -104,10 +101,7 @@ class simple_observationtable :: observationtable<answer> {
 		virtual int search_lower_table(list<int> &word)
 		{{{
 			for(int lit = 0; lit < lower_table.size(); lit++)
-				if(word.size() != lower_table[lit].index.size())
-					continue;
-				if(word.end() == mismatch( lower_table[lit].index.begin(),
-							   word.begin(), equal<int>()).second)
+				if(wordcmp(word, lower_table[lit].index))
 					return lit;
 			return -1;
 		}}}

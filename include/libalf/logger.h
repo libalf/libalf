@@ -15,6 +15,8 @@
 
 namespace libalf {
 
+using namespace std;
+
 enum logger_loglevel {
 	LOGGER_ERROR	 = 0,
 	LOGGER_WARN	 = 1,
@@ -26,10 +28,10 @@ enum logger_loglevel {
 	LOGGER_NONE	 = 99
 };
 
-class logger : public std::binary_function< enum logger_loglevel, std::string&, void > {
+class logger : public binary_function< enum logger_loglevel, string&, void > {
 
 	public:
-		virtual void operator()(enum logger_loglevel, std::string&) = 0;
+		virtual void operator()(enum logger_loglevel, string&) = 0;
 
 };
 
@@ -52,7 +54,7 @@ class stdout_logger : public logger {
 			log(LOGGER_NONE, "started logger instance");
 		}}}
 
-		virtual void operator()(enum logger_loglevel l, std::string &s)
+		virtual void operator()(enum logger_loglevel l, string &s)
 		{{{
 			log(l, (char*)s.c_str());
 		}}}
@@ -61,7 +63,7 @@ class stdout_logger : public logger {
 		virtual void log(enum logger_loglevel l, char* s)
 		{{{
 			if( (l<=minimal_loglevel) || (log_algorithm && l==LOGGER_ALGORITHM) || (l==LOGGER_NONE))
-				std::cout << s;
+				cout << s;
 		}}}
 };
 
