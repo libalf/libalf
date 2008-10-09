@@ -24,13 +24,13 @@ class simple_row {
 		list<int> index;
 		vector<answer> acceptance;
 
-		bool equal_acceptance(simple_row<answer> other) {
-			for( int col = 0; col < acceptance.size(); col++ )
-				if(acceptance[col] != other.acceptance[col])
-					return false;
-			return false;
-		}
+		bool equal_acceptance(simple_row<answer> other)
+		{{{
+			return  (acceptance == other.acceptance);
+		}}}
+
 };
+
 };
 
 // simple observation table for angluin learning algorithm
@@ -92,7 +92,7 @@ class simple_observationtable :: observationtable<answer> {
 		virtual int search_upper_table(list<int> &word)
 		{{{
 			for(int uit = 0; uit < upper_table.size(); uit++) {
-				if(wordcmp(word, upper_table[uit].index))
+				if(word == upper_table[uit].index)
 					return uit;
 			}
 			return -1;
@@ -101,7 +101,7 @@ class simple_observationtable :: observationtable<answer> {
 		virtual int search_lower_table(list<int> &word)
 		{{{
 			for(int lit = 0; lit < lower_table.size(); lit++)
-				if(wordcmp(word, lower_table[lit].index))
+				if(word == lower_table[lit].index)
 					return lit;
 			return -1;
 		}}}
@@ -139,8 +139,15 @@ class simple_observationtable :: observationtable<answer> {
 				for(i = uti+1; i < upper_table.size(); i++) {
 					if(upper_table[uti].equal_acceptance(upper_table[i])) {
 						// test if all suffixes result in equal acceptance
-						
-						// FIXME
+						for(j = 0; j < lower_table.size(); j++) {
+							if(is_prefix_of(upper_table[uti].index, lower_table[j].index)) {
+								// find matching prefix-row for upper_table[i].index
+								// check for equal acceptance of both prefix rows
+								int k = search_lower_table(upper_table[
+
+
+							}
+						}
 					}
 				}
 			}
