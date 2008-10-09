@@ -106,6 +106,7 @@ class simple_observationtable :: observationtable<answer> {
 			return -1;
 		}}}
 
+		// sample implementation only
 		virtual bool is_closed()
 		{{{
 			for(int lti = 0; lti < lower_table.size(); lti++) {
@@ -124,6 +125,7 @@ class simple_observationtable :: observationtable<answer> {
 			return true;
 		}}}
 
+		// sample implementation only
 		virtual bool is_consistent()
 		{{{
 			bool urow_ok[upper_table.size()];
@@ -148,15 +150,15 @@ class simple_observationtable :: observationtable<answer> {
 							if(lrow_ok[lti_1])
 								continue;
 							if(   is_prefix_of(upper_table[uti_1].index, lower_table[lti_1].index)
-							   && (upper_table[uti_1].size() + 1 == lower_table[lti_1].size()    ) ) {
+							   && (upper_table[uti_1].index.size() + 1 == lower_table[lti_1]..indexsize())) {
 									// find matching prefix-row for upper_table[uti_2].index
 									// check for equal acceptance of both prefix rows
 									list<int>::iterator postfix;
 									postfix = lower_table[lti_1].index.begin();
-									postfix += upper_table[uti_1].size();
+									postfix += upper_table[uti_1].index.size();
 
 									list<int> w;
-									w.assign(upper_table[uti_2].index.begin(), upper_table[uti_2].end());
+									w.assign(upper_table[uti_2].index.begin(), upper_table[uti_2].index.end());
 									for(/* -- */; postfix < lower_table[lti_1].index.end(); postfix++)
 										w.pushback(*postfix);
 									int lti_2 = search_lower_table(w);
@@ -180,7 +182,12 @@ class simple_observationtable :: observationtable<answer> {
 			// by querying the teacher for
 			// membership
 
-			// FIXME
+			for(int uti = 0; uti < upper_table.size(); uti++) {
+
+			}
+			for(int lti = 0; lti < upper_table.size(); lti++) {
+
+			}
 
 			// second check, if table is closed and consistent.
 			// if not, change it in that way and complete again.
