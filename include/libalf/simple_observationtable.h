@@ -240,15 +240,33 @@ class simple_observationtable :: observationtable<answer> {
 		virtual void complete()
 		// FIXME
 		{{{
-			// first complete all missing fields
-			// by querying the teacher for
-			// membership
+			// first complete all missing fields by querying the teacher for membership
 
+			// upper table
 			for(int uti = 0; uti < upper_table.size(); uti++) {
-
+				if(upper_table[uti].acceptance.size() < column_names.size()) {
+					// fill in missing acceptance information
+					int ci = column_names.size() - upper_table[uti].acceptance.size();
+					for(/* -- */; ci < column_names.size(); ci++) {
+						list<int> *w;
+						w = upper_table[uti].index + column_names[ci];
+						upper_table[uti].acceptance[ci] = teacher.membership_query(*w);
+						delete w;
+					}
+				}
 			}
+			// lower table
 			for(int lti = 0; lti < lower_table.size(); lti++) {
-
+				if(lower_table[lti].acceptance.size() < column_names.size()) {
+					// fill in missing acceptance information
+					int ci = column_names.size() - lower_table[lti].acceptance.size();
+					for(/* -- */; ci < column_names.size(); ci++) {
+						list<int> *w;
+						w = lower_table[lti].index + column_names[ci];
+						lower_table[lti].acceptance[ci] = teacher.membership_query(*w);
+						delete w;
+					}
+				}
 			}
 
 			// second check, if table is closed and consistent.

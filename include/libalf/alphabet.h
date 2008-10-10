@@ -34,14 +34,15 @@ using namespace std;
 //	       );
 //}}}
 
-list<int> operator+ (list<int> first, list<int> second)
+// return ptr to new list with first∙second
+list<int>* operator+ (list<int> first, list<int> second)
 {{{
 	list<int> *l = new list<int>;
 	list<int>::iterator li;
 
-	l.assign(first.begin(), first.end());
+	l->assign(first.begin(), first.end());
 	for(li = second.begin(); li != second.end(); li++)
-		l.pushback(*li);
+		l->pushback(*li);
 
 	return l;
 }}}
