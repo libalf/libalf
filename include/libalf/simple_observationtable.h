@@ -12,8 +12,9 @@
 #include <algorithm>
 #include <functional>
 
-#include <libalf/observationtable.h>
 #include <libalf/alphabet.h>
+#include <libalf/logger.h>
+#include <libalf/observationtable.h>
 
 namespace libalf {
 
@@ -42,17 +43,20 @@ class simple_observationtable :: observationtable<answer> {
 		vector< simple_ot::simple_row<answer> > upper_table;
 		vector< simple_ot::simple_row<answer> > lower_table;
 
-		teacher<answer> * teacher;
+		teacher<answer> & teach;
+		logger & log;
+		int alphabet_size;
 
 	public:
 		simple_observationtable()
 		{{{
-			teacher = NULL;
+			teach = NULL;
+			log = NULL;
+			alphabet_size = 0;
 		}}}
 
-		simple_observationtable(teacher<answer> * t, int alphabet_size)
+		simple_observationtable(teacher<answer> & teach, logger & log, int alphabet_size)
 		{{{
-
 			// add epsilon as column
 			list<int> word;
 			word.push_back(ALPHABET_EPSILON);
@@ -73,28 +77,50 @@ class simple_observationtable :: observationtable<answer> {
 				lower_table.push_back(row);
 			}
 
-			set_teacher(t);
+			set_teacher(teach);
+			this->alphabet_size = alphabet_size;
+			set_logger(log);
 			complete();
 		}}}
 
-		virtual teacher<answer> * get_teacher()
+		virtual teacher<answer> & get_teacher()
 		{{{
-			return teacher;
+			return teach;
 		}}}
 
-		virtual void set_teacher(teacher<answer> * t)
+		virtual void set_teacher(teacher<answer> & teach)
 		{{{
-			teacher = t;
+			this->teach = teach;
+		}}}
+
+		virtual void set_logger(logger & l)
+		{{{
+			log = l;
+		}}}
+
+		virtual logger & get_logger()
+		{{{
+			return log;
 		}}}
 
 		virtual void undo()
 		{{{
-			  printf("simple_observationtable::und()o is not implemented.\naborting.\n");
+			  if(log)
+				  log(LOGGER_ERROR, "simple_observationtable::undo() is not implemented.\naborting.\n");
+			  else
+				  printf("simple_observationtable::undo() is not implemented.\naborting.\n");
+
+			  exit(-1);
 		}}}
 
 		virtual void redo()
 		{{{
-			  printf("simple_observationtable::redo() is not implemented.\naborting.\n");
+			  if(log)
+				  log(LOGGER_ERROR, "simple_observationtable::redo() is not implemented.\naborting.\n");
+			  else
+				  printf("simple_observationtable::redo() is not implemented.\naborting.\n");
+
+			  exit(-1);
 		}}}
 
 		virtual void savetofile(char* filename)
@@ -250,7 +276,7 @@ class simple_observationtable :: observationtable<answer> {
 					for(/* -- */; ci < column_names.size(); ci++) {
 						list<int> *w;
 						w = upper_table[uti].index + column_names[ci];
-						upper_table[uti].acceptance[ci] = teacher.membership_query(*w);
+						upper_table[uti].acceptance[ci] = teach.membership_query(*w);
 						delete w;
 					}
 				}
@@ -263,7 +289,7 @@ class simple_observationtable :: observationtable<answer> {
 					for(/* -- */; ci < column_names.size(); ci++) {
 						list<int> *w;
 						w = lower_table[lti].index + column_names[ci];
-						lower_table[lti].acceptance[ci] = teacher.membership_query(*w);
+						lower_table[lti].acceptance[ci] = teach.membership_query(*w);
 						delete w;
 					}
 				}
