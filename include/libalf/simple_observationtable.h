@@ -207,7 +207,9 @@ class simple_observationtable :: observationtable<answer> {
 			return true;
 		}}}
 
-		virtual void complete() {
+		virtual void complete()
+		// FIXME
+		{{{
 			// first complete all missing fields
 			// by querying the teacher for
 			// membership
@@ -224,7 +226,7 @@ class simple_observationtable :: observationtable<answer> {
 
 			// FIXME
 
-		}
+		}}}
 
 };
 
