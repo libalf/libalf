@@ -46,7 +46,7 @@ list<int> operator+ (list<int> first, list<int> second)
 	return l;
 }}}
 
-// FIXME: check below
+// FIXME: check below; optimize
 bool is_prefix_of(list<int> prefix, list<int> word)
 {{{
 	if(prefix.size() > word.size())

@@ -112,10 +112,40 @@ class simple_observationtable :: observationtable<answer> {
 			return column_names;
 		}}}
 
-		virtual pair<bool, answer> check_entry(list<int)
-		// FIXME
+		// searches column first, then row
+		virtual pair<bool, answer> check_entry(list<int> word)
 		{{{
+			int ci, uti, lti;
+			pair<bool, answer> ret;
 
+			// find possible suffixes in table columns
+			for(ci = 0; ci < column_names.size(); ci++) {
+				if(is_suffix_of(column_names[ci], word)) {
+					// find possible prefix as column index
+					// then return truth value
+					list<int> prefix;
+					list<int>::iterator prefix_end;
+					prefix_end = word.begin();
+					prefix_end += word.size() - column_names[ci].size();
+					prefix.assign(word.begin(), prefix_end);
+
+					uti = search_upper_table(prefix);
+					if(uti >= 0) {
+						ret.first = true;
+						ret.second = upper_table[uti].acceptance[ci];
+					}
+					lti = search_lower_table(prefix);
+					if(lti >= 0) {
+						ret.first = true;
+						ret.second = upper_table[lti].acceptance[ci];
+					}
+				}
+			}
+
+			// word is not in table
+			ret.first = false;
+			ret.second = false;
+			return ret;
 		}}}
 
 	protected:
@@ -183,14 +213,14 @@ class simple_observationtable :: observationtable<answer> {
 							   && (upper_table[uti_1].index.size() + 1 == lower_table[lti_1]..indexsize())) {
 									// find matching prefix-row for upper_table[uti_2].index
 									// check for equal acceptance of both prefix rows
-									list<int>::iterator postfix;
-									postfix = lower_table[lti_1].index.begin();
-									postfix += upper_table[uti_1].index.size();
+									list<int>::iterator suffix;
+									suffix = lower_table[lti_1].index.begin();
+									suffix += upper_table[uti_1].index.size();
 
 									list<int> w;
 									w.assign(upper_table[uti_2].index.begin(), upper_table[uti_2].index.end());
-									for(/* -- */; postfix < lower_table[lti_1].index.end(); postfix++)
-										w.pushback(*postfix);
+									for(/* -- */; suffix < lower_table[lti_1].index.end(); suffix++)
+										w.pushback(*suffix);
 									int lti_2 = search_lower_table(w);
 
 									if(lti_2 >= 0)
