@@ -34,10 +34,12 @@ class observationtable {
 		virtual void undo() = 0;
 		virtual void redo() = 0;
 
-		virtual void savetofile() = 0;
-		virtual void loadfromfile() = 0;
+		virtual void savetofile(char* filename) = 0;
+		virtual void loadfromfile(char* filename) = 0;
 
-		virtual list< list<int> > get_columns() = 0;
+		// return a reference to the column-names
+		// never change this!
+		virtual list< list<int> > &get_columns() = 0;
 
 		virtual void add_counterexample(list< answer >, answer) = 0;
 		// automatically prefix_close, postfix_close
@@ -46,13 +48,7 @@ class observationtable {
 			// if status unknown, return (false, ?)
 			// otherwise return (true, <answer>)
 
-		virtual void suffix_close(teacher) = 0;
-
 	protected:
-		virtual void prefix_close(teacher /* ? */) = 0;
-
-		virtual void postfix_close(teacher) = 0;
-
 		virtual bool is_closed() = 0;
 		// all possible answer-rows in
 		// lower table already exist in upper table

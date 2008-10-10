@@ -87,6 +87,36 @@ class simple_observationtable :: observationtable<answer> {
 			teacher = t;
 		}}}
 
+		virtual void undo()
+		{{{
+			  printf("simple_observationtable::und()o is not implemented.\naborting.\n");
+		}}}
+
+		virtual void redo()
+		{{{
+			  printf("simple_observationtable::redo() is not implemented.\naborting.\n");
+		}}}
+
+		virtual void savetofile(char* filename)
+		// FIXME
+		{{{
+		}}}
+
+		virtual void loadfromfile(char* filename)
+		// FIXME
+		{{{
+		}}}
+
+		virtual list< list<int> > &get_columns()
+		{{{
+			return column_names;
+		}}}
+
+		virtual pair<bool, answer> check_entry(list<int)
+		// FIXME
+		{{{
+
+		}}}
 
 	protected:
 		virtual int search_upper_table(list<int> &word)
@@ -185,7 +215,7 @@ class simple_observationtable :: observationtable<answer> {
 			for(int uti = 0; uti < upper_table.size(); uti++) {
 
 			}
-			for(int lti = 0; lti < upper_table.size(); lti++) {
+			for(int lti = 0; lti < lower_table.size(); lti++) {
 
 			}
 
