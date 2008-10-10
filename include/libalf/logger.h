@@ -54,6 +54,11 @@ class stdout_logger : public logger {
 			log(LOGGER_NONE, "started logger instance");
 		}}}
 
+		~stdout_logger()
+		{{{
+			log(LOGGER_NONE, "stopped logger instance");
+		}}}
+
 		virtual void operator()(enum logger_loglevel l, string &s)
 		{{{
 			log(l, (char*)s.c_str());

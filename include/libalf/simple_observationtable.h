@@ -107,20 +107,16 @@ class simple_observationtable :: observationtable<answer> {
 		{{{
 			  if(log)
 				  log(LOGGER_ERROR, "simple_observationtable::undo() is not implemented.\naborting.\n");
-			  else
-				  printf("simple_observationtable::undo() is not implemented.\naborting.\n");
 
-			  exit(-1);
+			  // FIXME: throw exception
 		}}}
 
 		virtual void redo()
 		{{{
 			  if(log)
 				  log(LOGGER_ERROR, "simple_observationtable::redo() is not implemented.\naborting.\n");
-			  else
-				  printf("simple_observationtable::redo() is not implemented.\naborting.\n");
 
-			  exit(-1);
+			  // FIXME: throw exception
 		}}}
 
 		virtual void savetofile(char* filename)
