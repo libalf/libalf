@@ -9,6 +9,8 @@
  * see LICENSE file for licensing information.
  */
 
+#include <list>
+#include <vector>
 #include <algorithm>
 #include <functional>
 
@@ -36,7 +38,7 @@ class simple_row {
 
 // simple observation table for angluin learning algorithm
 template <class answer>
-class simple_observationtable :: observationtable<answer> {
+class simple_observationtable : observationtable<answer> {
 
 	private:
 		vector< list<int> > column_names;
@@ -62,15 +64,15 @@ class simple_observationtable :: observationtable<answer> {
 			word.push_back(ALPHABET_EPSILON);
 			column_names.push_back(word);
 			// add epsilon as row in upper table
-			simple_row row;
+			simple_ot::simple_row<answer> row;
 			row.index = word;
 			upper_table.push_back(row);
 
 			// add each char as row in lower table
 			for( int i = ALPHABET_FIRST; i <= alphabet_size; i++ ) {
-				simple_row row;
+				simple_ot::simple_row<answer> row;
 
-				word.clear;
+				word.clear();
 				word.push_back(i);
 				row.index = word;
 
@@ -227,30 +229,29 @@ class simple_observationtable :: observationtable<answer> {
 					if(upper_table[uti_1].equal_acceptance(upper_table[uti_2])) {
 						// [uti_1].acceptance == [uti_2].acceptance
 						// -> test if all equal suffixes result in equal acceptance as well
-						for(lti_1 = 0; lti_1 < lower_table.size(); lti_1++) {
+						for(int lti_1 = 0; lti_1 < lower_table.size(); lti_1++) {
 							// FIXME: check if this optimization is ok
 							if(lrow_ok[lti_1])
 								continue;
 							if(   is_prefix_of(upper_table[uti_1].index, lower_table[lti_1].index)
-							   && (upper_table[uti_1].index.size() + 1 == lower_table[lti_1]..indexsize())) {
-									// find matching prefix-row for upper_table[uti_2].index
-									// check for equal acceptance of both prefix rows
-									list<int>::iterator suffix;
-									suffix = lower_table[lti_1].index.begin();
-									suffix += upper_table[uti_1].index.size();
+							   && (upper_table[uti_1].index.size() + 1 == lower_table[lti_1].index.size())) {
+								// find matching prefix-row for upper_table[uti_2].index
+								// check for equal acceptance of both prefix rows
+								list<int>::iterator suffix;
+								suffix = lower_table[lti_1].index.begin();
+								suffix += upper_table[uti_1].index.size();
 
-									list<int> w;
-									w.assign(upper_table[uti_2].index.begin(), upper_table[uti_2].index.end());
-									for(/* -- */; suffix < lower_table[lti_1].index.end(); suffix++)
-										w.pushback(*suffix);
-									int lti_2 = search_lower_table(w);
+								list<int> w;
+								w.assign(upper_table[uti_2].index.begin(), upper_table[uti_2].index.end());
+								for(/* -- */; suffix < lower_table[lti_1].index.end(); suffix++)
+									w.push_back(*suffix);
+								int lti_2 = search_lower_table(w);
 
-									if(lti_2 >= 0)
-										if(!lower_table[lti_1].equal_acceptance(lower_table[lti_2]))
-											return false;
-									lrow_ok[lti_1] = true;
-									lrow_ok[lti_2] = true;
-								}
+								if(lti_2 >= 0)
+									if(!lower_table[lti_1].equal_acceptance(lower_table[lti_2]))
+										return false;
+								lrow_ok[lti_1] = true;
+								lrow_ok[lti_2] = true;
 							}
 						}
 					}

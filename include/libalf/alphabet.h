@@ -42,7 +42,7 @@ list<int>* operator+ (list<int> first, list<int> second)
 
 	l->assign(first.begin(), first.end());
 	for(li = second.begin(); li != second.end(); li++)
-		l->pushback(*li);
+		l->push_back(*li);
 
 	return l;
 }}}
@@ -52,8 +52,8 @@ bool is_prefix_of(list<int> prefix, list<int> word)
 {{{
 	if(prefix.size() > word.size())
 		return false;
-	list<int>::iterator pi, wi;
-	for(pi = prefix.begin(), li = word.begin(); pi != pi.end(); pi++, li++)
+	list<int>::iterator pi, li;
+	for(pi = prefix.begin(), li = word.begin(); pi != prefix.end(); pi++, li++)
 		if(*pi != *li)
 			return false;
 	return true;
@@ -63,11 +63,12 @@ bool is_suffix_of(list<int> postfix, list<int> word)
 {{{
 	if(postfix.size() > word.size())
 		return false;
-	list<int>::iterator pi, wi;
+	list<int>::iterator pi, li;
 
 	li = word.begin();
-	li += li.size() - postfix.size();
-	for(pi = postfix.begin(); pi != pi.end(); pi++)
+	for(int i = 0; i < word.size() - postfix.size(); i++)
+		li++;
+	for(pi = postfix.begin(); pi != postfix.end(); pi++)
 		if(*pi != *li)
 			return false;
 	return true;
