@@ -9,6 +9,9 @@
  * see LICENSE file for licensing information.
  */
 
+#ifndef __libalf_statistics_h__
+# define __libalf_statistics_h__
+
 namespace libalf {
 
 class statistics {
@@ -30,4 +33,6 @@ class statistics {
 };
 
 }; // end namespace libalf
+
+#endif
 

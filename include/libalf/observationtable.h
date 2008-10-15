@@ -9,6 +9,9 @@
  * see LICENSE file for licensing information.
  */
 
+#ifndef __libalf_observationtable_h__
+# define __libalf_observationtable_h__
+
 #include <list>
 #include <utility>
 
@@ -72,4 +75,6 @@ class observationtable {
 };
 
 }; // end namespace libalf
+
+#endif
 

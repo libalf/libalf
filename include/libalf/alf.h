@@ -9,6 +9,9 @@
  * see LICENSE file for licensing information.
  */
 
+#ifndef __libalf_alf_h__
+# define __libalf_alf_h__
+
 #include <libalf/alphabet.h>
 #include <libalf/automata.h>
 #include <libalf/logger.h>
@@ -16,7 +19,6 @@
 #include <libalf/oracle.h>
 #include <libalf/statistics.h>
 #include <libalf/teacher.h>
-
 
 namespace libalf {
 
@@ -39,4 +41,6 @@ automata* learn_finite_automata( enum learning_algorithm, teacher<answer>, oracl
 
 
 }; // end namespace libalf
+
+#endif
 

@@ -9,6 +9,9 @@
  * see LICENSE file for licensing information.
  */
 
+#ifndef __libalf_alphabet_h__
+# define __libalf_alphabet_h__
+
 #include <algorithm>
 #include <list>
 
@@ -24,55 +27,14 @@ using namespace std;
 // first normal character:
 #define ALPHABET_FIRST 1
 
-// part of STL:
-//bool operator==(list<int> first, list<int> second)
-//{{{
-//	return (
-//		first.size() == second.size()
-//		&&
-//		equal(first.begin(), first.end(), second.begin());
-//	       );
-//}}}
-
 // return ptr to new list with first∙second
-list<int>* operator+ (list<int> first, list<int> second)
-{{{
-	list<int> *l = new list<int>;
-	list<int>::iterator li;
+list<int>* operator+ (list<int> first, list<int> second);
 
-	l->assign(first.begin(), first.end());
-	for(li = second.begin(); li != second.end(); li++)
-		l->push_back(*li);
+bool is_prefix_of(list<int> prefix, list<int> word);
 
-	return l;
-}}}
-
-// FIXME: check below; optimize
-bool is_prefix_of(list<int> prefix, list<int> word)
-{{{
-	if(prefix.size() > word.size())
-		return false;
-	list<int>::iterator pi, li;
-	for(pi = prefix.begin(), li = word.begin(); pi != prefix.end(); pi++, li++)
-		if(*pi != *li)
-			return false;
-	return true;
-}}}
-
-bool is_suffix_of(list<int> postfix, list<int> word)
-{{{
-	if(postfix.size() > word.size())
-		return false;
-	list<int>::iterator pi, li;
-
-	li = word.begin();
-	for(int i = 0; i < word.size() - postfix.size(); i++)
-		li++;
-	for(pi = postfix.begin(); pi != postfix.end(); pi++)
-		if(*pi != *li)
-			return false;
-	return true;
-}}}
+bool is_suffix_of(list<int> postfix, list<int> word);
 
 }
+
+#endif
 

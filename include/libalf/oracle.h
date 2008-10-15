@@ -9,6 +9,9 @@
  * see LICENSE file for licensing information.
  */
 
+#ifndef __libalf_oracle_h__
+# define __libalf_oracle_h__
+
 #include <list>
 
 #include <libalf/automata.h>
@@ -24,4 +27,6 @@ class oracle {
 };
 
 }; // end namespace libalf
+
+#endif
 

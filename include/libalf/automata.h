@@ -9,6 +9,9 @@
  * see LICENSE file for licensing information.
  */
 
+#ifndef __libalf_automata_h__
+# define __libalf_automata_h__
+
 namespace libalf {
 
 enum automata_type {
@@ -26,11 +29,13 @@ class automata_implementation_exception {
 // derive implementations from this interface (e.g. the amore implementation)
 class automata {
 	public:
-		virtual ~automata();
+		virtual ~automata() { };
 
 		virtual enum automata_type get_type() = 0;
 
 };
 
 }; // end namespace libalf
+
+#endif
 

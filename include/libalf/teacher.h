@@ -9,6 +9,9 @@
  * see LICENSE file for licensing information.
  */
 
+#ifndef __libalf_teacher_h__
+# define __libalf_teacher_h__
+
 #include <list>
 
 namespace libalf {
@@ -32,4 +35,6 @@ class teacher {
 };
 
 }; // end namespace libalf
+
+#endif
 

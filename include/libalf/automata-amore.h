@@ -9,6 +9,9 @@
  * see LICENSE file for licensing information.
  */
 
+#ifndef __libalf_automata_amore_h__
+# define __libalf_automata_amore_h__
+
 namespace libalf {
 
 #include <libalf/automata.h>
@@ -58,3 +61,6 @@ class amore_automata : public automata {
 
 
 }; // end namespace libalf
+
+#endif
+

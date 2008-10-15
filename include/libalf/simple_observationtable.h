@@ -9,6 +9,9 @@
  * see LICENSE file for licensing information.
  */
 
+#ifndef __libalf_simple_observationtable_h__
+# define __libalf_simple_observationtable_h__
+
 #include <list>
 #include <vector>
 #include <algorithm>
@@ -301,5 +304,7 @@ class simple_observationtable : observationtable<answer> {
 
 };
 
-};
+}; // end of namespace libalf
+
+#endif
 

@@ -9,9 +9,10 @@
  * see LICENSE file for licensing information.
  */
 
-#include <functional>
+#ifndef __libalf_logger_h__
+# define __libalf_logger_h__
+
 #include <string>
-#include <iostream>
 
 namespace libalf {
 
@@ -40,37 +41,19 @@ class stdout_logger : public logger {
 		enum logger_loglevel minimal_loglevel;
 		bool log_algorithm;
 	public:
-		stdout_logger()
-		{{{
-			minimal_loglevel = LOGGER_ERROR;
-			log_algorithm = false;
-			this->log(LOGGER_NONE, "started logger instance");
-		}}}
+		stdout_logger();
 
-		stdout_logger(enum logger_loglevel minimal_loglevel, bool log_algorithm)
-		{{{
-			this->minimal_loglevel = minimal_loglevel;
-			this->log_algorithm = log_algorithm;
-			log(LOGGER_NONE, "started logger instance");
-		}}}
+		stdout_logger(enum logger_loglevel minimal_loglevel, bool log_algorithm);
 
-		~stdout_logger()
-		{{{
-			log(LOGGER_NONE, "stopped logger instance");
-		}}}
+		~stdout_logger();
 
-		virtual void operator()(enum logger_loglevel l, string &s)
-		{{{
-			log(l, (char*)s.c_str());
-		}}}
+		virtual void operator()(enum logger_loglevel l, string &s);
 
 	protected:
-		virtual void log(enum logger_loglevel l, char* s)
-		{{{
-			if( (l<=minimal_loglevel) || (log_algorithm && l==LOGGER_ALGORITHM) || (l==LOGGER_NONE))
-				cout << s;
-		}}}
+		virtual void log(enum logger_loglevel l, char* s);
 };
 
 } // end namespace libalf
+
+#endif
 
