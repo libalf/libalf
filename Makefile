@@ -5,9 +5,11 @@
 
 all:
 	make -C src all
+	make -C testsuites all
 
 clean:
 	make -C src clean
+	make -C testsuites clean
 
 install:
 	make -C include install
