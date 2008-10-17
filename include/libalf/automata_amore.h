@@ -36,6 +36,10 @@ class automata_amore : public automata {
 
 		virtual ~automata();
 
+		virtual set_nfa(nfa a);
+
+		virtual set_dfa(dfa a);
+
 		virtual enum automata_type get_type();
 
 		virtual automata* clone();
@@ -55,6 +59,12 @@ class automata_amore : public automata {
 
 		virtual void make_deterministic();
 
+	protected:
+		virtual void make_undeterministic();
+
+	public:
+		virtual void minimize();
+
 		virtual void lang_complement();
 
 		virtual automata* lang_union(automata &other);
@@ -66,6 +76,9 @@ class automata_amore : public automata {
 		virtual automata* lang_without(automata &other);
 
 		virtual automata* lang_concat(automata &other);
+
+	protected:
+		virtual void clear_automatas();
 }
 
 

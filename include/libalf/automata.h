@@ -60,6 +60,7 @@ class automata {
 
 		// UNARY OPERATIONS
 		virtual void make_deterministic() = 0;
+		virtual void minimize() = 0;
 		virtual void lang_complement() = 0;
 
 		// BINARY OPERATIONS
