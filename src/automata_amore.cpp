@@ -9,9 +9,19 @@
  * see LICENSE file for licensing information.
  */
 
-#include <amore/ext.h>
+// AMoRE includes:
+#include "amore/nfa.h"
+#include "amore/dfa.h"
+#include "amore/nfa2dfa.h"
+#include "amore/dfa2nfa.h"
+#include "amore/dfamdfa.h"
+#include "amore/testBinary.h"
+#include "amore/unaryB.h"
+#include "amore/binary.h"
 
-#include <libalf/automata.h>
+
+#include "libalf/automata.h"
+#include "libalf/automata_amore.h"
 
 namespace libalf {
 
@@ -33,24 +43,24 @@ automata_amore::automata_amore(enum automata_type type)
 	};
 }}}
 
-virtual automata_amore::~automata()
+automata_amore::~automata_amore()
 {{{
 	clear_automatas();
 }}}
 
-virtual automata_amore::set_nfa(nfa a)
+void automata_amore::set_nfa(nfa a)
 {{{
 	clear_automatas();
 	nfa_p = a;
 }}}
 
-virtual automata_amore::set_dfa(dfa a)
+void automata_amore::set_dfa(dfa a)
 {{{
 	clear_automatas();
 	dfa_p = a;
 }}}
 
-virtual enum automata_type automata_amore::get_type()
+enum automata_type automata_amore::get_type()
 {{{
 	if(nfa_p)
 		return NONDETERMINISTIC_FINITE_AUTOMATA;
@@ -60,47 +70,48 @@ virtual enum automata_type automata_amore::get_type()
 	return NO_AUTOMATA;
 }}}
 
-virtual automata* automata_amore::clone()
+automata* automata_amore::clone()
 {
 }
 
-virtual bool automata_amore::is_empty()
+bool automata_amore::is_empty()
 {
 }
 
-virtual list<int> automata_amore::get_sample_word()
+list<int> automata_amore::get_sample_word()
 {
 }
 
-virtual bool automata_amore::operator==(automata &other)
+bool automata_amore::operator==(automata &other)
 // == will also nfa2dfa both automatas
 {{{
+	automata_amore *a = dynamic_cast<automata_amore*> (&other);
 	// other has to be an automata_amore
-	if(dynamic_cast<automata_amore> other) {
+	if(a) {
 		make_deterministic();
 
-		other.make_deterministic();
+		a->make_deterministic();
 
-		return equiv(this->dfa_p, other.dfa_p);
+		return equiv(this->dfa_p, a->dfa_p);
 	} else {
 		// other automata is not an automata_amore!
 		// FIXME throw some exception
 	}
 }}}
 
-virtual bool automata_amore::includes(automata &subautomata)
+bool automata_amore::includes(automata &subautomata)
 {
 }
 
-virtual bool automata_amore::is_subset_of(automata &superautomata)
+bool automata_amore::is_subset_of(automata &superautomata)
 {
 }
 
-virtual bool automata_amore::contains(list<int>)
+bool automata_amore::contains(list<int>)
 {
 }
 
-virtual void automata_amore::make_deterministic()
+void automata_amore::make_deterministic()
 {{{
 	if(nfa_p) {
 		dfa_p = nfa2dfa(nfa_p);
@@ -109,20 +120,20 @@ virtual void automata_amore::make_deterministic()
 	}
 }}}
 
-virtual void automata_amore::make_undeterministic()
+void automata_amore::make_undeterministic()
 {{{
 	if(dfa_p) {
-		nfa_p = nfa2dfa(dfa_p);
+		nfa_p = dfa2nfa(dfa_p);
 		freedfa(dfa_p);
 	}
 }}}
 
-virtual void minimize()
+void automata_amore::minimize()
 {{{
 	dfa_p = dfamdfa(dfa_p, true);
 }}}
 
-virtual void automata_amore::lang_complement()
+void automata_amore::lang_complement()
 {{{
 	make_deterministic();
 
@@ -135,7 +146,7 @@ virtual void automata_amore::lang_complement()
 	}
 }}}
 
-virtual automata* automata_amore::lang_union(automata &other)
+automata* automata_amore::lang_union(automata &other)
 {{{
 	automata *a = new automata();
 
@@ -147,15 +158,15 @@ virtual automata* automata_amore::lang_union(automata &other)
 	return a;
 }}}
 
-virtual automata* automata_amore::lang_intersect(automata &other)
+automata* automata_amore::lang_intersect(automata &other)
 {
 }
 
-virtual automata* automata_amore::lang_difference(automata &other)
+automata* automata_amore::lang_difference(automata &other)
 {
 }
 
-virtual automata* automata_amore::lang_without(automata &other)
+automata* automata_amore::lang_without(automata &other)
 {{{
 	automata *a = new automata();
 
@@ -167,7 +178,7 @@ virtual automata* automata_amore::lang_without(automata &other)
 	return a;
 }}}
 
-virtual automata* automata_amore::lang_concat(automata &other)
+automata* automata_amore::lang_concat(automata &other)
 {{{
 	automata *a = new automata();
 
@@ -179,7 +190,7 @@ virtual automata* automata_amore::lang_concat(automata &other)
 	return a;
 }}}
 
-virtual void automata_amore::clear_automatas()
+void automata_amore::clear_automatas()
 {{{
 	if(nfa_p)
 		freenfa(nfa_p);

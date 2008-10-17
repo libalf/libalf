@@ -18,7 +18,7 @@ namespace libalf {
 // at some point we need to call amore::initbuf() before using any amore stuff
 // and amore::freebuf() at the end.
 
-// so we don't have to include <amore/ext.h> :
+// so we don't have to include amore headers here:
 #ifndef __libalf_library_compilation__
 typedef dfa void*;
 typedef nfa void*;
@@ -34,11 +34,11 @@ class automata_amore : public automata {
 
 		automata_amore(enum automata_type type);
 
-		virtual ~automata();
+		virtual ~automata_amore();
 
-		virtual set_nfa(nfa a);
+		virtual void set_nfa(nfa a);
 
-		virtual set_dfa(dfa a);
+		virtual void set_dfa(dfa a);
 
 		virtual enum automata_type get_type();
 
@@ -79,7 +79,7 @@ class automata_amore : public automata {
 
 	protected:
 		virtual void clear_automatas();
-}
+};
 
 
 }; // end namespace libalf
