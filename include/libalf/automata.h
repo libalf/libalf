@@ -34,6 +34,34 @@ class automata {
 
 		virtual enum automata_type get_type() = 0;
 
+		// general stuff
+		virtual automata* clone() = 0;
+
+		// language/automata operations:
+
+		// unary tests
+		virtual bool is_empty() = 0;
+
+		// binary tests
+		virtual operator==(automata &other) = 0;
+		virtual bool includes(automata &included) = 0;
+		virtual bool is_subset_of(automata &included) = 0;
+
+		// unary operations
+		virtual void make_deterministic() = 0;
+		virtual void lang_complement() = 0;
+
+		// binary operations
+		// a+b
+		virtual automata* lang_union(automata &other) = 0;
+		// a AND b
+		virtual automata* lang_intersect(automata &other) = 0;
+		// a+b - a AND b
+		virtual automata* lang_difference(automata &other) = 0;
+		// a-b
+		virtual automata* lang_without(automata &other) = 0;
+		// a.b
+		virtual automata* lang_concat(automata &other) = 0;
 };
 
 }; // end namespace libalf

@@ -23,8 +23,9 @@ using namespace std;
 class oracle {
 	public:
 		virtual ~oracle() { };
-		// returns a list of counter-examples
-		virtual list< list<int> > equality_query(automata&) = 0;
+		// returns <true, (void)> if automata is ok,
+		// returns <false, list of counter-examples> if automata is not ok
+		virtual pair<bool, list< list<int> > > equality_query(automata&) = 0;
 };
 
 }; // end namespace libalf
