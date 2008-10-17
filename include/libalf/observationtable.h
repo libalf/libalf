@@ -15,7 +15,7 @@
 #include <list>
 #include <utility>
 
-#include "libalf/teacher.h"
+#include <libalf/teacher.h>
 
 namespace libalf {
 

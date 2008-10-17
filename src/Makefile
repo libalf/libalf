@@ -3,7 +3,7 @@
 
 .PHONY: all clean install uninstall
 
-CPPFLAGS=-Wall -I../include/ -shared -fpic -ggdb3
+CPPFLAGS=-Wall -I../include/ -shared -fpic -ggdb3 -D__libalf_library_compilation__
 LDFLAGS=-shared
 
 SONAME=libalf

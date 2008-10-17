@@ -15,48 +15,57 @@
 namespace libalf {
 
 #include <libalf/automata.h>
-#include <amore/ext.h>
 // at some point we need to call amore::initbuf() before using any amore stuff
 // and amore::freebuf() at the end.
 
-class amore_automata : public automata {
+// so we don't have to include <amore/ext.h> :
+#ifndef __libalf_library_compilation__
+typedef dfa void*;
+typedef nfa void*;
+#endif
+
+class automata_amore : public automata {
 	private:
 		dfa dfa_p;
 		nfa nfa_p;
 
 	public:
-		automata() {
-			dfa_p = NULL;
-			nfa_p = NULL;
-		}
+		automata_amore();
 
-		automata(enum automata_type type) {
-			if(type == NONDETERMINISTIC_FINITE_AUTOMATA) {
-				dfa_p = NULL;
-				nfa_p = newnfa();
-			}
-			if(type == DETERMINISTIC_FINITE_AUTOMATA) {
-				dfa_p = newdfa();
-				nfa_p = NULL;
-			};
-		}
+		automata_amore(enum automata_type type);
 
-		virtual ~automata() {
-			if(dfa_p)
-				freedfa(dfa_p);
-			if(nfa_p)
-				freenfa(nfa_p);
-		};
+		virtual ~automata();
 
-		virtual enum automata_type get_type() {
-			if(nfa_p)
-				return NONDETERMINISTIC_FINITE_AUTOMATA;
-			if(dfa_p)
-				return DETERMINISTIC_FINITE_AUTOMATA;
+		virtual enum automata_type get_type();
 
-			return NO_AUTOMATA;
-		}
+		virtual automata* clone();
 
+		virtual bool is_empty();
+
+		virtual list<int> get_sample_word();
+
+		// == will also nfa2dfa both automatas
+		virtual bool operator==(automata &other);
+
+		virtual bool includes(automata &subautomata);
+
+		virtual bool is_subset_of(automata &superautomata);
+
+		virtual bool contains(list<int>);
+
+		virtual void make_deterministic();
+
+		virtual void lang_complement();
+
+		virtual automata* lang_union(automata &other);
+
+		virtual automata* lang_intersect(automata &other);
+
+		virtual automata* lang_difference(automata &other);
+
+		virtual automata* lang_without(automata &other);
+
+		virtual automata* lang_concat(automata &other);
 }
 
 
