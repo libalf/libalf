@@ -13,11 +13,20 @@
 
 #include "libalf/alf.h"
 
+#include "ext.h"
+
 using namespace std;
 using namespace libalf;
 
 int main()
 {
-	cout << "test\n";
+	// create random automata
+
+	// create oracle instance and teacher instance
+
+	// create simple_observationtable and teach it the automata
+
+	// once an automata is generated, test for equality with oracle_automata
+	// if this test is ok, all worked well
 }
 
