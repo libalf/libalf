@@ -34,8 +34,8 @@ enum learning_algorithm {
 	LEARN_ANGLUIN_BIERMANN
 };
 
-template <class answer>
-automata* learn_finite_automata( enum learning_algorithm, teacher<answer>, oracle, statistics * = NULL, logger * = NULL );
+//template <class answer>
+//automata* learn_finite_automata( enum learning_algorithm, teacher<answer>, oracle, statistics * = NULL, logger * = NULL );
 
 
 

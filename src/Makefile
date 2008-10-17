@@ -1,19 +1,19 @@
 # $Id$
 # libalf Makefile
 
-CXXFLAGS=-I../include/ -ggdb3
-LDFLAGS=
+.PHONY: all clean install uninstall
+
+CPPFLAGS=-Wall -I../include/ -shared -fpic -ggdb3
+LDFLAGS=-shared
 
 SONAME=libalf
 
 OBJECTS=alphabet.o logger.o
 
-.PHONY: all clean install uninstall
-
 all:	libalf.so
 
 libalf.so: ${OBJECTS}
-	ld -shared -soname ${SONAME} -o $@ ${OBJECTS}
+	g++ ${LDFLAGS} -o $@ ${OBJECTS}
 	strip $@
 
 clean:

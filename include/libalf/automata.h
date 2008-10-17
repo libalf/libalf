@@ -23,6 +23,7 @@ enum automata_type {
 // an automata implementation may throw this exception in case
 // a function/operation is not defined
 class automata_implementation_exception {
+	virtual ~automata_implementation_exception() { };
 	virtual const char* what() const throw() = 0;
 };
 

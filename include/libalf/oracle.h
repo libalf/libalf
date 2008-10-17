@@ -22,8 +22,9 @@ using namespace std;
 
 class oracle {
 	public:
+		virtual ~oracle() { };
 		// returns a list of counter-examples
-		virtual list< list<int> > equality_query(automata<int>&) = 0;
+		virtual list< list<int> > equality_query(automata&) = 0;
 };
 
 }; // end namespace libalf

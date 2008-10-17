@@ -60,7 +60,7 @@ bool is_suffix_of(list<int> postfix, list<int> word)
 	list<int>::iterator pi, li;
 
 	li = word.begin();
-	for(int i = 0; i < word.size() - postfix.size(); i++)
+	for(unsigned int i = 0; i < word.size() - postfix.size(); i++)
 		li++;
 	for(pi = postfix.begin(); pi != postfix.end(); pi++)
 		if(*pi != *li)

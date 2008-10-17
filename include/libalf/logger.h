@@ -34,6 +34,8 @@ class logger : public binary_function< enum logger_loglevel, string&, void > {
 	public:
 		virtual void operator()(enum logger_loglevel, string&) = 0;
 
+		virtual ~logger() { };
+
 };
 
 class stdout_logger : public logger {
@@ -45,7 +47,7 @@ class stdout_logger : public logger {
 
 		stdout_logger(enum logger_loglevel minimal_loglevel, bool log_algorithm);
 
-		~stdout_logger();
+		virtual ~stdout_logger();
 
 		virtual void operator()(enum logger_loglevel l, string &s);
 
