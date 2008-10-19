@@ -109,30 +109,28 @@ class simple_observationtable : observationtable<answer> {
 		}}}
 
 		virtual void undo()
-		{{{
+		{
 			  if(log)
 				  log(LOGGER_ERROR, "simple_observationtable::undo() is not implemented.\naborting.\n");
 
 			  // FIXME: throw exception
-		}}}
+		}
 
 		virtual void redo()
-		{{{
+		{
 			  if(log)
 				  log(LOGGER_ERROR, "simple_observationtable::redo() is not implemented.\naborting.\n");
 
 			  // FIXME: throw exception
-		}}}
+		}
 
 		virtual void savetofile(char* filename)
-		// FIXME
-		{{{
-		}}}
+		{
+		}
 
 		virtual void loadfromfile(char* filename)
-		// FIXME
-		{{{
-		}}}
+		{
+		}
 
 		virtual list< list<int> > &get_columns()
 		{{{
@@ -214,7 +212,8 @@ class simple_observationtable : observationtable<answer> {
 
 		// sample implementation only
 		virtual bool is_consistent()
-		{{{
+		// FIXME: refactor. this is way too big.
+		{
 			bool urow_ok[upper_table.size()];
 			bool lrow_ok[lower_table.size()];
 			int uti_1;
@@ -261,13 +260,10 @@ class simple_observationtable : observationtable<answer> {
 				}
 			}
 			return true;
-		}}}
+		}
 
-		virtual void complete()
-		// FIXME
+		virtual void fill_missing_columns()
 		{{{
-			// first complete all missing fields by querying the teacher for membership
-
 			// upper table
 			for(int uti = 0; uti < upper_table.size(); uti++) {
 				if(upper_table[uti].acceptance.size() < column_names.size()) {
@@ -294,13 +290,20 @@ class simple_observationtable : observationtable<answer> {
 					}
 				}
 			}
+		}}}
+
+		virtual void complete()
+		// FIXME
+		{
+			// first complete all missing fields by querying the teacher for membership
+			fill_missing_columns();
 
 			// second check, if table is closed and consistent.
-			// if not, change it in that way and complete again.
+			// if not, change it in that way and complete recursively.
 
 			// FIXME
 
-		}}}
+		}
 
 };
 

@@ -59,10 +59,8 @@ class automata_amore : public automata {
 
 		virtual void make_deterministic();
 
-	protected:
 		virtual void make_undeterministic();
 
-	public:
 		virtual void minimize();
 
 		virtual void lang_complement();
