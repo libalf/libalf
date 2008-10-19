@@ -305,6 +305,16 @@ class simple_observationtable : observationtable<answer> {
 
 		}
 
+	public:
+		virtual automata * derive_hypothesis();
+		{
+			complete();
+
+			// now derive automata from this table
+			// FIXME
+
+		}
+
 };
 
 }; // end of namespace libalf

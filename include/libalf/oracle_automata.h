@@ -27,42 +27,21 @@ using namespace std;
 //
 class oracle_automata : public oracle {
 	private:
-		automata *automata;
+		automata *backend_automata;
 	public:
-		oracle_automata()
-		{{{
-			automata = NULL;
-		}}}
+		oracle_automata();
 
-		oracle_automata(automata &a)
-		{{{
-			  set_automata(a);
-		}}}
+		oracle_automata(automata &a);
 
-		virtual ~oracle_automata()
-		{{{
-			  if(automata)
-				  delete automata;
-		}}}
+		virtual ~oracle_automata();
 
-		virtual void set_automata(automata &a)
-		{{{
-			  if(automata)
-				  delete automata;
-			  automata = a.clone;
-		}}}
+		virtual void set_automata(automata &a);
 
-		virtual automata *get_automata()
-		{{{
-			  return automata;
-		}}}
+		virtual automata *get_automata();
 
 		// returns <true, (void)> if automata is ok,
 		// returns <false, list of counter-examples> if automata is not ok
-		virtual pair<bool, list< list<int> > > equality_query(automata&)
-		// FIXME
-		{{{
-		}}}
+		virtual pair<bool, list< list<int> > > equality_query(automata & hypothesis);
 };
 
 }; // end namespace libalf

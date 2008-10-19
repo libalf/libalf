@@ -85,17 +85,18 @@ list<int> automata_amore::get_sample_word()
 bool automata_amore::operator==(automata &other)
 // == will also nfa2dfa both automatas
 {{{
-	automata_amore *a = dynamic_cast<automata_amore*> (&other);
+	automata_amore *o = dynamic_cast<automata_amore*> (&other);
 	// other has to be an automata_amore
-	if(a) {
+	if(o) {
 		make_deterministic();
 
-		a->make_deterministic();
+		o->make_deterministic();
 
-		return equiv(this->dfa_p, a->dfa_p);
+		return equiv(this->dfa_p, o->dfa_p);
 	} else {
 		// other automata is not an automata_amore!
 		// FIXME throw some exception
+		return false;
 	}
 }}}
 
@@ -148,14 +149,21 @@ void automata_amore::lang_complement()
 
 automata* automata_amore::lang_union(automata &other)
 {{{
-	automata *a = new automata();
+	automata_amore *o = dynamic_cast<automata_amore*> (&other);
+	// other has to be an automata_amore
+	if(o) {
+		automata_amore *a = new automata_amore();
 
-	make_undeterministic();
-	other.make_undeterministic();
+		make_undeterministic();
+		o->make_undeterministic();
 
-	a->set_nfa( unionfa(nfa_p, other.nfa_p) );
+		a->set_nfa( unionfa(nfa_p, o->nfa_p) );
 
-	return a;
+		return a;
+	} else {
+		// FIXME: throw exception?
+		return NULL;
+	}
 }}}
 
 automata* automata_amore::lang_intersect(automata &other)
@@ -168,26 +176,40 @@ automata* automata_amore::lang_difference(automata &other)
 
 automata* automata_amore::lang_without(automata &other)
 {{{
-	automata *a = new automata();
+	automata_amore *o = dynamic_cast<automata_amore*> (&other);
+	// other has to be an automata_amore
+	if(o) {
+		automata_amore *a = new automata_amore();
 
-	make_deterministic();
-	other.make_deterministic();
+		make_deterministic();
+		o->make_deterministic();
 
-	a->set_dfa(insecfa(dfa_p, other.dfa_p, true));
+		a->set_dfa(insecfa(dfa_p, o->dfa_p, true));
 
-	return a;
+		return a;
+	} else {
+		// FIXME: throw exception?
+		return NULL;
+	}
 }}}
 
 automata* automata_amore::lang_concat(automata &other)
 {{{
-	automata *a = new automata();
+	automata_amore *o = dynamic_cast<automata_amore*> (&other);
+	// other has to be an automata_amore
+	if(o) {
+		automata_amore *a = new automata_amore();
 
-	make_undeterministic();
-	other.make_undeterministic();
+		make_undeterministic();
+		o->make_undeterministic();
 
-	a->set_nfa( concatfa(nfa_p, other.nfa_p) );
+		a->set_nfa( concatfa(nfa_p, o->nfa_p) );
 
-	return a;
+		return a;
+	} else {
+		// FIXME: throw exception?
+		return NULL;
+	}
 }}}
 
 void automata_amore::clear_automatas()

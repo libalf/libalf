@@ -56,7 +56,14 @@ class teacher_automata : public teacher {
 
 		virtual answer membership_query(list<int> &word)
 		// FIXME: problem: answer vs. bool
+		// this implementation requires that a cast from bool to <answer> is possible
 		{{{
+			/*
+			if(automata->contains(word))
+				return answer::true;
+			else
+				return answer::false;
+			*/
 			return automata->contains(word);
 		}}}
 
