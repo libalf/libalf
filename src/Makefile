@@ -14,7 +14,7 @@ OBJECTS=alphabet.o automata_amore.o logger.o oracle_automata.o
 all:	libalf.so
 
 libalf.so: ${OBJECTS}
-	g++ ${LDFLAGS} -o $@ ${OBJECTS}
+	ld ${OBJECTS} ${LDFLAGS} -o $@
 	strip $@
 
 clean:
