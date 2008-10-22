@@ -9,7 +9,7 @@
 LIBDIR=/usr/lib
 DOCDIR=/usr/share/doc
 HEADER_INSTALLDIR=/usr/include
-CFLAGS= -Wall -g -DDEBUG -DJAVAEXCEPT -DLIBAMORE -DUNIX -DLINUX -DBIT32
+CFLAGS=-shared -fpic -Wall -g -DDEBUG -DJAVAEXCEPT -DLIBAMORE -DUNIX -DLINUX -DBIT32
 CPPFLAGS=-I. -I./ldo -I./transf -I./test
 
 # data objects
@@ -38,6 +38,9 @@ libtest: libtest.c libAMoRE.a
 
 libAMoRE.a: $(OBJ)
 	ar rs $@ $?
+
+libAMoRE.so: $(OBJ)
+	gcc -o $@ -shared -fpic $?
 
 docs/html/index.html:
 	$(MAKE) doc

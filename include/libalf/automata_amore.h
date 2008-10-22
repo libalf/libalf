@@ -19,7 +19,7 @@ namespace libalf {
 // and amore::freebuf() at the end.
 
 // so we don't have to include amore headers here:
-#ifndef __libalf_library_compilation__
+#ifndef __libalf_so_compilation__
 typedef dfa void*;
 typedef nfa void*;
 #endif
