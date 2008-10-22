@@ -13,8 +13,6 @@
 
 #include "libalf/alf.h"
 
-#include "ext.h"
-
 using namespace std;
 using namespace libalf;
 

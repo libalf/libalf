@@ -3,9 +3,9 @@
 
 .PHONY: all clean run
 
-CPPFLAGS=-Wall -ggdb3  -I../../include -I../../libAMoRE-1.0/
+CPPFLAGS=-Wall -ggdb3  -I../../include
 
-LDFLAGS=-L../../libAMoRE-1.0/ -lAMoRE -L../../src/ -lalf
+LDFLAGS=-L../../src/ -lalf
 
 all: aso
 
