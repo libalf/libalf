@@ -11,19 +11,12 @@
 
 #include <iostream>
 
-// FIXME: see below
-#include <setjmp.h>
-
 #include "libalf/alf.h"
+
+#include <amore/vars.h>
 
 using namespace std;
 using namespace libalf;
-
-
-// FIXME: remove setjmp/longjmp from libAMoRE, so this shit is not needed:
-char itoc[28] = "@abcdefghijklmnopqrstuvwxyz";
-jmp_buf _jmp;
-char dummy[8];
 
 int main()
 {
