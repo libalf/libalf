@@ -9,8 +9,9 @@
 LIBDIR=/usr/lib
 DOCDIR=/usr/share/doc
 HEADER_INSTALLDIR=/usr/include
-CFLAGS+= -Wall -g
+#-ggdb3
 CFLAGS+= -DDEBUG -DJAVAEXCEPT -DLIBAMORE -DUNIX -DLINUX -DBIT32
+CFLAGS+= -Wall
 CFLAGS+= -I. -I./ldo -I./transf -I./test
 CPPFLAGS+= -shared -fpic
 
@@ -42,7 +43,7 @@ libAMoRE.a: $(OBJ)
 	ar rs $@ $?
 
 libAMoRE.so: $(OBJ)
-	gcc -o $@ -shared -fpic $?
+	ld -o $@ -shared -fpic $?
 
 docs/html/index.html:
 	$(MAKE) doc
@@ -54,6 +55,7 @@ install:
 	cp libAMoRE.a $(LIBDIR)
 	chmod 644 $(LIBDIR)/libAMoRE.a
 	cp libAMoRE.so $(LIBDIR)
+	#strip $(LIBDIR)/libAMoRE.so
 	chmod 644 $(LIBDIR)/libAMoRE.so
 
 install-docs: docs/html/index.html
