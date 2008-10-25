@@ -9,17 +9,6 @@
  * see LICENSE file for licensing information.
  */
 
-// AMoRE includes:
-#include "amore/nfa.h"
-#include "amore/dfa.h"
-#include "amore/nfa2dfa.h"
-#include "amore/dfa2nfa.h"
-#include "amore/dfamdfa.h"
-#include "amore/testBinary.h"
-#include "amore/unaryB.h"
-#include "amore/binary.h"
-
-
 #include "libalf/automata.h"
 #include "libalf/automata_amore.h"
 
@@ -71,8 +60,18 @@ enum automata_type automata_amore::get_type()
 }}}
 
 automata* automata_amore::clone()
-{
-}
+{{{
+	automata_amore *n;
+
+	n = new automata_amore;
+
+	if(dfa_p)
+		n->dfa_p = clonedfa(dfa_p);
+	if(nfa_p)
+		n->nfa_p = clonenfa(nfa_p);
+
+	return n;
+}}}
 
 bool automata_amore::is_empty()
 {

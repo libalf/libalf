@@ -16,9 +16,11 @@
 #include <libalf/automata.h>
 #include <libalf/logger.h>
 #include <libalf/observationtable.h>
+#include <libalf/simple_observationtable.h>
 #include <libalf/oracle.h>
 #include <libalf/statistics.h>
 #include <libalf/teacher.h>
+#include <libalf/answer.h>
 
 namespace libalf {
 

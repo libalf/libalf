@@ -13,6 +13,7 @@
 #include <list>
 
 #include "libalf/alphabet.h"
+#include "libalf/alf.h"
 
 namespace libalf {
 

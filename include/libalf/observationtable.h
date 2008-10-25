@@ -21,10 +21,6 @@ namespace libalf {
 
 using namespace std;
 
-// possible <answer> class: e.g. extended bool or just bool
-// (see teacher.h)
-
-
 // basic interface for different implementations (e.g. one table and one tree)
 template <class answer>
 class observationtable {

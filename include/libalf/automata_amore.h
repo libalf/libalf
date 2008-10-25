@@ -20,8 +20,18 @@ namespace libalf {
 
 // so we don't have to include amore headers here:
 #ifndef __libalf_so_compilation__
-typedef dfa void*;
-typedef nfa void*;
+typedef void *dfa;
+typedef void *nfa;
+#else
+// AMoRE includes
+# include "amore/nfa.h"
+# include "amore/dfa.h"
+# include "amore/nfa2dfa.h"
+# include "amore/dfa2nfa.h"
+# include "amore/dfamdfa.h"
+# include "amore/testBinary.h"
+# include "amore/unaryB.h"
+# include "amore/binary.h"
 #endif
 
 class automata_amore : public automata {

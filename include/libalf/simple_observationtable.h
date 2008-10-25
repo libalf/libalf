@@ -20,21 +20,50 @@
 #include <libalf/alphabet.h>
 #include <libalf/logger.h>
 #include <libalf/observationtable.h>
+#include <libalf/automata_amore.h>
 
 namespace libalf {
 
+using namespace std;
+
 namespace simple_ot {
+
 template <class answer>
 class simple_row {
 	public:
 		list<int> index;
 		vector<answer> acceptance;
 
-		bool equal_acceptance(simple_row<answer> &other)
+		bool operator==(simple_row<answer> &other)
 		{{{
-			return  (acceptance == other.acceptance);
+			return (acceptance == other.acceptance);
 		}}}
 
+		bool equal_acceptance(simple_row<answer> &other)
+		{{{
+			return (acceptance == other.acceptance);
+		}}}
+
+		bool operator!=(simple_row<answer> &other)
+		{{{
+			return (acceptance != other.acceptance);
+		}}}
+
+		bool operator>(simple_row<answer> &other)
+		{{{
+			typename vector<answer>::iterator ai;
+			typename vector<answer>::iterator oai;
+
+			ai = acceptance.begin();
+			oai = other.acceptance.begin();
+
+			for(/* -- */; ai < acceptance.end() && oai < other.acceptance.end(); ai++, oai++) {
+				if(*ai > *oai)
+					return true;
+			}
+
+			return false;
+		}}}
 };
 
 };
@@ -213,7 +242,7 @@ class simple_observationtable : observationtable<answer> {
 		// sample implementation only
 		virtual bool is_consistent()
 		// FIXME: refactor. this is way too big.
-		{
+		{{{
 			bool urow_ok[upper_table.size()];
 			bool lrow_ok[lower_table.size()];
 			int uti_1;
@@ -260,7 +289,7 @@ class simple_observationtable : observationtable<answer> {
 				}
 			}
 			return true;
-		}
+		}}}
 
 		virtual void fill_missing_columns()
 		{{{
@@ -302,17 +331,31 @@ class simple_observationtable : observationtable<answer> {
 			// if not, change it in that way and complete recursively.
 
 			// FIXME
+			
 
 		}
 
 	public:
-		virtual automata * derive_hypothesis();
+		virtual automata * derive_hypothesis()
 		{
 			complete();
 
 			// now derive automata from this table
-			// FIXME
+			automata *a;
+			a = new automata_amore();
 
+			// create list of states of automata:
+			// the states are the different acceptances of all rows of the upper table
+			
+			// q0 is row(\epsilon)
+			
+			// the final, accepting states are the rows with acceptance in column \epsilon
+
+			// \delta, the transformation function, is:
+			// \delta: (row, char) -> row :: row(s), a -> row(sa)
+			
+
+			return a;
 		}
 
 };

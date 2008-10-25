@@ -16,14 +16,6 @@
 
 namespace libalf {
 
-// possible <answer> class: e.g. extended bool or just bool
-
-enum extended_bool {
-	EB_TRUE,
-	EB_FALSE,
-	EB_UNKNOWN
-};
-
 template <class answer>
 class teacher {
 
