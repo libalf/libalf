@@ -22,6 +22,8 @@
 #include <libalf/observationtable.h>
 #include <libalf/automata_amore.h>
 
+#include "amore/dfa.h"
+
 namespace libalf {
 
 using namespace std;
@@ -341,8 +343,8 @@ class simple_observationtable : observationtable<answer> {
 			complete();
 
 			// now derive automata from this table
-			automata *a;
-			a = new automata_amore();
+			dfa dfa_p;
+			dfa_p = newdfa();
 
 			// create list of states of automata:
 			// the states are the different acceptances of all rows of the upper table
@@ -354,7 +356,11 @@ class simple_observationtable : observationtable<answer> {
 			// \delta, the transformation function, is:
 			// \delta: (row, char) -> row :: row(s), a -> row(sa)
 			
+			
 
+			automata_amore *a;
+			a = new automata_amore();
+			a->set_dfa(dfa_p);
 			return a;
 		}
 
