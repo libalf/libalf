@@ -22,27 +22,27 @@ oracle_automata::oracle_automata()
 	backend_automata = NULL;
 }}}
 
-oracle_automata:: oracle_automata(automata &a)
+oracle_automata::oracle_automata(automata &a)
 {{{
-	  set_automata(a);
+	set_automata(a);
 }}}
 
 oracle_automata::~oracle_automata()
 {{{
-	  if(backend_automata)
-		  delete backend_automata;
+	if(backend_automata)
+		delete backend_automata;
 }}}
 
 void oracle_automata::set_automata(automata &a)
 {{{
-	  if(backend_automata)
-		  delete backend_automata;
-	  backend_automata = a.clone();
+	if(backend_automata)
+		delete backend_automata;
+	backend_automata = a.clone();
 }}}
 
 automata * oracle_automata::get_automata()
 {{{
-	  return backend_automata;
+	return backend_automata;
 }}}
 
 // returns <true, (void)> if automata is ok,
