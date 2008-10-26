@@ -26,11 +26,10 @@ template <class answer>
 class observationtable {
 
 	public:
-		observationtable() {
-		};
-
-		virtual void set_teacher(teacher<answer> *) = 0;
-		virtual teacher<answer> * get_teacher() = 0;
+		virtual void set_teacher(teacher<answer> &) = 0;
+		virtual teacher<answer> & get_teacher() = 0;
+		virtual void set_logger(logger &) = 0;
+		virtual logger & get_logger() = 0;
 
 		virtual void undo() = 0;
 		virtual void redo() = 0;
@@ -39,35 +38,34 @@ class observationtable {
 		virtual void loadfromfile(char* filename) = 0;
 
 		// return a reference to the column-names
-		// never change this!
 		virtual list< list<int> > &get_columns() = 0;
-
-		virtual void add_counterexample(list< answer >, answer) = 0;
-		// automatically prefix_close, postfix_close
 
 		virtual pair<bool, answer> check_entry(list<int>) = 0;
 			// if status unknown, return (false, ?)
 			// otherwise return (true, <answer>)
 
+		// complete table and then derive an automata
+		virtual automata * derive_hypothesis() = 0;
+
+		virtual void add_counterexample(list<int>, answer) = 0;
+		// automatically prefix_close, postfix_close
+
 	protected:
-		virtual bool is_closed() = 0;
-		// all possible answer-rows in
-		// lower table already exist in upper table
-		// (for angluin)
-		//
+		// complete table in such a way that an automata can be derived
+		// (i.e. fill all missing fields and make consistent and closed)
+		virtual void complete() = 0;
+		virtual automata * derive_automata() = 0;
+
+
+		//virtual bool is_closed() = 0;
 		// every answer-row from lower table can be simulated/combined
 		// by rows from the upper table
 		// (for RFSA [NFA])
 
-		virtual bool is_consistent() = 0;
-		// for all _equal_ rows in upper table: all +1 successors over all
-		// members of alphabet have to be equal
-		// (for angluin)
-		//
+		//virtual bool is_consistent() = 0;
 		// 1) if row 1 <= row 2 implies that row 1 + {alpha} <= row 2 + {alpha}
 		// 2) if row 1 = SUM(row n...m) implies that row 1 + {alpha} = SUM(row n {alpha} ... row m {alpha})
 		// (for RFSA [NFA])
-
 };
 
 }; // end namespace libalf

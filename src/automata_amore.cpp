@@ -63,7 +63,7 @@ automata* automata_amore::clone()
 {{{
 	automata_amore *n;
 
-	n = new automata_amore;
+	n = new automata_amore();
 
 	if(dfa_p)
 		n->dfa_p = clonedfa(dfa_p);

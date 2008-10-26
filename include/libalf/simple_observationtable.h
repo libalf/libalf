@@ -93,39 +93,31 @@ class simple_observationtable : observationtable<answer> {
 
 		simple_observationtable(teacher<answer> & teach, logger & log, int alphabet_size)
 		{{{
-			// add epsilon as column
-			list<int> word; // empty word!
-			column_names.push_back(word);
-			// add epsilon as row in upper table
-			simple_ot::simple_row<answer> row;
-			row.index = word;
-			upper_table.push_back(row);
-
-			// add each char as row in lower table
-			for( int i = 0; i < alphabet_size; i++ ) {
-				simple_ot::simple_row<answer> row;
-
-				word.clear();
-				word.push_back(i);
-				row.index = word;
-
-				lower_table.push_back(row);
-			}
+			this->alphabet_size = alphabet_size;
 
 			set_teacher(teach);
-			this->alphabet_size = alphabet_size;
 			set_logger(log);
-			complete();
-		}}}
 
-		virtual teacher<answer> & get_teacher()
-		{{{
-			return teach;
+			list<int> word; // empty word!
+
+			// add epsilon as column
+			column_names.push_back(word);
+
+			// add epsilon to upper table
+			// and all suffixes to lower table
+			add_word_to_upper_table(word, false);
+
+			complete();
 		}}}
 
 		virtual void set_teacher(teacher<answer> & teach)
 		{{{
 			this->teach = teach;
+		}}}
+
+		virtual teacher<answer> & get_teacher()
+		{{{
+			return teach;
 		}}}
 
 		virtual void set_logger(logger & l)
@@ -139,27 +131,29 @@ class simple_observationtable : observationtable<answer> {
 		}}}
 
 		virtual void undo()
-		{
+		{{{
 			  if(log)
 				  log(LOGGER_ERROR, "simple_observationtable::undo() is not implemented.\naborting.\n");
 
 			  // FIXME: throw exception
-		}
+		}}}
 
 		virtual void redo()
-		{
+		{{{
 			  if(log)
 				  log(LOGGER_ERROR, "simple_observationtable::redo() is not implemented.\naborting.\n");
 
 			  // FIXME: throw exception
-		}
+		}}}
 
 		virtual void savetofile(char* filename)
 		{
+			
 		}
 
 		virtual void loadfromfile(char* filename)
 		{
+			
 		}
 
 		virtual list< list<int> > &get_columns()
@@ -203,6 +197,27 @@ class simple_observationtable : observationtable<answer> {
 			return ret;
 		}}}
 
+		virtual automata * derive_hypothesis()
+		{{{
+			complete();
+			return derive_automata();
+		}}}
+
+		virtual void add_counterexample(list<int> word, answer a)
+		{{{
+			list<int> prefix = word;
+			// add word and all prefixes to upper table
+			while(prefix.size() > 0) {
+				add_word_to_upper_table(prefix);
+				prefix.pop_back();
+			}
+
+			int uti = search_upper_table(word);
+			if(upper_table[uti].acceptance.size() == 0)
+				upper_table[uti].acceptance.push_back(a);
+		}}}
+
+
 	protected:
 		virtual int search_upper_table(list<int> &word)
 		{{{
@@ -221,7 +236,35 @@ class simple_observationtable : observationtable<answer> {
 			return -1;
 		}}}
 
-		// sample implementation only
+		virtual void add_word_to_upper_table(list<int> word, bool check_uniq = true)
+		{{{
+			simple_ot::simple_row<answer> row;
+
+			if(check_uniq)
+				if(search_upper_table(word) != -1 || search_lower_table != -1)
+					return;
+
+			// add the word the the upper table
+			row.index = word;
+			upper_table.push_back(row);
+
+			// add all suffixes of word to lower table
+			for( int i = 0; i < alphabet_size; i++ ) {
+				if(check_uniq)
+					if(search_upper_table(word) != -1) // can't be in lower table, as its prefix would be in upper then
+						continue;
+				word.push_back(i);
+				row.index = word;
+				lower_table.push_back(row);
+				word.pop_back();
+			}
+		}}}
+
+
+		// sample implementation only:
+		//  all possible answer-rows in
+		//  lower table already exist in upper table
+		//  (for angluin)
 		virtual bool is_closed()
 		{{{
 			for(int lti = 0; lti < lower_table.size(); lti++) {
@@ -240,7 +283,9 @@ class simple_observationtable : observationtable<answer> {
 			return true;
 		}}}
 
-		// sample implementation only
+		// sample implementation only:
+		//  for all _equal_ rows in upper table: all +1 successors over all
+		//  members of alphabet have to have equal rows
 		virtual bool is_consistent()
 		// FIXME: refactor. this is way too big.
 		{{{
@@ -302,7 +347,7 @@ class simple_observationtable : observationtable<answer> {
 					for(/* -- */; ci < column_names.size(); ci++) {
 						list<int> *w;
 						w = upper_table[uti].index + column_names[ci];
-						upper_table[uti].acceptance[ci] = teach.membership_query(*w);
+						upper_table[uti].push_back(teach.membership_query(*w));
 						delete w;
 					}
 				}
@@ -315,7 +360,7 @@ class simple_observationtable : observationtable<answer> {
 					for(/* -- */; ci < column_names.size(); ci++) {
 						list<int> *w;
 						w = lower_table[lti].index + column_names[ci];
-						lower_table[lti].acceptance[ci] = teach.membership_query(*w);
+						lower_table[lti].push_back(teach.membership_query(*w));
 						delete w;
 					}
 				}
@@ -336,14 +381,11 @@ class simple_observationtable : observationtable<answer> {
 
 		}
 
-	public:
-		virtual automata * derive_hypothesis()
+		virtual automata * derive_automata()
 		// FIXME: possibly refactor this into the automata interface, so this
 		//    can be used with any automata implementation
 		//    (will have extra overhead, but so what?)
 		{
-			complete();
-
 			// derive deterministic finite automata from this table
 			dfa dfa_p;
 			dfa_p = newdfa();
@@ -365,6 +407,7 @@ class simple_observationtable : observationtable<answer> {
 			a->set_dfa(dfa_p);
 			return a;
 		}
+
 
 };
 
