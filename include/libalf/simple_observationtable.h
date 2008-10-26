@@ -94,8 +94,7 @@ class simple_observationtable : observationtable<answer> {
 		simple_observationtable(teacher<answer> & teach, logger & log, int alphabet_size)
 		{{{
 			// add epsilon as column
-			list<int> word;
-			word.push_back(ALPHABET_EPSILON);
+			list<int> word; // empty word!
 			column_names.push_back(word);
 			// add epsilon as row in upper table
 			simple_ot::simple_row<answer> row;
@@ -103,7 +102,7 @@ class simple_observationtable : observationtable<answer> {
 			upper_table.push_back(row);
 
 			// add each char as row in lower table
-			for( int i = ALPHABET_FIRST; i <= alphabet_size; i++ ) {
+			for( int i = 0; i < alphabet_size; i++ ) {
 				simple_ot::simple_row<answer> row;
 
 				word.clear();
@@ -339,23 +338,26 @@ class simple_observationtable : observationtable<answer> {
 
 	public:
 		virtual automata * derive_hypothesis()
+		// FIXME: possibly refactor this into the automata interface, so this
+		//    can be used with any automata implementation
+		//    (will have extra overhead, but so what?)
 		{
 			complete();
 
-			// now derive automata from this table
+			// derive deterministic finite automata from this table
 			dfa dfa_p;
 			dfa_p = newdfa();
 
-			// create list of states of automata:
-			// the states are the different acceptances of all rows of the upper table
+			// list of states of automata: each different acceptances-row
+			// in the upper table represents one DFA state
 			
 			// q0 is row(\epsilon)
 			
-			// the final, accepting states are the rows with acceptance in column \epsilon
-
-			// \delta, the transformation function, is:
-			// \delta: (row, char) -> row :: row(s), a -> row(sa)
+			// the final, accepting states are the rows with
+			// acceptance in column \epsilon
 			
+			// the transformation function is:
+			// \delta: (row, char) -> row :: (row(s), a) -> row(sa)
 			
 
 			automata_amore *a;

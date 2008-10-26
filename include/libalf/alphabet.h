@@ -19,13 +19,8 @@ namespace libalf {
 
 using namespace std;
 
-// alphabet is just <int>
-// but there are some special definitions:
-
-// special char for the empty word (should always be alone in a list<int>
-#define ALPHABET_EPSILON 0
-// first normal character:
-#define ALPHABET_FIRST 1
+// alphabet is just <int> and the first letter is `0'.
+// epsilon is denoted by an empty list<int>
 
 // return ptr to new list with first∙second
 list<int>* operator+ (list<int> first, list<int> second);
