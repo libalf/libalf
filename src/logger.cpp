@@ -9,9 +9,8 @@
  * see LICENSE file for licensing information.
  */
 
-#include <functional>
 #include <string>
-#include <iostream>
+#include <stdio.h>
 
 #include "libalf/logger.h"
 
@@ -46,7 +45,7 @@ void stdout_logger::operator()(enum logger_loglevel l, string &s)
 void stdout_logger::log(enum logger_loglevel l, char* s)
 {{{
 	if( (l<=minimal_loglevel) || (log_algorithm && l==LOGGER_ALGORITHM) || (l==LOGGER_NONE))
-		cout << s;
+		printf(s);
 }}}
 
 

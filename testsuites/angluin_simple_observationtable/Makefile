@@ -5,7 +5,7 @@
 
 CPPFLAGS=-Wall -ggdb3  -I../../include
 
-LDFLAGS=-lAMoRE
+LDFLAGS=-L../../src -lalf -lAMoRE
 
 all: aso
 
