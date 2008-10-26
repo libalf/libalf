@@ -213,8 +213,13 @@ class simple_observationtable : observationtable<answer> {
 			}
 
 			int uti = search_upper_table(word);
-			if(upper_table[uti].acceptance.size() == 0)
+			if(upper_table[uti].acceptance.size() == 0) {
 				upper_table[uti].acceptance.push_back(a);
+			} else {
+				// XXX SHOULD NEVER HAPPEN
+				upper_table[uti].acceptance.pop_front();
+				upper_table[uti].acceptance.push_front(a);
+			}
 		}}}
 
 
