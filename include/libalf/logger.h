@@ -13,6 +13,7 @@
 # define __libalf_logger_h__
 
 #include <string>
+#include <istream>
 
 namespace libalf {
 
@@ -38,16 +39,17 @@ class logger : public binary_function< enum logger_loglevel, string&, void > {
 
 };
 
-class stdout_logger : public logger {
+class ostream_logger : public logger {
 	private:
+		ostream *out;
 		enum logger_loglevel minimal_loglevel;
 		bool log_algorithm;
 	public:
-		stdout_logger();
+		ostream_logger();
 
-		stdout_logger(enum logger_loglevel minimal_loglevel, bool log_algorithm);
+		ostream_logger(ostream *out, enum logger_loglevel minimal_loglevel, bool log_algorithm);
 
-		virtual ~stdout_logger();
+		virtual ~ostream_logger();
 
 		virtual void operator()(enum logger_loglevel l, string &s);
 

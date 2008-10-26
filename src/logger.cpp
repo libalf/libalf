@@ -10,7 +10,7 @@
  */
 
 #include <string>
-#include <stdio.h>
+#include <ostream>
 
 #include "libalf/logger.h"
 
@@ -18,34 +18,35 @@ namespace libalf {
 
 using namespace std;
 
-stdout_logger::stdout_logger()
+ostream_logger::ostream_logger()
 {{{
 	minimal_loglevel = LOGGER_ERROR;
 	log_algorithm = false;
 	this->log(LOGGER_NONE, "started logger instance");
 }}}
 
-stdout_logger::stdout_logger(enum logger_loglevel minimal_loglevel, bool log_algorithm)
+ostream_logger::ostream_logger(ostream *out, enum logger_loglevel minimal_loglevel, bool log_algorithm)
 {{{
+	this->out = out;
 	this->minimal_loglevel = minimal_loglevel;
 	this->log_algorithm = log_algorithm;
 	log(LOGGER_NONE, "started logger instance");
 }}}
 
-stdout_logger::~stdout_logger()
+ostream_logger::~ostream_logger()
 {{{
 	log(LOGGER_NONE, "stopped logger instance");
 }}}
 
-void stdout_logger::operator()(enum logger_loglevel l, string &s)
+void ostream_logger::operator()(enum logger_loglevel l, string &s)
 {{{
 	log(l, (char*)s.c_str());
 }}}
 
-void stdout_logger::log(enum logger_loglevel l, char* s)
+void ostream_logger::log(enum logger_loglevel l, char* s)
 {{{
 	if( (l<=minimal_loglevel) || (log_algorithm && l==LOGGER_ALGORITHM) || (l==LOGGER_NONE))
-		printf(s);
+		(*out) << s;
 }}}
 
 
