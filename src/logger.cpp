@@ -22,7 +22,7 @@ ostream_logger::ostream_logger()
 {{{
 	minimal_loglevel = LOGGER_ERROR;
 	log_algorithm = false;
-	this->log(LOGGER_NONE, "started logger instance");
+	this->log(LOGGER_NONE, "started logger instance\n");
 }}}
 
 ostream_logger::ostream_logger(ostream *out, enum logger_loglevel minimal_loglevel, bool log_algorithm)
@@ -30,12 +30,12 @@ ostream_logger::ostream_logger(ostream *out, enum logger_loglevel minimal_loglev
 	this->out = out;
 	this->minimal_loglevel = minimal_loglevel;
 	this->log_algorithm = log_algorithm;
-	log(LOGGER_NONE, "started logger instance");
+	log(LOGGER_NONE, "started logger instance\n");
 }}}
 
 ostream_logger::~ostream_logger()
 {{{
-	log(LOGGER_NONE, "stopped logger instance");
+	log(LOGGER_NONE, "stopped logger instance\n");
 }}}
 
 void ostream_logger::operator()(enum logger_loglevel l, string &s)
