@@ -14,12 +14,15 @@
 
 #include <libalf/alphabet.h>
 #include <libalf/automata.h>
+#include <libalf/automata_amore.h>
 #include <libalf/logger.h>
 #include <libalf/observationtable.h>
 #include <libalf/simple_observationtable.h>
 #include <libalf/oracle.h>
+#include <libalf/oracle_automata.h>
 #include <libalf/statistics.h>
 #include <libalf/teacher.h>
+#include <libalf/teacher_automata.h>
 #include <libalf/answer.h>
 
 namespace libalf {

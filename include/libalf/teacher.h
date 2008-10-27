@@ -20,6 +20,8 @@ template <class answer>
 class teacher {
 
 	public:
+		virtual ~teacher();
+
 		virtual answer membership_query(list<int> &word) = 0;
 
 //		virtual void membership_query(BDD<int> &tree) = 0;

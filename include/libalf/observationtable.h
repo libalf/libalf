@@ -26,6 +26,8 @@ template <class answer>
 class observationtable {
 
 	public:
+		virtual ~observationtable();
+
 		virtual void set_teacher(teacher<answer> &) = 0;
 		virtual teacher<answer> & get_teacher() = 0;
 		virtual void set_logger(logger &) = 0;
@@ -38,7 +40,7 @@ class observationtable {
 		virtual void loadfromfile(char* filename) = 0;
 
 		// return a reference to the column-names
-		virtual list< list<int> > &get_columns() = 0;
+		virtual list< list<int> > *get_columns() = 0;
 
 		virtual pair<bool, answer> check_entry(list<int>) = 0;
 			// if status unknown, return (false, ?)

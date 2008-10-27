@@ -43,6 +43,11 @@ void ostream_logger::operator()(enum logger_loglevel l, string &s)
 	log(l, (char*)s.c_str());
 }}}
 
+void ostream_logger::operator()(enum logger_loglevel l, char*s)
+{{{
+	log(l, s);
+}}}
+
 void ostream_logger::log(enum logger_loglevel l, char* s)
 {{{
 	if( (l<=minimal_loglevel) || (log_algorithm && l==LOGGER_ALGORITHM) || (l==LOGGER_NONE))

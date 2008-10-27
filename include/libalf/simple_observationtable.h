@@ -16,6 +16,7 @@
 #include <vector>
 #include <algorithm>
 #include <functional>
+#include <ostream>
 
 #include <libalf/alphabet.h>
 #include <libalf/logger.h>
@@ -130,16 +131,14 @@ class simple_observationtable : observationtable<answer> {
 
 		virtual void undo()
 		{{{
-			  if(log)
-				  log(LOGGER_ERROR, "simple_observationtable::undo() is not implemented.\naborting.\n");
+			  log(LOGGER_ERROR, "simple_observationtable::undo() is not implemented.\naborting.\n");
 
 			  // FIXME: throw exception
 		}}}
 
 		virtual void redo()
 		{{{
-			  if(log)
-				  log(LOGGER_ERROR, "simple_observationtable::redo() is not implemented.\naborting.\n");
+			  log(LOGGER_ERROR, "simple_observationtable::redo() is not implemented.\naborting.\n");
 
 			  // FIXME: throw exception
 		}}}
@@ -154,39 +153,55 @@ class simple_observationtable : observationtable<answer> {
 			
 		}
 
-		virtual list< list<int> > &get_columns()
+		virtual void print(ostream &os)
+		{
+			
+		}
+
+		virtual list< list<int> > *get_columns()
 		{{{
-			return column_names;
+			list< list<int> > *l = new list< list<int> >();
+			typename columnlist::iterator ci;
+
+			for(ci = column_names.begin(); ci != column_names.end(); ci++)
+				l->push_back(*ci);
+
+			return l;
 		}}}
 
 		// searches column first, then row
 		virtual pair<bool, answer> check_entry(list<int> word)
 		{{{
 			columnlist::iterator ci;
+			unsigned int col_index;
 			typename rowlist::iterator uti, lti;
 
 			pair<bool, answer> ret;
 
 			// find possible suffixes in table columns
-			for(ci = column_names.begin(); ci < column_names.end(); ci++) {
+			for(ci = column_names.begin(), col_index = 0; ci < column_names.end(); ci++, col_index++) {
 				if(is_suffix_of(*ci, word)) {
 					// find possible prefix as column index
 					// then return truth value
 					list<int> prefix;
 					list<int>::iterator prefix_end;
 					prefix_end = word.begin();
-					prefix_end += word.size() - ci->size();
+					for(int n = word.size() - ci->size(); n > 0; n--)
+						prefix_end++;
+					//prefix_end += word.size() - ci->size();
 					prefix.assign(word.begin(), prefix_end);
 
 					uti = search_upper_table(prefix);
 					if(uti != upper_table.end()) {
 						ret.first = true;
-						ret.second = uti->acceptance[ci];
+						ret.second = uti->acceptance[col_index];
+						return ret;
 					}
 					lti = search_lower_table(prefix);
 					if(lti != lower_table.end()) {
 						ret.first = true;
-						ret.second = lti->acceptance[ci];
+						ret.second = lti->acceptance[col_index];
+						return ret;
 					}
 				}
 			}
@@ -219,8 +234,7 @@ class simple_observationtable : observationtable<answer> {
 				uti->acceptance.push_back(a);
 			} else {
 				// XXX SHOULD NEVER HAPPEN
-				uti->acceptance.pop_front();
-				uti->acceptance.push_front(a);
+				uti->acceptance[0] = a;
 			}
 		}}}
 
@@ -280,7 +294,7 @@ class simple_observationtable : observationtable<answer> {
 			if(it != upper_table.end())
 				return it;
 
-			return search_lower_table(word, index);
+			return search_lower_table(word);
 		}}}
 
 		virtual typename rowlist::iterator search_tables(list<int> &word, bool &upper_table, int&index)
@@ -300,7 +314,7 @@ class simple_observationtable : observationtable<answer> {
 			simple_ot::simple_row<answer> row;
 
 			if(check_uniq)
-				if(search_upper_table(word) != -1 || search_lower_table != -1)
+				if(search_tables(word) != lower_table.end())
 					return;
 
 			// add the word to the upper table
@@ -310,7 +324,7 @@ class simple_observationtable : observationtable<answer> {
 			// add all suffixes of word to lower table
 			for( int i = 0; i < alphabet_size; i++ ) {
 				if(check_uniq)
-					if(search_upper_table(word) != -1) // can't be in lower table, as its prefix would be in upper then
+					if(search_upper_table(word) != upper_table.end()) // can't be in lower table, as its prefix would be in upper then
 						continue;
 				word.push_back(i);
 				row.index = word;
@@ -332,7 +346,7 @@ class simple_observationtable : observationtable<answer> {
 					for(/* -- */; ci != column_names.end(); ci++) {
 						list<int> *w;
 						w = uti->index + *ci;
-						uti->push_back(teach.membership_query(*w));
+						uti->acceptance.push_back(teach.membership_query(*w));
 						delete w;
 					}
 				}
@@ -347,7 +361,7 @@ class simple_observationtable : observationtable<answer> {
 					for(/* -- */; ci != column_names.end(); ci++) {
 						list<int> *w;
 						w = lti->index + *ci;
-						lti->push_back(teach.membership_query(*w));
+						lti->acceptance.push_back(teach.membership_query(*w));
 						delete w;
 					}
 				}
@@ -403,7 +417,8 @@ class simple_observationtable : observationtable<answer> {
 					// go to next and delete old lower entry
 					tmplti = lti;
 					tmplti++;
-					lti.erase();
+					//lti.erase();
+					lower_table.erase(lti);
 					lti = tmplti;
 
 					changed = true;
@@ -422,19 +437,22 @@ class simple_observationtable : observationtable<answer> {
 		virtual bool is_consistent()
 		{{{
 			bool urow_ok[upper_table.size()];
-			typename rowlist::iterator uti_1, uti_2;
-			int i,j;
-			int k,l;
+			typename rowlist::iterator uti_1, uti_2, ut_last_row;
+			unsigned int i,j;
 
 			for(i = 0; i < upper_table.size(); i++)
 				urow_ok[i] = false;
 
-			for(i = 0, uti_1 = upper_table.begin(); uti_1 != (upper_table.end() - 1); i++, uti_1++) {
+			ut_last_row = upper_table.end();
+			ut_last_row--;
+
+			for(i = 0, uti_1 = upper_table.begin(); uti_1 != ut_last_row; i++, uti_1++) {
 				if(urow_ok[i])
 					continue;
 				urow_ok[i] = true;
-
-				for(uti_2 = uti_1+1, j=i+1; uti_2 != upper_table.end(); uti_2++, j++) {
+				uti_2 = uti_1;
+				uti_2++;
+				for(j=i+1; uti_2 != upper_table.end(); uti_2++, j++) {
 					if(urow_ok[j])
 						continue;
 					if(*uti_1 == *uti_2) {
@@ -470,19 +488,22 @@ class simple_observationtable : observationtable<answer> {
 			bool changed = false;
 
 			bool urow_ok[upper_table.size()];
-			typename rowlist::iterator uti_1, uti_2;
-			int i,j;
-			int colindex;
+			typename rowlist::iterator uti_1, uti_2, ut_last_row;
+			unsigned int i,j;
 
 			for(i = 0; i < upper_table.size(); i++)
 				urow_ok[i] = false;
 
-			for(i = 0, uti_1 = upper_table.begin(); uti_1 != (upper_table.end() - 1); i++, uti_1++) {
+			ut_last_row = upper_table.end();
+			ut_last_row--;
+
+			for(i = 0, uti_1 = upper_table.begin(); uti_1 != ut_last_row; i++, uti_1++) {
 				if(urow_ok[i])
 					continue;
 				urow_ok[i] = true;
-
-				for(uti_2 = uti_1+1, j=i+1; uti_2 != upper_table.end(); uti_2++, j++) {
+				uti_2 = uti_1;
+				uti_2++;
+				for(j=i+1; uti_2 != upper_table.end(); uti_2++, j++) {
 					if(urow_ok[j])
 						continue;
 					if(*uti_1 == *uti_2) {

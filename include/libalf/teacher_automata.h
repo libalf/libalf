@@ -14,6 +14,8 @@
 
 #include <list>
 
+#include "libalf/teacher.h"
+
 namespace libalf {
 
 // teacher automata
@@ -21,14 +23,14 @@ namespace libalf {
 // simple teacher that uses an automata as backend for all its tests
 //
 template <class answer>
-class teacher_automata : public teacher {
+class teacher_automata : public teacher<answer> {
 	private:
-		automata *automata;
+		automata *atm;
 
 	public:
 		teacher_automata()
 		{{{
-			automata = NULL;
+			atm = NULL;
 		}}}
 
 		teacher_automata(automata &a)
@@ -38,33 +40,27 @@ class teacher_automata : public teacher {
 
 		virtual ~teacher_automata()
 		{{{
-			  if(automata)
-				  delete automata;
+			  if(atm)
+				  delete atm;
 		}}}
 
 		virtual void set_automata(automata &a)
 		{{{
-			  if(automata)
-				  delete automata;
-			  automata = a.clone;
+			  if(atm)
+				  delete atm;
+			  atm = a.clone();
 		}}}
 
 		virtual automata *get_automata()
 		{{{
-			  return automata;
+			  return atm;
 		}}}
 
 		virtual answer membership_query(list<int> &word)
 		// FIXME: problem: answer vs. bool
 		// this implementation requires that a cast from bool to <answer> is possible
 		{{{
-			/*
-			if(automata->contains(word))
-				return answer::true;
-			else
-				return answer::false;
-			*/
-			return automata->contains(word);
+			return atm->contains(word);
 		}}}
 
 };
