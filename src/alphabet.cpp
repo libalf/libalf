@@ -45,10 +45,11 @@ list<int>* operator+ (list<int> first, list<int> second)
 // FIXME: check below; optimize
 bool is_prefix_of(list<int> prefix, list<int> word)
 {{{
-	int prs = prefix.size();
-	int ws = word.size();
+	unsigned int prs, ws;
+	prs = prefix.size();
 	if(prs == 0)
 		return true;
+	ws = word.size();
 	if(prs > ws)
 		return false;
 	list<int>::iterator pi, li;
@@ -60,10 +61,11 @@ bool is_prefix_of(list<int> prefix, list<int> word)
 
 bool is_suffix_of(list<int> suffix, list<int> word)
 {{{
-	int sus = suffix.size();
-	int ws = word.size();
+	unsigned int sus,ws;
+	sus = suffix.size();
 	if(sus == 0)
 		return true;
+	ws = word.size();
 	if(sus > ws)
 		return false;
 	list<int>::iterator pi, li;
