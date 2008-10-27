@@ -41,11 +41,6 @@ class simple_row {
 			return (acceptance == other.acceptance);
 		}}}
 
-		bool equal_acceptance(simple_row<answer> &other)
-		{{{
-			return (acceptance == other.acceptance);
-		}}}
-
 		bool operator!=(simple_row<answer> &other)
 		{{{
 			return (acceptance != other.acceptance);
@@ -306,7 +301,7 @@ class simple_observationtable : observationtable<answer> {
 				bool match_found = false;
 
 				for(int uti = 0; uti < upper_table.size(); uti++) {
-					if(r.equal_acceptance(upper_table[uti])) {
+					if(r == upper_table[uti]) {
 						match_found = true;
 						break;
 					}
@@ -321,9 +316,37 @@ class simple_observationtable : observationtable<answer> {
 		// returns true if table was closed before,
 		//         false if table was changed (and thus needs to be filled)
 		virtual bool close()
-		{
-			
-		}
+		{{{
+			bool changed = false;
+
+			for(int lti = 0; lti < lower_table.size(); lti++) {
+				simple_ot::simple_row<answer> & r = lower_table[lti];
+				bool match_found = false;
+
+				for(int uti = 0; uti < upper_table.size(); uti++) {
+					if(r == upper_table[uti]) {
+						match_found = true;
+						break;
+					}
+				}
+				if(!match_found) {
+					// create entry in upper table
+					add_word_to_upper_table(r.index, false);
+					int i = search_upper_table(r.index);
+					// copy acceptance status for that row
+					swap(upper_table[i].acceptance, r.acceptance);
+					// delete lower entry
+					typename vector< simple_ot::simple_row<answer> >::iterator it;
+					it = lower_table.begin();
+					it += lti;
+					it.erase();
+
+					changed = true;
+				}
+			}
+
+			return changed;
+		}}}
 
 		// sample implementation only:
 		//  for all _equal_ rows in upper table: all +1 successors over all
@@ -345,7 +368,7 @@ class simple_observationtable : observationtable<answer> {
 				for(int uti_2 = uti_1+1; uti_2 < upper_table.size(); uti_2++) {
 					if(urow_ok[uti_2])
 						continue;
-					if(upper_table[uti_1].equal_acceptance(upper_table[uti_2])) {
+					if(upper_table[uti_1] == upper_table[uti_2]) {
 						// [uti_1].acceptance == [uti_2].acceptance
 						// -> test if all equal suffixes result in equal acceptance as well
 						for(int lti_1 = 0; lti_1 < lower_table.size(); lti_1++) {
@@ -367,7 +390,7 @@ class simple_observationtable : observationtable<answer> {
 								int lti_2 = search_lower_table(w);
 
 								if(lti_2 >= 0)
-									if(!lower_table[lti_1].equal_acceptance(lower_table[lti_2]))
+									if(lower_table[lti_1] != lower_table[lti_2])
 										return false;
 								lrow_ok[lti_1] = true;
 								lrow_ok[lti_2] = true;
@@ -392,14 +415,14 @@ class simple_observationtable : observationtable<answer> {
 			// first complete all missing fields by querying the teacher for membership
 			fill_missing_columns();
 
-			// second check, if table is closed and consistent.
-			// if not, change it in that way and complete recursively.
-			if(close()) {
+			if(make_consistent()) {
 				complete();
 				return;
 			}
 
-			if(make_consistent()) {
+			// second check, if table is closed and consistent.
+			// if not, change it in that way and complete recursively.
+			if(close()) {
 				complete();
 				return;
 			}
