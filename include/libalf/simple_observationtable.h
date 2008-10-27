@@ -272,6 +272,17 @@ class simple_observationtable : observationtable<answer> {
 			return lower_table.end();
 		}}}
 
+		virtual typename rowlist::iterator search_tables(list<int> &word)
+		{{{
+			typename rowlist::iterator it;
+
+			it = search_upper_table(word);
+			if(it != upper_table.end())
+				return it;
+
+			return search_lower_table(word, index);
+		}}}
+
 		virtual typename rowlist::iterator search_tables(list<int> &word, bool &upper_table, int&index)
 		{{{
 			typename rowlist::iterator it;
@@ -409,18 +420,14 @@ class simple_observationtable : observationtable<answer> {
 		//  for all _equal_ rows in upper table: all +1 successors over all
 		//  members of alphabet have to have equal rows
 		virtual bool is_consistent()
-		// FIXME: only checking lower_table for +1 successors?
 		{{{
 			bool urow_ok[upper_table.size()];
-			bool lrow_ok[lower_table.size()];
-			typename rowlist::iterator uti_1, uti_2, lti_1, lti_2;
+			typename rowlist::iterator uti_1, uti_2;
 			int i,j;
 			int k,l;
 
 			for(i = 0; i < upper_table.size(); i++)
 				urow_ok[i] = false;
-			for(k = 0; k < upper_table.size(); k++)
-				lrow_ok[k] = false;
 
 			for(i = 0, uti_1 = upper_table.begin(); uti_1 != (upper_table.end() - 1); i++, uti_1++) {
 				if(urow_ok[i])
@@ -430,36 +437,24 @@ class simple_observationtable : observationtable<answer> {
 				for(uti_2 = uti_1+1, j=i+1; uti_2 != upper_table.end(); uti_2++, j++) {
 					if(urow_ok[j])
 						continue;
-					if(uti_1 == uti_2) {
-						// [uti_1].acceptance == [uti_2].acceptance
+					if(*uti_1 == *uti_2) {
+						// uti_1->acceptance == uti_2->acceptance
 						// -> test if all equal suffixes result in equal acceptance as well
-						
-						//
-						for(lti_1 = lower_table.begin(), k=0; lti_1 != lower_table.end(); lti_1++, k++) {
-							// FIXME: check if this optimization is ok
-							if(lrow_ok[k])
-								continue;
-							if(   is_prefix_of(uti_1->index, lti_1->index)
-							   && (uti_1->index.size() + 1 == lti_1->index.size())) {
-								// find matching prefix-row for upper_table[uti_2].index
-								// check for equal acceptance of both prefix rows
-								list<int>::iterator suffix;
-								suffix = lti_1->index.begin();
-								suffix += uti_1->index.size();
+						list<int> word1 = uti_1->index;
+						list<int> word2 = uti_2->index;
+						typename rowlist::iterator w1succ, w2succ;
+						for(int sigma = 0; sigma < alphabet_size; sigma++) {
+							word1.push_back(sigma);
+							w1succ = search_tables(word1);
 
-								list<int> w;
-								w.assign(uti_2->index.begin(), uti_2->index.end());
-								for(/* -- */; suffix < lti_1->index.end(); suffix++)
-									w.push_back(*suffix);
-								lti_2 = search_lower_table(w);
+							word2.push_back(sigma);
+							w2succ = search_tables(word2);
 
-								if(lti_2 != lower_table.end())
-									if(*lti_1 != *lti_2)
-										return false;
-								lrow_ok[k] = true;
-		// XXX						// FIXME: l is undefined. get index of lti_2 into l...
-								lrow_ok[l] = true;
-							}
+							if(*w1succ != *w2succ)
+								return false;
+
+							word1.pop_back();
+							word2.pop_back();
 						}
 					}
 				}
@@ -471,9 +466,75 @@ class simple_observationtable : observationtable<answer> {
 		// returns true if table was consistent before,
 		//         false if table was changed (and thus needs to be filled)
 		virtual bool make_consistent()
-		{
-			
-		}
+		{{{
+			bool changed = false;
+
+			bool urow_ok[upper_table.size()];
+			typename rowlist::iterator uti_1, uti_2;
+			int i,j;
+			int colindex;
+
+			for(i = 0; i < upper_table.size(); i++)
+				urow_ok[i] = false;
+
+			for(i = 0, uti_1 = upper_table.begin(); uti_1 != (upper_table.end() - 1); i++, uti_1++) {
+				if(urow_ok[i])
+					continue;
+				urow_ok[i] = true;
+
+				for(uti_2 = uti_1+1, j=i+1; uti_2 != upper_table.end(); uti_2++, j++) {
+					if(urow_ok[j])
+						continue;
+					if(*uti_1 == *uti_2) {
+						// uti_1->acceptance == uti_2->acceptance
+						// -> test if all equal suffixes result in equal acceptance as well
+						list<int> word1 = uti_1->index;
+						list<int> word2 = uti_2->index;
+						typename rowlist::iterator w1_succ, w2_succ;
+						for(int sigma = 0; sigma < alphabet_size; sigma++) {
+							word1.push_back(sigma);
+							w1_succ = search_tables(word1);
+
+							word2.push_back(sigma);
+							w2_succ = search_tables(word2);
+
+							if(*w1_succ != *w2_succ) {
+								if(w1_succ->acceptance.size() == w2_succ->acceptance.size()) {
+									// add suffixes resulting in different states to column_names
+									changed = true;
+
+									typename columnlist::iterator ci;
+									typename vector<answer>::iterator w1_acit, w2_acit;
+
+									ci = column_names.begin();
+									w1_acit = w1_succ->acceptance.begin();
+									w2_acit = w2_succ->acceptance.begin();
+
+									while(w1_acit != w1_succ->acceptance.end()) {
+										if(*w1_acit != *w2_acit) {
+											list<int> newsuffix;
+
+											// generate and add suffix
+											newsuffix = *ci;
+											newsuffix.push_front(sigma);
+											column_names.push_back(newsuffix);
+										}
+										w1_acit++;
+										w2_acit++;
+										ci++;
+									}
+								}
+							}
+
+							word1.pop_back();
+							word2.pop_back();
+						}
+					}
+				}
+			}
+
+			return changed;
+		}}}
 
 		virtual void complete()
 		{{{
@@ -502,7 +563,7 @@ class simple_observationtable : observationtable<answer> {
 			dfa dfa_p;
 			dfa_p = newdfa();
 
-			// list of states of automata: each different acceptances-row
+			// list of states of automata: each different acceptance-row
 			// in the upper table represents one DFA state
 			
 			// q0 is row(\epsilon)
