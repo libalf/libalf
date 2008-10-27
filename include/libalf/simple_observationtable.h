@@ -237,6 +237,19 @@ class simple_observationtable : observationtable<answer> {
 			return upper_table.end();
 		}}}
 
+		virtual typename rowlist::iterator search_upper_table(list<int> &word, int &index)
+		{{{
+			typename rowlist::iterator uti;
+			index = 0;
+
+			for(uti = upper_table.begin(); uti != upper_table.end(); uti++, index++) {
+				if(word == uti->index)
+					return uti;
+			}
+			index = -1;
+			return upper_table.end();
+		}}}
+
 		virtual typename rowlist::iterator search_lower_table(list<int> &word)
 		{{{
 			typename rowlist::iterator lti;
@@ -245,6 +258,30 @@ class simple_observationtable : observationtable<answer> {
 				if(word == lti->index)
 					return lti;
 			return lower_table.end();
+		}}}
+
+		virtual typename rowlist::iterator search_lower_table(list<int> &word, int &index)
+		{{{
+			typename rowlist::iterator lti;
+			index = 0;
+
+			for(lti = lower_table.begin(); lti != lower_table.end(); lti++, index++)
+				if(word == lti->index)
+					return lti;
+			index = -1;
+			return lower_table.end();
+		}}}
+
+		virtual typename rowlist::iterator search_tables(list<int> &word, bool &upper_table, int&index)
+		{{{
+			typename rowlist::iterator it;
+
+			it = search_upper_table(word, index);
+			if(index != -1) {
+				return it;
+			}
+
+			return search_lower_table(word, index);
 		}}}
 
 		virtual void add_word_to_upper_table(list<int> word, bool check_uniq = true)
@@ -396,6 +433,8 @@ class simple_observationtable : observationtable<answer> {
 					if(uti_1 == uti_2) {
 						// [uti_1].acceptance == [uti_2].acceptance
 						// -> test if all equal suffixes result in equal acceptance as well
+						
+						//
 						for(lti_1 = lower_table.begin(), k=0; lti_1 != lower_table.end(); lti_1++, k++) {
 							// FIXME: check if this optimization is ok
 							if(lrow_ok[k])
@@ -407,19 +446,18 @@ class simple_observationtable : observationtable<answer> {
 								list<int>::iterator suffix;
 								suffix = lti_1->index.begin();
 								suffix += uti_1->index.size();
-		// XXX
 
 								list<int> w;
-								w.assign(upper_table[uti_2].index.begin(), upper_table[uti_2].index.end());
-								for(/* -- */; suffix < lower_table[lti_1].index.end(); suffix++)
+								w.assign(uti_2->index.begin(), uti_2->index.end());
+								for(/* -- */; suffix < lti_1->index.end(); suffix++)
 									w.push_back(*suffix);
-								int lti_2 = search_lower_table(w);
+								lti_2 = search_lower_table(w);
 
-								if(lti_2 >= 0)
-									if(lower_table[lti_1] != lower_table[lti_2])
+								if(lti_2 != lower_table.end())
+									if(*lti_1 != *lti_2)
 										return false;
-		// XXX
 								lrow_ok[k] = true;
+		// XXX						// FIXME: l is undefined. get index of lti_2 into l...
 								lrow_ok[l] = true;
 							}
 						}
