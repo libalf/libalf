@@ -33,27 +33,28 @@ class teacher_automata : public teacher<answer> {
 			atm = NULL;
 		}}}
 
-		teacher_automata(automata &a)
+		teacher_automata(automata *a)
 		{{{
 			set_automata(a);
 		}}}
 
 		virtual ~teacher_automata()
 		{{{
-			  if(atm)
-				  delete atm;
+//			if(atm)
+//				delete atm;
 		}}}
 
-		virtual void set_automata(automata &a)
+		virtual void set_automata(automata *a)
 		{{{
-			  if(atm)
-				  delete atm;
-			  atm = a.clone();
+//			if(atm)
+//				delete atm;
+//			atm = a->clone();
+			atm = a;
 		}}}
 
 		virtual automata *get_automata()
 		{{{
-			  return atm;
+			return atm;
 		}}}
 
 		virtual answer membership_query(list<int> &word)

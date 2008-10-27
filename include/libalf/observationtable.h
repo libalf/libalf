@@ -26,12 +26,12 @@ template <class answer>
 class observationtable {
 
 	public:
-		virtual ~observationtable();
+		virtual ~observationtable() { };
 
-		virtual void set_teacher(teacher<answer> &) = 0;
-		virtual teacher<answer> & get_teacher() = 0;
-		virtual void set_logger(logger &) = 0;
-		virtual logger & get_logger() = 0;
+		virtual void set_teacher(teacher<answer> *) = 0;
+		virtual teacher<answer> * get_teacher() = 0;
+		virtual void set_logger(logger *) = 0;
+		virtual logger * get_logger() = 0;
 
 		virtual void undo() = 0;
 		virtual void redo() = 0;

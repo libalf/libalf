@@ -78,8 +78,8 @@ class simple_observationtable : observationtable<answer> {
 		rowlist upper_table;
 		rowlist lower_table;
 
-		teacher<answer> & teach;
-		logger & log;
+		teacher<answer> * teach;
+		logger * log;
 		int alphabet_size;
 
 	public:
@@ -90,7 +90,7 @@ class simple_observationtable : observationtable<answer> {
 			alphabet_size = 0;
 		}}}
 
-		simple_observationtable(teacher<answer> & teach, logger & log, int alphabet_size)
+		simple_observationtable(teacher<answer> * teach, logger * log, int alphabet_size)
 		{{{
 			this->alphabet_size = alphabet_size;
 
@@ -109,36 +109,38 @@ class simple_observationtable : observationtable<answer> {
 			complete();
 		}}}
 
-		virtual void set_teacher(teacher<answer> & teach)
+		virtual void set_teacher(teacher<answer> * teach)
 		{{{
 			this->teach = teach;
 		}}}
 
-		virtual teacher<answer> & get_teacher()
+		virtual teacher<answer> * get_teacher()
 		{{{
 			return teach;
 		}}}
 
-		virtual void set_logger(logger & l)
+		virtual void set_logger(logger * l)
 		{{{
 			log = l;
 		}}}
 
-		virtual logger & get_logger()
+		virtual logger * get_logger()
 		{{{
 			return log;
 		}}}
 
 		virtual void undo()
 		{{{
-			  log(LOGGER_ERROR, "simple_observationtable::undo() is not implemented.\naborting.\n");
+			  if(log)
+				  (*log)(LOGGER_ERROR, "simple_observationtable::undo() is not implemented.\naborting.\n");
 
 			  // FIXME: throw exception
 		}}}
 
 		virtual void redo()
 		{{{
-			  log(LOGGER_ERROR, "simple_observationtable::redo() is not implemented.\naborting.\n");
+			  if(log)
+				  (*log)(LOGGER_ERROR, "simple_observationtable::redo() is not implemented.\naborting.\n");
 
 			  // FIXME: throw exception
 		}}}
@@ -346,7 +348,7 @@ class simple_observationtable : observationtable<answer> {
 					for(/* -- */; ci != column_names.end(); ci++) {
 						list<int> *w;
 						w = uti->index + *ci;
-						uti->acceptance.push_back(teach.membership_query(*w));
+						uti->acceptance.push_back(teach->membership_query(*w));
 						delete w;
 					}
 				}
@@ -361,7 +363,7 @@ class simple_observationtable : observationtable<answer> {
 					for(/* -- */; ci != column_names.end(); ci++) {
 						list<int> *w;
 						w = lti->index + *ci;
-						lti->acceptance.push_back(teach.membership_query(*w));
+						lti->acceptance.push_back(teach->membership_query(*w));
 						delete w;
 					}
 				}

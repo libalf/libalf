@@ -20,7 +20,7 @@ template <class answer>
 class teacher {
 
 	public:
-		virtual ~teacher();
+		virtual ~teacher() { };
 
 		virtual answer membership_query(list<int> &word) = 0;
 

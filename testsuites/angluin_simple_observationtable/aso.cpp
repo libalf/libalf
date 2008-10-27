@@ -22,9 +22,9 @@ int main()
 {
 	automata *atm = new automata_amore();
 	logger *log = new ostream_logger(&cout, LOGGER_DEBUG, true);
-	teacher<bool> *teach = new teacher_automata<bool>(*atm);
+	teacher<bool> *teach = new teacher_automata<bool>(atm);
 
-	simple_observationtable<bool> *ob = new simple_observationtable<bool>(*teach, *log, 2);
+	simple_observationtable<bool> *ob = new simple_observationtable<bool>(teach, log, 2);
 
 	// create random automata
 
