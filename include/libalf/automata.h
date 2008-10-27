@@ -13,6 +13,7 @@
 # define __libalf_automata_h__
 
 #include <list>
+#include <string>
 
 namespace libalf {
 
@@ -42,7 +43,9 @@ class automata {
 
 
 		// GENERAL STUFF
-		virtual automata* clone() = 0;
+		virtual automata * clone() = 0;
+
+		virtual string * generate_dotfile() = 0;
 
 
 		// LANGUAGE/AUTOMATA OPERATIONS
@@ -81,6 +84,7 @@ class automata {
 		virtual automata* lang_without(automata &other) = 0;
 		// this.b
 		virtual automata* lang_concat(automata &other) = 0;
+
 };
 
 }; // end namespace libalf

@@ -9,10 +9,17 @@
  * see LICENSE file for licensing information.
  */
 
+#include <string>
+
 #include "libalf/automata.h"
 #include "libalf/automata_amore.h"
 
+// attention: stupid amore headers typedef string to be char*
+// thus we have to use "std::string"...
+
 namespace libalf {
+
+using namespace std;
 
 automata_amore::automata_amore()
 {{{
@@ -72,6 +79,15 @@ automata* automata_amore::clone()
 
 	return n;
 }}}
+
+std::string * automata_amore::generate_dotfile()
+{
+	std::string *dot = new std::string();
+
+	// FIXME
+
+	return dot;
+}
 
 bool automata_amore::is_empty()
 {

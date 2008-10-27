@@ -12,6 +12,9 @@
 #ifndef __libalf_automata_amore_h__
 # define __libalf_automata_amore_h__
 
+#include <list>
+#include <string>
+
 namespace libalf {
 
 #include <libalf/automata.h>
@@ -34,6 +37,11 @@ typedef void *nfa;
 # include "amore/binary.h"
 #endif
 
+// attention: stupid amore headers typedef string to be char*
+// thus we have to use "std::string"...
+
+using namespace std;
+
 class automata_amore : public automata {
 	private:
 		dfa dfa_p;
@@ -52,7 +60,9 @@ class automata_amore : public automata {
 
 		virtual enum automata_type get_type();
 
-		virtual automata* clone();
+		virtual automata * clone();
+
+		virtual std::string * generate_dotfile();
 
 		virtual bool is_empty();
 

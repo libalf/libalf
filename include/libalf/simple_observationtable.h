@@ -265,6 +265,35 @@ class simple_observationtable : observationtable<answer> {
 			}
 		}}}
 
+		virtual void fill_missing_columns()
+		{{{
+			// upper table
+			for(int uti = 0; uti < upper_table.size(); uti++) {
+				if(upper_table[uti].acceptance.size() < column_names.size()) {
+					// fill in missing acceptance information
+					int ci = column_names.size() - upper_table[uti].acceptance.size();
+					for(/* -- */; ci < column_names.size(); ci++) {
+						list<int> *w;
+						w = upper_table[uti].index + column_names[ci];
+						upper_table[uti].push_back(teach.membership_query(*w));
+						delete w;
+					}
+				}
+			}
+			// lower table
+			for(int lti = 0; lti < lower_table.size(); lti++) {
+				if(lower_table[lti].acceptance.size() < column_names.size()) {
+					// fill in missing acceptance information
+					int ci = column_names.size() - lower_table[lti].acceptance.size();
+					for(/* -- */; ci < column_names.size(); ci++) {
+						list<int> *w;
+						w = lower_table[lti].index + column_names[ci];
+						lower_table[lti].push_back(teach.membership_query(*w));
+						delete w;
+					}
+				}
+			}
+		}}}
 
 		// sample implementation only:
 		//  all possible answer-rows in
@@ -287,6 +316,14 @@ class simple_observationtable : observationtable<answer> {
 			}
 			return true;
 		}}}
+
+		// close table: perform operations to close it.
+		// returns true if table was closed before,
+		//         false if table was changed (and thus needs to be filled)
+		virtual bool close()
+		{
+			
+		}
 
 		// sample implementation only:
 		//  for all _equal_ rows in upper table: all +1 successors over all
@@ -342,49 +379,31 @@ class simple_observationtable : observationtable<answer> {
 			return true;
 		}}}
 
-		virtual void fill_missing_columns()
-		{{{
-			// upper table
-			for(int uti = 0; uti < upper_table.size(); uti++) {
-				if(upper_table[uti].acceptance.size() < column_names.size()) {
-					// fill in missing acceptance information
-					int ci = column_names.size() - upper_table[uti].acceptance.size();
-					for(/* -- */; ci < column_names.size(); ci++) {
-						list<int> *w;
-						w = upper_table[uti].index + column_names[ci];
-						upper_table[uti].push_back(teach.membership_query(*w));
-						delete w;
-					}
-				}
-			}
-			// lower table
-			for(int lti = 0; lti < lower_table.size(); lti++) {
-				if(lower_table[lti].acceptance.size() < column_names.size()) {
-					// fill in missing acceptance information
-					int ci = column_names.size() - lower_table[lti].acceptance.size();
-					for(/* -- */; ci < column_names.size(); ci++) {
-						list<int> *w;
-						w = lower_table[lti].index + column_names[ci];
-						lower_table[lti].push_back(teach.membership_query(*w));
-						delete w;
-					}
-				}
-			}
-		}}}
+		// make table consistent: perform operations to do that.
+		// returns true if table was consistent before,
+		//         false if table was changed (and thus needs to be filled)
+		virtual bool make_consistent()
+		{
+			
+		}
 
 		virtual void complete()
-		// FIXME
-		{
+		{{{
 			// first complete all missing fields by querying the teacher for membership
 			fill_missing_columns();
 
 			// second check, if table is closed and consistent.
 			// if not, change it in that way and complete recursively.
+			if(close()) {
+				complete();
+				return;
+			}
 
-			// FIXME
-			
-
-		}
+			if(make_consistent()) {
+				complete();
+				return;
+			}
+		}}}
 
 		virtual automata * derive_automata()
 		// FIXME: possibly refactor this into the automata interface, so this
