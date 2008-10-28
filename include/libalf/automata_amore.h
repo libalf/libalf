@@ -62,7 +62,7 @@ class automata_amore : public automata {
 
 		virtual automata * clone();
 
-		virtual std::string * generate_dotfile();
+		virtual std::string generate_dotfile();
 
 		virtual bool is_empty();
 

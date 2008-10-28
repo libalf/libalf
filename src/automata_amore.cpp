@@ -80,9 +80,9 @@ automata* automata_amore::clone()
 	return n;
 }}}
 
-std::string * automata_amore::generate_dotfile()
+std::string automata_amore::generate_dotfile()
 {
-	std::string *dot = new std::string();
+	std::string dot;
 
 	// FIXME
 
