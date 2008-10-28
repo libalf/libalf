@@ -19,23 +19,23 @@ namespace libalf {
 
 using namespace std;
 
-enum automata_type {
-	FINITE_AUTOMATA,
+enum automaton_type {
+	FINITE_AUTOMATON,
 	FINITE_LANGUAGE_AUTOMATON,
-	NONDETERMINISTIC_FINITE_AUTOMATA,
-	DETERMINISTIC_FINITE_AUTOMATA
+	NONDETERMINISTIC_FINITE_AUTOMATON,
+	DETERMINISTIC_FINITE_AUTOMATON
 };
 
 enum automaton_implementation {
-	IMP_NO_IMPLEMENTATION
-	IMP_AMORE_AUTOMATA
+	IMP_NO_IMPLEMENTATION,
+	IMP_AMORE
 };
 
-// an automata implementation may throw this exception in case
+// an automaton implementation may throw this exception in case
 // a function/operation is not defined
 /*
-class automata_implementation_exception {
-	virtual ~automata_implementation_exception() { };
+class automaton_implementation_exception {
+	virtual ~automaton_implementation_exception() { };
 	virtual const char* what() const throw() = 0;
 };
 */
@@ -44,7 +44,7 @@ class finite_automaton {
 	public:
 		virtual ~finite_automaton() { };
 
-		virtual enum automata_type get_type() {
+		virtual enum automaton_type get_type() {
 			return FINITE_AUTOMATA;
 		}
 
@@ -61,13 +61,11 @@ class finite_language_automaton : public finite_automaton {
 	public:
 		virtual ~finite_language_automaton() { };
 
-		virtual enum automata_type get_type() {
+		virtual enum automaton_type get_type() {
 			return FINITE_LANGUAGE_AUTOMATON;
 		}
 
-		virtual enum automaton_implementation get_implementation() {
-			return IMP_NO_IMPLEMENTATION;
-		}
+		virtual finite_language_automaton * clone() = 0;
 
 		// LANGUAGE/AUTOMATON OPERATIONS
 
@@ -79,11 +77,11 @@ class finite_language_automaton : public finite_automaton {
 
 		// BINARY TESTS
 		// test if this == other
-		virtual bool operator==(finite_automaton &other) = 0;
-		// test if this includes subautomata
-		virtual bool includes(finite_automaton &subautomata) = 0;
-		// test if this is a subset of superautomata
-		virtual bool is_subset_of(finite_automaton &superautomata) = 0;
+		virtual bool operator==(finite_language_automaton &other) = 0;
+		// test if this includes subautomaton
+		virtual bool includes(finite_language_automaton &subautomaton) = 0;
+		// test if this is a subset of superautomaton
+		virtual bool is_subset_of(finite_language_automaton &superautomaton) = 0;
 
 		// test if word is contained in language of this
 		virtual bool contains(list<int>) = 0;
@@ -94,37 +92,41 @@ class finite_language_automaton : public finite_automaton {
 
 		// BINARY OPERATIONS
 		// this+b
-		virtual finite_language_automaton * lang_union(automata &other) = 0;
+		virtual finite_language_automaton * lang_union(finite_language_automaton &other) = 0;
 		// this AND b
-		virtual finite_language_automaton * lang_intersect(automata &other) = 0;
+		virtual finite_language_automaton * lang_intersect(finite_language_automaton &other) = 0;
 		// (this+b) - (this AND b)
-		virtual finite_language_automaton * lang_difference(automata &other) = 0;
+		virtual finite_language_automaton * lang_difference(finite_language_automaton &other) = 0;
 		// this-b
-		virtual finite_language_automaton * lang_without(automata &other) = 0;
+		virtual finite_language_automaton * lang_without(finite_language_automaton &other) = 0;
 		// this.b
-		virtual finite_language_automaton * lang_concat(automata &other) = 0;
+		virtual finite_language_automaton * lang_concat(finite_language_automaton &other) = 0;
 };
 
-class deterministic_finite_automaton : public finite_automaton {
+class deterministic_finite_automaton : public finite_language_automaton {
 	public:
-		virtual enum automata_type get_type() {
+		virtual ~deterministic_finite_automaton() { };
+
+		virtual enum automaton_type get_type() {
 			return DETERMINISTIC_FINITE_AUTOMATA;
 		}
 
-		virtual ~deterministic_finite_automaton() { };
+		virtual deterministic_finite_automaton * clone() = 0;
 
-		virtual finite_language_automaton * undeterminize() = 0;
+		virtual nondeterministic_finite_automaton* nondeterminize() = 0;
 }
 
-class nondeterministic_finite_automaton : public finite_automaton {
+class nondeterministic_finite_automaton : public finite_language_automaton {
 	public:
 		virtual ~nondeterministic_finite_automaton() { };
 
-		virtual enum automata_type get_type() {
+		virtual enum automaton_type get_type() {
 			return NONDETERMINISTIC_FINITE_AUTOMATA;
 		}
 
-		virtual finite_language_automaton * determinize() = 0;
+		virtual nondeterministic_finite_automaton * clone() = 0;
+
+		virtual deterministic_finite_automaton * determinize() = 0;
 }
 
 

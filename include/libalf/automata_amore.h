@@ -42,61 +42,88 @@ typedef void *nfa;
 
 using namespace std;
 
-class automata_amore : public automata {
+class deterministic_finite_amore_automaton : public deterministic_finite_automaton {
 	private:
 		dfa dfa_p;
+
+	public:
+		deterministic_finite_amore_automaton();
+		deterministic_finite_amore_automaton(dfa a);
+		virtual ~deterministic_finite_amore_automaton();
+
+		virtual enum automaton_type get_type() {
+			return DETERMINISTIC_FINITE_AUTOMATA;
+		}
+		virtual enum automaton_implementation get_implementation() {
+			return IMP_AMORE;
+		}
+
+	// from finite_automaton
+		virtual deterministic_finite_amore_automaton * clone();
+		virtual std::string generate_dotfile();
+
+	// from finite_language_automaton
+		virtual bool is_empty();
+		virtual list<int> get_sample_word();
+		virtual bool operator==(finite_language_automaton &other);
+		virtual bool includes(finite_language_automaton &subautomaton);
+		virtual bool is_subset_of(finite_language_automaton &superautomaton);
+		virtual bool contains(list<int>);
+		virtual void minimize();
+		virtual void lang_complement();
+		virtual finite_language_automaton * lang_union(finite_language_automaton &other);
+		virtual finite_language_automaton * lang_intersect(finite_language_automaton &other);
+		virtual finite_language_automaton * lang_difference(finite_language_automaton &other);
+		virtual finite_language_automaton * lang_without(finite_language_automaton &other);
+		virtual finite_language_automaton * lang_concat(finite_language_automaton &other);
+
+	// from deterministic_finite_automaton
+		virtual nondeterministic_finite_automaton * nondeterminize();
+	// new
+		virtual void set_dfa(dfa a);
+		virtual dfa get_dfa();
+};
+
+class nondeterministic_finite_amore_automaton : public nondeterministic_finite_automaton {
+	private:
 		nfa nfa_p;
 
 	public:
-		automata_amore();
+		nondeterministic_finite_amore_automaton();
+		nondeterministic_finite_amore_automaton(nfa a);
+		virtual ~nondeterministic_finite_amore_automaton();
 
-		automata_amore(enum automata_type type);
+		virtual enum automaton_type get_type() {
+			return DETERMINISTIC_FINITE_AUTOMATA;
+		}
+		virtual enum automaton_implementation get_implementation() {
+			return IMP_AMORE;
+		}
 
-		virtual ~automata_amore();
-
-		virtual void set_nfa(nfa a);
-
-		virtual void set_dfa(dfa a);
-
-		virtual enum automata_type get_type();
-
-		virtual automata * clone();
-
+	// from finite_automaton
+		virtual nondeterministic_finite_amore_automaton * clone();
 		virtual std::string generate_dotfile();
 
+	// from finite_language_automaton
 		virtual bool is_empty();
-
 		virtual list<int> get_sample_word();
-
-		// == will also nfa2dfa both automatas
-		virtual bool operator==(automata &other);
-
-		virtual bool includes(automata &subautomata);
-
-		virtual bool is_subset_of(automata &superautomata);
-
+		virtual bool operator==(finite_language_automaton &other);
+		virtual bool includes(finite_language_automaton &subautomaton);
+		virtual bool is_subset_of(finite_language_automaton &superautomaton);
 		virtual bool contains(list<int>);
-
-		virtual void make_deterministic();
-
-		virtual void make_undeterministic();
-
 		virtual void minimize();
-
 		virtual void lang_complement();
+		virtual finite_language_automaton * lang_union(finite_language_automaton &other);
+		virtual finite_language_automaton * lang_intersect(finite_language_automaton &other);
+		virtual finite_language_automaton * lang_difference(finite_language_automaton &other);
+		virtual finite_language_automaton * lang_without(finite_language_automaton &other);
+		virtual finite_language_automaton * lang_concat(finite_language_automaton &other);
 
-		virtual automata* lang_union(automata &other);
-
-		virtual automata* lang_intersect(automata &other);
-
-		virtual automata* lang_difference(automata &other);
-
-		virtual automata* lang_without(automata &other);
-
-		virtual automata* lang_concat(automata &other);
-
-	protected:
-		virtual void clear_automatas();
+	// from deterministic_finite_automaton
+		virtual deterministic_finite_automaton * determinize();
+	// new
+		virtual void set_nfa(nfa a);
+		virtual dfa get_nfa();
 };
 
 
