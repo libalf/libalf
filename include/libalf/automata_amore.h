@@ -121,7 +121,7 @@ class nondeterministic_finite_amore_automaton : public nondeterministic_finite_a
 		virtual deterministic_finite_automaton * determinize();
 	// new
 		virtual void set_nfa(nfa a);
-		virtual dfa get_nfa();
+		virtual nfa get_nfa();
 };
 
 

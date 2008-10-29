@@ -20,19 +20,23 @@ using namespace libalf;
 
 int main()
 {
-	automata *atm = new automata_amore();
-	logger *log = new ostream_logger(&cout, LOGGER_DEBUG, true);
-	teacher<bool> *teach = new teacher_automata<bool>(atm);
+	deterministic_finite_amore_automaton *atm;
+	logger *log;
+	teacher<bool> *teach;
+	simple_observationtable<bool> *ob;
 
-	simple_observationtable<bool> *ob = new simple_observationtable<bool>(teach, log, 2);
+	atm = new deterministic_finite_amore_automaton();
+	log = new ostream_logger(&cout, LOGGER_DEBUG, true);
+	teach = new teacher_automaton<bool>(atm);
+	ob = new simple_observationtable<bool>(teach, log, 2);
 
-	// create random automata
+	// create random automaton
 
 	// create oracle instance and teacher instance
 
-	// create simple_observationtable and teach it the automata
+	// create simple_observationtable and teach it the automaton
 
-	// once an automata is generated, test for equality with oracle_automata
+	// once an automaton is generated, test for equality with oracle_automaton
 	// if this test is ok, all worked well
 
 	delete ob;
