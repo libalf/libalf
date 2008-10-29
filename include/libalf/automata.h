@@ -57,6 +57,29 @@ class finite_automaton {
 		virtual string generate_dotfile() = 0;
 };
 
+class transition {
+	public:
+		int source;		// source node
+		int sigma;		// index of transition (n >= alphabet_size == epsilon)
+		int destination;	// destination node
+
+		transition() {
+			source = -1;
+			sigma = -1;
+			destination = -1;
+		}
+
+		bool operator==(transition &other)
+		{{{
+			return ((source == other.source) && (sigma == other.sigma) && (destination == other.destination));
+		}}}
+
+		bool operator<<(transition &other)
+		{{{
+			return ((source == other.source) && (sigma == other.sigma) && (destination != other.destination));
+		}}}
+};
+
 class finite_language_automaton : public finite_automaton {
 	public:
 		virtual ~finite_language_automaton() { };
@@ -101,12 +124,10 @@ class finite_language_automaton : public finite_automaton {
 		virtual finite_language_automaton * lang_concat(finite_language_automaton &other) = 0;
 
 		// construct a new automaton with states 0..state_count-1
-		// and transitions list< pair< pair<from, to>, sigma> >
-		// where sigma is the character needed for the transition
 		//
 		// using a sigma >= alphabet_size denotes an epsilon-transition (for nondeterministic
 		// automata)
-		virtual finite_language_automaton * construct(int alphabet_size, int state_count, list<int> start, list<int> final, list< pair< pair<int, int>, int> > transitions) = 0;
+		virtual finite_language_automaton * construct(int alphabet_size, int state_count, list<int> start, list<int> final, list<transition> transitions) = 0;
 };
 
 class nondeterministic_finite_automaton;

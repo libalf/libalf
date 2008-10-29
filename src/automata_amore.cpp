@@ -342,26 +342,51 @@ finite_language_automaton * nondeterministic_finite_amore_automaton::lang_concat
 */
 }
 
-deterministic_finite_amore_automaton * deterministic_finite_amore_automaton::construct(int alphabet_size, int state_count, list<int> start, list<int> final, list< pair< pair<int, int>, int> > transitions)
-{
+deterministic_finite_amore_automaton * deterministic_finite_amore_automaton::construct(int alphabet_size, int state_count, list<int> start, list<int> final, list<transition> transitions)
+{{{
 	deterministic_finite_amore_automaton * a;
 	dfa b;
+	list<transition>::iterator ti, tj;
 
 	// do some sanity checks:
 	// - check if start only contains one element
+	if(start.size() != 1) {
+		// we could only create an NFA from this
+		return NULL;
+	}
 	// - check if transitions don't contain duplicate source,sigma tuples
+	for(ti = transitions.begin(); ti != transitions.end(); ti++) {
+		tj = ti;
+		for(tj++; tj != transitions.end(); ti++) {
+			if(*ti << *tj) {
+				// we could only create and NFA from this
+				return false;
+			}
+		}
+	}
+
 
 	a = new deterministic_finite_amore_automaton();
 	b = newdfa();
 
 
 	b->qno = state_count;
+	b->init = start.front();
+	b->sno = alphabet_size;
+	b->final = newfinal(b->qno);
+	for(list<int>::iterator i = final.begin(); i != final.end(); i++)
+		b->final[*i] = true;
+	b->delta = newddelta(b->sno, b->qno);
+	for(ti = transitions.begin(); ti != transitions.end(); ti++)
+		b->delta[ti->sigma - 1][ti->source] = ti->destination;
+	b->minimal = false;
+
 
 	a->set_dfa(b);
-	return b;
+	return a;
 
-}
-nondeterministic_finite_amore_automaton * nondeterministic_finite_amore_automaton::construct(int alphabet_size, int state_count, list<int> start, list<int> final, list< pair< pair<int, int>, int> > transitions)
+}}}
+nondeterministic_finite_amore_automaton * nondeterministic_finite_amore_automaton::construct(int alphabet_size, int state_count, list<int> start, list<int> final, list<transition> transitions)
 {
 	nondeterministic_finite_amore_automaton *a = new nondeterministic_finite_amore_automaton();
 	nfa b = newnfa();
