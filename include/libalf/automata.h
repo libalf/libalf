@@ -99,6 +99,14 @@ class finite_language_automaton : public finite_automaton {
 		virtual finite_language_automaton * lang_without(finite_language_automaton &other) = 0;
 		// this.b
 		virtual finite_language_automaton * lang_concat(finite_language_automaton &other) = 0;
+
+		// construct a new automaton with states 0..state_count-1
+		// and transitions list< pair< pair<from, to>, sigma> >
+		// where sigma is the character needed for the transition
+		//
+		// using a sigma >= alphabet_size denotes an epsilon-transition (for nondeterministic
+		// automata)
+		virtual finite_language_automaton * construct(int alphabet_size, int state_count, list<int> start, list<int> final, list< pair< pair<int, int>, int> > transitions) = 0;
 };
 
 class nondeterministic_finite_automaton;

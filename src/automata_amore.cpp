@@ -21,6 +21,14 @@ namespace libalf {
 
 using namespace std;
 
+// implementation notes:
+//
+// libAMoRE is using '0' as epsilon, thus in amore, he alphabet is [1 .. size]
+// and not [0 .. size-1]
+//
+// libalf uses (in construct) any int >= alphabet_size to indicate an epsilon 
+// transition and uses [0 .. size-1] as the alphabet.
+
 deterministic_finite_amore_automaton::deterministic_finite_amore_automaton()
 {{{
 	dfa_p = NULL;
@@ -334,6 +342,36 @@ finite_language_automaton * nondeterministic_finite_amore_automaton::lang_concat
 */
 }
 
+deterministic_finite_amore_automaton * deterministic_finite_amore_automaton::construct(int alphabet_size, int state_count, list<int> start, list<int> final, list< pair< pair<int, int>, int> > transitions)
+{
+	deterministic_finite_amore_automaton * a;
+	dfa b;
+
+	// do some sanity checks:
+	// - check if start only contains one element
+	// - check if transitions don't contain duplicate source,sigma tuples
+
+	a = new deterministic_finite_amore_automaton();
+	b = newdfa();
+
+
+	b->qno = state_count;
+
+	a->set_dfa(b);
+	return b;
+
+}
+nondeterministic_finite_amore_automaton * nondeterministic_finite_amore_automaton::construct(int alphabet_size, int state_count, list<int> start, list<int> final, list< pair< pair<int, int>, int> > transitions)
+{
+	nondeterministic_finite_amore_automaton *a = new nondeterministic_finite_amore_automaton();
+	nfa b = newnfa();
+
+	
+
+	a->set_nfa(b);
+	return a;
+}
+
 nondeterministic_finite_automaton * deterministic_finite_amore_automaton::nondeterminize()
 {{{
 	return new nondeterministic_finite_amore_automaton(dfa2nfa(dfa_p));
@@ -350,7 +388,6 @@ void deterministic_finite_amore_automaton::set_dfa(dfa a)
 void nondeterministic_finite_amore_automaton::set_nfa(nfa a)
 {{{
 	nfa_p = a;
-
 }}}
 
 dfa deterministic_finite_amore_automaton::get_dfa()
