@@ -378,7 +378,7 @@ deterministic_finite_amore_automaton * deterministic_finite_amore_automaton::con
 		b->final[*i] = true;
 	b->delta = newddelta(b->sno, b->qno);
 	for(ti = transitions.begin(); ti != transitions.end(); ti++)
-		b->delta[ti->sigma - 1][ti->source] = ti->destination;
+		b->delta[ti->sigma + 1][ti->source] = ti->destination;
 	b->minimal = false;
 
 
