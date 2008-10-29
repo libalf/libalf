@@ -74,19 +74,32 @@ bool deterministic_finite_amore_automaton::is_empty()
 // note: calling minimize()es this
 {{{
 	bool ret;
-	dfa a = newdfa();
+	dfa empty = newdfa();
 
 	minimize();
 
-	ret = equiv(dfa_p, a);
+	ret = equiv(dfa_p, empty);
 
-	freedfa(a);
+	freedfa(empty);
 
 	return ret;
 }}}
 bool nondeterministic_finite_amore_automaton::is_empty()
-{
-}
+{{{
+	bool ret;
+	dfa empty = newdfa();
+	dfa det;
+
+	det = nfa2dfa(nfa_p);
+	det = dfamdfa(det, true);
+
+	ret = equiv(det, empty);
+
+	freedfa(empty);
+	freedfa(det);
+
+	return ret;
+}}}
 
 list<int> deterministic_finite_amore_automaton::get_sample_word()
 {
@@ -131,8 +144,36 @@ bool deterministic_finite_amore_automaton::operator==(finite_language_automaton 
 	return ret;
 }}}
 bool nondeterministic_finite_amore_automaton::operator==(finite_language_automaton &other)
-{
-}
+{{{
+	bool ret;
+
+	deterministic_finite_amore_automaton * o_d;
+	nondeterministic_finite_amore_automaton * o_n;
+	bool had_to_determinize = false;
+
+	o_d = dynamic_cast<deterministic_finite_amore_automaton*> (&other);
+
+	if(!o_d) {
+		o_n = dynamic_cast<nondeterministic_finite_amore_automaton*> (&other);
+		if(!o_n) {
+			// FIXME: non-compatible automaton
+			// should throw exception
+			return false;
+		}
+
+		// determinize
+		had_to_determinize = true;
+		o_d = dynamic_cast<deterministic_finite_amore_automaton*>(o_n->determinize());
+	}
+
+	ret = ((*o_d) == *this);
+
+	if(had_to_determinize) {
+		delete o_d;
+	}
+
+	return ret;
+}}}
 
 bool deterministic_finite_amore_automaton::includes(finite_language_automaton &subautomaton)
 {
@@ -156,19 +197,28 @@ void deterministic_finite_amore_automaton::minimize()
 }}}
 void nondeterministic_finite_amore_automaton::minimize()
 {
+	// nfa2mnfa ?!
 }
 
 void deterministic_finite_amore_automaton::lang_complement()
 {{{
-		dfa a;
+	dfa a;
 
-		a = compldfa(dfa_p);
-		freedfa(dfa_p);
-		dfa_p = a;
+	a = compldfa(dfa_p);
+	freedfa(dfa_p);
+	dfa_p = a;
 }}}
 void nondeterministic_finite_amore_automaton::lang_complement()
-{
-}
+{{{
+	dfa a,b;
+
+	a = nfa2dfa(nfa_p);
+	b = compldfa(a);
+	freedfa(a);
+	freenfa(nfa_p);
+	nfa_p = dfa2nfa(b);
+	freedfa(b);
+}}}
 
 finite_language_automaton * deterministic_finite_amore_automaton::lang_union(finite_language_automaton &other)
 {
