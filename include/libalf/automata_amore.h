@@ -52,7 +52,7 @@ class deterministic_finite_amore_automaton : public deterministic_finite_automat
 		virtual ~deterministic_finite_amore_automaton();
 
 		virtual enum automaton_type get_type() {
-			return DETERMINISTIC_FINITE_AUTOMATA;
+			return DETERMINISTIC_FINITE_AUTOMATON;
 		}
 		virtual enum automaton_implementation get_implementation() {
 			return IMP_AMORE;
@@ -67,14 +67,13 @@ class deterministic_finite_amore_automaton : public deterministic_finite_automat
 		virtual list<int> get_sample_word();
 		virtual bool operator==(finite_language_automaton &other);
 		virtual bool includes(finite_language_automaton &subautomaton);
-		virtual bool is_subset_of(finite_language_automaton &superautomaton);
 		virtual bool contains(list<int>);
 		virtual void minimize();
 		virtual void lang_complement();
 		virtual finite_language_automaton * lang_union(finite_language_automaton &other);
 		virtual finite_language_automaton * lang_intersect(finite_language_automaton &other);
 		virtual finite_language_automaton * lang_difference(finite_language_automaton &other);
-		virtual finite_language_automaton * lang_without(finite_language_automaton &other);
+		virtual deterministic_finite_amore_automaton * lang_without(finite_language_automaton &other);
 		virtual finite_language_automaton * lang_concat(finite_language_automaton &other);
 
 	// from deterministic_finite_automaton
@@ -94,7 +93,7 @@ class nondeterministic_finite_amore_automaton : public nondeterministic_finite_a
 		virtual ~nondeterministic_finite_amore_automaton();
 
 		virtual enum automaton_type get_type() {
-			return DETERMINISTIC_FINITE_AUTOMATA;
+			return DETERMINISTIC_FINITE_AUTOMATON;
 		}
 		virtual enum automaton_implementation get_implementation() {
 			return IMP_AMORE;
@@ -109,14 +108,13 @@ class nondeterministic_finite_amore_automaton : public nondeterministic_finite_a
 		virtual list<int> get_sample_word();
 		virtual bool operator==(finite_language_automaton &other);
 		virtual bool includes(finite_language_automaton &subautomaton);
-		virtual bool is_subset_of(finite_language_automaton &superautomaton);
 		virtual bool contains(list<int>);
 		virtual void minimize();
 		virtual void lang_complement();
 		virtual finite_language_automaton * lang_union(finite_language_automaton &other);
 		virtual finite_language_automaton * lang_intersect(finite_language_automaton &other);
 		virtual finite_language_automaton * lang_difference(finite_language_automaton &other);
-		virtual finite_language_automaton * lang_without(finite_language_automaton &other);
+		virtual deterministic_finite_amore_automaton * lang_without(finite_language_automaton &other);
 		virtual finite_language_automaton * lang_concat(finite_language_automaton &other);
 
 	// from deterministic_finite_automaton

@@ -45,7 +45,7 @@ class finite_automaton {
 		virtual ~finite_automaton() { };
 
 		virtual enum automaton_type get_type() {
-			return FINITE_AUTOMATA;
+			return FINITE_AUTOMATON;
 		}
 
 		virtual enum automaton_implementation get_implementation() {
@@ -55,7 +55,7 @@ class finite_automaton {
 		virtual finite_automaton * clone() = 0;
 
 		virtual string generate_dotfile() = 0;
-}'
+};
 
 class finite_language_automaton : public finite_automaton {
 	public:
@@ -80,8 +80,6 @@ class finite_language_automaton : public finite_automaton {
 		virtual bool operator==(finite_language_automaton &other) = 0;
 		// test if this includes subautomaton
 		virtual bool includes(finite_language_automaton &subautomaton) = 0;
-		// test if this is a subset of superautomaton
-		virtual bool is_subset_of(finite_language_automaton &superautomaton) = 0;
 
 		// test if word is contained in language of this
 		virtual bool contains(list<int>) = 0;
@@ -103,31 +101,33 @@ class finite_language_automaton : public finite_automaton {
 		virtual finite_language_automaton * lang_concat(finite_language_automaton &other) = 0;
 };
 
+class nondeterministic_finite_automaton;
+
 class deterministic_finite_automaton : public finite_language_automaton {
 	public:
 		virtual ~deterministic_finite_automaton() { };
 
 		virtual enum automaton_type get_type() {
-			return DETERMINISTIC_FINITE_AUTOMATA;
+			return DETERMINISTIC_FINITE_AUTOMATON;
 		}
 
 		virtual deterministic_finite_automaton * clone() = 0;
 
-		virtual nondeterministic_finite_automaton* nondeterminize() = 0;
-}
+		virtual nondeterministic_finite_automaton * nondeterminize() = 0;
+};
 
 class nondeterministic_finite_automaton : public finite_language_automaton {
 	public:
 		virtual ~nondeterministic_finite_automaton() { };
 
 		virtual enum automaton_type get_type() {
-			return NONDETERMINISTIC_FINITE_AUTOMATA;
+			return NONDETERMINISTIC_FINITE_AUTOMATON;
 		}
 
 		virtual nondeterministic_finite_automaton * clone() = 0;
 
 		virtual deterministic_finite_automaton * determinize() = 0;
-}
+};
 
 
 

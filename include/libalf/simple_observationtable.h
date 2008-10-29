@@ -214,10 +214,10 @@ class simple_observationtable : observationtable<answer> {
 			return ret;
 		}}}
 
-		virtual automata * derive_hypothesis()
+		virtual finite_language_automaton * derive_hypothesis()
 		{{{
 			complete();
-			return derive_automata();
+			return derive_automaton();
 		}}}
 
 		virtual void add_counterexample(list<int> word, answer a)
@@ -577,16 +577,16 @@ class simple_observationtable : observationtable<answer> {
 			}
 		}}}
 
-		virtual automata * derive_automata()
-		// FIXME: possibly refactor this into the automata interface, so this
-		//    can be used with any automata implementation
+		virtual finite_language_automaton * derive_automaton()
+		// FIXME: possibly refactor this into the automaton interface, so this
+		//    can be used with any automaton implementation
 		//    (will have extra overhead, but so what?)
 		{
-			// derive deterministic finite automata from this table
+			// derive deterministic finite automaton from this table
 			dfa dfa_p;
 			dfa_p = newdfa();
 
-			// list of states of automata: each different acceptance-row
+			// list of states of automaton: each different acceptance-row
 			// in the upper table represents one DFA state
 			
 			// q0 is row(\epsilon)
@@ -598,8 +598,8 @@ class simple_observationtable : observationtable<answer> {
 			// \delta: (row, char) -> row :: (row(s), a) -> row(sa)
 			
 
-			automata_amore *a;
-			a = new automata_amore();
+			deterministic_finite_amore_automaton * a;
+			a = new deterministic_finite_amore_automaton();
 			a->set_dfa(dfa_p);
 			return a;
 		}

@@ -49,14 +49,27 @@ std::string deterministic_finite_amore_automaton::generate_dotfile()
 }
 
 bool deterministic_finite_amore_automaton::is_empty()
-{
-}
+// note: calling minimize()es this
+{{{
+	bool ret;
+	dfa a = newdfa();
+
+	minimize();
+
+	ret = equiv(dfa_p, a);
+
+	freedfa(a);
+
+	return ret;
+}}}
 
 list<int> deterministic_finite_amore_automaton::get_sample_word()
 {
 }
 
 bool deterministic_finite_amore_automaton::operator==(finite_language_automaton &other)
+// note: calling minimize()es this and other
+// possibly avoid this?
 {{{
 	bool ret;
 
@@ -76,8 +89,11 @@ bool deterministic_finite_amore_automaton::operator==(finite_language_automaton 
 
 		// determinize
 		had_to_determinize = true;
-		o_d = o_n->determinize();
+		o_d = dynamic_cast<deterministic_finite_amore_automaton*>(o_n->determinize());
 	}
+
+	minimize();
+	o_d->minimize();
 
 	ret = equiv(this->dfa_p, o_d->dfa_p);
 
@@ -89,10 +105,7 @@ bool deterministic_finite_amore_automaton::operator==(finite_language_automaton 
 
 bool deterministic_finite_amore_automaton::includes(finite_language_automaton &subautomaton)
 {
-}
-
-bool deterministic_finite_amore_automaton::is_subset_of(finite_language_automaton &superautomaton)
-{
+	// -> amore::inclusion
 }
 
 bool deterministic_finite_amore_automaton::contains(list<int>)
@@ -106,7 +119,7 @@ void deterministic_finite_amore_automaton::minimize()
 
 void deterministic_finite_amore_automaton::lang_complement()
 {{{
-		dfa_p a;
+		dfa a;
 
 		a = compldfa(dfa_p);
 		freedfa(dfa_p);
@@ -115,7 +128,24 @@ void deterministic_finite_amore_automaton::lang_complement()
 
 finite_language_automaton * deterministic_finite_amore_automaton::lang_union(finite_language_automaton &other)
 {
+// FIXME
+/*
+	automata_amore *o = dynamic_cast<automata_amore*> (&other);
+	// other has to be an automata_amore
+	if(o) {
+		automata_amore *a = new automata_amore();
 
+		make_undeterministic();
+		o->make_undeterministic();
+
+		a->set_nfa( unionfa(nfa_p, o->nfa_p) );
+
+		return a;
+	} else {
+		// FIXME: throw exception?
+		return NULL;
+	}
+*/
 }
 
 finite_language_automaton * deterministic_finite_amore_automaton::lang_intersect(finite_language_automaton &other)
@@ -126,7 +156,7 @@ finite_language_automaton * deterministic_finite_amore_automaton::lang_differenc
 {
 }
 
-finite_language_automaton * deterministic_finite_amore_automaton::lang_without(finite_language_automaton &other)
+deterministic_finite_amore_automaton * deterministic_finite_amore_automaton::lang_without(finite_language_automaton &other)
 {{{
 	deterministic_finite_amore_automaton *ret;
 
@@ -146,10 +176,10 @@ finite_language_automaton * deterministic_finite_amore_automaton::lang_without(f
 
 		// determinize
 		had_to_determinize = true;
-		o_d = o_n->determinize();
+		o_d = dynamic_cast<deterministic_finite_amore_automaton*>(o_n->determinize());
 	}
 
-	ret = insecfa(dfa_p, o_d->dfa_p, true);
+	ret = new deterministic_finite_amore_automaton(insecfa(dfa_p, o_d->dfa_p, true));
 
 	if(had_to_determinize)
 		delete o_d;
@@ -159,6 +189,24 @@ finite_language_automaton * deterministic_finite_amore_automaton::lang_without(f
 
 finite_language_automaton * deterministic_finite_amore_automaton::lang_concat(finite_language_automaton &other)
 {
+// FIXME
+/*
+	automata_amore *o = dynamic_cast<automata_amore*> (&other);
+	// other has to be an automata_amore
+	if(o) {
+		automata_amore *a = new automata_amore();
+
+		make_undeterministic();
+		o->make_undeterministic();
+
+		a->set_nfa( concatfa(nfa_p, o->nfa_p) );
+
+		return a;
+	} else {
+		// FIXME: throw exception?
+		return NULL;
+	}
+*/
 }
 
 nondeterministic_finite_automaton * deterministic_finite_amore_automaton::nondeterminize()
@@ -177,61 +225,6 @@ void deterministic_finite_amore_automaton::set_dfa(dfa a)
 dfa deterministic_finite_amore_automaton::get_dfa()
 {{{
 	return dfa_p;
-}}}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-automata* automata_amore::lang_union(automata &other)
-{{{
-	automata_amore *o = dynamic_cast<automata_amore*> (&other);
-	// other has to be an automata_amore
-	if(o) {
-		automata_amore *a = new automata_amore();
-
-		make_undeterministic();
-		o->make_undeterministic();
-
-		a->set_nfa( unionfa(nfa_p, o->nfa_p) );
-
-		return a;
-	} else {
-		// FIXME: throw exception?
-		return NULL;
-	}
-}}}
-
-automata* automata_amore::lang_concat(automata &other)
-{{{
-	automata_amore *o = dynamic_cast<automata_amore*> (&other);
-	// other has to be an automata_amore
-	if(o) {
-		automata_amore *a = new automata_amore();
-
-		make_undeterministic();
-		o->make_undeterministic();
-
-		a->set_nfa( concatfa(nfa_p, o->nfa_p) );
-
-		return a;
-	} else {
-		// FIXME: throw exception?
-		return NULL;
-	}
 }}}
 
 } // end namespace libalf

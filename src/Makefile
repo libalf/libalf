@@ -9,7 +9,7 @@ LDFLAGS+=-shared -lAMoRE
 
 SONAME=libalf
 
-OBJECTS=alphabet.o automata_amore.o logger.o oracle_automata.o
+OBJECTS=alphabet.o automata_amore.o logger.o oracle_automaton.o
 
 all:	libalf.so
 

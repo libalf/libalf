@@ -46,8 +46,8 @@ class observationtable {
 			// if status unknown, return (false, ?)
 			// otherwise return (true, <answer>)
 
-		// complete table and then derive an automata
-		virtual automata * derive_hypothesis() = 0;
+		// complete table and then derive an automaton
+		virtual finite_language_automaton * derive_hypothesis() = 0;
 
 		virtual void add_counterexample(list<int>, answer) = 0;
 		// automatically prefix_close, postfix_close
@@ -56,7 +56,7 @@ class observationtable {
 		// complete table in such a way that an automata can be derived
 		// (i.e. fill all missing fields and make consistent and closed)
 		virtual void complete() = 0;
-		virtual automata * derive_automata() = 0;
+		virtual finite_language_automaton * derive_automaton() = 0;
 
 
 		//virtual bool is_closed() = 0;

@@ -19,33 +19,11 @@
 #include <libalf/observationtable.h>
 #include <libalf/simple_observationtable.h>
 #include <libalf/oracle.h>
-#include <libalf/oracle_automata.h>
+#include <libalf/oracle_automaton.h>
 #include <libalf/statistics.h>
 #include <libalf/teacher.h>
-#include <libalf/teacher_automata.h>
+#include <libalf/teacher_automaton.h>
 #include <libalf/answer.h>
-
-namespace libalf {
-
-enum learning_algorithm {
-	LEARN_ANGLUIN,
-	LEARN_RIVEST_SHAPIRE,
-	LEARN_LSTAR,
-	LEARN_RFSA,
-
-	LEARN_BIERMANN,
-	LEARN_RPNI,
-
-	LEARN_ANGLUIN_BIERMANN
-};
-
-//template <class answer>
-//automata* learn_finite_automata( enum learning_algorithm, teacher<answer>, oracle, statistics * = NULL, logger * = NULL );
-
-
-
-
-}; // end namespace libalf
 
 #endif
 
