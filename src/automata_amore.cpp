@@ -342,22 +342,21 @@ finite_language_automaton * nondeterministic_finite_amore_automaton::lang_concat
 */
 }
 
-deterministic_finite_amore_automaton * deterministic_finite_amore_automaton::construct(int alphabet_size, int state_count, list<int> start, list<int> final, list<transition> transitions)
+bool deterministic_finite_amore_automaton::construct(int alphabet_size, int state_count, list<int> start, list<int> final, list<transition> transitions)
 {{{
-	deterministic_finite_amore_automaton * a;
-	dfa b;
+	dfa a;
 	list<transition>::iterator ti, tj;
 
 	// do some sanity checks:
 	// - check if start only contains one element
 	if(start.size() != 1) {
 		// we could only create an NFA from this
-		return NULL;
+		return false;
 	}
 	// - check if transitions don't contain duplicate source,sigma tuples
 	for(ti = transitions.begin(); ti != transitions.end(); ti++) {
 		tj = ti;
-		for(tj++; tj != transitions.end(); ti++) {
+		for(tj++; tj != transitions.end(); tj++) {
 			if(*ti << *tj) {
 				// we could only create and NFA from this
 				return false;
@@ -366,35 +365,34 @@ deterministic_finite_amore_automaton * deterministic_finite_amore_automaton::con
 	}
 
 
-	a = new deterministic_finite_amore_automaton();
-	b = newdfa();
+	a = newdfa();
 
 
-	b->qno = state_count;
-	b->init = start.front();
-	b->sno = alphabet_size;
-	b->final = newfinal(b->qno);
+	a->qno = state_count;
+	a->init = start.front();
+	a->sno = alphabet_size;
+	a->final = newfinal(a->qno);
 	for(list<int>::iterator i = final.begin(); i != final.end(); i++)
-		b->final[*i] = true;
-	b->delta = newddelta(b->sno, b->qno);
+		a->final[*i] = true;
+	a->delta = newddelta(a->sno, a->qno);
 	for(ti = transitions.begin(); ti != transitions.end(); ti++)
-		b->delta[ti->sigma + 1][ti->source] = ti->destination;
-	b->minimal = false;
+		a->delta[ti->sigma + 1][ti->source] = ti->destination;
+	a->minimal = false;
 
+	freedfa(dfa_p);
+	dfa_p = a;
 
-	a->set_dfa(b);
-	return a;
-
+	return true;
 }}}
-nondeterministic_finite_amore_automaton * nondeterministic_finite_amore_automaton::construct(int alphabet_size, int state_count, list<int> start, list<int> final, list<transition> transitions)
+bool nondeterministic_finite_amore_automaton::construct(int alphabet_size, int state_count, list<int> start, list<int> final, list<transition> transitions)
 {
-	nondeterministic_finite_amore_automaton *a = new nondeterministic_finite_amore_automaton();
-	nfa b = newnfa();
+	nfa a = newnfa();
 
 	
 
-	a->set_nfa(b);
-	return a;
+	set_nfa(a);
+
+	return true;
 }
 
 nondeterministic_finite_automaton * deterministic_finite_amore_automaton::nondeterminize()

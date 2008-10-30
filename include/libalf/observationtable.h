@@ -17,6 +17,8 @@
 
 #include <libalf/teacher.h>
 
+#include <libalf/automata.h>
+
 namespace libalf {
 
 using namespace std;
@@ -47,7 +49,7 @@ class observationtable {
 			// otherwise return (true, <answer>)
 
 		// complete table and then derive an automaton
-		virtual finite_language_automaton * derive_hypothesis() = 0;
+		virtual bool derive_hypothesis(finite_language_automaton * automaton) = 0;
 
 		virtual void add_counterexample(list<int>, answer) = 0;
 		// automatically prefix_close, postfix_close
@@ -56,7 +58,7 @@ class observationtable {
 		// complete table in such a way that an automata can be derived
 		// (i.e. fill all missing fields and make consistent and closed)
 		virtual void complete() = 0;
-		virtual finite_language_automaton * derive_automaton() = 0;
+		virtual bool derive_automaton(finite_language_automaton * automaton) = 0;
 
 
 		//virtual bool is_closed() = 0;

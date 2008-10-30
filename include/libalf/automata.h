@@ -60,7 +60,7 @@ class finite_automaton {
 class transition {
 	public:
 		int source;		// source node
-		int sigma;		// index of transition (n >= alphabet_size == epsilon)
+		int sigma;		// attribute of transition (n >= alphabet_size == epsilon)
 		int destination;	// destination node
 
 		transition() {
@@ -125,9 +125,10 @@ class finite_language_automaton : public finite_automaton {
 
 		// construct a new automaton with states 0..state_count-1
 		//
-		// using a sigma >= alphabet_size denotes an epsilon-transition (for nondeterministic
-		// automata)
-		virtual finite_language_automaton * construct(int alphabet_size, int state_count, list<int> start, list<int> final, list<transition> transitions) = 0;
+		// states are named 0 .. state_count-1,
+		// transition attributes are 0 .. alphabet_size-1,
+		// an epsilon transition is denoted as alphabet_size
+		virtual bool construct(int alphabet_size, int state_count, list<int> start, list<int> final, list<transition> transitions) = 0;
 };
 
 class nondeterministic_finite_automaton;

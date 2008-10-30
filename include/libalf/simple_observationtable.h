@@ -21,9 +21,7 @@
 #include <libalf/alphabet.h>
 #include <libalf/logger.h>
 #include <libalf/observationtable.h>
-#include <libalf/automata_amore.h>
-
-#include "amore/dfa.h"
+#include <libalf/automata.h>
 
 namespace libalf {
 
@@ -31,38 +29,46 @@ using namespace std;
 
 namespace simple_ot {
 
-template <class answer>
-class simple_row {
-	public:
-		list<int> index;
-		vector<answer> acceptance;
+	template <class answer>
+	class simple_row {
+		public:
+			list<int> index;
+			vector<answer> acceptance;
 
-		bool operator==(simple_row<answer> &other)
-		{{{
-			return (acceptance == other.acceptance);
-		}}}
+			bool operator==(simple_row<answer> &other)
+			{{{
+				return (acceptance == other.acceptance);
+			}}}
 
-		bool operator!=(simple_row<answer> &other)
-		{{{
-			return (acceptance != other.acceptance);
-		}}}
+			bool operator!=(simple_row<answer> &other)
+			{{{
+				return (acceptance != other.acceptance);
+			}}}
 
-		bool operator>(simple_row<answer> &other)
-		{{{
-			typename vector<answer>::iterator ai;
-			typename vector<answer>::iterator oai;
+			bool operator>(simple_row<answer> &other)
+			{{{
+				typename vector<answer>::iterator ai;
+				typename vector<answer>::iterator oai;
 
-			ai = acceptance.begin();
-			oai = other.acceptance.begin();
+				ai = acceptance.begin();
+				oai = other.acceptance.begin();
 
-			for(/* -- */; ai < acceptance.end() && oai < other.acceptance.end(); ai++, oai++) {
-				if(*ai > *oai)
-					return true;
-			}
+				for(/* -- */; ai < acceptance.end() && oai < other.acceptance.end(); ai++, oai++) {
+					if(*ai > *oai)
+						return true;
+				}
 
-			return false;
-		}}}
-};
+				return false;
+			}}}
+	};
+
+	template <class answer>
+	class automaton_state {
+		public:
+			int id;
+			typedef list< simple_ot::simple_row<answer> > rowlist;
+			typename rowlist::iterator tableentry;
+	};
 
 };
 
@@ -214,10 +220,11 @@ class simple_observationtable : observationtable<answer> {
 			return ret;
 		}}}
 
-		virtual finite_language_automaton * derive_hypothesis()
+		virtual bool derive_hypothesis(finite_language_automaton * automaton)
 		{{{
 			complete();
-			return derive_automaton();
+			// XXX: check that this is a DFA?
+			return derive_automaton(automaton);
 		}}}
 
 		virtual void add_counterexample(list<int> word, answer a)
@@ -577,33 +584,83 @@ class simple_observationtable : observationtable<answer> {
 			}
 		}}}
 
-		virtual finite_language_automaton * derive_automaton()
-		// FIXME: possibly refactor this into the automaton interface, so this
-		//    can be used with any automaton implementation
-		//    (will have extra overhead, but so what?)
-		{
+		virtual bool derive_automaton(finite_language_automaton * automaton)
+		{{{
 			// derive deterministic finite automaton from this table
-			dfa dfa_p;
-			dfa_p = newdfa();
+			typename rowlist::iterator uti, ti;
+
+			simple_ot::automaton_state<answer> state;
+			list<simple_ot::automaton_state<answer> > states;
+			state.id = 0;
+			typename list<simple_ot::automaton_state<answer> >::iterator state_it, state_it2;
+
+			list<int> initial;
+
+			list<int> final;
+
+			list<transition> transitions;
 
 			// list of states of automaton: each different acceptance-row
 			// in the upper table represents one DFA state
-			
+			for(uti = upper_table.begin(); uti != upper_table.end(); uti++) {
+				bool known = false;
+				for(state_it = states.begin(); state_it != states.end(); state_it++) {
+					if(*uti == *(state_it->tableentry)) {
+						// state is already known. skip.
+						known = true;
+						break;
+					}
+				}
+				if(known)
+					continue;
+
+				state.tableentry = uti;
+
+				states.push_back(state);
+
+				state.id++;
+			}
+
 			// q0 is row(\epsilon)
-			
-			// the final, accepting states are the rows with
-			// acceptance in column \epsilon
-			
-			// the transformation function is:
-			// \delta: (row, char) -> row :: (row(s), a) -> row(sa)
-			
+			// as epsilon is the first row in uti, it will have id 0.
+			initial.push_back( 0 );
 
-			deterministic_finite_amore_automaton * a;
-			a = new deterministic_finite_amore_automaton();
-			a->set_dfa(dfa_p);
-			return a;
-		}
+			for(state_it = states.begin(); state_it != states.end(); state_it++) {
+				// the final, accepting states are the rows with
+				// acceptance in the epsilon-column
+				if(state_it->tableentry->acceptance.front() == true)
+					final.push_back(state_it->id);
 
+				// the transformation function is:
+				// \delta: (row, char) -> row : (row(s), a) -> row(sa)
+				list<int> index;
+				typename rowlist::iterator ri;
+				index = state_it->tableentry->index;
+				for(int i = 0; i < alphabet_size; i++) {
+					// find successor in table
+					ti = search_tables(index);
+					index.push_back(i);
+
+					// find matching state for successor
+					for(state_it2 = states.begin(); state_it2 != states.end(); state_it2++) {
+						if(*ti == *(state_it2->tableentry)) {
+							transition tr;
+
+							tr.source = state_it->id;
+							tr.sigma = i;
+							tr.destination = state_it2->id;
+							transitions.push_back(tr);
+							break;
+						}
+					}
+
+					index.pop_back();
+				}
+			}
+
+			return automaton->construct(alphabet_size, states.size(),
+						initial, final, transitions);
+		}}}
 
 };
 
