@@ -40,8 +40,6 @@ nondeterministic_finite_amore_automaton::nondeterministic_finite_amore_automaton
 
 deterministic_finite_amore_automaton::deterministic_finite_amore_automaton(dfa a)
 {{{
-	if(dfa_p)
-		freedfa(dfa_p);
 	dfa_p = a;
 }}}
 nondeterministic_finite_amore_automaton::nondeterministic_finite_amore_automaton(nfa a)
@@ -347,7 +345,8 @@ bool deterministic_finite_amore_automaton::construct(int alphabet_size, int stat
 	dfa a;
 	list<transition>::iterator ti, tj;
 
-	// do some sanity checks:
+	// DO SOME SANITY CHECKS
+
 	// - check if start only contains one element
 	if(start.size() != 1) {
 		// we could only create an NFA from this
@@ -364,9 +363,8 @@ bool deterministic_finite_amore_automaton::construct(int alphabet_size, int stat
 		}
 	}
 
-
+	// CONSTRUCT AUTOMATON
 	a = newdfa();
-
 
 	a->qno = state_count;
 	a->init = start.front();
@@ -379,7 +377,8 @@ bool deterministic_finite_amore_automaton::construct(int alphabet_size, int stat
 		a->delta[ti->sigma + 1][ti->source] = ti->destination;
 	a->minimal = false;
 
-	freedfa(dfa_p);
+	if(dfa_p)
+		freedfa(dfa_p);
 	dfa_p = a;
 
 	return true;
@@ -406,11 +405,15 @@ deterministic_finite_automaton * nondeterministic_finite_amore_automaton::determ
 
 void deterministic_finite_amore_automaton::set_dfa(dfa a)
 {{{
-	dfa_p = a;
+	if(dfa_p)
+		freedfa(dfa_p);
+	dfa_p = clonedfa(a);
 }}}
 void nondeterministic_finite_amore_automaton::set_nfa(nfa a)
 {{{
-	nfa_p = a;
+	if(nfa_p)
+		freenfa(nfa_p);
+	nfa_p = clonenfa(a);
 }}}
 
 dfa deterministic_finite_amore_automaton::get_dfa()
