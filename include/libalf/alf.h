@@ -14,7 +14,6 @@
 
 #include <libalf/alphabet.h>
 #include <libalf/automata.h>
-#include <libalf/automata_amore.h>
 #include <libalf/logger.h>
 #include <libalf/observationtable.h>
 #include <libalf/simple_observationtable.h>

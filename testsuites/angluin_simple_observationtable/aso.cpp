@@ -13,6 +13,8 @@
 
 #include "libalf/alf.h"
 
+#include "libalf/automata_amore.h"
+
 #include <amore/vars.h>
 
 using namespace std;

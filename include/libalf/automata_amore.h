@@ -15,27 +15,20 @@
 #include <list>
 #include <string>
 
-namespace libalf {
-
 #include <libalf/automata.h>
-// at some point we need to call amore::initbuf() before using any amore stuff
-// and amore::freebuf() at the end.
 
-// so we don't have to include amore headers here:
-#ifndef __libalf_so_compilation__
+#ifdef __libalf_so_compilation__
+# include <amore/nfa.h>
+# include <amore/dfa.h>
+#else
 typedef void *dfa;
 typedef void *nfa;
-#else
-// AMoRE includes
-# include "amore/nfa.h"
-# include "amore/dfa.h"
-# include "amore/nfa2dfa.h"
-# include "amore/dfa2nfa.h"
-# include "amore/dfamdfa.h"
-# include "amore/testBinary.h"
-# include "amore/unaryB.h"
-# include "amore/binary.h"
 #endif
+
+namespace libalf {
+
+// at some point we need to call amore::initbuf() before using any amore stuff
+// and amore::freebuf() at the end.
 
 // attention: stupid amore headers typedef string to be char*
 // thus we have to use "std::string"...
@@ -67,7 +60,7 @@ class deterministic_finite_amore_automaton : public deterministic_finite_automat
 		virtual list<int> get_sample_word();
 		virtual bool operator==(finite_language_automaton &other);
 		virtual bool includes(finite_language_automaton &subautomaton);
-		virtual bool contains(list<int>);
+		virtual bool contains(list<int> word);
 		virtual void minimize();
 		virtual void lang_complement();
 		virtual finite_language_automaton * lang_union(finite_language_automaton &other);
@@ -83,6 +76,9 @@ class deterministic_finite_amore_automaton : public deterministic_finite_automat
 	// new
 		virtual void set_dfa(dfa a);
 		virtual dfa get_dfa();
+
+	protected:
+		virtual bool accepts_suffix(int starting_state, list<int>::iterator suffix_begin, list<int>::iterator suffix_end);
 };
 
 class nondeterministic_finite_amore_automaton : public nondeterministic_finite_automaton {
@@ -110,7 +106,7 @@ class nondeterministic_finite_amore_automaton : public nondeterministic_finite_a
 		virtual list<int> get_sample_word();
 		virtual bool operator==(finite_language_automaton &other);
 		virtual bool includes(finite_language_automaton &subautomaton);
-		virtual bool contains(list<int>);
+		virtual bool contains(list<int> word);
 		virtual void minimize();
 		virtual void lang_complement();
 		virtual finite_language_automaton * lang_union(finite_language_automaton &other);

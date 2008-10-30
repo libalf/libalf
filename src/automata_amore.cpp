@@ -14,6 +14,15 @@
 #include "libalf/automata.h"
 #include "libalf/automata_amore.h"
 
+# include <amore/nfa.h>
+# include <amore/dfa.h>
+# include <amore/nfa2dfa.h>
+# include <amore/dfa2nfa.h>
+# include <amore/dfamdfa.h>
+# include <amore/testBinary.h>
+# include <amore/unaryB.h>
+# include <amore/binary.h>
+
 // attention: stupid amore headers typedef string to be char*
 // thus we have to use "std::string"...
 
@@ -190,10 +199,25 @@ bool nondeterministic_finite_amore_automaton::includes(finite_language_automaton
 	// -> amore::inclusion
 }
 
-bool deterministic_finite_amore_automaton::contains(list<int>)
-{
-}
-bool nondeterministic_finite_amore_automaton::contains(list<int>)
+bool deterministic_finite_amore_automaton::accepts_suffix(int starting_state, list<int>::iterator suffix_begin, list<int>::iterator suffix_end)
+{{{
+	if(suffix_begin == suffix_end) {
+		return (TRUE == dfa_p->final[starting_state]);
+	} else {
+		int c = (*suffix_begin);
+		suffix_begin++;
+		return accepts_suffix(dfa_p->delta[c+1][starting_state], suffix_begin, suffix_end);
+	}
+}}}
+
+bool deterministic_finite_amore_automaton::contains(list<int> word)
+{{{
+	if(dfa_p) {
+		return accepts_suffix(dfa_p->init, word.begin(), word.end());
+	} else
+		return false;
+}}}
+bool nondeterministic_finite_amore_automaton::contains(list<int> word)
 {
 }
 
@@ -366,13 +390,13 @@ bool deterministic_finite_amore_automaton::construct(int alphabet_size, int stat
 	// CONSTRUCT AUTOMATON
 	a = newdfa();
 
-	a->qno = state_count;
-	a->init = start.front();
-	a->sno = alphabet_size;
-	a->final = newfinal(a->qno);
+	a->qno = state_count - 1; // states [0 .. qno]
+	a->init = start.front(); // initial states
+	a->sno = alphabet_size; // alphabet size
+	a->final = newfinal(a->qno); // final states
 	for(list<int>::iterator i = final.begin(); i != final.end(); i++)
 		a->final[*i] = true;
-	a->delta = newddelta(a->sno, a->qno);
+	a->delta = newddelta(a->sno, a->qno); // transition funktion: delta[sigma][source] = destination
 	for(ti = transitions.begin(); ti != transitions.end(); ti++)
 		a->delta[ti->sigma + 1][ti->source] = ti->destination;
 	a->minimal = false;
