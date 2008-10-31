@@ -12,9 +12,12 @@ all: aso
 clean:
 	-rm *.o
 	-rm aso
+	-rm aso.dot
+	-rm aso.jpg
 
 run: aso
 	LD_LIBRARY_PATH=../../src ./aso
+	dot -Tjpg aso.dot -o aso.jpg
 
 aso: aso.cpp
 

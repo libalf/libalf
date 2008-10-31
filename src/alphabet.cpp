@@ -30,20 +30,22 @@ using namespace std;
 //}}}
 
 // return ptr to new list with first∙second
-list<int>* operator+ (list<int> first, list<int> second)
+list<int>* concat(list<int> &first, list<int> &second)
 {{{
 	list<int> *l = new list<int>;
 	list<int>::iterator li;
 
-	l->assign(first.begin(), first.end());
-	for(li = second.begin(); li != second.end(); li++)
-		l->push_back(*li);
+	if(first.size() != 0)
+		l->assign(first.begin(), first.end());
+	if(second.size() != 0)
+		for(li = second.begin(); li != second.end(); li++)
+			l->push_back(*li);
 
 	return l;
 }}}
 
 // FIXME: check below; optimize
-bool is_prefix_of(list<int> prefix, list<int> word)
+bool is_prefix_of(list<int> &prefix, list<int> &word)
 {{{
 	unsigned int prs, ws;
 	prs = prefix.size();
@@ -59,7 +61,7 @@ bool is_prefix_of(list<int> prefix, list<int> word)
 	return true;
 }}}
 
-bool is_suffix_of(list<int> suffix, list<int> word)
+bool is_suffix_of(list<int> &suffix, list<int> &word)
 {{{
 	unsigned int sus,ws;
 	sus = suffix.size();

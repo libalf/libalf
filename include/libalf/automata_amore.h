@@ -17,13 +17,8 @@
 
 #include <libalf/automata.h>
 
-#ifdef __libalf_so_compilation__
-# include <amore/nfa.h>
-# include <amore/dfa.h>
-#else
-typedef void *dfa;
-typedef void *nfa;
-#endif
+#include <amore/nfa.h>
+#include <amore/dfa.h>
 
 namespace libalf {
 

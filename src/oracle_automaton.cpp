@@ -24,6 +24,7 @@ oracle_automaton::oracle_automaton()
 
 oracle_automaton::oracle_automaton(finite_language_automaton &a)
 {{{
+	backend_automaton = NULL;
 	set_automaton(a);
 }}}
 

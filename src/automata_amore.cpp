@@ -10,6 +10,7 @@
  */
 
 #include <string>
+#include <stdio.h>
 
 #include "libalf/automata.h"
 #include "libalf/automata_amore.h"
@@ -71,15 +72,65 @@ nondeterministic_finite_amore_automaton::~nondeterministic_finite_amore_automato
 
 deterministic_finite_amore_automaton * deterministic_finite_amore_automaton::clone()
 {{{
-	return new deterministic_finite_amore_automaton(clonedfa(dfa_p));
+	if(dfa_p)
+		return new deterministic_finite_amore_automaton(clonedfa(dfa_p));
+	else
+		return new deterministic_finite_amore_automaton();
 }}}
 nondeterministic_finite_amore_automaton * nondeterministic_finite_amore_automaton::clone()
 {{{
-	return new nondeterministic_finite_amore_automaton(clonenfa(nfa_p));
+	if(nfa_p)
+		return new nondeterministic_finite_amore_automaton(clonenfa(nfa_p));
+	else
+		return new nondeterministic_finite_amore_automaton();
 }}}
 
 std::string deterministic_finite_amore_automaton::generate_dotfile()
 {
+	if(!dfa_p)
+		return "";
+
+	std::string ret;
+	char buf[512];
+	unsigned int i, j;
+	bool header_written = false;
+
+	ret = "digraph deterministic_finite_automaton {\n"
+		"\trankdir=LR;\n"
+		"\tsize=8;\n";
+
+	// initial state is bold "[ style=bold ]",
+	snprintf(buf, 512, "\tnode [shape=%s, style=bold]; S%d;\n", dfa_p->final[dfa_p->init] == TRUE ? "doublecircle" : "circle", dfa_p->init);
+	ret += buf;
+
+	// final states are double-circles
+	for(i = 0; i <= dfa_p->qno; i++) {
+		if(dfa_p->final[i] == TRUE && dfa_p->init != i) {
+			if(!header_written) {
+				header_written = true;
+				ret += "\tnode [shape=doublecircle, style=\"\"];";
+			}
+			snprintf(buf, 512, " S%d", i);
+			ret += buf;
+
+		}
+	}
+	if(header_written)
+		ret += ";\n";
+
+	// all normal states are cirles
+	ret += "\tnode [shape=circle, style=\"\"];\n";
+	// list of all transitions and their labels
+	for(i = 1; i <= dfa_p->sno; i++) {
+		for(j = 0; j <= dfa_p->qno; j++) {
+			snprintf(buf, 512, "\tS%d -> S%d [ label = \"%d\" ];\n", j, dfa_p->delta[i][j], i);
+			ret += buf;
+		}
+	}
+	// end;
+	ret += "}\n";
+
+	return ret;
 }
 std::string nondeterministic_finite_amore_automaton::generate_dotfile()
 {

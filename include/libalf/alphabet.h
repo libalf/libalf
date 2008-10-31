@@ -23,11 +23,11 @@ using namespace std;
 // epsilon is denoted by an empty list<int>
 
 // return ptr to new list with first∙second
-list<int>* operator+ (list<int> first, list<int> second);
+list<int>* concat(list<int> &first, list<int> &second);
 
-bool is_prefix_of(list<int> prefix, list<int> word);
+bool is_prefix_of(list<int> &prefix, list<int> &word);
 
-bool is_suffix_of(list<int> postfix, list<int> word);
+bool is_suffix_of(list<int> &postfix, list<int> &word);
 
 }
 

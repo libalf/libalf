@@ -15,13 +15,16 @@ all:	libalf.so
 
 libalf.so: ${OBJECTS}
 	ld ${OBJECTS} ${LDFLAGS} -o $@
-	strip $@
+	#strip $@
 
 clean:
 	-rm *.o
 	-rm libalf.so
 
-install:
+install: libalf.so
+	cp libalf.so /usr/local/lib/
+	chmod 755 /usr/local/lib/libalf.so
 
 uninstall:
+	rm /usr/local/lib/libalf.so
 

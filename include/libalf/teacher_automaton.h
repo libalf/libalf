@@ -35,6 +35,7 @@ class teacher_automaton : public teacher<answer> {
 
 		teacher_automaton(finite_language_automaton *a)
 		{{{
+			atm = NULL;
 			set_automaton(a);
 		}}}
 
