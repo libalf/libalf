@@ -518,9 +518,14 @@ bool deterministic_finite_amore_automaton::construct(int alphabet_size, int stat
 }}}
 bool nondeterministic_finite_amore_automaton::construct(int alphabet_size, int state_count, list<int> start, list<int> final, list<transition> transitions)
 {
+	printf("UUUUH sorry i'm not implemented\n");
+	return false;
+
 	nfa a = newnfa();
 
-	printf("UUUUH sorry i'm not implemented\n");
+
+
+
 
 	set_nfa(a);
 

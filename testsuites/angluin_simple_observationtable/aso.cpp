@@ -24,6 +24,7 @@
 using namespace std;
 using namespace libalf;
 
+
 int main()
 {
 	regex r;
@@ -43,7 +44,8 @@ int main()
 
 	// create automaton from regex
 //	r = rexFromString(2, "(aba*)-(abaaa)");
-	r = rexFromString(3, "(abb(ab(c)*))* U (a(cbb)+)");
+#define ALPHABET_SIZE 3
+	r = rexFromString(ALPHABET_SIZE, "(abb(ab(c)*))* U (a(cbb)+)");
 	cout << "regex ok\n";
 	nfa_p = rex2nfa(r);
 	cout << "nfa ok\n";
@@ -65,7 +67,7 @@ int main()
 	cout << "teacher ok\n";
 
 	// create simple_observationtable and teach it the automaton
-	ob = new simple_observationtable<bool>(teach, log, 2);
+	ob = new simple_observationtable<bool>(teach, log, ALPHABET_SIZE);
 	cout << "simple_observationtable ok\n";
 
 	ob->derive_hypothesis(&hypothesis);
