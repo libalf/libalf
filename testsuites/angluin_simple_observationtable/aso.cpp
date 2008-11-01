@@ -45,8 +45,9 @@ int main()
 
 	// create automaton from regex
 //	r = rexFromString(2, "(aba*)-(abaaa)");
-#define ALPHABET_SIZE 3
-	r = rexFromString(ALPHABET_SIZE, "(abb(ab(c)*))* U (a(cbb)+)");
+#define ALPHABET_SIZE 2
+//	r = rexFromString(ALPHABET_SIZE, "(abb(ab(c)*))* U (a(cbb)+)");
+	r = rexFromString(ALPHABET_SIZE, "ab");
 	cout << "regex ok\n";
 	nfa_p = rex2nfa(r);
 	cout << "nfa ok\n";
@@ -74,7 +75,7 @@ int main()
 	ob = new simple_observationtable<bool>(teach, log, ALPHABET_SIZE);
 	cout << "simple_observationtable ok\n";
 
-	while(1) {
+	for(int iterations = 0; iterations < 8; iterations++) {
 		ob->derive_hypothesis(&hypothesis);
 
 		ob->print(cout);
@@ -91,6 +92,9 @@ int main()
 		if(oracle_answer.first)
 			break;
 
+		cout << "counter example: .";
+		print_word(cout, oracle_answer.second.front());
+		cout << "\n";
 		ob->add_counterexample(oracle_answer.second.front());
 	}
 

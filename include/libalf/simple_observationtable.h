@@ -299,6 +299,7 @@ class simple_observationtable : observationtable<answer> {
 
 			// add word and all prefixes to upper table
 			for(ps = prefix.size(); ps > 0; ps--) {
+printf("adding word with size %d\n", prefix.size());
 				add_word_to_upper_table(prefix);
 				prefix.pop_back();
 			}
@@ -380,8 +381,10 @@ class simple_observationtable : observationtable<answer> {
 			simple_ot::simple_row<answer> row;
 
 			if(check_uniq)
-				if(search_tables(word) != lower_table.end())
+				if(search_tables(word) != lower_table.end()) {
+printf("word already included. skipping.\n");
 					return;
+				}
 
 			// add the word to the upper table
 			row.index = word;
@@ -389,10 +392,13 @@ class simple_observationtable : observationtable<answer> {
 
 			// add all suffixes of word to lower table
 			for( int i = 0; i < alphabet_size; i++ ) {
-				if(check_uniq)
-					if(search_upper_table(word) != upper_table.end()) // can't be in lower table, as its prefix would be in upper then
-						continue;
 				word.push_back(i);
+				if(check_uniq)
+					if(search_upper_table(word) != upper_table.end()) {
+						// can't be in lower table, as its prefix would be in upper then
+printf("suffix already included. skipping.\n");
+						continue;
+					}
 				row.index = word;
 				lower_table.push_back(row);
 				word.pop_back();
@@ -457,8 +463,8 @@ class simple_observationtable : observationtable<answer> {
 		}}}
 
 		// close table: perform operations to close it.
-		// returns true if table was closed before,
-		//         false if table was changed (and thus needs to be filled)
+		// returns false if table was closed before,
+		//         true if table was changed (and thus needs to be filled)
 		virtual bool close()
 		{{{
 			bool changed = false;
@@ -547,8 +553,8 @@ class simple_observationtable : observationtable<answer> {
 		}}}
 
 		// make table consistent: perform operations to do that.
-		// returns true if table was consistent before,
-		//         false if table was changed (and thus needs to be filled)
+		// returns false if table was consistent before,
+		//         true if table was changed (and thus needs to be filled)
 		virtual bool make_consistent()
 		{{{
 			bool changed = false;
@@ -695,11 +701,13 @@ class simple_observationtable : observationtable<answer> {
 				index = state_it->tableentry->index;
 				for(int i = 0; i < alphabet_size; i++) {
 					// find successor in table
-					ti = search_tables(index);
 					index.push_back(i);
+					ti = search_tables(index);
 
 					// find matching state for successor
 					for(state_it2 = states.begin(); state_it2 != states.end(); state_it2++) {
+if(ti == state_it2->tableentry)
+	printf("equal src/dst!\n");
 						if(*ti == *(state_it2->tableentry)) {
 							transition tr;
 

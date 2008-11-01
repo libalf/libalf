@@ -15,8 +15,10 @@ clean:
 	-rm aso.dot
 	-rm aso.jpg
 
-run: aso
+run: aso.jpg
 	LD_LIBRARY_PATH=../../src ./aso
+
+aso.jpg: aso
 	dot -Tjpg aso.dot -o aso.jpg
 
 aso: aso.cpp
