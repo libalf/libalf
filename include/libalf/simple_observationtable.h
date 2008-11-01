@@ -181,12 +181,12 @@ class simple_observationtable : observationtable<answer> {
 				os << ": ";
 				for(vi = ti->acceptance.begin(); vi != ti->acceptance.end(); vi++) {
 					if(*vi == true)
-						printf("+ ");
+						os << "+ ";
 					else
 						if(*vi == false)
-							printf("- ");
+							os << "- ";
 						else
-							printf("? ");
+							os << "? ";
 				}
 				os << ";\n";
 			}
@@ -198,12 +198,12 @@ class simple_observationtable : observationtable<answer> {
 				os << ": ";
 				for(vi = ti->acceptance.begin(); vi != ti->acceptance.end(); vi++) {
 					if(*vi == true)
-						printf("+ ");
+						os << "+ ";
 					else
 						if(*vi == false)
-							printf("- ");
+							os << "- ";
 						else
-							printf("? ");
+							os << "? ";
 				}
 				os << ";\n";
 			}
@@ -389,16 +389,13 @@ class simple_observationtable : observationtable<answer> {
 
 		virtual void fill_missing_columns()
 		{{{
-printf("fill missing columns()\n");
 			typename rowlist::iterator uti, lti;
 			// upper table
 			for(uti = upper_table.begin(); uti != upper_table.end(); uti++) {
-printf("uti->acceptance.size() == %d\n" "column_names.size() == %d\n", uti->acceptance.size(), column_names.size());
 				if(uti->acceptance.size() < column_names.size()) {
 					// fill in missing acceptance information
 					columnlist::iterator ci;
 					ci = column_names.begin();
-printf("ci += %d\n", uti->acceptance.size());
 					ci += uti->acceptance.size();
 					for(/* -- */; ci != column_names.end(); ci++) {
 						list<int> *w;
@@ -452,7 +449,6 @@ printf("ci += %d\n", uti->acceptance.size());
 		//         false if table was changed (and thus needs to be filled)
 		virtual bool close()
 		{{{
-printf("close()\n");
 			bool changed = false;
 			typename rowlist::iterator uti, lti, tmplti;
 
@@ -543,7 +539,6 @@ printf("close()\n");
 		//         false if table was changed (and thus needs to be filled)
 		virtual bool make_consistent()
 		{{{
-printf("make_consistent()\n");
 			bool changed = false;
 
 			bool urow_ok[upper_table.size()];
@@ -618,7 +613,6 @@ printf("make_consistent()\n");
 
 		virtual void complete()
 		{{{
-printf("complete()\n");
 			// first complete all missing fields by querying the teacher for membership
 			fill_missing_columns();
 
@@ -676,14 +670,9 @@ printf("complete()\n");
 			// as epsilon is the first row in uti, it will have id 0.
 			initial.push_back( 0 );
 
-	printf("state count: %d\n", states.size());
 			for(state_it = states.begin(); state_it != states.end(); state_it++) {
 				// the final, accepting states are the rows with
 				// acceptance in the epsilon-column
-				if(state_it->tableentry->acceptance.size() == 0) {
-					printf("ASSERT: acceptance.size() > 0\n");
-					exit(0);
-				}
 				if(state_it->tableentry->acceptance.front() == true)
 					final.push_back(state_it->id);
 
