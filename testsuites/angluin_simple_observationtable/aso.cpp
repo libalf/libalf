@@ -74,8 +74,8 @@ int main()
 	oracle_automaton o;
 	o.set_automaton(*atm);
 
-//	pair<bool, list< list<int> > > oracle_answer;
-//	oracle_answer = o.equality_query(hypothesis);
+	pair<bool, list< list<int> > > oracle_answer;
+	oracle_answer = o.equality_query(hypothesis);
 
 	delete ob;
 	delete teach;

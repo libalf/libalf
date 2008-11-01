@@ -351,7 +351,8 @@ printf("uti->acceptance.size() == %d\n" "column_names.size() == %d\n", uti->acce
 					// fill in missing acceptance information
 					columnlist::iterator ci;
 					ci = column_names.begin();
-					ci += uti->acceptance.size() - column_names.size();
+printf("ci += %d\n", uti->acceptance.size());
+					ci += uti->acceptance.size();
 					for(/* -- */; ci != column_names.end(); ci++) {
 						list<int> *w;
 						w = concat(uti->index, *ci);
@@ -366,7 +367,7 @@ printf("uti->acceptance.size() == %d\n" "column_names.size() == %d\n", uti->acce
 					// fill in missing acceptance information
 					columnlist::iterator ci;
 					ci = column_names.begin();
-					ci += lti->acceptance.size() - column_names.size();
+					ci += lti->acceptance.size();
 					for(/* -- */; ci != column_names.end(); ci++) {
 						list<int> *w;
 						w = concat(lti->index, *ci);

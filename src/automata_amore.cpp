@@ -54,8 +54,6 @@ deterministic_finite_amore_automaton::deterministic_finite_amore_automaton(dfa a
 }}}
 nondeterministic_finite_amore_automaton::nondeterministic_finite_amore_automaton(nfa a)
 {{{
-	if(nfa_p)
-		freenfa(nfa_p);
 	nfa_p = a;
 }}}
 
@@ -86,7 +84,7 @@ nondeterministic_finite_amore_automaton * nondeterministic_finite_amore_automato
 }}}
 
 std::string deterministic_finite_amore_automaton::generate_dotfile()
-{
+{{{
 	if(!dfa_p)
 		return "";
 
@@ -131,7 +129,7 @@ std::string deterministic_finite_amore_automaton::generate_dotfile()
 	ret += "}\n";
 
 	return ret;
-}
+}}}
 std::string nondeterministic_finite_amore_automaton::generate_dotfile()
 {
 }
@@ -140,7 +138,13 @@ bool deterministic_finite_amore_automaton::is_empty()
 // note: calling minimize()es this
 {{{
 	bool ret;
+
 	dfa empty = newdfa();
+	empty->qno = 0;
+	empty->init = 0;
+	empty->sno = dfa_p->sno;
+	empty->final = newfinal(empty->qno);
+	empty->delta = newddelta(empty->sno, empty->qno);
 
 	minimize();
 
@@ -169,9 +173,11 @@ bool nondeterministic_finite_amore_automaton::is_empty()
 
 list<int> deterministic_finite_amore_automaton::get_sample_word()
 {
+	// FIXME
 }
 list<int> nondeterministic_finite_amore_automaton::get_sample_word()
 {
+	// FIXME
 }
 
 bool deterministic_finite_amore_automaton::operator==(finite_language_automaton &other)
@@ -301,30 +307,66 @@ void nondeterministic_finite_amore_automaton::lang_complement()
 	freedfa(b);
 }}}
 
-finite_language_automaton * deterministic_finite_amore_automaton::lang_union(finite_language_automaton &other)
-{
-// FIXME
-/*
-	automata_amore *o = dynamic_cast<automata_amore*> (&other);
-	// other has to be an automata_amore
-	if(o) {
-		automata_amore *a = new automata_amore();
+nondeterministic_finite_automaton * deterministic_finite_amore_automaton::lang_union(finite_language_automaton &other)
+{{{
+	nondeterministic_finite_automaton * ret;
+	deterministic_finite_amore_automaton * o_d;
+	nondeterministic_finite_amore_automaton * o_n;
+	bool had_to_nfa = false;
 
-		make_undeterministic();
-		o->make_undeterministic();
+	o_n = dynamic_cast<nondeterministic_finite_amore_automaton*> (&other);
 
-		a->set_nfa( unionfa(nfa_p, o->nfa_p) );
+	if(!o_n){
+		o_d = dynamic_cast<deterministic_finite_amore_automaton*> (&other);
+		if(!o_d) {
+			// FIXME: non-compatible automaton
+			// should throw exception
+			return NULL;
+		}
 
-		return a;
-	} else {
-		// FIXME: throw exception?
-		return NULL;
+		had_to_nfa = true;
+		o_n = dynamic_cast<nondeterministic_finite_amore_automaton*>(o_d->nondeterminize());
 	}
-*/
-}
-finite_language_automaton * nondeterministic_finite_amore_automaton::lang_union(finite_language_automaton &other)
-{
-}
+
+	ret = o_n->lang_union(*this);
+
+	if(had_to_nfa)
+		delete o_n;
+
+	return ret;
+}}}
+nondeterministic_finite_automaton * nondeterministic_finite_amore_automaton::lang_union(finite_language_automaton &other)
+{{{
+	nondeterministic_finite_automaton * ret;
+	deterministic_finite_amore_automaton * o_d;
+	nondeterministic_finite_amore_automaton *o_n;
+	bool had_to_nfa = false;
+
+	o_n = dynamic_cast<nondeterministic_finite_amore_automaton*> (&other);
+
+	if(!o_n) {
+		o_d = dynamic_cast<deterministic_finite_amore_automaton*> (&other);
+		if(!o_d) {
+			// FIXME: non-compatible automaton
+			// should throw exception
+			return NULL;
+		}
+
+		had_to_nfa = true;
+		o_n = dynamic_cast<nondeterministic_finite_amore_automaton*>(o_d->nondeterminize());
+	}
+
+	nfa a;
+
+	// (AMoRE says:) alphabets need to be the same
+	a = unionfa(nfa_p, o_n->nfa_p);
+	ret = new nondeterministic_finite_amore_automaton(a);
+
+	if(had_to_nfa)
+		delete o_n;
+
+	return ret;
+}}}
 
 finite_language_automaton * deterministic_finite_amore_automaton::lang_intersect(finite_language_automaton &other)
 {
@@ -335,6 +377,20 @@ finite_language_automaton * nondeterministic_finite_amore_automaton::lang_inters
 
 finite_language_automaton * deterministic_finite_amore_automaton::lang_difference(finite_language_automaton &other)
 {
+	// return L1\L2 + L2\L1
+	finite_language_automaton * L1_without_L2;
+	finite_language_automaton * L2_without_L1;
+	finite_language_automaton * ret;
+
+	L1_without_L2 = lang_without(other);
+	L2_without_L1 = other.lang_without(*this);
+
+	ret = L1_without_L2->lang_union(*L2_without_L1);
+
+	delete L1_without_L2;
+	delete L2_without_L1;
+
+	return ret;
 }
 finite_language_automaton * nondeterministic_finite_amore_automaton::lang_difference(finite_language_automaton &other)
 {
@@ -372,6 +428,7 @@ deterministic_finite_amore_automaton * deterministic_finite_amore_automaton::lan
 }}}
 deterministic_finite_amore_automaton * nondeterministic_finite_amore_automaton::lang_without(finite_language_automaton &other)
 {
+	printf("FIXME: not implemented!\n");
 }
 
 finite_language_automaton * deterministic_finite_amore_automaton::lang_concat(finite_language_automaton &other)
