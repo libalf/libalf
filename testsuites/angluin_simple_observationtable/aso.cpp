@@ -52,6 +52,9 @@ int main()
 	dfa_p = nfa2dfa(nfa_p);
 	cout << "dfa ok\n";
 
+	freenfa(nfa_p);
+	freerex(r);
+
 	atm = new deterministic_finite_amore_automaton(dfa_p);
 
 	std::string s;
@@ -74,6 +77,7 @@ int main()
 
 	ob->print(cout);
 
+	cout << "hypothesis:\n";
 	cout << hypothesis.generate_dotfile();
 
 	// once an automaton is generated, test for equality with oracle_automaton

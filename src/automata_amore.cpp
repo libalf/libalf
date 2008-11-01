@@ -11,6 +11,7 @@
 
 #include <string>
 #include <stdio.h>
+#include <set>
 
 #include "libalf/automata.h"
 #include "libalf/automata_amore.h"
@@ -38,6 +39,27 @@ using namespace std;
 //
 // libalf uses (in construct) any int >= alphabet_size to indicate an epsilon 
 // transition and uses [0 .. size-1] as the alphabet.
+
+namespace automata_amore {
+
+	class machine_state {
+		public:
+			list<int> prefix;
+			int id;
+
+			machine_state()
+			{{{
+				  id = 0;
+			}}}
+
+			machine_state(int first_state)
+			{{{
+				  id = first_state;
+			}}}
+
+	};
+
+};
 
 deterministic_finite_amore_automaton::deterministic_finite_amore_automaton()
 {{{
@@ -174,12 +196,45 @@ bool nondeterministic_finite_amore_automaton::is_empty()
 }}}
 
 list<int> deterministic_finite_amore_automaton::get_sample_word()
-{
-	// FIXME
-}
+{{{
+	set<int> visited_states;
+	list<automata_amore::machine_state> state_fifo;
+	automata_amore::machine_state current;
+
+	current.id = dfa_p->init;
+
+	state_fifo.push_back(current);
+
+	while(!state_fifo.empty()) {
+		current = state_fifo.front();
+		state_fifo.pop_front();
+
+		// if state was visited before, skip it
+		if(visited_states.find(current.id) == visited_states.end()) {
+			visited_states.insert(current.id);
+
+			// if state is final, return its prefix
+			if(dfa_p->final[current.id] == TRUE)
+				return current.prefix;
+
+			// otherwise check all possible successors
+			int st = current.id;
+			for(int i = 0; i < dfa_p->sno; i++) {
+				// add possible successor with its prefix to fifo
+				current.prefix.push_back(i);
+				current.id = dfa_p->delta[i+1][st];
+				state_fifo.push_back(current);
+				current.prefix.pop_back();
+			}
+		}
+	}
+
+	list<int> empty;
+	return empty;
+}}}
 list<int> nondeterministic_finite_amore_automaton::get_sample_word()
 {
-	// FIXME
+	printf("nfaa::get_sample_word() not implemented\n");
 }
 
 bool deterministic_finite_amore_automaton::operator==(finite_language_automaton &other)

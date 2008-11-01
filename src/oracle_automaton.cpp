@@ -58,6 +58,8 @@ pair<bool, list< list<int> > > oracle_automaton::equality_query(finite_language_
 		difference = backend_automaton->lang_difference(hypothesis);
 		dfa = difference->determinize();
 		delete difference;
+string dot = dfa->generate_dotfile();
+printf("difference automaton:\n%s\n", dot.c_str());
 		if(dfa->is_empty()) {
 			ret.first = true;
 			delete dfa;
