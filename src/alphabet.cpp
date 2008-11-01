@@ -11,6 +11,8 @@
 
 #include <algorithm>
 #include <list>
+#include <ostream>
+#include <iterator>
 
 #include "libalf/alphabet.h"
 #include "libalf/alf.h"
@@ -79,6 +81,12 @@ bool is_suffix_of(list<int> &suffix, list<int> &word)
 		if(*pi != *li)
 			return false;
 	return true;
+}}}
+
+void print_word(ostream &os, list<int> &word)
+{{{
+	ostream_iterator<int> out(os, ".");
+	copy(word.begin(), word.end(), out);
 }}}
 
 }

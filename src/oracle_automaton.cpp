@@ -61,6 +61,12 @@ pair<bool, list< list<int> > > oracle_automaton::equality_query(finite_language_
 			return ret;
 		} else {
 			ret.first = false;
+
+printf("DIFF @ %p\n", difference);
+			string s;
+			s = difference->generate_dotfile().c_str();
+printf("DIFFERENCE AUTOMATON:\n%s\n", s.c_str());
+
 			// FIXME: find more than one counter-example and push it back?
 			ret.second.push_back(difference->get_sample_word());
 

@@ -160,9 +160,56 @@ class simple_observationtable : observationtable<answer> {
 		}
 
 		virtual void print(ostream &os)
-		{
-			
-		}
+		{{{
+			typename columnlist::iterator ci;
+			typename rowlist::iterator ti;
+			typename vector<answer>::iterator vi;
+
+			os << "simple_observationtable {\n";
+			os << "\tcolumns:";
+
+			for(ci = column_names.begin(); ci != column_names.end(); ci++) {
+				os << " .";
+				print_word(os, *ci);
+			}
+			os << " ;\n";
+
+			os << "\tupper table:\n";
+			for(ti = upper_table.begin(); ti != upper_table.end(); ti++) {
+				os << "\t\t.";
+				print_word(os, ti->index);
+				os << ": ";
+				for(vi = ti->acceptance.begin(); vi != ti->acceptance.end(); vi++) {
+					if(*vi == true)
+						printf("+ ");
+					else
+						if(*vi == false)
+							printf("- ");
+						else
+							printf("? ");
+				}
+				os << ";\n";
+			}
+
+			os << "\tlower_table:\n";
+			for(ti = lower_table.begin(); ti != lower_table.end(); ti++) {
+				os << "\t\t.";
+				print_word(os, ti->index);
+				os << ": ";
+				for(vi = ti->acceptance.begin(); vi != ti->acceptance.end(); vi++) {
+					if(*vi == true)
+						printf("+ ");
+					else
+						if(*vi == false)
+							printf("- ");
+						else
+							printf("? ");
+				}
+				os << ";\n";
+			}
+
+			os << "}\n";
+		}}}
 
 		virtual list< list<int> > *get_columns()
 		{{{

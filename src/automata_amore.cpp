@@ -85,8 +85,9 @@ nondeterministic_finite_amore_automaton * nondeterministic_finite_amore_automato
 
 std::string deterministic_finite_amore_automaton::generate_dotfile()
 {{{
-	if(!dfa_p)
+	if(!dfa_p) {
 		return "";
+	}
 
 	std::string ret;
 	char buf[512];
@@ -121,7 +122,7 @@ std::string deterministic_finite_amore_automaton::generate_dotfile()
 	// list of all transitions and their labels
 	for(i = 1; i <= dfa_p->sno; i++) {
 		for(j = 0; j <= dfa_p->qno; j++) {
-			snprintf(buf, 512, "\tS%d -> S%d [ label = \"%d\" ];\n", j, dfa_p->delta[i][j], i);
+			snprintf(buf, 512, "\tS%d -> S%d [ label = \"%d\" ];\n", j, dfa_p->delta[i][j], i-1);
 			ret += buf;
 		}
 	}
@@ -376,7 +377,7 @@ finite_language_automaton * nondeterministic_finite_amore_automaton::lang_inters
 }
 
 finite_language_automaton * deterministic_finite_amore_automaton::lang_difference(finite_language_automaton &other)
-{
+{{{
 	// return L1\L2 + L2\L1
 	finite_language_automaton * L1_without_L2;
 	finite_language_automaton * L2_without_L1;
@@ -391,7 +392,7 @@ finite_language_automaton * deterministic_finite_amore_automaton::lang_differenc
 	delete L2_without_L1;
 
 	return ret;
-}
+}}}
 finite_language_automaton * nondeterministic_finite_amore_automaton::lang_difference(finite_language_automaton &other)
 {
 }
@@ -503,11 +504,11 @@ bool deterministic_finite_amore_automaton::construct(int alphabet_size, int stat
 	a->sno = alphabet_size; // alphabet size
 	a->final = newfinal(a->qno); // final states
 	for(list<int>::iterator i = final.begin(); i != final.end(); i++)
-		a->final[*i] = true;
+		a->final[*i] = TRUE;
 	a->delta = newddelta(a->sno, a->qno); // transition funktion: delta[sigma][source] = destination
 	for(ti = transitions.begin(); ti != transitions.end(); ti++)
 		a->delta[ti->sigma + 1][ti->source] = ti->destination;
-	a->minimal = false;
+	a->minimal = FALSE;
 
 	if(dfa_p)
 		freedfa(dfa_p);
@@ -519,7 +520,7 @@ bool nondeterministic_finite_amore_automaton::construct(int alphabet_size, int s
 {
 	nfa a = newnfa();
 
-	
+	printf("UUUUH sorry i'm not implemented\n");
 
 	set_nfa(a);
 

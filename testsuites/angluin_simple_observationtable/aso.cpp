@@ -36,11 +36,14 @@ int main()
 	teacher<bool> *teach;
 	simple_observationtable<bool> *ob;
 
+	// init AMoRE buffers
+	initbuf();
+
 	log = new ostream_logger(&cout, LOGGER_DEBUG, true);
 
 	// create automaton from regex
 //	r = rexFromString(2, "(aba*)-(abaaa)");
-	r = rexFromString(2, "abb(ab)*abb");
+	r = rexFromString(3, "(abb(ab(c)*))* U (a(cbb)+)");
 	cout << "regex ok\n";
 	nfa_p = rex2nfa(r);
 	cout << "nfa ok\n";
@@ -67,6 +70,8 @@ int main()
 
 	ob->derive_hypothesis(&hypothesis);
 
+	ob->print(cout);
+
 	cout << hypothesis.generate_dotfile();
 
 	// once an automaton is generated, test for equality with oracle_automaton
@@ -81,6 +86,9 @@ int main()
 	delete teach;
 	delete log;
 	delete atm;
+
+	// release AMoRE buffers
+	freebuf();
 
 	return 0;
 }
