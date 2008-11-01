@@ -292,6 +292,18 @@ class simple_observationtable : observationtable<answer> {
 			}
 		}}}
 
+		virtual void add_counterexample(list<int> word)
+		{{{
+			list<int> prefix = word;
+			int ps;
+
+			// add word and all prefixes to upper table
+			for(ps = prefix.size(); ps > 0; ps--) {
+				add_word_to_upper_table(prefix);
+				prefix.pop_back();
+			}
+		}}}
+
 
 	protected:
 		virtual typename rowlist::iterator search_upper_table(list<int> &word)

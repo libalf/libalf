@@ -36,6 +36,7 @@ int main()
 	logger *log;
 	teacher<bool> *teach;
 	simple_observationtable<bool> *ob;
+	oracle_automaton o;
 
 	// init AMoRE buffers
 	initbuf();
@@ -67,26 +68,31 @@ int main()
 
 	// create oracle instance and teacher instance
 	teach = new teacher_automaton<bool>(atm);
-	cout << "teacher ok\n";
+	o.set_automaton(*atm);
 
 	// create simple_observationtable and teach it the automaton
 	ob = new simple_observationtable<bool>(teach, log, ALPHABET_SIZE);
 	cout << "simple_observationtable ok\n";
 
-	ob->derive_hypothesis(&hypothesis);
+	while(1) {
+		ob->derive_hypothesis(&hypothesis);
 
-	ob->print(cout);
+		ob->print(cout);
 
-	cout << "hypothesis:\n";
-	cout << hypothesis.generate_dotfile();
+		cout << "hypothesis:\n";
+		cout << hypothesis.generate_dotfile();
 
-	// once an automaton is generated, test for equality with oracle_automaton
-	// if this test is ok, all worked well
-	oracle_automaton o;
-	o.set_automaton(*atm);
+		// once an automaton is generated, test for equality with oracle_automaton
+		// if this test is ok, all worked well
 
-	pair<bool, list< list<int> > > oracle_answer;
-	oracle_answer = o.equality_query(hypothesis);
+		pair<bool, list< list<int> > > oracle_answer;
+		oracle_answer = o.equality_query(hypothesis);
+
+		if(oracle_answer.first)
+			break;
+
+		ob->add_counterexample(oracle_answer.second.front());
+	}
 
 	delete ob;
 	delete teach;

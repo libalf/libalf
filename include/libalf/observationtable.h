@@ -52,6 +52,7 @@ class observationtable {
 		virtual bool derive_hypothesis(finite_language_automaton * automaton) = 0;
 
 		virtual void add_counterexample(list<int>, answer) = 0;
+		virtual void add_counterexample(list<int>) = 0;
 		// automatically prefix_close, postfix_close
 
 	protected:
