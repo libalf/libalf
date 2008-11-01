@@ -133,6 +133,7 @@ std::string deterministic_finite_amore_automaton::generate_dotfile()
 }}}
 std::string nondeterministic_finite_amore_automaton::generate_dotfile()
 {
+	printf("nfaa::generate_dotfile() not implemented\n");
 }
 
 bool deterministic_finite_amore_automaton::is_empty()
@@ -376,12 +377,12 @@ finite_language_automaton * nondeterministic_finite_amore_automaton::lang_inters
 {
 }
 
-finite_language_automaton * deterministic_finite_amore_automaton::lang_difference(finite_language_automaton &other)
+nondeterministic_finite_automaton * deterministic_finite_amore_automaton::lang_difference(finite_language_automaton &other)
 {{{
 	// return L1\L2 + L2\L1
-	finite_language_automaton * L1_without_L2;
+	deterministic_finite_amore_automaton * L1_without_L2;
 	finite_language_automaton * L2_without_L1;
-	finite_language_automaton * ret;
+	nondeterministic_finite_automaton * ret = NULL;
 
 	L1_without_L2 = lang_without(other);
 	L2_without_L1 = other.lang_without(*this);
@@ -393,13 +394,13 @@ finite_language_automaton * deterministic_finite_amore_automaton::lang_differenc
 
 	return ret;
 }}}
-finite_language_automaton * nondeterministic_finite_amore_automaton::lang_difference(finite_language_automaton &other)
+nondeterministic_finite_automaton * nondeterministic_finite_amore_automaton::lang_difference(finite_language_automaton &other)
 {
 }
 
 deterministic_finite_amore_automaton * deterministic_finite_amore_automaton::lang_without(finite_language_automaton &other)
 {{{
-	deterministic_finite_amore_automaton *ret;
+	deterministic_finite_amore_automaton *ret = NULL;
 
 	deterministic_finite_amore_automaton * o_d;
 	nondeterministic_finite_amore_automaton * o_n;
@@ -429,7 +430,7 @@ deterministic_finite_amore_automaton * deterministic_finite_amore_automaton::lan
 }}}
 deterministic_finite_amore_automaton * nondeterministic_finite_amore_automaton::lang_without(finite_language_automaton &other)
 {
-	printf("FIXME: not implemented!\n");
+	printf("nfaa::lang_without() not implemented\n");
 }
 
 finite_language_automaton * deterministic_finite_amore_automaton::lang_concat(finite_language_automaton &other)
@@ -518,7 +519,7 @@ bool deterministic_finite_amore_automaton::construct(int alphabet_size, int stat
 }}}
 bool nondeterministic_finite_amore_automaton::construct(int alphabet_size, int state_count, list<int> start, list<int> final, list<transition> transitions)
 {
-	printf("UUUUH sorry i'm not implemented\n");
+	printf("nfaa::construct() not implemented\n");
 	return false;
 
 	nfa a = newnfa();
@@ -532,6 +533,10 @@ bool nondeterministic_finite_amore_automaton::construct(int alphabet_size, int s
 	return true;
 }
 
+deterministic_finite_automaton * deterministic_finite_amore_automaton::determinize()
+{{{
+	return this->clone();
+}}}
 nondeterministic_finite_automaton * deterministic_finite_amore_automaton::nondeterminize()
 {{{
 	return new nondeterministic_finite_amore_automaton(dfa2nfa(dfa_p));
@@ -539,6 +544,10 @@ nondeterministic_finite_automaton * deterministic_finite_amore_automaton::nondet
 deterministic_finite_automaton * nondeterministic_finite_amore_automaton::determinize()
 {{{
 	return new deterministic_finite_amore_automaton(nfa2dfa(nfa_p));
+}}}
+nondeterministic_finite_automaton * nondeterministic_finite_amore_automaton::nondeterminize()
+{{{
+	return this->clone();
 }}}
 
 void deterministic_finite_amore_automaton::set_dfa(dfa a)

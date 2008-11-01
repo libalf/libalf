@@ -123,6 +123,9 @@ class finite_language_automaton : public finite_automaton {
 		// this.b
 		virtual finite_language_automaton * lang_concat(finite_language_automaton &other) = 0;
 
+		virtual finite_language_automaton * nondeterminize() = 0;
+		virtual finite_language_automaton * determinize() = 0;
+
 		// construct a new automaton with states 0..state_count-1
 		//
 		// states are named 0 .. state_count-1,
@@ -140,10 +143,6 @@ class deterministic_finite_automaton : public finite_language_automaton {
 		virtual enum automaton_type get_type() {
 			return DETERMINISTIC_FINITE_AUTOMATON;
 		}
-
-		virtual deterministic_finite_automaton * clone() = 0;
-
-		virtual nondeterministic_finite_automaton * nondeterminize() = 0;
 };
 
 class nondeterministic_finite_automaton : public finite_language_automaton {
@@ -153,10 +152,6 @@ class nondeterministic_finite_automaton : public finite_language_automaton {
 		virtual enum automaton_type get_type() {
 			return NONDETERMINISTIC_FINITE_AUTOMATON;
 		}
-
-		virtual nondeterministic_finite_automaton * clone() = 0;
-
-		virtual deterministic_finite_automaton * determinize() = 0;
 };
 
 

@@ -54,23 +54,24 @@ pair<bool, list< list<int> > > oracle_automaton::equality_query(finite_language_
 
 	if(backend_automaton) {
 		finite_language_automaton *difference;
+		finite_language_automaton *dfa;
 		difference = backend_automaton->lang_difference(hypothesis);
-		if(difference->is_empty()) {
+		dfa = difference->determinize();
+		delete difference;
+		if(dfa->is_empty()) {
 			ret.first = true;
-			delete difference;
+			delete dfa;
 			return ret;
 		} else {
 			ret.first = false;
 
-printf("DIFF @ %p\n", difference);
 			string s;
-			s = difference->generate_dotfile().c_str();
-printf("DIFFERENCE AUTOMATON:\n%s\n", s.c_str());
+			s = dfa->generate_dotfile();
 
 			// FIXME: find more than one counter-example and push it back?
-			ret.second.push_back(difference->get_sample_word());
+			ret.second.push_back(dfa->get_sample_word());
 
-			delete difference;
+			delete dfa;
 			return ret;
 		}
 	} else {
