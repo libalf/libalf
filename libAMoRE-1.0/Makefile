@@ -51,7 +51,7 @@ docs/html/index.html:
 doc:
 	doxygen docs/Doxyfile-libAMoRE
 
-install:
+install: exportHeaders
 	cp libAMoRE.a $(LIBDIR)
 	chmod 644 $(LIBDIR)/libAMoRE.a
 	cp libAMoRE.so $(LIBDIR)
