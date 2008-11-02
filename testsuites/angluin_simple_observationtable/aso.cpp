@@ -47,8 +47,14 @@ int main()
 	log = new ostream_logger(&cout, LOGGER_DEBUG, true);
 
 	// create automaton from regex
-#define ALPHABET_SIZE 3
-	r = rexFromString(ALPHABET_SIZE, "(cbb(ab(c)*))* U (a((cbb*) U a+b+bc)+)");
+#define ALPHABET_SIZE 2
+	// asize 2:
+	//r = rexFromString(ALPHABET_SIZE, "((a((aa)a))U(((bb))*((((bU(ab))U(bUa)))*)*))"); // mindfa has 1 state.
+	//r = rexFromString(ALPHABET_SIZE, "(((bU((aa)U(aUb)))U(a(aUb)))U((aUa)(bb)))"); // mindfa has 4 states.
+	r = rexFromString(ALPHABET_SIZE, "(((aa)(a)*)(((a((b(b)*)(aUb)))((ba))*))*)"); // mindfa has 10 states.
+	// asize 3:
+	//r = rexFromString(ALPHABET_SIZE, "(cbb(ab(c)*))* U (a((cbb*) U a+b+bc)+)");
+
 	if(!r) {
 		printf("regex failed\n");
 		return 1;
