@@ -47,9 +47,12 @@ int main()
 	log = new ostream_logger(&cout, LOGGER_DEBUG, true);
 
 	// create automaton from regex
-//	r = rexFromString(2, "(aba*)-(abaaa)");
 #define ALPHABET_SIZE 3
-	r = rexFromString(ALPHABET_SIZE, "(abb(ab(c)*))* U (a(cbb)+)");
+	r = rexFromString(ALPHABET_SIZE, "(cbb(ab(c)*))* U (a((cbb*) U a+b+bc)+)");
+	if(!r) {
+		printf("regex failed\n");
+		return 1;
+	}
 	nfa_p = rex2nfa(r);
 	dfa_p = nfa2dfa(nfa_p);
 
@@ -59,7 +62,7 @@ int main()
 	atm = new deterministic_finite_amore_automaton(dfa_p);
 
 	ofstream file;
-	file.open("aso.dot");
+	file.open("original.dot");
 	file << atm->generate_dotfile();
 	file.close();
 

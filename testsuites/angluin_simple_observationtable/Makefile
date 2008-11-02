@@ -16,11 +16,11 @@ clean:
 	-rm *.jpg
 	-rm *.angluin
 
-run: aso.jpg
+run:
 	LD_LIBRARY_PATH=../../src ./aso
 
-aso.jpg: aso
-	dot -Tjpg aso.dot -o aso.jpg
+jpegs:
+	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;
 
 aso: aso.cpp
 
