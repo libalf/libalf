@@ -30,6 +30,9 @@ class learning_algorithm {
 	public:
 		virtual ~learning_algorithm() { };
 
+		virtual void set_alphabet_size(int alphabet_size) = 0;
+		virtual int get_alphabet_size() = 0;
+
 		virtual void set_teacher(teacher<answer> *) = 0;
 		virtual teacher<answer> * get_teacher() = 0;
 		virtual void set_logger(logger *) = 0;

@@ -28,89 +28,63 @@ namespace libalf {
 using namespace std;
 
 	namespace algorithm_angluin {
-
-		template <class answer>
-		class simple_row {
-			public:
-				list<int> index;
-				vector<answer> acceptance;
-
-				bool operator==(simple_row<answer> &other)
-				{{{
-					return (acceptance == other.acceptance);
-				}}}
-
-				bool operator!=(simple_row<answer> &other)
-				{{{
-					return (acceptance != other.acceptance);
-				}}}
-
-				bool operator>(simple_row<answer> &other)
-				{{{
-					typename vector<answer>::iterator ai;
-					typename vector<answer>::iterator oai;
-
-					ai = acceptance.begin();
-					oai = other.acceptance.begin();
-
-					for(/* -- */; ai < acceptance.end() && oai < other.acceptance.end(); ai++, oai++) {
-						if(*ai > *oai)
-							return true;
-					}
-
-					return false;
-				}}}
-		};
-
-		template <class answer>
+		template <class answer, class table>
 		class automaton_state {
 			public:
 				int id;
-				typedef list< algorithm_angluin::simple_row<answer> > rowlist;
-				typename rowlist::iterator tableentry;
+				typename table::iterator tableentry;
 		};
-
 	};
 
-// simple observation table for angluin learning algorithm
-template <class answer>
-class simple_observationtable : learning_algorithm<answer> {
+/*
+ * observation table for angluin learning algorithm
+ */
+template <class answer, class table>
+class angluin_observationtable : public learning_algorithm<answer> {
+	/*\
+	 * NOTES FOR <TABLE> TEMPLATE CLASS:
+	 *	table has to be iterable. iterator elements have to provide the following:
+	 *	table::iterator->operator==(*(table::iterator) &)
+	 *		has to return true, if acceptance of both table entries is same
+	 *	table::iterator->acceptance has to be a container with acceptance information,
+	 *		in the same order as column_names. following functionality is required:
+	 *		- has to be iterable, and thus to provide begin() and end()
+	 *		- type of *(acceptance.begin()) has to be <answer>
+	 *		- has to be indicable: e.g. it->acceptance[5]
+	 *		- has to provide push_back(answer a): e.g. it->acceptance.push_back(true)
+	 *		- has to provide front(): e.g. answer b = it->acceptance.front()
+	 *		- has to provide swap(*(table::iterator).acceptance, *(table::iterator).acceptance)
+	 *
+	 *	note: acceptance can e.g. be a member vector<answer> of the *(table::iterator) type
+	\*/
 
-	private:
+	protected:
 		typedef vector< list<int> > columnlist;
 		columnlist column_names;
 
-		typedef list< algorithm_angluin::simple_row<answer> > rowlist;
-		rowlist upper_table;
-		rowlist lower_table;
+		table upper_table;
+		table lower_table;
 
 		teacher<answer> * teach;
 		logger * log;
 		int alphabet_size;
 
 	public:
-		simple_observationtable()
+		angluin_observationtable()
 		{{{
 			teach = NULL;
 			log = NULL;
 			alphabet_size = 0;
 		}}}
 
-		simple_observationtable(teacher<answer> * teach, logger * log, int alphabet_size)
+		virtual void set_alphabet_size(int alphabet_size)
 		{{{
 			this->alphabet_size = alphabet_size;
+		}}}
 
-			set_teacher(teach);
-			set_logger(log);
-
-			list<int> word; // empty word!
-
-			// add epsilon as column
-			column_names.push_back(word);
-
-			// add epsilon to upper table
-			// and all suffixes to lower table
-			add_word_to_upper_table(word, false);
+		virtual int get_alphabet_size()
+		{{{
+			return alphabet_size;
 		}}}
 
 		virtual void set_teacher(teacher<answer> * teach)
@@ -162,7 +136,7 @@ class simple_observationtable : learning_algorithm<answer> {
 		virtual void print(ostream &os)
 		{{{
 			typename columnlist::iterator ci;
-			typename rowlist::iterator ti;
+			typename table::iterator ti;
 			typename vector<answer>::iterator vi;
 
 			os << "simple_observationtable {\n";
@@ -216,7 +190,7 @@ class simple_observationtable : learning_algorithm<answer> {
 		{{{
 			columnlist::iterator ci;
 			unsigned int col_index;
-			typename rowlist::iterator uti, lti;
+			typename table::iterator uti, lti;
 
 			pair<bool, answer> ret;
 
@@ -272,7 +246,7 @@ class simple_observationtable : learning_algorithm<answer> {
 				prefix.pop_back();
 			}
 
-			typename rowlist::iterator uti = search_upper_table(word);
+			typename table::iterator uti = search_upper_table(word);
 			if(uti->acceptance.size() == 0) {
 				uti->acceptance.push_back(a);
 			} else {
@@ -304,9 +278,11 @@ class simple_observationtable : learning_algorithm<answer> {
 		}}}
 
 	protected:
-		virtual typename rowlist::iterator search_upper_table(list<int> &word)
+		virtual void add_word_to_upper_table(list<int> word, bool check_uniq = true) = 0;
+
+		virtual typename table::iterator search_upper_table(list<int> &word)
 		{{{
-			typename rowlist::iterator uti;
+			typename table::iterator uti;
 
 			for(uti = upper_table.begin(); uti != upper_table.end(); uti++) {
 				if(word == uti->index)
@@ -315,9 +291,9 @@ class simple_observationtable : learning_algorithm<answer> {
 			return upper_table.end();
 		}}}
 
-		virtual typename rowlist::iterator search_upper_table(list<int> &word, int &index)
+		virtual typename table::iterator search_upper_table(list<int> &word, int &index)
 		{{{
-			typename rowlist::iterator uti;
+			typename table::iterator uti;
 			index = 0;
 
 			for(uti = upper_table.begin(); uti != upper_table.end(); uti++, index++) {
@@ -328,9 +304,9 @@ class simple_observationtable : learning_algorithm<answer> {
 			return upper_table.end();
 		}}}
 
-		virtual typename rowlist::iterator search_lower_table(list<int> &word)
+		virtual typename table::iterator search_lower_table(list<int> &word)
 		{{{
-			typename rowlist::iterator lti;
+			typename table::iterator lti;
 
 			for(lti = lower_table.begin(); lti != lower_table.end(); lti++)
 				if(word == lti->index)
@@ -338,9 +314,9 @@ class simple_observationtable : learning_algorithm<answer> {
 			return lower_table.end();
 		}}}
 
-		virtual typename rowlist::iterator search_lower_table(list<int> &word, int &index)
+		virtual typename table::iterator search_lower_table(list<int> &word, int &index)
 		{{{
-			typename rowlist::iterator lti;
+			typename table::iterator lti;
 			index = 0;
 
 			for(lti = lower_table.begin(); lti != lower_table.end(); lti++, index++)
@@ -350,9 +326,9 @@ class simple_observationtable : learning_algorithm<answer> {
 			return lower_table.end();
 		}}}
 
-		virtual typename rowlist::iterator search_tables(list<int> &word)
+		virtual typename table::iterator search_tables(list<int> &word)
 		{{{
-			typename rowlist::iterator it;
+			typename table::iterator it;
 
 			it = search_upper_table(word);
 			if(it != upper_table.end())
@@ -361,9 +337,9 @@ class simple_observationtable : learning_algorithm<answer> {
 			return search_lower_table(word);
 		}}}
 
-		virtual typename rowlist::iterator search_tables(list<int> &word, bool &upper_table, int&index)
+		virtual typename table::iterator search_tables(list<int> &word, bool &upper_table, int&index)
 		{{{
-			typename rowlist::iterator it;
+			typename table::iterator it;
 
 			it = search_upper_table(word, index);
 			if(index != -1) {
@@ -373,50 +349,20 @@ class simple_observationtable : learning_algorithm<answer> {
 			return search_lower_table(word, index);
 		}}}
 
-		virtual void add_word_to_upper_table(list<int> word, bool check_uniq = true)
+		virtual void add_column(list<int>word)
 		{{{
-			algorithm_angluin::simple_row<answer> row;
-			bool done = false;
+			typename columnlist::iterator ci;
 
-			if(check_uniq) {
-				if(search_upper_table(word) != upper_table.end()) {
+			for(ci = column_names.begin(); ci != column_names.end(); ci++)
+				if(*ci == word)
 					return;
-				}
-				typename rowlist::iterator ti;
-				ti = search_lower_table(word);
-				if(ti != lower_table.end()) {
-					done = true;
-					upper_table.push_back(*ti);
-					lower_table.erase(ti);
-				}
-			}
 
-			// add the word to the upper table
-			if(!done) {
-				row.index = word;
-				upper_table.push_back(row);
-			}
-
-			// add all suffixes of word to lower table
-			for( int i = 0; i < alphabet_size; i++ ) {
-				word.push_back(i);
-				done = false;
-				if(check_uniq)
-					if(search_upper_table(word) != upper_table.end()) {
-						// can't be in lower table, as its prefix would be in upper then
-						done = true;
-					}
-				if(!done) {
-					row.index = word;
-					lower_table.push_back(row);
-				}
-				word.pop_back();
-			}
+			column_names.push_back(word);
 		}}}
 
 		virtual void fill_missing_columns()
 		{{{
-			typename rowlist::iterator uti, lti;
+			typename table::iterator uti, lti;
 			// upper table
 			for(uti = upper_table.begin(); uti != upper_table.end(); uti++) {
 				if(uti->acceptance.size() < column_names.size()) {
@@ -455,7 +401,7 @@ class simple_observationtable : learning_algorithm<answer> {
 		//  (for angluin)
 		virtual bool is_closed()
 		{{{
-			typename rowlist::iterator uti, lti;
+			typename table::iterator uti, lti;
 			for(lti = lower_table.begin(); lti != lower_table.end(); lti++) {
 				bool match_found = false;
 
@@ -477,7 +423,7 @@ class simple_observationtable : learning_algorithm<answer> {
 		virtual bool close()
 		{{{
 			bool changed = false;
-			typename rowlist::iterator uti, lti, tmplti;
+			typename table::iterator uti, lti, tmplti;
 
 			for(lti = lower_table.begin(); lti != lower_table.end(); /* -- */) {
 				bool match_found = false;
@@ -491,7 +437,7 @@ class simple_observationtable : learning_algorithm<answer> {
 				if(!match_found) {
 					// create entry in upper table
 					add_word_to_upper_table(lti->index, false);
-					typename rowlist::iterator last = upper_table.end();
+					typename table::iterator last = upper_table.end();
 					last--; // FIXME: does this work?
 					// copy acceptance status for that row
 					swap(last->acceptance, lti->acceptance);
@@ -518,7 +464,7 @@ class simple_observationtable : learning_algorithm<answer> {
 		virtual bool is_consistent()
 		{{{
 			bool urow_ok[upper_table.size()];
-			typename rowlist::iterator uti_1, uti_2, ut_last_row;
+			typename table::iterator uti_1, uti_2, ut_last_row;
 			unsigned int i,j;
 
 			for(i = 0; i < upper_table.size(); i++)
@@ -541,7 +487,7 @@ class simple_observationtable : learning_algorithm<answer> {
 						// -> test if all equal suffixes result in equal acceptance as well
 						list<int> word1 = uti_1->index;
 						list<int> word2 = uti_2->index;
-						typename rowlist::iterator w1succ, w2succ;
+						typename table::iterator w1succ, w2succ;
 						for(int sigma = 0; sigma < alphabet_size; sigma++) {
 							word1.push_back(sigma);
 							w1succ = search_tables(word1);
@@ -561,17 +507,6 @@ class simple_observationtable : learning_algorithm<answer> {
 			return true;
 		}}}
 
-		virtual void add_column(list<int>word)
-		{{{
-			typename columnlist::iterator ci;
-
-			for(ci = column_names.begin(); ci != column_names.end(); ci++)
-				if(*ci == word)
-					return;
-
-			column_names.push_back(word);
-		}}}
-
 		// make table consistent: perform operations to do that.
 		// returns false if table was consistent before,
 		//         true if table was changed (and thus needs to be filled)
@@ -580,7 +515,7 @@ class simple_observationtable : learning_algorithm<answer> {
 			bool changed = false;
 
 			bool urow_ok[upper_table.size()];
-			typename rowlist::iterator uti_1, uti_2, ut_last_row;
+			typename table::iterator uti_1, uti_2, ut_last_row;
 			unsigned int i,j;
 
 			for(i = 0; i < upper_table.size(); i++)
@@ -603,7 +538,7 @@ class simple_observationtable : learning_algorithm<answer> {
 						// -> test if all equal suffixes result in equal acceptance as well
 						list<int> word1 = uti_1->index;
 						list<int> word2 = uti_2->index;
-						typename rowlist::iterator w1_succ, w2_succ;
+						typename table::iterator w1_succ, w2_succ;
 						for(int sigma = 0; sigma < alphabet_size; sigma++) {
 							word1.push_back(sigma);
 							w1_succ = search_tables(word1);
@@ -670,12 +605,12 @@ class simple_observationtable : learning_algorithm<answer> {
 		virtual bool derive_automaton(finite_language_automaton * automaton)
 		{{{
 			// derive deterministic finite automaton from this table
-			typename rowlist::iterator uti, ti;
+			typename table::iterator uti, ti;
 
-			algorithm_angluin::automaton_state<answer> state;
-			list<algorithm_angluin::automaton_state<answer> > states;
+			algorithm_angluin::automaton_state<answer, table> state;
+			list<algorithm_angluin::automaton_state<answer, table> > states;
 			state.id = 0;
-			typename list<algorithm_angluin::automaton_state<answer> >::iterator state_it, state_it2;
+			typename list<algorithm_angluin::automaton_state<answer, table> >::iterator state_it, state_it2;
 
 			list<int> initial;
 
@@ -717,7 +652,7 @@ class simple_observationtable : learning_algorithm<answer> {
 				// the transformation function is:
 				// \delta: (row, char) -> row : (row(s), a) -> row(sa)
 				list<int> index;
-				typename rowlist::iterator ri;
+				typename table::iterator ri;
 				index = state_it->tableentry->index;
 				for(int i = 0; i < alphabet_size; i++) {
 					// find successor in table
@@ -746,6 +681,107 @@ class simple_observationtable : learning_algorithm<answer> {
 		}}}
 
 };
+
+	namespace algorithm_angluin {
+		template <class answer>
+		class simple_row {
+			public:
+				list<int> index;
+				vector<answer> acceptance;
+
+				bool operator==(simple_row<answer> &other)
+				{{{
+					return (acceptance == other.acceptance);
+				}}}
+
+				bool operator!=(simple_row<answer> &other)
+				{{{
+					return (acceptance != other.acceptance);
+				}}}
+
+				bool operator>(simple_row<answer> &other)
+				{{{
+					typename vector<answer>::iterator ai;
+					typename vector<answer>::iterator oai;
+
+					ai = acceptance.begin();
+					oai = other.acceptance.begin();
+
+					for(/* -- */; ai < acceptance.end() && oai < other.acceptance.end(); ai++, oai++) {
+						if(*ai > *oai)
+							return true;
+					}
+
+					return false;
+				}}}
+		};
+	};
+
+
+template <class answer>
+class angluin_simple_observationtable : public angluin_observationtable<answer, list< algorithm_angluin::simple_row<answer> > > {
+	public:
+		angluin_simple_observationtable(teacher<answer> *teach, logger *log, int alphabet_size)
+		{{{
+			this->alphabet_size = alphabet_size;
+
+			this->set_teacher(teach);
+			this->set_logger(log);
+
+			list<int> word; // empty word!
+
+			// add epsilon as column
+			this->column_names.push_back(word);
+
+			// add epsilon to upper table
+			// and all suffixes to lower table
+			this->add_word_to_upper_table(word, false);
+		}}}
+
+	protected:
+		virtual void add_word_to_upper_table(list<int> word, bool check_uniq = true)
+		{{{
+			algorithm_angluin::simple_row<answer> row;
+			bool done = false;
+
+			if(check_uniq) {
+				if(this->search_upper_table(word) != this->upper_table.end()) {
+					return;
+				}
+				typename list< algorithm_angluin::simple_row<answer> >::iterator ti;
+				ti = this->search_lower_table(word);
+				if(ti != this->lower_table.end()) {
+					done = true;
+					this->upper_table.push_back(*ti);
+					this->lower_table.erase(ti);
+				}
+			}
+
+			// add the word to the upper table
+			if(!done) {
+				row.index = word;
+				this->upper_table.push_back(row);
+			}
+
+			// add all suffixes of word to lower table
+			for( int i = 0; i < this->alphabet_size; i++ ) {
+				word.push_back(i);
+				done = false;
+				if(check_uniq)
+					if(this->search_upper_table(word) != this->upper_table.end()) {
+						// can't be in lower table, as its prefix would be in upper then
+						done = true;
+					}
+				if(!done) {
+					row.index = word;
+					this->lower_table.push_back(row);
+				}
+				word.pop_back();
+			}
+		}}}
+
+};
+
 
 }; // end of namespace libalf
 

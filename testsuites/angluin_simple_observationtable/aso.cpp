@@ -35,7 +35,7 @@ int main()
 	deterministic_finite_amore_automaton hypothesis;
 	logger *log;
 	teacher<bool> *teach;
-	simple_observationtable<bool> *ot;
+	angluin_simple_observationtable<bool> *ot;
 	oracle_automaton o;
 
 	char filename[128];
@@ -76,9 +76,9 @@ int main()
 	teach = new teacher_automaton<bool>(atm);
 	o.set_automaton(*atm);
 
-	// create simple_observationtable and teach it the automaton
-	ot = new simple_observationtable<bool>(teach, log, ALPHABET_SIZE);
-	cout << "simple_observationtable ok\n";
+	// create angluin_simple_observationtable and teach it the automaton
+	ot = new angluin_simple_observationtable<bool>(teach, log, ALPHABET_SIZE);
+	cout << "angluin_simple_observationtable ok\n";
 
 	for(iteration = 1; iteration <= 20; iteration++) {
 		cout << "iteration " << iteration <<":\n";
