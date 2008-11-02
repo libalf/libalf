@@ -107,7 +107,7 @@ int main()
 
 		snprintf(filename, 128, "counterexample%2d.angluin", iteration);
 		file.open(filename);
-		cout << "counter example: .";
+		cout << "counter example: ";
 		print_word(cout, oracle_answer.second.front());
 		print_word(file, oracle_answer.second.front());
 		cout << "\n";

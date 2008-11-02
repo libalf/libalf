@@ -31,6 +31,8 @@ bool is_suffix_of(list<int> &postfix, list<int> &word);
 
 void print_word(ostream &os, list<int> &word);
 
+void print_word(list<int> &word);
+
 }
 
 #endif

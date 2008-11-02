@@ -169,14 +169,14 @@ class simple_observationtable : observationtable<answer> {
 			os << "\tcolumns:";
 
 			for(ci = column_names.begin(); ci != column_names.end(); ci++) {
-				os << " .";
+				os << " ";
 				print_word(os, *ci);
 			}
 			os << " ;\n";
 
 			os << "\tupper table:\n";
 			for(ti = upper_table.begin(); ti != upper_table.end(); ti++) {
-				os << "\t\t.";
+				os << "\t\t";
 				print_word(os, ti->index);
 				os << ": ";
 				for(vi = ti->acceptance.begin(); vi != ti->acceptance.end(); vi++) {
@@ -193,7 +193,7 @@ class simple_observationtable : observationtable<answer> {
 
 			os << "\tlower_table:\n";
 			for(ti = lower_table.begin(); ti != lower_table.end(); ti++) {
-				os << "\t\t.";
+				os << "\t\t";
 				print_word(os, ti->index);
 				os << ": ";
 				for(vi = ti->acceptance.begin(); vi != ti->acceptance.end(); vi++) {
@@ -295,10 +295,9 @@ class simple_observationtable : observationtable<answer> {
 		virtual void add_counterexample(list<int> word)
 		{{{
 			list<int> prefix = word;
-			int ps;
 
 			// add word and all prefixes to upper table
-			for(ps = prefix.size(); ps > 0; ps--) {
+			while(!prefix.empty()) {
 				add_word_to_upper_table(prefix);
 				prefix.pop_back();
 			}
@@ -402,13 +401,16 @@ class simple_observationtable : observationtable<answer> {
 			// add all suffixes of word to lower table
 			for( int i = 0; i < alphabet_size; i++ ) {
 				word.push_back(i);
+				done = false;
 				if(check_uniq)
 					if(search_upper_table(word) != upper_table.end()) {
 						// can't be in lower table, as its prefix would be in upper then
-						continue;
+						done = true;
 					}
-				row.index = word;
-				lower_table.push_back(row);
+				if(!done) {
+					row.index = word;
+					lower_table.push_back(row);
+				}
 				word.pop_back();
 			}
 		}}}

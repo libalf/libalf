@@ -86,7 +86,15 @@ bool is_suffix_of(list<int> &suffix, list<int> &word)
 void print_word(ostream &os, list<int> &word)
 {{{
 	ostream_iterator<int> out(os, ".");
+	os << ".";
 	copy(word.begin(), word.end(), out);
+}}}
+
+void print_word(list<int> &word)
+{{{
+	printf(".");
+	for(list<int>::iterator l = word.begin(); l != word.end(); l++)
+		printf("%d.", *l);
 }}}
 
 }
