@@ -35,8 +35,11 @@ int main()
 	deterministic_finite_amore_automaton hypothesis;
 	logger *log;
 	teacher<bool> *teach;
-	simple_observationtable<bool> *ob;
+	simple_observationtable<bool> *ot;
 	oracle_automaton o;
+
+	char filename[128];
+	int iteration;
 
 	// init AMoRE buffers
 	initbuf();
@@ -45,43 +48,42 @@ int main()
 
 	// create automaton from regex
 //	r = rexFromString(2, "(aba*)-(abaaa)");
-#define ALPHABET_SIZE 2
-//	r = rexFromString(ALPHABET_SIZE, "(abb(ab(c)*))* U (a(cbb)+)");
-	r = rexFromString(ALPHABET_SIZE, "ab");
-	cout << "regex ok\n";
+#define ALPHABET_SIZE 3
+	r = rexFromString(ALPHABET_SIZE, "(abb(ab(c)*))* U (a(cbb)+)");
 	nfa_p = rex2nfa(r);
-	cout << "nfa ok\n";
 	dfa_p = nfa2dfa(nfa_p);
-	cout << "dfa ok\n";
 
 	freenfa(nfa_p);
 	freerex(r);
 
 	atm = new deterministic_finite_amore_automaton(dfa_p);
 
-	std::string s;
-	s = atm->generate_dotfile();
-	cout << " --- begin automata\n" << s << " --- end automata\n";
-	ofstream dotfile;
-	dotfile.open("aso.dot");
-	dotfile << s;
-	dotfile.close();
+	ofstream file;
+	file.open("aso.dot");
+	file << atm->generate_dotfile();
+	file.close();
 
 	// create oracle instance and teacher instance
 	teach = new teacher_automaton<bool>(atm);
 	o.set_automaton(*atm);
 
 	// create simple_observationtable and teach it the automaton
-	ob = new simple_observationtable<bool>(teach, log, ALPHABET_SIZE);
+	ot = new simple_observationtable<bool>(teach, log, ALPHABET_SIZE);
 	cout << "simple_observationtable ok\n";
 
-	for(int iterations = 0; iterations < 8; iterations++) {
-		ob->derive_hypothesis(&hypothesis);
+	for(iteration = 1; iteration <= 20; iteration++) {
+		cout << "iteration " << iteration <<":\n";
+		ot->derive_hypothesis(&hypothesis);
 
-		ob->print(cout);
+		snprintf(filename, 128, "observationtable%2d.angluin", iteration);
+		file.open(filename);
+		ot->print(file);
+		file.close();
 
-		cout << "hypothesis:\n";
-		cout << hypothesis.generate_dotfile();
+		snprintf(filename, 128, "hypothesis%2d.dot", iteration);
+		file.open(filename);
+		file << hypothesis.generate_dotfile();
+		file.close();
 
 		// once an automaton is generated, test for equality with oracle_automaton
 		// if this test is ok, all worked well
@@ -89,16 +91,22 @@ int main()
 		pair<bool, list< list<int> > > oracle_answer;
 		oracle_answer = o.equality_query(hypothesis);
 
-		if(oracle_answer.first)
+		if(oracle_answer.first) {
+			cout << "success.\n";
 			break;
+		}
 
+		snprintf(filename, 128, "counterexample%2d.angluin", iteration);
+		file.open(filename);
 		cout << "counter example: .";
 		print_word(cout, oracle_answer.second.front());
+		print_word(file, oracle_answer.second.front());
 		cout << "\n";
-		ob->add_counterexample(oracle_answer.second.front());
+		ot->add_counterexample(oracle_answer.second.front());
+		file.close();
 	}
 
-	delete ob;
+	delete ot;
 	delete teach;
 	delete log;
 	delete atm;

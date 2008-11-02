@@ -12,8 +12,9 @@ all: aso
 clean:
 	-rm *.o
 	-rm aso
-	-rm aso.dot
-	-rm aso.jpg
+	-rm *.dot
+	-rm *.jpg
+	-rm *.angluin
 
 run: aso.jpg
 	LD_LIBRARY_PATH=../../src ./aso

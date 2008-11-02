@@ -299,7 +299,6 @@ class simple_observationtable : observationtable<answer> {
 
 			// add word and all prefixes to upper table
 			for(ps = prefix.size(); ps > 0; ps--) {
-printf("adding word with size %d\n", prefix.size());
 				add_word_to_upper_table(prefix);
 				prefix.pop_back();
 			}
@@ -379,16 +378,26 @@ printf("adding word with size %d\n", prefix.size());
 		virtual void add_word_to_upper_table(list<int> word, bool check_uniq = true)
 		{{{
 			simple_ot::simple_row<answer> row;
+			bool done = false;
 
-			if(check_uniq)
-				if(search_tables(word) != lower_table.end()) {
-printf("word already included. skipping.\n");
+			if(check_uniq) {
+				if(search_upper_table(word) != upper_table.end()) {
 					return;
 				}
+				typename rowlist::iterator ti;
+				ti = search_lower_table(word);
+				if(ti != lower_table.end()) {
+					done = true;
+					upper_table.push_back(*ti);
+					lower_table.erase(ti);
+				}
+			}
 
 			// add the word to the upper table
-			row.index = word;
-			upper_table.push_back(row);
+			if(!done) {
+				row.index = word;
+				upper_table.push_back(row);
+			}
 
 			// add all suffixes of word to lower table
 			for( int i = 0; i < alphabet_size; i++ ) {
@@ -396,7 +405,6 @@ printf("word already included. skipping.\n");
 				if(check_uniq)
 					if(search_upper_table(word) != upper_table.end()) {
 						// can't be in lower table, as its prefix would be in upper then
-printf("suffix already included. skipping.\n");
 						continue;
 					}
 				row.index = word;
@@ -552,6 +560,17 @@ printf("suffix already included. skipping.\n");
 			return true;
 		}}}
 
+		virtual void add_column(list<int>word)
+		{{{
+			typename columnlist::iterator ci;
+
+			for(ci = column_names.begin(); ci != column_names.end(); ci++)
+				if(*ci == word)
+					return;
+
+			column_names.push_back(word);
+		}}}
+
 		// make table consistent: perform operations to do that.
 		// returns false if table was consistent before,
 		//         true if table was changed (and thus needs to be filled)
@@ -597,23 +616,23 @@ printf("suffix already included. skipping.\n");
 									changed = true;
 
 									typename columnlist::iterator ci;
-									typename vector<answer>::iterator w1_acit, w2_acit;
+									typename vector<answer>::iterator w1_acc_it, w2_acc_it;
 
 									ci = column_names.begin();
-									w1_acit = w1_succ->acceptance.begin();
-									w2_acit = w2_succ->acceptance.begin();
+									w1_acc_it = w1_succ->acceptance.begin();
+									w2_acc_it = w2_succ->acceptance.begin();
 
-									while(w1_acit != w1_succ->acceptance.end()) {
-										if(*w1_acit != *w2_acit) {
+									while(w1_acc_it != w1_succ->acceptance.end()) {
+										if(*w1_acc_it != *w2_acc_it) {
 											list<int> newsuffix;
 
 											// generate and add suffix
 											newsuffix = *ci;
 											newsuffix.push_front(sigma);
-											column_names.push_back(newsuffix);
+											add_column(newsuffix);
 										}
-										w1_acit++;
-										w2_acit++;
+										w1_acc_it++;
+										w2_acc_it++;
 										ci++;
 									}
 								}
@@ -706,8 +725,6 @@ printf("suffix already included. skipping.\n");
 
 					// find matching state for successor
 					for(state_it2 = states.begin(); state_it2 != states.end(); state_it2++) {
-if(ti == state_it2->tableentry)
-	printf("equal src/dst!\n");
 						if(*ti == *(state_it2->tableentry)) {
 							transition tr;
 
