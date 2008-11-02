@@ -16,36 +16,40 @@
 /* regexp.c
  */
 
-#include "regexp.h"
+#include <amore/regexp.h>
 
-regex newrex() { 
-    regex hlp;
-    hlp = (regex)calloc(1, sizeof(struct rexstruct));
-    hlp->useda = -1;
-    if (hlp == NULL) {
+regex newrex()
+{
+	regex hlp;
+	hlp = (regex) calloc(1, sizeof(struct rexstruct));
+	hlp->useda = -1;
+	if(hlp == NULL) {
 #ifdef DEBUG
-	perror("newrex 1"); 
+		perror("newrex 1");
 #endif
-	OUT_OF_MEM();
-    }
-    return hlp;
-} /* newrex */
+		OUT_OF_MEM();
+	}
+	return hlp;
+}				/* newrex */
 
-string newrexstr(posint strl) { 
-    string hlp;
-    hlp = (string)calloc(strl+1, sizeof(char));
-    if (hlp == NULL) {
+string newrexstr(posint strl)
+{
+	string hlp;
+	hlp = (string) calloc(strl + 1, sizeof(char));
+	if(hlp == NULL) {
 #ifdef DEBUG
-	perror("newrexstr 1"); 
+		perror("newrexstr 1");
 #endif
-	OUT_OF_MEM();
-    }
-    return hlp;
-} /* newrexstr */
+		OUT_OF_MEM();
+	}
+	return hlp;
+}				/* newrexstr */
 
-void freerex(regex rx) { 
-    register int i;
-    for(i=0; i<=rx->useda; i++) dispose(rx->abbr[i]);
-    dispose(rx->rex);
-    dispose(rx->exprex);
-} /* freerex */
+void freerex(regex rx)
+{
+	register int i;
+	for (i = 0; i <= rx->useda; i++)
+		dispose(rx->abbr[i]);
+	dispose(rx->rex);
+	dispose(rx->exprex);
+}				/* freerex */

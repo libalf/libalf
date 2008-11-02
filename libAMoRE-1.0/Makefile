@@ -12,7 +12,7 @@ HEADER_INSTALLDIR=/usr/include
 #-ggdb3
 CFLAGS+= -DDEBUG -DJAVAEXCEPT -DLIBAMORE -DUNIX -DLINUX -DBIT32
 CFLAGS+= -Wall
-CFLAGS+= -I. -I./ldo -I./transf -I./test
+CFLAGS+= -Iinclude
 CPPFLAGS+= -shared -fpic
 
 # data objects
@@ -68,7 +68,8 @@ uninstall:
 
 exportHeaders:
 	install -d $(HEADER_INSTALLDIR)/amore
-	cp *.h ldo/*.h transf/*.h test/*.h $(HEADER_INSTALLDIR)/amore
+	cp include/amore/* $(HEADER_INSTALLDIR)/amore
+	chmod 644 ${HEADER_INSTALLDIR}/amore/*
 
 clean:
 	rm -f *~ */*~ $(OBJ) libAMoRE.a libAMoRE.so

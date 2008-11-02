@@ -16,7 +16,7 @@
 /* mondcl.c 3.1 (KIEL) 11.94 */
 /* modified by oma on 30.Mar.95 */
 /* by be Sept 2001 */
-#include "mon2dcl.h"
+#include <amore/mon2dcl.h>
 
 /* functions included:
  *
@@ -39,75 +39,81 @@
  *             void  mon2dcl()
  */
 
-typedef struct dlist
-		{ d_class  info;
-		  struct dlist *next;
-		}* d_list;
+typedef struct dlist {
+	d_class info;
+	struct dlist *next;
+} *d_list;
 
 #define newdlist() (d_list)newbuf((posint)1,(posint)sizeof(struct dlist))
 
 /* only for computation of irregular dclasses */
 static array harray;
 static array pred;
-static array rlqueue;                    
-static array sufarray,prearray;
+static array rlqueue;
+static array sufarray, prearray;
 
 
 /* only for computation of regular dclasses */
-static posint maximage,maxkernel;  /* maximal number of stored images (kernels) */
-static arrayofarray imagearray;    /* two-dimensional arrays , second dimension */
-static arrayofarray kernelarray;   /* only up to maximage  (maxkernel) */
-static posint imnumber,kernumber;  /* actual number of stored images (kernels)
-                                    * set in searchimage/ searchkernel  */
-static posint goodkernel;          /* number of kernels that represent r-classes
-                                    * set in searchimage */
+static posint maximage, maxkernel;	/* maximal number of stored images (kernels) */
+static arrayofarray imagearray;	/* two-dimensional arrays , second dimension */
+static arrayofarray kernelarray;	/* only up to maximage  (maxkernel) */
+static posint imnumber, kernumber;	/* actual number of stored images (kernels)
+					 * set in searchimage/ searchkernel  */
+static posint goodkernel;	/* number of kernels that represent r-classes
+				 * set in searchimage */
 
-static monoid stamon;                     /* actual monoid */
-static d_list dfirst,dlast;               /* first,last dclass in a list of dclasses */
-static posint currentrang;                /* rang of actual dclass */
-static array countimage,countkernel;      /* for computation of image and kernel */
-static b_array mark;                      /* mark elements, used in computation of regular 
-                                           * and irregular dclasses in different ways */
-static b_array isindclass;                /* elements whose dclass is computed */
-static posint regcount,irregcount;        /* count (ir)regular elements */
-static posint dcounter,rcounter,lcounter; /* count number of computed d(r,l)classes */
+static monoid stamon;		/* actual monoid */
+static d_list dfirst, dlast;	/* first,last dclass in a list of dclasses */
+static posint currentrang;	/* rang of actual dclass */
+static array countimage, countkernel;	/* for computation of image and kernel */
+static b_array mark;		/* mark elements, used in computation of regular 
+				 * and irregular dclasses in different ways */
+static b_array isindclass;	/* elements whose dclass is computed */
+static posint regcount, irregcount;	/* count (ir)regular elements */
+static posint dcounter, rcounter, lcounter;	/* count number of computed d(r,l)classes */
 static array no2rang;
 
 static int letterlength;
-static array suffix,prefix,h_class,r_class,l_class,hstack;  /* see comments in r_h_reg_class */
-posint Q,K; /* maximal size of images and kernels */
+static array suffix, prefix, h_class, r_class, l_class, hstack;	/* see comments in r_h_reg_class */
+posint Q, K;			/* maximal size of images and kernels */
 
 static void initstatic()
 {
- suffix=newarray(stamon->mno+1);
- prefix=newarray(stamon->mno+1);
- h_class=newarray(stamon->mno+1);
- hstack=newarray(stamon->mno+1);
- r_class=h_class;  /* different names in computation of regular and irregular d_classes */
- l_class=hstack;
- kernelarray=newarrayofarray(stamon->mno);
- imagearray=newarrayofarray(stamon->mno);
- mark=newb_array(stamon->mno);
- no2rang=newarray(stamon->mno);
- isindclass=newb_array(stamon->mno);
- Q=stamon->qno+1;
- K=2*Q;
- countimage=newarray(Q);
- countkernel=newarray(Q);
- stamon->ds=newdstruct();
- letterlength=(stamon->sno<=ALPHSIZE)? 1 : (1+strlen(pi2a(stamon->sno)));
- maximage=0;maxkernel=0;
- dcounter=0;rcounter=0;lcounter=0;
- regcount=0;irregcount=0;
+	suffix = newarray(stamon->mno + 1);
+	prefix = newarray(stamon->mno + 1);
+	h_class = newarray(stamon->mno + 1);
+	hstack = newarray(stamon->mno + 1);
+	r_class = h_class;	/* different names in computation of regular and irregular d_classes */
+	l_class = hstack;
+	kernelarray = newarrayofarray(stamon->mno);
+	imagearray = newarrayofarray(stamon->mno);
+	mark = newb_array(stamon->mno);
+	no2rang = newarray(stamon->mno);
+	isindclass = newb_array(stamon->mno);
+	Q = stamon->qno + 1;
+	K = 2 * Q;
+	countimage = newarray(Q);
+	countkernel = newarray(Q);
+	stamon->ds = newdstruct();
+	letterlength = (stamon->sno <= ALPHSIZE) ? 1 : (1 + strlen(pi2a(stamon->sno)));
+	maximage = 0;
+	maxkernel = 0;
+	dcounter = 0;
+	rcounter = 0;
+	lcounter = 0;
+	regcount = 0;
+	irregcount = 0;
 }
 
 
 boole idempotent(posint element, monoid mon)
-{posint i;
- array a=mon->no2trans[element];  /* abbreviation */
- for(i=0;i<=mon->qno;i++)
-   if(a[i]!=a[a[i]])return(FALSE);
- return(TRUE);
+{
+	posint i;
+	array a = mon->no2trans[element];	/* abbreviation */
+	for (i = 0; i <= mon->qno; i++)
+		if(a[i] != a[a[i]])
+			return (FALSE);
+	return (TRUE);
 }
 
 
@@ -119,16 +125,16 @@ static void cpt_rang(element)
  */
 posint element;
 {
- posint rang=0,j;
- array a=stamon->no2trans[element];
- for(j=0;j<Q;j++)countimage[a[j]]=1;
- for(j=0;j<Q;j++)
-     if(countimage[j])
-	 {
-	  rang++;
-	  countimage[j]=0;
-	 }
- no2rang[element]=rang;
+	posint rang = 0, j;
+	array a = stamon->no2trans[element];
+	for (j = 0; j < Q; j++)
+		countimage[a[j]] = 1;
+	for (j = 0; j < Q; j++)
+		if(countimage[j]) {
+			rang++;
+			countimage[j] = 0;
+		}
+	no2rang[element] = rang;
 }
 
 
@@ -141,25 +147,24 @@ posint element;
  */
 static void cpt_image(element)
 posint element;
-{ 
-  posint rang=0,j;
-  array a=stamon->no2trans[element];
-  if((!no2rang[element])||(no2rang[element]==currentrang))
-    {
-     for(j=0;j<Q;j++)
-         countimage[a[j]]=1;
-     /* countimage[j]!=0 iff state j is an image */
-     if(maximage==imnumber)imagearray[maximage++]=newarray(Q);
-     for(j=0;j<Q;j++)
-       if(countimage[j])
-         {
-          imagearray[imnumber][rang++]=j;
-          countimage[j]=0;
-         }
-     no2rang[element]=rang;
-    }
+{
+	posint rang = 0, j;
+	array a = stamon->no2trans[element];
+	if((!no2rang[element]) || (no2rang[element] == currentrang)) {
+		for (j = 0; j < Q; j++)
+			countimage[a[j]] = 1;
+		/* countimage[j]!=0 iff state j is an image */
+		if(maximage == imnumber)
+			imagearray[maximage++] = newarray(Q);
+		for (j = 0; j < Q; j++)
+			if(countimage[j]) {
+				imagearray[imnumber][rang++] = j;
+				countimage[j] = 0;
+			}
+		no2rang[element] = rang;
+	}
 }
- 
+
 /* cpt_kernel computes the rang of element and the kernel
  *   if the rang equals currentrang
  * the results are stored in kernelarray[kernumber]   : kernel
@@ -169,49 +174,50 @@ posint element;
  */
 static void cpt_kernel(element)
 posint element;
-{ 
-  posint rang=0,j,start=0,image;
-  array a=stamon->no2trans[element];
-  if((!no2rang[element])||(no2rang[element]==currentrang))
-    {
-     for(j=0;j<Q;j++)
-        if(countimage[a[j]])countimage[a[j]]++;
-        else {rang++;countimage[a[j]]=1;}
-     no2rang[element]=rang;
-     /* countimage[j]==k iff state j is the image of k states */
+{
+	posint rang = 0, j, start = 0, image;
+	array a = stamon->no2trans[element];
+	if((!no2rang[element]) || (no2rang[element] == currentrang)) {
+		for (j = 0; j < Q; j++)
+			if(countimage[a[j]])
+				countimage[a[j]]++;
+			else {
+				rang++;
+				countimage[a[j]] = 1;
+			}
+		no2rang[element] = rang;
+		/* countimage[j]==k iff state j is the image of k states */
 /* compute kernel
  * the sets of a kernel are separated by the number Q
  * the sets of a kernel are ordered with respect to the least element in a set
  * the representation of a kernel requires at most an array of length K
  */
-     if(no2rang[element]==currentrang)
-       { 
-        if(maxkernel==kernumber)kernelarray[maxkernel++]=newarray(K);
-        for(j=0;j<Q;j++)
-          {
-           image=a[j];
-           if(countimage[image]) 
-             /* j is the least state with this image 
-              * the states with this image start at position countkernel[image]
-              * start is the first free place in the kernel 
-              */
-             {
-              kernelarray[kernumber][start]=j;
-              countkernel[image]=start+1; /* next free place */
-              start+=countimage[image];   
-              kernelarray[kernumber][start++]=Q; /* seperator */
-              countimage[image]=0;
-             }
-           else /* countkernel[image] is already computed */
-             {
-              kernelarray[kernumber][countkernel[image]]=j;
-              countkernel[image]++;
-             }
-          } /* end for */
-       }
-     else
-       for(j=0;j<Q;j++)countimage[j]=0;
-  }   
+		if(no2rang[element] == currentrang) {
+			if(maxkernel == kernumber)
+				kernelarray[maxkernel++] = newarray(K);
+			for (j = 0; j < Q; j++) {
+				image = a[j];
+				if(countimage[image])
+					/* j is the least state with this image 
+					 * the states with this image start at position countkernel[image]
+					 * start is the first free place in the kernel 
+					 */
+				{
+					kernelarray[kernumber][start] = j;
+					countkernel[image] = start + 1;	/* next free place */
+					start += countimage[image];
+					kernelarray[kernumber][start++] = Q;	/* seperator */
+					countimage[image] = 0;
+				} else {	/* countkernel[image] is already computed */
+
+					kernelarray[kernumber][countkernel[image]] = j;
+					countkernel[image]++;
+				}
+			}	/* end for */
+		} else
+			for (j = 0; j < Q; j++)
+				countimage[j] = 0;
+	}
 }
 
 
@@ -223,24 +229,24 @@ posint element;
 static boole searchkernel(element)
 posint element;
 {
- posint i,j;
- posint kernellength=Q+currentrang-1; /* Q states and currentrang-1 seperators */
- array a,b;
- cpt_kernel(element);
- if (no2rang[element]!=currentrang)return(FALSE);
- b=kernelarray[kernumber];
- for(i=0;i<kernumber;i++)
-   {
-    a=kernelarray[i];
-    for(j=0;(j<kernellength)&&(a[j]==b[j]);j++);
-    if(j==kernellength) 
-      {
-       if(i)mark[element]=TRUE;
-       return(FALSE); /* kernels are equal */
-      }
-   }
- mark[element]=TRUE;
- return(TRUE);
+	posint i, j;
+	posint kernellength = Q + currentrang - 1;	/* Q states and currentrang-1 seperators */
+	array a, b;
+	cpt_kernel(element);
+	if(no2rang[element] != currentrang)
+		return (FALSE);
+	b = kernelarray[kernumber];
+	for (i = 0; i < kernumber; i++) {
+		a = kernelarray[i];
+		for (j = 0; (j < kernellength) && (a[j] == b[j]); j++);
+		if(j == kernellength) {
+			if(i)
+				mark[element] = TRUE;
+			return (FALSE);	/* kernels are equal */
+		}
+	}
+	mark[element] = TRUE;
+	return (TRUE);
 }
 
 /* find all the kernels of which Im(element) is a transversal.  Resort
@@ -248,56 +254,57 @@ posint element;
    transversal) are at the beginning.  Return TRUE iff Im(element) is
    a transversal of a kernel.*/
 static boole transversales(element)
-     posint element;
+posint element;
 {
-  array a,b,c;
-  boole notfound,transversale,good=FALSE;  
-  posint i,j,k,begin;
-  a=imagearray[imnumber];
+	array a, b, c;
+	boole notfound, transversale, good = FALSE;
+	posint i, j, k, begin;
+	a = imagearray[imnumber];
 
-  for(i=0;i<kernumber;i++)
-    {
-      b=kernelarray[i];
-      begin=0;
-      transversale=TRUE;
-      for(j=0;(j<currentrang)&&(transversale);j++)
-	/* for all sets in the kernel ..
-	 * begin is the first element of the set
-	 */
-	{
-          notfound=TRUE;
-          for(k=0;(b[begin]!=Q)&&notfound&&(k<currentrang);)
-	    if (b[begin]==a[k])notfound=FALSE; /* intersection is not empty */
-	    else if(b[begin]<a[k])begin++;
-	    else k++;
-          if(notfound) /* intersection is empty, test next kernel */
-	    transversale=FALSE;
-          else         /* intersection is not empty, test next set */
-            {
-	      for(;b[begin]!=Q;begin++); /* search for seperator */
-	      begin++;
-            }
-	} /* end for j */
-      if(transversale) /* actual image is a transversale of kernel at position i */
-	{
-	  good=TRUE;
-	  if(goodkernel<i)    /* new representative for l-class, 
-			       * switch prefix at position i and goodkernel 
-			       */
-	    {
-              c=kernelarray[goodkernel];
-              kernelarray[goodkernel]=kernelarray[i];
-              kernelarray[i]=c;
-              j=prefix[goodkernel];
-              prefix[goodkernel]=prefix[i];
-              prefix[i]=j;
-              goodkernel++;
-	    }
-	  else if(goodkernel==i)goodkernel++;
-	  else i=goodkernel-1;  /* only test bad kernel */
-	}
-    } /* end for i */
-  return(good);
+	for (i = 0; i < kernumber; i++) {
+		b = kernelarray[i];
+		begin = 0;
+		transversale = TRUE;
+		for (j = 0; (j < currentrang) && (transversale); j++)
+			/* for all sets in the kernel ..
+			 * begin is the first element of the set
+			 */
+		{
+			notfound = TRUE;
+			for (k = 0; (b[begin] != Q) && notfound && (k < currentrang);)
+				if(b[begin] == a[k])
+					notfound = FALSE;	/* intersection is not empty */
+				else if(b[begin] < a[k])
+					begin++;
+				else
+					k++;
+			if(notfound)	/* intersection is empty, test next kernel */
+				transversale = FALSE;
+			else {	/* intersection is not empty, test next set */
+
+				for (; b[begin] != Q; begin++);	/* search for seperator */
+				begin++;
+			}
+		}		/* end for j */
+		if(transversale) {	/* actual image is a transversale of kernel at position i */
+			good = TRUE;
+			if(goodkernel < i) {	/* new representative for l-class, 
+						 * switch prefix at position i and goodkernel 
+						 */
+				c = kernelarray[goodkernel];
+				kernelarray[goodkernel] = kernelarray[i];
+				kernelarray[i] = c;
+				j = prefix[goodkernel];
+				prefix[goodkernel] = prefix[i];
+				prefix[i] = j;
+				goodkernel++;
+			} else if(goodkernel == i)
+				goodkernel++;
+			else
+				i = goodkernel - 1;	/* only test bad kernel */
+		}
+	}			/* end for i */
+	return (good);
 }
 
 /* searchimage = 3 iff same image as the original element
@@ -308,34 +315,37 @@ static boole transversales(element)
  * O(Q * imnumber + kernumber * currentrang * Q ) (search image + test transversale)
  */
 static short int searchimage(element)
-     posint element;
+posint element;
 {
- posint i,j;
- array a,b;
- /* posint begin; */
- cpt_image(element);
- if (no2rang[element]!=currentrang)return(0);
- mark[element]=TRUE;
- a=imagearray[imnumber];
- for(i=0;i<imnumber;i++)
-   {
-    b=imagearray[i];
-    for(j=0;(j<currentrang)&&(a[j]==b[j]);j++);
-    if(j==currentrang) /* images are equal */
-      {
-       if(i==0)return(3);
-       else return(2); 
-      }
-   }
- /* new image, test for transversale
-  *
-  * an image is a transversale of an kernel
-  * iff
-  * the intersection of each class of the kernel with the image
-  * is not equal to the empty set
-  */
- if(transversales(element)) return(1);
- else return(0);
+	posint i, j;
+	array a, b;
+	/* posint begin; */
+	cpt_image(element);
+	if(no2rang[element] != currentrang)
+		return (0);
+	mark[element] = TRUE;
+	a = imagearray[imnumber];
+	for (i = 0; i < imnumber; i++) {
+		b = imagearray[i];
+		for (j = 0; (j < currentrang) && (a[j] == b[j]); j++);
+		if(j == currentrang) {	/* images are equal */
+			if(i == 0)
+				return (3);
+			else
+				return (2);
+		}
+	}
+	/* new image, test for transversale
+	 *
+	 * an image is a transversale of an kernel
+	 * iff
+	 * the intersection of each class of the kernel with the image
+	 * is not equal to the empty set
+	 */
+	if(transversales(element))
+		return (1);
+	else
+		return (0);
 }
 
 
@@ -346,25 +356,26 @@ static short int searchimage(element)
  * O(imnumber * currentrang)
  */
 static short int imcompare(element)
- posint element;
+posint element;
 {
- posint i,j;
- array a,b;
- cpt_image(element);
- if(no2rang[element]!=currentrang)return(0);
- mark[element]=TRUE;
- a=imagearray[imnumber];
- for(i=0;i<imnumber;i++)
-   {
-    b=imagearray[i];
-    for(j=0;(j<currentrang)&&(a[j]==b[j]);j++);
-    if(j==currentrang) /* images are equal */
-      {
-       if(i==0)return(2);
-       else return(1);
-      }
-   }
- return(0);
+	posint i, j;
+	array a, b;
+	cpt_image(element);
+	if(no2rang[element] != currentrang)
+		return (0);
+	mark[element] = TRUE;
+	a = imagearray[imnumber];
+	for (i = 0; i < imnumber; i++) {
+		b = imagearray[i];
+		for (j = 0; (j < currentrang) && (a[j] == b[j]); j++);
+		if(j == currentrang) {	/* images are equal */
+			if(i == 0)
+				return (2);
+			else
+				return (1);
+		}
+	}
+	return (0);
 }
 
 
@@ -376,29 +387,27 @@ static short int imcompare(element)
  * O(kernelnumber * gno * Q) 
  *   where kernumber is number of reachable kernels of the same rang
  */
-static void l_reg_class (no)
+static void l_reg_class(no)
 posint no;
 {
- posint actuel,preactuel;
- posint gen,test;
- posint nextnumber=0; /* next element to be tested */
- kernumber=0;
- cpt_kernel(no);
- prefix[0]=0;
- kernumber=1;
- goodkernel=1;
- while(nextnumber<kernumber)
-   {
-    preactuel=prefix[nextnumber++];
-    actuel=mult(stamon,preactuel,no);
-    for(gen=1;gen<=stamon->gno;gen++)
-      {
-       test=mult(stamon,gen,actuel);
-       if((!mark[test])&&(!isindclass[test]))
-         if(searchkernel(test))     /* new kernel of the same rang */
-           prefix[kernumber++]=mult(stamon,gen,preactuel);
-      } /* end for all generators */
-   }
+	posint actuel, preactuel;
+	posint gen, test;
+	posint nextnumber = 0;	/* next element to be tested */
+	kernumber = 0;
+	cpt_kernel(no);
+	prefix[0] = 0;
+	kernumber = 1;
+	goodkernel = 1;
+	while(nextnumber < kernumber) {
+		preactuel = prefix[nextnumber++];
+		actuel = mult(stamon, preactuel, no);
+		for (gen = 1; gen <= stamon->gno; gen++) {
+			test = mult(stamon, gen, actuel);
+			if((!mark[test]) && (!isindclass[test]))
+				if(searchkernel(test))	/* new kernel of the same rang */
+					prefix[kernumber++] = mult(stamon, gen, preactuel);
+		}		/* end for all generators */
+	}
 }
 
 /* no has to be an idempotent element
@@ -423,71 +432,61 @@ posint no;
  *
  */
 
-static void r_h_reg_class (no,hlength)
-posint	 no;
-posint  *hlength; /* size of hclass */
-{ 
- posint sufactuel,actuel,i;
- posint gen,test;
- posint tophstack=0;               /* first free space in hstack  */
- posint tophclass=1;               /* first free space in h_class */ 
- posint nextnumber=0;
- imnumber=0;
- cpt_image(no);
- transversales(no);  /* introduced by oma, 29.03.95 */
- /* without this command, the procedure malfunctions if the image of
-    the original element is the only transversal of more than one
-    kernel. */
- imnumber=1; 
- suffix[0]=0; /* identity */
- h_class[0]=no;
- while(nextnumber<imnumber)
-    {
-     sufactuel=suffix[nextnumber++];
-     actuel=mult(stamon,no,sufactuel); 
-     for(gen=1;gen<=stamon->gno;gen++)    /* for all generators .. */
-	{
-         test=stamon->gensucc[actuel][gen];
-	 if((!mark[test])&&(!isindclass[test])) /* if not yet tested .. */
-	   { 
-            i=searchimage(test);
-	    if(i==3) /* same image as no => new element in hclass */
-	      {
-               h_class[tophclass++]=test;
-               hstack[tophstack++]=test;
-	      } 
-	    else if(i==2) /* old image which is a transversale of a kernel 
-                           * test belongs to rclass of no and
-                           * successors of test can be elements of h_class 
-                           */ 
-                    hstack[tophstack++]=test;
-            else if(i==1) /* new image which is a transversale of a kernel */ 
-                    suffix[imnumber++]=stamon->gensucc[sufactuel][gen];
-	   } /* end if !mark */
-        } /* end for all generators */
-    } /* end while */
- /* compute all elements of the hclass */
- while(tophstack)
-   {
-    actuel=hstack[--tophstack];
-    for(gen=1;gen<=stamon->gno;gen++)
-      {
-       test=stamon->gensucc[actuel][gen];
-       if((!mark[test])&&(!isindclass[test]))
-         {
-          i=imcompare(test); 
-	  if(i==2) /* same image => new element in hclass */
-	    { 
-             h_class[tophclass++]=test;
-             hstack[tophstack++]=test;
-	    }
-	  else if(i==1) /* test belongs to r_class of no, 
-                         * successors of test can be elements of hclass */
-             hstack[tophstack++]=test;
-	 }
-      } /* end for */
-   } /* end while */
- *hlength = tophclass;
+static void r_h_reg_class(no, hlength)
+posint no;
+posint *hlength;		/* size of hclass */
+{
+	posint sufactuel, actuel, i;
+	posint gen, test;
+	posint tophstack = 0;	/* first free space in hstack  */
+	posint tophclass = 1;	/* first free space in h_class */
+	posint nextnumber = 0;
+	imnumber = 0;
+	cpt_image(no);
+	transversales(no);	/* introduced by oma, 29.03.95 */
+	/* without this command, the procedure malfunctions if the image of
+	   the original element is the only transversal of more than one
+	   kernel. */
+	imnumber = 1;
+	suffix[0] = 0;		/* identity */
+	h_class[0] = no;
+	while(nextnumber < imnumber) {
+		sufactuel = suffix[nextnumber++];
+		actuel = mult(stamon, no, sufactuel);
+		for (gen = 1; gen <= stamon->gno; gen++) {	/* for all generators .. */
+			test = stamon->gensucc[actuel][gen];
+			if((!mark[test]) && (!isindclass[test])) {	/* if not yet tested .. */
+				i = searchimage(test);
+				if(i == 3) {	/* same image as no => new element in hclass */
+					h_class[tophclass++] = test;
+					hstack[tophstack++] = test;
+				} else if(i == 2)	/* old image which is a transversale of a kernel 
+							 * test belongs to rclass of no and
+							 * successors of test can be elements of h_class 
+							 */
+					hstack[tophstack++] = test;
+				else if(i == 1)	/* new image which is a transversale of a kernel */
+					suffix[imnumber++] = stamon->gensucc[sufactuel][gen];
+			}	/* end if !mark */
+		}		/* end for all generators */
+	}			/* end while */
+	/* compute all elements of the hclass */
+	while(tophstack) {
+		actuel = hstack[--tophstack];
+		for (gen = 1; gen <= stamon->gno; gen++) {
+			test = stamon->gensucc[actuel][gen];
+			if((!mark[test]) && (!isindclass[test])) {
+				i = imcompare(test);
+				if(i == 2) {	/* same image => new element in hclass */
+					h_class[tophclass++] = test;
+					hstack[tophstack++] = test;
+				} else if(i == 1)	/* test belongs to r_class of no, 
+							 * successors of test can be elements of hclass */
+					hstack[tophstack++] = test;
+			}
+		}		/* end for */
+	}			/* end while */
+	*hlength = tophclass;
 }
 
 
@@ -497,58 +496,58 @@ posint  *hlength; /* size of hclass */
  */
 static void d_reg_class(no)
 posint no;
-{ 
-  posint hsize;
-  posint i,j,k,help,help1;
-  posint maxlen=stamon->no2length[no];
-  d_class dc=newdclass();
-  if(!no2rang[no])cpt_rang(no);
-  currentrang=no2rang[no];
-  mark[no]=TRUE;
-  l_reg_class(no);           
-  r_h_reg_class(no,&hsize);
-  dc->org=no;
-  dc->regular=TRUE;
-  dc->rang=no2rang[no];
-  dc->hsize=hsize;
-  dc->rno=goodkernel;
-  dc->lno=imnumber;
-  dc->hclass=newar(hsize);
-  dc->rrep=newar(goodkernel);
-  dc->lrep=newar(imnumber);
-  for(i=0;i<hsize;i++)      dc->hclass[i]=h_class[i];
-  for(i=0;i<imnumber;i++)   dc->lrep[i]=suffix[i];
-  for(i=0;i<goodkernel;i++) dc->rrep[i]=prefix[i];
-   /* compute all elements of this d_class */
-  for(i=0;i<dc->rno;i++)
-    for(k=0;k<hsize;k++)
-      {
-       help=mult(stamon,prefix[i],h_class[k]);
-       for(j=0;j<dc->lno;j++)
-	 {
-	  help1=mult(stamon,help,suffix[j]);
-	  isindclass[help1]=TRUE;/*tick();*/
-	  no2rang[help1]=currentrang;
-	  if(maxlen<stamon->no2length[help1])
-		 maxlen=stamon->no2length[help1];
-	 }
-       }
-  dc->maxlen=maxlen*letterlength;
-  if(no) /* not the first dclass, append to list */
-    {
-     dlast->next=newdlist();
-     dlast=dlast->next;
-    }
-  else  /* first dclass */
-    {
-     dfirst=newdlist();
-     dlast=dfirst;
-    }
-  dlast->info=dc;
-  dcounter++;
-  rcounter+=dc->rno;
-  lcounter+=dc->lno;
-  regcount+=((dc->hsize)*(dc->lno)*(dc->rno));
+{
+	posint hsize;
+	posint i, j, k, help, help1;
+	posint maxlen = stamon->no2length[no];
+	d_class dc = newdclass();
+	if(!no2rang[no])
+		cpt_rang(no);
+	currentrang = no2rang[no];
+	mark[no] = TRUE;
+	l_reg_class(no);
+	r_h_reg_class(no, &hsize);
+	dc->org = no;
+	dc->regular = TRUE;
+	dc->rang = no2rang[no];
+	dc->hsize = hsize;
+	dc->rno = goodkernel;
+	dc->lno = imnumber;
+	dc->hclass = newar(hsize);
+	dc->rrep = newar(goodkernel);
+	dc->lrep = newar(imnumber);
+	for (i = 0; i < hsize; i++)
+		dc->hclass[i] = h_class[i];
+	for (i = 0; i < imnumber; i++)
+		dc->lrep[i] = suffix[i];
+	for (i = 0; i < goodkernel; i++)
+		dc->rrep[i] = prefix[i];
+	/* compute all elements of this d_class */
+	for (i = 0; i < dc->rno; i++)
+		for (k = 0; k < hsize; k++) {
+			help = mult(stamon, prefix[i], h_class[k]);
+			for (j = 0; j < dc->lno; j++) {
+				help1 = mult(stamon, help, suffix[j]);
+				isindclass[help1] = TRUE;	/*tick(); */
+				no2rang[help1] = currentrang;
+				if(maxlen < stamon->no2length[help1])
+					maxlen = stamon->no2length[help1];
+			}
+		}
+	dc->maxlen = maxlen * letterlength;
+	if(no) {		/* not the first dclass, append to list */
+		dlast->next = newdlist();
+		dlast = dlast->next;
+	} else {		/* first dclass */
+
+		dfirst = newdlist();
+		dlast = dfirst;
+	}
+	dlast->info = dc;
+	dcounter++;
+	rcounter += dc->rno;
+	lcounter += dc->lno;
+	regcount += ((dc->hsize) * (dc->lno) * (dc->rno));
 }
 
 
@@ -585,156 +584,140 @@ posint no;
  * i and pred[i] are positions in rlqueue, e.g. there exists a generator g such
  *    that rlqueue[pred[i]]*g = rlqueue[i]
  */
-static void r_irreg_class(no,rno)
+static void r_irreg_class(no, rno)
 posint no;
 posint *rno;
 {
- posint i,actual,help,gen;        /* number of elements in the tree */
- posint nextnumber=0,count=1;     /* positions in rlqueue */
- boole newfound=TRUE;
- posint rcount=1;                 /* rcount is first free space in suffix and r_class */
- r_class[0]=no;suffix[0]=0;
- rlqueue[0]=no;sufarray[0]=0;     /* initialize queue with no and suffix of no = epsilon */
- mark[no]=2;
- pred[0]=0;                       /*  this value is not used */
- /* compute tree */
- while(nextnumber<count)
-   {
-    for(gen=1;gen<=stamon->gno;gen++)
-	{
-	 actual=stamon->gensucc[rlqueue[nextnumber]][gen];
-	 if(mark[actual]==2)
-	    /* stack[nextnumber] and all predeccessors of this 
-             * element are elements in r_class*/
-	    { 
-              help=nextnumber;
-	      while(mark[rlqueue[help]]!=2)
-		{
-                 mark[rlqueue[help]]=2;
-		 r_class[rcount]=rlqueue[help];
-		 suffix[rcount++]=sufarray[help];
-		 help=pred[help];
-		}
-	    }
-	 else if((mark[actual]!=1)&&(!isindclass[actual]))
-	        /* actual not already tested and not in another d_class */
-               {
-                if(!no2rang[actual])cpt_rang(actual);
-	        if(no2rang[actual]==currentrang) /* actual must be inserted in the tree */
-		    { 
-		     mark[actual]=1;
-                     pred[count]=nextnumber;
-                     sufarray[count]=stamon->gensucc[sufarray[nextnumber]][gen];
-                     rlqueue[count++]=actual;
-		    }
-                }
-	} /* end for all gen */
-    nextnumber++;
-   }  /* end while */
+	posint i, actual, help, gen;	/* number of elements in the tree */
+	posint nextnumber = 0, count = 1;	/* positions in rlqueue */
+	boole newfound = TRUE;
+	posint rcount = 1;	/* rcount is first free space in suffix and r_class */
+	r_class[0] = no;
+	suffix[0] = 0;
+	rlqueue[0] = no;
+	sufarray[0] = 0;	/* initialize queue with no and suffix of no = epsilon */
+	mark[no] = 2;
+	pred[0] = 0;		/*  this value is not used */
+	/* compute tree */
+	while(nextnumber < count) {
+		for (gen = 1; gen <= stamon->gno; gen++) {
+			actual = stamon->gensucc[rlqueue[nextnumber]][gen];
+			if(mark[actual] == 2)
+				/* stack[nextnumber] and all predeccessors of this 
+				 * element are elements in r_class*/
+			{
+				help = nextnumber;
+				while(mark[rlqueue[help]] != 2) {
+					mark[rlqueue[help]] = 2;
+					r_class[rcount] = rlqueue[help];
+					suffix[rcount++] = sufarray[help];
+					help = pred[help];
+				}
+			} else if((mark[actual] != 1) && (!isindclass[actual]))
+				/* actual not already tested and not in another d_class */
+			{
+				if(!no2rang[actual])
+					cpt_rang(actual);
+				if(no2rang[actual] == currentrang) {	/* actual must be inserted in the tree */
+					mark[actual] = 1;
+					pred[count] = nextnumber;
+					sufarray[count] = stamon->gensucc[sufarray[nextnumber]][gen];
+					rlqueue[count++] = actual;
+				}
+			}
+		}		/* end for all gen */
+		nextnumber++;
+	}			/* end while */
 
 /* all elements that are reachable from no are marked (1 or 2)
  * search for other cycles in the graph */
-while(newfound)
- {
-  newfound=FALSE;
-  for(i=0;i<count;i++)
-    { 
-     actual=rlqueue[i];
-     if(mark[actual]==1) 
-       for(gen=1;gen<=stamon->gno;gen++) 
-         if(mark[stamon->gensucc[actual][gen]]==2)  /* new cycle */
-           {
-            newfound=TRUE;
-            help=i;
-            while(mark[rlqueue[help]]!=2)
-              {
-               mark[rlqueue[help]]=2;
-	       r_class[rcount]=rlqueue[help];
-	       suffix[rcount++]=sufarray[help];
-               help=pred[help];
-              }
-           }
-     }
-  }
- *rno=rcount;
- /* clear mark with rlqueue */
- for(i=0;i<count;i++)
-   mark[rlqueue[i]]=FALSE;
+	while(newfound) {
+		newfound = FALSE;
+		for (i = 0; i < count; i++) {
+			actual = rlqueue[i];
+			if(mark[actual] == 1)
+				for (gen = 1; gen <= stamon->gno; gen++)
+					if(mark[stamon->gensucc[actual][gen]] == 2) {	/* new cycle */
+						newfound = TRUE;
+						help = i;
+						while(mark[rlqueue[help]] != 2) {
+							mark[rlqueue[help]] = 2;
+							r_class[rcount] = rlqueue[help];
+							suffix[rcount++] = sufarray[help];
+							help = pred[help];
+						}
+					}
+		}
+	}
+	*rno = rcount;
+	/* clear mark with rlqueue */
+	for (i = 0; i < count; i++)
+		mark[rlqueue[i]] = FALSE;
 }
 
 
 /* for comments see r_irreg_class 
  * replace multiplication to the right by multiplication to the left 
  */
-static void l_irreg_class(no,lno)
+static void l_irreg_class(no, lno)
 posint no;
 posint *lno;
 {
- posint i,actual,help,gen;
- posint nextnumber=0,count=1;
- boole  newfound=TRUE;
- posint lcount=1;
- mark[no]=2;
- l_class[0]=no;
- prefix[0]=0;
- rlqueue[0]=no;
- prearray[0]=0;
- pred[0]=0;
- while(nextnumber<count)
-   {
-    for(gen=1;gen<=stamon->gno;gen++)
-	{
-	 actual=mult(stamon,gen,rlqueue[nextnumber]);
-	 if(mark[actual]==2)
-	    { 
-              help=nextnumber;
-	      while(mark[rlqueue[help]]!=2)
-		{
-                 mark[rlqueue[help]]=2;
-		 l_class[lcount]=rlqueue[help];
-		 prefix[lcount++]=prearray[help];
-		 help=pred[help];
+	posint i, actual, help, gen;
+	posint nextnumber = 0, count = 1;
+	boole newfound = TRUE;
+	posint lcount = 1;
+	mark[no] = 2;
+	l_class[0] = no;
+	prefix[0] = 0;
+	rlqueue[0] = no;
+	prearray[0] = 0;
+	pred[0] = 0;
+	while(nextnumber < count) {
+		for (gen = 1; gen <= stamon->gno; gen++) {
+			actual = mult(stamon, gen, rlqueue[nextnumber]);
+			if(mark[actual] == 2) {
+				help = nextnumber;
+				while(mark[rlqueue[help]] != 2) {
+					mark[rlqueue[help]] = 2;
+					l_class[lcount] = rlqueue[help];
+					prefix[lcount++] = prearray[help];
+					help = pred[help];
+				}
+			} else if((mark[actual] != 1) && (!isindclass[actual])) {
+				if(!no2rang[actual])
+					cpt_rang(actual);
+				if(no2rang[actual] == currentrang) {	/* actual must be inserted in the tree */
+					pred[count] = nextnumber;
+					mark[actual] = 1;
+					prearray[count] = mult(stamon, gen, prearray[nextnumber]);
+					rlqueue[count++] = actual;
+				}
+			}
 		}
-	    }
-	 else if((mark[actual]!=1)&&(!isindclass[actual]))
-               {
-                if(!no2rang[actual])cpt_rang(actual);
-	        if(no2rang[actual]==currentrang) /* actual must be inserted in the tree */
-		    { 
-                     pred[count]=nextnumber;
-		     mark[actual]=1;
-                     prearray[count]=mult(stamon,gen,prearray[nextnumber]);
-                     rlqueue[count++]=actual;
-		    }
-               }
+		nextnumber++;
 	}
-    nextnumber++;
-   }
- while(newfound)
-  {
-   newfound=FALSE;
-   for(i=0;i<count;i++)             
-     { 
-      actual=rlqueue[i];
-      if(mark[actual]==1)
-        for(gen=1;gen<=stamon->gno;gen++) 
-          if(mark[mult(stamon,gen,actual)]==2) 
-           {
-            newfound=TRUE;
-            help=i;
-            while(mark[rlqueue[help]]!=2)
-              {
-               mark[rlqueue[help]]=2;
-	       l_class[lcount]=rlqueue[help];
-	       prefix[lcount++]=prearray[help];
-               help=pred[help];
-              }
-           }
-     }
-  }
- *lno=lcount;
- for(i=0;i<count;i++)
-   mark[rlqueue[i]]=FALSE;
+	while(newfound) {
+		newfound = FALSE;
+		for (i = 0; i < count; i++) {
+			actual = rlqueue[i];
+			if(mark[actual] == 1)
+				for (gen = 1; gen <= stamon->gno; gen++)
+					if(mark[mult(stamon, gen, actual)] == 2) {
+						newfound = TRUE;
+						help = i;
+						while(mark[rlqueue[help]] != 2) {
+							mark[rlqueue[help]] = 2;
+							l_class[lcount] = rlqueue[help];
+							prefix[lcount++] = prearray[help];
+							help = pred[help];
+						}
+					}
+		}
+	}
+	*lno = lcount;
+	for (i = 0; i < count; i++)
+		mark[rlqueue[i]] = FALSE;
 }
 
 
@@ -752,113 +735,110 @@ posint *lno;
  */
 static void d_irreg_class(no)
 posint no;
-{ posint rsize,lsize,hcount=1,rcount=0,lcount=0;
-  posint element;
-  posint i,j,k,l,m;
-  posint maxlen=stamon->no2length[no];
-  d_class dc=newdclass();
-  harray[0]=no;
-  if(!no2rang[no])cpt_rang(no);
-  currentrang=no2rang[no];
-  r_irreg_class(no,&rsize);
-  l_irreg_class(no,&lsize);
-  /* compute hclass of no = intersection of rclass and lclass 
-   * O(rsize*lsize)
-   * could be faster if sorted before O(rsize*log(rsize)+lsize*log(lsize))
-   */
-  for(i=1;i<rsize;i++)
-    {  
-     for(j=1;j<lsize;j++)
-       {
-	 if(r_class[i]==l_class[j]) /* member of h_class */
-	   {
-	    harray[hcount++]=r_class[i];
-	    j=lsize;
-	   }
-       }
-    }
-  dc->org=no;
-  dc->regular=FALSE;
-  dc->rang=no2rang[no];
-  dc->hsize=hcount;
-  dc->lno=rsize/hcount;
-  dc->rno=lsize/hcount;
-  dc->hclass=newar(dc->hsize);
-  dc->lrep=newar(dc->lno);
-  dc->rrep=newar(dc->rno);
-  for(i=0;i<hcount;)
-    {
-     element=harray[i];
-     dc->hclass[i++]=element;
-     isindclass[element]=TRUE;/*tick();*/
-     no2rang[element]=currentrang;
-    }
-  /* hclass is computed, use isindclass to compute one representative 
-   * of each hclass in r(l)class of no 
-   * if(isindclass[element] then element belongs to hclass 
-   * that is already computed
-   * O(rsize + lsize)
-   */
-  lcount=1;
-  dc->lrep[0]=0;
-  for(i=1;i<rsize;i++)
-      if(!isindclass[r_class[i]]) /*    new h_class in this r_class 
-                                   * => new representive for l_class 
-                                   */
-	{
-	 dc->lrep[lcount++]=suffix[i];
-	 isindclass[r_class[i]]=TRUE;/*tick();*/
-	 no2rang[r_class[i]]=currentrang;
-         if(maxlen<stamon->no2length[r_class[i]])maxlen=stamon->no2length[r_class[i]];
-	 /* compute the other elements of this h_class */
-	 for(j=1;j<hcount;j++)
-	   {
-            k=mult(stamon,dc->hclass[j],suffix[i]);
-            isindclass[k]=TRUE;/*tick();*/
-            no2rang[k]=currentrang;
-            if(maxlen<stamon->no2length[k])maxlen=stamon->no2length[k];
-	   }
+{
+	posint rsize, lsize, hcount = 1, rcount = 0, lcount = 0;
+	posint element;
+	posint i, j, k, l, m;
+	posint maxlen = stamon->no2length[no];
+	d_class dc = newdclass();
+	harray[0] = no;
+	if(!no2rang[no])
+		cpt_rang(no);
+	currentrang = no2rang[no];
+	r_irreg_class(no, &rsize);
+	l_irreg_class(no, &lsize);
+	/* compute hclass of no = intersection of rclass and lclass 
+	 * O(rsize*lsize)
+	 * could be faster if sorted before O(rsize*log(rsize)+lsize*log(lsize))
+	 */
+	for (i = 1; i < rsize; i++) {
+		for (j = 1; j < lsize; j++) {
+			if(r_class[i] == l_class[j]) {	/* member of h_class */
+				harray[hcount++] = r_class[i];
+				j = lsize;
+			}
+		}
 	}
-   rcount=1;
-   dc->rrep[0]=0;
-   for(i=1;i<lsize;i++)
-       if(!isindclass[l_class[i]])
-	 {
-	  dc->rrep[rcount++]=prefix[i];
-	  isindclass[l_class[i]]=TRUE;/*tick();*/
-	  no2rang[l_class[i]]=currentrang;
-          if(maxlen<stamon->no2length[l_class[i]])maxlen=stamon->no2length[l_class[i]];
-	  for(j=1;j<hcount;j++)
-	    {
-	     k=mult(stamon,prefix[i],dc->hclass[j]);
-	     isindclass[k]=TRUE;/*tick();*/
-	     no2rang[k]=currentrang;
-             if(maxlen<stamon->no2length[k])maxlen=stamon->no2length[k];
-	    }
-	 }
-   /* compute the other elements of this dclass 
-    * O(number of elements in the dclass) 
-    */
-   for(j=0;j<hcount;j++)
-     for(i=1;i<rcount;i++)
-       {
-	l=mult(stamon,dc->rrep[i],dc->hclass[j]);
-        for(k=1;k<lcount;k++)
-	 {
-	  m=mult(stamon,l,dc->lrep[k]);
-          isindclass[m]=TRUE;/*tick();*/
-	  no2rang[m]=currentrang;
-	  if(maxlen<stamon->no2length[m])maxlen=stamon->no2length[m];
-	 }
-       }
-   dc->maxlen=maxlen*letterlength;
-   dcounter++;
-   rcounter+=dc->rno;
-   lcounter+=dc->lno;
-   irregcount+=((dc->hsize)*(dc->lno)*(dc->rno));
-   dlast->next=newdlist();
-   dlast=dlast->next;
-   dlast->info=dc;
+	dc->org = no;
+	dc->regular = FALSE;
+	dc->rang = no2rang[no];
+	dc->hsize = hcount;
+	dc->lno = rsize / hcount;
+	dc->rno = lsize / hcount;
+	dc->hclass = newar(dc->hsize);
+	dc->lrep = newar(dc->lno);
+	dc->rrep = newar(dc->rno);
+	for (i = 0; i < hcount;) {
+		element = harray[i];
+		dc->hclass[i++] = element;
+		isindclass[element] = TRUE;	/*tick(); */
+		no2rang[element] = currentrang;
+	}
+	/* hclass is computed, use isindclass to compute one representative 
+	 * of each hclass in r(l)class of no 
+	 * if(isindclass[element] then element belongs to hclass 
+	 * that is already computed
+	 * O(rsize + lsize)
+	 */
+	lcount = 1;
+	dc->lrep[0] = 0;
+	for (i = 1; i < rsize; i++)
+		if(!isindclass[r_class[i]]) {	/*    new h_class in this r_class 
+						 * => new representive for l_class 
+						 */
+			dc->lrep[lcount++] = suffix[i];
+			isindclass[r_class[i]] = TRUE;	/*tick(); */
+			no2rang[r_class[i]] = currentrang;
+			if(maxlen < stamon->no2length[r_class[i]])
+				maxlen = stamon->no2length[r_class[i]];
+			/* compute the other elements of this h_class */
+			for (j = 1; j < hcount; j++) {
+				k = mult(stamon, dc->hclass[j], suffix[i]);
+				isindclass[k] = TRUE;	/*tick(); */
+				no2rang[k] = currentrang;
+				if(maxlen < stamon->no2length[k])
+					maxlen = stamon->no2length[k];
+			}
+		}
+	rcount = 1;
+	dc->rrep[0] = 0;
+	for (i = 1; i < lsize; i++)
+		if(!isindclass[l_class[i]]) {
+			dc->rrep[rcount++] = prefix[i];
+			isindclass[l_class[i]] = TRUE;	/*tick(); */
+			no2rang[l_class[i]] = currentrang;
+			if(maxlen < stamon->no2length[l_class[i]])
+				maxlen = stamon->no2length[l_class[i]];
+			for (j = 1; j < hcount; j++) {
+				k = mult(stamon, prefix[i], dc->hclass[j]);
+				isindclass[k] = TRUE;	/*tick(); */
+				no2rang[k] = currentrang;
+				if(maxlen < stamon->no2length[k])
+					maxlen = stamon->no2length[k];
+			}
+		}
+	/* compute the other elements of this dclass 
+	 * O(number of elements in the dclass) 
+	 */
+	for (j = 0; j < hcount; j++)
+		for (i = 1; i < rcount; i++) {
+			l = mult(stamon, dc->rrep[i], dc->hclass[j]);
+			for (k = 1; k < lcount; k++) {
+				m = mult(stamon, l, dc->lrep[k]);
+				isindclass[m] = TRUE;	/*tick(); */
+				no2rang[m] = currentrang;
+				if(maxlen < stamon->no2length[m])
+					maxlen = stamon->no2length[m];
+			}
+		}
+	dc->maxlen = maxlen * letterlength;
+	dcounter++;
+	rcounter += dc->rno;
+	lcounter += dc->lno;
+	irregcount += ((dc->hsize) * (dc->lno) * (dc->rno));
+	dlast->next = newdlist();
+	dlast = dlast->next;
+	dlast->info = dc;
 }
 
 
@@ -866,24 +846,35 @@ posint no;
  * TRUE iff dc1>dc2
  * O(1)
  */
-static boole dc1gedc2(index1,index2)
-posint index1,index2;
+static boole dc1gedc2(index1, index2)
+posint index1, index2;
 {
- d_class dc1,dc2;
- dc1=stamon->ds->dclassarray[index1];
- dc2=stamon->ds->dclassarray[index2];
- if(dc1->rang>dc2->rang)return(TRUE);
- if(dc1->rang<dc2->rang)return(FALSE);
- if(dc1->regular&&(!dc2->regular))return(TRUE);
- if((!dc1->regular)&&dc2->regular)return(FALSE); 
- if(dc1->rno<dc2->rno)return(TRUE);
- if(dc1->rno>dc2->rno)return(FALSE);
- if(dc1->lno<dc2->lno)return(TRUE); 
- if(dc1->lno>dc2->lno)return(FALSE); 
- if(dc1->hsize<dc2->hsize)return(TRUE); 
- if(dc1->hsize>dc2->hsize)return(FALSE); 
- if(dc1->org<dc2->org)return(TRUE);
- return(FALSE);
+	d_class dc1, dc2;
+	dc1 = stamon->ds->dclassarray[index1];
+	dc2 = stamon->ds->dclassarray[index2];
+	if(dc1->rang > dc2->rang)
+		return (TRUE);
+	if(dc1->rang < dc2->rang)
+		return (FALSE);
+	if(dc1->regular && (!dc2->regular))
+		return (TRUE);
+	if((!dc1->regular) && dc2->regular)
+		return (FALSE);
+	if(dc1->rno < dc2->rno)
+		return (TRUE);
+	if(dc1->rno > dc2->rno)
+		return (FALSE);
+	if(dc1->lno < dc2->lno)
+		return (TRUE);
+	if(dc1->lno > dc2->lno)
+		return (FALSE);
+	if(dc1->hsize < dc2->hsize)
+		return (TRUE);
+	if(dc1->hsize > dc2->hsize)
+		return (FALSE);
+	if(dc1->org < dc2->org)
+		return (TRUE);
+	return (FALSE);
 }
 
 
@@ -892,61 +883,61 @@ posint index1,index2;
  */
 static void orderdclass()
 {
- posint i,j;
- d_class dc;
- boole  cont=TRUE; /* stop if no exchange in a run */
- /* read dclasses from list of dclasses */ 
- stamon->ds->dno=dcounter;
- stamon->ds->rno=rcounter;
- stamon->ds->lno=lcounter;
- stamon->ds->dclassarray=newdarray(dcounter); 
- dlast=dfirst;
- for(i=0;i<dcounter;i++)
-   {
-    stamon->ds->dclassarray[i]=dlast->info;
-    dlast=dlast->next;
-   }
- /* sort dclasses */ 
- for(i=dcounter-1;i&&cont;i--)
-   {
-    cont=FALSE;
-    for(j=0;j<i;j++)
-      if(dc1gedc2(j+1,j)) /* swap dclasses */
-          {
-           cont=TRUE;
-           dc=stamon->ds->dclassarray[j];
-           stamon->ds->dclassarray[j]=stamon->ds->dclassarray[j+1];
-           stamon->ds->dclassarray[j+1]=dc;
-          }
-   }
-}	
+	posint i, j;
+	d_class dc;
+	boole cont = TRUE;	/* stop if no exchange in a run */
+	/* read dclasses from list of dclasses */
+	stamon->ds->dno = dcounter;
+	stamon->ds->rno = rcounter;
+	stamon->ds->lno = lcounter;
+	stamon->ds->dclassarray = newdarray(dcounter);
+	dlast = dfirst;
+	for (i = 0; i < dcounter; i++) {
+		stamon->ds->dclassarray[i] = dlast->info;
+		dlast = dlast->next;
+	}
+	/* sort dclasses */
+	for (i = dcounter - 1; i && cont; i--) {
+		cont = FALSE;
+		for (j = 0; j < i; j++)
+			if(dc1gedc2(j + 1, j)) {	/* swap dclasses */
+				cont = TRUE;
+				dc = stamon->ds->dclassarray[j];
+				stamon->ds->dclassarray[j] = stamon->ds->dclassarray[j + 1];
+				stamon->ds->dclassarray[j + 1] = dc;
+			}
+	}
+}
 
 
 /* appends dclassstructure of mon to mon */
-void mon2dcl(monoid mon) 
-{posint element,help;
- stamon=mon;
- initstatic();
- /* compute all regular dclasses */
- for(element=0;(regcount<stamon->mno)&&(element<stamon->mno);element++)
-      if(!isindclass[element])
-	if(idempotent(element,stamon)) /* new idempotent element */
-          d_reg_class(element);
- /* compute all irregular dclasses */
- help=stamon->mno-regcount; 
- if(help)  /* help = number of irregular elements */
-   {rlqueue=newarray(help);
-    harray=newarray(help); 
-    prearray=newarray(help);sufarray=prearray;
-    pred=newarray(help);
-    for(element=0;element<stamon->mno;)mark[element++]=FALSE;
-    /*    element is an irregular element <=> !isindclass[element] */
-    element=1;
-    for(element=1;irregcount<stamon->mno-regcount;element++)
-      if(!isindclass[element])
-        d_irreg_class(element);
-   }
- orderdclass();
- mon->dclassiscomputed=TRUE;
- freebuf();
+void mon2dcl(monoid mon)
+{
+	posint element, help;
+	stamon = mon;
+	initstatic();
+	/* compute all regular dclasses */
+	for (element = 0; (regcount < stamon->mno) && (element < stamon->mno); element++)
+		if(!isindclass[element])
+			if(idempotent(element, stamon))	/* new idempotent element */
+				d_reg_class(element);
+	/* compute all irregular dclasses */
+	help = stamon->mno - regcount;
+	if(help) {		/* help = number of irregular elements */
+		rlqueue = newarray(help);
+		harray = newarray(help);
+		prearray = newarray(help);
+		sufarray = prearray;
+		pred = newarray(help);
+		for (element = 0; element < stamon->mno;)
+			mark[element++] = FALSE;
+		/*    element is an irregular element <=> !isindclass[element] */
+		element = 1;
+		for (element = 1; irregcount < stamon->mno - regcount; element++)
+			if(!isindclass[element])
+				d_irreg_class(element);
+	}
+	orderdclass();
+	mon->dclassiscomputed = TRUE;
+	freebuf();
 }

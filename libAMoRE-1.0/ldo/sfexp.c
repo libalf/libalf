@@ -13,37 +13,40 @@
  *  02111-1307 USA.  
  */
 
-#include "sfexp.h"
+#include <amore/sfexp.h>
 
 /** allocates a new starfexp
  */
-starfexp newsfexp() { 
-    starfexp hlp;
-    hlp = (starfexp)calloc(1, sizeof(struct sexp));
-    if (hlp == NULL) {
+starfexp newsfexp()
+{
+	starfexp hlp;
+	hlp = (starfexp) calloc(1, sizeof(struct sexp));
+	if(hlp == NULL) {
 #ifdef DEBUG
-	perror("newsfexp 1"); 
+		perror("newsfexp 1");
 #endif
-	OUT_OF_MEM();
-    }
-    return hlp;
-} /* newsfexp */
+		OUT_OF_MEM();
+	}
+	return hlp;
+}				/* newsfexp */
 
-void freesf(starfexp sf, boole flag, posint mno) {
-    register posint i;
-    dispose(sf->computed);
-    dispose(sf->ulength);
-    dispose(sf->vlength);
-    dispose(sf->w0length);
-    dispose(sf->w1length);
-    if (flag) for(i=0; i< mno; i++) {
-	dispose(sf->u[i]);
-	dispose(sf->v[i]);
-	dispose(sf->w0[i]);
-	dispose(sf->w1[i]);
-    }
-    dispose(sf->u);
-    dispose(sf->v);
-    dispose(sf->w0);
-    dispose(sf->w1);
-} /* freesf */
+void freesf(starfexp sf, boole flag, posint mno)
+{
+	register posint i;
+	dispose(sf->computed);
+	dispose(sf->ulength);
+	dispose(sf->vlength);
+	dispose(sf->w0length);
+	dispose(sf->w1length);
+	if(flag)
+		for (i = 0; i < mno; i++) {
+			dispose(sf->u[i]);
+			dispose(sf->v[i]);
+			dispose(sf->w0[i]);
+			dispose(sf->w1[i]);
+		}
+	dispose(sf->u);
+	dispose(sf->v);
+	dispose(sf->w0);
+	dispose(sf->w1);
+}				/* freesf */

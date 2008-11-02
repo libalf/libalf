@@ -16,10 +16,11 @@
 /* error.c
  */
 
-#include "liberror.h"
+#include <amore/liberror.h>
 
 /** perror replacement
  */
-void liberror(const char *f, const char *s) {
-    fprintf(stderr, "%s: %s\n",f,s);
+void liberror(const char *f, const char *s)
+{
+	fprintf(stderr, "%s: %s\n", f, s);
 }

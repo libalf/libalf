@@ -14,4 +14,4 @@
  *  02111-1307 USA.  
  */
 
-#include "global.h"
+#include <amore/global.h>

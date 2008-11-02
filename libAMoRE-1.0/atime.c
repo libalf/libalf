@@ -17,12 +17,12 @@
  *  Linux-specific
  */
 
-#include "atime.h"
+#include <amore/atime.h>
 
 
 #include <sys/types.h>
 #include <sys/times.h>
-#include <sys/timex.h>   /* ntp_gettime */
+#include <sys/timex.h>		/* ntp_gettime */
 #include <sys/param.h>
 
 #ifdef DEBUG
@@ -31,27 +31,28 @@
 
 static struct ntptimeval t;
 
-static double start ;
+static double start;
 
-double clock_getTime() {
-    double check ;
+double clock_getTime()
+{
+	double check;
 
-    ntp_gettime(&t);
+	ntp_gettime(&t);
 
-    check = (double) t.time.tv_sec + t.time.tv_usec / 1000000.0;
+	check = (double) t.time.tv_sec + t.time.tv_usec / 1000000.0;
 #ifdef DEBUG
-    printf("getTime returns: %f\n", check - start);
+	printf("getTime returns: %f\n", check - start);
 #endif
-    return check - start;
+	return check - start;
 }
 
-void clock_start() {   
-    ntp_gettime(&t);
+void clock_start()
+{
+	ntp_gettime(&t);
 
-    start = (double) t.time.tv_sec + t.time.tv_usec / 1000000.0;
+	start = (double) t.time.tv_sec + t.time.tv_usec / 1000000.0;
 
 #ifdef DEBUG
-    printf("clock started.. start %f !\n", start);
-#endif   
+	printf("clock started.. start %f !\n", start);
+#endif
 }
-

@@ -13,27 +13,28 @@
  *  02111-1307 USA.  
  */
 
-#include "dfa2nfa.h"
+#include <amore/dfa2nfa.h>
 
 /* (trivial) transformation of a dfa to a nfa */
 
-nfa dfa2nfa(register dfa da) { 
-  register nfa result;
-  register posint state;
-  register posint letter;
-        result = newnfa();
-        result->qno = da->qno;
-        result->sno = da->sno;
-        result->minimal = FALSE;
-        result->is_eps = FALSE;
-        result->infin = newfinal(result->qno);
-        result->delta = newndelta(result->sno,result->qno);
-        setinit(result->infin[da->init]);
-        for(state=0; state<=result->qno; state++)
-                setfinal(result->infin[state],da->final[state]);
-        for(letter=1; letter<=result->sno; letter++)
-                for(state=0; state<=result->qno; state++) {
-                        connect(result->delta,letter,state,da->delta[letter][state]);
-                }
-        return result;
-} /* dfa2nfa */
+nfa dfa2nfa(register dfa da)
+{
+	register nfa result;
+	register posint state;
+	register posint letter;
+	result = newnfa();
+	result->qno = da->qno;
+	result->sno = da->sno;
+	result->minimal = FALSE;
+	result->is_eps = FALSE;
+	result->infin = newfinal(result->qno);
+	result->delta = newndelta(result->sno, result->qno);
+	setinit(result->infin[da->init]);
+	for (state = 0; state <= result->qno; state++)
+		setfinal(result->infin[state], da->final[state]);
+	for (letter = 1; letter <= result->sno; letter++)
+		for (state = 0; state <= result->qno; state++) {
+			connect(result->delta, letter, state, da->delta[letter][state]);
+		}
+	return result;
+}				/* dfa2nfa */
