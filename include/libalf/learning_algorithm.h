@@ -9,8 +9,8 @@
  * see LICENSE file for licensing information.
  */
 
-#ifndef __libalf_observationtable_h__
-# define __libalf_observationtable_h__
+#ifndef __libalf_learning_algorithm_h__
+# define __libalf_learning_algorithm_h__
 
 #include <list>
 #include <utility>
@@ -25,10 +25,10 @@ using namespace std;
 
 // basic interface for different implementations (e.g. one table and one tree)
 template <class answer>
-class observationtable {
+class learning_algorithm {
 
 	public:
-		virtual ~observationtable() { };
+		virtual ~learning_algorithm() { };
 
 		virtual void set_teacher(teacher<answer> *) = 0;
 		virtual teacher<answer> * get_teacher() = 0;
@@ -41,36 +41,24 @@ class observationtable {
 		virtual void savetofile(char* filename) = 0;
 		virtual void loadfromfile(char* filename) = 0;
 
-		// return a reference to the column-names
-		virtual list< list<int> > *get_columns() = 0;
+		virtual void print(ostream &os) = 0;
 
+		// check acceptance of word in data structure
+		// if status unknown, return (false, ?)
+		// otherwise return (true, <answer>)
 		virtual pair<bool, answer> check_entry(list<int>) = 0;
-			// if status unknown, return (false, ?)
-			// otherwise return (true, <answer>)
 
-		// complete table and then derive an automaton
+		// complete table and then derive automaton
 		virtual bool derive_hypothesis(finite_language_automaton * automaton) = 0;
 
 		virtual void add_counterexample(list<int>, answer) = 0;
 		virtual void add_counterexample(list<int>) = 0;
-		// automatically prefix_close, postfix_close
 
 	protected:
 		// complete table in such a way that an automata can be derived
-		// (i.e. fill all missing fields and make consistent and closed)
 		virtual void complete() = 0;
+		// derive an automaton from data structure
 		virtual bool derive_automaton(finite_language_automaton * automaton) = 0;
-
-
-		//virtual bool is_closed() = 0;
-		// every answer-row from lower table can be simulated/combined
-		// by rows from the upper table
-		// (for RFSA [NFA])
-
-		//virtual bool is_consistent() = 0;
-		// 1) if row 1 <= row 2 implies that row 1 + {alpha} <= row 2 + {alpha}
-		// 2) if row 1 = SUM(row n...m) implies that row 1 + {alpha} = SUM(row n {alpha} ... row m {alpha})
-		// (for RFSA [NFA])
 };
 
 }; // end namespace libalf

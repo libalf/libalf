@@ -9,8 +9,8 @@
  * see LICENSE file for licensing information.
  */
 
-#ifndef __libalf_simple_observationtable_h__
-# define __libalf_simple_observationtable_h__
+#ifndef __libalf_algorithm_angluin_h__
+# define __libalf_algorithm_angluin_h__
 
 #include <list>
 #include <vector>
@@ -20,67 +20,67 @@
 
 #include <libalf/alphabet.h>
 #include <libalf/logger.h>
-#include <libalf/observationtable.h>
+#include <libalf/learning_algorithm.h>
 #include <libalf/automata.h>
 
 namespace libalf {
 
 using namespace std;
 
-namespace simple_ot {
+	namespace algorithm_angluin {
 
-	template <class answer>
-	class simple_row {
-		public:
-			list<int> index;
-			vector<answer> acceptance;
+		template <class answer>
+		class simple_row {
+			public:
+				list<int> index;
+				vector<answer> acceptance;
 
-			bool operator==(simple_row<answer> &other)
-			{{{
-				return (acceptance == other.acceptance);
-			}}}
+				bool operator==(simple_row<answer> &other)
+				{{{
+					return (acceptance == other.acceptance);
+				}}}
 
-			bool operator!=(simple_row<answer> &other)
-			{{{
-				return (acceptance != other.acceptance);
-			}}}
+				bool operator!=(simple_row<answer> &other)
+				{{{
+					return (acceptance != other.acceptance);
+				}}}
 
-			bool operator>(simple_row<answer> &other)
-			{{{
-				typename vector<answer>::iterator ai;
-				typename vector<answer>::iterator oai;
+				bool operator>(simple_row<answer> &other)
+				{{{
+					typename vector<answer>::iterator ai;
+					typename vector<answer>::iterator oai;
 
-				ai = acceptance.begin();
-				oai = other.acceptance.begin();
+					ai = acceptance.begin();
+					oai = other.acceptance.begin();
 
-				for(/* -- */; ai < acceptance.end() && oai < other.acceptance.end(); ai++, oai++) {
-					if(*ai > *oai)
-						return true;
-				}
+					for(/* -- */; ai < acceptance.end() && oai < other.acceptance.end(); ai++, oai++) {
+						if(*ai > *oai)
+							return true;
+					}
 
-				return false;
-			}}}
+					return false;
+				}}}
+		};
+
+		template <class answer>
+		class automaton_state {
+			public:
+				int id;
+				typedef list< algorithm_angluin::simple_row<answer> > rowlist;
+				typename rowlist::iterator tableentry;
+		};
+
 	};
-
-	template <class answer>
-	class automaton_state {
-		public:
-			int id;
-			typedef list< simple_ot::simple_row<answer> > rowlist;
-			typename rowlist::iterator tableentry;
-	};
-
-};
 
 // simple observation table for angluin learning algorithm
 template <class answer>
-class simple_observationtable : observationtable<answer> {
+class simple_observationtable : learning_algorithm<answer> {
 
 	private:
 		typedef vector< list<int> > columnlist;
 		columnlist column_names;
 
-		typedef list< simple_ot::simple_row<answer> > rowlist;
+		typedef list< algorithm_angluin::simple_row<answer> > rowlist;
 		rowlist upper_table;
 		rowlist lower_table;
 
@@ -211,17 +211,6 @@ class simple_observationtable : observationtable<answer> {
 			os << "}\n";
 		}}}
 
-		virtual list< list<int> > *get_columns()
-		{{{
-			list< list<int> > *l = new list< list<int> >();
-			typename columnlist::iterator ci;
-
-			for(ci = column_names.begin(); ci != column_names.end(); ci++)
-				l->push_back(*ci);
-
-			return l;
-		}}}
-
 		// searches column first, then row
 		virtual pair<bool, answer> check_entry(list<int> word)
 		{{{
@@ -303,6 +292,16 @@ class simple_observationtable : observationtable<answer> {
 			}
 		}}}
 
+		virtual list< list<int> > *get_columns()
+		{{{
+			list< list<int> > *l = new list< list<int> >();
+			typename columnlist::iterator ci;
+
+			for(ci = column_names.begin(); ci != column_names.end(); ci++)
+				l->push_back(*ci);
+
+			return l;
+		}}}
 
 	protected:
 		virtual typename rowlist::iterator search_upper_table(list<int> &word)
@@ -376,7 +375,7 @@ class simple_observationtable : observationtable<answer> {
 
 		virtual void add_word_to_upper_table(list<int> word, bool check_uniq = true)
 		{{{
-			simple_ot::simple_row<answer> row;
+			algorithm_angluin::simple_row<answer> row;
 			bool done = false;
 
 			if(check_uniq) {
@@ -673,10 +672,10 @@ class simple_observationtable : observationtable<answer> {
 			// derive deterministic finite automaton from this table
 			typename rowlist::iterator uti, ti;
 
-			simple_ot::automaton_state<answer> state;
-			list<simple_ot::automaton_state<answer> > states;
+			algorithm_angluin::automaton_state<answer> state;
+			list<algorithm_angluin::automaton_state<answer> > states;
 			state.id = 0;
-			typename list<simple_ot::automaton_state<answer> >::iterator state_it, state_it2;
+			typename list<algorithm_angluin::automaton_state<answer> >::iterator state_it, state_it2;
 
 			list<int> initial;
 

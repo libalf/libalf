@@ -15,8 +15,8 @@
 #include <libalf/alphabet.h>
 #include <libalf/automata.h>
 #include <libalf/logger.h>
-#include <libalf/observationtable.h>
-#include <libalf/simple_observationtable.h>
+#include <libalf/learning_algorithm.h>
+#include <libalf/algorithm_angluin.h>
 #include <libalf/oracle.h>
 #include <libalf/oracle_automaton.h>
 #include <libalf/statistics.h>
