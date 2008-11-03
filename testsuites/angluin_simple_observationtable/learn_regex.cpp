@@ -24,8 +24,7 @@
 using namespace std;
 using namespace libalf;
 
-
-int main()
+int main(int argc, char**argv)
 {
 	regex r;
 	nfa nfa_p;
@@ -41,22 +40,39 @@ int main()
 	char filename[128];
 	int iteration;
 
+	int alphabet_size;
+	char *regex;
+
+	if(argc != 3) {
+		cout << "please give the 2 parameters <alphabet size> <regex>\n\n";
+		cout << "example regular expressions:\n";
+		cout << "alphabet size, \"regex\":\n";
+		cout << "2 \"((a((aa)a))U(((bb))*((((bU(ab))U(bUa)))*)*))\"\n";
+		cout << "2 \"(((bU((aa)U(aUb)))U(a(aUb)))U((aUa)(bb)))\"\n";
+		cout << "2 \"(((aa)(a)*)(((a((b(b)*)(aUb)))((ba))*))*)\"\n";
+		cout << "3 \"(cbb(ab(c)*))* U (a((cbb*) U a+b+bc)+)\"\n";
+		return 1;
+	}
+
+	alphabet_size = atoi(argv[1]);
+	if(alphabet_size <= 0) {
+		cout << "insane or invalid alphabet_size\n";
+		return 1;
+	}
+
+	regex = argv[2];
+
 	// init AMoRE buffers
 	initbuf();
 
 	log = new ostream_logger(&cout, LOGGER_DEBUG, true);
 
 	// create automaton from regex
-#define ALPHABET_SIZE 2
-	// asize 2:
-	//r = rexFromString(ALPHABET_SIZE, "((a((aa)a))U(((bb))*((((bU(ab))U(bUa)))*)*))"); // mindfa has 1 state.
-	//r = rexFromString(ALPHABET_SIZE, "(((bU((aa)U(aUb)))U(a(aUb)))U((aUa)(bb)))"); // mindfa has 4 states.
-	r = rexFromString(ALPHABET_SIZE, "(((aa)(a)*)(((a((b(b)*)(aUb)))((ba))*))*)"); // mindfa has 10 states.
-	// asize 3:
-	//r = rexFromString(ALPHABET_SIZE, "(cbb(ab(c)*))* U (a((cbb*) U a+b+bc)+)");
+	cout << "alphabet size: " << alphabet_size <<", regex: " << regex << "\n";
+	r = rexFromString(alphabet_size, regex);
 
 	if(!r) {
-		printf("regex failed\n");
+		cout << "regex failed\n";
 		return 1;
 	}
 	nfa_p = rex2nfa(r);
@@ -77,7 +93,7 @@ int main()
 	o.set_automaton(*atm);
 
 	// create angluin_simple_observationtable and teach it the automaton
-	ot = new angluin_simple_observationtable<bool>(teach, log, ALPHABET_SIZE);
+	ot = new angluin_simple_observationtable<bool>(teach, log, alphabet_size);
 	cout << "angluin_simple_observationtable ok\n";
 
 	for(iteration = 1; iteration <= 20; iteration++) {

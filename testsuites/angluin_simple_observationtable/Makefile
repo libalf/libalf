@@ -7,20 +7,20 @@ CPPFLAGS=-Wall -ggdb3  -I../../include
 
 LDFLAGS=-L../../src -lalf -lAMoRE
 
-all: aso
+all: learn_regex
 
 clean:
 	-rm *.o
-	-rm aso
+	-rm learn_regex
 	-rm *.dot
 	-rm *.jpg
 	-rm *.angluin
 
 run:
-	LD_LIBRARY_PATH=../../src ./aso
+	LD_LIBRARY_PATH=../../src ./learn_regex
 
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;
 
-aso: aso.cpp
+learn_regex: learn_regex.cpp
 
