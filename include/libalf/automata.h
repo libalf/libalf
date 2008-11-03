@@ -91,12 +91,15 @@ class finite_language_automaton : public finite_automaton {
 		virtual finite_language_automaton * clone() = 0;
 
 		// LANGUAGE/AUTOMATON OPERATIONS
+		virtual int get_state_count() = 0;
+
+		// get a random sample word from this automaton
+		virtual list<int> get_sample_word() = 0;
+
 
 		// UNARY TESTS
 		// is the language of this automaton empty?
 		virtual bool is_empty() = 0;
-		// get a random sample word from this automaton
-		virtual list<int> get_sample_word() = 0;
 
 		// BINARY TESTS
 		// test if this == other

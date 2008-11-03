@@ -42,6 +42,8 @@ int main(int argc, char**argv)
 	char filename[128];
 	int iteration;
 
+	bool success = false;
+
 	int alphabet_size;
 	char *regex;
 	char *p;
@@ -66,10 +68,8 @@ int main(int argc, char**argv)
 				p++;
 			}
 			alphabet_size = 1 + c - 'a';
-
-			cout << "choosing " << alphabet_size << " as alphabet sizen\n";
 		} else {
-			cout << "please give the 2 parameters <alphabet size> <regex>\n\n";
+			cout << "either give a sole regex as parameter, or give <alphabet size> <regex>.\n\n";
 			cout << "example regular expressions:\n";
 			cout << "alphabet size, \"regex\":\n";
 			cout << "2 '((a((aa)a))U(((bb))*((((bU(ab))U(bUa)))*)*))'\n";
@@ -124,10 +124,8 @@ int main(int argc, char**argv)
 
 	// create angluin_simple_observationtable and teach it the automaton
 	ot = new angluin_simple_observationtable<bool>(teach, log, alphabet_size);
-	cout << "angluin_simple_observationtable ok\n";
 
-	for(iteration = 1; iteration <= 20; iteration++) {
-		cout << "iteration " << iteration <<":\n";
+	for(iteration = 1; iteration <= 100; iteration++) {
 		ot->derive_hypothesis(&hypothesis);
 
 		snprintf(filename, 128, "observationtable%2d.angluin", iteration);
@@ -148,21 +146,20 @@ int main(int argc, char**argv)
 
 		if(oracle_answer.first) {
 			cout << "success.\n";
+			success = true;
 			break;
 		}
 
 		snprintf(filename, 128, "counterexample%2d.angluin", iteration);
 		file.open(filename);
-		cout << "counter example: ";
-		print_word(cout, oracle_answer.second.front());
 		print_word(file, oracle_answer.second.front());
-		cout << "\n";
 		ot->add_counterexample(oracle_answer.second.front());
 		file.close();
 	}
 
 	cout << "required membership queries: " << stats.query_count.membership << "\n";
 	cout << "required equivalence queries: " << stats.query_count.equivalence << "\n";
+	cout << "minimal state count: " << hypothesis.get_state_count() - 1 << " + 1 sink\n";
 
 	delete ot;
 	delete teach;
@@ -172,6 +169,9 @@ int main(int argc, char**argv)
 	// release AMoRE buffers
 	freebuf();
 
-	return 0;
+	if(success)
+		return 0;
+	else
+		return 2;
 }
 

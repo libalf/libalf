@@ -158,6 +158,21 @@ std::string nondeterministic_finite_amore_automaton::generate_dotfile()
 	printf("nfaa::generate_dotfile() not implemented\n");
 }
 
+int deterministic_finite_amore_automaton::get_state_count()
+{
+	if(dfa_p)
+		return dfa_p->qno + 1;
+	else
+		return 0;
+}
+int nondeterministic_finite_amore_automaton::get_state_count()
+{
+	if(nfa_p)
+		return nfa_p->qno + 1;
+	else
+		return 0;
+}
+
 bool deterministic_finite_amore_automaton::is_empty()
 // note: calling minimize()es this
 {{{

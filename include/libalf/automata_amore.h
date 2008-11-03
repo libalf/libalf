@@ -74,8 +74,9 @@ class deterministic_finite_amore_automaton : public deterministic_finite_automat
 		virtual std::string generate_dotfile();
 
 	// from finite_language_automaton
-		virtual bool is_empty();
+		virtual int get_state_count();
 		virtual list<int> get_sample_word();
+		virtual bool is_empty();
 		virtual bool operator==(finite_language_automaton &other);
 		virtual bool includes(finite_language_automaton &subautomaton);
 		virtual bool contains(list<int> word);
@@ -122,8 +123,9 @@ class nondeterministic_finite_amore_automaton : public nondeterministic_finite_a
 		virtual std::string generate_dotfile();
 
 	// from finite_language_automaton
-		virtual bool is_empty();
+		virtual int get_state_count();
 		virtual list<int> get_sample_word();
+		virtual bool is_empty();
 		virtual bool operator==(finite_language_automaton &other);
 		virtual bool includes(finite_language_automaton &subautomaton);
 		virtual bool contains(list<int> word);
