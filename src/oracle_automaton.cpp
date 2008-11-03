@@ -71,14 +71,12 @@ pair<bool, list< list<int> > > oracle_automaton::equality_query(finite_language_
 			string s;
 			s = dfa->generate_dotfile();
 
-			// FIXME: find more than one counter-example and push it back?
 			ret.second.push_back(dfa->get_sample_word());
 
 			delete dfa;
 			return ret;
 		}
 	} else {
-		// FIXME: handle as error
 		ret.first = false;
 		return ret;
 	}

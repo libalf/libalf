@@ -439,7 +439,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 					// create entry in upper table
 					add_word_to_upper_table(lti->index, false);
 					typename table::iterator last = upper_table.end();
-					last--; // FIXME: does this work?
+					last--;
 					// copy acceptance status for that row
 					swap(last->acceptance, lti->acceptance);
 					// go to next and delete old lower entry

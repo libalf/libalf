@@ -46,7 +46,6 @@ list<int>* concat(list<int> &first, list<int> &second)
 	return l;
 }}}
 
-// FIXME: check below; optimize
 bool is_prefix_of(list<int> &prefix, list<int> &word)
 {{{
 	unsigned int prs, ws;
