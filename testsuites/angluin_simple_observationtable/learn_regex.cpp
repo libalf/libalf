@@ -62,6 +62,13 @@ int main(int argc, char**argv)
 		return 1;
 	}
 
+	char *p;
+	p = argv[2];
+	while(*p) {
+		if(*p == '|')
+			*p = 'U';
+		p++;
+	}
 	regex = argv[2];
 
 	// init AMoRE buffers
