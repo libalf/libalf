@@ -30,6 +30,8 @@ int main(int argc, char**argv)
 	nfa nfa_p;
 	dfa dfa_p;
 
+	statistics stats;
+
 	deterministic_finite_amore_automaton *atm;
 	deterministic_finite_amore_automaton hypothesis;
 	logger *log;
@@ -90,7 +92,9 @@ int main(int argc, char**argv)
 
 	// create oracle instance and teacher instance
 	teach = new teacher_automaton<bool>(atm);
+	teach->set_statistics_counter(&stats);
 	o.set_automaton(*atm);
+	o.set_statistics_counter(&stats);
 
 	// create angluin_simple_observationtable and teach it the automaton
 	ot = new angluin_simple_observationtable<bool>(teach, log, alphabet_size);
@@ -130,6 +134,9 @@ int main(int argc, char**argv)
 		ot->add_counterexample(oracle_answer.second.front());
 		file.close();
 	}
+
+	cout << "required membership queries: " << stats.query_count.membership << "\n";
+	cout << "required equality queries: " << stats.query_count.equality << "\n";
 
 	delete ot;
 	delete teach;

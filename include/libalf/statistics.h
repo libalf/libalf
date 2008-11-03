@@ -28,8 +28,16 @@ class statistics {
 		} query_count;
 
 		// rechenzeit
+		// ...
 
 		// speicherverbrauch
+		// ...
+
+
+		statistics();
+
+		void reset();
+
 };
 
 }; // end namespace libalf
