@@ -114,11 +114,11 @@ int main(int argc, char**argv)
 		file << hypothesis.generate_dotfile();
 		file.close();
 
-		// once an automaton is generated, test for equality with oracle_automaton
+		// once an automaton is generated, test for equivalence with oracle_automaton
 		// if this test is ok, all worked well
 
 		pair<bool, list< list<int> > > oracle_answer;
-		oracle_answer = o.equality_query(hypothesis);
+		oracle_answer = o.equivalence_query(hypothesis);
 
 		if(oracle_answer.first) {
 			cout << "success.\n";
@@ -136,7 +136,7 @@ int main(int argc, char**argv)
 	}
 
 	cout << "required membership queries: " << stats.query_count.membership << "\n";
-	cout << "required equality queries: " << stats.query_count.equality << "\n";
+	cout << "required equivalence queries: " << stats.query_count.equivalence << "\n";
 
 	delete ot;
 	delete teach;

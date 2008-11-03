@@ -41,7 +41,7 @@ class oracle_automaton : public oracle {
 
 		// returns <true, (void)> if automaton is ok,
 		// returns <false, list of counter-examples> if automaton is not ok
-		virtual pair<bool, list< list<int> > > equality_query(finite_language_automaton & hypothesis);
+		virtual pair<bool, list< list<int> > > equivalence_query(finite_language_automaton & hypothesis);
 };
 
 }; // end namespace libalf

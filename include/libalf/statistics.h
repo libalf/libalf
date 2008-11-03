@@ -24,7 +24,7 @@ class statistics {
 
 		struct {
 			int membership;
-			int equality;
+			int equivalence;
 		} query_count;
 
 		// rechenzeit

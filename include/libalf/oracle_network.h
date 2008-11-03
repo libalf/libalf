@@ -26,7 +26,7 @@ class oracle_network : public oracle, public network_connection {
 		oracle_network();
 		virtual ~oracle_network();
 
-		virtual pair<bool, list< list< list<int> > > equality_query(finite_language_automaton &a);
+		virtual pair<bool, list< list< list<int> > > equivalence_query(finite_language_automaton &a);
 };
 
 }; // end namespace libalf

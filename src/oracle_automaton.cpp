@@ -48,12 +48,12 @@ finite_language_automaton * oracle_automaton::get_automaton()
 
 // returns <true, (void)> if hypothesis is true,
 // returns <false, list of counter-examples> if hypothesis is not ok
-pair<bool, list< list<int> > > oracle_automaton::equality_query(finite_language_automaton & hypothesis)
+pair<bool, list< list<int> > > oracle_automaton::equivalence_query(finite_language_automaton & hypothesis)
 {{{
 	pair<bool, list< list< int> > > ret;
 
 	if(this->stats)
-		this->stats->query_count.equality++;
+		this->stats->query_count.equivalence++;
 
 	if(backend_automaton) {
 		finite_language_automaton *difference;

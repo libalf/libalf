@@ -41,6 +41,15 @@ class teacher {
 
 };
 
+template <class answer>
+class teacher_cacheable : public teacher<answer> {
+	public:
+		teacher_cacheable();
+		virtual ~teacher_cacheable();
+
+//		virtual void membership_query(BDD<int> &tree) = 0;
+};
+
 }; // end namespace libalf
 
 #endif

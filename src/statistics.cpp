@@ -25,7 +25,7 @@ void statistics::reset()
 	table_size.words = 0;
 
 	query_count.membership = 0;
-	query_count.equality = 0;
+	query_count.equivalence = 0;
 }}}
 
 }; // end namespace libalf
