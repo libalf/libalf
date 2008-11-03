@@ -14,6 +14,7 @@
 
 #include <list>
 #include <vector>
+#include <string>
 #include <algorithm>
 #include <functional>
 #include <ostream>
@@ -39,10 +40,10 @@ using namespace std;
 /*
  * observation table for angluin learning algorithm
  */
-template <class answer, class table>
+template <class answer, class table, class acceptances>
 class angluin_observationtable : public learning_algorithm<answer> {
 	/*\
-	 * NOTES FOR <TABLE> TEMPLATE CLASS:
+	 * NOTES FOR <TABLE> AND <ACCEPTANCE> TEMPLATE CLASSES:
 	 *	table has to be iterable. iterator elements have to provide the following:
 	 *	table::iterator->operator==(*(table::iterator) &)
 	 *		has to return true, if acceptance of both table entries is same
@@ -137,7 +138,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		{{{
 			typename columnlist::iterator ci;
 			typename table::iterator ti;
-			typename vector<answer>::iterator vi;
+			typename acceptances::iterator acci;
 
 			os << "simple_observationtable {\n";
 			os << "\tcolumns:";
@@ -153,11 +154,11 @@ class angluin_observationtable : public learning_algorithm<answer> {
 				os << "\t\t";
 				print_word(os, ti->index);
 				os << ": ";
-				for(vi = ti->acceptance.begin(); vi != ti->acceptance.end(); vi++) {
-					if(*vi == true)
+				for(acci = ti->acceptance.begin(); acci != ti->acceptance.end(); acci++) {
+					if(*acci == true)
 						os << "+ ";
 					else
-						if(*vi == false)
+						if(*acci == false)
 							os << "- ";
 						else
 							os << "? ";
@@ -170,11 +171,11 @@ class angluin_observationtable : public learning_algorithm<answer> {
 				os << "\t\t";
 				print_word(os, ti->index);
 				os << ": ";
-				for(vi = ti->acceptance.begin(); vi != ti->acceptance.end(); vi++) {
-					if(*vi == true)
+				for(acci = ti->acceptance.begin(); acci != ti->acceptance.end(); acci++) {
+					if(*acci == true)
 						os << "+ ";
 					else
-						if(*vi == false)
+						if(*acci == false)
 							os << "- ";
 						else
 							os << "? ";
@@ -552,7 +553,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 									changed = true;
 
 									typename columnlist::iterator ci;
-									typename vector<answer>::iterator w1_acc_it, w2_acc_it;
+									typename acceptances::iterator w1_acc_it, w2_acc_it;
 
 									ci = column_names.begin();
 									w1_acc_it = w1_succ->acceptance.begin();
@@ -683,26 +684,26 @@ class angluin_observationtable : public learning_algorithm<answer> {
 };
 
 	namespace algorithm_angluin {
-		template <class answer>
+		template <class answer, class acceptances>
 		class simple_row {
 			public:
 				list<int> index;
-				vector<answer> acceptance;
+				acceptances acceptance;
 
-				bool operator==(simple_row<answer> &other)
+				bool operator==(simple_row<answer, acceptances> &other)
 				{{{
 					return (acceptance == other.acceptance);
 				}}}
 
-				bool operator!=(simple_row<answer> &other)
+				bool operator!=(simple_row<answer, acceptances> &other)
 				{{{
 					return (acceptance != other.acceptance);
 				}}}
 
-				bool operator>(simple_row<answer> &other)
+				bool operator>(simple_row<answer, acceptances> &other)
 				{{{
-					typename vector<answer>::iterator ai;
-					typename vector<answer>::iterator oai;
+					typename acceptances::iterator ai;
+					typename acceptances::iterator oai;
 
 					ai = acceptance.begin();
 					oai = other.acceptance.begin();
@@ -719,7 +720,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 
 
 template <class answer>
-class angluin_simple_observationtable : public angluin_observationtable<answer, list< algorithm_angluin::simple_row<answer> > > {
+class angluin_simple_observationtable : public angluin_observationtable<answer, list< algorithm_angluin::simple_row<answer, vector<answer> > >, vector<answer> > {
 	public:
 		angluin_simple_observationtable(teacher<answer> *teach, logger *log, int alphabet_size)
 		{{{
@@ -741,14 +742,14 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 	protected:
 		virtual void add_word_to_upper_table(list<int> word, bool check_uniq = true)
 		{{{
-			algorithm_angluin::simple_row<answer> row;
+			algorithm_angluin::simple_row<answer, vector<answer> > row;
 			bool done = false;
 
 			if(check_uniq) {
 				if(this->search_upper_table(word) != this->upper_table.end()) {
 					return;
 				}
-				typename list< algorithm_angluin::simple_row<answer> >::iterator ti;
+				typename list< algorithm_angluin::simple_row<answer, vector<answer> > >::iterator ti;
 				ti = this->search_lower_table(word);
 				if(ti != this->lower_table.end()) {
 					done = true;

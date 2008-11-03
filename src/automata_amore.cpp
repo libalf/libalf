@@ -529,6 +529,15 @@ finite_language_automaton * nondeterministic_finite_amore_automaton::lang_concat
 */
 }
 
+std::string deterministic_finite_amore_automaton::serialize()
+{
+	// FIXME
+}
+std::string nondeterministic_finite_amore_automaton::serialize()
+{
+	// FIXME
+}
+
 bool deterministic_finite_amore_automaton::construct(int alphabet_size, int state_count, list<int> start, list<int> final, list<transition> transitions)
 {{{
 	dfa a;

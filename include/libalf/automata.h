@@ -126,6 +126,9 @@ class finite_language_automaton : public finite_automaton {
 		virtual finite_language_automaton * nondeterminize() = 0;
 		virtual finite_language_automaton * determinize() = 0;
 
+		virtual string serialize() = 0;
+		virtual void deserialize(string &automaton);
+
 		// construct a new automaton with states 0..state_count-1
 		//
 		// states are named 0 .. state_count-1,
