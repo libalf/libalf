@@ -553,11 +553,13 @@ class angluin_observationtable : public learning_algorithm<answer> {
 									changed = true;
 
 									typename columnlist::iterator ci;
+									int cindex = 0;
 									typename acceptances::iterator w1_acc_it, w2_acc_it;
 
 									ci = column_names.begin();
 									w1_acc_it = w1_succ->acceptance.begin();
 									w2_acc_it = w2_succ->acceptance.begin();
+
 
 									while(w1_acc_it != w1_succ->acceptance.end()) {
 										if(*w1_acc_it != *w2_acc_it) {
@@ -567,10 +569,16 @@ class angluin_observationtable : public learning_algorithm<answer> {
 											newsuffix = *ci;
 											newsuffix.push_front(sigma);
 											add_column(newsuffix);
+											ci = column_names.begin();
+											// when changing the column list, the last iterator may change.
+											// if so, using the old one results in a segfault.
+											for(int j = 0; j < cindex; j++)
+												ci++;
 										}
 										w1_acc_it++;
 										w2_acc_it++;
 										ci++;
+										cindex++;
 									}
 								}
 							}
@@ -587,17 +595,14 @@ class angluin_observationtable : public learning_algorithm<answer> {
 
 		virtual void complete()
 		{{{
-			// first complete all missing fields by querying the teacher for membership
 			fill_missing_columns();
 
-			if(make_consistent()) {
+			if(close()) {
 				complete();
 				return;
 			}
 
-			// second check, if table is closed and consistent.
-			// if not, change it in that way and complete recursively.
-			if(close()) {
+			if(make_consistent()) {
 				complete();
 				return;
 			}

@@ -49,10 +49,10 @@ int main(int argc, char**argv)
 		cout << "please give the 2 parameters <alphabet size> <regex>\n\n";
 		cout << "example regular expressions:\n";
 		cout << "alphabet size, \"regex\":\n";
-		cout << "2 \"((a((aa)a))U(((bb))*((((bU(ab))U(bUa)))*)*))\"\n";
-		cout << "2 \"(((bU((aa)U(aUb)))U(a(aUb)))U((aUa)(bb)))\"\n";
-		cout << "2 \"(((aa)(a)*)(((a((b(b)*)(aUb)))((ba))*))*)\"\n";
-		cout << "3 \"(cbb(ab(c)*))* U (a((cbb*) U a+b+bc)+)\"\n";
+		cout << "2 '((a((aa)a))U(((bb))*((((bU(ab))U(bUa)))*)*))'\n";
+		cout << "2 '(((bU((aa)U(aUb)))U(a(aUb)))U((aUa)(bb)))'\n";
+		cout << "2 '(((aa)(a)*)(((a((b(b)*)(aUb)))((ba))*))*)'\n";
+		cout << "3 '(cbb(ab(c)*))* U (a((cbb*) U a+b+bc)+)'\n";
 		return 1;
 	}
 
@@ -67,7 +67,7 @@ int main(int argc, char**argv)
 	// init AMoRE buffers
 	initbuf();
 
-	log = new ostream_logger(&cout, LOGGER_DEBUG, true);
+	log = new ostream_logger(&cout, LOGGER_DEBUG);
 
 	// create automaton from regex
 	cout << "alphabet size: " << alphabet_size <<", regex: " << regex << "\n";
