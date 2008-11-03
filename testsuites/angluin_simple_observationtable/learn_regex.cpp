@@ -44,32 +44,51 @@ int main(int argc, char**argv)
 
 	int alphabet_size;
 	char *regex;
-
-	if(argc != 3) {
-		cout << "please give the 2 parameters <alphabet size> <regex>\n\n";
-		cout << "example regular expressions:\n";
-		cout << "alphabet size, \"regex\":\n";
-		cout << "2 '((a((aa)a))U(((bb))*((((bU(ab))U(bUa)))*)*))'\n";
-		cout << "2 '(((bU((aa)U(aUb)))U(a(aUb)))U((aUa)(bb)))'\n";
-		cout << "2 '(((aa)(a)*)(((a((b(b)*)(aUb)))((ba))*))*)'\n";
-		cout << "3 '(cbb(ab(c)*))* U (a((cbb*) U a+b+bc)+)'\n";
-		return 1;
-	}
-
-	alphabet_size = atoi(argv[1]);
-	if(alphabet_size <= 0) {
-		cout << "insane or invalid alphabet_size\n";
-		return 1;
-	}
-
 	char *p;
-	p = argv[2];
+
+	if(argc == 3) {
+		alphabet_size = atoi(argv[1]);
+		if(alphabet_size <= 0) {
+			cout << "insane or invalid alphabet_size\n";
+			return 1;
+		}
+
+		regex = argv[2];
+	} else {
+		if(argc == 2) {
+			regex = argv[1];
+			// get alphabet_size
+			p = regex;
+			char c = 'a';
+			while(*p) {
+				if(*p > 'a' && *p < 'z' && *p > c)
+					c = *p;
+				p++;
+			}
+			alphabet_size = 1 + c - 'a';
+
+			cout << "choosing " << alphabet_size << " as alphabet sizen\n";
+		} else {
+			cout << "please give the 2 parameters <alphabet size> <regex>\n\n";
+			cout << "example regular expressions:\n";
+			cout << "alphabet size, \"regex\":\n";
+			cout << "2 '((a((aa)a))U(((bb))*((((bU(ab))U(bUa)))*)*))'\n";
+			cout << "2 '(((bU((aa)U(aUb)))U(a(aUb)))U((aUa)(bb)))'\n";
+			cout << "2 '(((aa)(a)*)(((a((b(b)*)(aUb)))((ba))*))*)'\n";
+			cout << "3 '(cbb(ab(c)*))* U (a((cbb*) U a+b+bc)+)'\n";
+			return 1;
+		}
+	}
+
+	// translate pipes ('|') into 'U', for amore syntax
+	p = regex;
 	while(*p) {
 		if(*p == '|')
 			*p = 'U';
 		p++;
 	}
-	regex = argv[2];
+
+
 
 	// init AMoRE buffers
 	initbuf();
