@@ -15,17 +15,29 @@
 #include <list>
 
 #include <libalf/automata.h>
+#include <libalf/statistics.h>
 
 namespace libalf {
 
 using namespace std;
 
 class oracle {
+	protected:
+		statistics * stats;
 	public:
+		oracle()
+		{{{
+			stats = NULL;
+		}}}
 		virtual ~oracle() { };
 		// returns <true, (void)> if automaton is ok,
 		// returns <false, list of counter-examples> if automaton is not ok
 		virtual pair<bool, list< list<int> > > equality_query(finite_language_automaton &) = 0;
+
+		virtual void set_statistics_counter(statistics * stats)
+		{{{
+			this->stats = stats;
+		}}}
 };
 
 }; // end namespace libalf

@@ -14,17 +14,30 @@
 
 #include <list>
 
+#include <libalf/statistics.h>
+
 namespace libalf {
 
 template <class answer>
 class teacher {
+	protected:
+		statistics * stats;
 
 	public:
+		teacher()
+		{{{
+			  stats = NULL;
+		}}}
 		virtual ~teacher() { };
 
 		virtual answer membership_query(list<int> &word) = 0;
 
 //		virtual void membership_query(BDD<int> &tree) = 0;
+
+		virtual void set_statistics_counter(statistics * stats)
+		{{{
+			this->stats = stats;
+		}}}
 
 };
 

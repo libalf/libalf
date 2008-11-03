@@ -15,21 +15,21 @@
 namespace libalf {
 
 class statistics {
+	public:
+		struct {
+			int bytes;
+			int members;
+			int words;
+		} table_size;
 
-	struct {
-		int bytes;
-		int members;
-		int words;
-	} table_size;
+		struct {
+			int membership;
+			int equality;
+		} query_count;
 
-	struct {
-		int membership;
-		int equality;
-	} query_count;
+		// rechenzeit
 
-	// rechenzeit
-
-	// speicherverbrauch
+		// speicherverbrauch
 };
 
 }; // end namespace libalf

@@ -52,6 +52,9 @@ pair<bool, list< list<int> > > oracle_automaton::equality_query(finite_language_
 {{{
 	pair<bool, list< list< int> > > ret;
 
+	if(this->stats)
+		this->stats->query_count.equality++;
+
 	if(backend_automaton) {
 		finite_language_automaton *difference;
 		finite_language_automaton *dfa;
