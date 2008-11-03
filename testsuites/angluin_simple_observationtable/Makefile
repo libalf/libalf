@@ -1,7 +1,7 @@
 # $Id$
 # ASO testsuite Makefile
 
-.PHONY: all clean run
+.PHONY: all clean run jpegs test
 
 CPPFLAGS=-Wall -ggdb3  -I../../include
 
