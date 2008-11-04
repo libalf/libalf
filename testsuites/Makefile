@@ -9,4 +9,5 @@ angluin_simple_observationtable:
 	make -C angluin_simple_observationtable
 
 clean:
+	make -C angluin_simple_observationtable clean
 

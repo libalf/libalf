@@ -15,6 +15,7 @@ clean:
 	-rm *.dot
 	-rm *.jpg
 	-rm *.angluin
+	-rm testlog
 
 run:
 	LD_LIBRARY_PATH=../../src ./learn_regex
