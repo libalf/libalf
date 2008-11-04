@@ -11,6 +11,7 @@ cat regex_sample_set.txt |
 		if [ "$MINSTATES" != "$MY_MINSTATES" ]; then
 			echo $NUM: $REGEX >> log
 			echo "fail: minimal state count differs: org: $MINSTATES, new: $MY_MINSTATES" >> log
+			echo "" >> log
 		fi;
 		let NUM++;
 	done;

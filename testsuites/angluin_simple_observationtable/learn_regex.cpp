@@ -21,6 +21,9 @@
 #include <amore/rex2nfa.h>
 #include <amore/nfa2dfa.h>
 
+//#define ANSWERTYPE extended_bool
+#define ANSWERTYPE bool
+
 using namespace std;
 using namespace libalf;
 
@@ -35,8 +38,8 @@ int main(int argc, char**argv)
 	deterministic_finite_amore_automaton *atm;
 	deterministic_finite_amore_automaton hypothesis;
 	logger *log;
-	teacher<bool> *teach;
-	angluin_simple_observationtable<bool> *ot;
+	teacher<ANSWERTYPE> *teach;
+	angluin_simple_observationtable<ANSWERTYPE> *ot;
 	oracle_automaton o;
 
 	char filename[128];
@@ -117,13 +120,13 @@ int main(int argc, char**argv)
 	file.close();
 
 	// create oracle instance and teacher instance
-	teach = new teacher_automaton<bool>(atm);
+	teach = new teacher_automaton<ANSWERTYPE>(atm);
 	teach->set_statistics_counter(&stats);
 	o.set_automaton(*atm);
 	o.set_statistics_counter(&stats);
 
 	// create angluin_simple_observationtable and teach it the automaton
-	ot = new angluin_simple_observationtable<bool>(teach, log, alphabet_size);
+	ot = new angluin_simple_observationtable<ANSWERTYPE>(teach, log, alphabet_size);
 
 	for(iteration = 1; iteration <= 100; iteration++) {
 		ot->derive_hypothesis(&hypothesis);

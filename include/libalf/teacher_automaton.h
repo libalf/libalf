@@ -62,7 +62,9 @@ class teacher_automaton : public teacher<answer> {
 			if(this->stats)
 				this->stats->query_count.membership++;
 
-			return atm->contains(word);
+			answer r;
+			r = atm->contains(word);
+			return r;
 		}}}
 
 };
