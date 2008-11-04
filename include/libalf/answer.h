@@ -41,50 +41,23 @@ class extended_bool {
 	public:
 		enum e_extended_bool value;
 
-		bool operator==(extended_bool &other)
-		{{{
-			return this->value == other.value;
-		}}}
 
-		bool operator!=(extended_bool &other)
-		{{{
-			return this->value != other.value;
-		}}}
+		bool operator==(extended_bool &other);
 
-		void operator=(extended_bool &other)
-		{{{
-			value = other.value;
-		}}}
+		bool operator!=(extended_bool &other);
 
-		bool operator>(extended_bool &other)
-		{{{
-			return( ((int)this->value) > ((int)other.value));
-		}}}
+		void operator=(extended_bool &other);
 
-		bool operator==(bool other)
-		{{{
-			  if(other)
-				  return (value == EBOOL_TRUE);
-			  else
-				  return (value == EBOOL_FALSE);
-		}}}
+		bool operator>(extended_bool &other);
 
-		bool operator>(bool other)
-		{{{
-			  if(other)
-				  return false;
-			  else
-				  return (value > EBOOL_FALSE);
-		}}}
+		bool operator==(bool other);
 
-		void operator=(bool other)
-		{{{
-			if(other)
-				value = EBOOL_TRUE;
-			else
-				value = EBOOL_FALSE;
-		}}}
+		bool operator>(bool other);
+
+		void operator=(bool other);
 };
+
+extern bool operator==(extended_bool a, extended_bool b);
 
 }
 

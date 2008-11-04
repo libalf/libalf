@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <set>
 
-#include <libalf/automata.h>
+#include "libalf/automata.h"
 
 
 namespace libalf {

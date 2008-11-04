@@ -9,9 +9,9 @@
  * see LICENSE file for licensing information.
  */
 
-#include <libalf/automata.h>
-#include <libalf/oracle.h>
-#include <libalf/oracle_automaton.h>
+#include "libalf/automata.h"
+#include "libalf/oracle.h"
+#include "libalf/oracle_automaton.h"
 
 namespace libalf {
 

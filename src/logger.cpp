@@ -14,8 +14,8 @@
 
 #include <stdarg.h>
 
-#include <libalf/logger.h>
-#include <libalf/logger_terminalcolors.h>
+#include "libalf/logger.h"
+#include "libalf/logger_terminalcolors.h"
 
 namespace libalf {
 
