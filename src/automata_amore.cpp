@@ -13,8 +13,11 @@
 #include <stdio.h>
 #include <set>
 
-#include "libalf/automata.h"
-#include "libalf/automata_amore.h"
+// for htonl / ntohl
+# include <arpa/inet.h>
+
+# include "libalf/automata.h"
+# include "libalf/automata_amore.h"
 
 # include <amore/nfa.h>
 # include <amore/dfa.h>
@@ -234,7 +237,7 @@ list<int> deterministic_finite_amore_automaton::get_sample_word()
 
 			// otherwise check all possible successors
 			int st = current.id;
-			for(int i = 0; i < dfa_p->sno; i++) {
+			for(unsigned int i = 0; i < dfa_p->sno; i++) {
 				// add possible successor with its prefix to fifo
 				current.prefix.push_back(i);
 				current.id = dfa_p->delta[i+1][st];
@@ -544,13 +547,54 @@ finite_language_automaton * nondeterministic_finite_amore_automaton::lang_concat
 */
 }
 
-std::string deterministic_finite_amore_automaton::serialize()
+std::basic_string<uint32_t> deterministic_finite_amore_automaton::serialize()
+{{{
+	// FIXME: hton!
+	basic_string<uint32_t> ret;
+	basic_string<uint32_t> temp;
+	unsigned int s, c; // only unsigned here because -1 == epsilon will not occur in dfa!
+
+	// alphabet size
+	ret += htonl(dfa_p->sno);
+	// state count
+	ret += htonl(dfa_p->qno+1);
+	// number of initial states
+	ret += htonl(1);
+	// initial state
+	ret += htonl(dfa_p->init);
+	// sum up final states
+	for(s = 0; s <= dfa_p->qno; s++)
+		if(dfa_p->final[s])
+			temp += htonl(s);
+	// number of final states
+	ret += htonl(temp.length());
+	// final states
+	ret += temp;
+	// transitions
+	temp.clear();
+	for(c = 0; c < dfa_p->sno; c++) {
+		for(s = 0; s <= dfa_p->qno; s++) {
+			temp += htonl(s); // source state id
+			temp += htonl(c); // label
+			temp += htonl(dfa_p->delta[c+1][s]); // destination
+		}
+	}
+
+	ret += htonl(temp.length() / 3);
+	ret += temp;
+
+	return ret;
+}}}
+std::basic_string<uint32_t> nondeterministic_finite_amore_automaton::serialize()
 {
 	// FIXME
 }
-std::string nondeterministic_finite_amore_automaton::serialize()
+
+void deterministic_finite_amore_automaton::deserialize(basic_string<uint32_t> &automaton)
 {
-	// FIXME
+}
+void nondeterministic_finite_amore_automaton::deserialize(basic_string<uint32_t> &automaton)
+{
 }
 
 bool deterministic_finite_amore_automaton::construct(int alphabet_size, int state_count, list<int> start, list<int> final, list<transition> transitions)

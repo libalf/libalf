@@ -10,7 +10,10 @@
  */
 
 #include <iostream>
+#include <ostream>
+#include <iterator>
 #include <fstream>
+#include <algorithm>
 
 #include "libalf/alf.h"
 
@@ -113,6 +116,16 @@ int main(int argc, char**argv)
 	freerex(r);
 
 	atm = new deterministic_finite_amore_automaton(dfa_p);
+	/*
+	basic_string<uint32_t> a_str = atm->serialize();
+	cout << "begin serialized automata (length " << a_str.length() << ")\n";
+
+	ostream_iterator<uint32_t> out(cout, ".");
+
+	cout << ".";
+	copy(a_str.begin(), a_str.end(), out);
+	cout << "\nend serialized automata\n";
+	*/
 
 	ofstream file;
 	file.open("original.dot");

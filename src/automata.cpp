@@ -20,10 +20,5 @@ namespace libalf {
 
 using namespace std;
 
-void finite_language_automaton::deserialize(string &automaton)
-{
-	// FIXME
-}
-
 } // end namespace libalf
 

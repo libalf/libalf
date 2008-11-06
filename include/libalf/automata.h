@@ -60,7 +60,7 @@ class finite_automaton {
 class transition {
 	public:
 		int source;		// source node
-		int sigma;		// attribute of transition (n >= alphabet_size == epsilon)
+		int sigma;		// attribute of transition (epsilon == -1)
 		int destination;	// destination node
 
 		transition() {
@@ -129,8 +129,25 @@ class finite_language_automaton : public finite_automaton {
 		virtual finite_language_automaton * nondeterminize() = 0;
 		virtual finite_language_automaton * determinize() = 0;
 
-		virtual string serialize() = 0;
-		virtual void deserialize(string &automaton);
+		// format for serialization:
+		// all values in NETWORK BYTE ORDER!
+		// <serialized automaton>
+		//	int alphabet size
+		//	int state count
+		//	int number of initial states
+		//	for each initial state:
+		//		int state id
+		//	 int number of final states
+		//	 for each final state:
+		//		int state id
+		//	 int number of transitions
+		//	 for each transition:
+		//		int source state id
+		//		int label (-1 for epsilon)
+		//		int destination state id
+		// </serialized automaton>
+		virtual basic_string<uint32_t> serialize() = 0;
+		virtual void deserialize(basic_string<uint32_t> &automaton) = 0;
 
 		// construct a new automaton with states 0..state_count-1
 		//
