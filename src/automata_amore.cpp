@@ -552,7 +552,8 @@ std::basic_string<uint32_t> deterministic_finite_amore_automaton::serialize()
 	// FIXME: hton!
 	basic_string<uint32_t> ret;
 	basic_string<uint32_t> temp;
-	unsigned int s, c; // only unsigned here because -1 == epsilon will not occur in dfa!
+	unsigned int s; // state id
+	unsigned int c; // char (label) only unsigned here because -1 == epsilon will not occur in dfa!
 
 	// alphabet size
 	ret += htonl(dfa_p->sno);
@@ -564,7 +565,7 @@ std::basic_string<uint32_t> deterministic_finite_amore_automaton::serialize()
 	ret += htonl(dfa_p->init);
 	// sum up final states
 	for(s = 0; s <= dfa_p->qno; s++)
-		if(dfa_p->final[s])
+		if(dfa_p->final[s] == TRUE)
 			temp += htonl(s);
 	// number of final states
 	ret += htonl(temp.length());
@@ -587,14 +588,116 @@ std::basic_string<uint32_t> deterministic_finite_amore_automaton::serialize()
 }}}
 std::basic_string<uint32_t> nondeterministic_finite_amore_automaton::serialize()
 {
-	// FIXME
+	std::basic_string<uint32_t> a;
+	printf("nfaa::serialize() not implemented\n");
+	return a;
+/* FIXME
+	basic_string<uint32_t> ret;
+	basic_string<uint32_t> temp;
+	int s; // state id
+	unsigned int c;
+
+	// alphabet size
+	ret += htonl(nfa_p->sno);
+	// state count
+	ret += htonl(nfa_p->qno+1);
+
+	for(s = 0; s <= nfa_p->sno; s++)
+		if(isinit(nfa_p->infin[s]))
+			temp += htonl(s);
+	// number of initial states
+	ret += htonl(temp.length());
+	// initial states
+	ret += temp;
+
+	temp.clear();
+	for(s = 0; s <= nfa_p->sno; s++)
+		if(isfinal(nfa_p->infin[s]))
+			temp += htonl(s);
+	// number of final states
+	ret += htonl(temp.length());
+	// final states
+	ret += temp;
+
+	temp.clear();
+	for(c = -1; c < nfa_p->sno; c++) {
+		for(s = 0; s <= nfa_p->qno; s++) {
+			//if(nfa_p->delta
+			// FIXME: WTF HOW DOES THIS SHIT WORK?! I HATE LIBAMORE...
+		}
+	}
+	// number of transitions
+	ret += htonl(temp.length() / 3);
+	// transitions
+	ret += temp;
+
+	return ret;
+*/
 }
 
-void deterministic_finite_amore_automaton::deserialize(basic_string<uint32_t> &automaton)
+bool deterministic_finite_amore_automaton::deserialize(basic_string<uint32_t> &automaton)
+{{{
+	unsigned int s;
+
+	if(dfa_p)
+		freedfa(dfa_p);
+	dfa_p = newdfa();
+
+	basic_string<uint32_t>::iterator si;
+	si = automaton.begin();
+
+	dfa_p->sno = ntohl(*si);
+
+	si++;
+	dfa_p->qno = ntohl(*si) - 1;
+
+	si++;
+	if(ntohl(*si) != 1) {
+		freedfa(dfa_p);
+		dfa_p = NULL;
+		return false;
+	}
+	si++;
+
+	dfa_p->init = ntohl(*si);
+	si++;
+
+	dfa_p->final = newfinal(dfa_p->qno);
+	unsigned int final_count = ntohl(*si);
+	si++;
+	for(s = 0; s < final_count; s++) {
+		dfa_p->final[ntohl(*si)] = TRUE;
+		si++;
+	}
+
+	dfa_p->delta = newddelta(dfa_p->sno, dfa_p->qno); // transition funktion: delta[sigma][source] = destination
+	unsigned int transition_count = ntohl(*si);
+	si++;
+	for(s = 0; s < transition_count; s++) {
+		uint32_t src, label, dst;
+		src = ntohl(*si);
+		si++;
+		label = ntohl(*si);
+		si++;
+		dst = ntohl(*si);
+		si++;
+
+		dfa_p->delta[label+1][src] = dst;
+	}
+
+	if(si != automaton.end()) {
+		// remainder at end of string
+		freedfa(dfa_p);
+		dfa_p = NULL;
+		return false;
+	}
+
+	return true;
+}}}
+bool nondeterministic_finite_amore_automaton::deserialize(basic_string<uint32_t> &automaton)
 {
-}
-void nondeterministic_finite_amore_automaton::deserialize(basic_string<uint32_t> &automaton)
-{
+	printf("nfaa::deserialize() not implemented\n");
+	return false;
 }
 
 bool deterministic_finite_amore_automaton::construct(int alphabet_size, int state_count, list<int> start, list<int> final, list<transition> transitions)
