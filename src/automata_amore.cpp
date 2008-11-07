@@ -108,59 +108,6 @@ nondeterministic_finite_amore_automaton * nondeterministic_finite_amore_automato
 		return new nondeterministic_finite_amore_automaton();
 }}}
 
-std::string deterministic_finite_amore_automaton::generate_dotfile()
-{{{
-	if(!dfa_p) {
-		return "";
-	}
-
-	std::string ret;
-	char buf[512];
-	unsigned int i, j;
-	bool header_written = false;
-
-	ret = "digraph deterministic_finite_automaton {\n"
-		"\trankdir=LR;\n"
-		"\tsize=8;\n";
-
-	// initial state is bold "[ style=bold ]",
-	snprintf(buf, 512, "\tnode [shape=%s, style=bold]; S%d;\n", dfa_p->final[dfa_p->init] == TRUE ? "doublecircle" : "circle", dfa_p->init);
-	ret += buf;
-
-	// final states are double-circles
-	for(i = 0; i <= dfa_p->qno; i++) {
-		if(dfa_p->final[i] == TRUE && dfa_p->init != i) {
-			if(!header_written) {
-				header_written = true;
-				ret += "\tnode [shape=doublecircle, style=\"\"];";
-			}
-			snprintf(buf, 512, " S%d", i);
-			ret += buf;
-
-		}
-	}
-	if(header_written)
-		ret += ";\n";
-
-	// all normal states are cirles
-	ret += "\tnode [shape=circle, style=\"\"];\n";
-	// list of all transitions and their labels
-	for(i = 1; i <= dfa_p->sno; i++) {
-		for(j = 0; j <= dfa_p->qno; j++) {
-			snprintf(buf, 512, "\tS%d -> S%d [ label = \"%d\" ];\n", j, dfa_p->delta[i][j], i-1);
-			ret += buf;
-		}
-	}
-	// end;
-	ret += "}\n";
-
-	return ret;
-}}}
-std::string nondeterministic_finite_amore_automaton::generate_dotfile()
-{
-	printf("nfaa::generate_dotfile() not implemented\n");
-}
-
 int deterministic_finite_amore_automaton::get_state_count()
 {
 	if(dfa_p)
@@ -547,11 +494,14 @@ finite_language_automaton * nondeterministic_finite_amore_automaton::lang_concat
 */
 }
 
-std::basic_string<uint32_t> deterministic_finite_amore_automaton::serialize()
+std::basic_string<int32_t> deterministic_finite_amore_automaton::serialize()
 {{{
-	// FIXME: hton!
-	basic_string<uint32_t> ret;
-	basic_string<uint32_t> temp;
+	basic_string<int32_t> ret;
+	basic_string<int32_t> temp;
+
+	if(!dfa_p)
+		return ret; // empty basic_string
+
 	unsigned int s; // state id
 	unsigned int c; // char (label) only unsigned here because -1 == epsilon will not occur in dfa!
 
@@ -586,14 +536,14 @@ std::basic_string<uint32_t> deterministic_finite_amore_automaton::serialize()
 
 	return ret;
 }}}
-std::basic_string<uint32_t> nondeterministic_finite_amore_automaton::serialize()
+std::basic_string<int32_t> nondeterministic_finite_amore_automaton::serialize()
 {
-	std::basic_string<uint32_t> a;
+	std::basic_string<int32_t> a;
 	printf("nfaa::serialize() not implemented\n");
 	return a;
 /* FIXME
-	basic_string<uint32_t> ret;
-	basic_string<uint32_t> temp;
+	basic_string<int32_t> ret;
+	basic_string<int32_t> temp;
 	int s; // state id
 	unsigned int c;
 
@@ -635,7 +585,7 @@ std::basic_string<uint32_t> nondeterministic_finite_amore_automaton::serialize()
 */
 }
 
-bool deterministic_finite_amore_automaton::deserialize(basic_string<uint32_t> &automaton)
+bool deterministic_finite_amore_automaton::deserialize(basic_string<int32_t> &automaton)
 {{{
 	unsigned int s;
 
@@ -643,7 +593,7 @@ bool deterministic_finite_amore_automaton::deserialize(basic_string<uint32_t> &a
 		freedfa(dfa_p);
 	dfa_p = newdfa();
 
-	basic_string<uint32_t>::iterator si;
+	basic_string<int32_t>::iterator si;
 	si = automaton.begin();
 
 	dfa_p->sno = ntohl(*si);
@@ -674,7 +624,7 @@ bool deterministic_finite_amore_automaton::deserialize(basic_string<uint32_t> &a
 	unsigned int transition_count = ntohl(*si);
 	si++;
 	for(s = 0; s < transition_count; s++) {
-		uint32_t src, label, dst;
+		int32_t src, label, dst;
 		src = ntohl(*si);
 		si++;
 		label = ntohl(*si);
@@ -694,7 +644,7 @@ bool deterministic_finite_amore_automaton::deserialize(basic_string<uint32_t> &a
 
 	return true;
 }}}
-bool nondeterministic_finite_amore_automaton::deserialize(basic_string<uint32_t> &automaton)
+bool nondeterministic_finite_amore_automaton::deserialize(basic_string<int32_t> &automaton)
 {
 	printf("nfaa::deserialize() not implemented\n");
 	return false;
@@ -734,7 +684,7 @@ bool deterministic_finite_amore_automaton::construct(int alphabet_size, int stat
 		a->final[*i] = TRUE;
 	a->delta = newddelta(a->sno, a->qno); // transition funktion: delta[sigma][source] = destination
 	for(ti = transitions.begin(); ti != transitions.end(); ti++)
-		a->delta[ti->sigma + 1][ti->source] = ti->destination;
+		a->delta[ti->label + 1][ti->source] = ti->destination;
 	a->minimal = FALSE;
 
 	if(dfa_p)
@@ -743,21 +693,6 @@ bool deterministic_finite_amore_automaton::construct(int alphabet_size, int stat
 
 	return true;
 }}}
-bool nondeterministic_finite_amore_automaton::construct(int alphabet_size, int state_count, list<int> start, list<int> final, list<transition> transitions)
-{
-	printf("nfaa::construct() not implemented\n");
-	return false;
-
-	nfa a = newnfa();
-
-
-
-
-
-	set_nfa(a);
-
-	return true;
-}
 
 deterministic_finite_automaton * deterministic_finite_amore_automaton::determinize()
 {{{

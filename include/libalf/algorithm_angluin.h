@@ -671,7 +671,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 							transition tr;
 
 							tr.source = state_it->id;
-							tr.sigma = i;
+							tr.label = i;
 							tr.destination = state_it2->id;
 							transitions.push_back(tr);
 							break;

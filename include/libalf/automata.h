@@ -53,30 +53,28 @@ class finite_automaton {
 		}
 
 		virtual finite_automaton * clone() = 0;
-
-		virtual string generate_dotfile() = 0;
 };
 
 class transition {
 	public:
 		int source;		// source node
-		int sigma;		// attribute of transition (epsilon == -1)
+		int label;		// attribute of transition (epsilon == -1)
 		int destination;	// destination node
 
 		transition() {
 			source = -1;
-			sigma = -1;
+			label = -1;
 			destination = -1;
 		}
 
 		bool operator==(transition &other)
 		{{{
-			return ((source == other.source) && (sigma == other.sigma) && (destination == other.destination));
+			return ((source == other.source) && (label == other.label) && (destination == other.destination));
 		}}}
 
 		bool operator<<(transition &other)
 		{{{
-			return ((source == other.source) && (sigma == other.sigma) && (destination != other.destination));
+			return ((source == other.source) && (label == other.label) && (destination != other.destination));
 		}}}
 };
 
@@ -137,24 +135,29 @@ class finite_language_automaton : public finite_automaton {
 		//	int number of initial states
 		//	for each initial state:
 		//		int state id
-		//	 int number of final states
-		//	 for each final state:
+		//	int number of final states
+		//	for each final state:
 		//		int state id
-		//	 int number of transitions
-		//	 for each transition:
+		//	int number of transitions
+		//	for each transition:
 		//		int source state id
 		//		int label (-1 for epsilon)
 		//		int destination state id
 		// </serialized automaton>
-		virtual basic_string<uint32_t> serialize() = 0;
-		virtual void deserialize(basic_string<uint32_t> &automaton) = 0;
+		virtual basic_string<int32_t> serialize() = 0;
+		virtual bool deserialize(basic_string<int32_t> &automaton) = 0;
+
+		// the following two functions use serialize() and deserialize() and are thus implementation-independent:
+		// please stick to construct for constructing automata, not to deserialize, as the format or serialize may change
 
 		// construct a new automaton with states 0..state_count-1
 		//
 		// states are named 0 .. state_count-1,
 		// transition attributes are 0 .. alphabet_size-1,
 		// an epsilon transition is denoted as alphabet_size
-		virtual bool construct(int alphabet_size, int state_count, list<int> start, list<int> final, list<transition> transitions) = 0;
+		virtual bool construct(int alphabet_size, int state_count, list<int> &start, list<int> &final, list<transition> &transitions);
+
+		virtual string generate_dotfile();
 };
 
 class nondeterministic_finite_automaton;

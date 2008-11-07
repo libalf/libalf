@@ -71,7 +71,6 @@ class deterministic_finite_amore_automaton : public deterministic_finite_automat
 
 	// from finite_automaton
 		virtual deterministic_finite_amore_automaton * clone();
-		virtual std::string generate_dotfile();
 
 	// from finite_language_automaton
 		virtual int get_state_count();
@@ -91,9 +90,10 @@ class deterministic_finite_amore_automaton : public deterministic_finite_automat
 		virtual nondeterministic_finite_automaton * nondeterminize();
 		virtual deterministic_finite_automaton * determinize();
 
-		virtual basic_string<uint32_t> serialize();
-		virtual void deserialize(basic_string<uint32_t> &automaton);
-		virtual bool construct(int alphabet_size, int state_count, list<int> start, list<int> final, list<transition> transitions);
+		virtual basic_string<int32_t> serialize();
+		virtual bool deserialize(basic_string<int32_t> &automaton);
+
+		bool construct(int alphabet_size, int state_count, list<int> start, list<int> final, list<transition> transitions);
 
 	// new
 		virtual void set_dfa(dfa a);
@@ -121,7 +121,6 @@ class nondeterministic_finite_amore_automaton : public nondeterministic_finite_a
 
 	// from finite_automaton
 		virtual nondeterministic_finite_amore_automaton * clone();
-		virtual std::string generate_dotfile();
 
 	// from finite_language_automaton
 		virtual int get_state_count();
@@ -141,9 +140,8 @@ class nondeterministic_finite_amore_automaton : public nondeterministic_finite_a
 		virtual nondeterministic_finite_automaton * nondeterminize();
 		virtual deterministic_finite_automaton * determinize();
 
-		virtual basic_string<uint32_t> serialize();
-		virtual void deserialize(basic_string<uint32_t> &automaton);
-		virtual bool construct(int alphabet_size, int state_count, list<int> start, list<int> final, list<transition> transitions);
+		virtual basic_string<int32_t> serialize();
+		virtual bool deserialize(basic_string<int32_t> &automaton);
 	// new
 		virtual void set_nfa(nfa a);
 		virtual nfa get_nfa();
