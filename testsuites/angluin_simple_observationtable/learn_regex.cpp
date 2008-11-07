@@ -116,6 +116,7 @@ int main(int argc, char**argv)
 	freerex(r);
 
 	atm = new deterministic_finite_amore_automaton(dfa_p);
+	atm->minimize();
 	/*
 	basic_string<uint32_t> a_str = atm->serialize();
 	cout << "begin serialized automata (length " << a_str.length() << ")\n";
@@ -176,6 +177,7 @@ int main(int argc, char**argv)
 	cout << "required membership queries: " << stats.query_count.membership << "\n";
 	cout << "required equivalence queries: " << stats.query_count.equivalence << "\n";
 	cout << "minimal state count: " << hypothesis.get_state_count() - 1 << " + 1 sink\n";
+	cout << "difference to original state count: " << atm->get_state_count() - hypothesis.get_state_count() << "\n";
 
 	delete ot;
 	delete teach;
