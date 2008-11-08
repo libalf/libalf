@@ -537,15 +537,11 @@ std::basic_string<int32_t> deterministic_finite_amore_automaton::serialize()
 	return ret;
 }}}
 std::basic_string<int32_t> nondeterministic_finite_amore_automaton::serialize()
-{
-	std::basic_string<int32_t> a;
-	printf("nfaa::serialize() not implemented\n");
-	return a;
-/* FIXME
+{{{
 	basic_string<int32_t> ret;
 	basic_string<int32_t> temp;
-	int s; // state id
-	unsigned int c;
+	unsigned int s;
+	int l;
 
 	// alphabet size
 	ret += htonl(nfa_p->sno);
@@ -570,10 +566,17 @@ std::basic_string<int32_t> nondeterministic_finite_amore_automaton::serialize()
 	ret += temp;
 
 	temp.clear();
-	for(c = -1; c < nfa_p->sno; c++) {
-		for(s = 0; s <= nfa_p->qno; s++) {
-			//if(nfa_p->delta
-			// FIXME: WTF HOW DOES THIS SHIT WORK?! I HATE LIBAMORE...
+	for(l = (nfa_p->is_eps == TRUE) ? 0 : 1; l <= ((int)nfa_p->sno); l++) { // label
+		for(s = 0; s <= nfa_p->qno; s++) { // source state id
+			for(unsigned int d = 0; d <= nfa_p->qno; d++) {
+				// boolx testcon(delta, label, src, dst); in libAMoRE
+				if(testcon((nfa_p->delta), l, s, d)) {
+					temp += htonl(s);
+					// FIXME: check epsilon transition
+					temp += htonl(l-1);
+					temp += htonl(d);
+				}
+			}
 		}
 	}
 	// number of transitions
@@ -582,8 +585,7 @@ std::basic_string<int32_t> nondeterministic_finite_amore_automaton::serialize()
 	ret += temp;
 
 	return ret;
-*/
-}
+}}}
 
 bool deterministic_finite_amore_automaton::deserialize(basic_string<int32_t> &automaton)
 {{{

@@ -34,11 +34,11 @@ int main(int argc, char**argv)
 {
 	regex r;
 	nfa nfa_p;
-	dfa dfa_p;
 
 	statistics stats;
 
-	deterministic_finite_amore_automaton *atm;
+	finite_language_automaton *nfa;
+	finite_language_automaton *dfa;
 	deterministic_finite_amore_automaton hypothesis;
 	logger *log;
 	teacher<ANSWERTYPE> *teach;
@@ -110,18 +110,19 @@ int main(int argc, char**argv)
 		return 1;
 	}
 	nfa_p = rex2nfa(r);
-	dfa_p = nfa2dfa(nfa_p);
 
-	freenfa(nfa_p);
 	freerex(r);
 
-	atm = new deterministic_finite_amore_automaton(dfa_p);
-	atm->minimize();
+	nfa = new nondeterministic_finite_amore_automaton(nfa_p);
+
+	dfa = nfa->determinize();
+	dfa->minimize();
+
 	/*
-	basic_string<uint32_t> a_str = atm->serialize();
+	basic_string<int32_t> a_str = nfa->serialize();
 	cout << "begin serialized automata (length " << a_str.length() << ")\n";
 
-	ostream_iterator<uint32_t> out(cout, ".");
+	ostream_iterator<int32_t> out(cout, ".");
 
 	cout << ".";
 	copy(a_str.begin(), a_str.end(), out);
@@ -129,14 +130,19 @@ int main(int argc, char**argv)
 	*/
 
 	ofstream file;
-	file.open("original.dot");
-	file << atm->generate_dotfile();
+
+	file.open("original-nfa.dot");
+	file << nfa->generate_dotfile();
+	file.close();
+
+	file.open("original-dfa.dot");
+	file << dfa->generate_dotfile();
 	file.close();
 
 	// create oracle instance and teacher instance
-	teach = new teacher_automaton<ANSWERTYPE>(atm);
+	teach = new teacher_automaton<ANSWERTYPE>(dfa);
 	teach->set_statistics_counter(&stats);
-	o.set_automaton(*atm);
+	o.set_automaton(*dfa);
 	o.set_statistics_counter(&stats);
 
 	// create angluin_simple_observationtable and teach it the automaton
@@ -177,12 +183,12 @@ int main(int argc, char**argv)
 	cout << "required membership queries: " << stats.query_count.membership << "\n";
 	cout << "required equivalence queries: " << stats.query_count.equivalence << "\n";
 	cout << "minimal state count: " << hypothesis.get_state_count() - 1 << " + 1 sink\n";
-	cout << "difference to original state count: " << atm->get_state_count() - hypothesis.get_state_count() << "\n";
+	cout << "difference to original state count: " << dfa->get_state_count() - hypothesis.get_state_count() << "\n";
 
 	delete ot;
 	delete teach;
 	delete log;
-	delete atm;
+	delete dfa;
 
 	// release AMoRE buffers
 	freebuf();
