@@ -605,6 +605,7 @@ bool deterministic_finite_amore_automaton::deserialize(basic_string<int32_t> &au
 
 	si++;
 	if(ntohl(*si) != 1) {
+		// dfa only allows exactly one initial state
 		freedfa(dfa_p);
 		dfa_p = NULL;
 		return false;
@@ -622,7 +623,7 @@ bool deterministic_finite_amore_automaton::deserialize(basic_string<int32_t> &au
 		si++;
 	}
 
-	dfa_p->delta = newddelta(dfa_p->sno, dfa_p->qno); // transition funktion: delta[sigma][source] = destination
+	dfa_p->delta = newddelta(dfa_p->sno, dfa_p->qno); // transition function: delta[sigma][source] = destination
 	unsigned int transition_count = ntohl(*si);
 	si++;
 	for(s = 0; s < transition_count; s++) {
@@ -633,6 +634,13 @@ bool deterministic_finite_amore_automaton::deserialize(basic_string<int32_t> &au
 		si++;
 		dst = ntohl(*si);
 		si++;
+
+		if(label == -1) {
+			// epsilon transition in dfa?!
+			freedfa(dfa_p);
+			dfa_p = NULL;
+			return false;
+		}
 
 		dfa_p->delta[label+1][src] = dst;
 	}
@@ -684,7 +692,7 @@ bool deterministic_finite_amore_automaton::construct(int alphabet_size, int stat
 	a->final = newfinal(a->qno); // final states
 	for(list<int>::iterator i = final.begin(); i != final.end(); i++)
 		a->final[*i] = TRUE;
-	a->delta = newddelta(a->sno, a->qno); // transition funktion: delta[sigma][source] = destination
+	a->delta = newddelta(a->sno, a->qno); // transition function: delta[sigma][source] = destination
 	for(ti = transitions.begin(); ti != transitions.end(); ti++)
 		a->delta[ti->label + 1][ti->source] = ti->destination;
 	a->minimal = FALSE;
