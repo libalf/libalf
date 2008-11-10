@@ -21,16 +21,6 @@ namespace libalf {
 
 using namespace std;
 
-// part of STL:
-//bool operator==(list<int> first, list<int> second)
-//{{{
-//	return (
-//		first.size() == second.size()
-//		&&
-//		equal(first.begin(), first.end(), second.begin());
-//	       );
-//}}}
-
 // return ptr to new list with first∙second
 list<int>* concat(list<int> &first, list<int> &second)
 {{{

@@ -572,7 +572,6 @@ std::basic_string<int32_t> nondeterministic_finite_amore_automaton::serialize()
 				// boolx testcon(delta, label, src, dst); in libAMoRE
 				if(testcon((nfa_p->delta), l, s, d)) {
 					temp += htonl(s);
-					// FIXME: check epsilon transition
 					temp += htonl(l-1);
 					temp += htonl(d);
 				}
@@ -589,70 +588,85 @@ std::basic_string<int32_t> nondeterministic_finite_amore_automaton::serialize()
 
 bool deterministic_finite_amore_automaton::deserialize(basic_string<int32_t> &automaton)
 {{{
-	unsigned int s;
+	int s;
 
 	if(dfa_p)
 		freedfa(dfa_p);
 	dfa_p = newdfa();
 
 	basic_string<int32_t>::iterator si;
+	basic_string<int32_t>::iterator end;
+
+	int final_count, transition_count;
+
+	if(automaton.size() < 6) // that's the shortest possible automaton
+		goto dfaa_deserialization_failed;
+
 	si = automaton.begin();
+	end = automaton.end();
 
 	dfa_p->sno = ntohl(*si);
 
 	si++;
 	dfa_p->qno = ntohl(*si) - 1;
 
-	si++;
-	if(ntohl(*si) != 1) {
-		// dfa only allows exactly one initial state
-		freedfa(dfa_p);
-		dfa_p = NULL;
-		return false;
-	}
-	si++;
-
-	dfa_p->init = ntohl(*si);
-	si++;
-
 	dfa_p->final = newfinal(dfa_p->qno);
-	unsigned int final_count = ntohl(*si);
+	dfa_p->delta = newddelta(dfa_p->sno, dfa_p->qno);
+
+	si++;
+	if(ntohl(*si) != 1) // dfa only allows exactly one initial state
+		goto dfaa_deserialization_failed;
+
+	si++;
+	dfa_p->init = ntohl(*si);
+
+	si++;
+	final_count = ntohl(*si);
+
 	si++;
 	for(s = 0; s < final_count; s++) {
+		if(si == end)
+			goto dfaa_deserialization_failed;
 		dfa_p->final[ntohl(*si)] = TRUE;
 		si++;
 	}
 
-	dfa_p->delta = newddelta(dfa_p->sno, dfa_p->qno); // transition function: delta[sigma][source] = destination
-	unsigned int transition_count = ntohl(*si);
+	if(si == end)
+		goto dfaa_deserialization_failed;
+	transition_count = ntohl(*si);
 	si++;
 	for(s = 0; s < transition_count; s++) {
 		int32_t src, label, dst;
+
+		if(si == end)
+			goto dfaa_deserialization_failed;
 		src = ntohl(*si);
 		si++;
+		if(si == end)
+			goto dfaa_deserialization_failed;
 		label = ntohl(*si);
 		si++;
+		if(si == end)
+			goto dfaa_deserialization_failed;
 		dst = ntohl(*si);
 		si++;
 
-		if(label == -1) {
-			// epsilon transition in dfa?!
-			freedfa(dfa_p);
-			dfa_p = NULL;
-			return false;
-		}
+		if( (label < 0) || (label >= (int)dfa_p->sno) || (src < 0) || (src > (int)dfa_p->qno) || (dst < 0) || (dst > (int)dfa_p->qno) ) // invalid transition
+			goto dfaa_deserialization_failed;
 
+		// transition function: delta[sigma][source] = destination
 		dfa_p->delta[label+1][src] = dst;
 	}
 
-	if(si != automaton.end()) {
-		// remainder at end of string
-		freedfa(dfa_p);
-		dfa_p = NULL;
-		return false;
-	}
+	if(si != end) // remainder at end of string
+		goto dfaa_deserialization_failed;
 
 	return true;
+
+dfaa_deserialization_failed:
+	freedfa(dfa_p);
+	dfa_p = NULL;
+	return false;
 }}}
 bool nondeterministic_finite_amore_automaton::deserialize(basic_string<int32_t> &automaton)
 {
