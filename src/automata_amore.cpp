@@ -558,10 +558,8 @@ std::basic_string<int32_t> nondeterministic_finite_amore_automaton::serialize()
 
 	temp.clear();
 	for(s = 0; s <= nfa_p->qno; s++)
-		if(isfinal(nfa_p->infin[s])) {
-printf("added final %d\n", s);
+		if(isfinal(nfa_p->infin[s]))
 			temp += htonl(s);
-		}
 	// number of final states
 	ret += htonl(temp.length());
 	// final states
