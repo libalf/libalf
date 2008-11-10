@@ -9,9 +9,11 @@ LDFLAGS=-L../../src -lalf -lAMoRE
 
 all: learn_regex
 
-clean:
+clean: nodata
 	-rm *.o
 	-rm learn_regex
+
+nodata:
 	-rm *.dot
 	-rm *.jpg
 	-rm *.angluin

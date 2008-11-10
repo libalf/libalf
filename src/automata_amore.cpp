@@ -548,7 +548,7 @@ std::basic_string<int32_t> nondeterministic_finite_amore_automaton::serialize()
 	// state count
 	ret += htonl(nfa_p->qno+1);
 
-	for(s = 0; s <= nfa_p->sno; s++)
+	for(s = 0; s <= nfa_p->qno; s++)
 		if(isinit(nfa_p->infin[s]))
 			temp += htonl(s);
 	// number of initial states
@@ -557,9 +557,11 @@ std::basic_string<int32_t> nondeterministic_finite_amore_automaton::serialize()
 	ret += temp;
 
 	temp.clear();
-	for(s = 0; s <= nfa_p->sno; s++)
-		if(isfinal(nfa_p->infin[s]))
+	for(s = 0; s <= nfa_p->qno; s++)
+		if(isfinal(nfa_p->infin[s])) {
+printf("added final %d\n", s);
 			temp += htonl(s);
+		}
 	// number of final states
 	ret += htonl(temp.length());
 	// final states
