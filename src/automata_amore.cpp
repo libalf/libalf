@@ -670,7 +670,38 @@ dfaa_deserialization_failed:
 }}}
 bool nondeterministic_finite_amore_automaton::deserialize(basic_string<int32_t> &automaton)
 {
-	printf("nfaa::deserialize() not implemented\n");
+	unsigned int s;
+
+	if(nfa_p)
+		freenfa(nfa_p);
+	nfa_p = newnfa();
+
+	basic_string<int32_t>::iterator si;
+	si = automaton.begin();
+
+	nfa_p->sno = ntohl(*si);
+
+	si++;
+	nfa_p->qno = ntohl(*si) - 1;
+
+	si++;
+	unsigned int initial_count;
+	initial_count = ntohl(*si);
+	nfa_p->infin = newfinal(nfa_p->qno);
+	for(s = 0; s < initial_count; s++) {
+		setinit(ntohl(*si));
+		si++;
+	}
+
+
+
+
+
+	return true;
+
+nfaa_deserialization_failed:
+	freenfa(nfa_p);
+	nfa_p = NULL;
 	return false;
 }
 
