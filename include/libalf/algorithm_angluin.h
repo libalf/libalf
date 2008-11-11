@@ -695,17 +695,17 @@ class angluin_observationtable : public learning_algorithm<answer> {
 				list<int> index;
 				acceptances acceptance;
 
-				bool operator==(simple_row<answer, acceptances> &other)
+				bool __attribute__((const)) operator==(simple_row<answer, acceptances> &other)
 				{{{
 					return (acceptance == other.acceptance);
 				}}}
 
-				bool operator!=(simple_row<answer, acceptances> &other)
+				bool __attribute__((const)) operator!=(simple_row<answer, acceptances> &other)
 				{{{
 					return (acceptance != other.acceptance);
 				}}}
 
-				bool operator>(simple_row<answer, acceptances> &other)
+				bool __attribute__((const)) operator>(simple_row<answer, acceptances> &other)
 				{{{
 					typename acceptances::iterator ai;
 					typename acceptances::iterator oai;

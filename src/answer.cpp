@@ -13,18 +13,18 @@
 
 namespace libalf {
 
-bool extended_bool::operator==(extended_bool &other)
+bool __attribute__((const)) extended_bool::operator==(extended_bool &other)
 {{{
 	return this->value == other.value;
 }}}
 
-bool operator==(extended_bool a, extended_bool b)
+bool __attribute__((const)) operator==(extended_bool a, extended_bool b)
 {{{
 	return a.value == b.value;
 }}}
 
 
-bool extended_bool::operator!=(extended_bool &other)
+bool __attribute__((const)) extended_bool::operator!=(extended_bool &other)
 {{{
 	return this->value != other.value;
 }}}
@@ -34,12 +34,12 @@ void extended_bool::operator=(extended_bool &other)
 	value = other.value;
 }}}
 
-bool extended_bool::operator>(extended_bool &other)
+bool __attribute__((const)) extended_bool::operator>(extended_bool &other)
 {{{
 	return( ((int)this->value) > ((int)other.value));
 }}}
 
-bool extended_bool::operator==(bool other)
+bool __attribute__((const)) extended_bool::operator==(bool other)
 {{{
 	  if(other)
 		  return (value == EBOOL_TRUE);
@@ -47,7 +47,7 @@ bool extended_bool::operator==(bool other)
 		  return (value == EBOOL_FALSE);
 }}}
 
-bool extended_bool::operator>(bool other)
+bool __attribute__((const)) extended_bool::operator>(bool other)
 {{{
 	  if(other)
 		  return false;

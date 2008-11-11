@@ -42,22 +42,22 @@ class extended_bool {
 		enum e_extended_bool value;
 
 
-		bool operator==(extended_bool &other);
+		bool __attribute__((const)) operator==(extended_bool &other);
 
-		bool operator!=(extended_bool &other);
+		bool __attribute__((const)) operator!=(extended_bool &other);
 
 		void operator=(extended_bool &other);
 
-		bool operator>(extended_bool &other);
+		bool __attribute__((const)) operator>(extended_bool &other);
 
-		bool operator==(bool other);
+		bool __attribute__((const)) operator==(bool other);
 
-		bool operator>(bool other);
+		bool __attribute__((const)) operator>(bool other);
 
 		void operator=(bool other);
 };
 
-extern bool operator==(extended_bool a, extended_bool b);
+bool __attribute__((const)) operator==(extended_bool a, extended_bool b);
 
 }
 

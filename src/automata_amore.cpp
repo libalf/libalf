@@ -43,29 +43,9 @@ using namespace std;
 // libAMoRE is using '0' as epsilon, thus in amore, he alphabet is [1 .. size]
 // and not [0 .. size-1]
 //
-// libalf uses (in construct) any int >= alphabet_size to indicate an epsilon 
+// libalf uses (in construct) any int >= alphabet_size to indicate an epsilon
 // transition and uses [0 .. size-1] as the alphabet.
 
-namespace automata_amore {
-
-	class machine_state {
-		public:
-			list<int> prefix;
-			int id;
-
-			machine_state()
-			{{{
-				  id = 0;
-			}}}
-
-			machine_state(int first_state)
-			{{{
-				  id = first_state;
-			}}}
-
-	};
-
-};
 
 deterministic_finite_amore_automaton::deterministic_finite_amore_automaton()
 {{{
@@ -248,10 +228,10 @@ int nondeterministic_finite_amore_automaton::get_alphabet_size()
 list<int> deterministic_finite_amore_automaton::get_sample_word()
 {{{
 	set<int> visited_states;
-	queue<automata_amore::machine_state> state_fifo;
-	automata_amore::machine_state current;
+	queue<automata_amore::machine_run> state_fifo;
+	automata_amore::machine_run current;
 
-	current.id = dfa_p->init;
+	current.state = dfa_p->init;
 
 	state_fifo.push(current);
 
@@ -260,19 +240,19 @@ list<int> deterministic_finite_amore_automaton::get_sample_word()
 		state_fifo.pop();
 
 		// if state was visited before, skip it
-		if(visited_states.find(current.id) == visited_states.end()) {
-			visited_states.insert(current.id);
+		if(visited_states.find(current.state) == visited_states.end()) {
+			visited_states.insert(current.state);
 
 			// if state is final, return its prefix
-			if(dfa_p->final[current.id] == TRUE)
+			if(dfa_p->final[current.state] == TRUE)
 				return current.prefix;
 
 			// otherwise check all possible successors
-			int st = current.id;
+			int st = current.state;
 			for(unsigned int i = 0; i < dfa_p->sno; i++) {
 				// add possible successor with its prefix to fifo
 				current.prefix.push_back(i);
-				current.id = dfa_p->delta[i+1][st];
+				current.state = dfa_p->delta[i+1][st];
 				state_fifo.push(current);
 				current.prefix.pop_back();
 			}
@@ -284,11 +264,10 @@ list<int> deterministic_finite_amore_automaton::get_sample_word()
 }}}
 list<int> nondeterministic_finite_amore_automaton::get_sample_word()
 {
-	printf("nfaa::get_sample_word() not implemented\n");
 }
 
 bool deterministic_finite_amore_automaton::operator==(finite_language_automaton &other)
-// note: calling minimize()es this and other
+// note: calling operator== will minimize() this and other
 // possibly avoid this?
 {{{
 	bool ret;
@@ -365,13 +344,13 @@ bool nondeterministic_finite_amore_automaton::includes(finite_language_automaton
 
 void nondeterministic_finite_amore_automaton::epsilon_closure(set<int> & states)
 {{{
+	if(nfa_p->is_eps == FALSE)
+		return;
+
 	queue<int> new_states;
 	set<int>::iterator sti;
 
 	int current;
-
-	if(!nfa_p->is_eps == FALSE)
-		return;
 
 	for(sti = states.begin(); sti != states.end(); sti++)
 		new_states.push(*sti);
@@ -387,8 +366,38 @@ void nondeterministic_finite_amore_automaton::epsilon_closure(set<int> & states)
 					states.insert(s);
 					new_states.push(s);
 				};
-	}
+	};
 }}}
+void nondeterministic_finite_amore_automaton::epsilon_closure(set<automata_amore::machine_run, automata_amore::machine_run_less> runs)
+{{{
+	if(nfa_p->is_eps == FALSE)
+		return;
+
+	queue<automata_amore::machine_run> new_runs;
+
+	set<automata_amore::machine_run, automata_amore::machine_run_less>::iterator ri;
+
+	automata_amore::machine_run current, ns;
+
+	for(ri = runs.begin(); ri != runs.end(); ri++)
+		new_runs.push(*ri);
+
+	while(!new_runs.empty()) {
+		current = new_runs.front();
+		new_runs.pop();
+
+		for(unsigned int s = 0; s <= nfa_p->qno; s++) // state
+			if(testcon((nfa_p->delta), 0, current.state, s)) {
+				ns.prefix = current.prefix;
+				ns.state = s;
+				if(runs.find(ns) == runs.end()) {
+					runs.insert(ns);
+					new_runs.push(ns);
+				};
+			};
+	};
+}}}
+
 
 bool deterministic_finite_amore_automaton::accepts_suffix(int starting_state, list<int>::iterator suffix_begin, list<int>::iterator suffix_end)
 {{{
