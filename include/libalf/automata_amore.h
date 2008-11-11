@@ -23,34 +23,45 @@
 
 namespace libalf {
 
-// at some point you need to call amore::initbuf() before using any amore stuff
-// and amore::freebuf() at the end.
+/*
+ * at some point you need to call amore::initbuf() before using any amore stuff
+ * and amore::freebuf() at the end.
 
-// typically, an amore automaton is created from a regular expression (using amore::rexFromString).
-// the following syntax is required for this function:
-//
-// *  kleene star
-// +  kleene plus
-// ~  unary prefix complement
-// .  concat (may be omitted)
-// &  intersection
-// -  set difference A\B
-// U  union
-//
-// spaces in regex are ignored. for more information, please refer to AMoRE documentation, e.g.
-// ftp://ftp.informatik.uni-kiel.de/pub/kiel/amore/amore.ps.gz
-//
-// instead of numbers, used within libalf to represent characters,
-// the corresponding chars from itoc[] are used, as declared e.g. in <amore/vars.h>. it is possible
-// to declare your own itoc. please note that, if not including <amore/vars.h>, you will have to
-// define
-//	jmp_buf _jmp;
-//	char dummy[7];
-//	char itoc[28] = "@abcdefghijklmnopqrstuvwxyz";
-// or equal, as libAMoRE requires these symbols.
 
-// attention: stupid amore headers typedef string to be char*
-// thus we have to use "std::string"...
+ * typically, an amore automaton is created from a regular expression (using amore::rexFromString).
+ * the following syntax is required for this function:
+ *
+ * *  kleene star
+ * +  kleene plus
+ * ~  unary prefix complement
+ * .  concat (may be omitted)
+ * &  intersection
+ * -  set difference A\B
+ * U  union
+ *
+ * spaces in regex are ignored. for more information, please refer to AMoRE documentation, e.g.
+ * ftp://ftp.informatik.uni-kiel.de/pub/kiel/amore/amore.ps.gz
+ *
+ * the constructor generating an nfa from a regex will "insanitize" your regular expression
+ * on the fly, i.e. it will transform any occurence of the commonly used '|' to 'U'
+ *
+ * you will need a standard itoc[] for this constructor to work (see next paragraph)
+
+
+ * instead of numbers, used within libalf to represent characters,
+ * the corresponding chars from itoc[] are used, as declared e.g. in <amore/vars.h>. it is possible
+ * to declare your own itoc. please note that, if not including <amore/vars.h>, you will have to
+ * define
+ *	jmp_buf _jmp;
+ *	char dummy[7];
+ *	char itoc[28] = "@abcdefghijklmnopqrstuvwxyz";
+ * or alike, as libAMoRE requires these symbols.
+ * (watch out for linker errors with missing symbols like these)
+
+
+ * attention: stupid amore headers typedef string to be char*
+ * thus we have to use "std::string"...
+ */
 
 using namespace std;
 
