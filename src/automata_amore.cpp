@@ -363,7 +363,7 @@ bool nondeterministic_finite_amore_automaton::includes(finite_language_automaton
 	// -> amore::inclusion
 }
 
-void nondeterministic_finite_amore_automaton::epsilon_extension(set<int> & states)
+void nondeterministic_finite_amore_automaton::epsilon_closure(set<int> & states)
 {{{
 	queue<int> new_states;
 	set<int>::iterator sti;
@@ -406,7 +406,7 @@ bool nondeterministic_finite_amore_automaton::accepts_suffix(set<int> &starting_
 {{{
 	set<int>::iterator sti;
 
-	this->epsilon_extension(starting_states);
+	this->epsilon_closure(starting_states);
 
 	// not accepting if there are no states
 	if(starting_states.empty())
