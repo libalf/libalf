@@ -383,7 +383,7 @@ void nondeterministic_finite_amore_automaton::epsilon_extension(set<int> & state
 
 		for(unsigned int s = 0; s <= nfa_p->qno; s++) // state
 			if(testcon((nfa_p->delta), 0, current, s))
-				if(states.find(s) != states.end()) {
+				if(states.find(s) == states.end()) {
 					states.insert(s);
 					new_states.push(s);
 				};
