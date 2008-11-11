@@ -90,10 +90,10 @@ class finite_language_automaton : public finite_automaton {
 
 		// LANGUAGE/AUTOMATON OPERATIONS
 		virtual int get_state_count() = 0;
+		virtual int get_alphabet_size() = 0;
 
 		// get a random sample word from this automaton
 		virtual list<int> get_sample_word() = 0;
-
 
 		// UNARY TESTS
 		// is the language of this automaton empty?
@@ -106,7 +106,7 @@ class finite_language_automaton : public finite_automaton {
 		virtual bool includes(finite_language_automaton &subautomaton) = 0;
 
 		// test if word is contained in language of this
-		virtual bool contains(list<int>) = 0;
+		virtual bool contains(list<int>&) = 0;
 
 		// UNARY OPERATIONS
 		virtual void minimize() = 0;

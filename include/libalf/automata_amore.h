@@ -14,6 +14,7 @@
 
 #include <list>
 #include <string>
+#include <set>
 
 #include <libalf/automata.h>
 
@@ -74,11 +75,12 @@ class deterministic_finite_amore_automaton : public deterministic_finite_automat
 
 	// from finite_language_automaton
 		virtual int get_state_count();
+		virtual int get_alphabet_size();
 		virtual list<int> get_sample_word();
 		virtual bool is_empty();
 		virtual bool operator==(finite_language_automaton &other);
 		virtual bool includes(finite_language_automaton &subautomaton);
-		virtual bool contains(list<int> word);
+		virtual bool contains(list<int> &word);
 		virtual void minimize();
 		virtual void lang_complement();
 		virtual nondeterministic_finite_automaton * lang_union(finite_language_automaton &other);
@@ -110,6 +112,9 @@ class nondeterministic_finite_amore_automaton : public nondeterministic_finite_a
 	public:
 		nondeterministic_finite_amore_automaton();
 		nondeterministic_finite_amore_automaton(nfa a);
+		nondeterministic_finite_amore_automaton(char *regex, bool &success);
+		nondeterministic_finite_amore_automaton(int alphabet_size, char *regex, bool &success);
+
 		virtual ~nondeterministic_finite_amore_automaton();
 
 		virtual enum automaton_type get_type() {
@@ -124,11 +129,12 @@ class nondeterministic_finite_amore_automaton : public nondeterministic_finite_a
 
 	// from finite_language_automaton
 		virtual int get_state_count();
+		virtual int get_alphabet_size();
 		virtual list<int> get_sample_word();
 		virtual bool is_empty();
 		virtual bool operator==(finite_language_automaton &other);
 		virtual bool includes(finite_language_automaton &subautomaton);
-		virtual bool contains(list<int> word);
+		virtual bool contains(list<int> &word);
 		virtual void minimize();
 		virtual void lang_complement();
 		virtual nondeterministic_finite_automaton * lang_union(finite_language_automaton &other);
@@ -145,6 +151,10 @@ class nondeterministic_finite_amore_automaton : public nondeterministic_finite_a
 	// new
 		virtual void set_nfa(nfa a);
 		virtual nfa get_nfa();
+	protected:
+		virtual void epsilon_extension(set<int> & states);
+		// accepts_suffix will add all epsilon-reachable states to starting_states!
+		virtual bool accepts_suffix(set<int> &starting_states, list<int>::iterator suffix_begin, list<int>::iterator suffix_end);
 };
 
 

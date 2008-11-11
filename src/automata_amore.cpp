@@ -10,6 +10,7 @@
  */
 
 #include <string>
+#include <queue>
 #include <stdio.h>
 #include <set>
 
@@ -27,6 +28,8 @@
 # include <amore/testBinary.h>
 # include <amore/unaryB.h>
 # include <amore/binary.h>
+# include <amore/rexFromString.h>
+# include <amore/rex2nfa.h>
 
 // attention: stupid amore headers typedef string to be char*
 // thus we have to use "std::string"...
@@ -82,6 +85,73 @@ nondeterministic_finite_amore_automaton::nondeterministic_finite_amore_automaton
 	nfa_p = a;
 }}}
 
+static void amore_insanitize_regex(char* regex)
+{{{
+	while(*regex) {
+		if(*regex == '|')
+			*regex = 'U';
+		regex++;
+	}
+}}}
+
+nondeterministic_finite_amore_automaton::nondeterministic_finite_amore_automaton(char *rex, bool &success)
+{{{
+	char *p;
+	char c = 'a';
+	int alphabet_size;
+	regex r;
+	char *local_rex = strdup(rex);
+
+	// calculate alphabet size
+	p = rex;
+	while(*p) {
+		if(*p > c && *p < 'z')
+			c = *p;
+		p++;
+	}
+	alphabet_size = 1 + c - 'a';
+
+	// transform rex to nfa
+	amore_insanitize_regex(local_rex);
+	r = rexFromString(alphabet_size, local_rex);
+	free(local_rex);
+
+	if(!r) {
+		success = false;
+		nfa_p = NULL;
+	} else {
+		nfa_p = rex2nfa(r);
+		if(!nfa_p) {
+			success = false;
+		} else {
+			freerex(r);
+			success = true;
+		}
+	}
+}}}
+nondeterministic_finite_amore_automaton::nondeterministic_finite_amore_automaton(int alphabet_size, char *rex, bool &success)
+{{{
+	regex r;
+	char *local_rex = strdup(rex);
+
+	amore_insanitize_regex(local_rex);
+	r = rexFromString(alphabet_size, local_rex);
+	free(local_rex);
+
+	if(!r) {
+		success = false;
+		nfa_p = NULL;
+	} else {
+		nfa_p = rex2nfa(r);
+		if(!nfa_p) {
+			success = false;
+		} else {
+			freerex(r);
+			success = true;
+		}
+	}
+}}}
+
 deterministic_finite_amore_automaton::~deterministic_finite_amore_automaton()
 {{{
 	if(dfa_p)
@@ -109,19 +179,19 @@ nondeterministic_finite_amore_automaton * nondeterministic_finite_amore_automato
 }}}
 
 int deterministic_finite_amore_automaton::get_state_count()
-{
+{{{
 	if(dfa_p)
 		return dfa_p->qno + 1;
 	else
 		return 0;
-}
+}}}
 int nondeterministic_finite_amore_automaton::get_state_count()
-{
+{{{
 	if(nfa_p)
 		return nfa_p->qno + 1;
 	else
 		return 0;
-}
+}}}
 
 bool deterministic_finite_amore_automaton::is_empty()
 // note: calling minimize()es this
@@ -160,19 +230,34 @@ bool nondeterministic_finite_amore_automaton::is_empty()
 	return ret;
 }}}
 
+int deterministic_finite_amore_automaton::get_alphabet_size()
+{{{
+	if(dfa_p)
+		return dfa_p->sno;
+	else
+		return 0;
+}}}
+int nondeterministic_finite_amore_automaton::get_alphabet_size()
+{{{
+	if(nfa_p)
+		return nfa_p->sno;
+	else
+		return 0;
+}}}
+
 list<int> deterministic_finite_amore_automaton::get_sample_word()
 {{{
 	set<int> visited_states;
-	list<automata_amore::machine_state> state_fifo;
+	queue<automata_amore::machine_state> state_fifo;
 	automata_amore::machine_state current;
 
 	current.id = dfa_p->init;
 
-	state_fifo.push_back(current);
+	state_fifo.push(current);
 
 	while(!state_fifo.empty()) {
 		current = state_fifo.front();
-		state_fifo.pop_front();
+		state_fifo.pop();
 
 		// if state was visited before, skip it
 		if(visited_states.find(current.id) == visited_states.end()) {
@@ -188,7 +273,7 @@ list<int> deterministic_finite_amore_automaton::get_sample_word()
 				// add possible successor with its prefix to fifo
 				current.prefix.push_back(i);
 				current.id = dfa_p->delta[i+1][st];
-				state_fifo.push_back(current);
+				state_fifo.push(current);
 				current.prefix.pop_back();
 			}
 		}
@@ -278,27 +363,100 @@ bool nondeterministic_finite_amore_automaton::includes(finite_language_automaton
 	// -> amore::inclusion
 }
 
+void nondeterministic_finite_amore_automaton::epsilon_extension(set<int> & states)
+{{{
+	queue<int> new_states;
+	set<int>::iterator sti;
+
+	int current;
+
+	if(!nfa_p->is_eps == FALSE)
+		return;
+
+	for(sti = states.begin(); sti != states.end(); sti++)
+		new_states.push(*sti);
+
+	while(!new_states.empty()) {
+		// find all new epsilon states
+		current = new_states.front();
+		new_states.pop();
+
+		for(unsigned int s = 0; s <= nfa_p->qno; s++) // state
+			if(testcon((nfa_p->delta), 0, current, s))
+				if(states.find(s) != states.end()) {
+					states.insert(s);
+					new_states.push(s);
+				};
+	}
+}}}
+
 bool deterministic_finite_amore_automaton::accepts_suffix(int starting_state, list<int>::iterator suffix_begin, list<int>::iterator suffix_end)
 {{{
 	if(suffix_begin == suffix_end) {
 		return (TRUE == dfa_p->final[starting_state]);
 	} else {
-		int c = (*suffix_begin);
+		unsigned int l = (*suffix_begin);
+		if(l >= dfa_p->sno)
+			return false;
 		suffix_begin++;
-		return accepts_suffix(dfa_p->delta[c+1][starting_state], suffix_begin, suffix_end);
+		return accepts_suffix(dfa_p->delta[l+1][starting_state], suffix_begin, suffix_end);
+	}
+}}}
+bool nondeterministic_finite_amore_automaton::accepts_suffix(set<int> &starting_states, list<int>::iterator suffix_begin, list<int>::iterator suffix_end)
+{{{
+	set<int>::iterator sti;
+
+	this->epsilon_extension(starting_states);
+
+	// not accepting if there are no states
+	if(starting_states.empty())
+		return false;
+
+	if(suffix_begin == suffix_end) {
+		// check existence of at least one accepting state
+		for(sti = starting_states.begin(); sti != starting_states.end(); sti++)
+			if(isfinal(nfa_p->infin[*sti]))
+				return true;
+
+		return false;
+	} else {
+		set<int> next_states;
+
+		unsigned int l = *suffix_begin;
+		if(l >= nfa_p->sno)
+			return false;
+
+		// calculate successor states
+		for(sti = starting_states.begin(); sti != starting_states.end(); sti++)
+			for(unsigned int d = 0; d <= nfa_p->qno; d++)
+				if(testcon((nfa_p->delta), l+1, *sti, d))
+					next_states.insert(d);
+
+		suffix_begin++;
+		return accepts_suffix(next_states, suffix_begin, suffix_end);
 	}
 }}}
 
-bool deterministic_finite_amore_automaton::contains(list<int> word)
+bool deterministic_finite_amore_automaton::contains(list<int> &word)
 {{{
 	if(dfa_p) {
 		return accepts_suffix(dfa_p->init, word.begin(), word.end());
-	} else
+	} else {
 		return false;
+	}
 }}}
-bool nondeterministic_finite_amore_automaton::contains(list<int> word)
-{
-}
+bool nondeterministic_finite_amore_automaton::contains(list<int> &word)
+{{{
+	if(nfa_p) {
+		set<int> initial_states;
+		for(unsigned int s = 0; s < nfa_p->qno; s++)
+			if(isinit(nfa_p->infin[s]))
+				initial_states.insert(s);
+		return accepts_suffix(initial_states, word.begin(), word.end());
+	} else {
+		return false;
+	}
+}}}
 
 void deterministic_finite_amore_automaton::minimize()
 {{{
@@ -503,7 +661,7 @@ std::basic_string<int32_t> deterministic_finite_amore_automaton::serialize()
 		return ret; // empty basic_string
 
 	unsigned int s; // state id
-	unsigned int c; // char (label) only unsigned here because -1 == epsilon will not occur in dfa!
+	unsigned int l; // label only unsigned here because -1 == epsilon will not occur in dfa!
 
 	// alphabet size
 	ret += htonl(dfa_p->sno);
@@ -523,11 +681,11 @@ std::basic_string<int32_t> deterministic_finite_amore_automaton::serialize()
 	ret += temp;
 	// transitions
 	temp.clear();
-	for(c = 0; c < dfa_p->sno; c++) {
+	for(l = 0; l < dfa_p->sno; l++) {
 		for(s = 0; s <= dfa_p->qno; s++) {
 			temp += htonl(s); // source state id
-			temp += htonl(c); // label
-			temp += htonl(dfa_p->delta[c+1][s]); // destination
+			temp += htonl(l); // label
+			temp += htonl(dfa_p->delta[l+1][s]); // destination
 		}
 	}
 
@@ -543,6 +701,9 @@ std::basic_string<int32_t> nondeterministic_finite_amore_automaton::serialize()
 	unsigned int s;
 	int l;
 
+	if(!nfa_p) {
+		return ret; // empty basic_string
+	}
 	// alphabet size
 	ret += htonl(nfa_p->sno);
 	// state count
@@ -588,16 +749,12 @@ std::basic_string<int32_t> nondeterministic_finite_amore_automaton::serialize()
 
 bool deterministic_finite_amore_automaton::deserialize(basic_string<int32_t> &automaton)
 {{{
-	int s;
+	int s, count;
+	basic_string<int32_t>::iterator si, end;
 
 	if(dfa_p)
 		freedfa(dfa_p);
 	dfa_p = newdfa();
-
-	basic_string<int32_t>::iterator si;
-	basic_string<int32_t>::iterator end;
-
-	int final_count, transition_count;
 
 	if(automaton.size() < 6) // that's the shortest possible automaton
 		goto dfaa_deserialization_failed;
@@ -605,14 +762,20 @@ bool deterministic_finite_amore_automaton::deserialize(basic_string<int32_t> &au
 	si = automaton.begin();
 	end = automaton.end();
 
+	// alphabet size
 	dfa_p->sno = ntohl(*si);
 
+	// state count
 	si++;
 	dfa_p->qno = ntohl(*si) - 1;
 
+	// allocate data structures
 	dfa_p->final = newfinal(dfa_p->qno);
 	dfa_p->delta = newddelta(dfa_p->sno, dfa_p->qno);
+	if(!(dfa_p->final) || !(dfa_p->delta))
+		goto dfaa_deserialization_failed;
 
+	// initial state
 	si++;
 	if(ntohl(*si) != 1) // dfa only allows exactly one initial state
 		goto dfaa_deserialization_failed;
@@ -620,22 +783,24 @@ bool deterministic_finite_amore_automaton::deserialize(basic_string<int32_t> &au
 	si++;
 	dfa_p->init = ntohl(*si);
 
+	// final states
 	si++;
-	final_count = ntohl(*si);
+	count = ntohl(*si);
 
 	si++;
-	for(s = 0; s < final_count; s++) {
+	for(s = 0; s < count; s++) {
 		if(si == end)
 			goto dfaa_deserialization_failed;
-		dfa_p->final[ntohl(*si)] = TRUE;
+		setfinal(dfa_p->final[ntohl(*si)],1);
 		si++;
 	}
 
+	// transitions
 	if(si == end)
 		goto dfaa_deserialization_failed;
-	transition_count = ntohl(*si);
+	count = ntohl(*si);
 	si++;
-	for(s = 0; s < transition_count; s++) {
+	for(s = 0; s < count; s++) {
 		int32_t src, label, dst;
 
 		if(si == end)
@@ -669,33 +834,88 @@ dfaa_deserialization_failed:
 	return false;
 }}}
 bool nondeterministic_finite_amore_automaton::deserialize(basic_string<int32_t> &automaton)
-{
-	unsigned int s;
+{{{
+	int s, count;
+	basic_string<int32_t>::iterator si, end;
 
 	if(nfa_p)
 		freenfa(nfa_p);
 	nfa_p = newnfa();
 
-	basic_string<int32_t>::iterator si;
-	si = automaton.begin();
+	if(automaton.size() < 6) // that's the shortest possible automaton
+		goto nfaa_deserialization_failed;
 
+	si = automaton.begin();
+	end = automaton.end();
+
+	// alphabet size
 	nfa_p->sno = ntohl(*si);
 
+	// state count
 	si++;
 	nfa_p->qno = ntohl(*si) - 1;
 
-	si++;
-	unsigned int initial_count;
-	initial_count = ntohl(*si);
+	// allocate data structures
 	nfa_p->infin = newfinal(nfa_p->qno);
-	for(s = 0; s < initial_count; s++) {
-		setinit(ntohl(*si));
+	nfa_p->delta = newendelta(nfa_p->sno, nfa_p->qno);
+	nfa_p->is_eps = TRUE;
+	if(!(nfa_p->infin) || !(nfa_p->delta))
+		goto nfaa_deserialization_failed;
+
+	// initial states
+	si++;
+	count = ntohl(*si);
+
+	si++;
+	for(s = 0; s < count; s++) {
+		if(si == end)
+			goto nfaa_deserialization_failed;
+		setinit(nfa_p->infin[ntohl(*si)]);
 		si++;
 	}
 
+	// final states
+	if(si == end)
+		goto nfaa_deserialization_failed;
+	count = ntohl(*si);
+	si++;
 
+	for(s = 0; s < count; s++) {
+		if(si == end)
+			goto nfaa_deserialization_failed;
+		setfinalT(nfa_p->infin[ntohl(*si)]);
+		si++;
+	}
 
+	// transitions
+	if(si == end)
+		goto nfaa_deserialization_failed;
+	count = ntohl(*si);
+	si++;
+	for(s = 0; s < count; s++) {
+		int32_t src, label, dst;
 
+		if(si == end)
+			goto nfaa_deserialization_failed;
+		src = ntohl(*si);
+		si++;
+		if(si == end)
+			goto nfaa_deserialization_failed;
+		label = ntohl(*si);
+		si++;
+		if(si == end)
+			goto nfaa_deserialization_failed;
+		dst = ntohl(*si);
+		si++;
+
+		if( (label < -1) || (label >= (int)nfa_p->sno) || (src < 0) || (src > (int)nfa_p->qno) || (dst < 0) || (dst > (int)nfa_p->qno) ) // invalid transition
+			goto nfaa_deserialization_failed;
+
+		connect(nfa_p->delta, label+1, src, dst);
+	}
+
+	if(si != end) // remainder at end of string
+		goto nfaa_deserialization_failed;
 
 	return true;
 
@@ -703,7 +923,7 @@ nfaa_deserialization_failed:
 	freenfa(nfa_p);
 	nfa_p = NULL;
 	return false;
-}
+}}}
 
 bool deterministic_finite_amore_automaton::construct(int alphabet_size, int state_count, list<int> start, list<int> final, list<transition> transitions)
 {{{
@@ -736,7 +956,7 @@ bool deterministic_finite_amore_automaton::construct(int alphabet_size, int stat
 	a->sno = alphabet_size; // alphabet size
 	a->final = newfinal(a->qno); // final states
 	for(list<int>::iterator i = final.begin(); i != final.end(); i++)
-		a->final[*i] = TRUE;
+		setfinal((a->final[*i]), 1);
 	a->delta = newddelta(a->sno, a->qno); // transition function: delta[sigma][source] = destination
 	for(ti = transitions.begin(); ti != transitions.end(); ti++)
 		a->delta[ti->label + 1][ti->source] = ti->destination;

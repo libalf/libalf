@@ -22,7 +22,6 @@
 #include <amore/vars.h>
 #include <amore/rexFromString.h>
 #include <amore/rex2nfa.h>
-#include <amore/nfa2dfa.h>
 
 //#define ANSWERTYPE extended_bool
 #define ANSWERTYPE bool
@@ -32,9 +31,6 @@ using namespace libalf;
 
 int main(int argc, char**argv)
 {
-	regex r;
-	nfa nfa_p;
-
 	statistics stats;
 
 	finite_language_automaton *nfa;
@@ -46,94 +42,48 @@ int main(int argc, char**argv)
 	oracle_automaton o;
 
 	char filename[128];
-	int iteration;
+	ofstream file;
 
+	int iteration;
 	bool success = false;
 
-	int alphabet_size;
-	char *regex;
-	char *p;
+	// init AMoRE buffers
+	initbuf();
 
+	// init logger
+	log = new ostream_logger(&cout, LOGGER_DEBUG);
+
+	bool regex_ok;
 	if(argc == 3) {
-		alphabet_size = atoi(argv[1]);
-		if(alphabet_size <= 0) {
-			cout << "insane or invalid alphabet_size\n";
-			return 1;
-		}
-
-		regex = argv[2];
+		nfa = new nondeterministic_finite_amore_automaton(atoi(argv[1]), argv[2], regex_ok);
 	} else {
 		if(argc == 2) {
-			regex = argv[1];
-			// get alphabet_size
-			p = regex;
-			char c = 'a';
-			while(*p) {
-				if(*p > 'a' && *p < 'z' && *p > c)
-					c = *p;
-				p++;
-			}
-			alphabet_size = 1 + c - 'a';
+			nfa = new nondeterministic_finite_amore_automaton(argv[1], regex_ok);
 		} else {
 			cout << "either give a sole regex as parameter, or give <alphabet size> <regex>.\n\n";
 			cout << "example regular expressions:\n";
 			cout << "alphabet size, \"regex\":\n";
 			cout << "2 '((a((aa)a))U(((bb))*((((bU(ab))U(bUa)))*)*))'\n";
-			cout << "2 '(((bU((aa)U(aUb)))U(a(aUb)))U((aUa)(bb)))'\n";
+			cout << "2 '(((bb)|a)(b(((bb)b)(((aa)a)|a))))'\n";
 			cout << "2 '(((aa)(a)*)(((a((b(b)*)(aUb)))((ba))*))*)'\n";
 			cout << "3 '(cbb(ab(c)*))* U (a((cbb*) U a+b+bc)+)'\n";
 			return 1;
 		}
 	}
 
-	// translate pipes ('|') into 'U', for amore syntax
-	p = regex;
-	while(*p) {
-		if(*p == '|')
-			*p = 'U';
-		p++;
-	}
-
-
-
-	// init AMoRE buffers
-	initbuf();
-
-	log = new ostream_logger(&cout, LOGGER_DEBUG);
-
-	// create automaton from regex
-	cout << "alphabet size: " << alphabet_size <<", regex: " << regex << "\n";
-	r = rexFromString(alphabet_size, regex);
-
-	if(!r) {
-		cout << "regex failed\n";
+	if(regex_ok) {
+		(*log)(LOGGER_INFO, "regex ok.\n");
+	} else {
+		(*log)(LOGGER_ERROR, "regex failed.\n");
 		return 1;
 	}
-	nfa_p = rex2nfa(r);
-
-	freerex(r);
-
-	nfa = new nondeterministic_finite_amore_automaton(nfa_p);
-
-	dfa = nfa->determinize();
-	dfa->minimize();
-
-	/*
-	basic_string<int32_t> a_str = nfa->serialize();
-	cout << "begin serialized automata (length " << a_str.length() << ")\n";
-
-	ostream_iterator<int32_t> out(cout, ".");
-
-	cout << ".";
-	copy(a_str.begin(), a_str.end(), out);
-	cout << "\nend serialized automata\n";
-	*/
-
-	ofstream file;
 
 	file.open("original-nfa.dot");
 	file << nfa->generate_dotfile();
 	file.close();
+
+	dfa = nfa->determinize();
+	dfa->minimize();
 
 	file.open("original-dfa.dot");
 	file << dfa->generate_dotfile();
@@ -146,7 +96,7 @@ int main(int argc, char**argv)
 	o.set_statistics_counter(&stats);
 
 	// create angluin_simple_observationtable and teach it the automaton
-	ot = new angluin_simple_observationtable<ANSWERTYPE>(teach, log, alphabet_size);
+	ot = new angluin_simple_observationtable<ANSWERTYPE>(teach, log, dfa->get_alphabet_size());
 
 	for(iteration = 1; iteration <= 100; iteration++) {
 		ot->derive_hypothesis(&hypothesis);
@@ -182,12 +132,13 @@ int main(int argc, char**argv)
 
 	cout << "required membership queries: " << stats.query_count.membership << "\n";
 	cout << "required equivalence queries: " << stats.query_count.equivalence << "\n";
-	cout << "minimal state count: " << hypothesis.get_state_count() - 1 << " + 1 sink\n";
+	cout << "minimal state count: " << hypothesis.get_state_count() << "\n";
 	cout << "difference to original state count: " << dfa->get_state_count() - hypothesis.get_state_count() << "\n";
 
 	delete ot;
 	delete teach;
 	delete log;
+	delete nfa;
 	delete dfa;
 
 	// release AMoRE buffers
