@@ -20,8 +20,6 @@
 #include "libalf/automata_amore.h"
 
 #include <amore/vars.h>
-#include <amore/rexFromString.h>
-#include <amore/rex2nfa.h>
 
 using namespace std;
 using namespace libalf;

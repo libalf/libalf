@@ -13,6 +13,7 @@
 # define __libalf_automata_h__
 
 #include <list>
+#include <set>
 #include <string>
 
 namespace libalf {
@@ -29,6 +30,30 @@ enum automaton_type {
 enum automaton_implementation {
 	IMP_NO_IMPLEMENTATION,
 	IMP_AMORE
+};
+
+class automaton_run {
+	public:
+		list<int> prefix;
+		int state;
+
+		automaton_run()
+		{{{
+			state = 0;
+		}}}
+
+		automaton_run(int first_state)
+		{{{
+			state = first_state;
+		}}}
+};
+
+class automaton_run_less : binary_function<automaton_run, automaton_run, bool> {
+	public:
+		bool operator()(automaton_run first, automaton_run second)
+		{
+			return true;
+		};
 };
 
 // an automaton implementation may throw this exception in case
@@ -93,7 +118,7 @@ class finite_language_automaton : public finite_automaton {
 		virtual int get_alphabet_size() = 0;
 
 		// get a random sample word from this automaton
-		virtual list<int> get_sample_word() = 0;
+		virtual list<int> get_sample_word(bool & is_empty) = 0;
 
 		// UNARY TESTS
 		// is the language of this automaton empty?
@@ -178,6 +203,9 @@ class nondeterministic_finite_automaton : public finite_language_automaton {
 		virtual enum automaton_type get_type() {
 			return NONDETERMINISTIC_FINITE_AUTOMATON;
 		}
+
+		virtual void epsilon_closure(set<int> & states) = 0;
+		virtual void epsilon_closure(set<automaton_run, automaton_run_less> runs) = 0;
 };
 
 

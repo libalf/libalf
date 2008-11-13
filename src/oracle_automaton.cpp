@@ -71,7 +71,8 @@ pair<bool, list< list<int> > > oracle_automaton::equivalence_query(finite_langua
 			string s;
 			s = dfa->generate_dotfile();
 
-			ret.second.push_back(dfa->get_sample_word());
+			bool is_empty; // can not happen as L(dfa) is not empty
+			ret.second.push_back(dfa->get_sample_word(is_empty));
 
 			delete dfa;
 			return ret;

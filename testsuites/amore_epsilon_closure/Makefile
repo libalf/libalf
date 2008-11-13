@@ -7,23 +7,21 @@ CPPFLAGS=-Wall -ggdb3  -I../../include
 
 LDFLAGS=-L../../src -lalf -lAMoRE
 
-all: amore_serialization
+all: epsilon_closure
 
 clean: nodata
 	-rm *.o
-	-rm amore_serialization
+	-rm epsilon_closure
 
 nodata:
 	-rm *.dot
 	-rm *.jpg
-	-rm *.angluin
-	-rm testlog
 
 run:
-	LD_LIBRARY_PATH=../../src ./amore_serialization
+	LD_LIBRARY_PATH=../../src ./epsilon_closure
 
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;
 
-amore_serialization: amore_serialization.cpp
+epsilon_closure: epsilon_closure.cpp
 

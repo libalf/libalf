@@ -65,36 +65,6 @@ namespace libalf {
 
 using namespace std;
 
-
-	namespace automata_amore {
-
-		class machine_run {
-			public:
-				list<int> prefix;
-				int state;
-
-				machine_run()
-				{{{
-					state = 0;
-				}}}
-
-				machine_run(int first_state)
-				{{{
-					state = first_state;
-				}}}
-		};
-
-		//
-		class machine_run_less : binary_function<machine_run, machine_run, bool> {
-			public:
-				bool operator()(machine_run first, machine_run second)
-				{
-					return true;
-				};
-		};
-
-	};
-
 class deterministic_finite_amore_automaton : public deterministic_finite_automaton {
 	private:
 		dfa dfa_p;
@@ -117,7 +87,7 @@ class deterministic_finite_amore_automaton : public deterministic_finite_automat
 	// from finite_language_automaton
 		virtual int get_state_count();
 		virtual int get_alphabet_size();
-		virtual list<int> get_sample_word();
+		virtual list<int> get_sample_word(bool & is_empty);
 		virtual bool is_empty();
 		virtual bool operator==(finite_language_automaton &other);
 		virtual bool includes(finite_language_automaton &subautomaton);
@@ -171,7 +141,7 @@ class nondeterministic_finite_amore_automaton : public nondeterministic_finite_a
 	// from finite_language_automaton
 		virtual int get_state_count();
 		virtual int get_alphabet_size();
-		virtual list<int> get_sample_word();
+		virtual list<int> get_sample_word(bool & is_empty);
 		virtual bool is_empty();
 		virtual bool operator==(finite_language_automaton &other);
 		virtual bool includes(finite_language_automaton &subautomaton);
@@ -192,9 +162,10 @@ class nondeterministic_finite_amore_automaton : public nondeterministic_finite_a
 	// new
 		virtual void set_nfa(nfa a);
 		virtual nfa get_nfa();
-	protected:
+
 		virtual void epsilon_closure(set<int> & states);
-		virtual void epsilon_closure(set<automata_amore::machine_run, automata_amore::machine_run_less> runs);
+		virtual void epsilon_closure(set<automaton_run, automaton_run_less> runs);
+	protected:
 		// accepts_suffix will add all epsilon-reachable states to starting_states!
 		virtual bool accepts_suffix(set<int> &starting_states, list<int>::iterator suffix_begin, list<int>::iterator suffix_end);
 };

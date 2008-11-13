@@ -225,11 +225,11 @@ int nondeterministic_finite_amore_automaton::get_alphabet_size()
 		return 0;
 }}}
 
-list<int> deterministic_finite_amore_automaton::get_sample_word()
+list<int> deterministic_finite_amore_automaton::get_sample_word(bool & is_empty)
 {{{
 	set<int> visited_states;
-	queue<automata_amore::machine_run> state_fifo;
-	automata_amore::machine_run current;
+	queue<automaton_run> state_fifo;
+	automaton_run current;
 
 	current.state = dfa_p->init;
 
@@ -244,8 +244,10 @@ list<int> deterministic_finite_amore_automaton::get_sample_word()
 			visited_states.insert(current.state);
 
 			// if state is final, return its prefix
-			if(dfa_p->final[current.state] == TRUE)
+			if(dfa_p->final[current.state] == TRUE) {
+				is_empty = false;
 				return current.prefix;
+			}
 
 			// otherwise check all possible successors
 			int st = current.state;
@@ -259,11 +261,29 @@ list<int> deterministic_finite_amore_automaton::get_sample_word()
 		}
 	}
 
+	is_empty = true;
 	list<int> empty;
 	return empty;
 }}}
-list<int> nondeterministic_finite_amore_automaton::get_sample_word()
+list<int> nondeterministic_finite_amore_automaton::get_sample_word(bool & is_empty)
 {
+	automaton_run current, next;
+
+	queue<automaton_run> runs;
+
+	set<automaton_run, automaton_run_less> next_runs;
+	set<automaton_run, automaton_run_less>::iterator ri;
+
+	int s; // state
+
+	// init 
+	for(s = 0; s <= nfa_p->qno; s++) {
+		if(isinit(nfa_p->infin[s])) {
+			current.state = s;
+			runs.push(s);
+		}
+	}
+
 }
 
 bool deterministic_finite_amore_automaton::operator==(finite_language_automaton &other)
@@ -368,16 +388,16 @@ void nondeterministic_finite_amore_automaton::epsilon_closure(set<int> & states)
 				};
 	};
 }}}
-void nondeterministic_finite_amore_automaton::epsilon_closure(set<automata_amore::machine_run, automata_amore::machine_run_less> runs)
+void nondeterministic_finite_amore_automaton::epsilon_closure(set<automaton_run, automaton_run_less> runs)
 {{{
 	if(nfa_p->is_eps == FALSE)
 		return;
 
-	queue<automata_amore::machine_run> new_runs;
+	queue<automaton_run> new_runs;
 
-	set<automata_amore::machine_run, automata_amore::machine_run_less>::iterator ri;
+	set<automaton_run, automaton_run_less>::iterator ri;
 
-	automata_amore::machine_run current, ns;
+	automaton_run current, ns;
 
 	for(ri = runs.begin(); ri != runs.end(); ri++)
 		new_runs.push(*ri);
