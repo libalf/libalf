@@ -3,7 +3,7 @@
 
 .PHONY: all clean angluin_simple_observationtable amore_epsilon_closure amore_serialization
 
-all: angluin_simple_observationtable amore_serialization
+all: angluin_simple_observationtable amore_serialization amore_epsilon_closure
 
 angluin_simple_observationtable:
 	make -C angluin_simple_observationtable

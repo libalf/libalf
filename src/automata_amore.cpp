@@ -19,6 +19,7 @@
 
 # include "libalf/automata.h"
 # include "libalf/automata_amore.h"
+# include "libalf/alphabet.h"
 
 # include <amore/nfa.h>
 # include <amore/dfa.h>
@@ -267,23 +268,62 @@ list<int> deterministic_finite_amore_automaton::get_sample_word(bool & is_empty)
 }}}
 list<int> nondeterministic_finite_amore_automaton::get_sample_word(bool & is_empty)
 {
+	set<int> visited_states;
+	list<automaton_run> run_fifo;
+	list<automaton_run>::iterator ri;
 	automaton_run current, next;
+	unsigned int s, l;
 
-	queue<automaton_run> runs;
-
-	set<automaton_run, automaton_run_less> next_runs;
-	set<automaton_run, automaton_run_less>::iterator ri;
-
-	int s; // state
-
-	// init 
+	// put initial states into fifo
 	for(s = 0; s <= nfa_p->qno; s++) {
 		if(isinit(nfa_p->infin[s])) {
 			current.state = s;
-			runs.push(s);
+			// current.prefix is empty.
+			run_fifo.push_back(current);
+			visited_states.insert(s);
 		}
 	}
 
+	while(!run_fifo.empty()) {
+		// check final
+		current = run_fifo.front();
+		run_fifo.pop_front();
+
+		if(isfinal(nfa_p->infin[current.state])) {
+			is_empty = false;
+			return current.prefix;
+		}
+		// epsilon-close
+		if(nfa_p->is_eps == TRUE) {
+			next.prefix = current.prefix;
+			for(s = 0; s <= nfa_p->qno; s++) {
+				if(testcon((nfa_p->delta), 0, current.state, s)) {
+					if(visited_states.find(s) == visited_states.end()) {
+						visited_states.insert(s);
+						next.state = s;
+						run_fifo.push_front(next);
+					}
+				}
+			}
+		}
+
+		// advance to new states
+		for(s = 0; s <= nfa_p->qno; s++) { // dst state
+			if(visited_states.find(s) == visited_states.end()) {
+				for(l = 0; l < nfa_p->sno; l++) { // label
+					if(testcon((nfa_p->delta), l+1, current.state, s)) {
+						next.prefix = current.prefix;
+						next.prefix.push_back(l);
+						next.state = s;
+						run_fifo.push_back(next);
+					}
+				}
+			}
+		}
+	}
+	list<int> ret;
+	is_empty = true;
+	return ret; // empty word
 }
 
 bool deterministic_finite_amore_automaton::operator==(finite_language_automaton &other)
@@ -386,35 +426,6 @@ void nondeterministic_finite_amore_automaton::epsilon_closure(set<int> & states)
 					states.insert(s);
 					new_states.push(s);
 				};
-	};
-}}}
-void nondeterministic_finite_amore_automaton::epsilon_closure(set<automaton_run, automaton_run_less> runs)
-{{{
-	if(nfa_p->is_eps == FALSE)
-		return;
-
-	queue<automaton_run> new_runs;
-
-	set<automaton_run, automaton_run_less>::iterator ri;
-
-	automaton_run current, ns;
-
-	for(ri = runs.begin(); ri != runs.end(); ri++)
-		new_runs.push(*ri);
-
-	while(!new_runs.empty()) {
-		current = new_runs.front();
-		new_runs.pop();
-
-		for(unsigned int s = 0; s <= nfa_p->qno; s++) // state
-			if(testcon((nfa_p->delta), 0, current.state, s)) {
-				ns.prefix = current.prefix;
-				ns.state = s;
-				if(runs.find(ns) == runs.end()) {
-					runs.insert(ns);
-					new_runs.push(ns);
-				};
-			};
 	};
 }}}
 

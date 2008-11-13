@@ -205,7 +205,6 @@ class nondeterministic_finite_automaton : public finite_language_automaton {
 		}
 
 		virtual void epsilon_closure(set<int> & states) = 0;
-		virtual void epsilon_closure(set<automaton_run, automaton_run_less> runs) = 0;
 };
 
 

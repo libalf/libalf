@@ -27,51 +27,63 @@ using namespace libalf;
 
 int main()
 {
-		int automaton[] = {
-			2, // alphabet size
-			4, // state count
-			2, // number of initial states
-			0,
-			1,
-			2, // number of final states
-			2,
-			3,
-			4, // number of transitions
-			0,-1,2,
-			2,0,2,
-			1,1,3,
-			3,1,3
-		};
-		nondeterministic_finite_amore_automaton *nfa;
-		basic_string<int32_t> serial;
-		set<int> states;
-		ofstream file;
-		ostream_iterator<int32_t> out(cout, ", ");
+	int automaton[] = {
+		3, // alphabet size
+		5, // state count
+		2, // number of initial states
+		0,
+		1,
+		1, // number of final states
+		4,
+		6, // number of transitions
+		0,1,3,
+		1,-1,2,
+		2,0,2,
+		2,2,4,
+		3,1,3,
+		3,1,2
+	};
+	nondeterministic_finite_amore_automaton *nfa;
+	basic_string<int32_t> serial;
+	set<int> states;
+	ofstream file;
+	ostream_iterator<int32_t> out(cout, ", ");
 
-		for(unsigned int i = 0; i < sizeof(automaton)/sizeof(int); i++) {
-			serial += htonl(automaton[i]);
-		}
+	for(unsigned int i = 0; i < sizeof(automaton)/sizeof(int); i++) {
+		serial += htonl(automaton[i]);
+	}
 
-		nfa = new nondeterministic_finite_amore_automaton();
-		if(!nfa->deserialize(serial)) {
-			cout << "deserialization failed. check automaton.\n";
-			return 1;
-		}
+	nfa = new nondeterministic_finite_amore_automaton();
+	if(!nfa->deserialize(serial)) {
+		cout << "deserialization failed. check automaton.\n";
+		return 1;
+	}
 
-		file.open("original-nfa.dot");
-		file << nfa->generate_dotfile();
-		file.close();
+	file.open("original-nfa.dot");
+	file << nfa->generate_dotfile();
+	file.close();
 
-		states.insert(0);
+	states.insert(1);
 
-		cout << "epsilon closure of states ";
-		copy(states.begin(), states.end(), out);
-		cout << ":\n";
+	cout << "epsilon closure of states {";
+	copy(states.begin(), states.end(), out);
+	cout << "}:\n\t{";
 
-		nfa->epsilon_closure(states);
+	nfa->epsilon_closure(states);
 
-		copy(states.begin(), states.end(), out);
-		cout << "\n";
+	copy(states.begin(), states.end(), out);
+	cout << "}\n";
 
+
+	list<int> sample_word;
+	bool is_empty = false;
+
+	sample_word = nfa->get_sample_word(is_empty);
+
+	cout << "sample_word: ";
+	print_word(cout, sample_word);
+	cout << "\n";
+	/*
+	*/
 }
 
