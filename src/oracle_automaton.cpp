@@ -9,6 +9,9 @@
  * see LICENSE file for licensing information.
  */
 
+#include <ostream>
+#include <fstream>
+
 #include "libalf/automata.h"
 #include "libalf/oracle.h"
 #include "libalf/oracle_automaton.h"
@@ -57,30 +60,40 @@ pair<bool, list< list<int> > > oracle_automaton::equivalence_query(finite_langua
 
 	if(backend_automaton) {
 		finite_language_automaton *difference;
-		finite_language_automaton *dfa;
+		list<int> word;
+		bool is_empty;
+
 		difference = backend_automaton->lang_difference(hypothesis);
-		dfa = difference->determinize();
-		delete difference;
-		if(dfa->is_empty()) {
+/*
+ofstream file;
+file.open("hypothesis-automaton.dot");
+file << hypothesis.generate_dotfile();
+file.close();
+
+file.open("backend-automaton.dot");
+file << backend_automaton->generate_dotfile();
+file.close();
+
+file.open("difference-automaton.dot");
+file << difference->generate_dotfile();
+file.close();
+*/
+
+		word = difference->get_sample_word(is_empty);
+
+		if(difference->is_empty()) {
 			ret.first = true;
-			delete dfa;
-			return ret;
 		} else {
 			ret.first = false;
-
-			string s;
-			s = dfa->generate_dotfile();
-
-			bool is_empty; // can not happen as L(dfa) is not empty
-			ret.second.push_back(dfa->get_sample_word(is_empty));
-
-			delete dfa;
-			return ret;
+			ret.second.push_back(word);
 		}
+
+		delete difference;
 	} else {
 		ret.first = false;
-		return ret;
 	}
+
+	return ret;
 }}}
 
 

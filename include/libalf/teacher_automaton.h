@@ -33,7 +33,7 @@ class teacher_automaton : public teacher<answer> {
 			atm = NULL;
 		}}}
 
-		teacher_automaton(finite_language_automaton *a)
+		teacher_automaton(finite_language_automaton &a)
 		{{{
 			atm = NULL;
 			set_automaton(a);
@@ -45,11 +45,11 @@ class teacher_automaton : public teacher<answer> {
 				delete atm;
 		}}}
 
-		virtual void set_automaton(finite_language_automaton *a)
+		virtual void set_automaton(finite_language_automaton &a)
 		{{{
 			if(atm)
 				delete atm;
-			atm = a->clone();
+			atm = a.clone();
 		}}}
 
 		virtual finite_language_automaton *get_automaton()

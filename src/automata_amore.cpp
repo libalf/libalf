@@ -14,6 +14,9 @@
 #include <stdio.h>
 #include <set>
 
+#include <ostream>
+#include <fstream>
+
 // for htonl / ntohl
 # include <arpa/inet.h>
 
@@ -124,10 +127,10 @@ nondeterministic_finite_amore_automaton::nondeterministic_finite_amore_automaton
 		nfa_p = NULL;
 	} else {
 		nfa_p = rex2nfa(r);
+		freerex(r);
 		if(!nfa_p) {
 			success = false;
 		} else {
-			freerex(r);
 			success = true;
 		}
 	}
@@ -175,39 +178,15 @@ int nondeterministic_finite_amore_automaton::get_state_count()
 }}}
 
 bool deterministic_finite_amore_automaton::is_empty()
-// note: calling minimize()es this
 {{{
 	bool ret;
-
-	dfa empty = newdfa();
-	empty->qno = 0;
-	empty->init = 0;
-	empty->sno = dfa_p->sno;
-	empty->final = newfinal(empty->qno);
-	empty->delta = newddelta(empty->sno, empty->qno);
-
-	minimize();
-
-	ret = equiv(dfa_p, empty);
-
-	freedfa(empty);
-
+	get_sample_word(ret);
 	return ret;
 }}}
 bool nondeterministic_finite_amore_automaton::is_empty()
 {{{
 	bool ret;
-	dfa empty = newdfa();
-	dfa det;
-
-	det = nfa2dfa(nfa_p);
-	det = dfamdfa(det, true);
-
-	ret = equiv(det, empty);
-
-	freedfa(empty);
-	freedfa(det);
-
+	get_sample_word(ret);
 	return ret;
 }}}
 
@@ -267,7 +246,7 @@ list<int> deterministic_finite_amore_automaton::get_sample_word(bool & is_empty)
 	return empty;
 }}}
 list<int> nondeterministic_finite_amore_automaton::get_sample_word(bool & is_empty)
-{
+{{{
 	set<int> visited_states;
 	list<automaton_run> run_fifo;
 	list<automaton_run>::iterator ri;
@@ -299,9 +278,9 @@ list<int> nondeterministic_finite_amore_automaton::get_sample_word(bool & is_emp
 			for(s = 0; s <= nfa_p->qno; s++) {
 				if(testcon((nfa_p->delta), 0, current.state, s)) {
 					if(visited_states.find(s) == visited_states.end()) {
-						visited_states.insert(s);
 						next.state = s;
 						run_fifo.push_front(next);
+						visited_states.insert(s);
 					}
 				}
 			}
@@ -316,6 +295,7 @@ list<int> nondeterministic_finite_amore_automaton::get_sample_word(bool & is_emp
 						next.prefix.push_back(l);
 						next.state = s;
 						run_fifo.push_back(next);
+						visited_states.insert(s);
 					}
 				}
 			}
@@ -324,7 +304,7 @@ list<int> nondeterministic_finite_amore_automaton::get_sample_word(bool & is_emp
 	list<int> ret;
 	is_empty = true;
 	return ret; // empty word
-}
+}}}
 
 bool deterministic_finite_amore_automaton::operator==(finite_language_automaton &other)
 // note: calling operator== will minimize() this and other
@@ -396,10 +376,11 @@ bool nondeterministic_finite_amore_automaton::operator==(finite_language_automat
 bool deterministic_finite_amore_automaton::includes(finite_language_automaton &subautomaton)
 {
 	// -> amore::inclusion
+	printf("dfaa::includes not implemented\n");
 }
 bool nondeterministic_finite_amore_automaton::includes(finite_language_automaton &subautomaton)
 {
-	// -> amore::inclusion
+	printf("nfaa::includes not implemented\n");
 }
 
 void nondeterministic_finite_amore_automaton::epsilon_closure(set<int> & states)
@@ -505,6 +486,7 @@ void deterministic_finite_amore_automaton::minimize()
 void nondeterministic_finite_amore_automaton::minimize()
 {
 	// nfa2mnfa ?!
+	printf("nfaa::minimize not implemented\n");
 }
 
 void deterministic_finite_amore_automaton::lang_complement()
@@ -590,9 +572,11 @@ nondeterministic_finite_automaton * nondeterministic_finite_amore_automaton::lan
 
 finite_language_automaton * deterministic_finite_amore_automaton::lang_intersect(finite_language_automaton &other)
 {
+	printf("dfaa::intersect not implemented\n");
 }
 finite_language_automaton * nondeterministic_finite_amore_automaton::lang_intersect(finite_language_automaton &other)
 {
+	printf("nfaa::intersect not implemented\n");
 }
 
 nondeterministic_finite_automaton * deterministic_finite_amore_automaton::lang_difference(finite_language_automaton &other)
@@ -614,6 +598,31 @@ nondeterministic_finite_automaton * deterministic_finite_amore_automaton::lang_d
 }}}
 nondeterministic_finite_automaton * nondeterministic_finite_amore_automaton::lang_difference(finite_language_automaton &other)
 {
+	// FIXME: this seems to be not working (or lang_without);
+
+	deterministic_finite_amore_automaton * L1_without_L2;
+	finite_language_automaton * L2_without_L1;
+	nondeterministic_finite_automaton * ret = NULL;
+
+	L1_without_L2 = lang_without(other);
+	L2_without_L1 = other.lang_without(*this);
+/*
+ofstream file;
+file.open("backend-wo-hyp.dot");
+file << L1_without_L2->generate_dotfile();
+file.close();
+
+file.open("hyp-wo-backend.dot");
+file << L2_without_L1->generate_dotfile();
+file.close();
+*/
+
+	ret = L1_without_L2->lang_union(*L2_without_L1);
+
+	delete L1_without_L2;
+	delete L2_without_L1;
+
+	return ret;
 }
 
 deterministic_finite_amore_automaton * deterministic_finite_amore_automaton::lang_without(finite_language_automaton &other)
@@ -647,50 +656,98 @@ deterministic_finite_amore_automaton * deterministic_finite_amore_automaton::lan
 	return ret;
 }}}
 deterministic_finite_amore_automaton * nondeterministic_finite_amore_automaton::lang_without(finite_language_automaton &other)
-{
-	printf("nfaa::lang_without() not implemented\n");
-}
+{{{
+	deterministic_finite_amore_automaton * ret;
 
-finite_language_automaton * deterministic_finite_amore_automaton::lang_concat(finite_language_automaton &other)
-{
-/*
-	automata_amore *o = dynamic_cast<automata_amore*> (&other);
-	// other has to be an automata_amore
-	if(o) {
-		automata_amore *a = new automata_amore();
+	deterministic_finite_amore_automaton * o_d;
+	nondeterministic_finite_amore_automaton * o_n;
 
-		make_undeterministic();
-		o->make_undeterministic();
+	bool had_to_determinize = false;
 
-		a->set_nfa( concatfa(nfa_p, o->nfa_p) );
+	o_d = dynamic_cast<deterministic_finite_amore_automaton*> (&other);
+	if(!o_d) {
+		o_n = dynamic_cast<nondeterministic_finite_amore_automaton*> (&other);
+		if(!o_n) {
+			// FIXME: non-compatible automaton
+			// should throw exception
+			return NULL;
+		}
 
-		return a;
-	} else {
-		// FIXME: throw exception?
-		return NULL;
+		// determinize
+		had_to_determinize = true;
+		o_d = dynamic_cast<deterministic_finite_amore_automaton*> (o_n->determinize());
 	}
-*/
-}
-finite_language_automaton * nondeterministic_finite_amore_automaton::lang_concat(finite_language_automaton &other)
-{
-/*
-	automata_amore *o = dynamic_cast<automata_amore*> (&other);
-	// other has to be an automata_amore
-	if(o) {
-		automata_amore *a = new automata_amore();
 
-		make_undeterministic();
-		o->make_undeterministic();
+	ret = o_d->lang_without(*this);
 
-		a->set_nfa( concatfa(nfa_p, o->nfa_p) );
+	if(had_to_determinize)
+		delete o_d;
 
-		return a;
-	} else {
-		// FIXME: throw exception?
-		return NULL;
+	return ret;
+}}}
+
+nondeterministic_finite_automaton * deterministic_finite_amore_automaton::lang_concat(finite_language_automaton &other)
+{{{
+	nondeterministic_finite_automaton * ret;
+
+	deterministic_finite_amore_automaton * o_d;
+	nondeterministic_finite_amore_automaton * o_n;
+
+	bool had_to_nondeterminize = false;
+
+	o_n = dynamic_cast<nondeterministic_finite_amore_automaton*> (&other);
+
+	if(!o_n) {
+		o_d = dynamic_cast<deterministic_finite_amore_automaton*> (&other);
+		if(!o_d) {
+			// FIXME: non-compatible automaton
+			// should throw exception
+			return NULL;
+		}
+
+		// nondeterminize
+		had_to_nondeterminize = true;
+		o_n = dynamic_cast<nondeterministic_finite_amore_automaton*> (o_n->nondeterminize());
 	}
-*/
-}
+
+	ret = o_n->lang_concat(*this);
+
+	if(had_to_nondeterminize)
+		delete o_n;
+
+	return ret;
+}}}
+nondeterministic_finite_automaton * nondeterministic_finite_amore_automaton::lang_concat(finite_language_automaton &other)
+{{{
+	nondeterministic_finite_automaton * ret;
+
+	deterministic_finite_amore_automaton * o_d;
+	nondeterministic_finite_amore_automaton * o_n;
+
+	bool had_to_nondeterminize = false;
+
+	o_n = dynamic_cast<nondeterministic_finite_amore_automaton*> (&other);
+
+	if(!o_n) {
+		o_d = dynamic_cast<deterministic_finite_amore_automaton*> (&other);
+		if(!o_d) {
+			// FIXME: non-compatible automaton
+			// should throw exception
+			return NULL;
+		}
+
+		// nondeterminize
+		had_to_nondeterminize = true;
+		o_n = dynamic_cast<nondeterministic_finite_amore_automaton*> (o_n->nondeterminize());
+	}
+
+	ret = new nondeterministic_finite_amore_automaton(concatfa(nfa_p, o_n->nfa_p));
+
+	if(had_to_nondeterminize)
+		delete o_n;
+
+	return ret;
+}}}
 
 std::basic_string<int32_t> deterministic_finite_amore_automaton::serialize()
 {{{
@@ -1009,7 +1066,7 @@ bool deterministic_finite_amore_automaton::construct(int alphabet_size, int stat
 	return true;
 }}}
 
-deterministic_finite_automaton * deterministic_finite_amore_automaton::determinize()
+deterministic_finite_amore_automaton * deterministic_finite_amore_automaton::determinize()
 {{{
 	return this->clone();
 }}}
@@ -1021,7 +1078,7 @@ deterministic_finite_automaton * nondeterministic_finite_amore_automaton::determ
 {{{
 	return new deterministic_finite_amore_automaton(nfa2dfa(nfa_p));
 }}}
-nondeterministic_finite_automaton * nondeterministic_finite_amore_automaton::nondeterminize()
+nondeterministic_finite_amore_automaton * nondeterministic_finite_amore_automaton::nondeterminize()
 {{{
 	return this->clone();
 }}}

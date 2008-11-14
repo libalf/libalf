@@ -34,11 +34,8 @@ int main(int argc, char**argv)
 	statistics stats;
 
 	finite_language_automaton *nfa;
-	finite_language_automaton *dfa;
-	deterministic_finite_amore_automaton hypothesis;
-	logger *log;
-	teacher<ANSWERTYPE> *teach;
-	angluin_simple_observationtable<ANSWERTYPE> *ot;
+	ostream_logger log(&cout, LOGGER_DEBUG);
+	teacher_automaton<ANSWERTYPE> teach;
 	oracle_automaton o;
 
 	char filename[128];
@@ -47,11 +44,13 @@ int main(int argc, char**argv)
 	int iteration;
 	bool success = false;
 
+	int alphabet_size;
+
+	// use NFA or DFA as oracle/teacher source?
+	bool use_nfa = false;
+
 	// init AMoRE buffers
 	initbuf();
-
-	// init logger
-	log = new ostream_logger(&cout, LOGGER_DEBUG);
 
 	bool regex_ok;
 	if(argc == 3) {
@@ -72,38 +71,53 @@ int main(int argc, char**argv)
 	}
 
 	if(regex_ok) {
-		(*log)(LOGGER_INFO, "regex ok.\n");
+		log(LOGGER_INFO, "regex ok.\n");
 	} else {
-		(*log)(LOGGER_ERROR, "regex failed.\n");
+		log(LOGGER_ERROR, "regex failed.\n");
 		return 1;
 	}
+
+	alphabet_size = nfa->get_alphabet_size();
 
 	file.open("original-nfa.dot");
 	file << nfa->generate_dotfile();
 	file.close();
 
-	dfa = nfa->determinize();
-	dfa->minimize();
+	if(use_nfa) {
+		teach.set_automaton(*nfa);
+		o.set_automaton(*nfa);
+	} else {
+		finite_language_automaton *dfa;
 
-	file.open("original-dfa.dot");
-	file << dfa->generate_dotfile();
-	file.close();
+		dfa = nfa->determinize();
+		dfa->minimize();
+
+		file.open("original-dfa.dot");
+		file << dfa->generate_dotfile();
+		file.close();
+
+		teach.set_automaton(*dfa);
+		o.set_automaton(*dfa);
+
+		delete dfa;
+	};
+
+//	delete nfa; // not needed anymore
 
 	// create oracle instance and teacher instance
-	teach = new teacher_automaton<ANSWERTYPE>(dfa);
-	teach->set_statistics_counter(&stats);
-	o.set_automaton(*dfa);
+	teach.set_statistics_counter(&stats);
 	o.set_statistics_counter(&stats);
 
 	// create angluin_simple_observationtable and teach it the automaton
-	ot = new angluin_simple_observationtable<ANSWERTYPE>(teach, log, dfa->get_alphabet_size());
+	angluin_simple_observationtable<ANSWERTYPE> ot(&teach, &log, alphabet_size);
+	deterministic_finite_amore_automaton hypothesis;
 
 	for(iteration = 1; iteration <= 100; iteration++) {
-		ot->derive_hypothesis(&hypothesis);
+		ot.derive_hypothesis(&hypothesis);
 
 		snprintf(filename, 128, "observationtable%2d.angluin", iteration);
 		file.open(filename);
-		ot->print(file);
+		ot.print(file);
 		file.close();
 
 		snprintf(filename, 128, "hypothesis%2d.dot", iteration);
@@ -126,20 +140,14 @@ int main(int argc, char**argv)
 		snprintf(filename, 128, "counterexample%2d.angluin", iteration);
 		file.open(filename);
 		print_word(file, oracle_answer.second.front());
-		ot->add_counterexample(oracle_answer.second.front());
+		ot.add_counterexample(oracle_answer.second.front());
 		file.close();
 	}
 
 	cout << "required membership queries: " << stats.query_count.membership << "\n";
 	cout << "required equivalence queries: " << stats.query_count.equivalence << "\n";
 	cout << "minimal state count: " << hypothesis.get_state_count() << "\n";
-	cout << "difference to original state count: " << dfa->get_state_count() - hypothesis.get_state_count() << "\n";
-
-	delete ot;
-	delete teach;
-	delete log;
-	delete nfa;
-	delete dfa;
+	// cout << "difference to original state count: " << dfa->get_state_count() - hypothesis.get_state_count() << "\n";
 
 	// release AMoRE buffers
 	freebuf();

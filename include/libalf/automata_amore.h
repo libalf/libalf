@@ -98,10 +98,10 @@ class deterministic_finite_amore_automaton : public deterministic_finite_automat
 		virtual finite_language_automaton * lang_intersect(finite_language_automaton &other);
 		virtual nondeterministic_finite_automaton * lang_difference(finite_language_automaton &other);
 		virtual deterministic_finite_amore_automaton * lang_without(finite_language_automaton &other);
-		virtual finite_language_automaton * lang_concat(finite_language_automaton &other);
+		virtual nondeterministic_finite_automaton * lang_concat(finite_language_automaton &other);
 
 		virtual nondeterministic_finite_automaton * nondeterminize();
-		virtual deterministic_finite_automaton * determinize();
+		virtual deterministic_finite_amore_automaton * determinize();
 
 		virtual basic_string<int32_t> serialize();
 		virtual bool deserialize(basic_string<int32_t> &automaton);
@@ -152,9 +152,9 @@ class nondeterministic_finite_amore_automaton : public nondeterministic_finite_a
 		virtual finite_language_automaton * lang_intersect(finite_language_automaton &other);
 		virtual nondeterministic_finite_automaton * lang_difference(finite_language_automaton &other);
 		virtual deterministic_finite_amore_automaton * lang_without(finite_language_automaton &other);
-		virtual finite_language_automaton * lang_concat(finite_language_automaton &other);
+		virtual nondeterministic_finite_automaton * lang_concat(finite_language_automaton &other);
 
-		virtual nondeterministic_finite_automaton * nondeterminize();
+		virtual nondeterministic_finite_amore_automaton * nondeterminize();
 		virtual deterministic_finite_automaton * determinize();
 
 		virtual basic_string<int32_t> serialize();
