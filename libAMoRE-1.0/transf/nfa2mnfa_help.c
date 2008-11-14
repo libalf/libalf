@@ -111,6 +111,7 @@ nfa delsta(nfa inputnfa)
 	return result;
 }
 
+// reverse-order all words in language
 nfa invers_d(dfa inputdfa)
 {
 	int i, j;
