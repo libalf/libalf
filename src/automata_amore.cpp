@@ -34,9 +34,11 @@
 # include <amore/binary.h>
 # include <amore/rexFromString.h>
 # include <amore/rex2nfa.h>
+# include <amore/nfa2mnfa.h>
 
 // attention: stupid amore headers typedef string to be char*
 // thus we have to use "std::string"...
+// nfa2mnfa.h defines some 'set', so we have to use "std::set"
 
 namespace libalf {
 
@@ -207,7 +209,7 @@ int nondeterministic_finite_amore_automaton::get_alphabet_size()
 
 list<int> deterministic_finite_amore_automaton::get_sample_word(bool & is_empty)
 {{{
-	set<int> visited_states;
+	std::set<int> visited_states;
 	queue<automaton_run> state_fifo;
 	automaton_run current;
 
@@ -247,7 +249,7 @@ list<int> deterministic_finite_amore_automaton::get_sample_word(bool & is_empty)
 }}}
 list<int> nondeterministic_finite_amore_automaton::get_sample_word(bool & is_empty)
 {{{
-	set<int> visited_states;
+	std::set<int> visited_states;
 	list<automaton_run> run_fifo;
 	list<automaton_run>::iterator ri;
 	automaton_run current, next;
@@ -383,13 +385,13 @@ bool nondeterministic_finite_amore_automaton::includes(finite_language_automaton
 	printf("nfaa::includes not implemented\n");
 }
 
-void nondeterministic_finite_amore_automaton::epsilon_closure(set<int> & states)
+void nondeterministic_finite_amore_automaton::epsilon_closure(std::set<int> & states)
 {{{
 	if(nfa_p->is_eps == FALSE)
 		return;
 
 	queue<int> new_states;
-	set<int>::iterator sti;
+	std::set<int>::iterator sti;
 
 	int current;
 
@@ -423,9 +425,9 @@ bool deterministic_finite_amore_automaton::accepts_suffix(int starting_state, li
 		return accepts_suffix(dfa_p->delta[l+1][starting_state], suffix_begin, suffix_end);
 	}
 }}}
-bool nondeterministic_finite_amore_automaton::accepts_suffix(set<int> &starting_states, list<int>::iterator suffix_begin, list<int>::iterator suffix_end)
+bool nondeterministic_finite_amore_automaton::accepts_suffix(std::set<int> &starting_states, list<int>::iterator suffix_begin, list<int>::iterator suffix_end)
 {{{
-	set<int>::iterator sti;
+	std::set<int>::iterator sti;
 
 	this->epsilon_closure(starting_states);
 
@@ -441,7 +443,7 @@ bool nondeterministic_finite_amore_automaton::accepts_suffix(set<int> &starting_
 
 		return false;
 	} else {
-		set<int> next_states;
+		std::set<int> next_states;
 
 		unsigned int l = *suffix_begin;
 		if(l >= nfa_p->sno)
@@ -469,7 +471,7 @@ bool deterministic_finite_amore_automaton::contains(list<int> &word)
 bool nondeterministic_finite_amore_automaton::contains(list<int> &word)
 {{{
 	if(nfa_p) {
-		set<int> initial_states;
+		std::set<int> initial_states;
 		for(unsigned int s = 0; s < nfa_p->qno; s++)
 			if(isinit(nfa_p->infin[s]))
 				initial_states.insert(s);
@@ -484,10 +486,20 @@ void deterministic_finite_amore_automaton::minimize()
 	dfa_p = dfamdfa(dfa_p, true);
 }}}
 void nondeterministic_finite_amore_automaton::minimize()
-{
-	// nfa2mnfa ?!
-	printf("nfaa::minimize not implemented\n");
-}
+{{{
+	dfa d;
+	nfa n;
+
+	d = nfa2dfa(nfa_p);
+	d = dfamdfa(d, true);
+
+	n = nfa2mnfa(nfa_p, d);
+
+	freedfa(d);
+	freenfa(nfa_p);
+
+	nfa_p = n;
+}}}
 
 void deterministic_finite_amore_automaton::lang_complement()
 {{{
