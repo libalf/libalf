@@ -63,7 +63,7 @@ pair<bool, list< list<int> > > oracle_automaton::equivalence_query(finite_langua
 		list<int> word;
 		bool is_empty;
 
-		difference = backend_automaton->lang_difference(hypothesis);
+		difference = backend_automaton->lang_symmetric_difference(hypothesis);
 /*
 ofstream file;
 file.open("hypothesis-automaton.dot");

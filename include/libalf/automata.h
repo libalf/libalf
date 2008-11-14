@@ -143,9 +143,9 @@ class finite_language_automaton : public finite_automaton {
 		// this AND b
 		virtual finite_language_automaton * lang_intersect(finite_language_automaton &other) = 0;
 		// (this+b) - (this AND b)
-		virtual finite_language_automaton * lang_difference(finite_language_automaton &other) = 0;
+		virtual finite_language_automaton * lang_symmetric_difference(finite_language_automaton &other) = 0;
 		// this-b
-		virtual finite_language_automaton * lang_without(finite_language_automaton &other) = 0;
+		virtual finite_language_automaton * lang_difference(finite_language_automaton &other) = 0;
 		// this.b
 		virtual finite_language_automaton * lang_concat(finite_language_automaton &other) = 0;
 

@@ -579,15 +579,15 @@ finite_language_automaton * nondeterministic_finite_amore_automaton::lang_inters
 	printf("nfaa::intersect not implemented\n");
 }
 
-nondeterministic_finite_automaton * deterministic_finite_amore_automaton::lang_difference(finite_language_automaton &other)
+nondeterministic_finite_automaton * deterministic_finite_amore_automaton::lang_symmetric_difference(finite_language_automaton &other)
 {{{
 	// return L1\L2 + L2\L1
 	deterministic_finite_amore_automaton * L1_without_L2;
 	finite_language_automaton * L2_without_L1;
 	nondeterministic_finite_automaton * ret = NULL;
 
-	L1_without_L2 = lang_without(other);
-	L2_without_L1 = other.lang_without(*this);
+	L1_without_L2 = lang_difference(other);
+	L2_without_L1 = other.lang_difference(*this);
 
 	ret = L1_without_L2->lang_union(*L2_without_L1);
 
@@ -596,16 +596,16 @@ nondeterministic_finite_automaton * deterministic_finite_amore_automaton::lang_d
 
 	return ret;
 }}}
-nondeterministic_finite_automaton * nondeterministic_finite_amore_automaton::lang_difference(finite_language_automaton &other)
+nondeterministic_finite_automaton * nondeterministic_finite_amore_automaton::lang_symmetric_difference(finite_language_automaton &other)
 {
-	// FIXME: this seems to be not working (or lang_without);
+	// FIXME: this seems to be not working (or lang_difference);
 
 	deterministic_finite_amore_automaton * L1_without_L2;
 	finite_language_automaton * L2_without_L1;
 	nondeterministic_finite_automaton * ret = NULL;
 
-	L1_without_L2 = lang_without(other);
-	L2_without_L1 = other.lang_without(*this);
+	L1_without_L2 = lang_difference(other);
+	L2_without_L1 = other.lang_difference(*this);
 /*
 ofstream file;
 file.open("backend-wo-hyp.dot");
@@ -625,7 +625,7 @@ file.close();
 	return ret;
 }
 
-deterministic_finite_amore_automaton * deterministic_finite_amore_automaton::lang_without(finite_language_automaton &other)
+deterministic_finite_amore_automaton * deterministic_finite_amore_automaton::lang_difference(finite_language_automaton &other)
 {{{
 	deterministic_finite_amore_automaton *ret = NULL;
 
@@ -655,7 +655,7 @@ deterministic_finite_amore_automaton * deterministic_finite_amore_automaton::lan
 
 	return ret;
 }}}
-deterministic_finite_amore_automaton * nondeterministic_finite_amore_automaton::lang_without(finite_language_automaton &other)
+deterministic_finite_amore_automaton * nondeterministic_finite_amore_automaton::lang_difference(finite_language_automaton &other)
 {{{
 	deterministic_finite_amore_automaton * ret;
 
@@ -678,7 +678,7 @@ deterministic_finite_amore_automaton * nondeterministic_finite_amore_automaton::
 		o_d = dynamic_cast<deterministic_finite_amore_automaton*> (o_n->determinize());
 	}
 
-	ret = o_d->lang_without(*this);
+	ret = o_d->lang_difference(*this);
 
 	if(had_to_determinize)
 		delete o_d;
