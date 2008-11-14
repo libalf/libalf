@@ -49,7 +49,7 @@ boole equiv(dfa dfa1, dfa dfa2);
  *
  * works only if sizeof(Q1) * sizeof(Q2) <= sizeof(posint)
  *
- * use coding (q1,q2) <-> [q1+q2*(dfa1->qno+1)]+1
+ * use coding (q1,q2) <-> [q1+q2*(dfa1->highest_state+1)]+1
  *
  */
 boole inclusion(dfa dfa1, dfa dfa2, boole inclusion);

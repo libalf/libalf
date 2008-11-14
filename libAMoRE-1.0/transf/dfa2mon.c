@@ -35,7 +35,7 @@ typedef struct m1 {
 /******************************************************************/
 static melement root;		/* root of sorted tree of transitions */
 static posint nextno;		/* actuel number of monoidelements */
-static posint qno;		/* abbreviation: number of states of the underlying dfa */
+static posint highest_state;		/* abbreviation: number of states of the underlying dfa */
 /******************************************************************/
 static melement searchtrans(atrans)
  /*  return pointer to melement where transition atrans is found
@@ -48,8 +48,8 @@ array atrans;
 	melement run = root;
 	for (;;) {
 		btrans = run->transf;	/* abbreviation */
-		for (j = 0; ((j <= qno) && (atrans[j] == btrans[j])); j++);	/* compare transformations */
-		if(j > qno)
+		for (j = 0; ((j <= highest_state) && (atrans[j] == btrans[j])); j++);	/* compare transformations */
+		if(j > highest_state)
 			return (run);	/* transformation found */
 		else if(atrans[j] < btrans[j])	/* search at left successor  */
 			if(run->lsucc != NULL)
@@ -88,34 +88,34 @@ monoid dfa2mon(dfa indfa)
 	 * the elements are ordered with respect to the 
 	 *         lexicographical order of the transformation
 	 */
-	qno = indfa->qno;	/* abbreviation */
+	highest_state = indfa->highest_state;	/* abbreviation */
 	mon = newmon();
-	mon->qno = qno;
-	mon->sno = indfa->sno;
+	mon->highest_state = highest_state;
+	mon->alphabet_size = indfa->alphabet_size;
 	root = newmelement();
 	root->lastletter = 0;
-	map = newar(qno + 1);
-	for (state = 0; state <= qno; state++)
+	map = newar(highest_state + 1);
+	for (state = 0; state <= highest_state; state++)
 		map[state] = state;
 	root->transf = map;
 	root->number = 0;
 	last = root;
-	map = newar(qno + 1);
+	map = newar(highest_state + 1);
 	/* compute  the generators of the monoid: 1 ... stamon->gno
 	 * let2gen[j]=i   iff the jth letter has the transformation of the ith generator
 	 * generator[i]=j iff the jth letter is the first letter with the transformation 
 	 *                    of the ith generator
 	 * generator[0] is the identity
 	 */
-	mon->let2gen = newar(mon->sno + 1);
-	mon->generator = newar(mon->sno + 1);
+	mon->let2gen = newar(mon->alphabet_size + 1);
+	mon->generator = newar(mon->alphabet_size + 1);
 	mon->gno = 0;
 	mon->let2gen[0] = 0;
 	mon->generator[0] = 0;
 	nextno = 1;
-	for (gen = 1; gen <= mon->sno; gen++) {	/* for all letters */
+	for (gen = 1; gen <= mon->alphabet_size; gen++) {	/* for all letters */
 		dd = indfa->delta[gen];	/* abbreviation */
-		for (state = 0; state <= qno; state++)
+		for (state = 0; state <= highest_state; state++)
 			map[state] = dd[state];
 		intree = searchtrans(map);
 		mon->let2gen[gen] = intree->number;
@@ -125,7 +125,7 @@ monoid dfa2mon(dfa indfa)
 			intree->transf = map;
 			last->next = intree;	/* append new element */
 			last = last->next;
-			map = newar(qno + 1);
+			map = newar(highest_state + 1);
 			nextno++;	/* tick(); */
 		} else if(intree->number == 0)
 			mon->mequals = TRUE;	/* synt. monoid = syntactic semigroup */
@@ -145,14 +145,14 @@ monoid dfa2mon(dfa indfa)
 		tr = actuel->transf;	/* abbreviation */
 		for (gen = 1; gen <= mon->gno; gen++) {	/* for all generators .. */
 			dd = indfa->delta[mon->generator[gen]];	/* abbreviation */
-			for (state = 0; state <= qno; state++)	/* compute transformation */
+			for (state = 0; state <= highest_state; state++)	/* compute transformation */
 				map[state] = dd[tr[state]];
 			intree = searchtrans(map);
 			actuel->gensucc[gen] = intree->number;
 			if(intree->number == nextno) {	/* new transformation */
 				intree->lastletter = gen;
 				intree->transf = map;
-				map = newar(qno + 1);
+				map = newar(highest_state + 1);
 				intree->gensucc = newar(mon->gno + 1);
 				intree->gensucc[0] = actuel->number;
 				last->next = intree;	/* append new element to list */
@@ -184,7 +184,7 @@ monoid dfa2mon(dfa indfa)
 	}
 	mon->word = newar(mon->no2length[mon->mno - 1]);
 	gen = mon->no2length[mon->mno - 1] + 1;	/* number of letters of longest element +1 */
-	gen *= (mon->sno <= 27) ? 1 : strlen(pi2a(mon->sno)) + 1;
+	gen *= (mon->alphabet_size <= 27) ? 1 : strlen(pi2a(mon->alphabet_size)) + 1;
 	mon->repr = (string) calloc(gen, sizeof(char));
 	for (state = 0; state < gen;)
 		mon->repr[state++] = '\0';

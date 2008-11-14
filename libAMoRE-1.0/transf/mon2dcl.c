@@ -90,12 +90,12 @@ static void initstatic()
 	mark = newb_array(stamon->mno);
 	no2rang = newarray(stamon->mno);
 	isindclass = newb_array(stamon->mno);
-	Q = stamon->qno + 1;
+	Q = stamon->highest_state + 1;
 	K = 2 * Q;
 	countimage = newarray(Q);
 	countkernel = newarray(Q);
 	stamon->ds = newdstruct();
-	letterlength = (stamon->sno <= ALPHSIZE) ? 1 : (1 + strlen(pi2a(stamon->sno)));
+	letterlength = (stamon->alphabet_size <= ALPHSIZE) ? 1 : (1 + strlen(pi2a(stamon->alphabet_size)));
 	maximage = 0;
 	maxkernel = 0;
 	dcounter = 0;
@@ -110,7 +110,7 @@ boole idempotent(posint element, monoid mon)
 {
 	posint i;
 	array a = mon->no2trans[element];	/* abbreviation */
-	for (i = 0; i <= mon->qno; i++)
+	for (i = 0; i <= mon->highest_state; i++)
 		if(a[i] != a[a[i]])
 			return (FALSE);
 	return (TRUE);

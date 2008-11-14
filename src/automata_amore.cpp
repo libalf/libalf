@@ -167,14 +167,14 @@ nondeterministic_finite_amore_automaton * nondeterministic_finite_amore_automato
 int deterministic_finite_amore_automaton::get_state_count()
 {{{
 	if(dfa_p)
-		return dfa_p->qno + 1;
+		return dfa_p->highest_state + 1;
 	else
 		return 0;
 }}}
 int nondeterministic_finite_amore_automaton::get_state_count()
 {{{
 	if(nfa_p)
-		return nfa_p->qno + 1;
+		return nfa_p->highest_state + 1;
 	else
 		return 0;
 }}}
@@ -195,14 +195,14 @@ bool nondeterministic_finite_amore_automaton::is_empty()
 int deterministic_finite_amore_automaton::get_alphabet_size()
 {{{
 	if(dfa_p)
-		return dfa_p->sno;
+		return dfa_p->alphabet_size;
 	else
 		return 0;
 }}}
 int nondeterministic_finite_amore_automaton::get_alphabet_size()
 {{{
 	if(nfa_p)
-		return nfa_p->sno;
+		return nfa_p->alphabet_size;
 	else
 		return 0;
 }}}
@@ -233,7 +233,7 @@ list<int> deterministic_finite_amore_automaton::get_sample_word(bool & is_empty)
 
 			// otherwise check all possible successors
 			int st = current.state;
-			for(unsigned int i = 0; i < dfa_p->sno; i++) {
+			for(unsigned int i = 0; i < dfa_p->alphabet_size; i++) {
 				// add possible successor with its prefix to fifo
 				current.prefix.push_back(i);
 				current.state = dfa_p->delta[i+1][st];
@@ -256,7 +256,7 @@ list<int> nondeterministic_finite_amore_automaton::get_sample_word(bool & is_emp
 	unsigned int s, l;
 
 	// put initial states into fifo
-	for(s = 0; s <= nfa_p->qno; s++) {
+	for(s = 0; s <= nfa_p->highest_state; s++) {
 		if(isinit(nfa_p->infin[s])) {
 			current.state = s;
 			// current.prefix is empty.
@@ -277,7 +277,7 @@ list<int> nondeterministic_finite_amore_automaton::get_sample_word(bool & is_emp
 		// epsilon-close
 		if(nfa_p->is_eps == TRUE) {
 			next.prefix = current.prefix;
-			for(s = 0; s <= nfa_p->qno; s++) {
+			for(s = 0; s <= nfa_p->highest_state; s++) {
 				if(testcon((nfa_p->delta), 0, current.state, s)) {
 					if(visited_states.find(s) == visited_states.end()) {
 						next.state = s;
@@ -289,9 +289,9 @@ list<int> nondeterministic_finite_amore_automaton::get_sample_word(bool & is_emp
 		}
 
 		// advance to new states
-		for(s = 0; s <= nfa_p->qno; s++) { // dst state
+		for(s = 0; s <= nfa_p->highest_state; s++) { // dst state
 			if(visited_states.find(s) == visited_states.end()) {
-				for(l = 0; l < nfa_p->sno; l++) { // label
+				for(l = 0; l < nfa_p->alphabet_size; l++) { // label
 					if(testcon((nfa_p->delta), l+1, current.state, s)) {
 						next.prefix = current.prefix;
 						next.prefix.push_back(l);
@@ -515,7 +515,7 @@ void nondeterministic_finite_amore_automaton::epsilon_closure(std::set<int> & st
 		current = new_states.front();
 		new_states.pop();
 
-		for(unsigned int s = 0; s <= nfa_p->qno; s++) // state
+		for(unsigned int s = 0; s <= nfa_p->highest_state; s++) // state
 			if(testcon((nfa_p->delta), 0, current, s))
 				if(states.find(s) == states.end()) {
 					states.insert(s);
@@ -531,7 +531,7 @@ bool deterministic_finite_amore_automaton::accepts_suffix(int starting_state, li
 		return (TRUE == dfa_p->final[starting_state]);
 	} else {
 		unsigned int l = (*suffix_begin);
-		if(l >= dfa_p->sno)
+		if(l >= dfa_p->alphabet_size)
 			return false;
 		suffix_begin++;
 		return accepts_suffix(dfa_p->delta[l+1][starting_state], suffix_begin, suffix_end);
@@ -558,12 +558,12 @@ bool nondeterministic_finite_amore_automaton::accepts_suffix(std::set<int> &star
 		std::set<int> next_states;
 
 		unsigned int l = *suffix_begin;
-		if(l >= nfa_p->sno)
+		if(l >= nfa_p->alphabet_size)
 			return false;
 
 		// calculate successor states
 		for(sti = starting_states.begin(); sti != starting_states.end(); sti++)
-			for(unsigned int d = 0; d <= nfa_p->qno; d++)
+			for(unsigned int d = 0; d <= nfa_p->highest_state; d++)
 				if(testcon((nfa_p->delta), l+1, *sti, d))
 					next_states.insert(d);
 
@@ -584,7 +584,7 @@ bool nondeterministic_finite_amore_automaton::contains(list<int> &word)
 {{{
 	if(nfa_p) {
 		std::set<int> initial_states;
-		for(unsigned int s = 0; s < nfa_p->qno; s++)
+		for(unsigned int s = 0; s < nfa_p->highest_state; s++)
 			if(isinit(nfa_p->infin[s]))
 				initial_states.insert(s);
 		return accepts_suffix(initial_states, word.begin(), word.end());
@@ -937,15 +937,15 @@ std::basic_string<int32_t> deterministic_finite_amore_automaton::serialize()
 	unsigned int l; // label only unsigned here because -1 == epsilon will not occur in dfa!
 
 	// alphabet size
-	ret += htonl(dfa_p->sno);
+	ret += htonl(dfa_p->alphabet_size);
 	// state count
-	ret += htonl(dfa_p->qno+1);
+	ret += htonl(dfa_p->highest_state+1);
 	// number of initial states
 	ret += htonl(1);
 	// initial state
 	ret += htonl(dfa_p->init);
 	// sum up final states
-	for(s = 0; s <= dfa_p->qno; s++)
+	for(s = 0; s <= dfa_p->highest_state; s++)
 		if(dfa_p->final[s] == TRUE)
 			temp += htonl(s);
 	// number of final states
@@ -954,8 +954,8 @@ std::basic_string<int32_t> deterministic_finite_amore_automaton::serialize()
 	ret += temp;
 	// transitions
 	temp.clear();
-	for(l = 0; l < dfa_p->sno; l++) {
-		for(s = 0; s <= dfa_p->qno; s++) {
+	for(l = 0; l < dfa_p->alphabet_size; l++) {
+		for(s = 0; s <= dfa_p->highest_state; s++) {
 			temp += htonl(s); // source state id
 			temp += htonl(l); // label
 			temp += htonl(dfa_p->delta[l+1][s]); // destination
@@ -978,11 +978,11 @@ std::basic_string<int32_t> nondeterministic_finite_amore_automaton::serialize()
 		return ret; // empty basic_string
 	}
 	// alphabet size
-	ret += htonl(nfa_p->sno);
+	ret += htonl(nfa_p->alphabet_size);
 	// state count
-	ret += htonl(nfa_p->qno+1);
+	ret += htonl(nfa_p->highest_state+1);
 
-	for(s = 0; s <= nfa_p->qno; s++)
+	for(s = 0; s <= nfa_p->highest_state; s++)
 		if(isinit(nfa_p->infin[s]))
 			temp += htonl(s);
 	// number of initial states
@@ -991,7 +991,7 @@ std::basic_string<int32_t> nondeterministic_finite_amore_automaton::serialize()
 	ret += temp;
 
 	temp.clear();
-	for(s = 0; s <= nfa_p->qno; s++)
+	for(s = 0; s <= nfa_p->highest_state; s++)
 		if(isfinal(nfa_p->infin[s]))
 			temp += htonl(s);
 	// number of final states
@@ -1000,9 +1000,9 @@ std::basic_string<int32_t> nondeterministic_finite_amore_automaton::serialize()
 	ret += temp;
 
 	temp.clear();
-	for(l = (nfa_p->is_eps == TRUE) ? 0 : 1; l <= ((int)nfa_p->sno); l++) { // label
-		for(s = 0; s <= nfa_p->qno; s++) { // source state id
-			for(unsigned int d = 0; d <= nfa_p->qno; d++) {
+	for(l = (nfa_p->is_eps == TRUE) ? 0 : 1; l <= ((int)nfa_p->alphabet_size); l++) { // label
+		for(s = 0; s <= nfa_p->highest_state; s++) { // source state id
+			for(unsigned int d = 0; d <= nfa_p->highest_state; d++) {
 				// boolx testcon(delta, label, src, dst); in libAMoRE
 				if(testcon((nfa_p->delta), l, s, d)) {
 					temp += htonl(s);
@@ -1036,15 +1036,15 @@ bool deterministic_finite_amore_automaton::deserialize(basic_string<int32_t> &au
 	end = automaton.end();
 
 	// alphabet size
-	dfa_p->sno = ntohl(*si);
+	dfa_p->alphabet_size = ntohl(*si);
 
 	// state count
 	si++;
-	dfa_p->qno = ntohl(*si) - 1;
+	dfa_p->highest_state = ntohl(*si) - 1;
 
 	// allocate data structures
-	dfa_p->final = newfinal(dfa_p->qno);
-	dfa_p->delta = newddelta(dfa_p->sno, dfa_p->qno);
+	dfa_p->final = newfinal(dfa_p->highest_state);
+	dfa_p->delta = newddelta(dfa_p->alphabet_size, dfa_p->highest_state);
 	if(!(dfa_p->final) || !(dfa_p->delta))
 		goto dfaa_deserialization_failed;
 
@@ -1089,7 +1089,7 @@ bool deterministic_finite_amore_automaton::deserialize(basic_string<int32_t> &au
 		dst = ntohl(*si);
 		si++;
 
-		if( (label < 0) || (label >= (int)dfa_p->sno) || (src < 0) || (src > (int)dfa_p->qno) || (dst < 0) || (dst > (int)dfa_p->qno) ) // invalid transition
+		if( (label < 0) || (label >= (int)dfa_p->alphabet_size) || (src < 0) || (src > (int)dfa_p->highest_state) || (dst < 0) || (dst > (int)dfa_p->highest_state) ) // invalid transition
 			goto dfaa_deserialization_failed;
 
 		// transition function: delta[sigma][source] = destination
@@ -1122,15 +1122,15 @@ bool nondeterministic_finite_amore_automaton::deserialize(basic_string<int32_t> 
 	end = automaton.end();
 
 	// alphabet size
-	nfa_p->sno = ntohl(*si);
+	nfa_p->alphabet_size = ntohl(*si);
 
 	// state count
 	si++;
-	nfa_p->qno = ntohl(*si) - 1;
+	nfa_p->highest_state = ntohl(*si) - 1;
 
 	// allocate data structures
-	nfa_p->infin = newfinal(nfa_p->qno);
-	nfa_p->delta = newendelta(nfa_p->sno, nfa_p->qno);
+	nfa_p->infin = newfinal(nfa_p->highest_state);
+	nfa_p->delta = newendelta(nfa_p->alphabet_size, nfa_p->highest_state);
 	nfa_p->is_eps = TRUE;
 	if(!(nfa_p->infin) || !(nfa_p->delta))
 		goto nfaa_deserialization_failed;
@@ -1181,7 +1181,7 @@ bool nondeterministic_finite_amore_automaton::deserialize(basic_string<int32_t> 
 		dst = ntohl(*si);
 		si++;
 
-		if( (label < -1) || (label >= (int)nfa_p->sno) || (src < 0) || (src > (int)nfa_p->qno) || (dst < 0) || (dst > (int)nfa_p->qno) ) // invalid transition
+		if( (label < -1) || (label >= (int)nfa_p->alphabet_size) || (src < 0) || (src > (int)nfa_p->highest_state) || (dst < 0) || (dst > (int)nfa_p->highest_state) ) // invalid transition
 			goto nfaa_deserialization_failed;
 
 		connect(nfa_p->delta, label+1, src, dst);
@@ -1224,13 +1224,13 @@ bool deterministic_finite_amore_automaton::construct(int alphabet_size, int stat
 	// CONSTRUCT AUTOMATON
 	a = newdfa();
 
-	a->qno = state_count - 1; // states [0 .. qno]
+	a->highest_state = state_count - 1; // states [0 .. highest_state]
 	a->init = start.front(); // initial states
-	a->sno = alphabet_size; // alphabet size
-	a->final = newfinal(a->qno); // final states
+	a->alphabet_size = alphabet_size; // alphabet size
+	a->final = newfinal(a->highest_state); // final states
 	for(list<int>::iterator i = final.begin(); i != final.end(); i++)
 		setfinal((a->final[*i]), 1);
-	a->delta = newddelta(a->sno, a->qno); // transition function: delta[sigma][source] = destination
+	a->delta = newddelta(a->alphabet_size, a->highest_state); // transition function: delta[sigma][source] = destination
 	for(ti = transitions.begin(); ti != transitions.end(); ti++)
 		a->delta[ti->label + 1][ti->source] = ti->destination;
 	a->minimal = FALSE;

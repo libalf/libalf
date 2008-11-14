@@ -37,23 +37,23 @@ nfa clonenfa(nfa p)
 	nfa dest = newnfa();
 	int i, j;
 
-	dest->sno = p->sno;
-	dest->qno = p->qno;
-	dest->infin = newfinal(dest->qno);
-	for (i = 0; i <= dest->qno; i++) {
+	dest->alphabet_size = p->alphabet_size;
+	dest->highest_state = p->highest_state;
+	dest->infin = newfinal(dest->highest_state);
+	for (i = 0; i <= dest->highest_state; i++) {
 		dest->infin[i] = p->infin[i];
 	}
 	if(p->is_eps) {
 		dest->is_eps = TRUE;
-		dest->delta = newendelta(dest->sno, dest->qno);
-		for (j = 0; j <= dest->sno; j++)
-			for (i = 0; i <= dest->qno; i++)
+		dest->delta = newendelta(dest->alphabet_size, dest->highest_state);
+		for (j = 0; j <= dest->alphabet_size; j++)
+			for (i = 0; i <= dest->highest_state; i++)
 				dest->delta[j][i] = p->delta[j][i];
 	} else {
 		dest->is_eps = FALSE;
-		dest->delta = newndelta(dest->sno, dest->qno);
-		for (j = 1; j <= dest->sno; j++)
-			for (i = 0; i <= dest->qno; i++)
+		dest->delta = newndelta(dest->alphabet_size, dest->highest_state);
+		for (j = 1; j <= dest->alphabet_size; j++)
+			for (i = 0; i <= dest->highest_state; i++)
 				dest->delta[j][i] = p->delta[j][i];
 	}
 	return dest;
@@ -63,8 +63,8 @@ void freenfa(nfa na)
 {
 	posint i, j;
 	dispose(na->infin);
-	for (j = (na->is_eps) ? 0 : 1; j <= na->sno;) {
-		for (i = 0; i <= na->qno;)
+	for (j = (na->is_eps) ? 0 : 1; j <= na->alphabet_size;) {
+		for (i = 0; i <= na->highest_state;)
 			dispose(na->delta[j][i++]);
 		dispose(na->delta[j++]);
 	}

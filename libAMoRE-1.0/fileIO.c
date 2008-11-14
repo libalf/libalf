@@ -205,7 +205,7 @@ static void writerex(regex crex)
 	fwrite(text[REGNO]);
 	fwrite(pi2a((posint) (crex->useda + 1)));
 	new_line;
-	fwrite(pi2a(crex->sno));
+	fwrite(pi2a(crex->alphabet_size));
 	new_line;
 	fwrite(text[REGNO + 1]);
 	fwrite(pi2a(crex->rexl));
@@ -238,22 +238,22 @@ dfa cdfa;
 {
 	register posint i, j;
 	fwrite(text[DFANO]);
-	fwrite(pi2a(cdfa->qno));
+	fwrite(pi2a(cdfa->highest_state));
 	new_line;
 	fwrite(text[DFANO + 2]);
 	fwrite(pi2a(cdfa->init));
 	new_line;
 	fwrite(text[DFANO + 3]);
-	fwrite(pi2a(cdfa->sno));
+	fwrite(pi2a(cdfa->alphabet_size));
 	new_line;
 	fwrite(text[DFANO + 4]);
 	fwrite(be2a(cdfa->minimal));
 	fwrite(text[DFANO + 5]);
-	for (i = 0; i <= cdfa->qno;)
+	for (i = 0; i <= cdfa->highest_state;)
 		fwrite(bx2a(cdfa->final[i++]));
 	fwrite(text[DFANO + 6]);
-	for (i = 1; i <= cdfa->sno; i++)
-		for (j = 0; j <= cdfa->qno;) {
+	for (i = 1; i <= cdfa->alphabet_size; i++)
+		for (j = 0; j <= cdfa->highest_state;) {
 			fwrite(pi2a(cdfa->delta[i][j++]));
 			new_line;
 		}
@@ -267,26 +267,26 @@ nfa cnfa;
 {
 	register posint i, j, k;
 	fwrite(text[NFANO]);
-	fwrite(pi2a(cnfa->qno));
+	fwrite(pi2a(cnfa->highest_state));
 	new_line;
 
 /*	fwrite(text[NFANO+2]);
 	fwrite(pi2a(0)); new_line; */
 
 	fwrite(text[NFANO + 3]);
-	fwrite(pi2a(cnfa->sno));
+	fwrite(pi2a(cnfa->alphabet_size));
 	new_line;
 	fwrite(text[NFANO + 4]);
 	fwrite(be2a(cnfa->is_eps));
 /*	fwrite(be2a(FALSE));*/
 	fwrite(be2a(cnfa->minimal));
 	fwrite(text[NFANO + 5]);
-	for (i = 0; i <= cnfa->qno;)
+	for (i = 0; i <= cnfa->highest_state;)
 		fwrite(i2a(cnfa->infin[i++]));
 	fwrite(text[NFANO + 6]);
-	for (k = 0; k <= lastdelta(cnfa->qno); k++)
-		for (i = (cnfa->is_eps) ? 0 : 1; i <= cnfa->sno; i++)
-			for (j = 0; j <= cnfa->qno; j++) {
+	for (k = 0; k <= lastdelta(cnfa->highest_state); k++)
+		for (i = (cnfa->is_eps) ? 0 : 1; i <= cnfa->alphabet_size; i++)
+			for (j = 0; j <= cnfa->highest_state; j++) {
 				fwrite(i2a((int) cnfa->delta[i][j][k]));
 			}
 	fwrite(text[NFANO + 7]);
@@ -353,10 +353,10 @@ static void writemon(register monoid cmon)
 {
 	register posint i, j;
 	fwrite(text[MONNO]);
-	fwrite(pi2a(cmon->qno));
+	fwrite(pi2a(cmon->highest_state));
 	new_line;
 	fwrite(text[MONNO + 2]);
-	fwrite(pi2a(cmon->sno));
+	fwrite(pi2a(cmon->alphabet_size));
 	new_line;
 	fwrite(text[MONNO + 3]);
 	fwrite(pi2a(cmon->mno));
@@ -392,7 +392,7 @@ static void writemon(register monoid cmon)
 		new_line;
 	}
 	fwrite(text[MONNO + 6]);
-	for (i = 0; i <= cmon->sno;) {
+	for (i = 0; i <= cmon->alphabet_size;) {
 		fwrite(pi2a(cmon->let2gen[i++]));
 		new_line;
 	}
@@ -825,7 +825,7 @@ static boole rdinrex(register regex crex)
 	crex->useda = (int) a2pi(line) - 1;
 	/* read size of alphabet */
 	frdin();
-	crex->sno = a2pi(line);
+	crex->alphabet_size = a2pi(line);
 	/* "REG.EXP.: LENGTH OF REX, EXPANDED REX\n" */
 	frdin();
 	if(strcmp(line, text[REGNO + 1]))
@@ -893,7 +893,7 @@ static boole rdindfa(register dfa cdfa)
 	if(strcmp(line, text[DFANO]) != 0)
 		return FALSE;
 	frdin();
-	cdfa->qno = a2pi(line);
+	cdfa->highest_state = a2pi(line);
 	/* "DFA: INITIAL STATE\n" */
 	frdin();
 	if(strcmp(line, text[DFANO + 2]) != 0)
@@ -905,7 +905,7 @@ static boole rdindfa(register dfa cdfa)
 	if(strcmp(line, text[DFANO + 3]) != 0)
 		return FALSE;
 	frdin();
-	cdfa->sno = a2pi(line);
+	cdfa->alphabet_size = a2pi(line);
 	/* "DFA: MINIMAL\n" */
 	frdin();
 	if(strcmp(line, text[DFANO + 4]) != 0)
@@ -917,10 +917,10 @@ static boole rdindfa(register dfa cdfa)
 	if(strcmp(line, text[DFANO + 5]) != 0)
 		return FALSE;
 	/* allocate... */
-	cdfa->final = newfinal(cdfa->qno);
-	cdfa->delta = newddelta(cdfa->sno, cdfa->qno);
+	cdfa->final = newfinal(cdfa->highest_state);
+	cdfa->delta = newddelta(cdfa->alphabet_size, cdfa->highest_state);
 	/* populate final[] */
-	for (i = 0; i <= cdfa->qno;) {
+	for (i = 0; i <= cdfa->highest_state;) {
 		frdin();
 		cdfa->final[i++] = a2bx(line);
 	}
@@ -931,8 +931,8 @@ static boole rdindfa(register dfa cdfa)
 		return FALSE;
 	}
 	/* read in transitions */
-	for (i = 1; i <= cdfa->sno; i++)
-		for (j = 0; j <= cdfa->qno;) {
+	for (i = 1; i <= cdfa->alphabet_size; i++)
+		for (j = 0; j <= cdfa->highest_state;) {
 			frdin();
 			cdfa->delta[i][j++] = a2pi(line);
 		}
@@ -956,8 +956,8 @@ static boole rdinnfa(nfa cnfa)
 	if(strcmp(line, text[NFANO]) != 0)
 		return FALSE;
 	frdin();
-	cnfa->qno = a2pi(line);
-	/* when reading older automata with several initial states, the qno might
+	cnfa->highest_state = a2pi(line);
+	/* when reading older automata with several initial states, the highest_state might
 	   be 1 higher than expected. The additional state will be superflous */
 	/* do not worry, it will not cause any troubles */
 
@@ -973,7 +973,7 @@ static boole rdinnfa(nfa cnfa)
 	if(strcmp(line, text[NFANO + 3]) != 0)
 		return FALSE;
 	frdin();
-	cnfa->sno = a2pi(line);
+	cnfa->alphabet_size = a2pi(line);
 	/* "NFA: EPSILON, MINIMAL\n" */
 	frdin();
 	if(strcmp(line, text[NFANO + 4]) != 0)
@@ -990,10 +990,10 @@ static boole rdinnfa(nfa cnfa)
 	if(strcmp(line, text[NFANO + 5]) != 0)
 		return FALSE;
 	/* allocate ... */
-	cnfa->infin = newfinal(cnfa->qno);
-	cnfa->delta = newndelta(cnfa->sno, cnfa->qno);
+	cnfa->infin = newfinal(cnfa->highest_state);
+	cnfa->delta = newndelta(cnfa->alphabet_size, cnfa->highest_state);
 	/* read in labels (initial,final) */
-	for (i = 0; i <= cnfa->qno;) {
+	for (i = 0; i <= cnfa->highest_state;) {
 		frdin();
 		cnfa->infin[i++] = a2i(line);
 	}
@@ -1004,9 +1004,9 @@ static boole rdinnfa(nfa cnfa)
 		return FALSE;
 	}
 	/* read in transitions */
-	for (k = 0; k <= lastdelta(cnfa->qno); k++)
-		for (i = (cnfa->is_eps) ? 0 : 1; i <= cnfa->sno; i++)
-			for (j = 0; j <= cnfa->qno; j++) {
+	for (k = 0; k <= lastdelta(cnfa->highest_state); k++)
+		for (i = (cnfa->is_eps) ? 0 : 1; i <= cnfa->alphabet_size; i++)
+			for (j = 0; j <= cnfa->highest_state; j++) {
 				frdin();
 				cnfa->delta[i][j][k] = (char) a2i(line);
 			}
@@ -1145,13 +1145,13 @@ static boole rdinmon(register monoid cmon)
 	if(strcmp(line, text[MONNO]) != 0)
 		return FALSE;
 	frdin();
-	cmon->qno = a2pi(line);
+	cmon->highest_state = a2pi(line);
 	/* "MONOID: #LETTERS\n" */
 	frdin();
 	if(strcmp(line, text[MONNO + 2]) != 0)
 		return FALSE;
 	frdin();
-	cmon->sno = a2pi(line);
+	cmon->alphabet_size = a2pi(line);
 	/* "MONOID: #ELEMENTS\n" */
 	frdin();
 	if(strcmp(line, text[MONNO + 3]) != 0)
@@ -1196,12 +1196,12 @@ static boole rdinmon(register monoid cmon)
 	}
 
 	cmon->generator = newar(cmon->gno + 1);
-	cmon->let2gen = newar(cmon->sno + 1);
+	cmon->let2gen = newar(cmon->alphabet_size + 1);
 	cmon->gensucc = newarray1(cmon->mno);
 	cmon->no2trans = newarray1(cmon->mno);
 	for (i = 0; i < cmon->mno;) {
 		cmon->gensucc[i] = newar(cmon->gno);
-		cmon->no2trans[i++] = newar(cmon->qno);
+		cmon->no2trans[i++] = newar(cmon->highest_state);
 	}
 
 	/* "MONOID: LIST OF GENERATORS\n" */
@@ -1218,7 +1218,7 @@ static boole rdinmon(register monoid cmon)
 		freemon(cmon);
 		return FALSE;
 	}
-	for (i = 0; i <= cmon->sno;) {
+	for (i = 0; i <= cmon->alphabet_size;) {
 		frdin();
 		cmon->let2gen[i++] = a2pi(line);
 	}

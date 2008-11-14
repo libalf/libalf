@@ -190,7 +190,7 @@ ptset i_gr, f_gr;		/* Testelem(i,i_gr) iff grid i considered   */
 	actcomplemented = GITTER;
 	/* Calculate list of boolean sums. */
 	calculate_initial_terms(fI, f, i_gr);
-	calculate_other_terms(delta, f->sno, fI);
+	calculate_other_terms(delta, f->alphabet_size, fI);
 	/* The list is calculated. Its first elements are terms    */
 	/* with no complemented variables, terms with complemented */
 	/* variables following only thereafter.                    */
@@ -237,7 +237,7 @@ ptset i_gr;
 	posint i, j;
 	boole test;
 
-	for (i = 0; i <= f->qno; i++)
+	for (i = 0; i <= f->highest_state; i++)
 		if(isfinal(f->infin[i])) {	/* I is an initial state of the dual automaton to f.   */
 			/* Now try to find a necessary grid j with             */
 			/* testelem(j,i_gr) that covers i.                     */
@@ -1073,13 +1073,13 @@ nfa f;
 	gridlist start;
 	nfa result;
 	result = newnfa();
-	result->sno = f->sno;
+	result->alphabet_size = f->alphabet_size;
 	j = solution->ngrset;
 	/* j is the number of states corresponding  */
 	/* to a non-essential grid in the solution. */
-	result->qno = j + NECESSARY - 1;
-	result->delta = newndelta(result->sno, result->qno);
-	result->infin = newfinal(result->qno);
+	result->highest_state = j + NECESSARY - 1;
+	result->delta = newndelta(result->alphabet_size, result->highest_state);
+	result->infin = newfinal(result->highest_state);
 	old2new = newarray(REST);
 	i = 0;
 	k = NECESSARY;
@@ -1116,7 +1116,7 @@ nfa f;
 	}
 	/* Calculation of delta for necessary grids. */
 	for (i = 0; i < NECESSARY; i++)
-		for (j = 1; j <= result->sno; j++) {
+		for (j = 1; j <= result->alphabet_size; j++) {
 			start = fI;
 			k = 0;
 			/* First try if essential grids are to be */
@@ -1145,7 +1145,7 @@ nfa f;
 	while(l != 0) {
 		if(testelem((i - NECESSARY), solution->grset)) {	/* Found a grid that is an element of the solution. */
 			l--;
-			for (j = 1; j <= result->sno; j++) {
+			for (j = 1; j <= result->alphabet_size; j++) {
 				start = fI;
 				k = 0;
 				/* First try if essential grids are to be */

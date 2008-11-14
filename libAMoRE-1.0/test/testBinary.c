@@ -37,7 +37,7 @@ boolx empty_full_lan(language curlan)
 	 * not be a final state
 	 */
 	/* compmdfa(); DISABLED */
-	if(!curlan->ldfa->qno)	/* one state only */
+	if(!curlan->ldfa->highest_state)	/* one state only */
 		return curlan->ldfa->final[curlan->ldfa->init];
 	else
 		return UN_KNOWN;
@@ -57,8 +57,8 @@ boole equiv(dfa dfa1, dfa dfa2)
 	posint height = 1;	/* number of states in stack and first free place */
 	boole equal = TRUE;
 	/* search for a valid bijection from the states of dfa1 to the states of dfa2 */
-	stateno1 = dfa1->qno + 1;
-	stateno2 = dfa2->qno + 1;
+	stateno1 = dfa1->highest_state + 1;
+	stateno2 = dfa2->highest_state + 1;
 	if(stateno1 != stateno2)
 		return (FALSE);
 	bijection = newarray(stateno1 + 1);
@@ -72,7 +72,7 @@ boole equiv(dfa dfa1, dfa dfa2)
 	while(equal && height) {
 		stateno1 = stack[--height];
 		stateno2 = bijection[stateno1];
-		for (letter = 1; equal && (letter <= dfa1->sno); letter++) {
+		for (letter = 1; equal && (letter <= dfa1->alphabet_size); letter++) {
 			state1 = dfa1->delta[letter][stateno1];	/*abbreviation */
 			state2 = dfa2->delta[letter][stateno2];	/*abbreviation */
 			if(mark1[state1]) {
@@ -89,7 +89,7 @@ boole equiv(dfa dfa1, dfa dfa2)
 		}
 	}
 	if(equal)		/* bijection found, test for final states */
-		for (state1 = 0; equal && (state1 <= dfa1->qno); state1++) {
+		for (state1 = 0; equal && (state1 <= dfa1->highest_state); state1++) {
 			state2 = bijection[state1];
 			if(dfa1->final[state1] && (!dfa2->final[state2]))
 				equal = FALSE;
@@ -108,7 +108,7 @@ boole equiv(dfa dfa1, dfa dfa2)
  *     if(q1 is final and q2 is not final) 
  *            then L(dfa1) is not a subset of L(dfa2) 
  * works only if sizeof(Q1) * sizeof(Q2) <= sizeof(posint)
- * use coding (q1,q2) <-> [q1+q2*(dfa1->qno+1)]+1
+ * use coding (q1,q2) <-> [q1+q2*(dfa1->highest_state+1)]+1
  *
  */
 boole inclusion(dfa dfa1, dfa dfa2, boole inclusion)
@@ -123,13 +123,13 @@ boole inclusion(dfa dfa1, dfa dfa2, boole inclusion)
 	posint r1, r2;
 	posint last;		/* last pair in list */
 	posint actuel;		/* abbreviation  for pair(q1,q2) */
-	posint max = 1 + (dfa1->qno + 1) * (dfa2->qno + 1);	/* endmarker */
+	posint max = 1 + (dfa1->highest_state + 1) * (dfa2->highest_state + 1);	/* endmarker */
 	mark = newarray(max);
-	actuel = 1 + q1 + (q2 * (dfa1->qno + 1));
+	actuel = 1 + q1 + (q2 * (dfa1->highest_state + 1));
 	last = actuel;
 	mark[last] = max;	/* mark (q1,q2) */
 	while(actuel && result) {
-		for (letter = 1; letter <= dfa1->sno; letter++) {
+		for (letter = 1; letter <= dfa1->alphabet_size; letter++) {
 
 			r1 = dfa1->delta[letter][q1];
 			r2 = dfa2->delta[letter][q2];
@@ -140,7 +140,7 @@ boole inclusion(dfa dfa1, dfa dfa2, boole inclusion)
 				if(dfa1->final[r1] && dfa2->final[r2])
 					result = FALSE;
 			}
-			test = 1 + r1 + (r2 * (dfa1->qno + 1));
+			test = 1 + r1 + (r2 * (dfa1->highest_state + 1));
 			if(!mark[test]) {	/* append pair test to list */
 				mark[last] = test;
 				mark[test] = max;	/* insert endmarker at the end of the list */
@@ -149,8 +149,8 @@ boole inclusion(dfa dfa1, dfa dfa2, boole inclusion)
 		}
 		actuel = mark[actuel];
 		if(actuel != max) {
-			q2 = (actuel - 1) / (dfa1->qno + 1);
-			q1 = (actuel - 1) % (dfa1->qno + 1);
+			q2 = (actuel - 1) / (dfa1->highest_state + 1);
+			q1 = (actuel - 1) % (dfa1->highest_state + 1);
 		}
 	}
 	freebuf();

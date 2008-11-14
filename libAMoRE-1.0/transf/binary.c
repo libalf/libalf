@@ -67,33 +67,33 @@ nfa unionfa(nfa na1, nfa na2)
 	nfa result;
 	posint i, j, k, ri, rj, newbeg2;
 	result = newnfa();
-	result->qno = na1->qno + na2->qno + 1;
+	result->highest_state = na1->highest_state + na2->highest_state + 1;
 	/* state 0 is the new initial state
 	 * q -> q                 q in na1
-	 * q -> q + na1->qno +1   q in na2
+	 * q -> q + na1->highest_state +1   q in na2
 	 */
-	result->sno = na1->sno;
+	result->alphabet_size = na1->alphabet_size;
 	result->minimal = FALSE;
 	result->is_eps = FALSE;
-	result->infin = newfinal(result->qno);
-	result->delta = newndelta(result->sno, result->qno);
+	result->infin = newfinal(result->highest_state);
+	result->delta = newndelta(result->alphabet_size, result->highest_state);
 	/* copy na1->delta */
-	for (i = 0; i <= na1->qno; i++) {
+	for (i = 0; i <= na1->highest_state; i++) {
 		setfinal(result->infin[i], isfinal(na1->infin[i]));
 		if(isinit(na1->infin[i]))
 			setinit(result->infin[i]);
-		for (j = 0; j <= na1->qno; j++)
-			for (k = 1; k <= na1->sno; k++)
+		for (j = 0; j <= na1->highest_state; j++)
+			for (k = 1; k <= na1->alphabet_size; k++)
 				cpdelta(result->delta, k, i, j, na1->delta, k, i, j);
 	}
 	/* copy na2->delta */
-	newbeg2 = na1->qno + 1;
-	for (i = 0, ri = newbeg2; i <= na2->qno; i++, ri++) {
+	newbeg2 = na1->highest_state + 1;
+	for (i = 0, ri = newbeg2; i <= na2->highest_state; i++, ri++) {
 		setfinal(result->infin[ri], isfinal(na2->infin[i]));
 		if(isinit(na2->infin[i]))
 			setinit(result->infin[ri]);
-		for (j = 0, rj = newbeg2; j <= na2->qno; j++, rj++)
-			for (k = 1; k <= na2->sno; k++)
+		for (j = 0, rj = newbeg2; j <= na2->highest_state; j++, rj++)
+			for (k = 1; k <= na2->alphabet_size; k++)
 				cpdelta(result->delta, k, ri, rj, na2->delta, k, i, j);
 	}
 	return result;
@@ -110,9 +110,9 @@ nfa concatfa(nfa na1, nfa na2)
 	posint i, j, k, letter, ri, rj, rk, newbeg2;
 	boole epsilon = FALSE;	/* test epsilon in L(na2) */
 	result = newnfa();
-	result->qno = na1->qno + na2->qno + 1;
+	result->highest_state = na1->highest_state + na2->highest_state + 1;
 	/* q -> q                  q in na1
-	 * q -> q + na1->qno + 1   q in na2
+	 * q -> q + na1->highest_state + 1   q in na2
 	 *     
 	 * copy transitions from final states of na1 to initial states of na2  
 	 * initial states = initial states of na1
@@ -120,42 +120,42 @@ nfa concatfa(nfa na1, nfa na2)
 	 * if(epsilon in L(na2)) then
 	 *    final states = final states + final states of na1
 	 */
-	result->sno = na1->sno;
+	result->alphabet_size = na1->alphabet_size;
 	result->minimal = FALSE;
 	result->is_eps = FALSE;
-	result->infin = newfinal(result->qno);
-	result->delta = newndelta(result->sno, result->qno);
+	result->infin = newfinal(result->highest_state);
+	result->delta = newndelta(result->alphabet_size, result->highest_state);
 	/* copy na1->delta + initial states */
-	for (i = 0; i <= na1->qno; i++) {
+	for (i = 0; i <= na1->highest_state; i++) {
 		if(isinit(na1->infin[i]))
 			setinit(result->infin[i]);
-		for (j = 0; j <= na1->qno; j++)
-			for (letter = 1; letter <= na1->sno; letter++)
+		for (j = 0; j <= na1->highest_state; j++)
+			for (letter = 1; letter <= na1->alphabet_size; letter++)
 				cpdelta(result->delta, letter, i, j, na1->delta, letter, i, j);
 	}
 	/* copy na2->delta + final states */
-	newbeg2 = na1->qno + 1;
-	for (i = 0, ri = newbeg2; i <= na2->qno; i++, ri++) {
+	newbeg2 = na1->highest_state + 1;
+	for (i = 0, ri = newbeg2; i <= na2->highest_state; i++, ri++) {
 		if(isfinal(na2->infin[i])) {
 			setfinalT(result->infin[ri]);
 			if(isinit(na2->infin[i]))
 				epsilon = TRUE;
 		}
-		for (j = 0, rj = newbeg2; j <= na2->qno; j++, rj++)
-			for (letter = 1; letter <= na2->sno; letter++)
+		for (j = 0, rj = newbeg2; j <= na2->highest_state; j++, rj++)
+			for (letter = 1; letter <= na2->alphabet_size; letter++)
 				cpdelta(result->delta, letter, ri, rj, na2->delta, letter, i, j);
 	}
 	/* copy trans. from initial states of na1 to final states of na2 
 	 * if epsilon in L(na2) then make final states of na1 final states in result
 	 */
-	for (i = 0; i <= na1->qno; i++)
+	for (i = 0; i <= na1->highest_state; i++)
 		if(isfinal(na1->infin[i])) {
 			if(epsilon)
 				setfinalT(result->infin[i]);
-			for (j = 0, ri = newbeg2; j <= na2->qno; j++, ri++)
+			for (j = 0, ri = newbeg2; j <= na2->highest_state; j++, ri++)
 				if(isinit(na2->infin[j]))
-					for (k = 0, rk = newbeg2; k <= na2->qno; k++, rk++)
-						for (letter = 1; letter <= na2->sno; letter++)
+					for (k = 0, rk = newbeg2; k <= na2->highest_state; k++, rk++)
+						for (letter = 1; letter <= na2->alphabet_size; letter++)
 							cpdelta(result->delta, letter, i, rk, na2->delta, letter, j, k);
 		}
 	return result;
@@ -172,27 +172,27 @@ dfa insecfa(dfa da1, dfa da2, boole minus)
 	dfa result;
 	posint q1, q2, let;
 	posint help;
-	offset = da2->qno + 1;
+	offset = da2->highest_state + 1;
 
 	result = newdfa();
-	result->sno = da1->sno;
+	result->alphabet_size = da1->alphabet_size;
 	/* this would make sense also...                            */
-	/* result->sno = da1->sno > da2->sno ? da2->sno : da1->sno; */
+	/* result->alphabet_size = da1->alphabet_size > da2->alphabet_size ? da2->alphabet_size : da1->alphabet_size; */
 
-	result->qno = pair(da1->qno, da2->qno);
+	result->highest_state = pair(da1->highest_state, da2->highest_state);
 	result->init = pair(da1->init, da2->init);
 	result->minimal = FALSE;
-	result->final = newfinal(result->qno);
-	result->delta = newddelta(result->sno, result->qno);
+	result->final = newfinal(result->highest_state);
+	result->delta = newddelta(result->alphabet_size, result->highest_state);
 
-	for (q1 = 0, help = 0; q1 <= da1->qno; q1++) {
-		for (q2 = 0; q2 <= da2->qno; q2++, help++) {	/* help = pair(q1,q2) */
+	for (q1 = 0, help = 0; q1 <= da1->highest_state; q1++) {
+		for (q2 = 0; q2 <= da2->highest_state; q2++, help++) {	/* help = pair(q1,q2) */
 			if(minus) {
 				result->final[help] = da1->final[q1] && (!da2->final[q2]);
 			} else {
 				result->final[help] = da1->final[q1] && da2->final[q2];
 			}
-			for (let = 1; let <= result->sno; let++) {
+			for (let = 1; let <= result->alphabet_size; let++) {
 				result->delta[let][help] = pair(da1->delta[let][q1], da2->delta[let][q2]);
 			}
 		}
@@ -209,14 +209,14 @@ nfa shuffle(nfa na1, nfa na2)
 	nfa result;
 	posint q1, q2, letter;
 	posint help, help1, q3, s;
-	offset = na2->qno + 1;
+	offset = na2->highest_state + 1;
 	result = newnfa();
-	result->sno = na1->sno;
-	result->qno = pair(na1->qno, na2->qno);
+	result->alphabet_size = na1->alphabet_size;
+	result->highest_state = pair(na1->highest_state, na2->highest_state);
 	result->minimal = FALSE;
 	result->is_eps = FALSE;
-	result->infin = newfinal(result->qno);
-	result->delta = newndelta(result->sno, result->qno);
+	result->infin = newfinal(result->highest_state);
+	result->delta = newndelta(result->alphabet_size, result->highest_state);
 	/* compute new transitions 
 	 * (p,q),a,(p',q) <=> in na1 p,a,p'
 	 * (p,q),a,(p,q') <=> in na2 q,a,q'
@@ -224,16 +224,16 @@ nfa shuffle(nfa na1, nfa na2)
 	 * (p,q) is initial <=> p and q is initial
 	 * all states in result are reachable
 	 */
-	for (q1 = 0, help = 0, help1 = 0; q1 <= na1->qno; q1++, help1 += offset)	/* help1=q1*offset */
-		for (q2 = 0; q2 <= na2->qno; q2++, help++) {	/* help=pair(q1,q2) */
+	for (q1 = 0, help = 0, help1 = 0; q1 <= na1->highest_state; q1++, help1 += offset)	/* help1=q1*offset */
+		for (q2 = 0; q2 <= na2->highest_state; q2++, help++) {	/* help=pair(q1,q2) */
 			setfinal(result->infin[help], isfinal(na1->infin[q1]) && isfinal(na2->infin[q2]));
 			if(isinit(na1->infin[q1]) && isinit(na2->infin[q2]))
 				setinit(result->infin[help]);
-			for (letter = 1; letter <= na1->sno; letter++) {
-				for (q3 = 0, s = q2; q3 <= na1->qno; q3++, s += offset)	/* s=pair(q3,q2)=q3*offset+q2 */
+			for (letter = 1; letter <= na1->alphabet_size; letter++) {
+				for (q3 = 0, s = q2; q3 <= na1->highest_state; q3++, s += offset)	/* s=pair(q3,q2)=q3*offset+q2 */
 					if(testcon(na1->delta, letter, q1, q3))
 						connect(result->delta, letter, help, s);
-				for (q3 = 0, s = help1; q3 <= na2->qno; q3++, s++)	/* s=pair(q1,q3)=q1*offset+q3 */
+				for (q3 = 0, s = help1; q3 <= na2->highest_state; q3++, s++)	/* s=pair(q1,q3)=q1*offset+q3 */
 					if(testcon(na2->delta, letter, q2, q3))
 						connect(result->delta, letter, help, s);
 			}
@@ -253,21 +253,21 @@ nfa leftquot(dfa indfa1, dfa indfa2)
 	pairlist first, last, run;
 	posint letter;
 	arrayofb_array mark;	/* mark accessible states */
-	mark = newarrayofb_array(indfa1->qno + 1);
-	for (state1 = 0; state1 <= indfa1->qno; state1++)
-		mark[state1] = newb_array(indfa2->qno + 1);
+	mark = newarrayofb_array(indfa1->highest_state + 1);
+	for (state1 = 0; state1 <= indfa1->highest_state; state1++)
+		mark[state1] = newb_array(indfa2->highest_state + 1);
 	/* init outnfa */
 	outnfa = newnfa();
 	outnfa->is_eps = FALSE;
-	outnfa->qno = indfa1->qno;
-	outnfa->sno = indfa1->sno;
-	outnfa->infin = newfinal(outnfa->qno);
-	outnfa->delta = newndelta(outnfa->sno, outnfa->qno);
+	outnfa->highest_state = indfa1->highest_state;
+	outnfa->alphabet_size = indfa1->alphabet_size;
+	outnfa->infin = newfinal(outnfa->highest_state);
+	outnfa->delta = newndelta(outnfa->alphabet_size, outnfa->highest_state);
 	/* copy delta and final */
-	for (state1 = 0; state1 <= outnfa->qno; state1++)
+	for (state1 = 0; state1 <= outnfa->highest_state; state1++)
 		setfinal(outnfa->infin[state1], indfa1->final[state1]);
-	for (letter = 1; letter <= outnfa->sno; letter++)
-		for (state1 = 0; state1 <= outnfa->qno; state1++)
+	for (letter = 1; letter <= outnfa->alphabet_size; letter++)
+		for (state1 = 0; state1 <= outnfa->highest_state; state1++)
 			connect(outnfa->delta, letter, state1, indfa1->delta[letter][state1]);
 	/* compute all pairs p,q which are accessible from the pair p0,q0 */
 	pairinit(&first, &last, indfa1->init, indfa2->init);
@@ -276,7 +276,7 @@ nfa leftquot(dfa indfa1, dfa indfa2)
 	while(run != NULL) {
 		state1 = run->info1;
 		state2 = run->info2;
-		for (letter = 1; letter <= indfa1->sno; letter++) {
+		for (letter = 1; letter <= indfa1->alphabet_size; letter++) {
 			help1 = indfa1->delta[letter][state1];
 			help2 = indfa2->delta[letter][state2];
 			if(!mark[help1][help2]) {	/* new pair */
@@ -314,25 +314,25 @@ dfa rightquot(dfa indfa1, dfa indfa2)
 	 *            == UN_KNOWN   if no pair of final states is reachable from p,q
 	 *            == FALSE      it is not known whether a pair of final stes is reachable
 	 */
-	mark = newarrayofb_array(indfa1->qno + 1);
-	for (state1 = 0; state1 <= indfa1->qno; state1++)
-		mark[state1] = newb_array(indfa2->qno + 1);
+	mark = newarrayofb_array(indfa1->highest_state + 1);
+	for (state1 = 0; state1 <= indfa1->highest_state; state1++)
+		mark[state1] = newb_array(indfa2->highest_state + 1);
 	/* init outdfa */
 	outdfa = newdfa();
-	outdfa->qno = indfa1->qno;
+	outdfa->highest_state = indfa1->highest_state;
 	outdfa->init = indfa1->init;
-	outdfa->sno = indfa1->sno;
+	outdfa->alphabet_size = indfa1->alphabet_size;
 	outdfa->minimal = FALSE;
-	outdfa->final = newfinal(outdfa->qno);
-	outdfa->delta = newddelta(outdfa->sno, outdfa->qno);
+	outdfa->final = newfinal(outdfa->highest_state);
+	outdfa->delta = newddelta(outdfa->alphabet_size, outdfa->highest_state);
 	/* copy delta */
-	for (letter = 1; letter <= indfa1->sno; letter++)
-		for (state1 = 0; state1 <= indfa1->qno; state1++)
+	for (letter = 1; letter <= indfa1->alphabet_size; letter++)
+		for (state1 = 0; state1 <= indfa1->highest_state; state1++)
 			outdfa->delta[letter][state1] = indfa1->delta[letter][state1];
 	/* search for all states q in indfa1 such that:
 	 * a pair of final states is accessible from the pair q and indfa2->init
 	 */
-	for (state = 0; state <= indfa1->qno; state++) {
+	for (state = 0; state <= indfa1->highest_state; state++) {
 		if(indfa1->final[state] && indfa2->final[indfa2->init]) {
 			outdfa->final[state] = TRUE;
 			continue;
@@ -345,7 +345,7 @@ dfa rightquot(dfa indfa1, dfa indfa2)
 		while((run != NULL) && test) {
 			state1 = run->info1;
 			state2 = run->info2;
-			for (letter = 1; letter <= indfa1->sno; letter++) {
+			for (letter = 1; letter <= indfa1->alphabet_size; letter++) {
 				help1 = indfa1->delta[letter][state1];
 				help2 = indfa2->delta[letter][state2];
 				if(indfa1->final[help1] && indfa2->final[help2]) {

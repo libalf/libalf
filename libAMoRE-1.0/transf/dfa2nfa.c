@@ -23,17 +23,17 @@ nfa dfa2nfa(register dfa da)
 	register posint state;
 	register posint letter;
 	result = newnfa();
-	result->qno = da->qno;
-	result->sno = da->sno;
+	result->highest_state = da->highest_state;
+	result->alphabet_size = da->alphabet_size;
 	result->minimal = FALSE;
 	result->is_eps = FALSE;
-	result->infin = newfinal(result->qno);
-	result->delta = newndelta(result->sno, result->qno);
+	result->infin = newfinal(result->highest_state);
+	result->delta = newndelta(result->alphabet_size, result->highest_state);
 	setinit(result->infin[da->init]);
-	for (state = 0; state <= result->qno; state++)
+	for (state = 0; state <= result->highest_state; state++)
 		setfinal(result->infin[state], da->final[state]);
-	for (letter = 1; letter <= result->sno; letter++)
-		for (state = 0; state <= result->qno; state++) {
+	for (letter = 1; letter <= result->alphabet_size; letter++)
+		for (state = 0; state <= result->highest_state; state++) {
 			connect(result->delta, letter, state, da->delta[letter][state]);
 		}
 	return result;

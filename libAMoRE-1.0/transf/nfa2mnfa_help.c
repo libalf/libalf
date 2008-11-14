@@ -28,19 +28,19 @@ nfa delsta(nfa inputnfa)
 	posint state1, state2, s1, s2, letter;
 	posint count = 0;	/* count reachable and productive states */
 
-	reach1 = newb_array(inputnfa->qno + 1);
-	reach2 = newb_array(inputnfa->qno + 1);
-	stack = newarray(inputnfa->qno + 1);
+	reach1 = newb_array(inputnfa->highest_state + 1);
+	reach2 = newb_array(inputnfa->highest_state + 1);
+	stack = newarray(inputnfa->highest_state + 1);
 	/* init stack with initial states */
-	for (state1 = 0; state1 <= inputnfa->qno; state1++)
+	for (state1 = 0; state1 <= inputnfa->highest_state; state1++)
 		if(isinit(infin[state1])) {
 			reach1[state1] = TRUE;
 			stack[height++] = state1;
 		}
 	while(height) {		/* stack not empty */
 		state1 = stack[--height];
-		for (letter = 1; letter <= inputnfa->sno; letter++)
-			for (state2 = 0; state2 <= inputnfa->qno; state2++)
+		for (letter = 1; letter <= inputnfa->alphabet_size; letter++)
+			for (state2 = 0; state2 <= inputnfa->highest_state; state2++)
 				if(testcon(inputnfa->delta, letter, state1, state2) && (!reach1[state2])) {
 					reach1[state2] = TRUE;
 					stack[height++] = state2;
@@ -49,7 +49,7 @@ nfa delsta(nfa inputnfa)
 	/* all reachable states are marked in reach1
 	 * initialize stack with reachable final states 
 	 */
-	for (state1 = 0; state1 <= inputnfa->qno; state1++)
+	for (state1 = 0; state1 <= inputnfa->highest_state; state1++)
 		if(isfinal(infin[state1]) && reach1[state1]) {
 			reach2[state1] = TRUE;
 			stack[height++] = state1;
@@ -57,9 +57,9 @@ nfa delsta(nfa inputnfa)
 		}
 	while(height) {		/* stack not empty */
 		state1 = stack[--height];
-		for (state2 = 0; state2 <= inputnfa->qno; state2++)
+		for (state2 = 0; state2 <= inputnfa->highest_state; state2++)
 			if(reach1[state2])
-				for (letter = 1; letter <= inputnfa->sno; letter++)
+				for (letter = 1; letter <= inputnfa->alphabet_size; letter++)
 					if(testcon(inputnfa->delta, letter, state2, state1) && (!reach2[state2])) {
 						reach2[state2] = TRUE;
 						stack[height++] = state2;
@@ -69,28 +69,28 @@ nfa delsta(nfa inputnfa)
 	/* in reach2 all reachable and productive states are marked
 	 * there are exactly count many of these states
 	 */
-	if(count == (inputnfa->qno + 1)) {	/* No state has to be eliminated. */
+	if(count == (inputnfa->highest_state + 1)) {	/* No state has to be eliminated. */
 		freebuf();
 		return inputnfa;
 	}
 
 	/* A new automaton has to be calculated. */
 	result = newnfa();
-	result->sno = inputnfa->sno;
+	result->alphabet_size = inputnfa->alphabet_size;
 	result->is_eps = FALSE;
 	result->minimal = FALSE;
 	if(count)
-		result->qno = count - 1;
+		result->highest_state = count - 1;
 	else
-		result->qno = 0;
-	result->delta = newndelta(result->sno, result->qno);
-	result->infin = newfinal(result->qno);
+		result->highest_state = 0;
+	result->delta = newndelta(result->alphabet_size, result->highest_state);
+	result->infin = newfinal(result->highest_state);
 
 	if(count == 0) {	/* L(na)==empty */
 		setinit(result->infin[0]);
 		setfinalF(result->infin[0]);
 	} else {
-		for (state1 = 0, count = 0; state1 <= inputnfa->qno; state1++)
+		for (state1 = 0, count = 0; state1 <= inputnfa->highest_state; state1++)
 			if(reach2[state1])
 				stack[count++] = state1;
 		/* stack contains all old states, that are reachable and productive */
@@ -101,7 +101,7 @@ nfa delsta(nfa inputnfa)
 				setinit(result->infin[state1]);
 			for (state2 = 0; state2 < count; state2++) {
 				s2 = stack[state1];	/* abbreviation for old state */
-				for (letter = 1; letter <= result->sno; letter++)
+				for (letter = 1; letter <= result->alphabet_size; letter++)
 					if(testcon(inputnfa->delta, letter, s1, s2))
 						connect(result->delta, letter, state1, state2);
 			}
@@ -120,16 +120,16 @@ nfa invers_d(dfa inputdfa)
 	result = newnfa();
 	result->is_eps = FALSE;
 	result->minimal = FALSE;
-	result->sno = inputdfa->sno;
-	result->qno = inputdfa->qno;
-	result->infin = newfinal(result->qno);
-	result->delta = newndelta(result->sno, result->qno);
+	result->alphabet_size = inputdfa->alphabet_size;
+	result->highest_state = inputdfa->highest_state;
+	result->infin = newfinal(result->highest_state);
+	result->delta = newndelta(result->alphabet_size, result->highest_state);
 	/* Find initial and final states and compute delta. */
-	for (i = 0; i <= inputdfa->qno; i++) {	/* Test if i is a new initial state. */
+	for (i = 0; i <= inputdfa->highest_state; i++) {	/* Test if i is a new initial state. */
 		if(isfinal(inputdfa->final[i]))
 			setinit(result->infin[i]);
 		/* Compute delta for state i. */
-		for (j = 1; j <= inputdfa->sno; j++)
+		for (j = 1; j <= inputdfa->alphabet_size; j++)
 			connect(result->delta, j, inputdfa->delta[j][i], i);
 	}
 	/* Now find only final state. */

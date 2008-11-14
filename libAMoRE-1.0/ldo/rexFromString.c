@@ -340,7 +340,7 @@ static EXPRESS tree2string(t_elem Root)
 	return RetVal;
 }
 
-regex rexFromString(int sno, char *str)
+regex rexFromString(int alphabet_size, char *str)
 {
 	PARSE_INPUT pinp = newbuf_parse_input();
 	PARSE_RESULT pr;
@@ -350,7 +350,7 @@ regex rexFromString(int sno, char *str)
 	posint i;
 
 
-	pinp = init_parseinp(sno, str);
+	pinp = init_parseinp(alphabet_size, str);
 
 	pr = parser(pinp);
 
@@ -369,7 +369,7 @@ regex rexFromString(int sno, char *str)
 
 
 	re = newrex();
-	re->sno = sno;
+	re->alphabet_size = alphabet_size;
 	re->rexl = strlen(str);
 	re->rex = strdup(str);
 

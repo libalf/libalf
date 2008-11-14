@@ -195,9 +195,9 @@ void deadsearch(dfa indfa, posint * deadpos, posint * deadneg, boole * pos, bool
 	posint state, l;
 	*pos = FALSE;
 	*neg = FALSE;
-	for (state = 0; state <= indfa->qno; state++) {
-		for (l = 1; (l <= indfa->sno) && (state == indfa->delta[l][state]); l++);
-		if(l > indfa->sno) {	/* deadstate found */
+	for (state = 0; state <= indfa->highest_state; state++) {
+		for (l = 1; (l <= indfa->alphabet_size) && (state == indfa->delta[l][state]); l++);
+		if(l > indfa->alphabet_size) {	/* deadstate found */
 			if(indfa->final[state]) {
 				*deadpos = state;
 				*pos = TRUE;
@@ -217,11 +217,11 @@ boole folutest(dfa indfa)
 	monoid mon;
 	boole test, test1;	/* test <=> indfa has a nonfinal sink state */
 	deadsearch(indfa, &state1, &state, &test1, &test);
-	deadstate = (test) ? state : indfa->qno + 1;
+	deadstate = (test) ? state : indfa->highest_state + 1;
 
 	/* define new automaton, 
 	 * alphabet A x {0,1}     stateset Q + {deadstate}
-	 * coding of alphabet:   (i,0) -> i  and (i,1) -> indfa->sno+i
+	 * coding of alphabet:   (i,0) -> i  and (i,1) -> indfa->alphabet_size+i
 	 * (q,a,q') and  q notin F => (q, (a,0) , q')  
 	 * (q,a,q') and  q    in F => (q, (a,0) , deadstate)  
 	 * (q,a,q') and  q    in F => (q, (a,1) , q')  
@@ -230,19 +230,19 @@ boole folutest(dfa indfa)
 	 * L(indfa) in FOL_U iff new automaton permutationfree
 	 */
 	testdfa = newdfa();
-	testdfa->sno = 2 * indfa->sno;
+	testdfa->alphabet_size = 2 * indfa->alphabet_size;
 	testdfa->init = indfa->init;
-	testdfa->qno = (test) ? indfa->qno : indfa->qno + 1;
-	testdfa->delta = newddelta(testdfa->sno, testdfa->qno);
-	testdfa->final = newfinal(testdfa->qno);
+	testdfa->highest_state = (test) ? indfa->highest_state : indfa->highest_state + 1;
+	testdfa->delta = newddelta(testdfa->alphabet_size, testdfa->highest_state);
+	testdfa->final = newfinal(testdfa->highest_state);
 	if(!test) {
-		for (l = 1; l <= testdfa->sno; l++)
+		for (l = 1; l <= testdfa->alphabet_size; l++)
 			testdfa->delta[l][deadstate] = deadstate;
 		testdfa->final[deadstate] = FALSE;
 	}
-	for (state = 0; state <= indfa->qno; state++) {
+	for (state = 0; state <= indfa->highest_state; state++) {
 		testdfa->final[state] = indfa->final[state];
-		for (l = 1, l1 = indfa->sno + 1; l <= indfa->sno; l++, l1++) {
+		for (l = 1, l1 = indfa->alphabet_size + 1; l <= indfa->alphabet_size; l++, l1++) {
 			state1 = indfa->delta[l][state];	/* abbreviation */
 			if(indfa->final[state1]) {
 				testdfa->delta[l][state] = deadstate;
@@ -287,13 +287,13 @@ monoid mon;
 	array help;		/* contains the elements of the image */
 	posint i, j, rang;
 	arrayofarray a = mon->no2trans;	/* abbreviation */
-	image = newb_array(mon->qno + 1);
-	help = newarray(mon->qno + 1);
+	image = newb_array(mon->highest_state + 1);
+	help = newarray(mon->highest_state + 1);
 	for (i = 0; i < mon->mno; i++) {	/* for all m in M .. */
 		rang = 0;
 		group = TRUE;
 		/* compute image and rang */
-		for (j = 0; j <= mon->qno; j++)
+		for (j = 0; j <= mon->highest_state; j++)
 			if(!image[a[i][j]]) {	/* new element in image */
 				help[rang++] = a[i][j];
 				image[a[i][j]] = TRUE;

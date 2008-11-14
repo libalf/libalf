@@ -25,14 +25,14 @@ extern "C" {
 /** deterministic transition of a letter. array of states, see ddelta
  *  <p>trans[ source ] = dest
  *  <p>means "transition from source to dest".
- *  <p>(indexed with state numbers from 0 to qno)
+ *  <p>(indexed with state numbers from 0 to highest_state)
  */
 typedef posint *trans;
 
 /** deterministic transition table. is array of transitions
  *  <p>ddelta[i][source] = dest
  *  <p>means "transition labelled with letter i from source to dest"
- *  <p>(indexed with letter numbers from 1 to sno)
+ *  <p>(indexed with letter numbers from 1 to alphabet_size)
  */
 typedef trans *ddelta;
 
@@ -42,11 +42,11 @@ typedef trans *ddelta;
  */
 struct dfauto {
     /** maximal state number, minimal state number is 0 */
-	posint qno;
+	posint highest_state;
     /** initial state */
 	posint init;
-    /** size of alphabet    */
-	posint sno;
+    /** size of alphabet. labels are 1 .. alphabet_size, 0 is reserved */
+	posint alphabet_size;
     /** marks for final states  */
 	mrkfin final;
     /** det.\  transition function   */

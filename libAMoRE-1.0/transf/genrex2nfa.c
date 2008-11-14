@@ -71,21 +71,21 @@
 			if testcon(delta, s, T, p) connect(delta, s, F, p);\
 	if isfinal(infin[T]) setfinalT(infin[F])
 #define copyddelta(ND, Q1, DD, Q2) \
-	for (l = 1; l <= sno; ++l) connect(ND, l, Q1, DD[l][Q2]);
+	for (l = 1; l <= alphabet_size; ++l) connect(ND, l, Q1, DD[l][Q2]);
 
 #define copyda(DA) \
-	for (q = 0; q <= DA->qno; ++q) \
+	for (q = 0; q <= DA->highest_state; ++q) \
 	{ \
 		if (DA->final[q]) setfinalT(infin[q + offset]); \
 		for (s = 1; s <= S; ++s) \
 			connect(delta, s, q + offset, DA->delta[s][q] + offset); \
 	}
 #define copyna(NA) \
-	for (p = 0; p <= NA->qno; ++p) \
+	for (p = 0; p <= NA->highest_state; ++p) \
 		{ \
 			if isfinal(NA->infin[p]) setfinalT(infin[p + offset]); \
 				for (s = 1; s <= S; ++s) \
-					for (q = 0; q <= NA->qno; ++q) \
+					for (q = 0; q <= NA->highest_state; ++q) \
 						cpdelta(delta, s, p + offset, q + offset, NA->delta, s, p, q); \
 		}
 
@@ -577,7 +577,7 @@ static regex makerex(node)
 	outre->erexl = strlen(node->expr);
 	outre->rex=infix(outre,FALSE,&length);
 	outre->rexl=length;
-	outre->sno = S;
+	outre->alphabet_size = S;
 	return outre;
 }
 
@@ -590,8 +590,8 @@ static dfa plus_star_dfa(indfa,op)
 	char op;
 {
 	nfa hlp;
-	posint qno = indfa->qno,
-	       sno = indfa->sno,
+	posint highest_state = indfa->highest_state,
+	       alphabet_size = indfa->alphabet_size,
 	       q, l, newq;
 	char h_op = (indfa->final[indfa->init]) ? plusch : op;
 	dfa hlp1;
@@ -602,12 +602,12 @@ static dfa plus_star_dfa(indfa,op)
 	buffree();/*tickon=TRUE;*/
 	indfa = hlp1;
 	hlp = newnfa();
-	newq = (h_op == starch) ? qno + 1 : qno;
-	hlp->qno = newq;
-	hlp->sno = sno;
-	hlp->infin = newfinal(hlp->qno);
-	hlp->delta = newndelta(hlp->sno, hlp->qno);
-	for (q = 0; q <= qno; ++q)
+	newq = (h_op == starch) ? highest_state + 1 : highest_state;
+	hlp->highest_state = newq;
+	hlp->alphabet_size = alphabet_size;
+	hlp->infin = newfinal(hlp->highest_state);
+	hlp->delta = newndelta(hlp->alphabet_size, hlp->highest_state);
+	for (q = 0; q <= highest_state; ++q)
 	{ if (indfa->final[q])
 		{ copyddelta(hlp->delta, q, indfa->delta, indfa->init);
 			setfinalT(hlp->infin[q]);
@@ -641,8 +641,8 @@ static dfa conc_dfa(dfa_list)
 	dfa outdfa, da_i;
 	int i;
 	posint n = dfa_list->no,
-	       qno = 0,
-	       sno = h_da[0]->sno,
+	       highest_state = 0,
+	       alphabet_size = h_da[0]->alphabet_size,
 	       l, q, qno_i,
 	       init_i1,
 	       offset, lastoffset;
@@ -653,17 +653,17 @@ static dfa conc_dfa(dfa_list)
 	for (q = 0; q < n; ++q)
 		dfa_list->da[q]=dfamdfa(dfa_list->da[q],FALSE);
 	buffree();/*tickon=TRUE;*/
-	for (i = 0; i != n; ++i) qno += (h_da[i]->qno + 1);
-	hlp->qno = (--qno);
-	hlp->sno = sno;
-	hlp->infin = newfinal(hlp->qno);
-	hlp->delta = newndelta(hlp->sno, hlp->qno);
+	for (i = 0; i != n; ++i) highest_state += (h_da[i]->highest_state + 1);
+	hlp->highest_state = (--highest_state);
+	hlp->alphabet_size = alphabet_size;
+	hlp->infin = newfinal(hlp->highest_state);
+	hlp->delta = newndelta(hlp->alphabet_size, hlp->highest_state);
 
 	--i;
 	da_i = h_da[i];
 	delta_i = da_i->delta;
 	final_i = da_i->final;
-	qno_i = da_i->qno;
+	qno_i = da_i->highest_state;
 
 	for (q = 0; q <= qno_i; ++q)
 	{ copyddelta(hlp->delta, q, delta_i, q);
@@ -680,16 +680,16 @@ static dfa conc_dfa(dfa_list)
 		da_i = h_da[i];
 		delta_i = da_i->delta;
 		final_i = da_i->final;
-		qno_i = da_i->qno;
+		qno_i = da_i->highest_state;
 
 		init_is_final = isfinal(hlp->infin[init_i1 + lastoffset]);
 		for (q = 0; q <= qno_i; ++q)
 		{ if (final_i[q])
-			{ for (l = 1; l <= sno; ++l)
+			{ for (l = 1; l <= alphabet_size; ++l)
 				connect(hlp->delta, l, q + offset, delta_i1[l][init_i1] + lastoffset);
 				if (init_is_final) setfinalT(hlp->infin[q + offset]);
 			}
-			for (l = 1; l <= sno; ++l)
+			for (l = 1; l <= alphabet_size; ++l)
 				connect(hlp->delta, l, q + offset, delta_i[l][q] + offset);
 		}
 		lastoffset = offset;
@@ -759,7 +759,7 @@ static dfa boole_dfa(dfa_list, expr)
 	posint i, no,
 	       max_no = 0,
 	       n = dfa_list->no,
-	       s, sno = h_da[0]->sno,
+	       s, alphabet_size = h_da[0]->alphabet_size,
 	       sc,
 	       length;
 	b_array b_stack = newb_array(n);
@@ -768,7 +768,7 @@ static dfa boole_dfa(dfa_list, expr)
 	b_root->tupel = newarray(n);
 	first->tupel = b_root->tupel;
 	b_root->no = 0;
-	first->delta_s = newarray(sno + 1);
+	first->delta_s = newarray(alphabet_size + 1);
 	for (i = 0; i != n; ++i)
 	{
 		b_root->tupel[i] =  h_da[i]->init;
@@ -776,14 +776,14 @@ static dfa boole_dfa(dfa_list, expr)
 	}
 
 	while (current != NULL)
-	{ for (s = 1; s <= sno; ++s)
+	{ for (s = 1; s <= alphabet_size; ++s)
 		{ for (i = 0; i != n; ++i) t[i] = h_da[i]->delta[s][current->tupel[i]];
 			no = insert_elt(b_root, t, n, max_no);
 			current->delta_s[s] = no;
 			if (no > max_no)
 			{ last = (last->next = neww_elem());
 				last->tupel = t;
-				last->delta_s = newarray(sno + 1);
+				last->delta_s = newarray(alphabet_size + 1);
 				t = newarray(n);
 				max_no++;
 			}
@@ -791,16 +791,16 @@ static dfa boole_dfa(dfa_list, expr)
 		current = current->next;
 	}
 
-	outdfa->delta = newddelta(sno, max_no);
+	outdfa->delta = newddelta(alphabet_size, max_no);
 	outdfa->final = newfinal(max_no);
-	outdfa->qno = max_no;
-	outdfa->sno = sno;
+	outdfa->highest_state = max_no;
+	outdfa->alphabet_size = alphabet_size;
 	outdfa->init = 0;
 
 	current = first;
 	length = strlen(expr);
 	for (no = 0; no <= max_no; ++no)
-	{ for (s = 1; s <= sno; ++s)
+	{ for (s = 1; s <= alphabet_size; ++s)
 		outdfa->delta[s][no] = current->delta_s[s];
 		sc = 0;
 		i = 0;
@@ -855,7 +855,7 @@ static void first_run(head)
 	buffree();/*tickon=TRUE;*/
 	if(v->is_reg_ab)
 	{v->na = hlp_na;
-		v->q_no = hlp_na->qno + 1;
+		v->q_no = hlp_na->highest_state + 1;
 	}
 	else
 	{/*tickon=FALSE;*/bufmark();
@@ -886,7 +886,7 @@ static void first_run(head)
 					      buffree();/*tickon=TRUE;*/
 					      if(v->is_reg_ab)
 					      {v->na = hlp_na;
-						      v->q_no = hlp_na->qno + 1;
+						      v->q_no = hlp_na->highest_state + 1;
 					      }
 					      else
 					      {/*tickon=FALSE;*/bufmark();
@@ -906,7 +906,7 @@ static void first_run(head)
 							      dfa_list->da[i] = v->son[i]->da;
 						      v->da = (v->op == concatch) ?
 							      conc_dfa(dfa_list) : boole_dfa(dfa_list, v->expr);
-						      v->q_no = v->da->qno + 1;
+						      v->q_no = v->da->highest_state + 1;
 					      }
 					      else
 					      {v->q_no = v->son[0]->q_no + v->son[1]->q_no;
@@ -1024,7 +1024,7 @@ nfa genrex2nfa(regex re) {
 	t_elem head;
 	nfa outnfa;
 
-	S = re->sno;
+	S = re->alphabet_size;
 	head = postfix2tree(re);
 	optimize_tree(head);
 	mark_tree(head);
@@ -1032,10 +1032,10 @@ nfa genrex2nfa(regex re) {
 	first_run(head);
 
 	outnfa = newnfa();
-	outnfa->sno = S;
-	outnfa->qno = head->son[0]->q_no - 1;
-	outnfa->delta = newndelta(outnfa->sno, outnfa->qno);
-	outnfa->infin = newfinal(outnfa->qno);
+	outnfa->alphabet_size = S;
+	outnfa->highest_state = head->son[0]->q_no - 1;
+	outnfa->delta = newndelta(outnfa->alphabet_size, outnfa->highest_state);
+	outnfa->infin = newfinal(outnfa->highest_state);
 	outnfa->minimal = FALSE;
 	outnfa->is_eps =  FALSE;
 	second_run(head, outnfa);

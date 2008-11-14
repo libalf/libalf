@@ -46,27 +46,27 @@ static dfa outdfa;
 static ddelta d;
 
 static wlist waiting, wlast;	/* waiting list */
-static arrayofb_array inwaiting;	/* 0 .. numberofblocks , 0 ..sno */
+static arrayofb_array inwaiting;	/* 0 .. numberofblocks , 0 ..alphabet_size */
 static posint sizeofwaiting;	/* size of list waiting */
 
 static posint numberofblocks;	/* number of blocks -1 */
-static array blocksize;		/* 0 .. qno */
-static array inblock;		/* 0 .. qno */
-static array startblock;	/* 0 .. qno -> block */
-static array nextinblock;	/* 0 .. qno -> block */
-static array previnblock;	/* 0 .. qno -> block */
+static array blocksize;		/* 0 .. highest_state */
+static array inblock;		/* 0 .. highest_state */
+static array startblock;	/* 0 .. highest_state -> block */
+static array nextinblock;	/* 0 .. highest_state -> block */
+static array previnblock;	/* 0 .. highest_state -> block */
 
-static arrayofarrayofarray inverse;	/* inverse of delta  0 .. sno,0 .. qno, 0 .. sizeofinverse */
+static arrayofarrayofarray inverse;	/* inverse of delta  0 .. alphabet_size,0 .. highest_state, 0 .. sizeofinverse */
 				      /* state1 in array inverse[letter][state2] iff 
 				       * d[letter][state1]=state2 
 				       */
-static arrayofarray sizeofinverse;	/* 0 .. sno, 0 .. qno */
+static arrayofarray sizeofinverse;	/* 0 .. alphabet_size, 0 .. highest_state */
 
-static array sizeofintersection;	/* 0 .. qno -> size of intersection block and inverse */
-static array startintersection;	/* 0 .. qno -> start of intersection */
-static array nextintersection;	/* 0 .. qno -> next in intersection */
+static array sizeofintersection;	/* 0 .. highest_state -> size of intersection block and inverse */
+static array startintersection;	/* 0 .. highest_state -> start of intersection */
+static array nextintersection;	/* 0 .. highest_state -> next in intersection */
 
-static array jlist;		/* 0 .. qno */
+static array jlist;		/* 0 .. highest_state */
 static posint sizeofjlist;
 
 static boole with;		/* return map: old state -> new state 
@@ -89,15 +89,15 @@ static void delstates()
 	/* variables for stack */
 	posint high, next;
 	array stack;
-	mark = newb_array(stadfa->qno + 1);
+	mark = newb_array(stadfa->highest_state + 1);
 	mark[stadfa->init] = TRUE;
-	stack = newarray(stadfa->qno + 1);
+	stack = newarray(stadfa->highest_state + 1);
 	stack[0] = stadfa->init;
 	high = 1;
 	next = 0;
 	while(high != next) {
 		state = stack[next++];
-		for (letter = 1; letter <= stadfa->sno; letter++) {
+		for (letter = 1; letter <= stadfa->alphabet_size; letter++) {
 			state2 = d[letter][state];
 			if(!mark[state2]) {
 				stack[high++] = state2;
@@ -110,24 +110,24 @@ static void delstates()
 	 * number of reachable states is high
 	 */
 
-	if(!(high == (stadfa->qno + 1))) {
-		map = newarray(stadfa->qno + 1);	/* map : old - ->new */
+	if(!(high == (stadfa->highest_state + 1))) {
+		map = newarray(stadfa->highest_state + 1);	/* map : old - ->new */
 		for (state = 0; state < high; state++)
 			map[stack[state]] = state;
 		high--;		/* high is highest state */
 		ffinal = newfinal(high);
-		fdelta = newddelta(stadfa->sno, high);
+		fdelta = newddelta(stadfa->alphabet_size, high);
 		for (state = 0; state <= high; state++) {
 			ffinal[state] = stadfa->final[stack[state]];
-			for (letter = 1; letter <= stadfa->sno; letter++)
+			for (letter = 1; letter <= stadfa->alphabet_size; letter++)
 				fdelta[letter][state] = map[d[letter][stack[state]]];
 		}
 		outdfa = newdfa();
 		outdfa->init = map[stadfa->init];
 		outdfa->final = ffinal;
 		outdfa->delta = fdelta;
-		outdfa->qno = high;
-		outdfa->sno = stadfa->sno;
+		outdfa->highest_state = high;
+		outdfa->alphabet_size = stadfa->alphabet_size;
 		if(freeaut) {
 			freedfa(stadfa);
 			dispose(stadfa);
@@ -147,8 +147,8 @@ static boole initstatic()
 {
 	posint bno, letter, state, state2;
 	array last;
-	posint numberofstates = stadfa->qno + 1;	/* abbreviation */
-	posint numberofletters = stadfa->sno + 1;	/* abbreviation */
+	posint numberofstates = stadfa->highest_state + 1;	/* abbreviation */
+	posint numberofletters = stadfa->alphabet_size + 1;	/* abbreviation */
 
 	/* init blocks O(|Q|) */
 	last = newarray(2);
@@ -179,21 +179,21 @@ static boole initstatic()
 	/* init inverse  O(|A||Q|) */
 
 	inverse = newarrayofarrayofarray(numberofletters);
-	for (letter = 1; letter <= stadfa->sno; letter++)
+	for (letter = 1; letter <= stadfa->alphabet_size; letter++)
 		inverse[letter] = newarrayofarray(numberofstates);
 	sizeofinverse = newarrayofarray(numberofletters);
-	for (letter = 1; letter <= stadfa->sno; letter++)
+	for (letter = 1; letter <= stadfa->alphabet_size; letter++)
 		sizeofinverse[letter] = newarray(numberofstates);
-	for (letter = 1; letter <= stadfa->sno; letter++)
-		for (state = 0; state <= stadfa->qno; state++)
+	for (letter = 1; letter <= stadfa->alphabet_size; letter++)
+		for (state = 0; state <= stadfa->highest_state; state++)
 			sizeofinverse[letter][d[letter][state]]++;
-	for (letter = 1; letter <= stadfa->sno; letter++)
-		for (state = 0; state <= stadfa->qno; state++) {
+	for (letter = 1; letter <= stadfa->alphabet_size; letter++)
+		for (state = 0; state <= stadfa->highest_state; state++) {
 			inverse[letter][state] = newarray(sizeofinverse[letter][state]);
 			sizeofinverse[letter][state] = 0;
 		}
-	for (letter = 1; letter <= stadfa->sno; letter++)
-		for (state = 0; state <= stadfa->qno; state++) {
+	for (letter = 1; letter <= stadfa->alphabet_size; letter++)
+		for (state = 0; state <= stadfa->highest_state; state++) {
 			state2 = d[letter][state];
 			inverse[letter][state2][sizeofinverse[letter][state2]++] = state;
 		}
@@ -211,7 +211,7 @@ static boole initstatic()
 	inwaiting[1] = newb_array(numberofletters);
 	waiting = newwlist();	/* dummy */
 	wlast = waiting;
-	for (letter = 1; letter <= stadfa->sno; letter++)
+	for (letter = 1; letter <= stadfa->alphabet_size; letter++)
 		for (bno = 0; bno <= 1; bno++) {
 			wlast->next = newwlist();
 			wlast = wlast->next;
@@ -221,7 +221,7 @@ static boole initstatic()
 		}
 	waiting = waiting->next;	/* delete dummy */
 	wlast->next = waiting;
-	sizeofwaiting = stadfa->sno * 2;
+	sizeofwaiting = stadfa->alphabet_size * 2;
 
 
 /* init jlist O(1) */
@@ -293,7 +293,7 @@ posint bno;
 	previnblock[startblock[numberofblocks]] = last;
 	blocksize[numberofblocks] = sizeofintersection[bno];
 	blocksize[bno] -= sizeofintersection[bno];
-	inwaiting[numberofblocks] = newb_array(stadfa->sno + 1);
+	inwaiting[numberofblocks] = newb_array(stadfa->alphabet_size + 1);
 }
 
 /************************************************************************************/
@@ -335,49 +335,49 @@ boole simple;
 	if(simple) {		/* only one state */
 		outdfa = newdfa();
 		outdfa->final = newfinal(0);
-		outdfa->delta = newddelta(stadfa->sno, 0);
-		outdfa->qno = 0;
-		outdfa->sno = stadfa->sno;
+		outdfa->delta = newddelta(stadfa->alphabet_size, 0);
+		outdfa->highest_state = 0;
+		outdfa->alphabet_size = stadfa->alphabet_size;
 		outdfa->init = 0;
-		for (letter = 1; letter <= outdfa->sno; letter++)
+		for (letter = 1; letter <= outdfa->alphabet_size; letter++)
 			outdfa->delta[letter][0] = 0;
 		outdfa->final[0] = stadfa->final[0];
 		if(with)
-			for (state = 0; state <= stadfa->qno; state++)
+			for (state = 0; state <= stadfa->highest_state; state++)
 				inblock[state] = 0;
 		if(freeaut || (statesdeleted)) {
 			freedfa(stadfa);
 			dispose(stadfa);
 		}
-	} else if(numberofblocks == stadfa->qno) {	/* no changes */
+	} else if(numberofblocks == stadfa->highest_state) {	/* no changes */
 		if(with)
-			for (state = 0; state <= stadfa->qno; state++)
+			for (state = 0; state <= stadfa->highest_state; state++)
 				inblock[state] = state;
 		if((!freeaut) && (!statesdeleted)) {	/* stadfa is the original dfa, copy stadfa to outdfa */
 			outdfa = newdfa();
-			outdfa->qno = stadfa->qno;
-			outdfa->sno = stadfa->sno;
+			outdfa->highest_state = stadfa->highest_state;
+			outdfa->alphabet_size = stadfa->alphabet_size;
 			outdfa->init = stadfa->init;
-			outdfa->final = newfinal(outdfa->qno);
-			outdfa->delta = newddelta(outdfa->sno, outdfa->qno);
-			for (state = 0; state <= outdfa->qno; state++)
+			outdfa->final = newfinal(outdfa->highest_state);
+			outdfa->delta = newddelta(outdfa->alphabet_size, outdfa->highest_state);
+			for (state = 0; state <= outdfa->highest_state; state++)
 				outdfa->final[state] = stadfa->final[state];
-			for (letter = 1; letter <= outdfa->sno; letter++)
-				for (state = 0; state <= outdfa->qno; state++)
+			for (letter = 1; letter <= outdfa->alphabet_size; letter++)
+				for (state = 0; state <= outdfa->highest_state; state++)
 					outdfa->delta[letter][state] = stadfa->delta[letter][state];
 		} else
 			outdfa = stadfa;
 	} else {
 		outdfa = newdfa();
 		outdfa->final = newfinal(numberofblocks);
-		outdfa->delta = newddelta(stadfa->sno, numberofblocks);
-		outdfa->sno = stadfa->sno;
-		outdfa->qno = numberofblocks;
+		outdfa->delta = newddelta(stadfa->alphabet_size, numberofblocks);
+		outdfa->alphabet_size = stadfa->alphabet_size;
+		outdfa->highest_state = numberofblocks;
 		outdfa->init = inblock[stadfa->init];
-		for (state = 0; state <= outdfa->qno; state++) {
+		for (state = 0; state <= outdfa->highest_state; state++) {
 			state2 = startblock[state];	/* representative of block state */
 			outdfa->final[state] = stadfa->final[state2];
-			for (letter = 1; letter <= outdfa->sno; letter++)
+			for (letter = 1; letter <= outdfa->alphabet_size; letter++)
 				outdfa->delta[letter][state] = inblock[stadfa->delta[letter][state2]];
 		}
 		if(freeaut || (statesdeleted)) {
@@ -397,7 +397,7 @@ static void mindfa()
 	d = stadfa->delta;
 	if(!with)
 		delstates();	/* delete non-reachable states */
-	if(stadfa->qno == 0) {
+	if(stadfa->highest_state == 0) {
 		stadfa->minimal = TRUE;
 		outdfa = stadfa;
 		return;
@@ -418,7 +418,7 @@ static void mindfa()
 				if(!(sizeofintersection[bl] == blocksize[bl])) {
 					numberofblocks++;	/* tick(); *//* 7 */
 					split(bl);	/*9,10 */
-					for (letter = 1; letter <= stadfa->sno; letter++)
+					for (letter = 1; letter <= stadfa->alphabet_size; letter++)
 						if(inwaiting[bl][letter])
 							putinwaiting(letter, numberofblocks);
 						else if(blocksize[bl] >= blocksize[numberofblocks])

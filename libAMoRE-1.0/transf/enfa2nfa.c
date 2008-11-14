@@ -45,7 +45,7 @@ register nfa na;
 	register posint k;
 	boole rrobin;
 	register posint i, j;
-	posint q = na->qno;
+	posint q = na->highest_state;
 	/* allocate memory in the scratchpad for mat */
 	mat = (boole ***) newbuf(2, sizeof(boole **));
 	for (i = 0; i < 2; i++) {
@@ -89,17 +89,17 @@ nfa enfa2nfa(nfa epsa)
 	/* copy automaton */
 	result = newnfa();
 	result->is_eps = FALSE;
-	result->qno = epsa->qno;
-	result->sno = epsa->sno;
+	result->highest_state = epsa->highest_state;
+	result->alphabet_size = epsa->alphabet_size;
 	result->minimal = FALSE;
-	result->infin = newfinal(result->qno);
-	result->delta = newndelta(result->sno, result->qno);
-	for (state = 0; state <= result->qno; state++)
+	result->infin = newfinal(result->highest_state);
+	result->delta = newndelta(result->alphabet_size, result->highest_state);
+	for (state = 0; state <= result->highest_state; state++)
 		result->infin[state] = epsa->infin[state];
 	/* copy all letter moves */
-	for (letter = 1; letter <= result->sno; letter++)
-		for (state = 0; state <= result->qno; state++)
-			for (goal = 0; goal <= result->qno; goal++)
+	for (letter = 1; letter <= result->alphabet_size; letter++)
+		for (state = 0; state <= result->highest_state; state++)
+			for (goal = 0; goal <= result->highest_state; goal++)
 				cpdelta(result->delta, letter, state, goal, epsa->delta, letter, state, goal);
 	if(epsa->is_eps) {	/* construct the epsilon-closure of all states
 				 * they are stored in mat[matp]
@@ -109,9 +109,9 @@ nfa enfa2nfa(nfa epsa)
 		 * to a final state; in this case this state becomes a final state
 		 * mat[matp][f][t]   iff  epsilon path from f to t 
 		 */
-		for (state = 0; state <= result->qno; state++)
+		for (state = 0; state <= result->highest_state; state++)
 			if(isinit(result->infin[state]) && (!isfinal(result->infin[state]))) {
-				for (goal = 0; goal <= result->qno; goal++)
+				for (goal = 0; goal <= result->highest_state; goal++)
 					if(isfinal(result->infin[goal]) && mat[matp][state][goal]) {
 						setfinalT(result->infin[state]);
 						break;
@@ -124,10 +124,10 @@ nfa enfa2nfa(nfa epsa)
 		 * cut is the state reached in the latter two cases
 		 * before the "then"
 		 */
-		for (letter = 1; letter <= result->sno; letter++)
-			for (state = 0; state <= result->qno; state++)
-				for (goal = 0; goal <= result->qno; goal++)
-					for (cut = 0; cut <= result->qno; cut++) {
+		for (letter = 1; letter <= result->alphabet_size; letter++)
+			for (state = 0; state <= result->highest_state; state++)
+				for (goal = 0; goal <= result->highest_state; goal++)
+					for (cut = 0; cut <= result->highest_state; cut++) {
 						if(testcon(result->delta, letter, state, goal))
 							connect(result->delta, letter, state, goal);
 						else if((mat[matp][state][cut]) && testcon(result->delta, letter, cut, goal))

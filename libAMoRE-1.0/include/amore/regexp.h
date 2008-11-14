@@ -28,7 +28,7 @@ extern "C" {
  */
 struct rexstruct {
     /** size of alphabet */
-	posint sno;
+	posint alphabet_size;
     /** reg. expr. in infix, with abbreviations */
 	string rex;
     /** reg. expr. in postfix, abbreviations expanded */

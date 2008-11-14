@@ -107,10 +107,10 @@ nfa nfa2mnfa(nfa na, dfa minda)
 	/* MAXI=number of states of the best automaton so far - 1. */
 	dfa b, c;
 	nfa rvs, na1, f, g, h, d, current_best_automaton;
-	if(na->qno < 1)
+	if(na->highest_state < 1)
 		return na;
 	na1 = delsta(na);	/* Delete superfluous states. */
-	if(na1->qno < 1)
+	if(na1->highest_state < 1)
 		return na1;
 
 	b = minda;
@@ -119,16 +119,16 @@ nfa nfa2mnfa(nfa na, dfa minda)
 	/* c is MD(dual automaton to na). */
 	/* The RAM is not explicitly stored, but it is: The        */
 	/* (i,j)-element is 1 iff testelem(i,tra[j]).              */
-	if((na1->qno <= b->qno) && (na1->qno <= c->qno))
+	if((na1->highest_state <= b->highest_state) && (na1->highest_state <= c->highest_state))
 		current_best_automaton = na1;
-	else if(b->qno <= c->qno)
+	else if(b->highest_state <= c->highest_state)
 		current_best_automaton = dfa2nfa(b);	/* FIXME */
 	else
 		current_best_automaton = invers_d(c);
-	MAXI = current_best_automaton->qno;
+	MAXI = current_best_automaton->highest_state;
 
-	ZEILEN = b->qno;
-	SPALTEN = c->qno;
+	ZEILEN = b->highest_state;
+	SPALTEN = c->highest_state;
 	nbz = (ZEILEN + 1) / SIZEOFBYTE + 1;
 	nbs = (SPALTEN + 1) / SIZEOFBYTE + 1;
 	V = (ZEILEN < SPALTEN);
@@ -192,13 +192,13 @@ nfa nfa2mnfa(nfa na, dfa minda)
 		if(MAXI >= MZEILEN) {
 			h = compute_irreducible_automaton(b, compact_row, covered_row, ZEILEN, MZEILEN);
 			current_best_automaton = h;
-			MAXI = h->qno;
+			MAXI = h->highest_state;
 		}
 	} else if(MAXI >= MSPALTEN) {
 		g = compute_irreducible_automaton(c, compact_col, covered_col, SPALTEN, MSPALTEN);
 		h = revnfa(g);	/* Otherwise dual language. */
 		current_best_automaton = h;
-		MAXI = h->qno;
+		MAXI = h->highest_state;
 	}
 	/* The next step is to find the 1's that stand alone in    */
 	/* both their row and their column and to define           */
@@ -439,10 +439,10 @@ posint dastates, nastates;	/* Number of states - 1 of given   */
 	/* Old2new[i] is the number of the new state if i is not   */
 	/* compact and undefined (0) otherwise.                    */
 	na = newnfa();
-	na->sno = da->sno;
-	na->qno = nastates;
-	na->delta = newndelta(na->sno, na->qno);
-	na->infin = newfinal(na->qno);
+	na->alphabet_size = da->alphabet_size;
+	na->highest_state = nastates;
+	na->delta = newndelta(na->alphabet_size, na->highest_state);
+	na->infin = newfinal(na->highest_state);
 	na->is_eps = na->minimal = FALSE;
 	/* Computation of final states. A state that is not        */
 	/* compact is final in na iff it is final in da.           */
@@ -470,7 +470,7 @@ posint dastates, nastates;	/* Number of states - 1 of given   */
 	/* Computation of na->delta. */
 	for (i = 0; i <= dastates; i++) {
 		if(!testelem(i, compact_states->grset)) {	/* Only for states that are not compact. */
-			for (j = 1; j <= da->sno; j++) {
+			for (j = 1; j <= da->alphabet_size; j++) {
 				k = da->delta[j][i];
 				if(testelem(k, compact_states->grset)) {	/* K is compact. Add m to delta[j][i] iff m is     */
 					/* covered by k and is not compact.                */
@@ -861,8 +861,8 @@ nfa f;
 	newpattern(final_grids, nbg);	/* corresponds to an        */
 	/* initial or a final state */
 	/* of the fundamental table. */
-	delta = newmdelta(f->sno);
-	for (i = 0; i < f->sno; i++) {
+	delta = newmdelta(f->alphabet_size);
+	for (i = 0; i < f->alphabet_size; i++) {
 		delta[i] = newgsarray(GITTER);
 		for (j = 0; j < GITTER; j++)
 			newpattern(delta[i][j], nbs);
@@ -900,7 +900,7 @@ nfa f;
 	else
 		S = SPALTEN;
 	for (i = 0, start = firstI; i != GITTER; i++, start = start->next)
-		for (j = 0; j < f->sno; j++)
+		for (j = 0; j < f->alphabet_size; j++)
 			for (l = 0, k = start->info->ncol; k != 0; l++)
 				if(testelem(l, start->info->col)) {
 					k--;

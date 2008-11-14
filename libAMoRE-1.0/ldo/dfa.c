@@ -38,19 +38,19 @@ dfa clonedfa(dfa p)
 	dfa dest = newdfa();
 	int state, letter;
 
-	dest->sno = p->sno;
-	dest->qno = p->qno;
+	dest->alphabet_size = p->alphabet_size;
+	dest->highest_state = p->highest_state;
 	dest->init = p->init;
 	dest->minimal = p->minimal;
-	dest->final = newfinal(dest->qno);
+	dest->final = newfinal(dest->highest_state);
 	/* copy final state flags */
-	for (state = 0; state <= dest->qno; state++) {
+	for (state = 0; state <= dest->highest_state; state++) {
 		setfinal(dest->final[state], p->final[state]);
 	}
 	/* copy transition table */
-	dest->delta = newddelta(dest->sno, dest->qno);
-	for (letter = 1; letter <= dest->sno; letter++)
-		for (state = 0; state <= dest->qno; state++)
+	dest->delta = newddelta(dest->alphabet_size, dest->highest_state);
+	for (letter = 1; letter <= dest->alphabet_size; letter++)
+		for (state = 0; state <= dest->highest_state; state++)
 			dest->delta[letter][state] = p->delta[letter][state];
 
 	return dest;
@@ -60,7 +60,7 @@ void freedfa(dfa da)
 {
 	register posint i;
 	dispose(da->final);
-	for (i = 1; i <= da->sno;)
+	for (i = 1; i <= da->alphabet_size;)
 		dispose(da->delta[i++]);
 	dispose(da->delta);
 }				/* freedfa */

@@ -26,7 +26,7 @@ typedef struct {
 } edgelbl;
 
 static edgelbl **area;
-static posint qst, qno;
+static posint qst, highest_state;
 
 /* create, copy, concat */
 #define CCC(R,L,A,B) {R=(string)newbuf(L,sizeof(char));R=strcpy(R,A);R=strcat(R,B);}
@@ -45,23 +45,23 @@ static void init(nfa na)
 	char *strno = &(str[1]);
 	char *ent, *hlp;
 	boole first, eps;
-	boole alph = (na->sno > ALPHSIZE);
+	boole alph = (na->alphabet_size > ALPHSIZE);
 	/* memory allocation */
-	area = (edgelbl **) newbuf(qno + 1, sizeof(edgelbl *));
-	for (i = 0; i <= qno;)
-		area[i++] = (edgelbl *) newbuf(qno + 1, sizeof(edgelbl));
+	area = (edgelbl **) newbuf(highest_state + 1, sizeof(edgelbl *));
+	for (i = 0; i <= highest_state;)
+		area[i++] = (edgelbl *) newbuf(highest_state + 1, sizeof(edgelbl));
 
 	if(alph)
 		str[0] = 'a';
 	else
 		str[2] = '\0';
 
-	for (j = 0; j <= na->qno; j++)
-		for (i = 0; i <= na->qno; i++) {
+	for (j = 0; j <= na->highest_state; j++)
+		for (i = 0; i <= na->highest_state; i++) {
 			first = TRUE;
 			ent = "";
 			l = 0;
-			for (k = 1; k <= na->sno; k++)
+			for (k = 1; k <= na->alphabet_size; k++)
 				if(testcon(na->delta, k, i, j)) {
 					if(!alph) {
 						str[0] = itoc[k];
@@ -87,10 +87,10 @@ static void init(nfa na)
 		}
 
 	/* epsilon transformation from new initial state to the old ones */
-	for (i = 0, eps = FALSE; i <= na->qno; i++)
+	for (i = 0, eps = FALSE; i <= na->highest_state; i++)
 		if(isinit(na->infin[i])) {
-			area[na->qno + 1][i].s = streps;
-			area[na->qno + 1][i].l = 1;
+			area[na->highest_state + 1][i].s = streps;
+			area[na->highest_state + 1][i].l = 1;
 			if(isfinal(na->infin[i]))
 				eps = TRUE;
 		}
@@ -99,13 +99,13 @@ static void init(nfa na)
 	 * to the new final state
 	 */
 	if(eps) {
-		area[na->qno + 1][na->qno + 2].s = streps;
-		area[na->qno + 1][na->qno + 2].l = 1;
+		area[na->highest_state + 1][na->highest_state + 2].s = streps;
+		area[na->highest_state + 1][na->highest_state + 2].l = 1;
 	}
-	for (i = 0; i <= na->qno; i++)
+	for (i = 0; i <= na->highest_state; i++)
 		if(isfinal(na->infin[i])) {
-			area[i][na->qno + 2].s = streps;
-			area[i][na->qno + 2].l = 1;
+			area[i][na->highest_state + 2].s = streps;
+			area[i][na->highest_state + 2].l = 1;
 		}
 }				/* init */
 
@@ -118,12 +118,12 @@ static void destroyloops()
 {
 	posint i, j, l;
 	char *str;
-	/*for(i=qst; i < qno; i++) */ i = qst;
+	/*for(i=qst; i < highest_state; i++) */ i = qst;
 	if(area[i][i].l) {	/* a loop */
 		l = area[i][i].l + 1;
 		area[i][i].l = 0;
 		if(test(area[i][i].s))	/* @* == @, and @.re2 == re2 */
-			for (j = qst; j <= qno; j++)
+			for (j = qst; j <= highest_state; j++)
 				if(area[i][j].l) {
 					if(test(area[i][j].s)) {	/* re2 != @ */
 						if(!strcmp(area[i][i].s, area[i][j].s)) {	/* use <plusch> */
@@ -155,7 +155,7 @@ static boole deletenode()
 	posint i, j, l1, l2, l3, w1, w2, w3, delnod;
 	string str;
 	delnod = qst++;
-	for (i = qst; i <= qno; i++)
+	for (i = qst; i <= highest_state; i++)
 		if(area[i][delnod].l) {	/* re1 != "" */
 			l1 = area[i][delnod].l;
 			if(test(area[i][delnod].s))
@@ -163,7 +163,7 @@ static boole deletenode()
 			else
 				w1 = 1;
 
-			for (j = qst; j <= qno; j++)
+			for (j = qst; j <= highest_state; j++)
 				if(area[delnod][j].l) {	/* re2 != "" */
 					l2 = area[delnod][j].l;
 					if(test(area[delnod][j].s))
@@ -235,7 +235,7 @@ static boole deletenode()
 					}
 				}
 		}
-	return (qst + 1 < qno);
+	return (qst + 1 < highest_state);
 }				/* deletenode */
 
 /******************************************************************/
@@ -245,7 +245,7 @@ regex nfa2rex(nfa na)
 
 	regex re;
 	qst = 0;
-	qno = na->qno + 2;
+	highest_state = na->highest_state + 2;
 	/* two more states: a new initial and a new final state
 	 * the nfa turns into an epsilon nfa
 	 */
@@ -256,16 +256,16 @@ regex nfa2rex(nfa na)
 	while(deletenode());
 	destroyloops();
 
-	/* the reg. expr. is the label of the transformation (qst,qno) */
+	/* the reg. expr. is the label of the transformation (qst,highest_state) */
 	re = newrex();
-	re->sno = na->sno;
+	re->alphabet_size = na->alphabet_size;
 	re->grex = FALSE;
 	re->useda = -1;
 	re->rexl = 0;
-	if(area[qst][qno].l) {
-		re->erexl = area[qst][qno].l;
+	if(area[qst][highest_state].l) {
+		re->erexl = area[qst][highest_state].l;
 		re->exprex = newrexstr(re->erexl);
-		re->exprex = strcpy(re->exprex, area[qst][qno].s);
+		re->exprex = strcpy(re->exprex, area[qst][highest_state].s);
 	} else {		/* the empty set */
 		re->erexl = 1;
 		re->exprex = emptysetstr;

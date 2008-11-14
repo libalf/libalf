@@ -121,30 +121,30 @@ void debugPrintNfa(nfa n)
 {
 	int i, j;
 	printf("<nfa at %d >", (int) n);
-	printf("\nqno:  %d", n->qno);
-	printf("  sno:     %d", n->sno);
+	printf("\nqno:  %d", n->highest_state);
+	printf("  alphabet_size:     %d", n->alphabet_size);
 	printf("  minimal: %s", n->minimal ? t : f);
 	printf("  is_eps:  %s", n->is_eps ? t : f);
 	/* init and final */
-	printInitStates(n->infin, n->qno);
+	printInitStates(n->infin, n->highest_state);
 	printf("\ninit states: { %s }  ", buf);
-	printFinalStates(n->infin, n->qno);
+	printFinalStates(n->infin, n->highest_state);
 	printf("final states: { %s }\n", buf);
 
 	/* display delta (nondet) */
 	printf("%s", "\ndelta:\n");
 	fflush(stdout);
-	for (i = 0; i <= n->qno; i++) {	/* i = from state */
+	for (i = 0; i <= n->highest_state; i++) {	/* i = from state */
 		printf("q%d  ", i);
 		fflush(stdout);
-		for (j = n->is_eps ? 0 : 1; j <= n->sno; j++) {	/* j = letter     */
+		for (j = n->is_eps ? 0 : 1; j <= n->alphabet_size; j++) {	/* j = letter     */
 
-			printConnectedStates(n->delta, n->qno, i, j);
+			printConnectedStates(n->delta, n->highest_state, i, j);
 			printf("%s", buf);
 			/*
 			   printf("[ %c ->",itoc[j]);
 			   fflush(stdout);
-			   foer( k=0; k<=n->qno; k++ ) {/ k = to state   /
+			   foer( k=0; k<=n->highest_state; k++ ) {/ k = to state   /
 			   fflush(stdout);
 			   if( testcon(n->delta,j,i,k ))
 			   printf("q%d ",k);
@@ -161,20 +161,20 @@ void debugPrintDfa(dfa d)
 {
 	int i, j;
 	printf("<dfa at %d >", (int) d);
-	printf("\nqno:     %d", d->qno);
-	printf("     sno:     %d", d->sno);
+	printf("\nqno:     %d", d->highest_state);
+	printf("     alphabet_size:     %d", d->alphabet_size);
 	printf("\nminimal: %s", d->minimal ? t : f);
 	printf("\ninit:    %d", d->init);
 	/* final */
-	printFinalStates(d->final, d->qno);
+	printFinalStates(d->final, d->highest_state);
 	printf("\nfinal states: { %s }\n", buf);
 
 	printf("\ndelta:\n");
 
 	/* display delta (det) */
-	for (i = 0; i <= d->qno; i++) {	/* from state */
+	for (i = 0; i <= d->highest_state; i++) {	/* from state */
 		printf("q%d  ", i);
-		for (j = 1; j <= d->sno; j++) {	/* letter */
+		for (j = 1; j <= d->alphabet_size; j++) {	/* letter */
 			printf("[%c ->", itoc[j]);
 			printf("q%d ]", d->delta[j][i]);
 		}
@@ -186,7 +186,7 @@ void debugPrintRegExp(regex r)
 {
 	printf("<regexp at %d >", (int) r);
 	printf("generalized ? %s", (r->grex ? t : f));
-	printf("     sno:     %d", r->sno);
+	printf("     alphabet_size:     %d", r->alphabet_size);
 	printf("\nas String (infix) \"%s\"", r->rex);
 	printf("\nexpanded (postfix) \"%s\"\n", r->exprex);
 }
@@ -194,6 +194,6 @@ void debugPrintRegExp(regex r)
 void debugPrintMonoid(monoid m)
 {
 	printf("<monoid at %d >", (int) m);
-	printf("qno (nstates):   %3d  sno (nletters):    %3d", m->qno, m->sno);
+	printf("highest_state (nstates):   %3d  alphabet_size (nletters):    %3d", m->highest_state, m->alphabet_size);
 	printf("mno (nelements): %3d  gno (ngenereators) %3d", m->mno, m->gno);
 }

@@ -42,7 +42,7 @@
 #define newdstate(A)	{ A = (treenode)newbuf(1,sizeof(struct treeelem)); \
 			if(with) A->dfastate = (char*)calloc(1,nb);\
                         else A->dfastate = (char *)newbuf(1,nb); \
-			A->delta = (trans)newbuf(na->sno+1,sizeof(posint));}
+			A->delta = (trans)newbuf(na->alphabet_size+1,sizeof(posint));}
 #define newstack()      (stacknode)newbuf(1,sizeof(struct stackelem));
 #define setelem(A,B)	{ ai = A / SIZEOFBYTE; am = 0x1 << (A % SIZEOFBYTE); \
 			  if (!(B->dfastate[ai] & am)) B->dfastate[ai] += am; }
@@ -263,7 +263,7 @@ static posint compnewstates(nfa na)
 
 	/* first step:  put set of initial states on the stack
 	 * second step: while stack non-empty fetch an element Q
-	 *              and start a loop over letters 1...na->sno
+	 *              and start a loop over letters 1...na->alphabet_size
 	 *              in which R(act_l) = union(q in Q) na->delta(q,act_l)
 	 *              is computed 
 	 * third step: check if R(act_l) is known,
@@ -271,7 +271,7 @@ static posint compnewstates(nfa na)
 	 */
 	/* first step */
 	newdstate(actq);
-	for (q = 0; q <= na->qno; q++)
+	for (q = 0; q <= na->highest_state; q++)
 		if(isinit(na->infin[q])) {
 			setelem(q, actq);
 			if(isfinal(na->infin[q]))
@@ -284,10 +284,10 @@ static posint compnewstates(nfa na)
 	newdstate(nxtq);
 	do {
 		actq = pop();
-		for (l = 1; l <= na->sno; l++) {	/* loop: letters */
-			for (q = 0; q <= na->qno; q++)
+		for (l = 1; l <= na->alphabet_size; l++) {	/* loop: letters */
+			for (q = 0; q <= na->highest_state; q++)
 				if(testelem(q, actq))	/* loop: q in actq */
-					for (p = 0; p <= na->qno; p++)	/* union */
+					for (p = 0; p <= na->highest_state; p++)	/* union */
 						if(testcon(na->delta, l, q, p)) {	/* p reached */
 							setelem(p, nxtq);
 							if(isfinal(na->infin[p]))
@@ -301,7 +301,7 @@ static posint compnewstates(nfa na)
 				newdstate(nxtq);
 			} else {	/* nxtq loeschen */
 				for (ai = 0; ai < nb; nxtq->dfastate[ai++] = 0);
-				for (k = 1; k <= na->sno; nxtq->delta[k++] = (int) NULL);
+				for (k = 1; k <= na->alphabet_size; nxtq->delta[k++] = (int) NULL);
 				nxtq->final = FALSE;
 			}
 			actq->delta[l] = knownelem->number;
@@ -330,7 +330,7 @@ static void cpinfo(dfa da)
 			if(with)
 				new2old[actq->number] = actq->dfastate;
 			da->final[actq->number] = actq->final;	/* final mark */
-			for (l = 1; l <= da->sno; l++)
+			for (l = 1; l <= da->alphabet_size; l++)
 				da->delta[l][actq->number] = actq->delta[l];
 			actq = actq->tr;	/* now go right */
 		} else
@@ -343,27 +343,27 @@ static dfa nnfa2dfa(nfa na)
 	dfa da;
 	posint q;
 	boole empty = TRUE;	/* test: empty set of initial states */
-	nb = (na->qno + 1) / SIZEOFBYTE + 1;
+	nb = (na->highest_state + 1) / SIZEOFBYTE + 1;
 	/* first step: initialize known data of the dfa */
 	da = newdfa();
 	da->init = 0;
-	da->sno = na->sno;
+	da->alphabet_size = na->alphabet_size;
 	da->minimal = FALSE;
 
-	for (q = 0; (q <= na->qno) && empty; q++)
+	for (q = 0; (q <= na->highest_state) && empty; q++)
 		if(isinit(na->infin[q]))
 			empty = FALSE;
 
 	if(empty)
-		da->qno = 0;
+		da->highest_state = 0;
 	else
-		da->qno = compnewstates(na);
+		da->highest_state = compnewstates(na);
 
-	da->final = newfinal(da->qno);
-	da->delta = newddelta(da->sno, da->qno);
+	da->final = newfinal(da->highest_state);
+	da->delta = newddelta(da->alphabet_size, da->highest_state);
 	if(with) {
-		new2old = (char **) calloc(da->qno + 1, sizeof(char *));
-		for (q = 0; q <= da->qno; q++)
+		new2old = (char **) calloc(da->highest_state + 1, sizeof(char *));
+		for (q = 0; q <= da->highest_state; q++)
 			new2old[q] = (char *) calloc(1, nb);
 	}
 	if(!empty)

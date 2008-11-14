@@ -26,11 +26,11 @@ extern "C" {
 
 /** allocates regex, parses string
  *  \ingroup LDO_DECL
- *  \param sno size of alphabet
+ *  \param alphabet_size size of alphabet
  *  \param str string containing the regexp
  *  \warning if symbol JAVA_EXCEPT is defined upon compilation, you can refer to a variable "extern PARSE_RESULT errorParseResult;"
  */
-regex rexFromString(int sno, char *str);
+regex rexFromString(int alphabet_size, char *str);
 
 #ifdef JAVAEXCEPT
 /** the error message is stored in this local variable so a Java Exception

@@ -90,9 +90,9 @@ typedef struct r_struct *rstruct;
  */
 struct mono {
     /** #states */
-	posint qno;
+	posint highest_state;
     /** #letters */
-	posint sno;
+	posint alphabet_size;
     /** #elements */
 	posint mno;
     /** #generators */
@@ -104,7 +104,7 @@ struct mono {
      * transformation of generator i
      */
 	array let2gen;
-    /** transf_ of elements(0 to mno-1, 0 to qno) */
+    /** transf_ of elements(0 to mno-1, 0 to highest_state) */
 	arrayofarray no2trans;
     /** gensucc[i][0]= predecessor of i
      *

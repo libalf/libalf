@@ -150,7 +150,7 @@ char *prword1(char **word, boole copy, posint * length, posint no, monoid mon, b
 			mon->repr[start] = '1';
 	} else if((no == mon->zero) && (zeroone))	/* special case zero */
 		mon->repr[start] = '0';
-	else if(mon->sno > 27)
+	else if(mon->alphabet_size > 27)
 		for (l = 0; l < mon->no2length[no]; l++) {
 			(void) strcat(mon->repr, "a");
 			(void) strcat(mon->repr, pi2a(mon->generator[mon->word[l]]));
@@ -206,7 +206,7 @@ posint mult(monoid mon, posint a, posint b)
 void comprestofmon(mon, indfa)
 /* known gensucc 
  * computes no2trans,gensucc[][0],no2length,lastletter for a computed monoid
- * O(mon->mno*mon->gno+mon->mno*mon->qno)
+ * O(mon->mno*mon->gno+mon->mno*mon->highest_state)
  */
 monoid mon;
 dfa indfa;
@@ -216,7 +216,7 @@ dfa indfa;
 	mon->no2length = newar(mon->mno);
 	mon->lastletter = newar(mon->mno);
 	/* create the identity */
-	for (state = 0; state <= mon->qno; state++)
+	for (state = 0; state <= mon->highest_state; state++)
 		mon->no2trans[0][state] = state;
 	mon->gensucc[0][0] = 0;
 	mon->lastletter[0] = 0;
@@ -229,14 +229,14 @@ dfa indfa;
 				mon->gensucc[run][0] = elem;
 				mon->lastletter[run] = gen;
 				/* compute transformation */
-				for (state = 0; state <= mon->qno; state++)
+				for (state = 0; state <= mon->highest_state; state++)
 					mon->no2trans[run][state] = indfa->delta[mon->generator[gen]][mon->no2trans[elem][state]];
 				mon->no2length[run] = mon->no2length[elem] + 1;
 				run++;
 			}
 	mon->word = newar(mon->no2length[mon->mno - 1]);
 	gen = mon->no2length[mon->mno - 1] + 1;	/* number of letters of longest element +1 */
-	gen *= (mon->sno <= 27) ? 1 : strlen(pi2a(mon->sno)) + 1;
+	gen *= (mon->alphabet_size <= 27) ? 1 : strlen(pi2a(mon->alphabet_size)) + 1;
 	mon->repr = (string) calloc(gen, sizeof(char));
 	for (state = 0; state < gen;)
 		mon->repr[state++] = '\0';

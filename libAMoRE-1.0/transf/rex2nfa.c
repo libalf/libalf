@@ -65,7 +65,7 @@ static posint *poslt, *rposlt;
    notations a1,a2,a3 etc and a,b,c etc are mixed. */
 static posint *skipval;
 static posint hlp;		/* store values, counter */
-static posint sno;		/* size of alphabet */
+static posint alphabet_size;		/* size of alphabet */
 
 /* variables which run through rex and prerex */
 static posint lastrex, lastprerex;
@@ -171,7 +171,7 @@ static boole compfirst(ndelta buf)
 		return (TRUE);
 	case 'A':
 		if(buf != NULL)
-			for (hlp = 1; hlp <= sno; hlp++)
+			for (hlp = 1; hlp <= alphabet_size; hlp++)
 				connect(buf, hlp, constate, rposch[firstprerex - 1]);
 		return (FALSE);
 	case 'a':
@@ -373,11 +373,11 @@ nfa rex2nfa(regex re)
 
 	posch = newarray(re->erexl);
 	poslt = newarray(re->erexl);	/* oma */
-	sno = re->sno;
+	alphabet_size = re->alphabet_size;
 
 	/* known values of the result */
 	result = newnfa();
-	result->sno = re->sno;
+	result->alphabet_size = re->alphabet_size;
 	result->is_eps = FALSE;
 	result->minimal = FALSE;
 
@@ -467,9 +467,9 @@ nfa rex2nfa(regex re)
 	}			/* for */
 
 	/* now fill in the missing values */
-	result->qno = stateno;
-	result->infin = newfinal(result->qno);
-	result->delta = newndelta(result->sno, result->qno);
+	result->highest_state = stateno;
+	result->infin = newfinal(result->highest_state);
+	result->delta = newndelta(result->alphabet_size, result->highest_state);
 
 	/* a special initial state (unique) */
 	setinit(result->infin[0]);

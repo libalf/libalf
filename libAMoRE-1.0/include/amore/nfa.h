@@ -41,9 +41,9 @@ typedef ntrans *ndelta;
  */
 struct nfauto {
     /** number of states */
-	posint qno;
-    /** size of alphabet */
-	posint sno;
+	posint highest_state;
+    /** size of alphabet. labels are 1 .. alphabet_size, 0 is epsilon */
+	posint alphabet_size;
     /** marks for final and init. states */
 	mrkfin infin;
     /** ndet. transition relation */
