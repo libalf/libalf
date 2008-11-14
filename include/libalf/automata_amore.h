@@ -90,14 +90,15 @@ class deterministic_finite_amore_automaton : public deterministic_finite_automat
 		virtual list<int> get_sample_word(bool & is_empty);
 		virtual bool is_empty();
 		virtual bool operator==(finite_language_automaton &other);
-		virtual bool includes(finite_language_automaton &subautomaton);
+		virtual bool lang_subset_of(finite_language_automaton &other);
+		virtual bool lang_disjoint_to(finite_language_automaton &other);
 		virtual bool contains(list<int> &word);
 		virtual void minimize();
 		virtual void lang_complement();
 		virtual nondeterministic_finite_automaton * lang_union(finite_language_automaton &other);
 		virtual finite_language_automaton * lang_intersect(finite_language_automaton &other);
-		virtual nondeterministic_finite_automaton * lang_symmetric_difference(finite_language_automaton &other);
 		virtual deterministic_finite_amore_automaton * lang_difference(finite_language_automaton &other);
+		virtual nondeterministic_finite_automaton * lang_symmetric_difference(finite_language_automaton &other);
 		virtual nondeterministic_finite_automaton * lang_concat(finite_language_automaton &other);
 
 		virtual nondeterministic_finite_automaton * nondeterminize();
@@ -144,14 +145,15 @@ class nondeterministic_finite_amore_automaton : public nondeterministic_finite_a
 		virtual list<int> get_sample_word(bool & is_empty);
 		virtual bool is_empty();
 		virtual bool operator==(finite_language_automaton &other);
-		virtual bool includes(finite_language_automaton &subautomaton);
+		virtual bool lang_subset_of(finite_language_automaton &other);
+		virtual bool lang_disjoint_to(finite_language_automaton &other);
 		virtual bool contains(list<int> &word);
 		virtual void minimize();
 		virtual void lang_complement();
 		virtual nondeterministic_finite_automaton * lang_union(finite_language_automaton &other);
 		virtual finite_language_automaton * lang_intersect(finite_language_automaton &other);
-		virtual nondeterministic_finite_automaton * lang_symmetric_difference(finite_language_automaton &other);
 		virtual deterministic_finite_amore_automaton * lang_difference(finite_language_automaton &other);
+		virtual nondeterministic_finite_automaton * lang_symmetric_difference(finite_language_automaton &other);
 		virtual nondeterministic_finite_automaton * lang_concat(finite_language_automaton &other);
 
 		virtual nondeterministic_finite_amore_automaton * nondeterminize();

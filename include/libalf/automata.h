@@ -127,8 +127,11 @@ class finite_language_automaton : public finite_automaton {
 		// BINARY TESTS
 		// test if this == other
 		virtual bool operator==(finite_language_automaton &other) = 0;
-		// test if this includes subautomaton
-		virtual bool includes(finite_language_automaton &subautomaton) = 0;
+
+		// test if this is a subset of other
+		virtual bool lang_subset_of(finite_language_automaton &other) = 0;
+		// test if this and other are disjoint
+		virtual bool lang_disjoint_to(finite_language_automaton &other) = 0;
 
 		// test if word is contained in language of this
 		virtual bool contains(list<int>&) = 0;
@@ -142,10 +145,10 @@ class finite_language_automaton : public finite_automaton {
 		virtual finite_language_automaton * lang_union(finite_language_automaton &other) = 0;
 		// this AND b
 		virtual finite_language_automaton * lang_intersect(finite_language_automaton &other) = 0;
-		// (this+b) - (this AND b)
-		virtual finite_language_automaton * lang_symmetric_difference(finite_language_automaton &other) = 0;
-		// this-b
+		// this\b
 		virtual finite_language_automaton * lang_difference(finite_language_automaton &other) = 0;
+		// (this\other) + (other\this)
+		virtual finite_language_automaton * lang_symmetric_difference(finite_language_automaton &other) = 0;
 		// this.b
 		virtual finite_language_automaton * lang_concat(finite_language_automaton &other) = 0;
 
