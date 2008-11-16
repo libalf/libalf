@@ -47,7 +47,7 @@ int main(int argc, char**argv)
 	int alphabet_size;
 
 	// use NFA or DFA as oracle/teacher source?
-	bool use_nfa = false;
+	bool use_nfa = true;
 
 	// init AMoRE buffers
 	initbuf();

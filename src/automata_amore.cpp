@@ -411,6 +411,7 @@ bool nondeterministic_finite_amore_automaton::lang_subset_of(finite_language_aut
 
 	deterministic_finite_amore_automaton * o_d;
 	nondeterministic_finite_amore_automaton * o_n;
+	deterministic_finite_automaton * t_d;
 
 	bool had_to_determinize = false;
 
@@ -428,7 +429,9 @@ bool nondeterministic_finite_amore_automaton::lang_subset_of(finite_language_aut
 		o_d = dynamic_cast<deterministic_finite_amore_automaton*> (o_n->determinize());
 	}
 
-	ret = o_d->lang_subset_of(*this);
+	t_d = this->determinize();
+	ret = t_d->lang_subset_of(*o_d);
+	delete t_d;
 
 	if(had_to_determinize)
 		delete o_d;
@@ -791,6 +794,7 @@ deterministic_finite_amore_automaton * nondeterministic_finite_amore_automaton::
 
 	deterministic_finite_amore_automaton * o_d;
 	nondeterministic_finite_amore_automaton * o_n;
+	deterministic_finite_amore_automaton * t_d;
 
 	bool had_to_determinize = false;
 
@@ -808,7 +812,9 @@ deterministic_finite_amore_automaton * nondeterministic_finite_amore_automaton::
 		o_d = dynamic_cast<deterministic_finite_amore_automaton*> (o_n->determinize());
 	}
 
-	ret = o_d->lang_difference(*this);
+	t_d = dynamic_cast<deterministic_finite_amore_automaton*>(this->determinize());
+	ret = t_d->lang_difference(*o_d);
+	delete t_d;
 
 	if(had_to_determinize)
 		delete o_d;
@@ -834,25 +840,13 @@ nondeterministic_finite_automaton * deterministic_finite_amore_automaton::lang_s
 	return ret;
 }}}
 nondeterministic_finite_automaton * nondeterministic_finite_amore_automaton::lang_symmetric_difference(finite_language_automaton &other)
-{
-	// FIXME: this seems to be not working (or lang_difference);
-
+{{{
 	deterministic_finite_amore_automaton * L1_without_L2;
 	finite_language_automaton * L2_without_L1;
 	nondeterministic_finite_automaton * ret = NULL;
 
 	L1_without_L2 = lang_difference(other);
 	L2_without_L1 = other.lang_difference(*this);
-/*
-ofstream file;
-file.open("backend-wo-hyp.dot");
-file << L1_without_L2->generate_dotfile();
-file.close();
-
-file.open("hyp-wo-backend.dot");
-file << L2_without_L1->generate_dotfile();
-file.close();
-*/
 
 	ret = L1_without_L2->lang_union(*L2_without_L1);
 
@@ -860,7 +854,7 @@ file.close();
 	delete L2_without_L1;
 
 	return ret;
-}
+}}}
 
 nondeterministic_finite_automaton * deterministic_finite_amore_automaton::lang_concat(finite_language_automaton &other)
 {{{
@@ -868,6 +862,7 @@ nondeterministic_finite_automaton * deterministic_finite_amore_automaton::lang_c
 
 	deterministic_finite_amore_automaton * o_d;
 	nondeterministic_finite_amore_automaton * o_n;
+	nondeterministic_finite_automaton * t_n;
 
 	bool had_to_nondeterminize = false;
 
@@ -886,7 +881,9 @@ nondeterministic_finite_automaton * deterministic_finite_amore_automaton::lang_c
 		o_n = dynamic_cast<nondeterministic_finite_amore_automaton*> (o_n->nondeterminize());
 	}
 
-	ret = o_n->lang_concat(*this);
+	t_n = this->nondeterminize();
+	ret = dynamic_cast<nondeterministic_finite_automaton*>(t_n->lang_concat(*o_n));
+	delete t_n;
 
 	if(had_to_nondeterminize)
 		delete o_n;
