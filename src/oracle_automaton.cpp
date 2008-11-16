@@ -64,21 +64,6 @@ pair<bool, list< list<int> > > oracle_automaton::equivalence_query(finite_langua
 		bool is_empty;
 
 		difference = backend_automaton->lang_symmetric_difference(hypothesis);
-/*
-ofstream file;
-file.open("hypothesis-automaton.dot");
-file << hypothesis.generate_dotfile();
-file.close();
-
-file.open("backend-automaton.dot");
-file << backend_automaton->generate_dotfile();
-file.close();
-
-file.open("difference-automaton.dot");
-file << difference->generate_dotfile();
-file.close();
-*/
-
 		word = difference->get_sample_word(is_empty);
 
 		if(difference->is_empty()) {
