@@ -33,6 +33,7 @@ int main(int argc, char**argv)
 	logger *log;
 
 	basic_string<int32_t> serialized;
+	basic_string<int32_t>::iterator sit;
 	ofstream file;
 
 	bool success = false;
@@ -81,27 +82,43 @@ int main(int argc, char**argv)
 
 
 
+
 	// serialize and deserialize now
 	serialized = nfa->serialize();
+	sit = serialized.begin();
 
 	delete nfa;
 	nfa = new nondeterministic_finite_amore_automaton();
-	nfa->deserialize(serialized);
-
-	file.open("deserialized-nfa.dot");
-	file << nfa->generate_dotfile();
-	file.close();
+	if(! nfa->deserialize(sit, serialized.end()) ) {
+		cout << "nfaa serialization failed: returned false.\n";
+	} else {
+		if(sit != serialized.end()) {
+			cout << "nfaa serialization failed: not at end of blob.\n";
+		} else {
+			file.open("deserialized-nfa.dot");
+			file << nfa->generate_dotfile();
+			file.close();
+		}
+	}
 
 
 	serialized = dfa->serialize();
+	sit = serialized.begin();
 
 	delete dfa;
 	dfa = new deterministic_finite_amore_automaton();
-	dfa->deserialize(serialized);
+	if(! dfa->deserialize(sit, serialized.end()) ) {
+		cout << "dfaa serialization failed: returned false.\n";
+	} else {
+		if(sit != serialized.end()) {
+			cout << "dfaa serialization failed: not at end of blob.\n";
+		} else {
+			file.open("deserialized-dfa.dot");
+			file << dfa->generate_dotfile();
+			file.close();
+		}
+	}
 
-	file.open("deserialized-dfa.dot");
-	file << dfa->generate_dotfile();
-	file.close();
 
 
 

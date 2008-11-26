@@ -938,6 +938,9 @@ std::basic_string<int32_t> deterministic_finite_amore_automaton::serialize()
 	unsigned int s; // state id
 	unsigned int l; // label only unsigned here because -1 == epsilon will not occur in dfa!
 
+	// stream length; will be filled in later
+	ret += 0;
+
 	// alphabet size
 	ret += htonl(dfa_p->alphabet_size);
 	// state count
@@ -967,6 +970,8 @@ std::basic_string<int32_t> deterministic_finite_amore_automaton::serialize()
 	ret += htonl(temp.length() / 3);
 	ret += temp;
 
+	ret[0] = htonl(ret.length() - 1);
+
 	return ret;
 }}}
 std::basic_string<int32_t> nondeterministic_finite_amore_automaton::serialize()
@@ -979,6 +984,10 @@ std::basic_string<int32_t> nondeterministic_finite_amore_automaton::serialize()
 	if(!nfa_p) {
 		return ret; // empty basic_string
 	}
+
+	// stream length; will be filled in later
+	ret += 0;
+
 	// alphabet size
 	ret += htonl(nfa_p->alphabet_size);
 	// state count
@@ -1019,30 +1028,34 @@ std::basic_string<int32_t> nondeterministic_finite_amore_automaton::serialize()
 	// transitions
 	ret += temp;
 
+	ret[0] = htonl(ret.length() - 1);
+
 	return ret;
 }}}
 
-bool deterministic_finite_amore_automaton::deserialize(basic_string<int32_t> &automaton)
+bool deterministic_finite_amore_automaton::deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 {{{
+	int size;
 	int s, count;
-	basic_string<int32_t>::iterator si, end;
+
+	if(it == limit)
+		goto dfaa_deserialization_failed;
+
+	// string length (excluding length field)
+	size = ntohl(*it);
+	it++;
+	if(size <= 0 || limit == it) goto dfaa_deserialization_failed;
 
 	if(dfa_p)
 		freedfa(dfa_p);
 	dfa_p = newdfa();
 
-	if(automaton.size() < 6) // that's the shortest possible automaton
-		goto dfaa_deserialization_failed;
-
-	si = automaton.begin();
-	end = automaton.end();
-
 	// alphabet size
-	dfa_p->alphabet_size = ntohl(*si);
+	dfa_p->alphabet_size = ntohl(*it);
 
 	// state count
-	si++;
-	dfa_p->highest_state = ntohl(*si) - 1;
+	size--, it++; if(size <= 0 || limit == it) goto dfaa_deserialization_failed;
+	dfa_p->highest_state = ntohl(*it) - 1;
 
 	// allocate data structures
 	dfa_p->final = newfinal(dfa_p->highest_state);
@@ -1051,54 +1064,51 @@ bool deterministic_finite_amore_automaton::deserialize(basic_string<int32_t> &au
 		goto dfaa_deserialization_failed;
 
 	// initial state
-	si++;
-	if(ntohl(*si) != 1) // dfa only allows exactly one initial state
+	size--, it++; if(size <= 0 || limit == it) goto dfaa_deserialization_failed;
+	if(ntohl(*it) != 1) // dfa only allows exactly one initial state
 		goto dfaa_deserialization_failed;
 
-	si++;
-	dfa_p->init = ntohl(*si);
+	size--, it++; if(size <= 0 || limit == it) goto dfaa_deserialization_failed;
+	dfa_p->init = ntohl(*it);
+	if(dfa_p->init > dfa_p->highest_state)
+		goto dfaa_deserialization_failed;
 
 	// final states
-	si++;
-	count = ntohl(*si);
+	size--, it++; if(size <= 0 || limit == it) goto dfaa_deserialization_failed;
+	count = ntohl(*it);
 
-	si++;
 	for(s = 0; s < count; s++) {
-		if(si == end)
+		size--, it++; if(size <= 0 || limit == it) goto dfaa_deserialization_failed;
+		if(ntohl(*it) > dfa_p->highest_state)
 			goto dfaa_deserialization_failed;
-		setfinal(dfa_p->final[ntohl(*si)],1);
-		si++;
+		setfinal(dfa_p->final[ntohl(*it)],1);
 	}
 
 	// transitions
-	if(si == end)
-		goto dfaa_deserialization_failed;
-	count = ntohl(*si);
-	si++;
+	size--, it++; if(size <= 0 || limit == it) goto dfaa_deserialization_failed;
+	count = ntohl(*it);
 	for(s = 0; s < count; s++) {
 		int32_t src, label, dst;
 
-		if(si == end)
-			goto dfaa_deserialization_failed;
-		src = ntohl(*si);
-		si++;
-		if(si == end)
-			goto dfaa_deserialization_failed;
-		label = ntohl(*si);
-		si++;
-		if(si == end)
-			goto dfaa_deserialization_failed;
-		dst = ntohl(*si);
-		si++;
+		size--, it++; if(size <= 0 || limit == it) goto dfaa_deserialization_failed;
+		src = ntohl(*it);
+		size--, it++; if(size <= 0 || limit == it) goto dfaa_deserialization_failed;
+		label = ntohl(*it);
+		size--, it++; if(size <= 0 || limit == it) goto dfaa_deserialization_failed;
+		dst = ntohl(*it);
 
-		if( (label < 0) || (label >= (int)dfa_p->alphabet_size) || (src < 0) || (src > (int)dfa_p->highest_state) || (dst < 0) || (dst > (int)dfa_p->highest_state) ) // invalid transition
+		if(   (label < 0) || (label >= (int)dfa_p->alphabet_size)
+		   || (src < 0) || (src > (int)dfa_p->highest_state)
+		   || (dst < 0) || (dst > (int)dfa_p->highest_state) )
 			goto dfaa_deserialization_failed;
 
 		// transition function: delta[sigma][source] = destination
 		dfa_p->delta[label+1][src] = dst;
 	}
 
-	if(si != end) // remainder at end of string
+	size--, it++;
+
+	if(size != 0)
 		goto dfaa_deserialization_failed;
 
 	return true;
@@ -1108,27 +1118,29 @@ dfaa_deserialization_failed:
 	dfa_p = NULL;
 	return false;
 }}}
-bool nondeterministic_finite_amore_automaton::deserialize(basic_string<int32_t> &automaton)
+bool nondeterministic_finite_amore_automaton::deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 {{{
+	int size;
 	int s, count;
-	basic_string<int32_t>::iterator si, end;
+
+	if(it == limit)
+		goto nfaa_deserialization_failed;
+
+	// string length (excluding length field)
+	size = ntohl(*it);
+	it++;
+	if(size <= 0 || limit == it) goto nfaa_deserialization_failed;
 
 	if(nfa_p)
 		freenfa(nfa_p);
 	nfa_p = newnfa();
 
-	if(automaton.size() < 6) // that's the shortest possible automaton
-		goto nfaa_deserialization_failed;
-
-	si = automaton.begin();
-	end = automaton.end();
-
 	// alphabet size
-	nfa_p->alphabet_size = ntohl(*si);
+	nfa_p->alphabet_size = ntohl(*it);
 
 	// state count
-	si++;
-	nfa_p->highest_state = ntohl(*si) - 1;
+	size--, it++; if(size <= 0 || limit == it) goto nfaa_deserialization_failed;
+	nfa_p->highest_state = ntohl(*it) - 1;
 
 	// allocate data structures
 	nfa_p->infin = newfinal(nfa_p->highest_state);
@@ -1138,58 +1150,51 @@ bool nondeterministic_finite_amore_automaton::deserialize(basic_string<int32_t> 
 		goto nfaa_deserialization_failed;
 
 	// initial states
-	si++;
-	count = ntohl(*si);
+	size--, it++; if(size <= 0 || limit == it) goto nfaa_deserialization_failed;
+	count = ntohl(*it);
 
-	si++;
 	for(s = 0; s < count; s++) {
-		if(si == end)
+		size--, it++; if(size <= 0 || limit == it) goto nfaa_deserialization_failed;
+		if(ntohl(*it) > nfa_p->highest_state)
 			goto nfaa_deserialization_failed;
-		setinit(nfa_p->infin[ntohl(*si)]);
-		si++;
+		setinit(nfa_p->infin[ntohl(*it)]);
 	}
 
 	// final states
-	if(si == end)
-		goto nfaa_deserialization_failed;
-	count = ntohl(*si);
-	si++;
+	size--, it++; if(size <= 0 || limit == it) goto nfaa_deserialization_failed;
+	count = ntohl(*it);
 
 	for(s = 0; s < count; s++) {
-		if(si == end)
+		size--, it++; if(size <= 0 || limit == it) goto nfaa_deserialization_failed;
+		if(ntohl(*it) > nfa_p->highest_state)
 			goto nfaa_deserialization_failed;
-		setfinalT(nfa_p->infin[ntohl(*si)]);
-		si++;
+		setfinalT(nfa_p->infin[ntohl(*it)]);
 	}
 
 	// transitions
-	if(si == end)
-		goto nfaa_deserialization_failed;
-	count = ntohl(*si);
-	si++;
+	size--, it++; if(size <= 0 || limit == it) goto nfaa_deserialization_failed;
+	count = ntohl(*it);
 	for(s = 0; s < count; s++) {
 		int32_t src, label, dst;
 
-		if(si == end)
-			goto nfaa_deserialization_failed;
-		src = ntohl(*si);
-		si++;
-		if(si == end)
-			goto nfaa_deserialization_failed;
-		label = ntohl(*si);
-		si++;
-		if(si == end)
-			goto nfaa_deserialization_failed;
-		dst = ntohl(*si);
-		si++;
+		size--, it++; if(size <= 0 || limit == it) goto nfaa_deserialization_failed;
+		src = ntohl(*it);
+		size--, it++; if(size <= 0 || limit == it) goto nfaa_deserialization_failed;
+		label = ntohl(*it);
+		size--, it++; if(size <= 0 || limit == it) goto nfaa_deserialization_failed;
+		dst = ntohl(*it);
 
-		if( (label < -1) || (label >= (int)nfa_p->alphabet_size) || (src < 0) || (src > (int)nfa_p->highest_state) || (dst < 0) || (dst > (int)nfa_p->highest_state) ) // invalid transition
+		if(   (label < -1) || (label >= (int)nfa_p->alphabet_size)
+		   || (src < 0) || (src > (int)nfa_p->highest_state)
+		   || (dst < 0) || (dst > (int)nfa_p->highest_state) )
 			goto nfaa_deserialization_failed;
 
 		connect(nfa_p->delta, label+1, src, dst);
 	}
 
-	if(si != end) // remainder at end of string
+	size--, it++;
+
+	if(size != 0)
 		goto nfaa_deserialization_failed;
 
 	return true;

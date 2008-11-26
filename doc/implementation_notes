@@ -7,7 +7,8 @@ serialized data consists of a stream of int32_t conforming to the following:
 
 1) all values are in network-byte-order
 2) the first int32_t notes the length of the upcoming stream. note: the data
-   is thus length*4 bytes long (as int32_t is 4 bytes long)
+   (excluding the size field) is thus length*4 bytes long (as int32_t is
+   4 bytes long)
 
 methods shall conform to the following interface:
 

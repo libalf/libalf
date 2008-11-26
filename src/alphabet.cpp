@@ -100,22 +100,20 @@ basic_string<int32_t> serialize_word(list<int> &word)
 	return ret;
 }}}
 
-bool deserialize_word(list<int32_t> into, basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator maximum)
+bool deserialize_word(list<int32_t> into, basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 {{{
 	int length;
 
 	into.clear();
 
-	if(it == maximum)
-		return false;
+	if(it == limit) return false;
 
 	length = ntohl(*it);
 	it++;
 
-	if(it == maximum)
-		return false;
+	if(it == limit) return false;
 
-	for(/* -- */; it != maximum && length > 0; length--, it++)
+	for(/* -- */; it != limit && length > 0; length--, it++)
 		into.push_back(ntohl(*it));
 
 	if(length) {

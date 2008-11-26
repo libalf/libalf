@@ -158,22 +158,23 @@ class finite_language_automaton : public finite_automaton {
 		// format for serialization:
 		// all values in NETWORK BYTE ORDER!
 		// <serialized automaton>
-		//	int alphabet size
-		//	int state count
-		//	int number of initial states
+		//	string length (not in bytes but in int32_t)
+		//	alphabet size
+		//	state count
+		//	number of initial states
 		//	for each initial state:
-		//		int state id
-		//	int number of final states
+		//		state id
+		//	number of final states
 		//	for each final state:
-		//		int state id
-		//	int number of transitions
+		//		state id
+		//	number of transitions
 		//	for each transition:
-		//		int source state id
-		//		int label (-1 for epsilon)
-		//		int destination state id
+		//		source state id
+		//		label (-1 for epsilon)
+		//		destination state id
 		// </serialized automaton>
 		virtual basic_string<int32_t> serialize() = 0;
-		virtual bool deserialize(basic_string<int32_t> &automaton) = 0;
+		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit) = 0;
 
 		// the following two functions use serialize() and deserialize() and are thus implementation-independent:
 		// please stick to construct for constructing automata, not to deserialize, as the format or serialize may change

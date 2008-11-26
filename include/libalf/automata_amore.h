@@ -105,7 +105,7 @@ class deterministic_finite_amore_automaton : public deterministic_finite_automat
 		virtual deterministic_finite_amore_automaton * determinize();
 
 		virtual basic_string<int32_t> serialize();
-		virtual bool deserialize(basic_string<int32_t> &automaton);
+		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
 
 		bool construct(int alphabet_size, int state_count, list<int> start, list<int> final, list<transition> transitions);
 
@@ -160,7 +160,7 @@ class nondeterministic_finite_amore_automaton : public nondeterministic_finite_a
 		virtual deterministic_finite_automaton * determinize();
 
 		virtual basic_string<int32_t> serialize();
-		virtual bool deserialize(basic_string<int32_t> &automaton);
+		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
 	// new
 		virtual void set_nfa(nfa a);
 		virtual nfa get_nfa();

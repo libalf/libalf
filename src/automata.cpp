@@ -46,6 +46,8 @@ string finite_language_automaton::generate_dotfile()
 		"\trankdir=LR;\n"
 		"\tsize=8;\n";
 
+	si++; // skip length field
+
 	si++; // skip alphabet size
 	si++; // skip state count
 	// number of initial states
@@ -149,6 +151,8 @@ bool finite_language_automaton::construct(int alphabet_size, int state_count, li
 	list<transition>::iterator tit;
 
 	// serialize that data and call deserialize :)
+	ser += 0;
+
 	ser += htonl(alphabet_size);
 
 	ser += htonl(state_count);
@@ -168,7 +172,11 @@ bool finite_language_automaton::construct(int alphabet_size, int state_count, li
 		ser += htonl(tit->destination);
 	}
 
-	return this->deserialize(ser);
+	ser[0] = htonl(ser.length() - 1);
+
+	basic_string<int32_t>::iterator ser_begin = ser.begin();
+
+	return this->deserialize(ser_begin, ser.end());
 }}}
 
 } // end namespace libalf
