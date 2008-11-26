@@ -50,14 +50,14 @@ int main(int argc, char**argv)
 	bool use_nfa = false;
 
 	// init AMoRE buffers
-	initbuf();
+	initbuf(); // XXX LEAK
 
 	bool regex_ok;
 	if(argc == 3) {
-		nfa = new nondeterministic_finite_amore_automaton(atoi(argv[1]), argv[2], regex_ok);
+		nfa = new nondeterministic_finite_amore_automaton(atoi(argv[1]), argv[2], regex_ok); // XXX LEAK
 	} else {
 		if(argc == 2) {
-			nfa = new nondeterministic_finite_amore_automaton(argv[1], regex_ok);
+			nfa = new nondeterministic_finite_amore_automaton(argv[1], regex_ok); // XXX LEAK
 		} else {
 			cout << "either give a sole regex as parameter, or give <alphabet size> <regex>.\n\n";
 			cout << "example regular expressions:\n";
@@ -90,19 +90,19 @@ int main(int argc, char**argv)
 		finite_language_automaton *dfa;
 
 		dfa = nfa->determinize();
-		dfa->minimize();
+		dfa->minimize(); // XXX LEAK
 
 		file.open("original-dfa.dot");
 		file << dfa->generate_dotfile();
 		file.close();
 
-		teach.set_automaton(*dfa);
+		teach.set_automaton(*dfa); // XXX LEAK
 		o.set_automaton(*dfa);
 
 		delete dfa;
 	};
 
-//	delete nfa; // not needed anymore
+	delete nfa; // not needed anymore
 
 	// create oracle instance and teacher instance
 	teach.set_statistics_counter(&stats);
@@ -129,7 +129,7 @@ int main(int argc, char**argv)
 		// if this test is ok, all worked well
 
 		pair<bool, list< list<int> > > oracle_answer;
-		oracle_answer = o.equivalence_query(hypothesis);
+		oracle_answer = o.equivalence_query(hypothesis); // XXX LEAK
 
 		if(oracle_answer.first) {
 			cout << "success.\n";

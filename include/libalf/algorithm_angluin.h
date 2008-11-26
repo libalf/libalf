@@ -124,15 +124,41 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			  // FIXME: throw exception
 		}}}
 
-		virtual void savetofile(char* filename)
+		/*
+		virtual basic_string<int32_t> serialize()
 		{
-			
+			basic_string<int32_t> ret;
+			basic_string<int32_t> temp;
+			table::iterator ti;
+
+			ret += htonl(LAI_ANGLUIN_OBSERVATIONTABLE);
+
+			// alphabet size
+			ret += htonl(alphabet_size);
+
+			// column list
+			ret += htonl(columnlist.length());
+			for(columnlist::iterator ci = columnlist.begin(); ci != columnlist.end(); ci++)
+				ret += serialize_word(*ci);
+
+			// upper table
+			ret += htonl(upper_table.size());
+			for(ti = upper_table.begin(); ti != upper_table.end(); ti++)
+				ret += serialize_table_entry(ti);
+
+			// lower table
+			ret += htonl(lower_table.size());
+			for(ti = lower_table.begin(); ti != lower_table.end(); ti++)
+				ret += serialize_table_entry(ti);
+
+			return ret;
 		}
 
-		virtual void loadfromfile(char* filename)
+		virtual void deserialize(basic_string<int32_t> &data)
 		{
 			
 		}
+		*/
 
 		virtual void print(ostream &os)
 		{{{
@@ -237,6 +263,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		}}}
 
 		virtual void add_counterexample(list<int> word, answer a)
+		// FIXME: check for increase of alphabet
 		{{{
 			list<int> prefix = word;
 			int ps;
@@ -257,6 +284,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		}}}
 
 		virtual void add_counterexample(list<int> word)
+		// FIXME: check for increase of alphabet
 		{{{
 			list<int> prefix = word;
 

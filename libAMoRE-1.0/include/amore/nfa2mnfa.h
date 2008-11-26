@@ -30,6 +30,7 @@ extern "C" {
  * \ingroup TRANSF_A_FROM_NFA
  * finds a nfa with the smallest number of states that accepts
  * the same language as na.
+ * \param minda minda has to be a minimized, determinized version of na
  */
 nfa nfa2mnfa(nfa na, dfa minda);
 

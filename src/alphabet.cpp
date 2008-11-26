@@ -14,6 +14,8 @@
 #include <ostream>
 #include <iterator>
 
+#include <arpa/inet.h>
+
 #include "libalf/alphabet.h"
 #include "libalf/alf.h"
 
@@ -84,6 +86,44 @@ void print_word(list<int> &word)
 	printf(".");
 	for(list<int>::iterator l = word.begin(); l != word.end(); l++)
 		printf("%d.", *l);
+}}}
+
+basic_string<int32_t> serialize_word(list<int> &word)
+{{{
+	basic_string<int32_t> ret;
+
+	ret += htonl(word.size());
+
+	for(list<int>::iterator l = word.begin(); l != word.end(); l++)
+		ret += htonl(*l);
+
+	return ret;
+}}}
+
+bool deserialize_word(list<int32_t> into, basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator maximum)
+{{{
+	int length;
+
+	into.clear();
+
+	if(it == maximum)
+		return false;
+
+	length = ntohl(*it);
+	it++;
+
+	if(it == maximum)
+		return false;
+
+	for(/* -- */; it != maximum && length > 0; length--, it++)
+		into.push_back(ntohl(*it));
+
+	if(length) {
+		into.clear();
+		return false;
+	}
+
+	return true;
 }}}
 
 }

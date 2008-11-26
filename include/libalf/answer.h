@@ -26,6 +26,10 @@ namespace libalf {
 // bool operator>(bool)
 // void operator=(bool)
 //
+// void operator=(int32_t)
+//
+// has to be castable to int32_t
+//
 // all the above are valid for the builtin-type bool.
 
 

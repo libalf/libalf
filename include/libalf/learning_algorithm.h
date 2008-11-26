@@ -12,6 +12,7 @@
 #ifndef __libalf_learning_algorithm_h__
 # define __libalf_learning_algorithm_h__
 
+#include <string>
 #include <list>
 #include <utility>
 
@@ -22,6 +23,11 @@
 namespace libalf {
 
 using namespace std;
+
+enum learning_algorithm_implementation {
+	LAI_NONE = 0,
+	LAI_ANGLUIN_OBSERVATIONTABLE = 1
+};
 
 // basic interface for different implementations (e.g. one table and one tree)
 template <class answer>
@@ -41,8 +47,8 @@ class learning_algorithm {
 		virtual void undo() = 0;
 		virtual void redo() = 0;
 
-		virtual void savetofile(char* filename) = 0;
-		virtual void loadfromfile(char* filename) = 0;
+//		virtual basic_string<int32_t> serialize() = 0;
+//		virtual bool deserialize(basic_string<int32_t> &data) = 0;
 
 		virtual void print(ostream &os) = 0;
 

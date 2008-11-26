@@ -33,6 +33,10 @@ void print_word(ostream &os, list<int> &word);
 
 void print_word(list<int> &word);
 
+basic_string<int32_t> serialize_word(list<int> &word);
+
+bool deserialize_word(list<int32_t> into, basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator maximum);
+
 }
 
 #endif

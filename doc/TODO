@@ -1,0 +1,13 @@
+
+in learn_regex:
+	fix '+' operator in regex on command-line
+
+JNI:
+	einzelnes interface fuer observationtable + teacher/oracle
+	ot->serialize/deserialize
+	increase alphabet_size in OT bzw. check in add_counter_example
+
+
+nach dem interface:
+	biermann
+

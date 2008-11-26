@@ -74,8 +74,13 @@ nondeterministic_finite_amore_automaton::nondeterministic_finite_amore_automaton
 static void amore_insanitize_regex(char* regex)
 {{{
 	while(*regex) {
-		if(*regex == '|')
-			*regex = 'U';
+		switch(*regex) {
+			case '|':
+				*regex = 'U';
+				break;
+			default:
+				break;
+		}
 		regex++;
 	}
 }}}
@@ -598,7 +603,7 @@ bool nondeterministic_finite_amore_automaton::contains(list<int> &word)
 
 void deterministic_finite_amore_automaton::minimize()
 {{{
-	dfa_p = dfamdfa(dfa_p, true);
+	dfa_p = dfamdfa(dfa_p, TRUE);
 }}}
 void nondeterministic_finite_amore_automaton::minimize()
 {{{
