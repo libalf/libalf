@@ -168,11 +168,8 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			return ret;
 		}}}
 
-		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
-		{
-			// FIXME
-			return false;
-		}
+		// (implementation specific:)
+		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit) = 0;
 
 		virtual void print(ostream &os)
 		{{{
@@ -858,6 +855,11 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 			// and all suffixes to lower table
 			this->add_word_to_upper_table(word, false);
 		}}}
+		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+		{
+			// FIXME
+			return false;
+		}
 
 	protected:
 		virtual void add_word_to_upper_table(list<int> word, bool check_uniq = true)
