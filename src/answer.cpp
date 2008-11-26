@@ -9,6 +9,8 @@
  * see LICENSE file for licensing information.
  */
 
+#include <stdint.h>
+
 #include "libalf/answer.h"
 
 namespace libalf {
@@ -61,6 +63,16 @@ void extended_bool::operator=(bool other)
 		value = EBOOL_TRUE;
 	else
 		value = EBOOL_FALSE;
+}}}
+
+__attribute__((const)) extended_bool::operator int32_t()
+{{{
+	return (int32_t)value;
+}}}
+
+void extended_bool::operator=(int32_t other)
+{{{
+	value = (enum e_extended_bool)other;
 }}}
 
 }; // end of namespace libalf

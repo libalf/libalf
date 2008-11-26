@@ -115,10 +115,27 @@ int main(int argc, char**argv)
 	for(iteration = 1; iteration <= 100; iteration++) {
 		ot.derive_hypothesis(&hypothesis);
 
-		snprintf(filename, 128, "observationtable%2d.angluin", iteration);
+		snprintf(filename, 128, "observationtable%2d.text.angluin", iteration);
 		file.open(filename);
 		ot.print(file);
 		file.close();
+
+		{
+			snprintf(filename, 128, "observationtable%2d.serialized.angluin", iteration);
+			file.open(filename);
+
+			basic_string<int32_t> serialized;
+			basic_string<int32_t>::iterator it;
+
+			serialized = ot.serialize();
+
+			for(it = serialized.begin(); it != serialized.end(); it++) {
+				file << ntohl(*it);
+				file << ";";
+			}
+
+			file.close();
+		}
 
 		snprintf(filename, 128, "hypothesis%2d.dot", iteration);
 		file.open(filename);

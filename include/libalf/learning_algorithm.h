@@ -24,16 +24,17 @@ namespace libalf {
 
 using namespace std;
 
-enum learning_algorithm_implementation {
-	LAI_NONE = 0,
-	LAI_ANGLUIN_OBSERVATIONTABLE = 1
-};
-
 // basic interface for different implementations (e.g. one table and one tree)
 template <class answer>
 class learning_algorithm {
 
 	public:
+
+		enum algorithm {
+			ALGORITHM_NONE = 0,
+			ALGORITHM_ANGLUIN_OBSERVATIONTABLE = 1
+		};
+
 		virtual ~learning_algorithm() { };
 
 		virtual void set_alphabet_size(int alphabet_size) = 0;
@@ -47,8 +48,17 @@ class learning_algorithm {
 		virtual void undo() = 0;
 		virtual void redo() = 0;
 
-//		virtual basic_string<int32_t> serialize() = 0;
-//		virtual bool deserialize(basic_string<int32_t> &data) = 0;
+		/*
+		 * format for serialization:
+		 * all values in NETWORK BYTE ORDER!
+		 * <serialized learning algorithm data>
+		 *	length of string (excluding this length field; not in bytes but in int32_t)
+		 *	type of learning algorithm (see enum learning_algorithm::implementation)
+		 *	algorithm-specific data
+		 * </serialized learning algorithm data>
+		 */
+		virtual basic_string<int32_t> serialize() = 0;
+		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit) = 0;
 
 		virtual void print(ostream &os) = 0;
 

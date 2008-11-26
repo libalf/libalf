@@ -158,7 +158,7 @@ class finite_language_automaton : public finite_automaton {
 		// format for serialization:
 		// all values in NETWORK BYTE ORDER!
 		// <serialized automaton>
-		//	string length (not in bytes but in int32_t)
+		//	string length (not in bytes but in int32_t; excluding this length field)
 		//	alphabet size
 		//	state count
 		//	number of initial states

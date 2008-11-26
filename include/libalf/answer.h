@@ -9,6 +9,8 @@
  * see LICENSE file for licensing information.
  */
 
+#include <stdint.h>
+
 #ifndef __libalf_answer_h__
 # define __libalf_answer_h__
 
@@ -26,6 +28,7 @@ namespace libalf {
 // bool operator>(bool)
 // void operator=(bool)
 //
+// operator int32_t()
 // void operator=(int32_t)
 //
 // has to be castable to int32_t
@@ -35,14 +38,16 @@ namespace libalf {
 
 // an example implementation:
 
-enum e_extended_bool {
-	EBOOL_FALSE = 0,
-	EBOOL_UNKNOWN = 1,
-	EBOOL_TRUE = 1
-};
 
 class extended_bool {
+
 	public:
+		enum e_extended_bool {
+			EBOOL_FALSE = 0,
+			EBOOL_UNKNOWN = 1,
+			EBOOL_TRUE = 1
+		};
+
 		enum e_extended_bool value;
 
 
@@ -59,6 +64,10 @@ class extended_bool {
 		bool __attribute__((const)) operator>(bool other);
 
 		void operator=(bool other);
+
+		operator int32_t();
+
+		void operator=(int32_t other);
 };
 
 bool __attribute__((const)) operator==(extended_bool a, extended_bool b);

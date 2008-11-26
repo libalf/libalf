@@ -100,7 +100,7 @@ basic_string<int32_t> serialize_word(list<int> &word)
 	return ret;
 }}}
 
-bool deserialize_word(list<int32_t> into, basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+bool deserialize_word(list<int32_t> &into, basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 {{{
 	int length;
 

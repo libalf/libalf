@@ -19,6 +19,8 @@
 #include <functional>
 #include <ostream>
 
+#include <arpa/inet.h>
+
 #include <libalf/alphabet.h>
 #include <libalf/logger.h>
 #include <libalf/learning_algorithm.h>
@@ -55,6 +57,9 @@ class angluin_observationtable : public learning_algorithm<answer> {
 	 *		- has to provide push_back(answer a): e.g. it->acceptance.push_back(true)
 	 *		- has to provide front(): e.g. answer b = it->acceptance.front()
 	 *		- has to provide swap(*(table::iterator).acceptance, *(table::iterator).acceptance)
+	 *	basic_string<int32_t> table::iterator->serialize()
+	 *	bool table::iterator->deserialize(basic_string<int32_t>::iterator it, basic_string<int32_t>::iterator limit);
+	 *	(see implementation notes on serialization members)
 	 *
 	 *	note: acceptance can e.g. be a member vector<answer> of the *(table::iterator) type
 	\*/
@@ -124,41 +129,50 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			  // FIXME: throw exception
 		}}}
 
-		/*
+	protected:
+
+	public:
+
 		virtual basic_string<int32_t> serialize()
-		{
+		{{{
 			basic_string<int32_t> ret;
 			basic_string<int32_t> temp;
-			table::iterator ti;
+			typename table::iterator ti;
 
-			ret += htonl(LAI_ANGLUIN_OBSERVATIONTABLE);
+			// length (filled in later)
+			ret += 0;
+
+			// implementation type
+			ret += htonl(learning_algorithm<answer>::ALGORITHM_ANGLUIN_OBSERVATIONTABLE);
 
 			// alphabet size
 			ret += htonl(alphabet_size);
 
 			// column list
-			ret += htonl(columnlist.length());
-			for(columnlist::iterator ci = columnlist.begin(); ci != columnlist.end(); ci++)
+			ret += htonl(column_names.size());
+			for(columnlist::iterator ci = column_names.begin(); ci != column_names.end(); ci++)
 				ret += serialize_word(*ci);
 
 			// upper table
 			ret += htonl(upper_table.size());
 			for(ti = upper_table.begin(); ti != upper_table.end(); ti++)
-				ret += serialize_table_entry(ti);
+				ret += ti->serialize();
 
 			// lower table
 			ret += htonl(lower_table.size());
 			for(ti = lower_table.begin(); ti != lower_table.end(); ti++)
-				ret += serialize_table_entry(ti);
+				ret += ti->serialize();
+
+			ret[0] = htonl(ret.length() - 1);
 
 			return ret;
-		}
+		}}}
 
-		virtual void deserialize(basic_string<int32_t> &data)
+		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 		{
-			
+			// FIXME
+			return false;
 		}
-		*/
 
 		virtual void print(ostream &os)
 		{{{
@@ -748,6 +762,79 @@ class angluin_observationtable : public learning_algorithm<answer> {
 
 					return false;
 				}}}
+
+				basic_string<int32_t> serialize()
+				{{{
+					basic_string<int32_t> ret;
+					basic_string<int32_t> temp;
+					typename acceptances::iterator acci;
+
+					// length (filled in later)
+					ret += 0;
+
+					// index
+					ret += serialize_word(this->index);
+
+					// accumulate acceptances
+					for(acci = this->acceptance.begin(); acci != this->acceptance.end(); acci++) {
+						temp += htonl((int32_t)(*acci));
+					}
+
+					// number of acceptances
+					ret += htonl(temp.length());
+					// acceptances
+					ret += temp;
+
+					ret[0] = htonl(ret.length() - 1);
+
+					return ret;
+				}}}
+
+				bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+				{{{
+					int size;
+					int count;
+
+					index.clear();
+					acceptance.clear();
+
+					if(it == limit)
+						return false;
+
+					size = ntohl(*it);
+					it++;
+					if(size <= 0 || it == limit) return false;
+
+					// index
+					if( ! deserialize_word(this->index, it, limit) )
+						goto deserialization_failed;
+					size -= this->index.length();
+					if(size <= 0 || it == limit) goto deserialization_failed;
+
+					// number of acceptances
+					count = ntohl(*it);
+					it++, count--;
+					if(it == limit || count <= 0 || size != count)
+						goto deserialization_failed;
+
+					// acceptances
+					for(/* -- */; count > 0 && it != limit; count--, it++) {
+						answer a;
+						a = (int32_t)(ntohl(*it));
+						acceptance.push_back(a);
+					}
+
+					if(count)
+						goto deserialization_failed;
+
+					return true;
+
+				deserialization_failed:
+					index.clear();
+					acceptance.clear();
+					return false;
+				}}}
+
 		};
 	};
 
