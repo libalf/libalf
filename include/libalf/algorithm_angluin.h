@@ -129,10 +129,6 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			  // FIXME: throw exception
 		}}}
 
-	protected:
-
-	public:
-
 		virtual basic_string<int32_t> serialize()
 		{{{
 			basic_string<int32_t> ret;
@@ -269,15 +265,26 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		virtual bool derive_hypothesis(finite_language_automaton * automaton)
 		{{{
 			complete();
-			// XXX: check that this is a DFA?
 			return derive_automaton(automaton);
 		}}}
 
 		virtual void add_counterexample(list<int> word, answer a)
-		// FIXME: check for increase of alphabet
 		{{{
 			list<int> prefix = word;
 			int ps;
+
+			list<int>::iterator wi;
+			int new_size;
+			bool size_changed = false;
+			// check for increase in alphabet
+			for(wi = word.begin(); wi != word.end; wi++) {
+				if(*wi >= alphabet_size) {
+					new_size = *wi;
+					size_changed = true;
+				}
+			}
+
+			increase_alphabet_size(new_size);
 
 			// add word and all prefixes to upper table
 			for(ps = prefix.size(); ps > 0; ps--) {
@@ -295,9 +302,19 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		}}}
 
 		virtual void add_counterexample(list<int> word)
-		// FIXME: check for increase of alphabet
 		{{{
 			list<int> prefix = word;
+
+			list<int>::iterator wi;
+			int new_size;
+			bool size_changed = false;
+			// check for increase in alphabet
+			for(wi = word.begin(); wi != word.end; wi++) {
+				if(*wi >= alphabet_size) {
+					new_size = *wi;
+					size_changed = true;
+				}
+			}
 
 			// add word and all prefixes to upper table
 			while(!prefix.empty()) {
@@ -318,6 +335,12 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		}}}
 
 	protected:
+		virtual void increase_alphabet_size(int new_size);
+		{
+			// add all new suffixes etc
+			// FIXME
+		}
+
 		virtual void add_word_to_upper_table(list<int> word, bool check_uniq = true) = 0;
 
 		virtual typename table::iterator search_upper_table(list<int> &word)
