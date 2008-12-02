@@ -15,6 +15,7 @@
 #include <libalf/alphabet.h>
 #include <libalf/automata.h>
 #include <libalf/logger.h>
+#include <libalf/structured_query_tree.h>
 #include <libalf/learning_algorithm.h>
 #include <libalf/algorithm_angluin.h>
 #include <libalf/oracle.h>

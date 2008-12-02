@@ -98,6 +98,11 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			this->teach = teach;
 		}}}
 
+		virtual void unset_teacher()
+		{{{
+			this->teach = NULL;
+		}}}
+
 		virtual teacher<answer> * get_teacher()
 		{{{
 			return teach;
@@ -262,11 +267,22 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			return ret;
 		}}}
 
-		virtual bool derive_hypothesis(finite_language_automaton * automaton)
-		{{{
-			complete();
-			return derive_automaton(automaton);
-		}}}
+		virtual structured_query_tree * derive_hypothesis(finite_language_automaton * automaton)
+		{
+			structured_query_tree * ret;
+			ret = complete();
+			if(ret) {
+				return ret;
+			} else {
+				if( derive_automaton(automaton) ) {
+					return NULL;
+				} else {
+					// FIXME:
+					// derive failed. what now?!
+					(*log)(XXX, "derive of complete tabled failed!\n");
+				}
+			}
+		}
 
 		virtual void add_counterexample(list<int> word, answer a)
 		{{{
@@ -423,8 +439,9 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			column_names.push_back(word);
 		}}}
 
-		virtual void fill_missing_columns()
-		{{{
+		virtual structured_query_tree * fill_missing_columns()
+		// FIXME
+		{
 			typename table::iterator uti, lti;
 			// upper table
 			for(uti = upper_table.begin(); uti != upper_table.end(); uti++) {
@@ -456,7 +473,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 					}
 				}
 			}
-		}}}
+		}
 
 		// sample implementation only:
 		//  all possible answer-rows in
@@ -655,19 +672,21 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			return changed;
 		}}}
 
-		virtual void complete()
+		virtual structured_query_tree * complete()
 		{{{
-			fill_missing_columns();
+			structured_query_tree * ret;
+			ret = fill_missing_columns();
 
-			if(close()) {
-				complete();
-				return;
-			}
+			if(ret)
+				return ret;
 
-			if(make_consistent()) {
-				complete();
-				return;
-			}
+			if(close())
+				return complete();
+
+			if(make_consistent())
+				return complete();
+
+			return NULL;
 		}}}
 
 		virtual bool derive_automaton(finite_language_automaton * automaton)
