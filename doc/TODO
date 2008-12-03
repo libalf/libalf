@@ -3,9 +3,11 @@
 
 A)
 
-- structured query tree (SQT)
-
 - refactor of algorithm to support SQT
+
+- apply changes due to SQT to tests
+
+- test structured query tree (SQT), serialization and all that stuff
 
 - complete definition of network protocol for dispatcher (statistics, total order, STARTCOMPRESS(?), STARTTLS, ... )
 

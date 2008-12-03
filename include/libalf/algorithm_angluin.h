@@ -24,6 +24,7 @@
 #include <libalf/alphabet.h>
 #include <libalf/logger.h>
 #include <libalf/learning_algorithm.h>
+#include <libalf/structured_query_tree.h>
 #include <libalf/automata.h>
 
 namespace libalf {
@@ -267,9 +268,9 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			return ret;
 		}}}
 
-		virtual structured_query_tree * derive_hypothesis(finite_language_automaton * automaton)
+		virtual structured_query_tree<answer> * derive_hypothesis(finite_language_automaton * automaton)
 		{
-			structured_query_tree * ret;
+			structured_query_tree<answer> * ret;
 			ret = complete();
 			if(ret) {
 				return ret;
@@ -279,7 +280,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 				} else {
 					// FIXME:
 					// derive failed. what now?!
-					(*log)(XXX, "derive of complete tabled failed!\n");
+					(*log)(LOGGER_ERROR, "angluin_observationtable::derive_hypothesis : derive of complete tabled failed!\n");
 				}
 			}
 		}
@@ -290,17 +291,18 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			int ps;
 
 			list<int>::iterator wi;
-			int new_size;
-			bool size_changed = false;
+			int new_asize;
+			bool asize_changed = false;
+
 			// check for increase in alphabet
-			for(wi = word.begin(); wi != word.end; wi++) {
+			for(wi = word.begin(); wi != word.end(); wi++) {
 				if(*wi >= alphabet_size) {
-					new_size = *wi;
-					size_changed = true;
+					new_asize = *wi;
+					asize_changed = true;
 				}
 			}
-
-			increase_alphabet_size(new_size);
+			if(asize_changed)
+				increase_alphabet_size(new_asize);
 
 			// add word and all prefixes to upper table
 			for(ps = prefix.size(); ps > 0; ps--) {
@@ -322,15 +324,18 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			list<int> prefix = word;
 
 			list<int>::iterator wi;
-			int new_size;
-			bool size_changed = false;
+			int new_asize;
+			bool asize_changed = false;
+
 			// check for increase in alphabet
-			for(wi = word.begin(); wi != word.end; wi++) {
+			for(wi = word.begin(); wi != word.end(); wi++) {
 				if(*wi >= alphabet_size) {
-					new_size = *wi;
-					size_changed = true;
+					new_asize = *wi;
+					asize_changed = true;
 				}
 			}
+			if(asize_changed)
+				increase_alphabet_size(new_asize);
 
 			// add word and all prefixes to upper table
 			while(!prefix.empty()) {
@@ -351,7 +356,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		}}}
 
 	protected:
-		virtual void increase_alphabet_size(int new_size);
+		virtual void increase_alphabet_size(int new_asize)
 		{
 			// add all new suffixes etc
 			// FIXME
@@ -439,7 +444,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			column_names.push_back(word);
 		}}}
 
-		virtual structured_query_tree * fill_missing_columns()
+		virtual structured_query_tree<answer> * fill_missing_columns()
 		// FIXME
 		{
 			typename table::iterator uti, lti;
@@ -672,9 +677,9 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			return changed;
 		}}}
 
-		virtual structured_query_tree * complete()
+		virtual structured_query_tree<answer> * complete()
 		{{{
-			structured_query_tree * ret;
+			structured_query_tree<answer> * ret;
 			ret = fill_missing_columns();
 
 			if(ret)

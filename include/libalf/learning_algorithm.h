@@ -17,7 +17,7 @@
 #include <utility>
 
 #include <libalf/teacher.h>
-
+#include <libalf/structured_query_tree.h>
 #include <libalf/automata.h>
 
 namespace libalf {
@@ -73,7 +73,7 @@ class learning_algorithm {
 
 		// complete table and then derive automaton
 		virtual bool derive_hypothesis(finite_language_automaton * automaton) = 0;
-		virtual structured_query_tree * derive_hypothesis(finite_language_automaton * automaton) = 0;
+		virtual structured_query_tree<answer> * derive_hypothesis(finite_language_automaton * automaton) = 0;
 		virtual bool answer_structured_query(list<answer>) = 0;
 
 		virtual void add_counterexample(list<int>, answer) = 0;
@@ -81,7 +81,7 @@ class learning_algorithm {
 
 	protected:
 		// complete table in such a way that an automata can be derived
-		virtual structured_query_tree * complete() = 0;
+		virtual structured_query_tree<answer> * complete() = 0;
 		// derive an automaton from data structure
 		virtual bool derive_automaton(finite_language_automaton * automaton) = 0;
 };
