@@ -1,13 +1,15 @@
 
-in learn_regex:
-	fix '+' operator in regex on command-line
+(priority ordered)
 
-JNI:
-	einzelnes interface fuer observationtable + teacher/oracle
-	ot->serialize/deserialize
-	increase alphabet_size in OT bzw. check in add_counter_example
+structured query tree (SQT)
 
+refactor of algorithm to support SQT
 
-nach dem interface:
-	biermann
+network dispatcher
+
+in learn_regex
+	check/fix '+' operator in regex on command-line
+
+biermann algorithm
+
 
