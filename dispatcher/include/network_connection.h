@@ -20,12 +20,13 @@ class network_connection {
 	public:
 		virtual ~network_connection() = { };
 
-		virtual connect(char * host, unsigned int port);
-		virtual listen(unsigned int port);
+		virtual  connect(char * host, unsigned int port);
+		virtual  listen(unsigned int port);
+		virtual  accept();
 
 	protected:
-		virtual send(char *buf, unsigned int size);
-		virtual recv(char *buf, unsigned int size);
+		virtual  send(char *buf, unsigned int size);
+		virtual  recv(char *buf, unsigned int size);
 }
 
 }; // end namespace libalf
