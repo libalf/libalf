@@ -847,7 +847,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 					// index
 					if( ! deserialize_word(this->index, it, limit) )
 						goto deserialization_failed;
-					size -= this->index.length();
+					size -= this->index.length() + 1;
 					if(size <= 0 || it == limit) goto deserialization_failed;
 
 					// number of acceptances
