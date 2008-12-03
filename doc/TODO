@@ -1,15 +1,24 @@
 
 (priority ordered)
 
-structured query tree (SQT)
+A)
 
-refactor of algorithm to support SQT
+- structured query tree (SQT)
 
-network dispatcher
+- refactor of algorithm to support SQT
 
-in learn_regex
-	check/fix '+' operator in regex on command-line
+- complete definition of network protocol for dispatcher (statistics, total order, STARTCOMPRESS(?), STARTTLS, ... )
 
-biermann algorithm
+B)
+
+- total order function
+
+- network dispatcher
+
+C)
+
+- in learn_regex: check/fix '+' operator in regex on command-line
+
+- biermann algorithm
 
 
