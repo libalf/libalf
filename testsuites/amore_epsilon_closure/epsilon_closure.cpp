@@ -28,6 +28,7 @@ using namespace libalf;
 int main()
 {
 	int automaton[] = {
+		26, // length of upcoming data
 		3, // alphabet size
 		5, // state count
 		2, // number of initial states
@@ -45,6 +46,7 @@ int main()
 	};
 	nondeterministic_finite_amore_automaton *nfa;
 	basic_string<int32_t> serial;
+	basic_string<int32_t>::iterator sit;
 	set<int> states;
 	ofstream file;
 	ostream_iterator<int32_t> out(cout, ", ");
@@ -54,7 +56,8 @@ int main()
 	}
 
 	nfa = new nondeterministic_finite_amore_automaton();
-	if(!nfa->deserialize(serial)) {
+	sit = serial.begin();
+	if( ! nfa->deserialize(sit, serial.end()) ) {
 		cout << "deserialization failed. check automaton.\n";
 		return 1;
 	}

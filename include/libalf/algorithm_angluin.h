@@ -269,7 +269,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		}}}
 
 		virtual structured_query_tree<answer> * derive_hypothesis(finite_language_automaton * automaton)
-		{
+		{{{
 			structured_query_tree<answer> * ret;
 			ret = complete();
 			if(ret) {
@@ -281,8 +281,15 @@ class angluin_observationtable : public learning_algorithm<answer> {
 					// FIXME:
 					// derive failed. what now?!
 					(*log)(LOGGER_ERROR, "angluin_observationtable::derive_hypothesis : derive of complete tabled failed!\n");
+					return NULL;
 				}
 			}
+		}}}
+
+		virtual bool answer_structured_query(structured_query_tree<answer> &)
+		{
+			// FIXME
+			return false;
 		}
 
 		virtual void add_counterexample(list<int> word, answer a)
@@ -445,9 +452,13 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		}}}
 
 		virtual structured_query_tree<answer> * fill_missing_columns()
-		// FIXME
-		{
+		{{{
 			typename table::iterator uti, lti;
+			structured_query_tree<answer> * sqt = NULL;
+
+			if(!teach)
+				sqt = new structured_query_tree<answer>();
+
 			// upper table
 			for(uti = upper_table.begin(); uti != upper_table.end(); uti++) {
 				if(uti->acceptance.size() < column_names.size()) {
@@ -458,7 +469,11 @@ class angluin_observationtable : public learning_algorithm<answer> {
 					for(/* -- */; ci != column_names.end(); ci++) {
 						list<int> *w;
 						w = concat(uti->index, *ci);
-						uti->acceptance.push_back(teach->membership_query(*w));
+						if(teach)
+							uti->acceptance.push_back(teach->membership_query(*w));
+						else
+							sqt->add_query(*w, 0);
+
 						delete w;
 					}
 				}
@@ -473,12 +488,17 @@ class angluin_observationtable : public learning_algorithm<answer> {
 					for(/* -- */; ci != column_names.end(); ci++) {
 						list<int> *w;
 						w = concat(lti->index, *ci);
-						lti->acceptance.push_back(teach->membership_query(*w));
+						if(teach)
+							lti->acceptance.push_back(teach->membership_query(*w));
+						else
+							sqt->add_query(*w, 0);
 						delete w;
 					}
 				}
 			}
-		}
+
+			return sqt;
+		}}}
 
 		// sample implementation only:
 		//  all possible answer-rows in

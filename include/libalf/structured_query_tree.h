@@ -38,7 +38,7 @@ class prefix_enabled_query {
 	public:
 		prefix_enabled_query()
 		{{{
-			int prefix_count = -1;
+			prefix_count = -1;
 		}}}
 		prefix_enabled_query(list<int> &word, int prefix_count)
 		{{{
@@ -290,13 +290,16 @@ class structured_query_tree {
 				qi->clear();
 			return false;
 		}}}
-		void add_query(list<int> word, int prefix_count)
+		void add_query(list<int> &word, int prefix_count)
 		{{{
 			prefix_enabled_query<answer> q;
 			q.set_query(word, prefix_count);
 			queries.push_back(q);
 		}}}
-		// FIXME: add add_query_optimized that searches for prefix/postfix and uniques
+		void add_query_optimized(list<int> &word, int prefix_count)
+		{
+			// FIXME: add add_query_optimized that searches for prefix/postfix and uniques
+		}
 		bool is_answered()
 		{{{
 			iterator qi;

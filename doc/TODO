@@ -3,11 +3,9 @@
 
 A)
 
-- refactor of algorithm to support SQT
-
-- apply changes due to SQT to tests
-
 - test structured query tree (SQT), serialization and all that stuff
+
+- implement answering via SQT in angluin
 
 - complete definition of network protocol for dispatcher (statistics, total order, STARTCOMPRESS(?), STARTTLS, ... )
 
@@ -16,6 +14,8 @@ B)
 - total order function
 
 - network dispatcher
+
+- implement SQT::add_query_optimized()
 
 C)
 

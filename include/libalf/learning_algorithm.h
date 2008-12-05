@@ -72,9 +72,8 @@ class learning_algorithm {
 		virtual pair<bool, answer> check_entry(list<int>) = 0;
 
 		// complete table and then derive automaton
-		virtual bool derive_hypothesis(finite_language_automaton * automaton) = 0;
 		virtual structured_query_tree<answer> * derive_hypothesis(finite_language_automaton * automaton) = 0;
-		virtual bool answer_structured_query(list<answer>) = 0;
+		virtual bool answer_structured_query(structured_query_tree<answer> &) = 0;
 
 		virtual void add_counterexample(list<int>, answer) = 0;
 		virtual void add_counterexample(list<int>) = 0;
