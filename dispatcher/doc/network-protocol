@@ -1,0 +1,222 @@
+
+PROTOCOL LAYOUT
+===============
+
+protocol is int32_t based in network byte order
+
+server listens on socket.
+
+client connects.
+
+server forks and sends CAPA (like in "request server capabilities")
+
+now server is waiting for client commands
+
+
+CLIENT COMMANDS
+===============
+
+UNRELATED COMMANDS:
+	disconnect
+		client sends
+			CM_DISCONNECT
+		server answers
+			CM_ACK_DISCONNECT
+		server closes socket and dies.
+
+	request server capabilities
+		client sends
+			CM_REQ_CAPA
+		server answers
+			SM_ACK_CAPA,
+			protocol version (0 for this protocol)
+			count,
+			{
+				capabilities[]
+			} (count times)
+	
+	STARTTLS
+		only applicable if server supports STARTTLS (see section CAPABILITIES)
+		client sends
+			CM_STARTTLS
+		server answers
+			SM_ACK_STARTTLS
+		server switches to TLS mode
+
+SESSION-RELATED COMMANDS:
+	request session
+		client sends
+			CM_REQ_SESSION
+			algorithm
+			alphabet size (initial)
+		server answers
+			CM_ACK_SESSION,
+			session id
+
+	set total order function
+		client sends
+			CM_SES_SET_TOTAL_ORDER_FUNC
+			total order func[]
+		server answers
+			SM_SES_ACK_TOTAL_ORDER_FUNC
+			bool ok (true if success, false otherwise)
+
+	request session-status
+		client sends
+			CM_SES_REQ_STATUS
+		server answers
+			SM_SES_ACK_REQ_STATUS
+			status[]
+	set session-status
+		client sends
+			CM_SES_SET_STATUS
+			status[]
+		server answers
+			SM_SES_ACK_SET_STATUS
+			bool ok (true if success, false otherwise)
+
+	advance
+		client sends
+			CM_SES_ADVANCE
+		server answers
+			A)
+				SM_SES_ACK_ADVANCE_AUTOMATA
+				automaton[]
+		or server answers
+			B)
+				SM_SES_ACK_ADVANCE_SQT
+				structured query tree[]
+
+	answer structured query tree
+		client sends
+			CM_SES_ANSWER_SQT
+			answer for structured query tree[]
+		server answers
+			SM_SES_ACK_ANSWER_SQT
+			bool ok (true if success, false otherwise)
+
+	request statistics
+		client sends
+			CM_SES_REQ_STATS
+		server answers
+			SM_SES_ACK_STATS
+			statistics[]
+
+
+
+DATA FIELDS
+===========
+
+enum client_messages {
+	CM_DISCONNECT = 0,
+
+	CM_REQ_CAPA = 1,
+
+	CM_STARTTLS = 10,
+
+	CM_REQ_SESSION = 20,
+
+	CM_SES_SET_TOTAL_ORDER_FUNC = 21,
+
+	CM_SES_REQ_STATUS = 22,
+	CM_SES_SET_STATUS = 23,
+
+	CM_SES_ADVANCE = 24,
+
+	CM_SES_ANSWER_SQT = 25,
+
+	CM_SES_REQ_STATS = 30
+}
+
+enum server_messages {
+	SM_ACK_DISCONNECT = 0,
+
+	SM_ACK_CAPA = 1,
+
+	SM_ACK_STATTLS = 10
+
+	SM_ACK_SESSION = 20,
+
+	SM_SES_ACK_TOTAL_ORDER_FUNC = 21,
+
+	SM_SES_ACK_REQ_STATUS = 22,
+	SM_SES_ACK_SET_STATUS = 23,
+
+	SM_SES_ACK_ADVANCE_AUTOMATA = 24,
+	SM_SES_ACK_ADVANCE_SQT = 25,
+
+	SM_SES_ACK_ANSWER_SQT = 25,
+
+	SM_SES_ACK_STATS = 30
+}
+
+enum algorithm {
+	ALG_ANGLUIN = 0
+}
+
+int32_t capabilities [] {
+	length of upcoming data (excluding this field)
+	capability type
+	data []
+}
+
+int32_t total order func [] {
+	length of upcoming data (excluding this field)
+	data []
+}
+
+int32_t status [] {
+	length of upcoming data (excluding this field)
+	structure type
+	data []
+} // you should just take the whole data as a blank structure
+  // you save to disk and reload later on.
+
+int32_t automaton [] {
+	length of upcoming data (excluding this field)
+	alphabet size
+	state count
+	number of initial states
+	initial states []
+	number of final states
+	final states []
+	number of transitions
+	{
+		transitions source
+		transitions label (-1 for epsilon)
+		transitions destination
+	}
+}
+
+int32_t structured query tree [] {
+	length of upcoming data (excluding this field)
+
+	// FIXME: see include/libalf/structured_query_tree.h :: serialize
+
+}
+
+int32_t answer for structured query tree [] {
+	length of upcoming data (excluding this field)
+
+	// FIXME: see include/libalf/structured_query_tree.h :: serialize_acceptances
+
+}
+
+int32_t statistics [] {
+	length of upcoming data (excluding this field)
+
+	// FIXME: see include/statistics.h :: serialize
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
