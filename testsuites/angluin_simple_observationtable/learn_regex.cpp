@@ -36,6 +36,7 @@ int main(int argc, char**argv)
 	finite_language_automaton *nfa;
 	ostream_logger log(&cout, LOGGER_DEBUG);
 	teacher_automaton<ANSWERTYPE> teach;
+	teacher<ANSWERTYPE> * teacher_p;
 	oracle_automaton o;
 
 	char filename[128];
@@ -48,6 +49,9 @@ int main(int argc, char**argv)
 
 	// use NFA or DFA as oracle/teacher source?
 	bool use_nfa = false;
+
+	// use structured query tree or directly give teacher to algorithm?
+	bool use_sqt = false;
 
 	// init AMoRE buffers
 	initbuf(); // XXX LEAK
@@ -109,11 +113,23 @@ int main(int argc, char**argv)
 	o.set_statistics_counter(&stats);
 
 	// create angluin_simple_observationtable and teach it the automaton
-	angluin_simple_observationtable<ANSWERTYPE> ot(&teach, &log, alphabet_size);
+	if(use_sqt)
+		teacher_p = &teach;
+	else
+		teacher_p = NULL;
+	angluin_simple_observationtable<ANSWERTYPE> ot(teacher_p, &log, alphabet_size);
 	deterministic_finite_amore_automaton hypothesis;
 
 	for(iteration = 1; iteration <= 100; iteration++) {
-		ot.derive_hypothesis(&hypothesis);
+		structured_query_tree<ANSWERTYPE> * sqt;
+		while( (sqt = ot.derive_hypothesis(&hypothesis)) != NULL) {
+			// resolve SQT
+			teach.answer_structured_query(*sqt);
+			// apply SQT
+			ot.answer_structured_query(*sqt);
+
+			delete sqt;
+		}
 
 		snprintf(filename, 128, "observationtable%2d.text.angluin", iteration);
 		file.open(filename);

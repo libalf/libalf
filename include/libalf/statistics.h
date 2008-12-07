@@ -17,7 +17,7 @@
 
 namespace libalf {
 
-using namespace libalf;
+using namespace std;
 
 class statistics {
 	public:

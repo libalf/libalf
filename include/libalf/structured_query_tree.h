@@ -66,7 +66,7 @@ class prefix_enabled_query {
 		{{{
 			return (prefix_count + 1 == acceptance.length());
 		}}}
-		void set_answers(list<answer> acceptance)
+		void set_answers(list<answer> & acceptance)
 		{{{
 			this->acceptance = acceptance;
 		}}}

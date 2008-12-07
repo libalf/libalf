@@ -57,7 +57,7 @@ class teacher_automaton : public teacher<answer> {
 			return atm;
 		}}}
 
-		virtual answer membership_query(list<int> &word)
+		virtual answer membership_query(list<int> & word)
 		{{{
 			if(this->stats)
 				this->stats->query_count.membership++;

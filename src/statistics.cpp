@@ -9,9 +9,16 @@
  * see LICENSE file for licensing information.
  */
 
+#include <arpa/inet.h>
+
+#include <string>
+#include <iterator>
+
 #include "libalf/statistics.h"
 
 namespace libalf {
+
+using namespace std;
 
 statistics::statistics()
 {{{
@@ -41,13 +48,14 @@ basic_string<int32_t> statistics::serialize()
 	ret += htonl(query_count.membership);
 	ret += htonl(query_count.equivalence);
 
-	ret = htonl( ret.length() - 1 );
+	ret[0] = htonl( ret.length() - 1 );
 	return ret;
 }}}
 
 bool statistics::deserialize(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator final)
 {
 	// FIXME
+	return false;
 }
 
 }; // end namespace libalf

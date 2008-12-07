@@ -15,6 +15,7 @@
 #include <list>
 
 #include <libalf/statistics.h>
+#include <libalf/structured_query_tree.h>
 
 namespace libalf {
 
@@ -30,24 +31,33 @@ class teacher {
 		}}}
 		virtual ~teacher() { };
 
-		virtual answer membership_query(list<int> &word) = 0;
-
-//		virtual void membership_query(BDD<int> &tree) = 0;
+		virtual answer membership_query(list<int> & word) = 0;
 
 		virtual void set_statistics_counter(statistics * stats)
 		{{{
 			this->stats = stats;
 		}}}
 
-};
+		virtual void answer_structured_query(structured_query_tree<answer> & sqt)
+		{{{
+			typename structured_query_tree<answer>::iterator qi;
 
-template <class answer>
-class teacher_cacheable : public teacher<answer> {
-	public:
-		teacher_cacheable();
-		virtual ~teacher_cacheable();
+			for(qi = sqt.begin(); qi != sqt.end(); qi++) {
+				int prefix;
+				list<int> word;
+				list<answer> results;
 
-//		virtual void membership_query(BDD<int> &tree) = 0;
+				word = qi->get_word();
+
+				for(prefix = qi->get_prefix_count(); prefix >= 0; prefix--) {
+					results.push_back(this->membership_query(word));
+					if(prefix)
+						word.pop_back();
+				}
+				qi->set_answers(results);
+			}
+		}}}
+
 };
 
 }; // end namespace libalf
