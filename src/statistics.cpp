@@ -54,7 +54,7 @@ basic_string<int32_t> statistics::serialize()
 
 bool statistics::deserialize(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator final)
 {
-	// FIXME
+	// FIXME: deserialize is not implemented
 	return false;
 }
 

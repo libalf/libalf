@@ -124,7 +124,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			  if(log)
 				  (*log)(LOGGER_ERROR, "simple_observationtable::undo() is not implemented.\naborting.\n");
 
-			  // FIXME: throw exception
+			  // FIXME: undo is not implemented
 		}}}
 
 		virtual void redo()
@@ -132,7 +132,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			  if(log)
 				  (*log)(LOGGER_ERROR, "simple_observationtable::redo() is not implemented.\naborting.\n");
 
-			  // FIXME: throw exception
+			  // FIXME: redo is not implemented
 		}}}
 
 		virtual basic_string<int32_t> serialize()
@@ -283,7 +283,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 
 		virtual bool learn_from_structured_query(structured_query_tree<answer> &)
 		{
-			// FIXME
+			// FIXME: learn_from_structured_query is not implemented
 			return false;
 		}
 
@@ -361,7 +361,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		virtual void increase_alphabet_size(int new_asize)
 		{
 			// add all new suffixes etc
-			// FIXME
+			// FIXME: increase_alphabet_size is not implemented
 		}
 
 		virtual void add_word_to_upper_table(list<int> word, bool check_uniq = true) = 0;
@@ -919,7 +919,7 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 		}}}
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 		{
-			// FIXME
+			// FIXME: deserialize is not implemented
 			return false;
 		}
 
