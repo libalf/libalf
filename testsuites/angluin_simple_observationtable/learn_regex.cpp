@@ -126,7 +126,7 @@ int main(int argc, char**argv)
 			// resolve SQT
 			teach.answer_structured_query(*sqt);
 			// apply SQT
-			ot.answer_structured_query(*sqt);
+			ot.learn_from_structured_query(*sqt);
 
 			delete sqt;
 		}

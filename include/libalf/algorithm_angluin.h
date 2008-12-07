@@ -286,7 +286,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			}
 		}}}
 
-		virtual bool answer_structured_query(structured_query_tree<answer> &)
+		virtual bool learn_from_structured_query(structured_query_tree<answer> &)
 		{
 			// FIXME
 			return false;
