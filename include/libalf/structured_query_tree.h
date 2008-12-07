@@ -298,7 +298,7 @@ class structured_query_tree {
 		}}}
 		void add_query_optimized(list<int> &word, int prefix_count)
 		{
-			// FIXME: add add_query_optimized that searches for prefix/postfix and uniques
+			// FIXME: implement add_query_optimized that searches for prefix/postfix and uniques
 		}
 		bool is_answered()
 		{{{

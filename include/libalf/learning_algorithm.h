@@ -42,7 +42,7 @@ class learning_algorithm {
 
 		// if teacher is NULL (or unset), derive_hypothesis() will return a
 		// structured query tree. an answer to a structured query tree
-		// has to be given via learn_from_structured_query
+		// has to be given via learn_from_structured_query()
 		virtual void set_teacher(teacher<answer> *) = 0;
 		virtual teacher<answer> * get_teacher() = 0;
 		virtual void unset_teacher() = 0;
