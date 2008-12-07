@@ -271,19 +271,14 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		virtual structured_query_tree<answer> * derive_hypothesis(finite_language_automaton * automaton)
 		{{{
 			structured_query_tree<answer> * ret;
+
 			ret = complete();
-			if(ret) {
-				return ret;
-			} else {
-				if( derive_automaton(automaton) ) {
-					return NULL;
-				} else {
-					// FIXME:
-					// derive failed. what now?!
+
+			if(!ret)
+				if( ! derive_automaton(automaton) )
 					(*log)(LOGGER_ERROR, "angluin_observationtable::derive_hypothesis : derive of complete tabled failed!\n");
-					return NULL;
-				}
-			}
+
+			return ret;
 		}}}
 
 		virtual bool learn_from_structured_query(structured_query_tree<answer> &)
@@ -700,18 +695,18 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		virtual structured_query_tree<answer> * complete()
 		{{{
 			structured_query_tree<answer> * ret;
+
 			ret = fill_missing_columns();
 
-			if(ret)
-				return ret;
+			if(!ret) {
+				if(close())
+					return complete();
 
-			if(close())
-				return complete();
+				if(make_consistent())
+					return complete();
+			}
 
-			if(make_consistent())
-				return complete();
-
-			return NULL;
+			return ret;
 		}}}
 
 		virtual bool derive_automaton(finite_language_automaton * automaton)

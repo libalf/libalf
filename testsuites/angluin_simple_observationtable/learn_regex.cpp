@@ -114,9 +114,9 @@ int main(int argc, char**argv)
 
 	// create angluin_simple_observationtable and teach it the automaton
 	if(use_sqt)
-		teacher_p = &teach;
-	else
 		teacher_p = NULL;
+	else
+		teacher_p = &teach;
 	angluin_simple_observationtable<ANSWERTYPE> ot(teacher_p, &log, alphabet_size);
 	deterministic_finite_amore_automaton hypothesis;
 
