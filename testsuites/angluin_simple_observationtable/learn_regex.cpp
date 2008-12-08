@@ -51,7 +51,7 @@ int main(int argc, char**argv)
 	bool use_nfa = false;
 
 	// use structured query tree or directly give teacher to algorithm?
-	bool use_sqt = false;
+	bool use_sqt = true;
 
 	// init AMoRE buffers
 	initbuf(); // XXX LEAK
@@ -123,8 +123,16 @@ int main(int argc, char**argv)
 	for(iteration = 1; iteration <= 100; iteration++) {
 		structured_query_tree<ANSWERTYPE> * sqt;
 		while( (sqt = ot.derive_hypothesis(&hypothesis)) != NULL) {
+			printf("got sqt %p:\n", sqt);
+			sqt->print(cout);
+
 			// resolve SQT
 			teach.answer_structured_query(*sqt);
+
+			printf("after answer:\n");
+			sqt->print(cout);
+			printf("----\n\n");
+
 			// apply SQT
 			ot.learn_from_structured_query(*sqt);
 

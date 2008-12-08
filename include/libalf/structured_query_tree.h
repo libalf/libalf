@@ -71,6 +71,31 @@ class prefix_enabled_query {
 			this->acceptance = acceptance;
 		}}}
 
+		bool matches(list<int> & word, answer & acceptance)
+		// returns true if this query matches word and stores the corresponding answer in acceptance.
+		{
+			list<int>::iterator wi, qwi;
+			int wl, qwl;
+
+			wl = word.size();
+			qwl = this->word.size();
+
+			wi = word.begin();
+			qwi = this->word.begin();
+
+			// if supposed prefix is longer, its not a prefix
+			if(wl > qwl)
+				return false;
+
+			// check equality of prefix
+			for(/* -- */ ; wl > 0 ; wl--, wi++, qwi++)
+				if(*wi != *qwi)
+					return false;
+
+			acceptance = this->acceptance[wl];
+			return true;
+		}
+
 		basic_string<int32_t> serialize()
 		{{{
 			basic_string<int32_t> ret;
@@ -134,6 +159,15 @@ class prefix_enabled_query {
 			prefix_count = -1;
 			word.clear();
 			return false;
+		}}}
+		void print(ostream &os)
+		{{{
+			typename list<answer>::iterator ai;
+			print_word(os, word);
+			os << ", " << prefix_count << " prefixes; acceptances: ";
+			for(ai = acceptance.begin(); ai != acceptance.end(); ai++)
+				os << ( (int32_t)(*ai) );
+			os << "\n";
 		}}}
 
 		basic_string<int32_t> serialize_acceptances()
@@ -290,6 +324,16 @@ class structured_query_tree {
 				qi->clear();
 			return false;
 		}}}
+		void print(ostream &os)
+		{{{
+			iterator qi;
+			os << "structured query tree\n";
+			for(qi = queries.begin(); qi != queries.end(); qi++) {
+				os << "\t";
+				qi->print(os);
+			}
+		}}}
+
 		void add_query(list<int> &word, int prefix_count)
 		{{{
 			prefix_enabled_query<answer> q;
@@ -308,6 +352,18 @@ class structured_query_tree {
 				if( ! qi->is_answered())
 					return false;
 			return true;
+		}}}
+
+		bool resolve_query(list<int> word, answer acceptance)
+		{{{
+			iterator qi;
+
+			for(qi = queries.begin(); qi != queries.end; qi++) {
+				if(qi->matches(word, acceptance))
+					return true;
+			}
+
+			return false;
 		}}}
 
 		void clear()
