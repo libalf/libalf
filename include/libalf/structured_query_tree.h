@@ -289,7 +289,7 @@ class structured_query_tree {
 				queries.push_back(q);
 			}
 
-			if(size || count)
+			if(size || count > -1)
 				goto deserialization_failed;
 
 			return true;
