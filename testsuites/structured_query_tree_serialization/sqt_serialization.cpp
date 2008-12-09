@@ -21,3 +21,8 @@
 using namespace std;
 using namespace libalf;
 
+int main()
+{
+	structured_query_tree sqt;
+}
+

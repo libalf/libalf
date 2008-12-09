@@ -123,18 +123,15 @@ int main(int argc, char**argv)
 	for(iteration = 1; iteration <= 100; iteration++) {
 		structured_query_tree<ANSWERTYPE> * sqt;
 		while( (sqt = ot.derive_hypothesis(&hypothesis)) != NULL) {
-			printf("got sqt %p:\n", sqt);
-			sqt->print(cout);
 
 			// resolve SQT
 			teach.answer_structured_query(*sqt);
 
-			printf("after answer:\n");
-			sqt->print(cout);
-			printf("----\n\n");
-
 			// apply SQT
-			ot.learn_from_structured_query(*sqt);
+			if( ! ot.learn_from_structured_query(*sqt) ) {
+				cout << "failed to learn from incomplete SQT!\n";
+				return 1;
+			}
 
 			delete sqt;
 		}

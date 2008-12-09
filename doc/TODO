@@ -3,9 +3,7 @@
 
 A)
 
-- test structured query tree (SQT), serialization and all that stuff
-
-- implement answering via SQT in angluin
+- test serialization of structured query tree (SQT)
 
 - complete definition of network protocol for dispatcher (statistics, total order, STARTCOMPRESS(?), STARTTLS, ... )
 
