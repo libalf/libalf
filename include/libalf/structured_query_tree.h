@@ -12,14 +12,14 @@
 #ifndef __libalf_structured_query_tree_h__
 # define __libalf_structured_query_tree_h__
 
-namespace libalf {
-
 #include <list>
 #include <string>
 #include <arpa/inet.h>
 
 #include <libalf/answer.h>
 #include <libalf/alphabet.h>
+
+namespace libalf {
 
 using namespace std;
 
@@ -68,7 +68,12 @@ class prefix_enabled_query {
 		}}}
 		void set_answers(list<answer> & acceptance)
 		{{{
-			this->acceptance = acceptance;
+			typename list<answer>::iterator ai;
+
+			this->acceptance.clear();
+
+			for(ai = acceptance.begin(); ai != acceptance.end(); ai++)
+				this->acceptance.push_back(*ai);
 		}}}
 
 		bool matches(list<int> & query, answer & acceptance)
@@ -123,7 +128,7 @@ class prefix_enabled_query {
 			ret += htonl(prefix_count);
 
 			// acceptances
-			ret += htonl(acceptance.length());
+			ret += htonl(acceptance.size());
 			for(ai = acceptance.begin(); ai != acceptance.end(); ai++)
 				ret += htonl( (int32_t)(*ai) );
 
@@ -133,7 +138,7 @@ class prefix_enabled_query {
 		bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 		{{{
 			int size;
-			int s, count;
+			int count;
 
 			if(it == limit)
 				goto deserialization_failed;
@@ -248,7 +253,7 @@ class structured_query_tree {
 			ret += htonl(queries.size());
 
 			// queries
-			for(qi = queries.begin(); qi != queries.end; qi++)
+			for(qi = queries.begin(); qi != queries.end(); qi++)
 				// depend on qi->serialized[0] == size!
 				ret += qi->serialize();
 

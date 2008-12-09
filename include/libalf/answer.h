@@ -40,12 +40,11 @@ namespace libalf {
 
 
 class extended_bool {
-
 	public:
 		enum e_extended_bool {
 			EBOOL_FALSE = 0,
 			EBOOL_UNKNOWN = 1,
-			EBOOL_TRUE = 1
+			EBOOL_TRUE = 2
 		};
 
 		enum e_extended_bool value;
@@ -72,7 +71,7 @@ class extended_bool {
 
 bool __attribute__((const)) operator==(extended_bool a, extended_bool b);
 
-}
+}; // enf of namespace libalf
 
 #endif // __libalf_answer_h__
 

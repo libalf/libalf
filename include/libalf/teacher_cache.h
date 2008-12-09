@@ -46,7 +46,7 @@ class teacher_cache : public teacher_cacheable {
 			// store result in cache
 		}
 
-}
+};
 
 }; // end namespace libalf
 

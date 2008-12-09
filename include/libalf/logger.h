@@ -59,7 +59,7 @@ class ostream_logger : public logger {
 		virtual void log(enum logger_loglevel l, char* s);
 };
 
-} // end namespace libalf
+}; // end namespace libalf
 
 #endif
 

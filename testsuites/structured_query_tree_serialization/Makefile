@@ -7,12 +7,11 @@ CPPFLAGS=-Wall -ggdb3  -I../../include
 
 LDFLAGS=-L../../src -lalf -lAMoRE
 
-all: sqt_serialization sqt_learn_regex_angluin
+all: sqt_serialization
 
 clean: nodata
 	-rm *.o
 	-rm sqt_serialization
-	-rm sqt_learn_regex_angluin
 
 nodata:
 	-rm *.dot
@@ -23,6 +22,4 @@ jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;
 
 sqt_serialization: sqt_serialization.cpp
-
-sqt_learn_regex_angluin: sqt_learn_regex_angluin.cpp
 
