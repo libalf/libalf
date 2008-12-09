@@ -281,11 +281,55 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			return ret;
 		}}}
 
-		virtual bool learn_from_structured_query(structured_query_tree<answer> &)
-		{
-			// FIXME: learn_from_structured_query is not implemented
-			return false;
-		}
+		virtual bool learn_from_structured_query(structured_query_tree<answer> & sqt)
+		{{{
+			typename table::iterator uti, lti;
+
+			// upper table
+			for(uti = upper_table.begin(); uti != upper_table.end(); uti++) {
+				if(uti->acceptance.size() < column_names.size()) {
+					// fill in missing acceptance information
+					columnlist::iterator ci;
+					ci = column_names.begin();
+					ci += uti->acceptance.size();
+					for(/* -- */; ci != column_names.end(); ci++) {
+						list<int> *w;
+						answer a;
+						w = concat(uti->index, *ci);
+						if( ! sqt.resolve_query(*w, a) ) {
+							return false;
+						}
+
+						uti->acceptance.push_back(a);
+
+						delete w;
+					}
+				}
+			}
+			// lower table
+			for(lti = lower_table.begin(); lti != lower_table.end(); lti++) {
+				if(lti->acceptance.size() < column_names.size()) {
+					// fill in missing acceptance information
+					columnlist::iterator ci;
+					ci = column_names.begin();
+					ci += lti->acceptance.size();
+					for(/* -- */; ci != column_names.end(); ci++) {
+						list<int> *w;
+						answer a;
+						w = concat(lti->index, *ci);
+						if( ! sqt.resolve_query(*w, a) ) {
+							return false;
+						}
+
+						lti->acceptance.push_back(a);
+
+						delete w;
+					}
+				}
+			}
+
+			return true;
+		}}}
 
 		virtual void add_counterexample(list<int> word, answer a)
 		{{{
@@ -450,6 +494,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		{{{
 			typename table::iterator uti, lti;
 			structured_query_tree<answer> * sqt = NULL;
+			bool complete = true;
 
 			if(!teach)
 				sqt = new structured_query_tree<answer>();
@@ -464,10 +509,12 @@ class angluin_observationtable : public learning_algorithm<answer> {
 					for(/* -- */; ci != column_names.end(); ci++) {
 						list<int> *w;
 						w = concat(uti->index, *ci);
-						if(teach)
+						if(teach) {
 							uti->acceptance.push_back(teach->membership_query(*w));
-						else
+						} else {
 							sqt->add_query(*w, 0);
+							complete = false;
+						}
 
 						delete w;
 					}
@@ -483,16 +530,23 @@ class angluin_observationtable : public learning_algorithm<answer> {
 					for(/* -- */; ci != column_names.end(); ci++) {
 						list<int> *w;
 						w = concat(lti->index, *ci);
-						if(teach)
+						if(teach) {
 							lti->acceptance.push_back(teach->membership_query(*w));
-						else
+						} else {
 							sqt->add_query(*w, 0);
+							complete = false;
+						}
 						delete w;
 					}
 				}
 			}
 
-			return sqt;
+			if(complete) {
+				delete sqt;
+				return NULL;
+			} else {
+				return sqt;
+			}
 		}}}
 
 		// sample implementation only:
@@ -699,11 +753,13 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			ret = fill_missing_columns();
 
 			if(!ret) {
-				if(close())
+				if(close()) {
 					return complete();
+				}
 
-				if(make_consistent())
+				if(make_consistent()) {
 					return complete();
+				}
 			}
 
 			return ret;

@@ -71,30 +71,41 @@ class prefix_enabled_query {
 			this->acceptance = acceptance;
 		}}}
 
-		bool matches(list<int> & word, answer & acceptance)
+		bool matches(list<int> & query, answer & acceptance)
 		// returns true if this query matches word and stores the corresponding answer in acceptance.
-		{
-			list<int>::iterator wi, qwi;
-			int wl, qwl;
+		{{{
+			typename list<int>::iterator wi, qi;
+			int wl, ql;
+			typename list<answer>::iterator ai;
 
 			wl = word.size();
-			qwl = this->word.size();
+			ql = query.size();
 
 			wi = word.begin();
-			qwi = this->word.begin();
+			qi = query.begin();
 
 			// if supposed prefix is longer, its not a prefix
-			if(wl > qwl)
+			if(ql > wl)
 				return false;
 
 			// check equality of prefix
-			for(/* -- */ ; wl > 0 ; wl--, wi++, qwi++)
-				if(*wi != *qwi)
+			for(/* -- */ ; ql > 0 ; wl--, ql--, wi++, qi++)
+				if(*wi != *qi)
 					return false;
 
-			acceptance = this->acceptance[wl];
+			// check if prefix is in prefix range
+			if(wl > prefix_count)
+				return false;
+
+			for(ai = this->acceptance.begin(); wl > 0; ai++, ql--)
+				if(ai == this->acceptance.end()) {
+					printf("FIXME: prefix_enabled_query::matches MISMATCH!\n");
+					return false; // no corresponding acceptance in list!
+				}
+
+			acceptance = *ai;
 			return true;
-		}
+		}}}
 
 		basic_string<int32_t> serialize()
 		{{{
@@ -354,14 +365,13 @@ class structured_query_tree {
 			return true;
 		}}}
 
-		bool resolve_query(list<int> word, answer acceptance)
+		bool resolve_query(list<int> word, answer & acceptance)
 		{{{
 			iterator qi;
 
-			for(qi = queries.begin(); qi != queries.end; qi++) {
+			for(qi = queries.begin(); qi != queries.end(); qi++)
 				if(qi->matches(word, acceptance))
 					return true;
-			}
 
 			return false;
 		}}}
