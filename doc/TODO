@@ -3,13 +3,11 @@
 
 A)
 
-- test serialization of structured query tree (SQT)
+- total order function
 
 - complete definition of network protocol for dispatcher (statistics, total order, STARTCOMPRESS(?), STARTTLS, ... )
 
 B)
-
-- total order function
 
 - network dispatcher
 
