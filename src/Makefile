@@ -3,8 +3,10 @@
 
 .PHONY: all clean install uninstall
 
+PREFIX ?= /usr/local/
+
 CPPFLAGS+=-Wall -I../include/ -shared -fpic -ggdb3
-CPPFLAGS+=-D__libalf_so_compilation__ -D__cplusplus
+CPPFLAGS+=-D__cplusplus
 LDFLAGS+=-shared -lAMoRE
 
 SONAME=libalf
@@ -15,16 +17,18 @@ all:	libalf.so
 
 libalf.so: ${OBJECTS}
 	ld ${OBJECTS} ${LDFLAGS} -o $@
-	#strip $@
+	strip $@
 
 clean:
 	-rm *.o
 	-rm libalf.so
 
 install: libalf.so
-	cp libalf.so /usr/local/lib/
-	chmod 755 /usr/local/lib/libalf.so
+	echo installing libalf library to ${PREFIX}/lib/
+	cp libalf.so ${PREFIX}/lib/
+	chmod 755 ${PREFIX}/lib/libalf.so
 
 uninstall:
-	rm /usr/local/lib/libalf.so
+	echo removing libalf library from ${PREFIX}/lib/
+	rm ${PREFIX}/lib/libalf.so
 
