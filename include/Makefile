@@ -7,6 +7,7 @@ PREFIX ?= /usr/local/
 
 install:
 	echo installing libalf headers to ${PREFIX}/include/libalf...
+	mkdir -p ${PREFIX}/include/libalf/
 	cp -Rv libalf/*.h ${PREFIX}/include/libalf/
 	chmod 755 ${PREFIX}/include/libalf
 	chmod 644 ${PREFIX}/include/libalf/*.h

@@ -25,6 +25,7 @@ clean:
 
 install: libalf.so
 	echo installing libalf library to ${PREFIX}/lib/
+	mkdir -p ${PREFIX}/lib/
 	cp libalf.so ${PREFIX}/lib/
 	chmod 755 ${PREFIX}/lib/libalf.so
 
