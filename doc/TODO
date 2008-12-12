@@ -17,6 +17,6 @@ C)
 
 - biermann algorithm
 
-- enable dispatcher to listen on multiple address/port combinations
+- enable dispatcher to listen on multiple address/port combinations, IPv6 and unix domain sockets
 
 

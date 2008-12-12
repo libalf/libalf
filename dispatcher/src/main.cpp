@@ -32,7 +32,7 @@ using namespace dispatcher;
 
 static bool show_help = false;
 
-std::string listen_addresses; // if empty, listen on all
+std::string listen_address; // if empty, listen on all
 static int  listen_port = DISPATCHER_DEFAULT_PORT;
 
 bool parse_commandline(int argc, char**argv)
@@ -55,7 +55,7 @@ bool parse_commandline(int argc, char**argv)
 					cout << "multiple listen-addresses given on command-line. only using last given listen-address.\n";
 				listen_set = true;
 
-				listen_addresses = optarg;
+				listen_address = optarg;
 
 				break;
 			case 'p':
@@ -112,10 +112,7 @@ int main(int argc, char**argv)
 	};
 
 	// set up server for listening
-
-
-
-
+	// FIXME
 
 	// this should never be reached
 	return -1;
