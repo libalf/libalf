@@ -80,6 +80,13 @@ SESSION-RELATED COMMANDS:
 			SM_SES_ACK_SET_STATUS
 			bool ok (true if success, false otherwise)
 
+	conjecture (true, if a hypothesis can be resolved from current state)
+		client sends
+			CM_SES_CONJECTURE
+		server answers
+			SM_SES_CONJECTURE
+			bool
+
 	advance
 		client sends
 			CM_SES_ADVANCE
@@ -139,11 +146,13 @@ enum client_message {
 	CM_SES_REQ_STATUS = 22,
 	CM_SES_SET_STATUS = 23,
 
-	CM_SES_ADVANCE = 24,
+	CM_SES_CONJECTURE = 24,
 
-	CM_SES_ANSWER_SQT = 25,
+	CM_SES_ADVANCE = 25,
 
-	CM_SES_GIVE_COUNTEREXAMPLES = 26,
+	CM_SES_ANSWER_SQT = 27,
+
+	CM_SES_GIVE_COUNTEREXAMPLES = 28,
 
 	CM_SES_REQ_STATS = 30
 }
@@ -164,12 +173,14 @@ enum server_message {
 	SM_SES_ACK_REQ_STATUS = 22,
 	SM_SES_ACK_SET_STATUS = 23,
 
-	SM_SES_ACK_ADVANCE_AUTOMATA = 24,
-	SM_SES_ACK_ADVANCE_SQT = 25,
+	SM_SES_CONJECTURE = 24,
 
-	SM_SES_ACK_ANSWER_SQT = 25,
+	SM_SES_ACK_ADVANCE_AUTOMATA = 25,
+	SM_SES_ACK_ADVANCE_SQT = 26,
+
+	SM_SES_ACK_ANSWER_SQT = 27,
 	
-	SM_SES_ACK_COUNTEREXAMPLES = 26,
+	SM_SES_ACK_COUNTEREXAMPLES = 28,
 
 	SM_SES_ACK_STATS = 30
 }
