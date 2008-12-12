@@ -18,6 +18,8 @@
 // boost network classes
 //#include <boost/asio.hpp>
 
+#include "protocol.h"
+
 using namespace std;
 using namespace libalf;
 using namespace dispatcher;

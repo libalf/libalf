@@ -33,7 +33,7 @@ enum client_message {
 enum server_message {
 	SM_ACK_DISCONNECT = 0,
 	SM_ACK_CAPA = 1,
-	SM_ACK_STATTLS = 10
+	SM_ACK_STATTLS = 10,
 	SM_ACK_SESSION = 20,
 	SM_SES_ACK_MODALITIES = 21,
 	SM_SES_ACK_REQ_STATUS = 22,
