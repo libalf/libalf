@@ -53,23 +53,28 @@ SESSION-RELATED COMMANDS:
 			CM_ACK_SESSION,
 			session id
 
-	set total order function
+	set modalities
 		client sends
-			CM_SES_SET_TOTAL_ORDER_FUNC
-			total order func[]
+			CM_SES_SET_MODALITIES	
+			session id
+			count
+			{
+				modality
+			} (count times)
 		server answers
-			SM_SES_ACK_TOTAL_ORDER_FUNC
-			bool ok (true if success, false otherwise)
+			SM_SES_ACK_MODALITIES
 
 	request session-status
 		client sends
 			CM_SES_REQ_STATUS
+			session id
 		server answers
 			SM_SES_ACK_REQ_STATUS
 			status[]
 	set session-status
 		client sends
 			CM_SES_SET_STATUS
+			session id
 			status[]
 		server answers
 			SM_SES_ACK_SET_STATUS
@@ -78,6 +83,7 @@ SESSION-RELATED COMMANDS:
 	advance
 		client sends
 			CM_SES_ADVANCE
+			session id
 		server answers
 			A)
 				SM_SES_ACK_ADVANCE_AUTOMATA
@@ -90,14 +96,26 @@ SESSION-RELATED COMMANDS:
 	answer structured query tree
 		client sends
 			CM_SES_ANSWER_SQT
+			session id
 			answer for structured query tree[]
 		server answers
 			SM_SES_ACK_ANSWER_SQT
 			bool ok (true if success, false otherwise)
 
+	give counter-examples
+		client sens
+			CM_SES_GIVE_COUNTEREXAMPLES
+			count
+			{
+				serialized word
+			} (count times)
+		server answers:
+			SM_SES_ACK_COUNTEREXAMPLES
+
 	request statistics
 		client sends
 			CM_SES_REQ_STATS
+			session id
 		server answers
 			SM_SES_ACK_STATS
 			statistics[]
@@ -107,7 +125,7 @@ SESSION-RELATED COMMANDS:
 DATA FIELDS
 ===========
 
-enum client_messages {
+enum client_message {
 	CM_DISCONNECT = 0,
 
 	CM_REQ_CAPA = 1,
@@ -116,7 +134,7 @@ enum client_messages {
 
 	CM_REQ_SESSION = 20,
 
-	CM_SES_SET_TOTAL_ORDER_FUNC = 21,
+	CM_SES_SET_MODALITIES = 21,
 
 	CM_SES_REQ_STATUS = 22,
 	CM_SES_SET_STATUS = 23,
@@ -125,10 +143,14 @@ enum client_messages {
 
 	CM_SES_ANSWER_SQT = 25,
 
+	CM_SES_GIVE_COUNTEREXAMPLES = 26,
+
 	CM_SES_REQ_STATS = 30
 }
 
-enum server_messages {
+// (enum client_message corresponds to dispatcher::client_message)
+
+enum server_message {
 	SM_ACK_DISCONNECT = 0,
 
 	SM_ACK_CAPA = 1,
@@ -137,7 +159,7 @@ enum server_messages {
 
 	SM_ACK_SESSION = 20,
 
-	SM_SES_ACK_TOTAL_ORDER_FUNC = 21,
+	SM_SES_ACK_MODALITIES = 21,
 
 	SM_SES_ACK_REQ_STATUS = 22,
 	SM_SES_ACK_SET_STATUS = 23,
@@ -146,31 +168,52 @@ enum server_messages {
 	SM_SES_ACK_ADVANCE_SQT = 25,
 
 	SM_SES_ACK_ANSWER_SQT = 25,
+	
+	SM_SES_ACK_COUNTEREXAMPLES = 26,
 
 	SM_SES_ACK_STATS = 30
 }
 
+// (enum server_message corresponds to dispatcher::server_message)
+
 enum algorithm {
-	ALG_ANGLUIN = 0
+	ALG_NONE = 0,
+	ALG_ANGLUIN = 1,
+	ALG_BIERMANN = 2
 }
+
+// (enum algorithm corresponds to enum libalf::learning_algorithm::algorithm)
 
 int32_t capabilities [] {
 	length of upcoming data (excluding this field)
-	capability type
+	enum capability_type
 	data []
 }
 
-int32_t total order func [] {
-	length of upcoming data (excluding this field)
-	data []
+enum capability_type {
+	CAPA_STARTTLS = 0
 }
+
+// (enum capability_type corresponds to dispatcher::capability_type)
 
 int32_t status [] {
 	length of upcoming data (excluding this field)
-	structure type
+	enum algorithm
 	data []
 } // you should just take the whole data as a blank structure
   // you save to disk and reload later on.
+
+int32_t modality [] {
+	length
+	enum modality_type
+	data[]
+}
+
+enum modality_type {
+	MODALITY_TOTAL_ORDER_FUNC = 0
+}
+
+// (enum modality_type corresponds to enum dispatcher::modality_type)
 
 int32_t automaton [] {
 	length of upcoming data (excluding this field)
@@ -182,41 +225,87 @@ int32_t automaton [] {
 	final states []
 	number of transitions
 	{
-		transitions source
-		transitions label (-1 for epsilon)
-		transitions destination
+		transition source
+		transition label (-1 for epsilon)
+		transition destination
 	}
 }
 
 int32_t structured query tree [] {
 	length of upcoming data (excluding this field)
-
-	// FIXME: see include/libalf/structured_query_tree.h :: serialize
-
+	count
+	{
+		prefix enabled query
+	} (count times)
 }
+
+int32_t prefix enabled query {
+	length of upcoming data (excluding this field)
+	serialized word[]
+	prefix count
+	acceptance count
+	enum acceptance []
+}
+
+// note on structured query tree and prefix enabled queries:
+// for now the SQT is a list of prefix-enabled queries. 
+// a prefix-enabled query is a query for the acceptance of a word
+// and some of its longest prefixes:
+// an example:
+//    prefix enabled query {
+//		8			size
+//		5 { .0.0.1.3.2. }	serialized word
+//		2			prefix count
+//		3			acceptance count
+//		{ 4, 0, 2 }		acceptances
+// this query asks for acceptances for the word .0.0.1.3.2. and
+// two of its longest prefixes, i.e. .0.0.1.3. and .0.0.1.
+// as a prefix-enabled query may contain answers (so that an
+// just answered SQT may be serialized), acceptance count
+// is the number of upcoming acceptances. the list of these
+// acceptances (here 5,0,0) is matched to the words like this:
+// the first acceptance belongs to the word itself, the next
+// acceptance to the longest prefix, the acceptance after this
+// to the second-longest prefix and so on. thus, in the above
+// example, the word .0.0.1.3.2. is accepted, its prefix
+// .0.0.1.3. is not accepted and the acceptance for .0.0.1.
+// is unknown.
+
+enum acceptance {
+	ACCEPTANCE_FALSE		= 0,
+	ACCEPTANCE_UNKNOWN		= 1,
+	ACCEPTANCE_TRUE			= 2
+}
+
+// (enum acceptance corresponds to a serialized libalf::extended_bool)
 
 int32_t answer for structured query tree [] {
 	length of upcoming data (excluding this field)
-
-	// FIXME: see include/libalf/structured_query_tree.h :: serialize_acceptances
-
+	enum acceptance[]
 }
+
+// note on answer for structured query tree:
+// the answers have to correspond do the last SQT received from
+// the server: for each member in the SQT, the acceptances for
+// the word and its prefixes are concatenated. the resulting
+// string of acceptances is prefixed by its length and sent
+// like above.
 
 int32_t statistics [] {
 	length of upcoming data (excluding this field)
-
-	// FIXME: see include/statistics.h :: serialize
+	table size: bytes
+	table size: members
+	table size: words
+	membership query count
+	equivalence query count
 }
 
+notes on total order function:
+to disable the total order function after having set it, just set
+a new total order function of length zero.
 
-
-
-
-
-
-
-
-
-
-
+int32_t serialized word [] {
+	length
+	data[]
+}
 

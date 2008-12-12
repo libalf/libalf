@@ -31,8 +31,9 @@ class learning_algorithm {
 	public:
 
 		enum algorithm {
-			ALGORITHM_NONE = 0,
-			ALGORITHM_ANGLUIN_OBSERVATIONTABLE = 1
+			ALG_NONE = 0,
+			ALG_ANGLUIN = 1,
+			ALG_BIERMANN = 2
 		};
 
 		virtual ~learning_algorithm() { };

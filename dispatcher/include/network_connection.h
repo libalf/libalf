@@ -27,9 +27,9 @@ class network_connection {
 	protected:
 		virtual  send(char *buf, unsigned int size);
 		virtual  recv(char *buf, unsigned int size);
-}
+};
 
-}; // end namespace libalf
+}; // end of namespace libalf
 
 #endif // __libalf_network_connection_h__
 

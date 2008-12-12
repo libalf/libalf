@@ -145,7 +145,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			ret += 0;
 
 			// implementation type
-			ret += htonl(learning_algorithm<answer>::ALGORITHM_ANGLUIN_OBSERVATIONTABLE);
+			ret += htonl(learning_algorithm<answer>::ALG_ANGLUIN);
 
 			// alphabet size
 			ret += htonl(alphabet_size);
