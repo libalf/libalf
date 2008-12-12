@@ -6,7 +6,7 @@
 CPPFLAGS+=-Wall -I../../include/ -I ../include/ -ggdb3
 CPPFLAGS+=-D__cplusplus
 LDFLAGS+=-lalf -lAMoRE
-#-lboost_asio
+#-lboost_system -lpthread
 
 OBJECTS=main.o
 

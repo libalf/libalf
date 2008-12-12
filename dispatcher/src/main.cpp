@@ -9,9 +9,14 @@
  * see LICENSE file for licensing information.
  */
 
+// libalf headers
 #include <libalf/alf.h>
 
+// stuff needed for amore automata
 #include <amore/vars.h>
+
+// boost network classes
+//#include <boost/asio.hpp>
 
 int main()
 {
