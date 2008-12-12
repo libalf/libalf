@@ -12,7 +12,7 @@
 #ifndef __libalf_network_connection_h__
 # define __libalf_network_connection_h__
 
-namespace libalf {
+namespace dispatcher {
 
 using namespace std;
 
@@ -29,7 +29,7 @@ class network_connection {
 		virtual  recv(char *buf, unsigned int size);
 };
 
-}; // end of namespace libalf
+}; // end of namespace dispatcher
 
 #endif // __libalf_network_connection_h__
 
