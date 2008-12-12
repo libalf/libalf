@@ -14,7 +14,7 @@
 
 namespace dispatcher {
 
-using namespace std;
+#define DISPATCHER_DEFAULT_PORT 23005
 
 enum client_message {
 	CM_DISCONNECT = 0,

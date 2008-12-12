@@ -3,13 +3,11 @@
 
 A)
 
+- network dispatcher
+
 - total order function
 
-- complete definition of network protocol for dispatcher (statistics, total order, STARTCOMPRESS(?), STARTTLS, ... )
-
 B)
-
-- network dispatcher
 
 - implement SQT::add_query_optimized()
 
@@ -18,5 +16,7 @@ C)
 - in learn_regex: check/fix '+' operator in regex on command-line
 
 - biermann algorithm
+
+- enable dispatcher to listen on multiple address/port combinations
 
 
