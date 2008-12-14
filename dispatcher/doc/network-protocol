@@ -82,6 +82,7 @@ SESSION-RELATED COMMANDS:
 
 	conjecture (true, if a hypothesis can be resolved from current state)
 		client sends
+			session id
 			CM_SES_CONJECTURE
 		server answers
 			SM_SES_CONJECTURE
@@ -112,12 +113,14 @@ SESSION-RELATED COMMANDS:
 	give counter-examples
 		client sens
 			CM_SES_GIVE_COUNTEREXAMPLES
+			session id
 			count
 			{
 				serialized word
 			} (count times)
 		server answers:
 			SM_SES_ACK_COUNTEREXAMPLES
+			bool ok (true if success, false otherwise)
 
 	request statistics
 		client sends
