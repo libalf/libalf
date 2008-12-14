@@ -124,7 +124,9 @@ int main(int argc, char**argv)
 	while(1) {
 		serversocket *cl = master->accept();
 
-		if(cl) {
+		if( ! cl) {
+			cout << "ASSERT: master->accept() returned NULL. ignoring.\n";
+		} else {
 			int pid = fork();
 			if(pid < 0) {
 				cout << "failed to fork. aborting.\n";
@@ -146,8 +148,6 @@ int main(int argc, char**argv)
 				// get rid of client socket
 				delete cl;
 			}
-		} else {
-			cout << "ASSERT: master->accept() returned NULL. ignoring.\n";
 		}
 	}
 
