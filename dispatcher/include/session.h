@@ -9,23 +9,18 @@
  * see LICENSE file for licensing information.
  */
 
-#ifndef __libalf_servant_h__
-# define __libalf_servant_h__
+#ifndef __libalf_session_h__
+# define __libalf_session_h__
 
-#include "serversocket.h"
+#include <libalf/logger.h>
 
-class servant {
+class session {
 	private:
-		serversocket * client;
 		buffered_logger logger;
 	public:
-		servant();
-		servant(serversocket *connection);
-		~servant();
 
-		bool serve();
+}
 
-};
 
-#endif // __libalf_servant_h__
+#endif // __libalf_session_h__
 
