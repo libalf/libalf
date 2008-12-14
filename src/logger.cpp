@@ -38,6 +38,9 @@ void logger::operator()(enum logger_loglevel l, char * format, ...)
 	log(l, buf);
 }}}
 
+
+
+
 ostream_logger::ostream_logger()
 {{{
 	minimal_loglevel = LOGGER_ERROR;
@@ -52,12 +55,12 @@ ostream_logger::ostream_logger(ostream *out, enum logger_loglevel minimal_loglev
 	this->minimal_loglevel = minimal_loglevel;
 	this->log_algorithm = log_algorithm;
 	this->use_color = use_color;
-	log(LOGGER_INTERNAL, "\nstarted logger instance\n");
+	log(LOGGER_INTERNAL, "started logger instance\n");
 }}}
 
 ostream_logger::~ostream_logger()
 {{{
-	log(LOGGER_INTERNAL, "stopped logger instance\n\n");
+	log(LOGGER_INTERNAL, "stopped logger instance\n");
 }}}
 
 void ostream_logger::log(enum logger_loglevel l, char* s)
@@ -76,5 +79,49 @@ void ostream_logger::log(enum logger_loglevel l, char* s)
 		}
 }}}
 
+
+
+
+buffered_logger::buffered_logger()
+{{{
+	minimal_loglevel = LOGGER_ERROR;
+	log_algorithm = true;
+
+	buffer = new string;
+
+	log(LOGGER_INTERNAL, "started logger instance\n");
+}}}
+
+buffered_logger::buffered_logger(enum logger_loglevel minimal_loglevel, bool log_algorithm)
+{{{
+	this->minimal_loglevel = minimal_loglevel;
+	this->log_algorithm = log_algorithm;
+
+	buffer = new string;
+
+	log(LOGGER_INTERNAL, "started logger instance\n");
+}}}
+
+buffered_logger::~buffered_logger()
+{{{
+	// no need to log this.
+	delete buffer;
+}}}
+
+string * buffered_logger::receive_and_flush()
+{{{
+	string * tmp;
+
+	tmp = buffer;
+	buffer = new string;
+
+	return buffer;
+}}}
+
+void buffered_logger::log(enum logger_loglevel l, char* s)
+{{{
+	if( (l<=minimal_loglevel) || (log_algorithm && l==LOGGER_ALGORITHM))
+		buffer->append(s);
+}}}
 
 } // end namespace libalf
