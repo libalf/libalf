@@ -35,14 +35,6 @@ UNRELATED COMMANDS:
 				capabilities[]
 			} (count times)
 
-	receive and flush log
-		client sends
-			CM_REQ_LOG
-		server answers
-			SM_ACK_LOG,
-			int length,
-			text[]	(one char per int16_t)
-	
 	STARTTLS
 		only applicable if server supports STARTTLS (see section CAPABILITIES)
 		client sends
@@ -138,6 +130,16 @@ SESSION-RELATED COMMANDS:
 			SM_SES_ACK_STATS
 			statistics[]
 
+	receive and flush log
+		client sends
+			CM_SES_REQ_LOG
+			session id
+		server answers
+			SM_SES_ACK_LOG
+			int length (in bytes!)
+			text[]
+	
+
 
 
 DATA FIELDS
@@ -147,8 +149,6 @@ enum client_message {
 	CM_DISCONNECT = 0,
 
 	CM_REQ_CAPA = 1,
-
-	CM_REQ_LOG = 2,
 
 	CM_STARTTLS = 10,
 
@@ -167,7 +167,9 @@ enum client_message {
 
 	CM_SES_GIVE_COUNTEREXAMPLES = 28,
 
-	CM_SES_REQ_STATS = 30
+	CM_SES_REQ_STATS = 30,
+
+	CM_REQ_LOG = 31
 }
 
 // (enum client_message corresponds to dispatcher::client_message)
@@ -176,8 +178,6 @@ enum server_message {
 	SM_ACK_DISCONNECT = 0,
 
 	SM_ACK_CAPA = 1,
-
-	SM_ACK_LOG = 2,
 
 	SM_ACK_STATTLS = 10
 
@@ -197,7 +197,9 @@ enum server_message {
 	
 	SM_SES_ACK_COUNTEREXAMPLES = 28,
 
-	SM_SES_ACK_STATS = 30
+	SM_SES_ACK_STATS = 30,
+
+	SM_ACK_LOG = 31
 }
 
 // (enum server_message corresponds to dispatcher::server_message)
@@ -236,10 +238,26 @@ int32_t modality [] {
 }
 
 enum modality_type {
-	MODALITY_TOTAL_ORDER_FUNC = 0
+	MODALITY_TOTAL_ORDER_FUNC = 0,
+	MODALITY_SET_LOGLEVEL = 1,
+	MODALITY_SET_LOG_ALGORITHM = 2
 }
 
 // (enum modality_type corresponds to enum dispatcher::modality_type)
+// for MODALITY_SET_LOGLEVEL, the data consists of a single int of
+// type enum logger_loglevel:
+
+enum logger_loglevel {
+	LOGGER_ERROR = 1;
+	LOGGER_WARN = 2;
+	LOGGER_INFO = 3;
+	LOGGER_DEBUG = 4;
+}
+(enum logger_loglevel corresponds to enum libalf::logger_loglevel)
+
+// for MODALITY_SET_LOG_ALGORITHM, the data consists of a single int.
+// if this int is 0 (false), algorithm logging is disabled. otherwise
+// (true), it is enabled.
 
 int32_t automaton [] {
 	length of upcoming data (excluding this field)
