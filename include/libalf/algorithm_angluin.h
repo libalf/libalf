@@ -226,6 +226,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		}}}
 
 		// searches column first, then row
+/* superficial
 		virtual pair<bool, answer> check_entry(list<int> word)
 		{{{
 			columnlist::iterator ci;
@@ -266,6 +267,12 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			ret.first = false;
 			ret.second = false;
 			return ret;
+		}}}
+*/
+
+		virtual bool conjecture_ready()
+		{{{
+			return is_closed() && is_consistent();
 		}}}
 
 		virtual structured_query_tree<answer> * derive_hypothesis(finite_language_automaton * automaton)

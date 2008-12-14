@@ -70,8 +70,10 @@ class learning_algorithm {
 		// check acceptance of word in data structure
 		// if status unknown, return (false, ?)
 		// otherwise return (true, <answer>)
-		virtual pair<bool, answer> check_entry(list<int>) = 0;
+//		virtual pair<bool, answer> check_entry(list<int>) = 0;
 
+		// check if a hypothesis can be constructed without any further queries
+		virtual bool conjecture_ready() = 0;
 		// complete table and then derive automaton
 		virtual structured_query_tree<answer> * derive_hypothesis(finite_language_automaton * automaton) = 0;
 		virtual bool learn_from_structured_query(structured_query_tree<answer> &) = 0;
