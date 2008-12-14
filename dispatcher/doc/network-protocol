@@ -34,6 +34,14 @@ UNRELATED COMMANDS:
 			{
 				capabilities[]
 			} (count times)
+
+	receive and flush log
+		client sends
+			CM_REQ_LOG
+		server answers
+			SM_ACK_LOG,
+			int length,
+			text[]	(one char per int16_t)
 	
 	STARTTLS
 		only applicable if server supports STARTTLS (see section CAPABILITIES)
@@ -140,6 +148,8 @@ enum client_message {
 
 	CM_REQ_CAPA = 1,
 
+	CM_REQ_LOG = 2,
+
 	CM_STARTTLS = 10,
 
 	CM_REQ_SESSION = 20,
@@ -166,6 +176,8 @@ enum server_message {
 	SM_ACK_DISCONNECT = 0,
 
 	SM_ACK_CAPA = 1,
+
+	SM_ACK_LOG = 2,
 
 	SM_ACK_STATTLS = 10
 
