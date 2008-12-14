@@ -12,8 +12,6 @@
 #ifndef __libalf_protocol_h__
 # define __libalf_protocol_h__
 
-namespace dispatcher {
-
 #define DISPATCHER_DEFAULT_PORT 23005
 
 enum client_message {
@@ -54,8 +52,6 @@ enum capability_type {
 enum modality_type {
 	MODALITY_TOTAL_ORDER_FUNC = 0
 };
-
-}; // end of namespace dispatcher
 
 #endif // __libalf_protocol_h__
 

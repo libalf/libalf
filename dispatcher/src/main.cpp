@@ -22,18 +22,16 @@
 // stuff needed for amore automata
 #include <amore/vars.h>
 
-// boost network classes
-//#include <boost/asio.hpp>
-
-#include "protocol.h"
+#include <protocol.h>
+#include <serversocket.h>
+#include <servant.h>
 
 using namespace std;
-using namespace dispatcher;
 
 static bool show_help = false;
 
 std::string listen_address; // if empty, listen on all
-static int  listen_port = DISPATCHER_DEFAULT_PORT;
+static uint16_t  listen_port = DISPATCHER_DEFAULT_PORT;
 
 bool parse_commandline(int argc, char**argv)
 {{{
@@ -99,7 +97,7 @@ void help()
 }}}
 
 int main(int argc, char**argv)
-{
+{{{
 	// parse command-line
 	if( ! parse_commandline(argc, argv) ) {
 		help();
@@ -112,9 +110,48 @@ int main(int argc, char**argv)
 	};
 
 	// set up server for listening
-	// FIXME
+	serversocket *master = new serversocket;
+
+	if( ! master->bind(listen_address, listen_port) ) {
+		cout << "failed to bind socket to " << listen_address << ":" << listen_port << ". aborting.\n";
+		return -1;
+	}
+	if( ! master->listen(5) ) {
+		cout << "failed to set socket to listen mode. aborting.\n";
+		return -2;
+	}
+
+	while(1) {
+		serversocket *cl = master->accept();
+
+		if(cl) {
+			int pid = fork();
+			if(pid < 0) {
+				cout << "failed to fork. aborting.\n";
+				return -3;
+			}
+			if(pid > 0) {
+				// child
+				// get rid of master socket
+				delete master;
+
+				servant sv(cl);
+
+				while(sv.serve());
+
+				// end child.
+				return 0;
+			} else {
+				// parent
+				// get rid of client socket
+				delete cl;
+			}
+		} else {
+			cout << "ASSERT: master->accept() returned NULL. ignoring.\n";
+		}
+	}
 
 	// this should never be reached
-	return -1;
-}
+	return -4;
+}}}
 
