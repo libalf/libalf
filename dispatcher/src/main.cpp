@@ -16,15 +16,12 @@
 #include <unistd.h>
 #include <getopt.h>
 
-// libalf headers
-#include <libalf/alf.h>
-
 // stuff needed for amore automata
 #include <amore/vars.h>
 
-#include <protocol.h>
-#include <serversocket.h>
-#include <servant.h>
+#include "protocol.h"
+#include "serversocket.h"
+#include "servant.h"
 
 using namespace std;
 

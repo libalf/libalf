@@ -11,11 +11,13 @@
 
 #include <iostream>
 
+#include <libalf/alf.h>
+
+#include "servant.h"
 #include "serversocket.h"
 #include "protocol.h"
 
 using namespace std;
-using namespace dispatcher;
 using namespace libalf;
 
 servant::servant()
@@ -30,8 +32,8 @@ servant::servant(serversocket *connection)
 
 servant::~servant()
 {{{
-	if(connection)
-		delete connection;
+	if(client)
+		delete client;
 }}}
 
 bool servant::serve()
@@ -43,6 +45,4 @@ bool servant::serve()
 
 	// FIXME
 }
-
-}; // end of namespace dispatcher
 

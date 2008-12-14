@@ -16,6 +16,9 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>
+
+#include "serversocket.h"
 
 using namespace std;
 
@@ -85,7 +88,7 @@ bool serversocket::bind(string & listen_address, uint16_t listen_port)
 	// FIXME: use listen_address, not INADDR_ANY
 	my_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-	ret = bind(sock, (struct sockaddr *) &my_addr, sizeof(struct sockaddr));
+	ret = ::bind(sock, (struct sockaddr *) &my_addr, sizeof(struct sockaddr));
 
 	if (ret == -1) {
 		close();

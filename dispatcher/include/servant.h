@@ -12,9 +12,11 @@
 #ifndef __libalf_servant_h__
 # define __libalf_servant_h__
 
+#include "serversocket.h"
+
 class servant {
 	private:
-		serversocket client;
+		serversocket * client;
 	public:
 		servant();
 		servant(serversocket *connection);
