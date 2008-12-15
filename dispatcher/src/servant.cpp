@@ -10,6 +10,7 @@
  */
 
 #include <iostream>
+#include <string>
 
 #include <libalf/alf.h>
 
@@ -55,10 +56,13 @@ bool servant::serve()
 	int32_t cmd;
 	int32_t session_id;
 
-	if(!client->stream_get_int(cmd)) {
+	if(!client->stream_receive_int(cmd)) {
 		cout << "socket to client failed. disconnecting.\n";
 		return false;
 	}
+	cmd = ntohl(cmd);
+
+//	cout << "client command " << cmd << ".\n";
 
 	switch(cmd) {
 		default:
@@ -89,10 +93,11 @@ bool servant::serve()
 		case CM_SES_GIVE_COUNTEREXAMPLES:
 		case CM_SES_REQ_STATS:
 		case CM_SES_LOG:
-			if(!client->stream_get_int(session_id)) {
+			if(!client->stream_receive_int(session_id)) {
 				cout << "failed to receive session id in session-related command. disconnecting.\n";
 				return false;
 			}
+			session_id = ntohl(session_id);
 			if(session_id < 0 || session_id > (int)sessions.size()) {
 				cout << "received invalid session id " << session_id << " from client. disconnecting.\n";
 				return false;
@@ -110,7 +115,15 @@ bool servant::serve()
 
 bool servant::send_capabilities()
 {
-	return true;
+	// prepare CAPAs
+	basic_string<int32_t> capa;
+
+	capa += htonl(SM_ACK_CAPA);
+	capa += htonl(0);
+	// no upcoming CAPA fields. we are capable of nothing.
+	capa += htonl(0);
+
+	return client->stream_send_blob(capa);
 }
 
 bool servant::new_session()

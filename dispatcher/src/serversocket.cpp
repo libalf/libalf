@@ -74,13 +74,28 @@ int serversocket::stream_receive(void *msg, int length)
 	return recv(sock, msg, length, MSG_WAITALL);
 }}}
 
-bool serversocket::stream_get_int(int32_t & ret)
+bool serversocket::stream_receive_int(int32_t & ret)
 {{{
 	int s;
 	s = recv(sock, &ret, sizeof(int32_t), MSG_WAITALL);
 	if(s != sizeof(int32_t))
 		return false;
-	ret = ntohl(ret);
+	return true;
+}}}
+
+bool serversocket::stream_send_int(int32_t val)
+{{{
+	return stream_send(&val, sizeof(int32_t));
+}}}
+
+bool serversocket::stream_send_blob(basic_string<int32_t> & blob)
+{{{
+	basic_string<int32_t>::iterator bi;
+
+	for(bi = blob.begin(); bi != blob.end(); bi++)
+		if(!stream_send_int(*bi))
+			return false;
+
 	return true;
 }}}
 

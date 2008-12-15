@@ -15,6 +15,8 @@
 
 #include <string>
 
+using namespace std;
+
 class serversocket {
 	protected:
 		int sock;
@@ -33,10 +35,12 @@ class serversocket {
 		serversocket *accept();
 
 
-
 		int stream_send(void *msg, int length);
 		int stream_receive(void *msg, int length);
-		bool stream_get_int(int32_t & ret);
+
+		bool stream_receive_int(int32_t & ret);
+		bool stream_send_int(int32_t val);
+		bool stream_send_blob(basic_string<int32_t> & blob);
 };
 
 #endif // __libalf_serversocket_h__
