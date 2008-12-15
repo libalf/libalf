@@ -111,7 +111,7 @@ SESSION-RELATED COMMANDS:
 			bool ok (true if success, false otherwise)
 
 	give counter-examples
-		client sens
+		client sends
 			CM_SES_GIVE_COUNTEREXAMPLES
 			session id
 			count
@@ -121,6 +121,13 @@ SESSION-RELATED COMMANDS:
 		server answers:
 			SM_SES_ACK_COUNTEREXAMPLES
 			bool ok (true if success, false otherwise)
+
+	get current alphabet size (returns currently highest known member of alphabet)
+		client sends
+			CM_SES_REQ_ALPHABET_SIZE
+		server answers
+			SM_SES_ACK_ALPHABET_SIZE
+			highest known member
 
 	request statistics
 		client sends
@@ -167,6 +174,8 @@ enum client_message {
 
 	CM_SES_GIVE_COUNTEREXAMPLES = 28,
 
+	CM_SES_REQ_ALPHABET_SIZE = 29,
+
 	CM_SES_REQ_STATS = 30,
 
 	CM_SES_REQ_LOG = 31
@@ -196,6 +205,8 @@ enum server_message {
 	SM_SES_ACK_ANSWER_SQT = 27,
 	
 	SM_SES_ACK_COUNTEREXAMPLES = 28,
+
+	SM_SES_ACK_ALPHABET_SIZE = 29,
 
 	SM_SES_ACK_STATS = 30,
 
