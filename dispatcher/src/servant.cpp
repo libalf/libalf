@@ -62,7 +62,7 @@ bool servant::serve()
 	}
 	cmd = ntohl(cmd);
 
-//	cout << "client command " << cmd << ".\n";
+	cout << "client command " << cmd << ".\n";
 
 	switch(cmd) {
 		default:
@@ -70,7 +70,10 @@ bool servant::serve()
 			cout << "received invalid command " << cmd << " from client. disconnecting.\n";
 			return false;
 		case CM_DISCONNECT:
-			cout << "client said FIN. disconnecting.\n";
+			if(!client->stream_send_int(SM_ACK_DISCONNECT))
+				cout << "tried to send SM_ACK_DISCONNET. failed. disconnecting anyway ;)\n";
+			else
+				cout << "client said CM_DISCONNECT. disconnecting.\n";
 			return false;
 		case CM_REQ_CAPA:
 			if(!send_capabilities()) {
@@ -103,6 +106,8 @@ bool servant::serve()
 				return false;
 			}
 
+cout << "session command, session " << session_id << ".\n";
+
 			session * ses = sessions[session_id];
 
 			// FIXME
@@ -129,7 +134,9 @@ bool servant::send_capabilities()
 bool servant::new_session()
 {
 	int ret = sessions.size();
-	sessions.push_back(new session);
+	session * ses = new session;
+
+	sessions.push_back(ses);
 
 	// parse structures from session command
 	
