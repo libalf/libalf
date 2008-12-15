@@ -122,12 +122,12 @@ SESSION-RELATED COMMANDS:
 			SM_SES_ACK_COUNTEREXAMPLES
 			bool ok (true if success, false otherwise)
 
-	get current alphabet size (returns currently highest known member of alphabet)
+	get current alphabet size
 		client sends
 			CM_SES_REQ_ALPHABET_SIZE
 		server answers
 			SM_SES_ACK_ALPHABET_SIZE
-			highest known member
+			alphabet size
 
 	request statistics
 		client sends
