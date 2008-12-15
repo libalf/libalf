@@ -125,6 +125,7 @@ SESSION-RELATED COMMANDS:
 	get current alphabet size
 		client sends
 			CM_SES_REQ_ALPHABET_SIZE
+			session id
 		server answers
 			SM_SES_ACK_ALPHABET_SIZE
 			alphabet size
