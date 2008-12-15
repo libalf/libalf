@@ -17,7 +17,6 @@
 enum client_message {
 	CM_DISCONNECT = 0,
 	CM_REQ_CAPA = 1,
-	CM_REQ_LOG = 2,
 	CM_STARTTLS = 10,
 	CM_REQ_SESSION = 20,
 	CM_SES_SET_MODALITIES = 21,
@@ -27,13 +26,13 @@ enum client_message {
 	CM_SES_ADVANCE = 25,
 	CM_SES_ANSWER_SQT = 27,
 	CM_SES_GIVE_COUNTEREXAMPLES = 28,
-	CM_SES_REQ_STATS = 30
+	CM_SES_REQ_STATS = 30,
+	CM_SES_LOG = 31
 };
 
 enum server_message {
 	SM_ACK_DISCONNECT = 0,
 	SM_ACK_CAPA = 1,
-	SM_ACK_LOG = 2,
 	SM_ACK_STATTLS = 10,
 	SM_ACK_SESSION = 20,
 	SM_SES_ACK_MODALITIES = 21,
@@ -44,7 +43,8 @@ enum server_message {
 	SM_SES_ACK_ADVANCE_SQT = 26,
 	SM_SES_ACK_ANSWER_SQT = 27,
 	SM_SES_ACK_COUNTEREXAMPLES = 28,
-	SM_SES_ACK_STATS = 30
+	SM_SES_ACK_STATS = 30,
+	SM_SES_ACK_LOG = 31
 };
 
 enum capability_type {

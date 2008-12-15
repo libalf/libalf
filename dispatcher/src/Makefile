@@ -12,7 +12,7 @@ CPPFLAGS+=-D__cplusplus -DVERSION="\"${VERSION}\""
 LDFLAGS+=-lalf -lAMoRE
 #-lboost_system -lpthread
 
-OBJECTS=main.o serversocket.o servant.o session.o
+OBJECTS=amore.o main.o servant.o serversocket.o session.o
 
 all:	dispatcher
 

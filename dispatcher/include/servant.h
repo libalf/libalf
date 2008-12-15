@@ -12,18 +12,27 @@
 #ifndef __libalf_servant_h__
 # define __libalf_servant_h__
 
+#include <vector>
+
 #include "serversocket.h"
+#include "session.h"
 
 class servant {
 	private:
 		serversocket * client;
 		buffered_logger logger;
+		bool capa_sent;
+		vector<session*> sessions;
 	public:
 		servant();
 		servant(serversocket *connection);
 		~servant();
 
 		bool serve();
+
+	private:
+		bool send_capabilities();
+		bool new_session();
 
 };
 

@@ -15,9 +15,8 @@
 
 #include <unistd.h>
 #include <getopt.h>
-
-// stuff needed for amore automata
-#include <amore/vars.h>
+#include <errno.h>
+#include <string.h>
 
 #include "protocol.h"
 #include "serversocket.h"
@@ -111,6 +110,7 @@ int main(int argc, char**argv)
 
 	if( ! master->bind(listen_address, listen_port) ) {
 		cout << "failed to bind socket to " << listen_address << ":" << listen_port << ". aborting.\n";
+		cout << "(" << strerror(errno) << ")\n";
 		return -1;
 	}
 	if( ! master->listen(5) ) {
@@ -129,7 +129,7 @@ int main(int argc, char**argv)
 				cout << "failed to fork. aborting.\n";
 				return -3;
 			}
-			if(pid > 0) {
+			if(pid == 0) {
 				// child
 				// get rid of master socket
 				delete master;

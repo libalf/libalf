@@ -19,6 +19,7 @@
 #include <libalf/teacher.h>
 #include <libalf/structured_query_tree.h>
 #include <libalf/automata.h>
+#include <libalf/logger.h>
 
 namespace libalf {
 

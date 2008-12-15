@@ -69,9 +69,19 @@ int serversocket::stream_send(void *msg, int length)
 	return n == -1 ? -1 : total;	// return -1 on failure, total on success
 }}}
 
-int serversocket::stream_receive(void *msg, int data_len)
+int serversocket::stream_receive(void *msg, int length)
 {{{
-	return recv(sock, msg, data_len, MSG_WAITALL);
+	return recv(sock, msg, length, MSG_WAITALL);
+}}}
+
+bool serversocket::stream_get_int(int32_t & ret)
+{{{
+	int s;
+	s = recv(sock, &ret, sizeof(int32_t), MSG_WAITALL);
+	if(s != sizeof(int32_t))
+		return false;
+	ret = ntohl(ret);
+	return true;
 }}}
 
 bool serversocket::bind(string & listen_address, uint16_t listen_port)

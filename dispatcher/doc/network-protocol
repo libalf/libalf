@@ -169,7 +169,7 @@ enum client_message {
 
 	CM_SES_REQ_STATS = 30,
 
-	CM_REQ_LOG = 31
+	CM_SES_REQ_LOG = 31
 }
 
 // (enum client_message corresponds to dispatcher::client_message)
@@ -199,7 +199,7 @@ enum server_message {
 
 	SM_SES_ACK_STATS = 30,
 
-	SM_ACK_LOG = 31
+	SM_SES_ACK_LOG = 31
 }
 
 // (enum server_message corresponds to dispatcher::server_message)
