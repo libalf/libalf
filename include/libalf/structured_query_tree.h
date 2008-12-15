@@ -121,11 +121,11 @@ class prefix_enabled_query {
 			// see also doc/implementation_notes on (de)serialization
 			ret += 0; // length field, filled in later.
 
-			// word
-			ret += serialize_word(word);
-
 			// prefix count
 			ret += htonl(prefix_count);
+
+			// word
+			ret += serialize_word(word);
 
 			// acceptances
 			ret += htonl(acceptance.size());
@@ -147,14 +147,14 @@ class prefix_enabled_query {
 			size = ntohl(*it);
 			it++; if(size <= 0 || limit == it) goto deserialization_failed;
 
+			// prefix count
+			prefix_count = ntohl(*it);
+			size--; it++; if(size <= 0 || limit == it) goto deserialization_failed;
+
 			// word
 			if( ! deserialize_word(word, it, limit) )
 				goto deserialization_failed;
 			size -= word.size() + 1; if(size <= 0 || limit == it) goto deserialization_failed;
-
-			// prefix count
-			prefix_count = ntohl(*it);
-			size--; it++; if(size <= 0 || limit == it) goto deserialization_failed;
 
 			// acceptances
 			count = ntohl(*it);

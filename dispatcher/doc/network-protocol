@@ -285,8 +285,8 @@ int32_t structured query tree [] {
 
 int32_t prefix enabled query {
 	length of upcoming data (excluding this field)
-	serialized word[]
 	prefix count
+	serialized word[]
 	acceptance count
 	enum acceptance []
 }
