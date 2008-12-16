@@ -18,6 +18,7 @@
 
 #include <libalf/answer.h>
 #include <libalf/alphabet.h>
+#include <libalf/statistics.h>
 
 namespace libalf {
 
@@ -29,6 +30,7 @@ class prefix_enabled_query {
 		list<int> word;
 		int prefix_count;
 		list<answer> acceptance;
+		statistics * stat;
 		// list of acceptances corresponds to prefixes in this way:
 		// first acceptance <-> full word (ex. .2.1.2.0. )
 		// next acceptance <-> longest prefix ( .2.1.2. )
@@ -38,13 +40,23 @@ class prefix_enabled_query {
 	public:
 		prefix_enabled_query()
 		{{{
+			stat = NULL;
 			prefix_count = -1;
 		}}}
 		prefix_enabled_query(list<int> &word, int prefix_count)
 		{{{
+			stat = NULL;
 			set_query(word, prefix_count);
 		}}}
 
+		void set_statistics(statistics * stat)
+		{{{
+			this->stat = stat;
+		}}}
+		void unset_statistics()
+		{{{
+			this->stat = NULL;
+		}}}
 		list<int> get_word()
 		{{{
 			return word;
@@ -109,6 +121,8 @@ class prefix_enabled_query {
 				}
 
 			acceptance = *ai;
+			if(stat)
+				stat->query_count.membership++;
 			return true;
 		}}}
 

@@ -15,12 +15,14 @@
 #include <libalf/logger.h>
 #include <libalf/learning_algorithm.h>
 #include <libalf/answer.h>
+#include <libalf/statistics.h>
 
 using namespace libalf;
 
 class session {
 	private:
 		buffered_logger logger;
+		statistics stats;
 		learning_algorithm<extended_bool> * alg;
 	public:
 		session();

@@ -94,10 +94,7 @@ int main()
 	print_blob(data);
 
 	data.clear();
-	data += 31; // REQ_SES_LOG
+	data += 28;
 	data += 0; // session id
 	send_blob(sock, data);
-
-	receive_blob(sock, 200);
-	print_blob(data);
 }

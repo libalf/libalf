@@ -60,20 +60,26 @@ cout << "session set_modalities\n";
 return false;
 }
 bool session::answer_status(serversocket * sock)
-{
+{{{
 cout << "session answer_status\n";
-return false;
-}
+	if(!sock->stream_send_int(htonl(SM_SES_ACK_REQ_STATUS)))
+		return false;
+	basic_string<int32_t> blob;
+	blob = alg->serialize();
+	return sock->stream_send_blob(blob);
+}}}
 bool session::set_status(serversocket * sock)
 {
 cout << "session set_status\n";
 return false;
 }
 bool session::answer_conjecture(serversocket * sock)
-{
+{{{
 cout << "session answer_conjecture\n";
-return false;
-}
+	if(!sock->stream_send_int(htonl(SM_SES_CONJECTURE)))
+		return false;
+	return sock->stream_send_int(htonl( alg->conjecture_ready() ? 1 : 0 ));
+}}}
 bool session::advance(serversocket * sock)
 {
 cout << "session advance\n";
@@ -90,7 +96,7 @@ cout << "session get_counterexamples\n";
 return false;
 }
 bool session::answer_alphabet_size(serversocket * sock)
-{
+{{{
 cout << "session answer_alphabet_size\n";
 	if(!sock->stream_send_int(htonl(SM_SES_ACK_ALPHABET_SIZE)))
 		return false;
@@ -103,14 +109,18 @@ cout << "session answer_alphabet_size\n";
 			return false;
 
 	return true;
-}
+}}}
 bool session::answer_stats(serversocket * sock)
-{
+{{{
 cout << "session answer_stats\n";
-return false;
-}
+	if(!sock->stream_send_int(htonl(SM_SES_ACK_STATS)))
+		return false;
+	basic_string<int32_t> blob;
+	blob = stats.serialize();
+	return sock->stream_send_blob(blob);
+}}}
 bool session::answer_log_request(serversocket * sock)
-{
+{{{
 cout << "session answer_log_request\n";
 	string * s;
 	const char * c;
@@ -131,5 +141,5 @@ cout << "session answer_log_request\n";
 	delete s;
 
 	return true;
-}
+}}}
 

@@ -139,6 +139,7 @@ int main(int argc, char**argv)
 				while(sv.serve());
 
 				// end child.
+				cout << "child pid " << getpid() << " terminating.\n";
 				return 0;
 			} else {
 				cout << "client forked, pid " << pid << ".\n";

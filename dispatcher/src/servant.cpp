@@ -40,7 +40,7 @@ servant::~servant()
 }}}
 
 bool servant::serve()
-{
+{{{
 	if(client == NULL)
 		return false;
 
@@ -140,7 +140,7 @@ cout << "client command " << cmd << ".\n";
 	cout << "reached invalid code.\n";
 
 	return false;
-}
+}}}
 
 bool servant::send_capabilities()
 {{{
