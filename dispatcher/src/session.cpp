@@ -38,13 +38,11 @@ session::session(enum learning_algorithm<extended_bool>::algorithm algorithm, in
 		case angluin_simple_observationtable<extended_bool>::ALG_ANGLUIN:
 			alg = new angluin_simple_observationtable<extended_bool>(NULL, &logger, alphabet_size);
 			logger(LOGGER_INFO, "new session: angluin observationtable\n");
-cout << "new session angluin\n";
 			break;
 		default:
 			alg = NULL;
 			logger(LOGGER_ERROR, "new session: received invalid algorithm '%d'\n", algorithm);
-cout << "new session default\n";
-			return;
+			break;
 	}
 }}}
 
