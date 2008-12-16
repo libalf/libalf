@@ -31,11 +31,18 @@ enum logger_loglevel {
 };
 
 class logger : public binary_function< enum logger_loglevel, string&, void > {
+	protected:
+		enum logger_loglevel minimal_loglevel;
+		bool log_algorithm;
+
 	public:
+		logger();
 		virtual ~logger() { };
 
 		virtual void operator()(enum logger_loglevel, string&);
 		virtual void operator()(enum logger_loglevel, char* format, ...);
+
+		void set_minimal_loglevel(enum logger_loglevel minimal_loglevel);
 
 	protected:
 		virtual void log(enum logger_loglevel l, char* s) = 0;
@@ -45,8 +52,6 @@ class logger : public binary_function< enum logger_loglevel, string&, void > {
 class ostream_logger : public logger {
 	private:
 		ostream *out;
-		enum logger_loglevel minimal_loglevel;
-		bool log_algorithm;
 		bool use_color;
 	public:
 		ostream_logger();
@@ -61,8 +66,6 @@ class ostream_logger : public logger {
 class buffered_logger : public logger {
 	private:
 		string * buffer;
-		enum logger_loglevel minimal_loglevel;
-		bool log_algorithm;
 	public:
 		buffered_logger();
 		buffered_logger(enum logger_loglevel minimal_loglevel, bool log_algorithm = true);

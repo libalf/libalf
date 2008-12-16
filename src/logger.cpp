@@ -21,23 +21,37 @@ namespace libalf {
 
 using namespace std;
 
+logger::logger()
+{{{
+	minimal_loglevel = LOGGER_ERROR;
+	log_algorithm = true;
+}}}
+
 void logger::operator()(enum logger_loglevel l, string &s)
 {{{
-	log(l, (char*)s.c_str());
+	if( (l<=minimal_loglevel) || (log_algorithm && l==LOGGER_ALGORITHM)) {
+		log(l, (char*)s.c_str());
+	}
 }}}
 
 void logger::operator()(enum logger_loglevel l, char * format, ...)
 {{{
-	va_list ap;
-	char buf[1024];
+	if( (l<=minimal_loglevel) || (log_algorithm && l==LOGGER_ALGORITHM)) {
+		va_list ap;
+		char buf[1024];
 
-	va_start(ap, format);
-	vsnprintf(buf, 1024, format, ap);
-	va_end(ap);
+		va_start(ap, format);
+		vsnprintf(buf, 1024, format, ap);
+		va_end(ap);
 
-	log(l, buf);
+		log(l, buf);
+	}
 }}}
 
+void logger::set_minimal_loglevel(enum logger_loglevel minimal_loglevel)
+{{{
+	this->minimal_loglevel = minimal_loglevel;
+}}}
 
 
 
@@ -68,15 +82,14 @@ void ostream_logger::log(enum logger_loglevel l, char* s)
 	//				internal, error, warn,   info,   debug, algorithm
 	static const char *colors[] = { C_OK,     C_ERR, C_WARN, C_BOLD, "",    C_ATT };
 
-	if(out)
-		if( (l<=minimal_loglevel) || (log_algorithm && l==LOGGER_ALGORITHM)) {
-			if(use_color)
-				(*out) << colors[l];
-			(*out) << s;
-			if(use_color)
-				(*out) << C_RESET;
-			(*out) << flush;
-		}
+	if(out) {
+		if(use_color)
+			(*out) << colors[l];
+		(*out) << s;
+		if(use_color)
+			(*out) << C_RESET;
+		(*out) << flush;
+	}
 }}}
 
 
@@ -120,8 +133,10 @@ string * buffered_logger::receive_and_flush()
 
 void buffered_logger::log(enum logger_loglevel l, char* s)
 {{{
-	if( (l<=minimal_loglevel) || (log_algorithm && l==LOGGER_ALGORITHM))
-		buffer->append(s);
+printf("log '%s'\n", s);
+	buffer->append(s);
+printf("now in log: '%s'\n", buffer->c_str());
 }}}
 
 } // end namespace libalf
+
