@@ -76,7 +76,7 @@ return false;
 bool session::answer_conjecture(serversocket * sock)
 {{{
 cout << "session answer_conjecture\n";
-	if(!sock->stream_send_int(htonl(SM_SES_CONJECTURE)))
+	if(!sock->stream_send_int(htonl(SM_SES_ACK_CONJECTURE)))
 		return false;
 	return sock->stream_send_int(htonl( alg->conjecture_ready() ? 1 : 0 ));
 }}}
