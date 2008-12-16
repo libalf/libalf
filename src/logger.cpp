@@ -133,14 +133,12 @@ string * buffered_logger::receive_and_flush()
 	tmp = buffer;
 	buffer = new string;
 
-	return buffer;
+	return tmp;
 }}}
 
 void buffered_logger::log(enum logger_loglevel l, char* s)
 {{{
-printf("log '%s'\n", s);
 	buffer->append(s);
-printf("now in log: '%s'\n", buffer->c_str());
 }}}
 
 } // end namespace libalf
