@@ -53,6 +53,11 @@ void logger::set_minimal_loglevel(enum logger_loglevel minimal_loglevel)
 	this->minimal_loglevel = minimal_loglevel;
 }}}
 
+void logger::set_log_algorithm(bool log_algorithm)
+{{{
+	this->log_algorithm = log_algorithm;
+}}}
+
 
 
 ostream_logger::ostream_logger()

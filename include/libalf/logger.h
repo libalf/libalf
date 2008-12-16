@@ -43,6 +43,7 @@ class logger : public binary_function< enum logger_loglevel, string&, void > {
 		virtual void operator()(enum logger_loglevel, char* format, ...);
 
 		void set_minimal_loglevel(enum logger_loglevel minimal_loglevel);
+		void set_log_algorithm(bool log_algorithm);
 
 	protected:
 		virtual void log(enum logger_loglevel l, char* s) = 0;
