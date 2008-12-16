@@ -50,7 +50,7 @@ SESSION-RELATED COMMANDS:
 			algorithm
 			alphabet size (initial)
 		server answers
-			CM_ACK_SESSION,
+			SM_ACK_SESSION,
 			session id
 
 	set modalities
@@ -82,8 +82,8 @@ SESSION-RELATED COMMANDS:
 
 	conjecture (true, if a hypothesis can be resolved from current state)
 		client sends
-			session id
 			CM_SES_CONJECTURE
+			session id
 		server answers
 			SM_SES_CONJECTURE
 			bool
