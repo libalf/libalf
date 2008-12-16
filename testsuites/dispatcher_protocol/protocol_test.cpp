@@ -81,13 +81,23 @@ int main()
 	basic_string<int32_t> data;
 	// receive CAPA
 	data = receive_blob(sock, 3);
+	cout << "CAPA\n";
 	print_blob(data);
 
 	data.clear();
 	data += 20; // REQ_SESSION
+	data += 1; // angluin
+	data += 1; // alphabet size
 	send_blob(sock, data);
 
-	receive_blob(sock, 3);
+	receive_blob(sock, 2);
 	print_blob(data);
 
+	data.clear();
+	data += 31; // REQ_SES_LOG
+	data += 0; // session id
+	send_blob(sock, data);
+
+	receive_blob(sock, 200);
+	print_blob(data);
 }

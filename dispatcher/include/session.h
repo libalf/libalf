@@ -23,6 +23,21 @@ class session {
 		buffered_logger logger;
 		learning_algorithm<extended_bool> * alg;
 	public:
+		session();
+		session(enum learning_algorithm<extended_bool>::algorithm algorithm, int alphabet_size);
+		~session();
+
+		// protocol implementation functions:
+		bool set_modalities(serversocket * sock);
+		bool answer_status(serversocket * sock);
+		bool set_status(serversocket * sock);
+		bool answer_conjecture(serversocket * sock);
+		bool advance(serversocket * sock);
+		bool get_sqt(serversocket * sock);
+		bool get_counterexamples(serversocket * sock);
+		bool answer_alphabet_size(serversocket * sock);
+		bool answer_stats(serversocket * sock);
+		bool answer_log_request(serversocket * sock);
 };
 
 

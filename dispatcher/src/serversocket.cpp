@@ -50,7 +50,7 @@ void serversocket::close()
 		::close(sock);
 }}}
 
-int serversocket::stream_send(void *msg, int length)
+int serversocket::stream_send(const void *msg, int length)
 {{{
 	int total = 0;		// how many bytes we've sent
 	int bytesleft = length;	// how many we have left to send

@@ -35,7 +35,7 @@ class serversocket {
 		serversocket *accept();
 
 
-		int stream_send(void *msg, int length);
+		int stream_send(const void *msg, int length);
 		int stream_receive(void *msg, int length);
 
 		bool stream_receive_int(int32_t & ret);
