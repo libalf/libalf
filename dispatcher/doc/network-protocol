@@ -95,7 +95,7 @@ SESSION-RELATED COMMANDS:
 			session id
 		server answers
 			A)
-				SM_SES_ACK_ADVANCE_AUTOMATA
+				SM_SES_ACK_ADVANCE_AUTOMATON
 				automaton[]
 		or server answers
 			B)
@@ -201,7 +201,7 @@ enum server_message {
 
 	SM_SES_CONJECTURE = 24,
 
-	SM_SES_ACK_ADVANCE_AUTOMATA = 25,
+	SM_SES_ACK_ADVANCE_AUTOMATON = 25,
 	SM_SES_ACK_ADVANCE_SQT = 26,
 
 	SM_SES_ACK_ANSWER_SQT = 27,
