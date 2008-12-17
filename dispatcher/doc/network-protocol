@@ -63,6 +63,7 @@ SESSION-RELATED COMMANDS:
 			} (count times)
 		server answers
 			SM_SES_ACK_MODALITIES
+			bool ok (true if success, false otherwise)
 
 	request session-status
 		client sends
