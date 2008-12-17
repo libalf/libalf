@@ -56,6 +56,7 @@ bool session::set_modalities(serversocket * sock)
 {{{
 cout << "session set_modalities\n";
 	int count;
+	bool success = true;
 
 	if(!sock->stream_receive_int(count))
 		return false;
@@ -97,7 +98,9 @@ cout << "session set_modalities\n";
 		}
 	}
 
-	return sock->stream_send_int(htonl(SM_SES_ACK_MODALITIES));
+	if(!sock->stream_send_int(htonl(SM_SES_ACK_MODALITIES)))
+		return false;
+	return sock->stream_send_int(htonl(success ? 1 : 0));
 }}}
 bool session::answer_status(serversocket * sock)
 {{{
