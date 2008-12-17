@@ -42,7 +42,7 @@ class learning_algorithm {
 		virtual void set_alphabet_size(int alphabet_size) = 0;
 		virtual int get_alphabet_size() = 0;
 
-		// if teacher is NULL (or unset), derive_hypothesis() will return a
+		// if teacher is NULL (or unset), advance() will return a
 		// structured query tree. an answer to a structured query tree
 		// has to be given via learn_from_structured_query()
 		virtual void set_teacher(teacher<answer> *) = 0;
@@ -76,7 +76,7 @@ class learning_algorithm {
 		// check if a hypothesis can be constructed without any further queries
 		virtual bool conjecture_ready() = 0;
 		// complete table and then derive automaton
-		virtual structured_query_tree<answer> * derive_hypothesis(finite_language_automaton * automaton) = 0;
+		virtual structured_query_tree<answer> * advance(finite_language_automaton * automaton) = 0;
 		virtual bool learn_from_structured_query(structured_query_tree<answer> &) = 0;
 
 		virtual void add_counterexample(list<int>, answer) = 0;

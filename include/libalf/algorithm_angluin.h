@@ -275,7 +275,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			return is_closed() && is_consistent();
 		}}}
 
-		virtual structured_query_tree<answer> * derive_hypothesis(finite_language_automaton * automaton)
+		virtual structured_query_tree<answer> * advance(finite_language_automaton * automaton)
 		{{{
 			structured_query_tree<answer> * ret;
 
@@ -283,7 +283,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 
 			if(!ret)
 				if( ! derive_automaton(automaton) )
-					(*log)(LOGGER_ERROR, "angluin_observationtable::derive_hypothesis : derive of complete tabled failed!\n");
+					(*log)(LOGGER_ERROR, "angluin_observationtable::advance(): derive of complete tabled failed!\n");
 
 			return ret;
 		}}}

@@ -122,7 +122,7 @@ int main(int argc, char**argv)
 
 	for(iteration = 1; iteration <= 100; iteration++) {
 		structured_query_tree<ANSWERTYPE> * sqt;
-		while( (sqt = ot.derive_hypothesis(&hypothesis)) != NULL) {
+		while( (sqt = ot.advance(&hypothesis)) != NULL) {
 
 			// resolve SQT
 			teach.answer_structured_query(*sqt);
