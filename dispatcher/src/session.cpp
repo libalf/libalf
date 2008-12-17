@@ -53,10 +53,52 @@ session::~session()
 }}}
 
 bool session::set_modalities(serversocket * sock)
-{
+{{{
 cout << "session set_modalities\n";
-return false;
-}
+	int count;
+
+	if(!sock->stream_receive_int(count))
+		return false;
+
+	for(int i = 0; i < count; i++) {
+		int d;
+		int length;
+		enum modality_type type;
+		if(!sock->stream_receive_int(d))
+			return false;
+		length = ntohl(d);
+		if(!sock->stream_receive_int(d))
+			return false;
+		type = (enum modality_type)ntohl(d);
+
+		switch(type) {
+			case MODALITY_TOTAL_ORDER_FUNC:
+
+				// FIXME
+				return false;
+			case MODALITY_SET_LOGLEVEL:
+				if(length != 1)
+					return false;
+				if(!sock->stream_receive_int(d))
+					return false;
+				d = ntohl(d);
+				logger.set_minimal_loglevel((enum logger_loglevel)d);
+				break;
+			case MODALITY_SET_LOG_ALGORITHM:
+				if(length != 1)
+					return false;
+				if(!sock->stream_receive_int(d))
+					return false;
+				d = ntohl(d);
+				logger.set_log_algorithm(d != 0);
+				break;
+			default:
+				return false;
+		}
+	}
+
+	return sock->stream_send_int(htonl(SM_SES_ACK_MODALITIES));
+}}}
 bool session::answer_status(serversocket * sock)
 {{{
 cout << "session answer_status\n";
@@ -67,10 +109,34 @@ cout << "session answer_status\n";
 	return sock->stream_send_blob(blob);
 }}}
 bool session::set_status(serversocket * sock)
-{
+{{{
 cout << "session set_status\n";
-return false;
-}
+	int count;
+	int d;
+	basic_string<int32_t> blob; // ntohl of this is done in ses->deserialize() !
+	basic_string<int32_t>::iterator bi;
+
+	if(!sock->stream_receive_int(d))
+		return false;
+	blob += d;
+	count = ntohl(d);
+
+	for(int i = 0; i < count; i++) {
+		if(!sock->stream_receive_int(d))
+			return false;
+		blob += d;
+	}
+
+	if(!sock->stream_send_int(htonl(SM_SES_ACK_SET_STATUS)))
+		return false;
+
+	bi = blob.begin();
+	d = alg->deserialize(bi, blob.end());
+	if(!sock->stream_send_int(htonl(d)))
+		return false;
+
+	return (bi == blob.end());
+}}}
 bool session::answer_conjecture(serversocket * sock)
 {{{
 cout << "session answer_conjecture\n";
@@ -80,6 +146,7 @@ cout << "session answer_conjecture\n";
 }}}
 bool session::advance(serversocket * sock)
 {
+
 cout << "session advance\n";
 return false;
 }
