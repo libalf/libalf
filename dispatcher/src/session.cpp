@@ -166,12 +166,13 @@ cout << "session answer_alphabet_size\n";
 	if(!sock->stream_send_int(htonl(SM_SES_ACK_ALPHABET_SIZE)))
 		return false;
 
-	if(alg)
+	if(alg) {
 		if(!sock->stream_send_int(htonl(alg->get_alphabet_size())))
 			return false;
-	else
+	} else {
 		if(!sock->stream_send_int(htonl(0)))
 			return false;
+	}
 
 	return true;
 }}}
