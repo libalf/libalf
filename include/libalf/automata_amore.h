@@ -161,11 +161,11 @@ class nondeterministic_finite_amore_automaton : public nondeterministic_finite_a
 
 		virtual basic_string<int32_t> serialize();
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
+
+		virtual void epsilon_closure(set<int> & states);
 	// new
 		virtual void set_nfa(nfa a);
 		virtual nfa get_nfa();
-
-		virtual void epsilon_closure(set<int> & states);
 	protected:
 		// accepts_suffix will add all epsilon-reachable states to starting_states!
 		virtual bool accepts_suffix(set<int> &starting_states, list<int>::iterator suffix_begin, list<int>::iterator suffix_end);
