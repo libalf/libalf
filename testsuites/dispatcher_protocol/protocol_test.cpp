@@ -85,16 +85,27 @@ int main()
 	print_blob(data);
 
 	data.clear();
-	data += 20; // REQ_SESSION
+	data += 20; // REQ SESSION
 	data += 1; // angluin
-	data += 1; // alphabet size
+	data += 5; // alphabet size
 	send_blob(sock, data);
 
-	receive_blob(sock, 2);
+	data = receive_blob(sock, 2);
+	cout << "session " << ntohl(data[1]) << " answer " << ntohl(data[0]) << ".\n";
 	print_blob(data);
 
 	data.clear();
-	data += 28;
+	data += 25; // ADVANCE
 	data += 0; // session id
+	send_blob(sock, data);
+
+	data = receive_blob(sock, 2);
+	cout << "answer " << ntohl(data[0]) << ".\n";
+	print_blob(data);
+	data = receive_blob(sock, ntohl(data[1]));
+	print_blob(data);
+
+	data.clear();
+	data += 0; // DISCONNECT
 	send_blob(sock, data);
 }

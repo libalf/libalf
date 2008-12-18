@@ -85,7 +85,7 @@ cout << "session set_modalities\n";
 		switch(type) {
 			case MODALITY_TOTAL_ORDER_FUNC:
 
-				// FIXME
+				// FIXME parse and add total order function
 				return false;
 			case MODALITY_SET_LOGLEVEL:
 				if(length != 1)
