@@ -15,6 +15,7 @@
 #include <libalf/algorithm_angluin.h>
 #include <libalf/answer.h>
 #include <libalf/logger.h>
+#include <libalf/automata_amore.h>
 
 #include <serversocket.h>
 #include <session.h>
@@ -26,21 +27,29 @@ using namespace libalf;
 session::session()
 {{{
 	alg = NULL;
+	alg_type = learning_algorithm<extended_bool>::ALG_NONE;
+	hypothesis_automaton = NULL;
+	latest_query = NULL;
 	logger.set_minimal_loglevel(LOGGER_DEBUG);
 	logger.set_log_algorithm(true);
+	logger(LOGGER_WARN, "new session: default constructor\n");
 }}}
 
 session::session(enum learning_algorithm<extended_bool>::algorithm algorithm, int alphabet_size)
 {{{
 	logger.set_minimal_loglevel(LOGGER_DEBUG);
 	logger.set_log_algorithm(true);
+	alg_type = algorithm;
+	latest_query = NULL;
 	switch (algorithm) {
-		case angluin_simple_observationtable<extended_bool>::ALG_ANGLUIN:
+		case learning_algorithm<extended_bool>::ALG_ANGLUIN:
 			alg = new angluin_simple_observationtable<extended_bool>(NULL, &logger, alphabet_size);
+			hypothesis_automaton = new deterministic_finite_amore_automaton;
 			logger(LOGGER_INFO, "new session: angluin observationtable\n");
 			break;
 		default:
 			alg = NULL;
+			hypothesis_automaton = NULL;
 			logger(LOGGER_ERROR, "new session: received invalid algorithm '%d'\n", algorithm);
 			break;
 	}
@@ -53,16 +62,17 @@ session::~session()
 }}}
 
 bool session::set_modalities(serversocket * sock)
-{{{
+{
 cout << "session set_modalities\n";
 	int count;
+	int32_t d;
 	bool success = true;
 
-	if(!sock->stream_receive_int(count))
+	if(!sock->stream_receive_int(d))
 		return false;
 
-	for(int i = 0; i < count; i++) {
-		int d;
+	for(count = ntohl(d); count > 0; count--) {
+		int32_t d;
 		int length;
 		enum modality_type type;
 		if(!sock->stream_receive_int(d))
@@ -101,7 +111,7 @@ cout << "session set_modalities\n";
 	if(!sock->stream_send_int(htonl(SM_SES_ACK_MODALITIES)))
 		return false;
 	return sock->stream_send_int(htonl(success ? 1 : 0));
-}}}
+}
 bool session::answer_status(serversocket * sock)
 {{{
 cout << "session answer_status\n";
@@ -115,16 +125,15 @@ bool session::set_status(serversocket * sock)
 {{{
 cout << "session set_status\n";
 	int count;
-	int d;
+	int32_t d;
 	basic_string<int32_t> blob; // ntohl of this is done in ses->deserialize() !
 	basic_string<int32_t>::iterator bi;
 
 	if(!sock->stream_receive_int(d))
 		return false;
 	blob += d;
-	count = ntohl(d);
 
-	for(int i = 0; i < count; i++) {
+	for(count = ntohl(d); count > 0; count--) {
 		if(!sock->stream_receive_int(d))
 			return false;
 		blob += d;
@@ -148,21 +157,109 @@ cout << "session answer_conjecture\n";
 	return sock->stream_send_int(htonl( alg->conjecture_ready() ? 1 : 0 ));
 }}}
 bool session::advance(serversocket * sock)
-{
-
+{{{
 cout << "session advance\n";
-return false;
-}
+	basic_string<int32_t> blob;
+
+	if(latest_query)
+		delete latest_query;
+
+	latest_query = alg->advance(hypothesis_automaton);
+
+	if(latest_query) {
+		// send latest query to client
+		if(!sock->stream_send_int(htonl(SM_SES_ACK_ADVANCE_SQT)))
+			return false;
+		blob = latest_query->serialize();
+	} else {
+		// send automaton to client
+		if(!sock->stream_send_int(htonl(SM_SES_ACK_ADVANCE_AUTOMATON)))
+			return false;
+		blob = hypothesis_automaton->serialize();
+	}
+
+	return sock->stream_send_blob(blob);
+}}}
 bool session::get_sqt(serversocket * sock)
-{
+{{{
 cout << "session get_sqt\n";
-return false;
-}
+	int32_t count;
+	int32_t d;
+
+	if(!sock->stream_receive_int(d))
+		return false;
+	count = ntohl(d);
+
+	if(!latest_query) {
+		logger(LOGGER_ERROR, "client sent answer for query but there is no active query! trying to ignore.\n");
+		for(count = ntohl(d); count > 0; count--)
+			if(!sock->stream_receive_int(d))
+				return false;
+		if(!sock->stream_send_int(htonl(SM_SES_ACK_ANSWER_SQT)))
+			return false;
+		return sock->stream_send_int(htonl(0));
+	}
+
+	basic_string<int32_t> blob;
+	basic_string<int32_t>::iterator bi;
+	for(count = ntohl(d); count > 0; count--) {
+		if(!sock->stream_receive_int(d))
+			return false;
+		blob += d;
+	}
+	bi = blob.begin();
+	latest_query->deserialize_acceptances(bi, blob.end());
+	if(bi != blob.end())
+		return false;
+
+	if( ! latest_query->is_answered()) {
+		// skip this sqt as something failed
+		logger(LOGGER_ERROR, "client sent answers for structured query tree, but SQT seems not to be fully answered!\n");
+		if(!sock->stream_send_int(htonl(SM_SES_ACK_ANSWER_SQT)))
+			return false;
+		return sock->stream_send_int(htonl(0));
+	}
+
+	latest_query->set_statistics(&stats);
+
+	if( ! alg->learn_from_structured_query( *latest_query ))
+		logger(LOGGER_ERROR, "client sent answer for SQT which seemed to be fine for the SQT, but algorithm can not make any sense from resulting SQT.\n");
+
+	if(!sock->stream_send_int(htonl(SM_SES_ACK_ANSWER_SQT)))
+		return false;
+	return sock->stream_send_int(htonl(1));
+}}}
 bool session::get_counterexamples(serversocket * sock)
-{
+{{{
 cout << "session get_counterexamples\n";
-return false;
-}
+	int wordcount, count;
+	int32_t d;
+
+	list<int> word;
+
+	if(!sock->stream_receive_int(d))
+		return false;
+
+	for(wordcount = ntohl(d); wordcount > 0; wordcount++) {
+		word.clear();
+
+		// receive serialized word
+		if(!sock->stream_receive_int(d))
+			return false;
+		for(count = ntohl(d); count > 0; count--) {
+			if(!sock->stream_receive_int(d))
+				return false;
+			word.push_back(ntohl(d));
+		}
+
+		// add it as a counter-example
+		alg->add_counterexample(word);
+	}
+
+	if(!sock->stream_send_int(htonl(SM_SES_ACK_ANSWER_SQT)))
+		return false;
+	return sock->stream_send_int(htonl(1));
+}}}
 bool session::answer_alphabet_size(serversocket * sock)
 {{{
 cout << "session answer_alphabet_size\n";
@@ -191,7 +288,7 @@ cout << "session answer_stats\n";
 bool session::answer_log_request(serversocket * sock)
 {{{
 cout << "session answer_log_request\n";
-	string * s;
+	std::string * s;
 	const char * c;
 	int l;
 

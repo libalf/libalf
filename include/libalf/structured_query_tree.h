@@ -40,23 +40,13 @@ class prefix_enabled_query {
 	public:
 		prefix_enabled_query()
 		{{{
-			stat = NULL;
 			prefix_count = -1;
 		}}}
 		prefix_enabled_query(list<int> &word, int prefix_count)
 		{{{
-			stat = NULL;
 			set_query(word, prefix_count);
 		}}}
 
-		void set_statistics(statistics * stat)
-		{{{
-			this->stat = stat;
-		}}}
-		void unset_statistics()
-		{{{
-			this->stat = NULL;
-		}}}
 		list<int> get_word()
 		{{{
 			return word;
@@ -76,7 +66,7 @@ class prefix_enabled_query {
 		}}}
 		bool is_answered()
 		{{{
-			return (prefix_count + 1 == acceptance.length());
+			return (prefix_count + 1 == (int)acceptance.size());
 		}}}
 		void set_answers(list<answer> & acceptance)
 		{{{
@@ -121,8 +111,6 @@ class prefix_enabled_query {
 				}
 
 			acceptance = *ai;
-			if(stat)
-				stat->query_count.membership++;
 			return true;
 		}}}
 
@@ -253,8 +241,23 @@ class structured_query_tree {
 
 	private:
 		list< prefix_enabled_query<answer> > queries;
+		statistics * stat;
 
 	public:
+		structured_query_tree()
+		{{{
+			stat = NULL;
+		}}}
+
+		void set_statistics(statistics * stat)
+		{{{
+			this->stat = stat;
+		}}}
+		void unset_statistics()
+		{{{
+			this->stat = NULL;
+		}}}
+
 		basic_string<int32_t> serialize()
 		{{{
 			basic_string<int32_t> ret;
@@ -351,7 +354,7 @@ class structured_query_tree {
 
 		deserialization_failed:
 			for(qi = queries.begin(); qi != queries.end(); qi++)
-				qi->clear();
+				qi->clear_acceptances();
 			return false;
 		}}}
 		void print(ostream &os)
@@ -373,6 +376,7 @@ class structured_query_tree {
 		void add_query_optimized(list<int> &word, int prefix_count)
 		{
 			// FIXME: implement add_query_optimized that searches for prefix/postfix and uniques
+			add_query(word, prefix_count);
 		}
 		bool is_answered()
 		{{{
@@ -389,8 +393,10 @@ class structured_query_tree {
 			iterator qi;
 
 			for(qi = queries.begin(); qi != queries.end(); qi++)
-				if(qi->matches(word, acceptance))
+				if(qi->matches(word, acceptance)) {
+					stat->query_count.membership++;
 					return true;
+				}
 
 			return false;
 		}}}

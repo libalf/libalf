@@ -24,6 +24,9 @@ class session {
 		buffered_logger logger;
 		statistics stats;
 		learning_algorithm<extended_bool> * alg;
+		enum learning_algorithm<extended_bool>::algorithm alg_type;
+		finite_language_automaton * hypothesis_automaton;
+		structured_query_tree<extended_bool> * latest_query;
 	public:
 		session();
 		session(enum learning_algorithm<extended_bool>::algorithm algorithm, int alphabet_size);
