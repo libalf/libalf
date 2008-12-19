@@ -363,6 +363,7 @@ a new total order function of length zero.
 
 int32_t serialized word [] {
 	length
+	bound
 	data[]
 }
 
