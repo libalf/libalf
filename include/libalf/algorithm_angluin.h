@@ -363,7 +363,8 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		virtual void add_counterexample(list<int> word, answer a)
 		{{{
 			bool bottom;
-			word = norm->prefix_normal_form(word, bottom);
+			if(norm)
+				word = norm->prefix_normal_form(word, bottom);
 			// FIXME: check bottom.
 			list<int> prefix = word;
 			int ps;
@@ -400,7 +401,8 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		virtual void add_counterexample(list<int> word)
 		{{{
 			bool bottom;
-			word = norm->prefix_normal_form(word, bottom);
+			if(norm)
+				word = norm->prefix_normal_form(word, bottom);
 			// FIXME: check bottom.
 			list<int> prefix = word;
 

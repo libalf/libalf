@@ -30,7 +30,6 @@ class prefix_enabled_query {
 		list<int> word;
 		int prefix_count;
 		list<answer> acceptance;
-		statistics * stat;
 		// list of acceptances corresponds to prefixes in this way:
 		// first acceptance <-> full word (ex. .2.1.2.0. )
 		// next acceptance <-> longest prefix ( .2.1.2. )
@@ -394,7 +393,8 @@ class structured_query_tree {
 
 			for(qi = queries.begin(); qi != queries.end(); qi++)
 				if(qi->matches(word, acceptance)) {
-					stat->query_count.membership++;
+					if(stat)
+						stat->query_count.membership++;
 					return true;
 				}
 
