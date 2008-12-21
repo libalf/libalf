@@ -150,8 +150,6 @@ list<int> normalizer_msc::prefix_normal_form(list<int> w, bool &bottom)
 
 list<int> normalizer_msc::suffix_normal_form(list<int> w, bool &bottom)
 {
-	// FIXME
-
 	// FIXME: implement MSC suffix_normal_form
 	bottom = false;
 	return w;
