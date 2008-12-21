@@ -54,7 +54,7 @@ enum capability_type {
 };
 
 enum modality_type {
-	MODALITY_TOTAL_ORDER_FUNC = 0,
+	MODALITY_SET_NORMALIZER = 0,
 	MODALITY_SET_LOGLEVEL = 1,
 	MODALITY_SET_LOG_ALGORITHM = 2
 };
