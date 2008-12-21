@@ -362,6 +362,9 @@ class angluin_observationtable : public learning_algorithm<answer> {
 
 		virtual void add_counterexample(list<int> word, answer a)
 		{{{
+			bool bottom;
+			word = norm->prefix_normal_form(word, bottom);
+			// FIXME: check bottom.
 			list<int> prefix = word;
 			int ps;
 
@@ -396,6 +399,9 @@ class angluin_observationtable : public learning_algorithm<answer> {
 
 		virtual void add_counterexample(list<int> word)
 		{{{
+			bool bottom;
+			word = norm->prefix_normal_form(word, bottom);
+			// FIXME: check bottom.
 			list<int> prefix = word;
 
 			list<int>::iterator wi;
@@ -439,6 +445,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 
 		virtual void add_word_to_upper_table(list<int> word, bool check_uniq = true) = 0;
 
+		// this expects a NORMALIZED word!
 		virtual typename table::iterator search_upper_table(list<int> &word)
 		{{{
 			typename table::iterator uti;
@@ -450,6 +457,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			return upper_table.end();
 		}}}
 
+		// this expects a NORMALIZED word!
 		virtual typename table::iterator search_upper_table(list<int> &word, int &index)
 		{{{
 			typename table::iterator uti;
@@ -463,6 +471,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			return upper_table.end();
 		}}}
 
+		// this expects a NORMALIZED word!
 		virtual typename table::iterator search_lower_table(list<int> &word)
 		{{{
 			typename table::iterator lti;
@@ -473,6 +482,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			return lower_table.end();
 		}}}
 
+		// this expects a NORMALIZED word!
 		virtual typename table::iterator search_lower_table(list<int> &word, int &index)
 		{{{
 			typename table::iterator lti;
@@ -485,6 +495,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			return lower_table.end();
 		}}}
 
+		// this expects a NORMALIZED word!
 		virtual typename table::iterator search_tables(list<int> &word)
 		{{{
 			typename table::iterator it;
@@ -496,6 +507,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			return search_lower_table(word);
 		}}}
 
+		// this expects a NORMALIZED word!
 		virtual typename table::iterator search_tables(list<int> &word, bool &upper_table, int&index)
 		{{{
 			typename table::iterator it;
@@ -508,15 +520,24 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			return search_lower_table(word, index);
 		}}}
 
-		virtual void add_column(list<int>word)
+		virtual void add_column(list<int> word)
 		{{{
 			typename columnlist::iterator ci;
+			list<int> nw;
+
+			bool bottom;
+			if(norm) {
+				nw = norm->suffix_normal_form(word, bottom);
+				// FIXME: check bottom
+			} else {
+				nw = word;
+			}
 
 			for(ci = column_names.begin(); ci != column_names.end(); ci++)
-				if(*ci == word)
+				if(*ci == nw)
 					return;
 
-			column_names.push_back(word);
+			column_names.push_back(nw);
 		}}}
 
 		virtual structured_query_tree<answer> * fill_missing_columns()
@@ -1011,15 +1032,25 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 	protected:
 		virtual void add_word_to_upper_table(list<int> word, bool check_uniq = true)
 		{{{
+			list<int> nw;
+			// normalize word
+			bool bottom;
+			if(this->norm) {
+				nw = this->norm->prefix_normal_form(word, bottom);
+				// FIXME: check bottom
+			} else {
+				nw = word;
+			}
+
 			algorithm_angluin::simple_row<answer, vector<answer> > row;
 			bool done = false;
 
 			if(check_uniq) {
-				if(this->search_upper_table(word) != this->upper_table.end()) {
+				if(this->search_upper_table(nw) != this->upper_table.end()) {
 					return;
 				}
 				typename list< algorithm_angluin::simple_row<answer, vector<answer> > >::iterator ti;
-				ti = this->search_lower_table(word);
+				ti = this->search_lower_table(nw);
 				if(ti != this->lower_table.end()) {
 					done = true;
 					this->upper_table.push_back(*ti);
@@ -1029,21 +1060,28 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 
 			// add the word to the upper table
 			if(!done) {
-				row.index = word;
+				row.index = nw;
 				this->upper_table.push_back(row);
 			}
 
 			// add all suffixes of word to lower table
 			for( int i = 0; i < this->alphabet_size; i++ ) {
 				word.push_back(i);
+				// normalize word
+				if(this->norm) {
+					nw = this->norm->prefix_normal_form(word, bottom);
+					// FIXME: check bottom
+				} else {
+					nw = word;
+				}
 				done = false;
 				if(check_uniq)
-					if(this->search_upper_table(word) != this->upper_table.end()) {
+					if(this->search_upper_table(nw) != this->upper_table.end()) {
 						// can't be in lower table, as its prefix would be in upper then
 						done = true;
 					}
 				if(!done) {
-					row.index = word;
+					row.index = nw;
 					this->lower_table.push_back(row);
 				}
 				word.pop_back();

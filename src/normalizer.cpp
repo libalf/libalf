@@ -139,15 +139,20 @@ bool normalizer_msc::deserialize_extension(basic_string<int32_t>::iterator &it, 
 }
 
 
-list<int> normalizer_msc::prefix_normal_form(list<int> w)
+list<int> normalizer_msc::prefix_normal_form(list<int> w, bool &bottom)
 {
 	// first create a MSC from the word
-	
+
+	// FIXME
+	bottom = false;
+	return w;
 }
 
-list<int> normalizer_msc::suffix_normal_form(list<int> w)
+list<int> normalizer_msc::suffix_normal_form(list<int> w, bool &bottom)
 {
-	
+	// FIXME
+	bottom = false;
+	return w;
 }
 
 }; // end namespace libalf
