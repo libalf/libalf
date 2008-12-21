@@ -55,8 +55,9 @@ enum capability_type {
 
 enum modality_type {
 	MODALITY_SET_NORMALIZER = 0,
-	MODALITY_SET_LOGLEVEL = 1,
-	MODALITY_SET_LOG_ALGORITHM = 2
+	MODALITY_EXTEND_NORMALIZER = 1,
+	MODALITY_SET_LOGLEVEL = 2,
+	MODALITY_SET_LOG_ALGORITHM = 3
 };
 
 #endif // __libalf_protocol_h__

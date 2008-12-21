@@ -21,18 +21,25 @@ using namespace std;
 
 class normalizer {
 	public:
-		virtual ~normalizer() { };
+		enum type {
+			NORMALIZER_NONE = 0,
+			NORMALIZER_MSC = 1
+		};
 
-		virtual list<int> prefix_normal_form(list<int> w) = 0;
-		virtual list<int> suffix_normal_form(list<int> w) = 0;
+		virtual ~normalizer() { };
 
 		virtual basic_string<int32_t> serialize() = 0;
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit) = 0;
 
 		virtual bool deserialize_extension(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit) = 0;
+
+		virtual list<int> prefix_normal_form(list<int> w) = 0;
+		virtual list<int> suffix_normal_form(list<int> w) = 0;
 };
 
-class msc_normalizer : public normalizer {
+
+// normalizer for learning protocols from message-sequence-charts
+class normalizer_msc : public normalizer {
 	private:
 		// total order of all messages
 		list<int> total_order;
@@ -49,18 +56,22 @@ class msc_normalizer : public normalizer {
 
 		// max number of messages in a queue
 		int max_queue_length;
+		// if <= 0, max queue length will not be checked.
 	public:
-		msc_normalizer(list<int> &total_order, list<int> &msg_process_match, list<int> &msg_buffer_match, int max_queue_length);
+		normalizer_msc();
+		normalizer_msc(list<int> &total_order, list<int> &msg_process_match, list<int> &msg_buffer_match, int max_queue_length);
 
-		virtual ~msc_normalizer() { };
+		virtual ~normalizer_msc() { };
 
-		virtual list<int> prefix_normal_form(list<int> w);
-		virtual list<int> suffix_normal_form(list<int> w);
+		void clear();
 
 		virtual basic_string<int32_t> serialize();
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
 
 		virtual bool deserialize_extension(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
+
+		virtual list<int> prefix_normal_form(list<int> w);
+		virtual list<int> suffix_normal_form(list<int> w);
 };
 
 }; // end of namespace libalf

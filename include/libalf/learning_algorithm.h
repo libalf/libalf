@@ -20,6 +20,7 @@
 #include <libalf/structured_query_tree.h>
 #include <libalf/automata.h>
 #include <libalf/logger.h>
+#include <libalf/normalizer.h>
 
 namespace libalf {
 
@@ -48,8 +49,13 @@ class learning_algorithm {
 		virtual void set_teacher(teacher<answer> *) = 0;
 		virtual teacher<answer> * get_teacher() = 0;
 		virtual void unset_teacher() = 0;
+
 		virtual void set_logger(logger *) = 0;
 		virtual logger * get_logger() = 0;
+
+		virtual void set_normalizer(normalizer * norm) = 0;
+		virtual normalizer * get_normalizer() = 0;
+		virtual void unset_normalizer() = 0;
 
 		virtual void undo() = 0;
 		virtual void redo() = 0;

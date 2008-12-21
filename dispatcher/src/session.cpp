@@ -17,6 +17,8 @@
 #include <libalf/logger.h>
 #include <libalf/automata_amore.h>
 
+#include <arpa/inet.h>
+
 #include <serversocket.h>
 #include <session.h>
 #include <protocol.h>
@@ -30,6 +32,7 @@ session::session()
 	alg_type = learning_algorithm<extended_bool>::ALG_NONE;
 	hypothesis_automaton = NULL;
 	latest_query = NULL;
+	norm = NULL;
 	logger.set_minimal_loglevel(LOGGER_DEBUG);
 	logger.set_log_algorithm(true);
 	logger(LOGGER_WARN, "new session: default constructor\n");
@@ -41,6 +44,7 @@ session::session(enum learning_algorithm<extended_bool>::algorithm algorithm, in
 	logger.set_log_algorithm(true);
 	alg_type = algorithm;
 	latest_query = NULL;
+	norm = NULL;
 	switch (algorithm) {
 		case learning_algorithm<extended_bool>::ALG_ANGLUIN:
 			alg = new angluin_simple_observationtable<extended_bool>(NULL, &logger, alphabet_size);
@@ -61,8 +65,46 @@ session::~session()
 		delete alg;
 }}}
 
+bool session::set_normalizer(basic_string<int32_t> blob)
+{{{
+	int length;
+	basic_string<int32_t>::iterator bi;
+	enum normalizer::type type;
+
+	length = blob.size();
+	if(length < 2)
+		return false;
+
+	// alg->unset_normalizer also deletes the normalizer we are referencing in norm.
+	alg->unset_normalizer();
+
+	type = (enum normalizer::type) ntohl(blob[2]);
+
+	switch (type) {
+		case normalizer::NORMALIZER_NONE:
+			if(length != 2)
+				return false;
+			// already unset :)
+			return true;
+		case normalizer::NORMALIZER_MSC:
+			norm = new normalizer_msc;
+			break;
+	}
+
+	bi = blob.begin();
+	norm->deserialize(bi, blob.end());
+
+	if(bi != blob.end()) {
+		delete norm;
+		return false;
+	}
+
+	alg->set_normalizer(norm);
+	return true;
+}}}
+
 bool session::set_modalities(serversocket * sock)
-{
+{{{
 cout << "session set_modalities\n";
 	int count;
 	int32_t d;
@@ -75,6 +117,9 @@ cout << "session set_modalities\n";
 		int32_t d;
 		int length;
 		enum modality_type type;
+		basic_string<int32_t> blob;
+		basic_string<int32_t>::iterator bi;
+
 		if(!sock->stream_receive_int(d))
 			return false;
 		length = ntohl(d);
@@ -83,11 +128,34 @@ cout << "session set_modalities\n";
 		type = (enum modality_type)ntohl(d);
 
 		switch(type) {
-			case MODALITY_TOTAL_ORDER_FUNC:
+			case MODALITY_SET_NORMALIZER:
+				if(length < 2)
+					return false;
+				for(/* -- */; length > 0; length--) {
+					if(!sock->stream_receive_int(d))
+						return false;
+					blob.push_back(d);
+				}
 
-				// FIXME parse and add total order function
+				if(!this->set_normalizer(blob))
+					return false;
+				break;
+			case MODALITY_EXTEND_NORMALIZER:
+				if(length < 1)
+					return false;
+				for(/* -- */; length > 0; length--) {
+					if(!sock->stream_receive_int(d))
+						return false;
+					blob.push_back(d);
+				}
 
-				return false;
+				bi = blob.begin();
+				if(!norm->deserialize_extension(bi, blob.end()))
+					return false;
+				if(bi != blob.end())
+					return false;
+
+				break;
 			case MODALITY_SET_LOGLEVEL:
 				if(length != 1)
 					return false;
@@ -112,7 +180,7 @@ cout << "session set_modalities\n";
 	if(!sock->stream_send_int(htonl(SM_SES_ACK_MODALITIES)))
 		return false;
 	return sock->stream_send_int(htonl(success ? 1 : 0));
-}
+}}}
 bool session::answer_status(serversocket * sock)
 {{{
 cout << "session answer_status\n";

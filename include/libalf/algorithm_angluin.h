@@ -26,6 +26,7 @@
 #include <libalf/learning_algorithm.h>
 #include <libalf/structured_query_tree.h>
 #include <libalf/automata.h>
+#include <libalf/normalizer.h>
 
 namespace libalf {
 
@@ -74,6 +75,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 
 		teacher<answer> * teach;
 		logger * log;
+		normalizer * norm;
 		int alphabet_size;
 
 	public:
@@ -81,6 +83,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		{{{
 			teach = NULL;
 			log = NULL;
+			norm = NULL;
 			alphabet_size = 0;
 		}}}
 
@@ -117,6 +120,25 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		virtual logger * get_logger()
 		{{{
 			return log;
+		}}}
+
+		virtual void set_normalizer(normalizer * norm)
+		{{{
+			if(this->norm)
+				delete this->norm;
+			this->norm = norm;
+		}}}
+
+		virtual normalizer * get_normalizer()
+		{{{
+			  return norm;
+		}}}
+
+		virtual void unset_normalizer()
+		{{{
+			if(norm)
+				delete norm;
+			norm = NULL;
 		}}}
 
 		virtual void undo()

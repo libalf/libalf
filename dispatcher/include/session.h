@@ -27,6 +27,7 @@ class session {
 		enum learning_algorithm<extended_bool>::algorithm alg_type;
 		finite_language_automaton * hypothesis_automaton;
 		structured_query_tree<extended_bool> * latest_query;
+		normalizer * norm;
 	public:
 		session();
 		session(enum learning_algorithm<extended_bool>::algorithm algorithm, int alphabet_size);
@@ -43,6 +44,9 @@ class session {
 		bool answer_alphabet_size(serversocket * sock);
 		bool answer_stats(serversocket * sock);
 		bool answer_log_request(serversocket * sock);
+
+	protected:
+		bool set_normalizer(basic_string<int32_t> blob);
 };
 
 
