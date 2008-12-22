@@ -17,6 +17,8 @@
 #include <getopt.h>
 #include <errno.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include "protocol.h"
 #include "serversocket.h"
@@ -148,6 +150,8 @@ int main(int argc, char**argv)
 				delete cl;
 			}
 		}
+
+		waitpid(-1, NULL, WNOHANG);
 	}
 
 	// this should never be reached
