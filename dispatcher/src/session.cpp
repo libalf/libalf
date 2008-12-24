@@ -258,6 +258,7 @@ cout << "session get_sqt\n";
 	if(!sock->stream_receive_int(d))
 		return false;
 	count = ntohl(d);
+	blob += d;
 
 	if(!latest_query) {
 		logger(LOGGER_ERROR, "client sent answer for query but there is no active query! trying to ignore.\n");
