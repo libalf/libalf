@@ -276,12 +276,19 @@ cout << "session get_sqt\n";
 			return false;
 		blob += d;
 	}
+	cout << "string of answers is " << blob.size() << " long.\n";
 	bi = blob.begin();
-	latest_query->deserialize_acceptances(bi, blob.end());
-	if(bi != blob.end())
+	if(!latest_query->deserialize_acceptances(bi, blob.end())) {
+		cout << "failed to deserialize acceptances\n";
 		return false;
+	}
+	if(bi != blob.end()) {
+		cout << "invalid size: some tail remained";
+		return false;
+	}
 
 	if( ! latest_query->is_answered()) {
+		cout << "client sent incomplete answer\n";
 		// skip this sqt as something failed
 		logger(LOGGER_ERROR, "client sent answers for structured query tree, but SQT seems not to be fully answered!\n");
 		if(!sock->stream_send_int(htonl(SM_SES_ACK_ANSWER_SQT)))
@@ -291,11 +298,15 @@ cout << "session get_sqt\n";
 
 	latest_query->set_statistics(&stats);
 
-	if( ! alg->learn_from_structured_query( *latest_query ))
+	if( ! alg->learn_from_structured_query( *latest_query )) {
+		cout << "algorithm failed to learn from SQT.\n";
 		logger(LOGGER_ERROR, "client sent answer for SQT which seemed to be fine for the SQT, but algorithm can not make any sense from resulting SQT.\n");
+	}
 
-	if(!sock->stream_send_int(htonl(SM_SES_ACK_ANSWER_SQT)))
+	if(!sock->stream_send_int(htonl(SM_SES_ACK_ANSWER_SQT))) {
+		cout << "failed to send ACK.\n";
 		return false;
+	}
 	return sock->stream_send_int(htonl(1));
 }}}
 bool session::get_counterexamples(serversocket * sock)
