@@ -207,21 +207,21 @@ class prefix_enabled_query {
 			int c;
 			answer a;
 
-			if(it == limit) goto serialization_failed;
+			if(it == limit) { printf("peq: start==end\n"); goto serialization_failed; }
 
 			acceptance.clear();
 
 			// acceptance of word itself
 			a = (int32_t) ntohl(*it);
-			it++; if(it == limit) goto serialization_failed;
 			acceptance.push_back(a);
 
 			// acceptances of all prefixes
 			for(c = prefix_count; c > 0; c--) {
+				it++; if(it == limit) { printf("peq: missing prefix\n"); goto serialization_failed; }
 				a = (int32_t) ntohl(*it);
-				it++; if(it == limit) goto serialization_failed;
 				acceptance.push_back(a);
 			}
+			it++;
 
 			return true;
 
@@ -338,16 +338,18 @@ class structured_query_tree {
 		{{{
 			iterator qi;
 			int size;
+			int peq = 0;
 
 			if(limit == it) goto deserialization_failed;
 
 			// note: not checking size in any way.
 			size = ntohl(*it);
-			it++; if(it == limit) goto deserialization_failed;
+printf("SQT-answer: size %d\n", size);
+			it++; if(it == limit) {printf("!hit limit (beginning)\n"); goto deserialization_failed; }
 
-			for(qi = queries.begin(); qi != queries.end(); qi++)
+			for(qi = queries.begin(); qi != queries.end(); qi++, peq++)
 				if( ! qi->deserialize_acceptances(it, limit) )
-					goto deserialization_failed;
+					{ printf("!hit limit (peq %d)\n", size); goto deserialization_failed; }
 
 			return true;
 
