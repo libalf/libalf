@@ -320,11 +320,16 @@ cout << "session get_counterexamples\n";
 		// receive serialized word
 		if(!sock->stream_receive_int(d))
 			return false;
+		printf("CE length is %d.\n", ntohl(d));
 		for(count = ntohl(d); count > 0; count--) {
 			if(!sock->stream_receive_int(d))
 				return false;
+			printf("ETA %d, new is %d\n", count, ntohl(d));
 			word.push_back(ntohl(d));
 		}
+
+		printf("CE is ");
+		print_word(word);
 
 		// add it as a counter-example
 		alg->add_counterexample(word);
