@@ -322,26 +322,17 @@ cout << "session get_counterexamples\n";
 			return false;
 		printf("CE length is %d.\n", ntohl(d));
 		for(count = ntohl(d); count > 0; count--) {
-			printf("receiving new... \n");
-
 			if(!sock->stream_receive_int(d))
 				return false;
 
-			printf("ETA %d, new is %d\n", count, ntohl(d));
-
 			word.push_back(ntohl(d));
-
-			printf("now, CE is ");
-			print_word(word);
-			printf("\n");
 		}
 
-		printf("CE %d completed.\n", wordcount);
 		// add it as a counter-example
 		alg->add_counterexample(word);
 	}
 
-	if(!sock->stream_send_int(htonl(SM_SES_ACK_ANSWER_SQT)))
+	if(!sock->stream_send_int(htonl(SM_SES_ACK_COUNTEREXAMPLES)))
 		return false;
 	return sock->stream_send_int(htonl(1));
 }}}
