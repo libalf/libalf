@@ -376,7 +376,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			// check for increase in alphabet
 			for(wi = word.begin(); wi != word.end(); wi++) {
 				if(*wi >= alphabet_size) {
-					new_asize = *wi;
+					new_asize = *wi+1;
 					asize_changed = true;
 				}
 			}
@@ -413,7 +413,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			// check for increase in alphabet
 			for(wi = word.begin(); wi != word.end(); wi++) {
 				if(*wi >= alphabet_size) {
-					new_asize = *wi;
+					new_asize = *wi+1;
 					asize_changed = true;
 				}
 			}
@@ -439,12 +439,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		}}}
 
 	protected:
-		virtual void increase_alphabet_size(int new_asize)
-		{
-			// add all new suffixes etc
-			// FIXME: increase_alphabet_size is not implemented
-		}
-
+		virtual void increase_alphabet_size(int new_asize) = 0;
 		virtual void add_word_to_upper_table(list<int> word, bool check_uniq = true) = 0;
 
 		// this expects a NORMALIZED word!
@@ -1032,6 +1027,27 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 		}
 
 	protected:
+		virtual void increase_alphabet_size(int new_asize) = 0;
+		{{{
+			typename table::iterator uti;
+			algorithm_angluin::simple_row<answer, vector<answer> > row;
+
+			// for all words in the upper table,
+			for(uti = this->upper_table.begin(); uti != this->upper_table.end(); uti++) {
+				list<int> word;
+				row.index = uti->index;
+
+				// add them suffixed with the new characters into the lower table.
+				for(int new_suffix = alphabet_size; new_suffix < new_asize; new_suffix++) {
+					row.index.push_back(new_suffix);
+					this->lower_table.push_back(row);
+					row.index.pop_back();
+				}
+			}
+
+			this->alphabet_size = new_asize;
+		}}}
+
 		virtual void add_word_to_upper_table(list<int> word, bool check_uniq = true)
 		{{{
 			list<int> nw;
