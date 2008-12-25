@@ -1027,9 +1027,9 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 		}
 
 	protected:
-		virtual void increase_alphabet_size(int new_asize) = 0;
+		virtual void increase_alphabet_size(int new_asize)
 		{{{
-			typename table::iterator uti;
+			typename list< algorithm_angluin::simple_row<answer, vector<answer> > >::iterator uti;
 			algorithm_angluin::simple_row<answer, vector<answer> > row;
 
 			// for all words in the upper table,
@@ -1038,7 +1038,7 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 				row.index = uti->index;
 
 				// add them suffixed with the new characters into the lower table.
-				for(int new_suffix = alphabet_size; new_suffix < new_asize; new_suffix++) {
+				for(int new_suffix = this->alphabet_size; new_suffix < new_asize; new_suffix++) {
 					row.index.push_back(new_suffix);
 					this->lower_table.push_back(row);
 					row.index.pop_back();

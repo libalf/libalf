@@ -4,13 +4,10 @@
 A)
 
 - total order function
-- increasing of alphabet size
-
-B)
-
+- implement caching SQT
 - implement SQT::add_query_optimized()
 
-C)
+B)
 
 - in learn_regex: check/fix '+' operator in regex on command-line
 
