@@ -37,6 +37,9 @@ basic_string<int32_t> serialize_word(list<int> &word);
 
 bool deserialize_word(list<int32_t> &into, basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
 
+// a prefix of a word is smaller than the word itself!
+bool is_smaller(list<int> & word1, list<int> & word2);
+
 };
 
 #endif

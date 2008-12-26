@@ -124,5 +124,17 @@ bool deserialize_word(list<int32_t> &into, basic_string<int32_t>::iterator &it, 
 	return true;
 }}}
 
+bool is_smaller(list<int> & word1, list<int> & word2)
+{{{
+	list<int>::iterator w1i;
+	list<int>::iterator w2i;
+
+	for(w1i = word1.begin(), w2i = word2.begin(); w1i != word1.end() && w2i != word2.end(); w1i++, w2i++)
+		if(*w1i != *w2i)
+			return (*w1i < *w2i);
+
+	return w1i == word1.end() && w2i != word2.end();
+}}}
+
 }
 
