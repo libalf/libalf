@@ -372,12 +372,14 @@ class structured_query_tree {
 			prefix_enabled_query<answer> q;
 			q.set_query(word, prefix_count);
 			queries.push_back(q);
+			/*
+			iterator qi;
+
+			for(qi = queries.begin(); qi != queries.end(); qi++) {
+				if(is_smaller(qi->
+			}
+			*/
 		}}}
-		void add_query_optimized(list<int> &word, int prefix_count)
-		{
-			// FIXME: implement add_query_optimized that searches for prefix/postfix and uniques
-			add_query(word, prefix_count);
-		}
 		bool is_answered()
 		{{{
 			iterator qi;
