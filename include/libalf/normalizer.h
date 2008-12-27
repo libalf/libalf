@@ -33,8 +33,8 @@ class normalizer {
 
 		virtual bool deserialize_extension(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit) = 0;
 
-		virtual list<int> prefix_normal_form(list<int> w, bool &bottom) = 0;
-		virtual list<int> suffix_normal_form(list<int> w, bool &bottom) = 0;
+		virtual list<int> prefix_normal_form(list<int> & w, bool &bottom) = 0;
+		virtual list<int> suffix_normal_form(list<int> & w, bool &bottom) = 0;
 		// if the normalizer finds that the word is not in the MSCs language, bottom will be set to true.
 		// that way, an learning algorithm can automatically set the words row to bottom.
 };

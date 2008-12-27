@@ -21,17 +21,38 @@ namespace libalf {
 
 using namespace std;
 
+msc::msc_node::msc_node()
+{{{
+	id = -1;
+	label = -1;
+	process_in = NULL;
+	process_out = NULL;
+	buffer_in = NULL;
+	buffer_out = NULL;
+}}}
+
+msc::msc_node::~msc_node()
+{{{
+	// delete references from other nodes
+	if(process_in)
+		process_in->process_out = NULL;
+	if(buffer_in)
+		buffer_in->buffer_out = NULL;
+}}}
+
+
+
 normalizer_msc::normalizer_msc()
 {{{
 	// nothing.
 }}}
 
-normalizer_msc::normalizer_msc(list<int> &total_order, list<int> &msg_process_match, list<int> &msg_buffer_match, int max_queue_length)
+normalizer_msc::normalizer_msc(vector<int> &total_order, vector<int> &msg_process_match, vector<int> &msg_buffer_match, int max_buffer_length)
 {{{
 	this->total_order = total_order;
 	this->msg_process_match = msg_process_match;
 	this->msg_buffer_match = msg_buffer_match;
-	this->max_queue_length = max_queue_length;
+	this->max_buffer_length = max_buffer_length;
 }}}
 
 void normalizer_msc::clear()
@@ -39,13 +60,13 @@ void normalizer_msc::clear()
 	total_order.clear();
 	msg_process_match.clear();
 	msg_buffer_match.clear();
-	max_queue_length = 0;
+	max_buffer_length = 0;
 }}}
 
 basic_string<int32_t> normalizer_msc::serialize()
 {{{
 	basic_string<int32_t> ret;
-	list<int>::iterator li;
+	vector<int>::iterator vi;
 
 	ret += 0; // length field, will be filled in later.
 
@@ -54,21 +75,21 @@ basic_string<int32_t> normalizer_msc::serialize()
 
 	// total order
 	ret += htonl(total_order.size());
-	for(li = total_order.begin(); li != total_order.end(); li++)
-		ret += htonl(*li);
+	for(vi = total_order.begin(); vi != total_order.end(); vi++)
+		ret += htonl(*vi);
 
 	// message-process-matching
 	ret += htonl(msg_process_match.size());
-	for(li = msg_process_match.begin(); li != msg_process_match.end(); li++)
-		ret += htonl(*li);
+	for(vi = msg_process_match.begin(); vi != msg_process_match.end(); vi++)
+		ret += htonl(*vi);
 
 	// message-buffer-matching
 	ret += htonl(msg_buffer_match.size());
-	for(li = msg_buffer_match.begin(); li != msg_buffer_match.end(); li++)
-		ret += htonl(*li);
+	for(vi = msg_buffer_match.begin(); vi != msg_buffer_match.end(); vi++)
+		ret += htonl(*vi);
 
-	// max queue length
-	ret += htonl(max_queue_length);
+	// max buffer length
+	ret += htonl(max_buffer_length);
 
 	ret[0] = htonl(ret.size() - 1);
 
@@ -119,9 +140,9 @@ bool normalizer_msc::deserialize(basic_string<int32_t>::iterator &it, basic_stri
 		msg_buffer_match.push_back(ntohl(*it));
 	}
 
-	// get max queue length
+	// get max buffer length
 	size--; it++; if(size <= 0 || limit == it) goto deserialization_failed;
-	max_queue_length = ntohl(*it);
+	max_buffer_length = ntohl(*it);
 
 	size--; it++;
 
@@ -130,7 +151,7 @@ bool normalizer_msc::deserialize(basic_string<int32_t>::iterator &it, basic_stri
 
 deserialization_failed:
 	clear();
-	max_queue_length = 0;
+	max_buffer_length = 0;
 	return false;
 }}}
 
@@ -140,20 +161,42 @@ bool normalizer_msc::deserialize_extension(basic_string<int32_t>::iterator &it, 
 }
 
 
-list<int> normalizer_msc::prefix_normal_form(list<int> w, bool &bottom)
+list<int> normalizer_msc::prefix_normal_form(list<int> & w, bool &bottom)
 {
-	// first create a MSC from the word
+	list<int> ret;
+	bottom = false;
 
-	// FIXME: implement MSC prefix_normal_form
+	// first create a MSC from the word
+	list<int>::iterator wi;
+	int i;
+	for(wi = w.begin(), i = 0; wi != w.end(); wi++, i++)
+		if(!graph_add_node(i, *wi))
+			bottom = true;
+
+	// create normalized word
+	while( ! graph.empty()) {
+		// FIXME: check max_buffer_length
+		ret.push_back(graph_reduce());
+	}
+
+	return w;
+}
+
+list<int> normalizer_msc::suffix_normal_form(list<int> & w, bool &bottom)
+{
+	// FIXME: implement normalizer_msc::suffix_normal_form
 	bottom = false;
 	return w;
 }
 
-list<int> normalizer_msc::suffix_normal_form(list<int> w, bool &bottom)
+bool normalizer_msc::graph_add_node(int id, int label)
 {
-	// FIXME: implement MSC suffix_normal_form
-	bottom = false;
-	return w;
+	// FIXME: implement normalizer_msc::graph_add_node
+}
+
+int normalizer_msc::graph_reduce()
+{
+	// FIXME: implement normalizer_msc::graph_reduce
 }
 
 }; // end namespace libalf
