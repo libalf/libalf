@@ -9,6 +9,8 @@
  * see LICENSE file for licensing information.
  */
 
+#include <stdlib.h>
+
 #include <list>
 #include <string>
 
