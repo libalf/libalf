@@ -438,8 +438,9 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			return l;
 		}}}
 
-	protected:
 		virtual void increase_alphabet_size(int new_asize) = 0;
+
+	protected:
 		virtual void add_word_to_upper_table(list<int> word, bool check_uniq = true) = 0;
 
 		// this expects a NORMALIZED word!
@@ -1145,9 +1146,11 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 			return false;
 		}}}
 
-	protected:
 		virtual void increase_alphabet_size(int new_asize)
 		{{{
+			if(new_asize <= this->alphabet_size)
+				return;
+
 			typename list< algorithm_angluin::simple_row<answer, vector<answer> > >::iterator uti;
 			algorithm_angluin::simple_row<answer, vector<answer> > row;
 
@@ -1167,6 +1170,7 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 			this->alphabet_size = new_asize;
 		}}}
 
+	protected:
 		virtual void add_word_to_upper_table(list<int> word, bool check_uniq = true)
 		{{{
 			list<int> nw;

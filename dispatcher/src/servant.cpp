@@ -126,6 +126,10 @@ cout << "client command " << cmd << ".\n";
 					return ses->get_counterexamples(client);
 				case CM_SES_REQ_ALPHABET_SIZE:
 					return ses->answer_alphabet_size(client);
+				case CM_SES_SET_ALPHABET_SIZE:
+					return ses->set_alphabet_size(client);
+				case CM_SES_INC_ALPHABET_SIZE:
+					return ses->increase_alphabet_size(client);
 				case CM_SES_REQ_STATS:
 					return ses->answer_stats(client);
 				case CM_SES_LOG:

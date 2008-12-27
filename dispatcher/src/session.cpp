@@ -356,6 +356,32 @@ cout << "session answer_alphabet_size\n";
 
 	return true;
 }}}
+bool session::set_alphabet_size(serversocket * sock)
+{{{
+	int32_t d;
+
+	if(!sock->stream_receive_int(d))
+		return false;
+
+	d = ntohl(d);
+
+	alg->increase_alphabet_size(d);
+
+	return sock->stream_send_int(SM_SES_ACK_SET_ALPHABET_SIZE);
+}}}
+bool session::increase_alphabet_size(serversocket * sock)
+{{{
+	int32_t d;
+
+	if(!sock->stream_receive_int(d))
+		return false;
+
+	d = ntohl(d) + alg->get_alphabet_size();
+
+	alg->increase_alphabet_size(d);
+
+	return sock->stream_send_int(SM_SES_ACK_INC_ALPHABET_SIZE);
+}}}
 bool session::answer_stats(serversocket * sock)
 {{{
 cout << "session answer_stats\n";

@@ -40,8 +40,12 @@ class learning_algorithm {
 
 		virtual ~learning_algorithm() { };
 
+		// set_alphabet_size() is only for initial setting.
+		// once any data is in the structure, use increase_alphabet_size ONLY.
 		virtual void set_alphabet_size(int alphabet_size) = 0;
 		virtual int get_alphabet_size() = 0;
+
+		virtual void increase_alphabet_size(int new_asize) = 0;
 
 		// if teacher is NULL (or unset), advance() will return a
 		// structured query tree. an answer to a structured query tree
