@@ -962,20 +962,18 @@ class angluin_observationtable : public learning_algorithm<answer> {
 
 					if(it == limit)
 						return false;
-
 					size = ntohl(*it);
-					it++;
-					if(size <= 0 || it == limit) return false;
+					it++; if(size <= 0 || it == limit) return false;
 
 					// index
 					if( ! deserialize_word(this->index, it, limit) )
 						goto deserialization_failed;
-					size -= this->index.length() + 1;
+					size -= this->index.size() + 1;
 					if(size <= 0 || it == limit) goto deserialization_failed;
 
 					// number of acceptances
 					count = ntohl(*it);
-					it++, count--;
+					it++, size--;
 					if(it == limit || count <= 0 || size != count)
 						goto deserialization_failed;
 
@@ -1004,6 +1002,21 @@ class angluin_observationtable : public learning_algorithm<answer> {
 template <class answer>
 class angluin_simple_observationtable : public angluin_observationtable<answer, list< algorithm_angluin::simple_row<answer, vector<answer> > >, vector<answer> > {
 	public:
+		angluin_simple_observationtable()
+		{{{
+			this->alphabet_size = 0;
+			this->set_teacher(NULL);
+			this->set_logger(NULL);
+
+			list<int> word; // empty word!
+
+			// add epsilon as column
+			this->column_names.push_back(word);
+
+			// add epsilon to upper table
+			// and all suffixes to lower table
+			this->add_word_to_upper_table(word, false);
+		}}}
 		angluin_simple_observationtable(teacher<answer> *teach, logger *log, int alphabet_size)
 		{{{
 			this->alphabet_size = alphabet_size;
@@ -1021,10 +1034,97 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 			this->add_word_to_upper_table(word, false);
 		}}}
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
-		{
-			// FIXME: deserialize is not implemented
+		{{{
+			int size;
+			enum learning_algorithm<answer>::algorithm type;
+			int count;
+
+			this->column_names.clear();
+			this->upper_table.clear();
+			this->lower_table.clear();
+
+			if(it == limit) goto deserialization_failed;
+
+			// size
+			size = ntohl(*it);
+
+			// check implementation type
+			it++; if(size <= 0 || it == limit) goto deserialization_failed;
+			type = (enum learning_algorithm<answer>::algorithm) ntohl(*it);
+			if(type != learning_algorithm<answer>::ALG_ANGLUIN)
+				goto deserialization_failed;
+
+			// alphabet size
+			it++; size--; if(size <= 0 || it == limit) goto deserialization_failed;
+			this->alphabet_size = ntohl(*it);
+			if(this->alphabet_size < 0)
+				goto deserialization_failed;
+
+			// column count
+			it++; size--; if(size <= 0 || it == limit) goto deserialization_failed;
+			count = ntohl(*it);
+			if(count < 0)
+				goto deserialization_failed;
+
+			// columns
+			it++; size--; if(size <= 0 || it == limit) goto deserialization_failed;
+			for(/* -- */; count > 0; count--) {
+				list<int> column_label;
+				if(!deserialize_word(column_label, it, limit))
+					goto deserialization_failed;
+				size -= column_label.size();
+				this->column_names.push_back(column_label);
+			}
+
+			// upper table
+			count = ntohl(*it);
+			if(count < 0)
+				goto deserialization_failed;
+			// rows for upper table
+			it++; size--; if(size <= 0 || it == limit) goto deserialization_failed;
+			for(/* -- */; count > 0; count--) {
+				algorithm_angluin::simple_row<answer, vector<answer> > row;
+				// peek size
+				if(it == limit) goto deserialization_failed;
+				size -= ntohl(*it);
+				if(size < 0) goto deserialization_failed;
+
+				if(!row.deserialize(it, limit))
+					goto deserialization_failed;
+
+				this->upper_table.push_back(row);
+			}
+
+			// lower table
+			count = ntohl(*it);
+			if(count < 0)
+				goto deserialization_failed;
+			// rows for lower table
+			it++; size--; if(size <= 0 || it == limit) goto deserialization_failed;
+			for(/* -- */; count > 0; count--) {
+				algorithm_angluin::simple_row<answer, vector<answer> > row;
+				// peek size
+				if(it == limit) goto deserialization_failed;
+				size -= ntohl(*it);
+				if(size < 0) goto deserialization_failed;
+
+				if(!row.deserialize(it, limit))
+					goto deserialization_failed;
+
+				this->lower_table.push_back(row);
+			}
+
+			if(it != limit) goto deserialization_failed;
+
+			return true;
+
+		deserialization_failed:
+			this->alphabet_size = 0;
+			this->column_names.clear();
+			this->upper_table.clear();
+			this->lower_table.clear();
 			return false;
-		}
+		}}}
 
 	protected:
 		virtual void increase_alphabet_size(int new_asize)
