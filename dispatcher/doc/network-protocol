@@ -131,6 +131,22 @@ SESSION-RELATED COMMANDS:
 			SM_SES_ACK_ALPHABET_SIZE
 			alphabet size
 
+	set alphabet size (if new size is <= old size, old size will remain)
+		client sends
+			CM_SES_SET_ALPHABET_SIZE
+			session id
+			new size
+		server answers
+			SM_SES_ACK_SET_ALPHABET_SIZE
+
+	inc alphabet size
+		client sends
+			CM_SES_INC_ALPHABET_SIZE
+			session id
+			count by how much to increase alphabet
+		server answers
+			SM_SES_ACK_INC_ALPHABET_SIZE
+
 	request statistics
 		client sends
 			CM_SES_REQ_STATS
@@ -178,9 +194,13 @@ enum client_message {
 
 	CM_SES_REQ_ALPHABET_SIZE = 29,
 
-	CM_SES_REQ_STATS = 30,
+	CM_SES_SET_ALPHABET_SIZE = 30,
 
-	CM_SES_REQ_LOG = 31
+	CM_SES_INC_ALPHABET_SIZE = 31,
+
+	CM_SES_REQ_STATS = 32,
+
+	CM_SES_REQ_LOG = 33
 }
 
 // (enum client_message corresponds to dispatcher::client_message)
@@ -210,9 +230,13 @@ enum server_message {
 
 	SM_SES_ACK_ALPHABET_SIZE = 29,
 
-	SM_SES_ACK_STATS = 30,
+	SM_SES_ACK_SET_ALPHABET_SIZE = 30,
 
-	SM_SES_ACK_LOG = 31
+	SM_SES_ACK_INC_ALPHABET_SIZE = 31,
+
+	SM_SES_ACK_STATS = 32,
+
+	SM_SES_ACK_LOG = 33
 }
 
 // (enum server_message corresponds to dispatcher::server_message)
