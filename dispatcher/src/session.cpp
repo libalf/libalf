@@ -367,7 +367,7 @@ bool session::set_alphabet_size(serversocket * sock)
 
 	alg->increase_alphabet_size(d);
 
-	return sock->stream_send_int(SM_SES_ACK_SET_ALPHABET_SIZE);
+	return sock->stream_send_int(htonl(SM_SES_ACK_SET_ALPHABET_SIZE));
 }}}
 bool session::increase_alphabet_size(serversocket * sock)
 {{{
@@ -380,7 +380,7 @@ bool session::increase_alphabet_size(serversocket * sock)
 
 	alg->increase_alphabet_size(d);
 
-	return sock->stream_send_int(SM_SES_ACK_INC_ALPHABET_SIZE);
+	return sock->stream_send_int(htonl(SM_SES_ACK_INC_ALPHABET_SIZE));
 }}}
 bool session::answer_stats(serversocket * sock)
 {{{
