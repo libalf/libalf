@@ -294,7 +294,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 
 		virtual bool conjecture_ready()
 		{{{
-			return is_closed() && is_consistent();
+			return columns_filled() && is_closed() && is_consistent();
 		}}}
 
 		virtual structured_query_tree<answer> * advance(finite_language_automaton * automaton)
@@ -535,6 +535,25 @@ class angluin_observationtable : public learning_algorithm<answer> {
 					return;
 
 			column_names.push_back(nw);
+		}}}
+
+		virtual bool columns_filled()
+		{{{
+			typename table::iterator ti;
+			unsigned int columns;
+
+			columns = column_names.size();
+
+			// check upper table
+			for(ti = upper_table.begin(); ti != upper_table.end(); ti++)
+				if(ti->acceptance.size() != columns)
+					return false;
+			// check lower table
+			for(ti = lower_table.begin(); ti != lower_table.end(); ti++)
+				if(ti->acceptance.size() != columns)
+					return false;
+
+			return true;
 		}}}
 
 		virtual structured_query_tree<answer> * fill_missing_columns()
