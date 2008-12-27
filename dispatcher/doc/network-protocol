@@ -123,6 +123,19 @@ SESSION-RELATED COMMANDS:
 			SM_SES_ACK_COUNTEREXAMPLES
 			bool ok (true if success, false otherwise)
 
+	give counter-examples including their answers
+		client sends
+			CM_SES_GIVE_COUNTEREXAMPLES_AND_ANSWERS
+			session id
+			count
+			{
+				serialized word
+				answer
+			} (count times)
+		server answers:
+			SM_SES_ACK_COUNTEREXAMPLES_AND_ANSWERS
+			bool ok (true if success, false otherwise)
+
 	get current alphabet size
 		client sends
 			CM_SES_REQ_ALPHABET_SIZE
