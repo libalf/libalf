@@ -94,6 +94,7 @@ cout << "client command " << cmd << ".\n";
 		case CM_SES_ADVANCE:
 		case CM_SES_ANSWER_SQT:
 		case CM_SES_GIVE_COUNTEREXAMPLES:
+		case CM_SES_GIVE_COUNTEREXAMPLES_AND_ANSWERS:
 		case CM_SES_REQ_ALPHABET_SIZE:
 		case CM_SES_SET_ALPHABET_SIZE:
 		case CM_SES_INC_ALPHABET_SIZE:
@@ -126,6 +127,8 @@ cout << "client command " << cmd << ".\n";
 					return ses->get_sqt(client);
 				case CM_SES_GIVE_COUNTEREXAMPLES:
 					return ses->get_counterexamples(client);
+				case CM_SES_GIVE_COUNTEREXAMPLES_AND_ANSWERS:
+					return ses->get_counterexamples_and_examples(client);
 				case CM_SES_REQ_ALPHABET_SIZE:
 					return ses->answer_alphabet_size(client);
 				case CM_SES_SET_ALPHABET_SIZE:
