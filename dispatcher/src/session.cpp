@@ -213,6 +213,8 @@ cout << "session set_status\n";
 
 	bi = blob.begin();
 	d = alg->deserialize(bi, blob.end());
+
+	// send status of deserialization to client
 	if(!sock->stream_send_int(htonl(d)))
 		return false;
 
