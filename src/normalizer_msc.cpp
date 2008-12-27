@@ -15,6 +15,7 @@
 #include <arpa/inet.h>
 
 #include <libalf/normalizer.h>
+#include <libalf/normalizer_msc.h>
 
 namespace libalf {
 

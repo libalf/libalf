@@ -12,19 +12,17 @@
 #ifndef __libalf_alf_h__
 # define __libalf_alf_h__
 
-#include <libalf/algorithm_angluin.h>
 #include <libalf/alphabet.h>
 #include <libalf/answer.h>
 #include <libalf/automata.h>
 #include <libalf/basic_string.h>
 #include <libalf/learning_algorithm.h>
 #include <libalf/logger.h>
+#include <libalf/normalizer.h>
 #include <libalf/oracle.h>
-#include <libalf/oracle_automaton.h>
 #include <libalf/statistics.h>
 #include <libalf/structured_query_tree.h>
 #include <libalf/teacher.h>
-#include <libalf/teacher_automaton.h>
 
 #endif
 

@@ -17,7 +17,10 @@
 
 #include "libalf/alf.h"
 
-#include "libalf/automata_amore.h"
+#include <libalf/automata_amore.h>
+#include <libalf/teacher_automaton.h>
+#include <libalf/oracle_automaton.h>
+#include <libalf/algorithm_angluin.h>
 
 #include <amore/vars.h>
 #include <amore/rexFromString.h>

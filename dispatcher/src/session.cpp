@@ -11,11 +11,10 @@
 
 #include <iostream>
 
-#include <libalf/learning_algorithm.h>
+#include <libalf/alf.h>
 #include <libalf/algorithm_angluin.h>
-#include <libalf/answer.h>
-#include <libalf/logger.h>
 #include <libalf/automata_amore.h>
+#include <libalf/normalizer_msc.h>
 
 #include <arpa/inet.h>
 
