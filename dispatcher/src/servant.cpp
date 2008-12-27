@@ -95,6 +95,8 @@ cout << "client command " << cmd << ".\n";
 		case CM_SES_ANSWER_SQT:
 		case CM_SES_GIVE_COUNTEREXAMPLES:
 		case CM_SES_REQ_ALPHABET_SIZE:
+		case CM_SES_SET_ALPHABET_SIZE:
+		case CM_SES_INC_ALPHABET_SIZE:
 		case CM_SES_REQ_STATS:
 		case CM_SES_LOG:
 			if(!client->stream_receive_int(session_id)) {
