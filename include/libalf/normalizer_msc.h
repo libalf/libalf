@@ -79,12 +79,14 @@ namespace msc {
 // normalizer for learning protocols from message-sequence-charts
 class normalizer_msc : public normalizer {
 	private:
+		// besides the other attributes, each successive elements (below)
+		// of the alphabet belong together in that the first (the odd) is the
+		// send-event of the sending process, the second (the even) is
+		// the receive-event of the receiving process.
+		// thus we can split into send(odd)/receive(even) events via a test for (n%1)
+
 		// total order of all messages
 		vector<int> total_order;
-		// in total_order, each successive pair of elements
-		// belongs together in the form that the first is the send-event
-		// of the sending process, the second is the receive-event
-		// of the receiving process.
 
 		// relation matching an event to a process
 		vector<int> msg_process_match;

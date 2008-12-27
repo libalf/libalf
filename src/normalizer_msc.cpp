@@ -162,25 +162,58 @@ bool normalizer_msc::deserialize_extension(basic_string<int32_t>::iterator &it, 
 
 
 list<int> normalizer_msc::prefix_normal_form(list<int> & w, bool &bottom)
-{
+{{{
 	list<int> ret;
+
+	bool cleanup = false;
+	int * buffer_length;
+	int * bli;
+
+	list<int>::iterator wi;
+	int i;
+
 	bottom = false;
 
 	// first create a MSC from the word
-	list<int>::iterator wi;
-	int i;
 	for(wi = w.begin(), i = 0; wi != w.end(); wi++, i++)
 		if(!graph_add_node(i, *wi))
 			bottom = true;
 
-	// create normalized word
-	while( ! graph.empty()) {
-		// FIXME: check max_buffer_length
-		ret.push_back(graph_reduce());
+	if(!bottom) {
+		cleanup = true;
+		buffer_length = (int*)calloc(total_order.size(), sizeof(int));
 	}
 
-	return w;
-}
+	// create normalized word
+	while( ! graph.empty()) {
+		if(!bottom) {
+			i = graph_reduce();
+
+			bli = &(buffer_length[msg_buffer_match[i]]);
+
+			// check buffer sizes
+			if(i % 1) {
+				// odd, so this is a send-event
+				*bli++;
+				if(*bli > max_buffer_length)
+					bottom = true;
+			} else {
+				// even, so this is a receive-event
+				*bli--;
+				if(*bli < 0)
+					bottom = true;
+			}
+
+			ret.push_back(i);
+		} else {
+			ret.push_back(graph_reduce());
+		}
+	}
+
+	if(cleanup)
+		free(buffer_length);
+	return ret;
+}}}
 
 list<int> normalizer_msc::suffix_normal_form(list<int> & w, bool &bottom)
 {
