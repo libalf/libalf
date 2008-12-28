@@ -369,7 +369,7 @@ cout << "session get_counterexamples\n";
 		if(!sock->stream_receive_int(d))
 			return false;
 
-		answer = (bool) ntohl(d);
+		answer = (int32_t) ntohl(d);
 
 		printf("new counter example: ");
 		print_word(word);
