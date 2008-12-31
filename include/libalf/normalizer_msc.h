@@ -30,10 +30,10 @@ namespace msc {
 			int id;
 			// label (word[id])
 			int label;
-			// edge according to msg_process_match
+			// edge according to process_match
 			msc_node * process_in;
 			msc_node * process_out;
-			// edge according to msg_buffer_match
+			// edge according to buffer_match
 			msc_node * buffer_in;
 			msc_node * buffer_out;
 
@@ -89,17 +89,17 @@ class normalizer_msc : public normalizer {
 		vector<int> total_order;
 
 		// relation matching an event to a process
-		vector<int> msg_process_match;
+		vector<int> process_match;
 
 		// relation matching an event to a buffer
-		vector<int> msg_buffer_match;
+		vector<int> buffer_match;
 
 		// max number of messages in a buffer
 		int max_buffer_length;
 		// if <= 0, max buffer length will not be checked.
 	public:
 		normalizer_msc();
-		normalizer_msc(vector<int> &total_order, vector<int> &msg_process_match, vector<int> &msg_buffer_match, int max_buffer_length);
+		normalizer_msc(vector<int> &total_order, vector<int> &process_match, vector<int> &buffer_match, int max_buffer_length);
 
 		virtual ~normalizer_msc() { };
 

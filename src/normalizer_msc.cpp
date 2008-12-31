@@ -49,19 +49,19 @@ normalizer_msc::normalizer_msc()
 	// nothing.
 }}}
 
-normalizer_msc::normalizer_msc(vector<int> &total_order, vector<int> &msg_process_match, vector<int> &msg_buffer_match, int max_buffer_length)
+normalizer_msc::normalizer_msc(vector<int> &total_order, vector<int> &process_match, vector<int> &buffer_match, int max_buffer_length)
 {{{
 	this->total_order = total_order;
-	this->msg_process_match = msg_process_match;
-	this->msg_buffer_match = msg_buffer_match;
+	this->process_match = process_match;
+	this->buffer_match = buffer_match;
 	this->max_buffer_length = max_buffer_length;
 }}}
 
 void normalizer_msc::clear()
 {{{
 	total_order.clear();
-	msg_process_match.clear();
-	msg_buffer_match.clear();
+	process_match.clear();
+	buffer_match.clear();
 	max_buffer_length = 0;
 }}}
 
@@ -81,13 +81,13 @@ basic_string<int32_t> normalizer_msc::serialize()
 		ret += htonl(*vi);
 
 	// message-process-matching
-	ret += htonl(msg_process_match.size());
-	for(vi = msg_process_match.begin(); vi != msg_process_match.end(); vi++)
+	ret += htonl(process_match.size());
+	for(vi = process_match.begin(); vi != process_match.end(); vi++)
 		ret += htonl(*vi);
 
 	// message-buffer-matching
-	ret += htonl(msg_buffer_match.size());
-	for(vi = msg_buffer_match.begin(); vi != msg_buffer_match.end(); vi++)
+	ret += htonl(buffer_match.size());
+	for(vi = buffer_match.begin(); vi != buffer_match.end(); vi++)
 		ret += htonl(*vi);
 
 	// max buffer length
@@ -131,7 +131,7 @@ bool normalizer_msc::deserialize(basic_string<int32_t>::iterator &it, basic_stri
 	count = ntohl(*it);
 	for(count = ntohl(*it); count > 0; count--) {
 		size--; it++; if(size <= 0 || limit == it) goto deserialization_failed;
-		msg_process_match.push_back(ntohl(*it));
+		process_match.push_back(ntohl(*it));
 	}
 
 	// get message-buffer-matching
@@ -139,7 +139,7 @@ bool normalizer_msc::deserialize(basic_string<int32_t>::iterator &it, basic_stri
 	count = ntohl(*it);
 	for(count = ntohl(*it); count > 0; count--) {
 		size--; it++; if(size <= 0 || limit == it) goto deserialization_failed;
-		msg_buffer_match.push_back(ntohl(*it));
+		buffer_match.push_back(ntohl(*it));
 	}
 
 	// get max buffer length
@@ -191,7 +191,7 @@ list<int> normalizer_msc::prefix_normal_form(list<int> & w, bool &bottom)
 		if(!bottom) {
 			i = graph_reduce();
 
-			bli = &(buffer_length[msg_buffer_match[i]]);
+			bli = &(buffer_length[buffer_match[i]]);
 
 			// check buffer sizes
 			if(i % 1) {
