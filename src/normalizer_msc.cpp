@@ -275,7 +275,7 @@ bool normalizer_msc::graph_add_node(int id, int label)
 }
 
 int normalizer_msc::graph_reduce()
-{{{
+{
 	// FIXME: implement normalizer_msc::graph_reduce
 
 
@@ -297,7 +297,7 @@ int normalizer_msc::graph_reduce()
 	graph.erase(extrema);
 
 	return label;
-}}}
+}
 
 }; // end namespace libalf
 
