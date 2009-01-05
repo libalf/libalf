@@ -226,7 +226,52 @@ list<int> normalizer_msc::suffix_normal_form(list<int> & w, bool &bottom)
 
 bool normalizer_msc::graph_add_node(int id, int label)
 {
-	// FIXME: implement normalizer_msc::graph_add_node
+	// FIXME: check; when bottom?!
+	msc::msc_node n;
+	msc::msc_node::iterator ni, newnode, extrema;
+	bool bottom = false;
+
+	n.id = id;
+	n.label = label;
+	graph.push_back(n);
+
+	newnode = graph.end();
+	newnode--;
+
+	// PROC-connection:
+	// connect node to other maximal node with same process
+	// that is not connected.
+	extrema = graph.end();
+	for(ni = graph.begin(); ni != newnode; ni++) {
+		if(ni->is_process_referenced)
+			continue;
+		if(process_match[ni->label] != process_match[label])
+			continue;
+		if(extrema == graph.end() || ( total_order[extrema->label] < total_order[label] ))
+			extrema = ni;
+	}
+	if(extrema != graph.end())
+		newnode->connect_process(*extrema);
+
+	// MSG-connection:
+	// if this is a receiving event:
+	// connect node to minimal corresponding send-event
+	// that is not connected.
+	extrema = graph.end();
+	if(label % 1) { // receiving event
+		for(ni = graph.begin(); ni != newnode; ni++) {
+			if(ni->is_process_referenced)
+				continue;
+			if(ni->label % 1)
+				continue;
+			if(extrema == graph.end() || ( total_order[extrema->label] > total_order[label] ))
+				extrema = ni;
+		}
+	}
+	if(extrema != graph.end())
+		newnode->connect_buffer(*extrema);
+
+	return bottom;
 }
 
 int normalizer_msc::graph_reduce()
