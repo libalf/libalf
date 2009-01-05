@@ -228,7 +228,7 @@ bool normalizer_msc::graph_add_node(int id, int label)
 {
 	// FIXME: check; when bottom?!
 	msc::msc_node n;
-	msc::msc_node::iterator ni, newnode, extrema;
+	list<msc::msc_node>::iterator ni, newnode, extrema;
 	bool bottom = false;
 
 	n.id = id;
@@ -243,7 +243,7 @@ bool normalizer_msc::graph_add_node(int id, int label)
 	// that is not connected.
 	extrema = graph.end();
 	for(ni = graph.begin(); ni != newnode; ni++) {
-		if(ni->is_process_referenced)
+		if(ni->is_process_referenced())
 			continue;
 		if(process_match[ni->label] != process_match[label])
 			continue;
@@ -260,7 +260,7 @@ bool normalizer_msc::graph_add_node(int id, int label)
 	extrema = graph.end();
 	if(label % 1 == 0) { // receiving event
 		for(ni = graph.begin(); ni != newnode; ni++) {
-			if(ni->is_process_referenced)
+			if(ni->is_process_referenced())
 				continue;
 			if(ni->label % 1 == 0)
 				continue;
@@ -275,9 +275,29 @@ bool normalizer_msc::graph_add_node(int id, int label)
 }
 
 int normalizer_msc::graph_reduce()
-{
+{{{
 	// FIXME: implement normalizer_msc::graph_reduce
-}
+
+
+
+	list<msc::msc_node>::iterator ni, extrema;
+
+	extrema = graph.end();
+	for(ni = graph.begin(); ni != graph.end(); ni++) {
+		
+	}
+
+	if(extrema == graph.end())
+		return -1;
+
+	int label;
+
+	label = extrema->label;
+	extrema->disconnect();
+	graph.erase(extrema);
+
+	return label;
+}}}
 
 }; // end namespace libalf
 
