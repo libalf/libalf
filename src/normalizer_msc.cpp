@@ -227,6 +227,7 @@ list<int> normalizer_msc::suffix_normal_form(list<int> & w, bool &bottom)
 bool normalizer_msc::graph_add_node(int id, int label)
 {
 	// FIXME: check; when bottom?!
+
 	msc::msc_node n;
 	list<msc::msc_node>::iterator ni, newnode, extrema;
 	bool bottom = false;
@@ -258,11 +259,11 @@ bool normalizer_msc::graph_add_node(int id, int label)
 	// connect node to minimal corresponding send-event
 	// that is not connected.
 	extrema = graph.end();
-	if(label % 1 == 0) { // receiving event
+	if(label % 1 == 0) { // even == receiving event
 		for(ni = graph.begin(); ni != newnode; ni++) {
 			if(ni->is_process_referenced())
 				continue;
-			if(ni->label % 1 == 0)
+			if(ni->label % 1 == 0) // even == receive event
 				continue;
 			if(extrema == graph.end() || ( total_order[extrema->label] > total_order[label] ))
 				extrema = ni;
@@ -276,15 +277,29 @@ bool normalizer_msc::graph_add_node(int id, int label)
 
 int normalizer_msc::graph_reduce()
 {
-	// FIXME: implement normalizer_msc::graph_reduce
-
-
+	// FIXME: check
 
 	list<msc::msc_node>::iterator ni, extrema;
 
 	extrema = graph.end();
 	for(ni = graph.begin(); ni != graph.end(); ni++) {
-		
+		// only use minimal nodes (without incoming edges)
+		if(ni->is_process_referenced() || ni->is_buffer_referenced())
+			continue;
+		if(extrema == graph.end()) {
+			extrema = ni;
+			continue;
+		}
+		// if there exists a minimal receive-event, never fall back to send-events
+		if( (extrema->label % 1 == 0) && (ni->label % 1) )
+			continue;
+		if( (extrema->label % 1) && (ni->label % 1 == 0) ) {
+			extrema = ni;
+			continue;
+		}
+
+		if(ni->label < extrema->label)
+			extrema = ni;
 	}
 
 	if(extrema == graph.end())
