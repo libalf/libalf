@@ -258,11 +258,11 @@ bool normalizer_msc::graph_add_node(int id, int label)
 	// connect node to minimal corresponding send-event
 	// that is not connected.
 	extrema = graph.end();
-	if(label % 1) { // receiving event
+	if(label % 1 == 0) { // receiving event
 		for(ni = graph.begin(); ni != newnode; ni++) {
 			if(ni->is_process_referenced)
 				continue;
-			if(ni->label % 1)
+			if(ni->label % 1 == 0)
 				continue;
 			if(extrema == graph.end() || ( total_order[extrema->label] > total_order[label] ))
 				extrema = ni;
