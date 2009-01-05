@@ -18,8 +18,13 @@
 
 #include <libalf/automata.h>
 
-#include <amore/nfa.h>
-#include <amore/dfa.h>
+#ifdef LIBALF_LIBRARY_COMPILATION
+# include <amore/nfa.h>
+# include <amore/dfa.h>
+#else
+# define nfa void*
+# define dfa void*
+#endif
 
 namespace libalf {
 
@@ -173,6 +178,11 @@ class nondeterministic_finite_amore_automaton : public nondeterministic_finite_a
 
 
 }; // end namespace libalf
+
+#ifndef LIBALF_LIBRARY_COMPILATION
+# undef nfa
+# undef dfa
+#endif
 
 #endif
 

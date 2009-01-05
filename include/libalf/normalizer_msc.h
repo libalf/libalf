@@ -72,6 +72,26 @@ namespace msc {
 			{{{
 				return (buffer_in == NULL);
 			}}}
+
+			inline void disconnect()
+			{{{
+				if(process_in) {
+					process_in->process_out = NULL;
+					process_in = NULL;
+				}
+				if(process_out) {
+					process_out->process_in = NULL;
+					process_out = NULL;
+				}
+				if(buffer_in) {
+					buffer_in->buffer_out = NULL;
+					buffer_in = NULL;
+				}
+				if(buffer_out) {
+					buffer_out->buffer_in = NULL;
+					buffer_out = NULL;
+				}
+			}}}
 	};
 
 };

@@ -6,7 +6,7 @@
 PREFIX ?= /usr/local/
 
 CPPFLAGS+=-Wall -I../include/ -shared -fpic -ggdb3
-CPPFLAGS+=-D__cplusplus
+CPPFLAGS+=-D__cplusplus -DLIBALF_LIBRARY_COMPILATION
 LDFLAGS+=-shared -lAMoRE
 
 SONAME=libalf
