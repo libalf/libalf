@@ -31,7 +31,8 @@ enum client_message {
 	CM_SES_SET_ALPHABET_SIZE = 31,
 	CM_SES_INC_ALPHABET_SIZE = 32,
 	CM_SES_REQ_STATS = 33,
-	CM_SES_LOG = 34
+	CM_SES_SET_STATS = 34,
+	CM_SES_REQ_LOG = 35
 };
 
 enum server_message {
@@ -51,8 +52,9 @@ enum server_message {
 	SM_SES_ACK_ALPHABET_SIZE = 30,
 	SM_SES_ACK_SET_ALPHABET_SIZE = 31,
 	SM_SES_ACK_INC_ALPHABET_SIZE = 32,
-	SM_SES_ACK_STATS = 33,
-	SM_SES_ACK_LOG = 34
+	SM_SES_ACK_REQ_STATS = 33,
+	SM_SES_ACK_SET_STATS = 34,
+	SM_SES_ACK_LOG = 35
 };
 
 enum capability_type {

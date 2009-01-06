@@ -19,6 +19,8 @@ namespace libalf {
 
 using namespace std;
 
+#define BOTTOM_CHAR -42
+
 // alphabet is just <int> and the first letter is `0'.
 // epsilon is denoted by an empty list<int>
 

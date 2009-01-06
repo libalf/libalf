@@ -16,6 +16,7 @@
 
 #include <arpa/inet.h>
 
+#include <libalf/alphabet.h>
 #include <libalf/normalizer.h>
 #include <libalf/normalizer_msc.h>
 
@@ -164,58 +165,30 @@ bool normalizer_msc::deserialize_extension(basic_string<int32_t>::iterator &it, 
 
 
 list<int> normalizer_msc::prefix_normal_form(list<int> & w, bool &bottom)
-{{{
+{
 	list<int> ret;
-
-	bool cleanup = false;
-	int * buffer_length;
-	int * bli;
-
 	list<int>::iterator wi;
 	int i;
 
-	bottom = false;
+	// check for bottom;
 
-	// first create a MSC from the word
-	for(wi = w.begin(), i = 0; wi != w.end(); wi++, i++)
-		if(!graph_add_node(i, *wi))
-			bottom = true;
+	// FIXME
 
-	if(!bottom) {
-		cleanup = true;
-		buffer_length = (int*)calloc(total_order.size(), sizeof(int));
-	}
+	// if bottom, return bad word and mark it.
+	if(bottom) {
+		ret.push_back(BOTTOM_CHAR);
+	} else {
+		// first create a MSC from the word
+		for(wi = w.begin(), i = 0; wi != w.end(); wi++, i++)
+			graph_add_node(i, *wi);
 
-	// create normalized word
-	while( ! graph.empty()) {
-		if(!bottom) {
-			i = graph_reduce();
-
-			bli = &(buffer_length[buffer_match[i]]);
-
-			// check buffer sizes
-			if(i % 1) {
-				// odd, so this is a send-event
-				*bli++;
-				if(*bli > max_buffer_length)
-					bottom = true;
-			} else {
-				// even, so this is a receive-event
-				*bli--;
-				if(*bli < 0)
-					bottom = true;
-			}
-
-			ret.push_back(i);
-		} else {
+		// create normalized word
+		while( ! graph.empty())
 			ret.push_back(graph_reduce());
-		}
 	}
 
-	if(cleanup)
-		free(buffer_length);
 	return ret;
-}}}
+}
 
 list<int> normalizer_msc::suffix_normal_form(list<int> & w, bool &bottom)
 {
@@ -224,13 +197,10 @@ list<int> normalizer_msc::suffix_normal_form(list<int> & w, bool &bottom)
 	return w;
 }
 
-bool normalizer_msc::graph_add_node(int id, int label)
-{
-	// FIXME: check; when bottom?!
-
+void normalizer_msc::graph_add_node(int id, int label)
+{{{
 	msc::msc_node n;
 	list<msc::msc_node>::iterator ni, newnode, extrema;
-	bool bottom = false;
 
 	n.id = id;
 	n.label = label;
@@ -240,45 +210,41 @@ bool normalizer_msc::graph_add_node(int id, int label)
 	newnode--;
 
 	// PROC-connection:
-	// connect node to other maximal node with same process
+	// connect node to other youngest node with same process
 	// that is not connected.
 	extrema = graph.end();
 	for(ni = graph.begin(); ni != newnode; ni++) {
-		if(ni->is_process_referenced())
+		if(ni->is_process_connected())
 			continue;
 		if(process_match[ni->label] != process_match[label])
 			continue;
-		if(extrema == graph.end() || ( total_order[extrema->label] < total_order[label] ))
+		if(extrema == graph.end() || ( extrema->id < ni->id ))
 			extrema = ni;
 	}
 	if(extrema != graph.end())
-		newnode->connect_process(*extrema);
+		extrema->connect_process(*newnode);
 
 	// MSG-connection:
 	// if this is a receiving event:
-	// connect node to minimal corresponding send-event
+	// connect node to oldest corresponding send-event
 	// that is not connected.
 	extrema = graph.end();
-	if(label % 1 == 0) { // even == receiving event
+	if(label % 2) { // odd == receiving event
 		for(ni = graph.begin(); ni != newnode; ni++) {
 			if(ni->is_process_referenced())
 				continue;
-			if(ni->label % 1 == 0) // even == receive event
+			if(ni->label % 2) // odd == receive event
 				continue;
-			if(extrema == graph.end() || ( total_order[extrema->label] > total_order[label] ))
+			if(extrema == graph.end() || ( ni->id < extrema->id ))
 				extrema = ni;
 		}
 	}
 	if(extrema != graph.end())
-		newnode->connect_buffer(*extrema);
-
-	return bottom;
-}
+		extrema->connect_buffer(*newnode);
+}}}
 
 int normalizer_msc::graph_reduce()
-{
-	// FIXME: check
-
+{{{
 	list<msc::msc_node>::iterator ni, extrema;
 
 	extrema = graph.end();
@@ -291,9 +257,9 @@ int normalizer_msc::graph_reduce()
 			continue;
 		}
 		// if there exists a minimal receive-event, never fall back to send-events
-		if( (extrema->label % 1 == 0) && (ni->label % 1) )
+		if( (extrema->label % 2) && (ni->label % 2 == 0) )
 			continue;
-		if( (extrema->label % 1) && (ni->label % 1 == 0) ) {
+		if( (extrema->label % 2 == 0) && (ni->label % 2) ) {
 			extrema = ni;
 			continue;
 		}
@@ -312,7 +278,7 @@ int normalizer_msc::graph_reduce()
 	graph.erase(extrema);
 
 	return label;
-}
+}}}
 
 }; // end namespace libalf
 

@@ -194,7 +194,7 @@ bool session::set_status(serversocket * sock)
 cout << "session set_status\n";
 	int count;
 	int32_t d;
-	basic_string<int32_t> blob; // ntohl of this is done in ses->deserialize() !
+	basic_string<int32_t> blob; // ntohl of this is done in alg->deserialize() !
 	basic_string<int32_t>::iterator bi;
 
 	if(!sock->stream_receive_int(d))
@@ -246,6 +246,7 @@ cout << "session advance\n";
 		if(!sock->stream_send_int(htonl(SM_SES_ACK_ADVANCE_AUTOMATON)))
 			return false;
 		blob = hypothesis_automaton->serialize();
+		stats.query_count.equivalence++;
 	}
 
 	return sock->stream_send_blob(blob);
@@ -428,11 +429,36 @@ bool session::increase_alphabet_size(serversocket * sock)
 bool session::answer_stats(serversocket * sock)
 {{{
 cout << "session answer_stats\n";
-	if(!sock->stream_send_int(htonl(SM_SES_ACK_STATS)))
+	if(!sock->stream_send_int(htonl(SM_SES_ACK_SET_STATS)))
 		return false;
 	basic_string<int32_t> blob;
 	blob = stats.serialize();
 	return sock->stream_send_blob(blob);
+}}}
+bool session::set_stats(serversocket * sock)
+{{{
+cout << "session set_stats\n";
+	int count;
+	int32_t d;
+	basic_string<int32_t> blob;
+	basic_string<int32_t>::iterator bi;
+
+	if(!sock->stream_receive_int(d))
+		return false;
+	blob += d;
+
+	for(count = ntohl(d); count > 0; count--) {
+		if(!sock->stream_receive_int(d))
+			return false;
+		blob += d;
+	}
+
+	bi = blob.begin();
+	d = stats.deserialize(bi, blob.end());
+	if(!d || bi != blob.end())
+		return false;
+
+	return sock->stream_send_int(htonl(SM_SES_ACK_SET_STATS));
 }}}
 bool session::answer_log_request(serversocket * sock)
 {{{

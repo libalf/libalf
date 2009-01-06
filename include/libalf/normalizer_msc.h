@@ -138,7 +138,7 @@ class normalizer_msc : public normalizer {
 	private:
 		list<msc::msc_node> graph;
 	protected:
-		bool graph_add_node(int id, int label);
+		void graph_add_node(int id, int label);
 		int graph_reduce();
 };
 

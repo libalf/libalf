@@ -46,6 +46,7 @@ class session {
 		bool set_alphabet_size(serversocket * sock);
 		bool increase_alphabet_size(serversocket * sock);
 		bool answer_stats(serversocket * sock);
+		bool set_stats(serversocket * sock);
 		bool answer_log_request(serversocket * sock);
 
 	protected:
