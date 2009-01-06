@@ -52,7 +52,7 @@ basic_string<int32_t> statistics::serialize()
 	return ret;
 }}}
 
-bool statistics::deserialize(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator final)
+bool statistics::deserialize(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator limit)
 {{{
 	int size;
 

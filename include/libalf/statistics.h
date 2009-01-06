@@ -42,7 +42,7 @@ class statistics {
 		statistics();
 		void reset();
 		basic_string<int32_t> serialize();
-		bool deserialize(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator final);
+		bool deserialize(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator limit);
 
 };
 
