@@ -185,8 +185,13 @@ int main(int argc, char**argv)
 		file.close();
 	}
 
+	ot.get_memory_statistics(stats);
+
 	cout << "required membership queries: " << stats.query_count.membership << "\n";
 	cout << "required equivalence queries: " << stats.query_count.equivalence << "\n";
+	cout << "sizes: bytes: " << stats.table_size.bytes
+	     << ", members: " << stats.table_size.members
+	     << ", words: " << stats.table_size.words << "\n";
 	cout << "minimal state count: " << hypothesis.get_state_count() << "\n";
 	// cout << "difference to original state count: " << dfa->get_state_count() - hypothesis.get_state_count() << "\n";
 

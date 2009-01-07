@@ -141,6 +141,8 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			norm = NULL;
 		}}}
 
+		virtual void get_memory_statistics(statistics & stats) = 0;
+
 		virtual void undo()
 		{{{
 			  if(log)
@@ -323,7 +325,9 @@ class angluin_observationtable : public learning_algorithm<answer> {
 					ci += uti->acceptance.size();
 					for(/* -- */; ci != column_names.end(); ci++) {
 						if(!ci->empty() && ci->front() == BOTTOM_CHAR) {
-							uti->acceptance.push_back(false);
+							answer a;
+							a = false;
+							uti->acceptance.push_back(a);
 						} else {
 							list<int> *w;
 							answer a;
@@ -348,7 +352,9 @@ class angluin_observationtable : public learning_algorithm<answer> {
 					ci += lti->acceptance.size();
 					for(/* -- */; ci != column_names.end(); ci++) {
 						if(!ci->empty() && ci->front() == BOTTOM_CHAR) {
-							lti->acceptance.push_back(false);
+							answer a;
+							a = false;
+							lti->acceptance.push_back(a);
 						} else {
 							list<int> *w;
 							answer a;
@@ -577,8 +583,10 @@ class angluin_observationtable : public learning_algorithm<answer> {
 				if(uti->acceptance.size() < column_names.size()) {
 					if(!uti->index.empty() && uti->index.front() == BOTTOM_CHAR) {
 						int delta = column_names.size() - uti->acceptance.size();
+						answer a;
+						a = false;
 						for(/* -- */; delta > 0; delta--)
-							uti->acceptance.push_back(false);
+							uti->acceptance.push_back(a);
 					} else {
 						// fill in missing acceptance information
 						columnlist::iterator ci;
@@ -587,7 +595,9 @@ class angluin_observationtable : public learning_algorithm<answer> {
 						for(/* -- */; ci != column_names.end(); ci++) {
 							if(!ci->empty() && ci->front() == BOTTOM_CHAR) {
 								if(teach) {
-									uti->acceptance.push_back(false);
+									answer a;
+									a = false;
+									uti->acceptance.push_back(a);
 								}
 								// for SQT: learn_from_structured_query will check later
 							} else {
@@ -611,8 +621,10 @@ class angluin_observationtable : public learning_algorithm<answer> {
 				if(lti->acceptance.size() < column_names.size()) {
 					if(!lti->index.empty() && lti->index.front() == BOTTOM_CHAR) {
 						int delta = column_names.size() - lti->acceptance.size();
+						answer a;
+						a = false;
 						for(/* -- */; delta > 0; delta--)
-							lti->acceptance.push_back(false);
+							lti->acceptance.push_back(a);
 					} else {
 						// fill in missing acceptance information
 						columnlist::iterator ci;
@@ -621,7 +633,9 @@ class angluin_observationtable : public learning_algorithm<answer> {
 						for(/* -- */; ci != column_names.end(); ci++) {
 							if(!ci->empty() && ci->front() == BOTTOM_CHAR) {
 								if(teach) {
-									lti->acceptance.push_back(false);
+									answer a;
+									a = false;
+									lti->acceptance.push_back(a);
 								}
 								// for SQT: learn_from_structured_query will check later
 							} else {
@@ -1085,6 +1099,32 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 			// and all suffixes to lower table
 			this->add_word_to_upper_table(word, false);
 		}}}
+
+		virtual void get_memory_statistics(statistics & stats)
+		{{{
+			typename angluin_observationtable<answer, list< algorithm_angluin::simple_row<answer, vector<answer> > >, vector<answer> >::columnlist::iterator ci;
+			typename list< algorithm_angluin::simple_row<answer, vector<answer> > >::iterator uti, lti;
+
+			int column_count = this->column_names.size();
+			int ut_count = this->upper_table.size();
+			int lt_count = this->lower_table.size();
+
+			int members = column_count * ut_count + column_count * lt_count;
+
+			stats.table_size.bytes = sizeof(answer) * members;
+			stats.table_size.members = members;
+			stats.table_size.words = members;
+
+			for(ci = this->column_names.begin(); ci != this->column_names.end(); ci++)
+				stats.table_size.bytes += ci->size();
+
+			for(uti = this->upper_table.begin(); uti != this->upper_table.end(); uti++)
+				stats.table_size.bytes += uti->index.size();
+
+			for(lti = this->upper_table.begin(); lti != this->upper_table.end(); lti++)
+				stats.table_size.bytes += lti->index.size();
+		}}}
+
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 		{{{
 			int size;

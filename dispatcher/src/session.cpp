@@ -431,6 +431,9 @@ bool session::answer_stats(serversocket * sock)
 cout << "session answer_stats\n";
 	if(!sock->stream_send_int(htonl(SM_SES_ACK_SET_STATS)))
 		return false;
+
+	alg->get_memory_statistics(stats);
+
 	basic_string<int32_t> blob;
 	blob = stats.serialize();
 	return sock->stream_send_blob(blob);

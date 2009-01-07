@@ -61,6 +61,8 @@ class learning_algorithm {
 		virtual normalizer * get_normalizer() = 0;
 		virtual void unset_normalizer() = 0;
 
+		virtual void get_memory_statistics(statistics & stats) = 0;
+
 		virtual void undo() = 0;
 		virtual void redo() = 0;
 
