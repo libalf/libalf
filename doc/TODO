@@ -3,7 +3,6 @@
 
 A)
 
-- statistics
 - implement caching SQT
 - implement SQT::add_query_optimized()
 

@@ -1111,18 +1111,18 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 
 			int members = column_count * ut_count + column_count * lt_count;
 
-			stats.table_size.bytes = sizeof(answer) * members;
+			stats.table_size.bytes = sizeof(this) + sizeof(answer) * members;
 			stats.table_size.members = members;
 			stats.table_size.words = members;
 
 			for(ci = this->column_names.begin(); ci != this->column_names.end(); ci++)
-				stats.table_size.bytes += ci->size();
+				stats.table_size.bytes += sizeof(int) * ci->size() + sizeof(list<int>);
 
 			for(uti = this->upper_table.begin(); uti != this->upper_table.end(); uti++)
-				stats.table_size.bytes += uti->index.size();
+				stats.table_size.bytes += sizeof(int) * uti->index.size() + sizeof(list<int>);
 
 			for(lti = this->upper_table.begin(); lti != this->upper_table.end(); lti++)
-				stats.table_size.bytes += lti->index.size();
+				stats.table_size.bytes += sizeof(int) * lti->index.size() + sizeof(list<int>);
 		}}}
 
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
