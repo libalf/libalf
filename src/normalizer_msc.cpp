@@ -161,6 +161,7 @@ deserialization_failed:
 
 bool normalizer_msc::deserialize_extension(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 {
+	// FIXME: implement normalizer_msc::deserialize_extension
 	return false;
 }
 
@@ -222,7 +223,7 @@ printf("bottom: buffer %d overflows\n", buffer);
 		for(wi = w.begin(), i = 0; wi != w.end(); wi++, i++)
 			graph_add_node(i, *wi);
 
-graph_print();
+		//graph_print();
 
 		// create normalized word
 		while( ! graph.empty()) {
@@ -237,9 +238,32 @@ graph_print();
 
 list<int> normalizer_msc::suffix_normal_form(list<int> & w, bool &bottom)
 {
-	// FIXME: implement normalizer_msc::suffix_normal_form
-	bottom = false;
-	return w;
+	list<int> tmp,snf;
+	list<int>::reverse_iterator wi;
+	// invert order and send/receive
+	for(wi = w.rbegin(); wi != w.rend(); wi++) {
+		if(*wi % 2)
+			snf.push_back(*wi - 1);
+		else
+			snf.push_back(*wi + 1);
+	}
+
+	// PNF of inverted
+	tmp = prefix_normal_form(snf, bottom);
+	if(bottom)
+		return tmp;
+
+	snf.clear();
+
+	// back-invert order and send/receive
+	for(wi = tmp.rbegin(); wi != tmp.rend(); wi++) {
+		if(*wi % 2)
+			snf.push_back(*wi - 1);
+		else
+			snf.push_back(*wi + 1);
+	}
+
+	return snf;
 }
 
 void normalizer_msc::graph_add_node(int id, int label)
