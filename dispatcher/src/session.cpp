@@ -380,7 +380,7 @@ cout << "session get_counterexamples\n";
 		alg->add_counterexample(word, answer);
 	}
 
-	if(!sock->stream_send_int(htonl(SM_SES_ACK_COUNTEREXAMPLES)))
+	if(!sock->stream_send_int(htonl(SM_SES_ACK_COUNTEREXAMPLES_AND_ANSWERS)))
 		return false;
 	return sock->stream_send_int(htonl(1));
 }}}
