@@ -20,6 +20,10 @@
 #include <amore/cons.h>		/* constants */
 #include <amore/typedefs.h>	/* language... */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** ( global ), for transition arrays */
 char itoc[28] = "@abcdefghijklmnopqrstuvwxyz";
 
@@ -44,3 +48,8 @@ unsigned long comptime = 0;
 
 /** ( global ), ?? */
 /* char *lpdest; */
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+

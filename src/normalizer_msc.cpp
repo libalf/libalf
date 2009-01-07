@@ -168,6 +168,11 @@ bool normalizer_msc::deserialize_extension(basic_string<int32_t>::iterator &it, 
 
 list<int> normalizer_msc::prefix_normal_form(list<int> & w, bool &bottom)
 {{{
+	if(w.front() == BOTTOM_CHAR) {
+		bottom = true;
+		return w;
+	}
+
 	list<int> ret;
 	list<int>::iterator wi;
 	unsigned int i;
@@ -190,12 +195,10 @@ list<int> normalizer_msc::prefix_normal_form(list<int> & w, bool &bottom)
 		if(*wi % 2) {
 			// odd: receive-event
 			if(buffers[buffer].size() == 0) {
-printf("bottom: receive from empty queue: letter %d\n", *wi);
 				bottom = true;
 				break;
 			}
 			if(buffers[buffer].front() != msg) {
-printf("bottom: receive invalid msg from queue: msg %d, where head is %d\n", msg, buffers[buffer].front());
 				bottom = true;
 				break;
 			}
@@ -205,7 +208,6 @@ printf("bottom: receive invalid msg from queue: msg %d, where head is %d\n", msg
 			buffers[buffer].push(msg);
 			if(max_buffer_length > 0) {
 				if(buffers[buffer].size() > (unsigned int)max_buffer_length) {
-printf("bottom: buffer %d overflows\n", buffer);
 					bottom = true;
 					break;
 				}
@@ -237,9 +239,15 @@ printf("bottom: buffer %d overflows\n", buffer);
 }}}
 
 list<int> normalizer_msc::suffix_normal_form(list<int> & w, bool &bottom)
-{
+{{{
+	if(w.front() == BOTTOM_CHAR) {
+		bottom = true;
+		return w;
+	}
+
 	list<int> tmp,snf;
 	list<int>::reverse_iterator wi;
+
 	// invert order and send/receive
 	for(wi = w.rbegin(); wi != w.rend(); wi++) {
 		if(*wi % 2)
@@ -264,7 +272,7 @@ list<int> normalizer_msc::suffix_normal_form(list<int> & w, bool &bottom)
 	}
 
 	return snf;
-}
+}}}
 
 void normalizer_msc::graph_add_node(int id, int label)
 {{{

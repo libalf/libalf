@@ -20,6 +20,7 @@
 #include "libalf/automata_amore.h"
 
 #include <amore/vars.h>
+#include <amore/buffer.h>
 
 using namespace std;
 using namespace libalf;

@@ -322,16 +322,20 @@ class angluin_observationtable : public learning_algorithm<answer> {
 					ci = column_names.begin();
 					ci += uti->acceptance.size();
 					for(/* -- */; ci != column_names.end(); ci++) {
-						list<int> *w;
-						answer a;
-						w = concat(uti->index, *ci);
-						if( ! sqt.resolve_query(*w, a) ) {
-							return false;
+						if(!ci->empty() && ci->front() == BOTTOM_CHAR) {
+							uti->acceptance.push_back(false);
+						} else {
+							list<int> *w;
+							answer a;
+							w = concat(uti->index, *ci);
+							if( ! sqt.resolve_query(*w, a) ) {
+								return false;
+							}
+
+							uti->acceptance.push_back(a);
+
+							delete w;
 						}
-
-						uti->acceptance.push_back(a);
-
-						delete w;
 					}
 				}
 			}
@@ -343,16 +347,20 @@ class angluin_observationtable : public learning_algorithm<answer> {
 					ci = column_names.begin();
 					ci += lti->acceptance.size();
 					for(/* -- */; ci != column_names.end(); ci++) {
-						list<int> *w;
-						answer a;
-						w = concat(lti->index, *ci);
-						if( ! sqt.resolve_query(*w, a) ) {
-							return false;
+						if(!ci->empty() && ci->front() == BOTTOM_CHAR) {
+							lti->acceptance.push_back(false);
+						} else {
+							list<int> *w;
+							answer a;
+							w = concat(lti->index, *ci);
+							if( ! sqt.resolve_query(*w, a) ) {
+								return false;
+							}
+
+							lti->acceptance.push_back(a);
+
+							delete w;
 						}
-
-						lti->acceptance.push_back(a);
-
-						delete w;
 					}
 				}
 			}
@@ -365,7 +373,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			bool bottom;
 			if(norm)
 				word = norm->prefix_normal_form(word, bottom);
-			// FIXME: check bottom.
+			// bottom: we don't care. add_word_to_upper_table will.
 			list<int> prefix = word;
 			int ps;
 
@@ -373,7 +381,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			int new_asize;
 			bool asize_changed = false;
 
-			// check for increase in alphabet
+			// check for increase in alphabet size
 			for(wi = word.begin(); wi != word.end(); wi++) {
 				if(*wi >= alphabet_size) {
 					new_asize = *wi+1;
@@ -403,14 +411,14 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			bool bottom;
 			if(norm)
 				word = norm->prefix_normal_form(word, bottom);
-			// FIXME: check bottom.
+			// bottom: we don't care. add_word_to_upper_table will.
 			list<int> prefix = word;
 
 			list<int>::iterator wi;
 			int new_asize;
 			bool asize_changed = false;
 
-			// check for increase in alphabet
+			// check for increase in alphabet size
 			for(wi = word.begin(); wi != word.end(); wi++) {
 				if(*wi >= alphabet_size) {
 					new_asize = *wi+1;
@@ -524,12 +532,10 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			list<int> nw;
 
 			bool bottom;
-			if(norm) {
+			if(norm)
 				nw = norm->suffix_normal_form(word, bottom);
-				// FIXME: check bottom
-			} else {
+			else
 				nw = word;
-			}
 
 			for(ci = column_names.begin(); ci != column_names.end(); ci++)
 				if(*ci == nw)
@@ -569,41 +575,67 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			// upper table
 			for(uti = upper_table.begin(); uti != upper_table.end(); uti++) {
 				if(uti->acceptance.size() < column_names.size()) {
-					// fill in missing acceptance information
-					columnlist::iterator ci;
-					ci = column_names.begin();
-					ci += uti->acceptance.size();
-					for(/* -- */; ci != column_names.end(); ci++) {
-						list<int> *w;
-						w = concat(uti->index, *ci);
-						if(teach) {
-							uti->acceptance.push_back(teach->membership_query(*w));
-						} else {
-							sqt->add_query(*w, 0);
-							complete = false;
-						}
+					if(!uti->index.empty() && uti->index.front() == BOTTOM_CHAR) {
+						int delta = column_names.size() - uti->acceptance.size();
+						for(/* -- */; delta > 0; delta--)
+							uti->acceptance.push_back(false);
+					} else {
+						// fill in missing acceptance information
+						columnlist::iterator ci;
+						ci = column_names.begin();
+						ci += uti->acceptance.size();
+						for(/* -- */; ci != column_names.end(); ci++) {
+							if(!ci->empty() && ci->front() == BOTTOM_CHAR) {
+								if(teach) {
+									uti->acceptance.push_back(false);
+								}
+								// for SQT: learn_from_structured_query will check later
+							} else {
+								list<int> *w;
+								w = concat(uti->index, *ci);
+								if(teach) {
+									uti->acceptance.push_back(teach->membership_query(*w));
+								} else {
+									sqt->add_query(*w, 0);
+									complete = false;
+								}
 
-						delete w;
+								delete w;
+							}
+						}
 					}
 				}
 			}
 			// lower table
 			for(lti = lower_table.begin(); lti != lower_table.end(); lti++) {
 				if(lti->acceptance.size() < column_names.size()) {
-					// fill in missing acceptance information
-					columnlist::iterator ci;
-					ci = column_names.begin();
-					ci += lti->acceptance.size();
-					for(/* -- */; ci != column_names.end(); ci++) {
-						list<int> *w;
-						w = concat(lti->index, *ci);
-						if(teach) {
-							lti->acceptance.push_back(teach->membership_query(*w));
-						} else {
-							sqt->add_query(*w, 0);
-							complete = false;
+					if(!lti->index.empty() && lti->index.front() == BOTTOM_CHAR) {
+						int delta = column_names.size() - lti->acceptance.size();
+						for(/* -- */; delta > 0; delta--)
+							lti->acceptance.push_back(false);
+					} else {
+						// fill in missing acceptance information
+						columnlist::iterator ci;
+						ci = column_names.begin();
+						ci += lti->acceptance.size();
+						for(/* -- */; ci != column_names.end(); ci++) {
+							if(!ci->empty() && ci->front() == BOTTOM_CHAR) {
+								if(teach) {
+									lti->acceptance.push_back(false);
+								}
+								// for SQT: learn_from_structured_query will check later
+							} else {
+								list<int> *w;
+								w = concat(lti->index, *ci);
+								if(teach) {
+									lti->acceptance.push_back(teach->membership_query(*w));
+								} else {
+									sqt->add_query(*w, 0);
+									complete = false;
+								}
+								delete w;
+							}
 						}
-						delete w;
 					}
 				}
 			}
@@ -1174,28 +1206,30 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 		virtual void add_word_to_upper_table(list<int> word, bool check_uniq = true)
 		{{{
 			list<int> nw;
-			// normalize word
-			bool bottom;
-			if(this->norm) {
-				nw = this->norm->prefix_normal_form(word, bottom);
-				// FIXME: check bottom
-			} else {
-				nw = word;
-			}
-
 			algorithm_angluin::simple_row<answer, vector<answer> > row;
 			bool done = false;
+			bool bottom = false;
 
-			if(check_uniq) {
+			// normalize word
+			if(this->norm)
+				nw = this->norm->prefix_normal_form(word, bottom);
+			else
+				nw = word;
+
+			if(check_uniq || bottom) {
 				if(this->search_upper_table(nw) != this->upper_table.end()) {
+					// already in upper table.
 					return;
 				}
-				typename list< algorithm_angluin::simple_row<answer, vector<answer> > >::iterator ti;
-				ti = this->search_lower_table(nw);
-				if(ti != this->lower_table.end()) {
-					done = true;
-					this->upper_table.push_back(*ti);
-					this->lower_table.erase(ti);
+				if(!bottom) {
+					// check if in lower table. if so, move up.
+					typename list< algorithm_angluin::simple_row<answer, vector<answer> > >::iterator ti;
+					ti = this->search_lower_table(nw);
+					if(ti != this->lower_table.end()) {
+						done = true;
+						this->upper_table.push_back(*ti);
+						this->lower_table.erase(ti);
+					}
 				}
 			}
 
@@ -1205,25 +1239,35 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 				this->upper_table.push_back(row);
 			}
 
+			if(bottom)
+				return;
+
 			// add all suffixes of word to lower table
 			for( int i = 0; i < this->alphabet_size; i++ ) {
 				word.push_back(i);
 				// normalize word
-				if(this->norm) {
+				if(this->norm)
 					nw = this->norm->prefix_normal_form(word, bottom);
-					// FIXME: check bottom
-				} else {
+				else
 					nw = word;
-				}
-				done = false;
-				if(check_uniq)
-					if(this->search_upper_table(nw) != this->upper_table.end()) {
-						// can't be in lower table, as its prefix would be in upper then
-						done = true;
+
+				if(!bottom) {
+					done = false;
+					if(check_uniq) {
+						// if the suffixed word was in lower table, the word would
+						// already have been in the upper table. we only need to check, if
+						// the suffixed word is in the upper table.
+						done = ( this->search_upper_table(nw) != this->upper_table.end() );
 					}
-				if(!done) {
-					row.index = nw;
-					this->lower_table.push_back(row);
+					if(!done) {
+						row.index = nw;
+						this->lower_table.push_back(row);
+					}
+				} else {
+					if(this->search_upper_table(nw) == this->upper_table.end()) {
+						row.index = nw;
+						this->upper_table.push_back(row);
+					}
 				}
 				word.pop_back();
 			}
