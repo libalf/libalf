@@ -12,6 +12,7 @@
 #include <stdlib.h>
 
 #include <list>
+#include <queue>
 #include <string>
 
 #include <arpa/inet.h>
@@ -165,14 +166,48 @@ bool normalizer_msc::deserialize_extension(basic_string<int32_t>::iterator &it, 
 
 
 list<int> normalizer_msc::prefix_normal_form(list<int> & w, bool &bottom)
-{
+{{{
 	list<int> ret;
 	list<int>::iterator wi;
-	int i;
+	unsigned int i;
+	int maxbuffers;
 
 	// check for bottom;
+	// FIXME: this SUCKS due to its inefficiency.
+	// instead, use some class-internally allocated fifos and clear them after pnf().
+	for(i = 0; i < buffer_match.size(); i++)
+		if(maxbuffers < buffer_match[i])
+			maxbuffers = buffer_match[i];
 
-	// FIXME
+	queue<int> *buffers = new queue<int>[maxbuffers];
+
+	for(wi = w.begin(); wi != w.end(); wi++) {
+		int buffer = buffer_match[*wi];
+		int msg = *wi / 2;
+		if(*wi % 2) {
+			// odd: receive-event
+			if(buffers[buffer].size() == 0) {
+				bottom = true;
+				break;
+			}
+			if(buffers[buffer].front() != msg) {
+				bottom = true;
+				break;
+			}
+			buffers[buffer].pop();
+		} else {
+			// even: send-event
+			buffers[buffer].push(msg);
+			if(max_buffer_length > 0) {
+				if(buffers[buffer].size() > max_buffer_length) {
+					bottom = true;
+					break;
+				}
+			}
+		}
+	}
+
+	delete[] buffers;
 
 	// if bottom, return bad word and mark it.
 	if(bottom) {
@@ -188,7 +223,7 @@ list<int> normalizer_msc::prefix_normal_form(list<int> & w, bool &bottom)
 	}
 
 	return ret;
-}
+}}}
 
 list<int> normalizer_msc::suffix_normal_form(list<int> & w, bool &bottom)
 {
