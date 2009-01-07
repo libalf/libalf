@@ -49,12 +49,12 @@ namespace msc {
 
 			inline bool is_process_connected()
 			{{{
-				return (process_out == NULL);
+				return (process_out != NULL);
 			}}}
 
 			inline bool is_process_referenced()
 			{{{
-				return (process_in == NULL);
+				return (process_in != NULL);
 			}}}
 
 			inline void connect_buffer(msc_node & other)
@@ -65,12 +65,12 @@ namespace msc {
 
 			inline bool is_buffer_connected()
 			{{{
-				return (buffer_out == NULL);
+				return (buffer_out != NULL);
 			}}}
 
 			inline bool is_buffer_referenced()
 			{{{
-				return (buffer_in == NULL);
+				return (buffer_in != NULL);
 			}}}
 
 			inline void disconnect()
@@ -140,6 +140,7 @@ class normalizer_msc : public normalizer {
 	protected:
 		void graph_add_node(int id, int label);
 		int graph_reduce();
+		void graph_print();
 };
 
 }; // end of namespace libalf

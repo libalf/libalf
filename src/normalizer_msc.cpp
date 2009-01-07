@@ -172,6 +172,8 @@ list<int> normalizer_msc::prefix_normal_form(list<int> & w, bool &bottom)
 	unsigned int i;
 	int maxbuffers;
 
+	bottom = false;
+
 	// check for bottom;
 	// FIXME: this SUCKS due to its inefficiency.
 	// instead, use some class-internally allocated fifos and clear them after pnf().
@@ -179,7 +181,7 @@ list<int> normalizer_msc::prefix_normal_form(list<int> & w, bool &bottom)
 		if(maxbuffers < buffer_match[i])
 			maxbuffers = buffer_match[i];
 
-	queue<int> *buffers = new queue<int>[maxbuffers];
+	queue<int> *buffers = new queue<int>[maxbuffers+1];
 
 	for(wi = w.begin(); wi != w.end(); wi++) {
 		int buffer = buffer_match[*wi];
@@ -187,10 +189,12 @@ list<int> normalizer_msc::prefix_normal_form(list<int> & w, bool &bottom)
 		if(*wi % 2) {
 			// odd: receive-event
 			if(buffers[buffer].size() == 0) {
+printf("bottom: receive from empty queue: letter %d\n", *wi);
 				bottom = true;
 				break;
 			}
 			if(buffers[buffer].front() != msg) {
+printf("bottom: receive invalid msg from queue: msg %d, where head is %d\n", msg, buffers[buffer].front());
 				bottom = true;
 				break;
 			}
@@ -199,7 +203,8 @@ list<int> normalizer_msc::prefix_normal_form(list<int> & w, bool &bottom)
 			// even: send-event
 			buffers[buffer].push(msg);
 			if(max_buffer_length > 0) {
-				if(buffers[buffer].size() > max_buffer_length) {
+				if(buffers[buffer].size() > (unsigned int)max_buffer_length) {
+printf("bottom: buffer %d overflows\n", buffer);
 					bottom = true;
 					break;
 				}
@@ -217,9 +222,14 @@ list<int> normalizer_msc::prefix_normal_form(list<int> & w, bool &bottom)
 		for(wi = w.begin(), i = 0; wi != w.end(); wi++, i++)
 			graph_add_node(i, *wi);
 
+graph_print();
+
 		// create normalized word
-		while( ! graph.empty())
-			ret.push_back(graph_reduce());
+		while( ! graph.empty()) {
+			int r;
+			r = graph_reduce();
+			ret.push_back(r);
+		}
 	}
 
 	return ret;
@@ -266,9 +276,9 @@ void normalizer_msc::graph_add_node(int id, int label)
 	extrema = graph.end();
 	if(label % 2) { // odd == receiving event
 		for(ni = graph.begin(); ni != newnode; ni++) {
-			if(ni->is_process_referenced())
+			if( (ni->label / 2 != label / 2) || (ni->label % 2) )
 				continue;
-			if(ni->label % 2) // odd == receive event
+			if(ni->is_buffer_connected())
 				continue;
 			if(extrema == graph.end() || ( ni->id < extrema->id ))
 				extrema = ni;
@@ -313,6 +323,30 @@ int normalizer_msc::graph_reduce()
 	graph.erase(extrema);
 
 	return label;
+}}}
+
+void normalizer_msc::graph_print()
+{{{
+	list<msc::msc_node>::iterator ni;
+
+	printf("~~~ graph\n");
+
+	for(ni = graph.begin(); ni != graph.end(); ni++) {
+		printf(" node %d: label %d\n", ni->id, ni->label);
+		printf("   process con: ");
+		if(ni->is_process_connected())
+			printf("to %d", ni->process_out->id);
+		if(ni->is_process_referenced())
+			printf("from %d", ni->process_in->id);
+		printf("\n" "   buffer con: ");
+		if(ni->is_buffer_connected())
+			printf("to %d", ni->buffer_out->id);
+		if(ni->is_buffer_referenced())
+			printf("from %d", ni->buffer_in->id);
+		printf("\n");
+	}
+
+	printf("---\n");
 }}}
 
 }; // end namespace libalf
