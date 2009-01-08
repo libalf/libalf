@@ -429,7 +429,7 @@ bool session::increase_alphabet_size(serversocket * sock)
 bool session::answer_stats(serversocket * sock)
 {{{
 cout << "session answer_stats\n";
-	if(!sock->stream_send_int(htonl(SM_SES_ACK_SET_STATS)))
+	if(!sock->stream_send_int(htonl(SM_SES_ACK_REQ_STATS)))
 		return false;
 
 	alg->get_memory_statistics(stats);
