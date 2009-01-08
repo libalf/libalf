@@ -128,18 +128,24 @@ cout << "session set_modalities\n";
 
 		switch(type) {
 			case MODALITY_SET_NORMALIZER:
+cout << "  MODALITY_SET_NORMALIZER\n";
 				if(length < 2)
 					return false;
 				for(/* -- */; length > 0; length--) {
-					if(!sock->stream_receive_int(d))
+					if(!sock->stream_receive_int(d)) {
+						cout << "    socket was closed.\n";
 						return false;
+					}
 					blob.push_back(d);
 				}
 
-				if(!this->set_normalizer(blob))
+				if(!this->set_normalizer(blob)) {
+					cout << "    parsing normalizer failed.\n";
 					return false;
+				}
 				break;
 			case MODALITY_EXTEND_NORMALIZER:
+cout << "  MODALITY_EXTEND_NORMALIZER\n";
 				if(length < 1)
 					return false;
 				for(/* -- */; length > 0; length--) {
@@ -156,6 +162,7 @@ cout << "session set_modalities\n";
 
 				break;
 			case MODALITY_SET_LOGLEVEL:
+cout << "  MODALITY_SET_LOGLEVEL\n";
 				if(length != 1)
 					return false;
 				if(!sock->stream_receive_int(d))
@@ -164,6 +171,7 @@ cout << "session set_modalities\n";
 				logger.set_minimal_loglevel((enum logger_loglevel)d);
 				break;
 			case MODALITY_SET_LOG_ALGORITHM:
+cout << "  MODALITY_SET_LOG_ALGORITHM\n";
 				if(length != 1)
 					return false;
 				if(!sock->stream_receive_int(d))
@@ -172,10 +180,12 @@ cout << "session set_modalities\n";
 				logger.set_log_algorithm(d != 0);
 				break;
 			default:
+cout << "  invalid modality: " << type << ".\n";
 				return false;
 		}
 	}
 
+cout << "  done.";
 	if(!sock->stream_send_int(htonl(SM_SES_ACK_MODALITIES)))
 		return false;
 	return sock->stream_send_int(htonl(success ? 1 : 0));
