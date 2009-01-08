@@ -66,6 +66,7 @@ session::~session()
 
 bool session::set_normalizer(basic_string<int32_t> blob)
 {{{
+cout << "      trying to set now...\n";
 	int length;
 	basic_string<int32_t>::iterator bi;
 	enum normalizer::type type;
@@ -112,7 +113,9 @@ cout << "session set_modalities\n";
 	if(!sock->stream_receive_int(d))
 		return false;
 
-	for(count = ntohl(d); count > 0; count--) {
+	d = ntohl(d);
+cout << " receiving " << d << "modalities:\n";
+	for(count = d; count > 0; count--) {
 		int32_t d;
 		int length;
 		enum modality_type type;
@@ -122,6 +125,7 @@ cout << "session set_modalities\n";
 		if(!sock->stream_receive_int(d))
 			return false;
 		length = ntohl(d);
+cout << "  next: type " << type << " length " << length << "\n";
 		if(!sock->stream_receive_int(d))
 			return false;
 		type = (enum modality_type)ntohl(d);
@@ -133,14 +137,16 @@ cout << "  MODALITY_SET_NORMALIZER\n";
 cout << "    by far too short.\n";
 					return false;
 				}
+				blob.push_back(d);
 				for(/* -- */; length > 0; length--) {
 					if(!sock->stream_receive_int(d)) {
 cout << "    socket was closed.\n";
 						return false;
 					}
 					blob.push_back(d);
+cout << "    blob.size() now is " <<  blob.size() << "\n";
 				}
-
+cout << "    size should now be 1 + given length\n";
 				if(!this->set_normalizer(blob)) {
 cout << "    parsing normalizer failed.\n";
 					return false;
@@ -150,6 +156,7 @@ cout << "    parsing normalizer failed.\n";
 cout << "  MODALITY_EXTEND_NORMALIZER\n";
 				if(length < 1)
 					return false;
+				blob.push_back(d);
 				for(/* -- */; length > 0; length--) {
 					if(!sock->stream_receive_int(d))
 						return false;
