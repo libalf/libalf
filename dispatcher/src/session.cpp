@@ -125,10 +125,12 @@ cout << " receiving " << d << "modalities:\n";
 		if(!sock->stream_receive_int(d))
 			return false;
 		length = ntohl(d);
-cout << "  next: type " << type << " length " << length << "\n";
+
 		if(!sock->stream_receive_int(d))
 			return false;
 		type = (enum modality_type)ntohl(d);
+
+cout << "  next: type " << type << " length " << length << "\n";
 
 		switch(type) {
 			case MODALITY_SET_NORMALIZER:
