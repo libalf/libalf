@@ -72,13 +72,17 @@ cout << "      trying to set now...\n";
 	enum normalizer::type type;
 
 	length = blob.size();
-	if(length < 2)
+	if(length < 2) {
+printf("bad normalizer size %d\n", length);
 		return false;
+	}
 
 	// alg->unset_normalizer also deletes the normalizer we are referencing in norm.
 	alg->unset_normalizer();
 
 	type = (enum normalizer::type) ntohl(blob[2]);
+
+printf("normalizer type %d\n", type);
 
 	switch (type) {
 		case normalizer::NORMALIZER_NONE:
@@ -91,6 +95,7 @@ cout << "      trying to set now...\n";
 			break;
 	}
 
+printf("deserializing...\n");
 	bi = blob.begin();
 	norm->deserialize(bi, blob.end());
 
@@ -145,6 +150,7 @@ cout << "  MODALITY_SET_NORMALIZER\n";
 					if(!sock->stream_receive_int(d))
 						return false;
 					blob.push_back(d);
+printf(" normalizer new byte %d\n", d);
 				}
 				if(!this->set_normalizer(blob)) {
 cout << "    parsing normalizer failed.\n";
