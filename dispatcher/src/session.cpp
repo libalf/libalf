@@ -129,18 +129,20 @@ cout << "session set_modalities\n";
 		switch(type) {
 			case MODALITY_SET_NORMALIZER:
 cout << "  MODALITY_SET_NORMALIZER\n";
-				if(length < 2)
+				if(length < 2) {
+cout << "    by far too short.\n";
 					return false;
+				}
 				for(/* -- */; length > 0; length--) {
 					if(!sock->stream_receive_int(d)) {
-						cout << "    socket was closed.\n";
+cout << "    socket was closed.\n";
 						return false;
 					}
 					blob.push_back(d);
 				}
 
 				if(!this->set_normalizer(blob)) {
-					cout << "    parsing normalizer failed.\n";
+cout << "    parsing normalizer failed.\n";
 					return false;
 				}
 				break;
@@ -185,10 +187,18 @@ cout << "  invalid modality: " << type << ".\n";
 		}
 	}
 
-cout << "  done.";
-	if(!sock->stream_send_int(htonl(SM_SES_ACK_MODALITIES)))
+cout << "  done.\n";
+	if(!sock->stream_send_int(htonl(SM_SES_ACK_MODALITIES))) {
+cout << "failed to answer ACK\n";
 		return false;
-	return sock->stream_send_int(htonl(success ? 1 : 0));
+	}
+	if(!sock->stream_send_int(htonl(success ? 1 : 0))) {
+cout << "failed to answer bool\n";
+		return false;
+	} else {
+cout << "modalities END\n";
+		return true;
+	}
 }}}
 bool session::answer_status(serversocket * sock)
 {{{
