@@ -111,64 +111,47 @@ bool normalizer_msc::deserialize(basic_string<int32_t>::iterator &it, basic_stri
 
 	clear();
 
-printf("MSC deserializer:\n");
-
 	// data size
 	size = ntohl(*it);
-printf("size %d\n", size);
 
 	// check type
 	it++; if(size <= 0 || limit == it) goto deserialization_failed;
 	type = (enum normalizer::type) ntohl(*it);
 	if(type != NORMALIZER_MSC)
 		goto deserialization_failed;
-printf("type %d is ok\n", type);
 
 	// get total order
 	size--; it++; if(size <= 0 || limit == it) goto deserialization_failed;
 	count = ntohl(*it);
-printf("total order of size %d\n", count);
 	for(count = ntohl(*it); count > 0; count--) {
 		size--; it++; if(size <= 0 || limit == it) goto deserialization_failed;
 		total_order.push_back(ntohl(*it));
 	}
-printf("ok.\n");
 
 	// get message-process-matching
 	size--; it++; if(size <= 0 || limit == it) goto deserialization_failed;
 	count = ntohl(*it);
-printf("msg-process-match of size %d\n", count);
 	for(count = ntohl(*it); count > 0; count--) {
 		size--; it++; if(size <= 0 || limit == it) goto deserialization_failed;
 		process_match.push_back(ntohl(*it));
 	}
-printf("ok.\n");
 
 	// get message-buffer-matching
 	size--; it++; if(size <= 0 || limit == it) goto deserialization_failed;
 	count = ntohl(*it);
-printf("msg-buffer-match of size %d\n", count);
 	for(count = ntohl(*it); count > 0; count--) {
 		size--; it++; if(size <= 0 || limit == it) goto deserialization_failed;
 		buffer_match.push_back(ntohl(*it));
 	}
 
-printf("ok.\n");
-
 	// get max buffer length
 	size--; it++; if(size <= 0 || limit == it) goto deserialization_failed;
 	max_buffer_length = ntohl(*it);
-
-printf("max buffer length %d\n", max_buffer_length);
 
 	size--; it++;
 
 	if(size == 0)
 		return true;
-
-printf("too much data supposed to be at end: %d\n", size);
-if(it == limit)
-	printf("but limit == it\n");
 
 deserialization_failed:
 	clear();

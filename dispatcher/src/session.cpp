@@ -73,16 +73,13 @@ cout << "      trying to set now...\n";
 
 	length = blob.size();
 	if(length < 2) {
-printf("bad normalizer size %d\n", length);
 		return false;
 	}
 
 	// alg->unset_normalizer also deletes the normalizer we are referencing in norm.
 	alg->unset_normalizer();
 
-	type = (enum normalizer::type) ntohl(blob[2]);
-
-printf("normalizer type %d\n", type);
+	type = (enum normalizer::type) ntohl(blob[1]);
 
 	switch (type) {
 		case normalizer::NORMALIZER_NONE:
@@ -93,11 +90,14 @@ printf("normalizer type %d\n", type);
 		case normalizer::NORMALIZER_MSC:
 			norm = new normalizer_msc;
 			break;
+		default:
+			return false;
 	}
 
-printf("deserializing...\n");
 	bi = blob.begin();
-	norm->deserialize(bi, blob.end());
+	if(!norm->deserialize(bi, blob.end())) {
+		return false;
+	}
 
 	if(bi != blob.end()) {
 		delete norm;
@@ -130,7 +130,6 @@ bool session::set_modalities(serversocket * sock)
 		length = ntohl(d);
 
 		if(length < 1) {
-printf("invalid modality length %d\n", length);
 			return false;
 		}
 
@@ -142,7 +141,6 @@ printf("invalid modality length %d\n", length);
 
 		switch(type) {
 			case MODALITY_SET_NORMALIZER:
-cout << "  MODALITY_SET_NORMALIZER\n";
 				if(length < 2) {
 					return false;
 				}
@@ -150,15 +148,12 @@ cout << "  MODALITY_SET_NORMALIZER\n";
 					if(!sock->stream_receive_int(d))
 						return false;
 					blob.push_back(d);
-printf(" normalizer new byte %d\n", d);
 				}
 				if(!this->set_normalizer(blob)) {
-cout << "    parsing normalizer failed.\n";
 					return false;
 				}
 				break;
 			case MODALITY_EXTEND_NORMALIZER:
-cout << "  MODALITY_EXTEND_NORMALIZER\n";
 				if(length < 1)
 					return false;
 				for(/* -- */; length > 0; length--) {
@@ -175,7 +170,6 @@ cout << "  MODALITY_EXTEND_NORMALIZER\n";
 
 				break;
 			case MODALITY_SET_LOGLEVEL:
-cout << "  MODALITY_SET_LOGLEVEL\n";
 				if(length != 1)
 					return false;
 				if(!sock->stream_receive_int(d))
@@ -184,7 +178,6 @@ cout << "  MODALITY_SET_LOGLEVEL\n";
 				logger.set_minimal_loglevel((enum logger_loglevel)d);
 				break;
 			case MODALITY_SET_LOG_ALGORITHM:
-cout << "  MODALITY_SET_LOG_ALGORITHM\n";
 				if(length != 1)
 					return false;
 				if(!sock->stream_receive_int(d))
@@ -193,7 +186,6 @@ cout << "  MODALITY_SET_LOG_ALGORITHM\n";
 				logger.set_log_algorithm(d != 0);
 				break;
 			default:
-cout << "  invalid modality: " << type << ".\n";
 				return false;
 		}
 	}
@@ -351,10 +343,6 @@ cout << "session get_counterexamples\n";
 			word.push_back(ntohl(d));
 		}
 
-		printf("new counter example: ");
-		print_word(word);
-		printf("\n");
-
 		// add it as a counter-example
 		alg->add_counterexample(word);
 	}
@@ -393,10 +381,6 @@ cout << "session get_counterexamples\n";
 			return false;
 
 		answer = (int32_t) ntohl(d);
-
-		printf("new counter example: ");
-		print_word(word);
-		printf(" answer: %d\n", (int) answer);
 
 		// add it as a counter-example
 		alg->add_counterexample(word, answer);
