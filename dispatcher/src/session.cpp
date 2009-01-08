@@ -143,8 +143,9 @@ cout << "    by far too short.\n";
 cout << "    socket was closed.\n";
 						return false;
 					}
+cout << "    new data: " << ntohl(d) << ", ";
 					blob.push_back(d);
-cout << "    blob.size() now is " <<  blob.size() << "\n";
+cout << "blob.size() now is " <<  blob.size() << "\n";
 				}
 cout << "    size should now be 1 + given length\n";
 				if(!this->set_normalizer(blob)) {
