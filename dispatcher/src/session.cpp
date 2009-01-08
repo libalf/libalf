@@ -134,16 +134,15 @@ cout << "  next: type " << type << " length " << length << "\n";
 			case MODALITY_SET_NORMALIZER:
 cout << "  MODALITY_SET_NORMALIZER\n";
 				if(length < 2) {
-cout << "    by far too short.\n";
 					return false;
 				}
 				blob.push_back(d);
-				for(/* -- */; length > 0; length--) {
+				for(int c = 0; c < length; c++) {
 					if(!sock->stream_receive_int(d)) {
 cout << "    socket was closed.\n";
 						return false;
 					}
-cout << "    new data: " << ntohl(d) << ", ";
+cout << "    new int " << c << ": " << ntohl(d) << ", ";
 					blob.push_back(d);
 cout << "blob.size() now is " <<  blob.size() << "\n";
 				}
