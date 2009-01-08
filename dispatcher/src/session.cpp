@@ -135,8 +135,7 @@ cout << "  MODALITY_SET_NORMALIZER\n";
 				if(length < 2) {
 					return false;
 				}
-				blob.push_back(d);
-				for(int c = 1; c < length; c++) {
+				for(/* -- */; length > 0; length--) {
 					if(!sock->stream_receive_int(d))
 						return false;
 					blob.push_back(d);
@@ -150,7 +149,6 @@ cout << "    parsing normalizer failed.\n";
 cout << "  MODALITY_EXTEND_NORMALIZER\n";
 				if(length < 1)
 					return false;
-				blob.push_back(d);
 				for(/* -- */; length > 0; length--) {
 					if(!sock->stream_receive_int(d))
 						return false;
