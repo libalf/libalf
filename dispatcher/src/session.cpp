@@ -124,9 +124,13 @@ bool session::set_modalities(serversocket * sock)
 			return false;
 		length = ntohl(d);
 
+		if(length < 1)
+			return false;
+
 		if(!sock->stream_receive_int(d))
 			return false;
 		type = (enum modality_type)ntohl(d);
+		length--;
 
 
 		switch(type) {
