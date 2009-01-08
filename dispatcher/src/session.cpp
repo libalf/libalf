@@ -124,8 +124,10 @@ bool session::set_modalities(serversocket * sock)
 			return false;
 		length = ntohl(d);
 
-		if(length < 1)
+		if(length < 1) {
+printf("invalid modality length %d\n", length);
 			return false;
+		}
 
 		if(!sock->stream_receive_int(d))
 			return false;
