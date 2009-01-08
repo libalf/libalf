@@ -105,7 +105,6 @@ cout << "      trying to set now...\n";
 
 bool session::set_modalities(serversocket * sock)
 {{{
-cout << "session set_modalities\n";
 	int count;
 	int32_t d;
 	bool success = true;
@@ -114,7 +113,6 @@ cout << "session set_modalities\n";
 		return false;
 
 	d = ntohl(d);
-cout << " receiving " << d << "modalities:\n";
 	for(count = d; count > 0; count--) {
 		int32_t d;
 		int length;
@@ -130,7 +128,6 @@ cout << " receiving " << d << "modalities:\n";
 			return false;
 		type = (enum modality_type)ntohl(d);
 
-cout << "  next: type " << type << " length " << length << "\n";
 
 		switch(type) {
 			case MODALITY_SET_NORMALIZER:
@@ -139,16 +136,11 @@ cout << "  MODALITY_SET_NORMALIZER\n";
 					return false;
 				}
 				blob.push_back(d);
-				for(int c = 0; c < length; c++) {
-					if(!sock->stream_receive_int(d)) {
-cout << "    socket was closed.\n";
+				for(int c = 1; c < length; c++) {
+					if(!sock->stream_receive_int(d))
 						return false;
-					}
-cout << "    new int " << c << ": " << ntohl(d) << ", ";
 					blob.push_back(d);
-cout << "blob.size() now is " <<  blob.size() << "\n";
 				}
-cout << "    size should now be 1 + given length\n";
 				if(!this->set_normalizer(blob)) {
 cout << "    parsing normalizer failed.\n";
 					return false;
@@ -196,18 +188,9 @@ cout << "  invalid modality: " << type << ".\n";
 		}
 	}
 
-cout << "  done.\n";
-	if(!sock->stream_send_int(htonl(SM_SES_ACK_MODALITIES))) {
-cout << "failed to answer ACK\n";
+	if(!sock->stream_send_int(htonl(SM_SES_ACK_MODALITIES)))
 		return false;
-	}
-	if(!sock->stream_send_int(htonl(success ? 1 : 0))) {
-cout << "failed to answer bool\n";
-		return false;
-	} else {
-cout << "modalities END\n";
-		return true;
-	}
+	return sock->stream_send_int(htonl(success ? 1 : 0));
 }}}
 bool session::answer_status(serversocket * sock)
 {{{
