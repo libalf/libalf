@@ -73,7 +73,7 @@ list<int> create_word()
 {{{
 	list<int> ret;
 	unsigned int i;
-	int v_word[] = {0,2,4,4,5,0,1,3,1,5};
+	int v_word[] = {0,2,4,4,5,0,1,3}; //,1,5};
 
 	for(i = 0; i < sizeof(v_word)/sizeof(int); i++)
 		ret.push_back(v_word[i]);
