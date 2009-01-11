@@ -390,8 +390,12 @@ int normalizer_msc::graph_reduce(bool pnf)
 			continue;
 		}
 
-		if(total_order[(*ni)->label] < total_order[(*extrema)->label])
+		if(total_order[(*ni)->label] < total_order[(*extrema)->label]) {
+printf("lexical order: node %d is lex< than node %d.\n", (*ni)->id, (*extrema)->id);
 			extrema = ni;
+		} else {
+printf("lexical order: keeping %d, %d is lex>.\n", (*extrema)->id, (*ni)->id);
+		}
 	}
 
 	if(extrema == graph.end())
