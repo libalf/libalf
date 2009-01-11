@@ -251,7 +251,7 @@ list<int> normalizer_msc::prefix_normal_form(list<int> & w, bool & bottom)
 	for(wi = w.begin(), i = 0; wi != w.end(); wi++, i++)
 		graph_add_node(i, *wi, true);
 
-	graph_print();
+//	graph_print();
 
 	// create normalized word
 	while( ! graph.empty())
@@ -283,7 +283,7 @@ list<int> normalizer_msc::suffix_normal_form(list<int> & w, bool & bottom)
 		i++;
 	}
 
-	graph_print();
+//	graph_print();
 
 	// create normalized word
 	while( ! graph.empty())
@@ -390,12 +390,8 @@ int normalizer_msc::graph_reduce(bool pnf)
 			continue;
 		}
 
-		if(total_order[(*ni)->label] < total_order[(*extrema)->label]) {
-printf("lexical order: node %d is lex< than node %d.\n", (*ni)->id, (*extrema)->id);
+		if(total_order[(*ni)->label] < total_order[(*extrema)->label])
 			extrema = ni;
-		} else {
-printf("lexical order: keeping %d, %d is lex>.\n", (*extrema)->id, (*ni)->id);
-		}
 	}
 
 	if(extrema == graph.end())
