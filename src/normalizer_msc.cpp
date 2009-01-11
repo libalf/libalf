@@ -48,6 +48,7 @@ msc::msc_node::~msc_node()
 
 normalizer_msc::normalizer_msc()
 {{{
+	max_buffer_length = 0;
 	buffers = NULL;
 }}}
 

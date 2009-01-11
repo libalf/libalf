@@ -88,7 +88,8 @@ cout << "      trying to set now...\n";
 			// already unset :)
 			return true;
 		case normalizer::NORMALIZER_MSC:
-			norm = new normalizer_msc;
+			// FIXME
+			norm = new normalizer_msc();
 			break;
 		default:
 			return false;

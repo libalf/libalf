@@ -84,6 +84,7 @@ int main()
 	cout << "CAPA\n";
 	print_blob(data);
 
+	cout << "requesting session...\n";
 	data.clear();
 	data += 20; // REQ SESSION
 	data += 1; // angluin
@@ -94,15 +95,30 @@ int main()
 	cout << "session " << ntohl(data[1]) << " answer " << ntohl(data[0]) << ".\n";
 	print_blob(data);
 
+	cout << "setting modality normalizer\n";
 	data.clear();
-	data += 25; // ADVANCE
+	data += 21; // set modality
 	data += 0; // session id
+	data += 1; // count
+	data += 13; // length
+	data += 0; // set normalizer
+	data += 11; // length
+	data += 1; // normalizer type MSC
+	data += 2; // length of total order
+	data += 0;
+	data += 1;
+	data += 2; // length of proc matching
+	data += 0;
+	data += 1;
+	data += 2; // length of buffer matching
+	data += 0;
+	data += 0;
+	data += 1; // max buffer length
+
 	send_blob(sock, data);
 
 	data = receive_blob(sock, 2);
 	cout << "answer " << ntohl(data[0]) << ".\n";
-	print_blob(data);
-	data = receive_blob(sock, ntohl(data[1]));
 	print_blob(data);
 
 	data.clear();
