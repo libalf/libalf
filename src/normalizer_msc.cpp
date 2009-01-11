@@ -330,20 +330,23 @@ void normalizer_msc::graph_add_node(int id, int label, bool pnf)
 	// PNF: if this is a receiving event, connect to oldest corresponding send-event that is not connected
 	// SNF: if this is a sending event, connect from oldest corresponding send-event that is not connected
 	extrema = graph.end();
-	if( (label % 2) && pnf || (label % 2) == 0 && !pnf) {
+	if( (label % 2) && pnf || (label % 2 == 0) && !pnf) {
 		// pnf: odd, receive-event
 		// snf: even, send-event
 		for(ni = graph.begin(); *ni != newnode; ni++) {
-			if( ((*ni)->label / 2 != label / 2) || ((*ni)->label % 2) )
+			if( ((*ni)->label / 2 != label / 2))
 				continue;
-			if(pnf && (*ni)->is_buffer_connected() || !pnf && (*ni)->is_buffer_referenced())
-				continue;
+			if(pnf) {
+				if(((*ni)->label % 2) || (*ni)->is_buffer_connected())
+					continue;
+			} else {
+				if(((*ni)->label % 2 == 0) || (*ni)->is_buffer_referenced())
+					continue;
+			}
 			if(extrema == graph.end()) {
 				extrema = ni;
 			} else {
-				if(pnf && (*ni)->id < (*extrema)->id)
-					extrema = ni;
-				if(!pnf && (*ni)->id > (*extrema)->id)
+				if((*ni)->id < (*extrema)->id)
 					extrema = ni;
 			}
 		}
