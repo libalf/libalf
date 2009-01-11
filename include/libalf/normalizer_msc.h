@@ -15,6 +15,7 @@
 #include <list>
 #include <vector>
 #include <string>
+#include <queue>
 
 #include <libalf/normalizer.h>
 
@@ -41,10 +42,15 @@ namespace msc {
 
 			~msc_node();
 
-			inline void connect_process(msc_node & other)
+			inline void connect_process(msc_node * other)
 			{{{
-				other.process_in = this;
-				this->process_out = &other;
+				if(other->process_in)
+					printf("ASSERT: PROC: other node is already referenced\n");
+				if(this->process_out)
+					printf("ASSERT: PROC: this is already connected\n");
+
+				other->process_in = this;
+				this->process_out = other;
 			}}}
 
 			inline bool is_process_connected()
@@ -57,10 +63,15 @@ namespace msc {
 				return (process_in != NULL);
 			}}}
 
-			inline void connect_buffer(msc_node & other)
+			inline void connect_buffer(msc_node * other)
 			{{{
-				other.buffer_in = this;
-				this->buffer_out = &other;
+				if(other->buffer_in)
+					printf("ASSERT: BUFFER: other node is already referenced\n");
+				if(this->buffer_out)
+					printf("ASSERT: BUFFER: this is already connected\n");
+
+				other->buffer_in = this;
+				this->buffer_out = other;
 			}}}
 
 			inline bool is_buffer_connected()
@@ -130,16 +141,17 @@ class normalizer_msc : public normalizer {
 
 		virtual bool deserialize_extension(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
 
-		virtual list<int> prefix_normal_form(list<int> & w, bool &bottom);
-		virtual list<int> suffix_normal_form(list<int> & w, bool &bottom);
-
+		virtual list<int> prefix_normal_form(list<int> & w, bool & bottom);
+		virtual list<int> suffix_normal_form(list<int> & w, bool & bottom);
 
 
 	private:
-		list<msc::msc_node> graph;
+		list<msc::msc_node*> graph;
+		queue<int> * buffers;
 	protected:
-		void graph_add_node(int id, int label);
-		int graph_reduce();
+		bool check_bottom(list<int> & word, bool pnf);
+		void graph_add_node(int id, int label, bool pnf);
+		int graph_reduce(bool pnf);
 		void graph_print();
 };
 
