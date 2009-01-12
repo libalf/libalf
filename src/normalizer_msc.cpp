@@ -118,6 +118,7 @@ bool normalizer_msc::deserialize(basic_string<int32_t>::iterator &it, basic_stri
 	int count;
 	int maxbuffers = 0;
 	enum normalizer::type type;
+	int n;
 
 	if(it == limit)
 		goto deserialization_failed;
@@ -154,11 +155,12 @@ bool normalizer_msc::deserialize(basic_string<int32_t>::iterator &it, basic_stri
 	count = ntohl(*it);
 	for(count = ntohl(*it); count > 0; count--) {
 		size--; it++; if(size <= 0 || limit == it) goto deserialization_failed;
-		if(*it < 0)
+		n = ntohl(*it);
+		if(n < 0)
 			return false;
-		if(*it > maxbuffers)
-			maxbuffers = *it;
-		buffer_match.push_back(ntohl(*it));
+		if(n > maxbuffers)
+			maxbuffers = n;
+		buffer_match.push_back(n);
 	}
 
 	// get max buffer length
@@ -170,7 +172,8 @@ bool normalizer_msc::deserialize(basic_string<int32_t>::iterator &it, basic_stri
 	// FIXME: sanity-check size of vectors. message-buffer-match may be null if max_buffer_size <= 0
 
 	if(size == 0) {
-		buffers = new queue<int>[maxbuffers + 1];
+		if(max_buffer_length > 0)
+			buffers = new queue<int>[maxbuffers + 1];
 		return true;
 	}
 
