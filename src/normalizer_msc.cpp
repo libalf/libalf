@@ -242,21 +242,24 @@ list<int> normalizer_msc::prefix_normal_form(list<int> & w, bool & bottom)
 	list<int>::iterator wi;
 	int i;
 
-	bottom = check_bottom(w, true);
-	if(bottom) {
-		ret.push_back(BOTTOM_CHAR);
-		return ret;
-	}
+	if(w.front() == BOTTOM_CHAR)
+		goto bottom;
 
 	// create a MSC from the word
 	for(wi = w.begin(), i = 0; wi != w.end(); wi++, i++)
 		graph_add_node(i, *wi, true);
 
-//	graph_print();
-
 	// create normalized word
 	while( ! graph.empty())
 		ret.push_back(graph_reduce(true));
+
+	// check for invalid word
+	bottom = check_bottom(ret, true);
+	if(bottom) {
+bottom:
+		ret.clear();
+		ret.push_back(BOTTOM_CHAR);
+	}
 
 	return ret;
 }}}
@@ -267,15 +270,11 @@ list<int> normalizer_msc::suffix_normal_form(list<int> & w, bool & bottom)
 	list<int>::iterator wi;
 	int i = 0;
 
+	if(w.front() == BOTTOM_CHAR)
+		goto bottom;
+
 	for(wi = w.begin(); wi != w.end(); wi++)
 		ret.push_front(*wi);
-
-	bottom = check_bottom(ret, false);
-	if(bottom) {
-		ret.clear();
-		ret.push_back(BOTTOM_CHAR);
-		return ret;
-	}
 
 	// create a MSC from the word
 	while(!ret.empty()) {
@@ -284,11 +283,19 @@ list<int> normalizer_msc::suffix_normal_form(list<int> & w, bool & bottom)
 		i++;
 	}
 
-//	graph_print();
-
 	// create normalized word
 	while( ! graph.empty())
-		ret.push_front(graph_reduce(false));
+		ret.push_back(graph_reduce(false));
+
+	// requires reverse:
+	bottom = check_bottom(ret, false);
+	if(bottom) {
+bottom:
+		ret.clear();
+		ret.push_back(BOTTOM_CHAR);
+	} else {
+		ret.reverse();
+	}
 
 	return ret;
 }}}

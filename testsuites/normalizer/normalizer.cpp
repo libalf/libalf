@@ -64,7 +64,7 @@ normalizer * create_normalizer()
 	for(i = 0; i < 24; i++)
 		buffer_match.push_back(v_buffer_match[i]);
 
-	max_buffer_length = 3;
+	max_buffer_length = 2;
 
 	return new normalizer_msc(total_order, process_match, buffer_match, max_buffer_length);
 }}}
