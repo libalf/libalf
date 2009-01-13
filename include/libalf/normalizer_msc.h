@@ -153,9 +153,14 @@ class normalizer_msc : public normalizer {
 		unsigned int label_bound;
 
 	protected:
-		void clear_buffers(list<int> word);
 		void graph_add_node(int id, int label, bool pnf);
+
+		void clear_buffers(list<int> word);
+		bool check_buffer(int label, bool pnf);
+		void advance_buffer_status(int label, bool pnf);
+
 		int graph_reduce(bool pnf);
+
 		void graph_print();
 };
 

@@ -222,45 +222,6 @@ bool normalizer_msc::deserialize_extension(basic_string<int32_t>::iterator &it, 
 	return false;
 }
 
-/*
-bool normalizer_msc::check_bottom(list<int> & word, bool pnf)
-{
-	list<int>::iterator wi;
-	bool bottom = false;
-
-	for(wi = word.begin(); wi != word.end(); wi++) {
-		int buffer = buffer_match[*wi];
-		int msg = *wi / 2;
-
-		if((*wi % 2 && pnf) || (*wi % 2 == 0 && !pnf)) {
-			// PNF: odd: receive-event
-			// SNF: even: act like receive-event
-			if(buffers[buffer].size() == 0) {
-				bottom = true;
-				break;
-			}
-			if(buffers[buffer].front() != msg) {
-				bottom = true;
-				break;
-			}
-			buffers[buffer].pop();
-		} else {
-			// PNF: even: send-event
-			// SNF: odd: act like send-event
-			buffers[buffer].push(msg);
-			if(max_buffer_length > 0) {
-				if(buffers[buffer].size() > (unsigned int)max_buffer_length) {
-					bottom = true;
-					break;
-				}
-			}
-		}
-	}
-
-	return bottom;
-}
-*/
-
 void normalizer_msc::clear_buffers(list<int> word)
 // clear any buffer that this word may have touched
 {{{
@@ -416,8 +377,54 @@ void normalizer_msc::graph_add_node(int id, int label, bool pnf)
 	}
 }}}
 
+bool normalizer_msc::check_buffer(int label, bool pnf)
+{{{
+	// check if the message `label' can be put into its buffer / taken from its buffer (true)
+	// or its buffer is full / another message is at the head of the buffer (false)
+
+	if(!buffers)
+		return true;
+
+	int buffer = buffer_match[label];
+
+	if( pnf && (label % 2) || !pnf && (label % 2 == 0) ) {
+		// pnf/odd: receive-event
+		// snf/even: act like receive-event
+		// fail if buffer is empty or a different msg is at front
+		if(buffers[buffer].empty())
+			return false;
+		if(buffers[buffer].front() != label / 2)
+			return false;
+	} else {
+		// pnf/even: send-event
+		// snf/odd: act like send-event
+		// check buffer size
+		if(max_buffer_length > 0) {
+			// keep the one message in mind that is not yet in the buffer
+			// (thus _equal_ or larger)
+			if(buffers[buffer].size() >= (unsigned int)max_buffer_length)
+				return false;
+		}
+	}
+
+	return true;
+}}}
+
+void normalizer_msc::advance_buffer_status(int label, bool pnf)
+{{{
+	if(buffers) {
+		if( pnf && (label % 2) || !pnf && (label % 2 == 0) ) {
+			// receive
+			buffers[buffer_match[label]].pop();
+		} else {
+			// send
+			buffers[buffer_match[label]].push(label/2);
+		}
+	}
+}}}
+
 int normalizer_msc::graph_reduce(bool pnf)
-{
+{{{
 	list<msc::msc_node*>::iterator ni, extrema;
 
 	extrema = graph.end();
@@ -428,18 +435,23 @@ int normalizer_msc::graph_reduce(bool pnf)
 			if((*ni)->is_process_referenced() || (*ni)->is_buffer_referenced())
 				continue;
 			if(extrema == graph.end()) {
-				extrema = ni;
+				if(check_buffer((*ni)->label, true))
+					extrema = ni;
 				continue;
 			}
 			// if there exists a minimal receive-event, never fall back to send-events
 			if(((*extrema)->label % 2) && ((*ni)->label % 2 == 0) )
 				continue;
 			if(((*extrema)->label % 2 == 0) && ((*ni)->label % 2) ) {
+				if(check_buffer((*ni)->label, true))
+					extrema = ni;
 				extrema = ni;
 				continue;
 			}
-			if(total_order[(*ni)->label] < total_order[(*extrema)->label])
-				extrema = ni;
+			if(total_order[(*ni)->label] < total_order[(*extrema)->label]) {
+				if(check_buffer((*ni)->label, true))
+					extrema = ni;
+			}
 		}
 	} else {
 		// SUFFIX normal form
@@ -448,6 +460,7 @@ int normalizer_msc::graph_reduce(bool pnf)
 			if((*ni)->is_process_connected() || (*ni)->is_buffer_connected())
 				continue;
 			if(extrema == graph.end()) {
+				if(check_buffer((*ni)->label, false))
 				extrema = ni;
 				continue;
 			}
@@ -455,11 +468,13 @@ int normalizer_msc::graph_reduce(bool pnf)
 			if(((*extrema)->label % 2 == 0) && ((*ni)->label % 2) )
 				continue;
 			if(((*extrema)->label % 2) && ((*ni)->label % 2 == 0) ) {
-				extrema = ni;
+				if(check_buffer((*ni)->label, false))
+					extrema = ni;
 				continue;
 			}
 			if(total_order[(*ni)->label] < total_order[(*extrema)->label])
-				extrema = ni;
+				if(check_buffer((*ni)->label, false))
+					extrema = ni;
 		}
 	}
 
@@ -473,8 +488,10 @@ int normalizer_msc::graph_reduce(bool pnf)
 	delete *extrema;
 	graph.erase(extrema);
 
+	advance_buffer_status(label, pnf);
+
 	return label;
-}
+}}}
 
 void normalizer_msc::graph_print()
 {{{
