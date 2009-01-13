@@ -132,7 +132,7 @@ class normalizer_msc : public normalizer {
 		normalizer_msc();
 		normalizer_msc(vector<int> &total_order, vector<int> &process_match, vector<int> &buffer_match, int max_buffer_length);
 
-		virtual ~normalizer_msc() { };
+		virtual ~normalizer_msc();
 
 		void clear();
 
@@ -148,8 +148,12 @@ class normalizer_msc : public normalizer {
 	private:
 		list<msc::msc_node*> graph;
 		queue<int> * buffers;
+		unsigned int buffercount;
+		// any label that can be normalized has to be in [0, label_bound)
+		unsigned int label_bound;
+
 	protected:
-		bool check_bottom(list<int> & word, bool pnf);
+		void clear_buffers(list<int> word);
 		void graph_add_node(int id, int label, bool pnf);
 		int graph_reduce(bool pnf);
 		void graph_print();

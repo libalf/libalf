@@ -50,6 +50,8 @@ normalizer_msc::normalizer_msc()
 {{{
 	max_buffer_length = 0;
 	buffers = NULL;
+	buffercount = 0;
+	label_bound = 0;
 }}}
 
 normalizer_msc::normalizer_msc(vector<int> &total_order, vector<int> &process_match, vector<int> &buffer_match, int max_buffer_length)
@@ -59,24 +61,46 @@ normalizer_msc::normalizer_msc(vector<int> &total_order, vector<int> &process_ma
 	this->buffer_match = buffer_match;
 	this->max_buffer_length = max_buffer_length;
 
-	int maxbuffers = 0;
-	for(vector<int>::iterator vi = buffer_match.begin(); vi != buffer_match.end(); vi++)
-		if(*vi > maxbuffers)
-			maxbuffers = *vi;
+	label_bound = total_order.size();
+	if(label_bound > process_match.size())
+		label_bound = process_match.size();
 
-	buffers = new queue<int>[maxbuffers + 1];
+	if(max_buffer_length > 0) {
+		buffercount = 0;
+		for(vector<int>::iterator vi = buffer_match.begin(); vi != buffer_match.end(); vi++)
+			if(*vi > (int)buffercount)
+				buffercount = *vi;
+
+		buffercount += 1;
+		buffers = new queue<int>[buffercount];
+
+		if(label_bound > buffercount)
+			label_bound = buffercount;
+	} else {
+		buffercount = 0;
+		buffers = NULL;
+	}
+
+}}}
+
+normalizer_msc::~normalizer_msc()
+{{{
+	if(buffers)
+		delete[] buffers;
 }}}
 
 void normalizer_msc::clear()
 {{{
-	if(buffers) {
-		delete[] buffers;
-		buffers = NULL;
-	}
 	total_order.clear();
 	process_match.clear();
 	buffer_match.clear();
 	max_buffer_length = 0;
+	if(buffers) {
+		delete[] buffers;
+		buffers = NULL;
+	}
+	buffercount = 0;
+	label_bound = 0;
 }}}
 
 basic_string<int32_t> normalizer_msc::serialize()
@@ -116,7 +140,6 @@ bool normalizer_msc::deserialize(basic_string<int32_t>::iterator &it, basic_stri
 {{{
 	int size;
 	int count;
-	int maxbuffers = 0;
 	enum normalizer::type type;
 	int n;
 
@@ -158,10 +181,11 @@ bool normalizer_msc::deserialize(basic_string<int32_t>::iterator &it, basic_stri
 		n = ntohl(*it);
 		if(n < 0)
 			return false;
-		if(n > maxbuffers)
-			maxbuffers = n;
+		if(n > (int)buffercount)
+			buffercount = n;
 		buffer_match.push_back(n);
 	}
+	buffercount += 1;
 
 	// get max buffer length
 	size--; it++; if(size <= 0 || limit == it) goto deserialization_failed;
@@ -171,9 +195,18 @@ bool normalizer_msc::deserialize(basic_string<int32_t>::iterator &it, basic_stri
 
 	// FIXME: sanity-check size of vectors. message-buffer-match may be null if max_buffer_size <= 0
 
+	label_bound = total_order.size();
+	if(label_bound > process_match.size())
+		label_bound = process_match.size();
+
 	if(size == 0) {
-		if(max_buffer_length > 0)
-			buffers = new queue<int>[maxbuffers + 1];
+		if(max_buffer_length > 0) {
+			buffers = new queue<int>[buffercount];
+			if(label_bound > buffercount)
+				label_bound = buffercount;
+		} else {
+			buffercount = 0;
+		}
 		return true;
 	}
 
@@ -189,14 +222,9 @@ bool normalizer_msc::deserialize_extension(basic_string<int32_t>::iterator &it, 
 	return false;
 }
 
+/*
 bool normalizer_msc::check_bottom(list<int> & word, bool pnf)
-{{{
-	if(word.front() == BOTTOM_CHAR)
-		return true;
-
-	if(max_buffer_length <= 0)
-		return false;
-
+{
 	list<int>::iterator wi;
 	bool bottom = false;
 
@@ -229,77 +257,95 @@ bool normalizer_msc::check_bottom(list<int> & word, bool pnf)
 		}
 	}
 
-	// clear used buffers
-	for(wi = word.begin(); wi != word.end(); wi++) {
-		queue<int> * q = &buffers[buffer_match[*wi]];
-		while(!q->empty())
-			q->pop();
-	}
-
 	return bottom;
+}
+*/
+
+void normalizer_msc::clear_buffers(list<int> word)
+// clear any buffer that this word may have touched
+{{{
+	if(!buffers)
+		return;
+
+	list<int>::iterator wi;
+	int buf;
+
+	for(wi = word.begin(); wi != word.end(); wi++) {
+		buf = buffer_match[*wi];
+		if(buf >= 0 && buf < (int)buffercount)
+			buffers[buf].pop();
+	}
 }}}
 
 list<int> normalizer_msc::prefix_normal_form(list<int> & w, bool & bottom)
 {{{
 	list<int> ret;
-	list<int>::iterator wi;
 	int i;
 
-	if(w.front() == BOTTOM_CHAR)
-		goto bottom;
-
-	// create a MSC from the word
-	for(wi = w.begin(), i = 0; wi != w.end(); wi++, i++)
+	list<int>::iterator wi;
+	// create MSC
+	for(wi = w.begin(), i = 0; wi != w.end(); wi++, i++) {
+		if(*wi < 0 || *wi > (int)label_bound) {
+			graph.clear();
+			goto bottom_fast;
+		}
 		graph_add_node(i, *wi, true);
-
-	// create normalized word
-	while( ! graph.empty())
-		ret.push_back(graph_reduce(true));
-
-	// check for invalid word
-	bottom = check_bottom(ret, true);
-	if(bottom) {
-bottom:
-		ret.clear();
-		ret.push_back(BOTTOM_CHAR);
 	}
 
+	// MSC -> word
+	while( ! graph.empty() ) {
+		i = graph_reduce(true);
+		if(i < 0)
+			goto bottom;
+		ret.push_back(i);
+	}
+
+	bottom = false;
+	return ret;
+
+bottom:
+	clear_buffers(w);
+	ret.clear();
+
+bottom_fast:
+	bottom = true;
+	ret.push_back(BOTTOM_CHAR);
 	return ret;
 }}}
 
 list<int> normalizer_msc::suffix_normal_form(list<int> & w, bool & bottom)
 {{{
 	list<int> ret;
-	list<int>::iterator wi;
-	int i = 0;
+	int i;
 
-	if(w.front() == BOTTOM_CHAR)
-		goto bottom;
-
-	for(wi = w.begin(); wi != w.end(); wi++)
-		ret.push_front(*wi);
-
-	// create a MSC from the word
-	while(!ret.empty()) {
-		graph_add_node(i, ret.front(), false);
-		ret.pop_front();
-		i++;
+	list<int>::reverse_iterator rwi;
+	// create MSC (reversed)
+	for(rwi = w.rbegin(), i = 0; rwi != w.rend(); rwi++, i++) {
+		if(*rwi < 0 || *rwi > (int)label_bound) {
+			graph.clear();
+			goto bottom_fast;
+		}
+		graph_add_node(i, *rwi, false);
 	}
 
-	// create normalized word
-	while( ! graph.empty())
-		ret.push_back(graph_reduce(false));
+	// MSC -> word
+	while( ! graph.empty() ) {
+		i = graph_reduce(false);
+		if(i < 0)
+			goto bottom;
+		ret.push_front(i);
+	}
 
-	// requires reverse:
-	bottom = check_bottom(ret, false);
-	if(bottom) {
+	bottom = false;
+	return ret;
+
 bottom:
-		ret.clear();
-		ret.push_back(BOTTOM_CHAR);
-	} else {
-		ret.reverse();
-	}
+	clear_buffers(w);
+	ret.clear();
 
+bottom_fast:
+	bottom = true;
+	ret.push_back(BOTTOM_CHAR);
 	return ret;
 }}}
 
@@ -371,38 +417,50 @@ void normalizer_msc::graph_add_node(int id, int label, bool pnf)
 }}}
 
 int normalizer_msc::graph_reduce(bool pnf)
-{{{
+{
 	list<msc::msc_node*>::iterator ni, extrema;
 
 	extrema = graph.end();
-	for(ni = graph.begin(); ni != graph.end(); ni++) {
-		// PNF: only use minimal nodes (without incoming edges)
-		if(pnf && ((*ni)->is_process_referenced() || (*ni)->is_buffer_referenced()))
-			continue;
-		// SNF: only use maximal nodes (without outgoing edges)
-		if(!pnf && ((*ni)->is_process_connected() || (*ni)->is_buffer_connected()))
-			continue;
-		if(extrema == graph.end()) {
-			extrema = ni;
-			continue;
+	if(pnf) {
+		// PREFIX normal form
+		for(ni = graph.begin(); ni != graph.end(); ni++) {
+			// only use minimal nodes (without incoming edges)
+			if((*ni)->is_process_referenced() || (*ni)->is_buffer_referenced())
+				continue;
+			if(extrema == graph.end()) {
+				extrema = ni;
+				continue;
+			}
+			// if there exists a minimal receive-event, never fall back to send-events
+			if(((*extrema)->label % 2) && ((*ni)->label % 2 == 0) )
+				continue;
+			if(((*extrema)->label % 2 == 0) && ((*ni)->label % 2) ) {
+				extrema = ni;
+				continue;
+			}
+			if(total_order[(*ni)->label] < total_order[(*extrema)->label])
+				extrema = ni;
 		}
-		// PNF: if there exists a minimal receive-event, never fall back to send-events
-		// SNF: if there exists a minimal send-event, never fall back to receive-events
-		if(pnf && ((*extrema)->label % 2) && ((*ni)->label % 2 == 0) )
-			continue;
-		if(pnf && ((*extrema)->label % 2 == 0) && ((*ni)->label % 2) ) {
-			extrema = ni;
-			continue;
+	} else {
+		// SUFFIX normal form
+		for(ni = graph.begin(); ni != graph.end(); ni++) {
+			// only use maximal nodes (without outgoing edges)
+			if((*ni)->is_process_connected() || (*ni)->is_buffer_connected())
+				continue;
+			if(extrema == graph.end()) {
+				extrema = ni;
+				continue;
+			}
+			// if there exists a minimal send-event, never fall back to receive-events
+			if(((*extrema)->label % 2 == 0) && ((*ni)->label % 2) )
+				continue;
+			if(((*extrema)->label % 2) && ((*ni)->label % 2 == 0) ) {
+				extrema = ni;
+				continue;
+			}
+			if(total_order[(*ni)->label] < total_order[(*extrema)->label])
+				extrema = ni;
 		}
-		if(!pnf && ((*extrema)->label % 2 == 0) && ((*ni)->label % 2) )
-			continue;
-		if(!pnf && ((*extrema)->label % 2) && ((*ni)->label % 2 == 0) ) {
-			extrema = ni;
-			continue;
-		}
-
-		if(total_order[(*ni)->label] < total_order[(*extrema)->label])
-			extrema = ni;
 	}
 
 	if(extrema == graph.end())
@@ -416,7 +474,7 @@ int normalizer_msc::graph_reduce(bool pnf)
 	graph.erase(extrema);
 
 	return label;
-}}}
+}
 
 void normalizer_msc::graph_print()
 {{{

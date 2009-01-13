@@ -17,7 +17,6 @@ all:	libalf.so
 
 libalf.so: ${OBJECTS}
 	ld ${OBJECTS} ${LDFLAGS} -o $@
-	strip $@
 
 clean:
 	-rm *.o
