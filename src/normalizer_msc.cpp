@@ -234,7 +234,8 @@ void normalizer_msc::clear_buffers(list<int> word)
 	for(wi = word.begin(); wi != word.end(); wi++) {
 		buf = buffer_match[*wi];
 		if(buf >= 0 && buf < (int)buffercount)
-			buffers[buf].pop();
+			if(!buffers[buf].empty())
+				buffers[buf].pop();
 	}
 }}}
 
@@ -262,6 +263,7 @@ list<int> normalizer_msc::prefix_normal_form(list<int> & w, bool & bottom)
 	}
 
 	bottom = false;
+	clear_buffers(w);
 	return ret;
 
 bottom:
@@ -290,8 +292,6 @@ list<int> normalizer_msc::suffix_normal_form(list<int> & w, bool & bottom)
 		graph_add_node(i, *rwi, false);
 	}
 
-graph_print();
-
 	// MSC -> word
 	while( ! graph.empty() ) {
 		i = graph_reduce(false);
@@ -301,6 +301,7 @@ graph_print();
 	}
 
 	bottom = false;
+	clear_buffers(w);
 	return ret;
 
 bottom:
@@ -433,7 +434,6 @@ int normalizer_msc::graph_reduce(bool pnf)
 
 	extrema = graph.end();
 	if(pnf) {
-printf("pnf reduce:\n");
 		// PREFIX normal form
 		for(ni = graph.begin(); ni != graph.end(); ni++) {
 			// only use minimal nodes (without incoming edges)
@@ -459,53 +459,32 @@ printf("pnf reduce:\n");
 			}
 		}
 	} else {
-printf("snf reduce:\n");
 		// SUFFIX normal form
 		for(ni = graph.begin(); ni != graph.end(); ni++) {
-printf("checking id %d label %d: ", (*ni)->id, (*ni)->label);
 			// only use maximal nodes (without outgoing edges)
-			if((*ni)->is_process_connected() || (*ni)->is_buffer_connected()) {
-printf("is connected\n");
+			if((*ni)->is_process_connected() || (*ni)->is_buffer_connected())
 				continue;
-			}
 			if(extrema == graph.end()) {
-				if(check_buffer((*ni)->label, false)) {
-					printf("is first match\n");
+				if(check_buffer((*ni)->label, false))
 					extrema = ni;
-				} else {
-					printf("failes to match buffer\n");
-				}
 				continue;
 			}
 			// if there exists a minimal send-event, never fall back to receive-events
-			if(((*extrema)->label % 2 == 0) && ((*ni)->label % 2) ) {
-				printf("receive-event is overriden by former send-event\n");
+			if(((*extrema)->label % 2 == 0) && ((*ni)->label % 2) )
 				continue;
-			}
 			if(((*extrema)->label % 2) && ((*ni)->label % 2 == 0) ) {
-				if(check_buffer((*ni)->label, false)) {
-					printf("machtes\n");
+				if(check_buffer((*ni)->label, false))
 					extrema = ni;
-				} else {
-					printf("failes to match buffer\n");
-				}
 				continue;
 			}
-			if(total_order[(*ni)->label] < total_order[(*extrema)->label])
+			if(total_order[(*ni)->label] < total_order[(*extrema)->label]) {
 				if(check_buffer((*ni)->label, false)) {
 					extrema = ni;
-					printf("matches\n");
 					continue;
 				}
-			printf("fall-through\n");
+			}
 		}
 	}
-
-if(graph.end() == extrema) {
-	printf("found none\n");
-} else {
-	printf("found id %d label %d\n", (*extrema)->id, (*extrema)->label);
-}
 
 	if(extrema == graph.end())
 		return -1;
