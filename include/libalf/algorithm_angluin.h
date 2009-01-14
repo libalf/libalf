@@ -1290,6 +1290,10 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 					nw = this->norm->prefix_normal_form(word, bottom);
 				else
 					nw = word;
+printf("adding word to lower: ");
+print_word(nw);
+printf("\n");
+				word.pop_back();
 
 				if(!bottom) {
 					done = false;
@@ -1309,7 +1313,6 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 						this->upper_table.push_back(row);
 					}
 				}
-				word.pop_back();
 			}
 		}}}
 
