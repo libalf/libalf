@@ -77,6 +77,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		logger * log;
 		normalizer * norm;
 		int alphabet_size;
+		bool initialized;
 
 	public:
 		angluin_observationtable()
@@ -85,6 +86,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			log = NULL;
 			norm = NULL;
 			alphabet_size = 0;
+			initialized = false;
 		}}}
 
 		virtual void set_alphabet_size(int alphabet_size)
@@ -455,6 +457,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		virtual void increase_alphabet_size(int new_asize) = 0;
 
 	protected:
+		virtual void initialize_table() = 0;
 		virtual void add_word_to_upper_table(list<int> word, bool check_uniq = true) = 0;
 
 		// this expects a NORMALIZED word!
@@ -863,6 +866,11 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		{{{
 			structured_query_tree<answer> * ret;
 
+			if(!initialized) {
+				initialize_table();
+				initialized = true;
+			}
+
 			ret = fill_missing_columns();
 
 			if(!ret) {
@@ -1073,31 +1081,12 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 			this->alphabet_size = 0;
 			this->set_teacher(NULL);
 			this->set_logger(NULL);
-
-			list<int> word; // empty word!
-
-			// add epsilon as column
-			this->column_names.push_back(word);
-
-			// add epsilon to upper table
-			// and all suffixes to lower table
-			this->add_word_to_upper_table(word, false);
 		}}}
 		angluin_simple_observationtable(teacher<answer> *teach, logger *log, int alphabet_size)
 		{{{
 			this->alphabet_size = alphabet_size;
-
 			this->set_teacher(teach);
 			this->set_logger(log);
-
-			list<int> word; // empty word!
-
-			// add epsilon as column
-			this->column_names.push_back(word);
-
-			// add epsilon to upper table
-			// and all suffixes to lower table
-			this->add_word_to_upper_table(word, false);
 		}}}
 
 		virtual void get_memory_statistics(statistics & stats)
@@ -1243,6 +1232,18 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 		}}}
 
 	protected:
+		virtual void initialize_table()
+		{{{
+			list<int> word; // empty word!
+
+			// add epsilon as column
+			this->column_names.push_back(word);
+
+			// add epsilon to upper table
+			// and all suffixes to lower table
+			this->add_word_to_upper_table(word, false);
+		}}}
+
 		virtual void add_word_to_upper_table(list<int> word, bool check_uniq = true)
 		{{{
 			list<int> nw;
@@ -1290,9 +1291,6 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 					nw = this->norm->prefix_normal_form(word, bottom);
 				else
 					nw = word;
-printf("adding word to lower: ");
-print_word(nw);
-printf("\n");
 				word.pop_back();
 
 				if(!bottom) {
