@@ -202,8 +202,8 @@ bool normalizer_msc::deserialize(basic_string<int32_t>::iterator &it, basic_stri
 	if(size == 0) {
 		if(max_buffer_length > 0) {
 			buffers = new queue<int>[buffercount];
-			if(label_bound > buffercount)
-				label_bound = buffercount;
+			if(label_bound > buffer_match.size())
+				label_bound = buffer_match.size();
 		} else {
 			buffercount = 0;
 		}
