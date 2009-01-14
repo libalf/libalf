@@ -298,7 +298,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 
 		virtual bool conjecture_ready()
 		{{{
-			return columns_filled() && is_closed() && is_consistent();
+			return initialized && columns_filled() && is_closed() && is_consistent();
 		}}}
 
 		virtual structured_query_tree<answer> * advance(finite_language_automaton * automaton)
@@ -758,18 +758,39 @@ class angluin_observationtable : public learning_algorithm<answer> {
 						list<int> word1 = uti_1->index;
 						list<int> word2 = uti_2->index;
 						typename table::iterator w1succ, w2succ;
-						for(int sigma = 0; sigma < alphabet_size; sigma++) {
-							word1.push_back(sigma);
-							w1succ = search_tables(word1);
+						int sigma;
+						if(norm) {
+							list<int> w1n;
+							list<int> w2n;
+							bool bottom;
+							for(sigma = 0; sigma < alphabet_size; sigma++) {
+								word1.push_back(sigma);
+								w1n = norm->prefix_normal_form(word1, bottom);
+								word1.pop_back();
+								w1succ = search_tables(w1n);
 
-							word2.push_back(sigma);
-							w2succ = search_tables(word2);
+								word2.push_back(sigma);
+								w2n = norm->prefix_normal_form(word2, bottom);
+								word2.pop_back();
+								w2succ = search_tables(w2n);
 
-							if(*w1succ != *w2succ)
-								return false;
+								if(*w1succ != *w2succ)
+									return false;
+							}
+						} else {
+							for(sigma = 0; sigma < alphabet_size; sigma++) {
+								word1.push_back(sigma);
+								w1succ = search_tables(word1);
 
-							word1.pop_back();
-							word2.pop_back();
+								word2.push_back(sigma);
+								w2succ = search_tables(word2);
+
+								if(*w1succ != *w2succ)
+									return false;
+
+								word1.pop_back();
+								word2.pop_back();
+							}
 						}
 					}
 				}
@@ -811,10 +832,21 @@ class angluin_observationtable : public learning_algorithm<answer> {
 						typename table::iterator w1_succ, w2_succ;
 						for(int sigma = 0; sigma < alphabet_size; sigma++) {
 							word1.push_back(sigma);
-							w1_succ = search_tables(word1);
-
 							word2.push_back(sigma);
-							w2_succ = search_tables(word2);
+							if(norm) {
+								w1_succ = search_tables(word1);
+								w2_succ = search_tables(word2);
+							} else {
+								list<int> w1n;
+								list<int> w2n;
+								bool bottom;
+								w1n = norm->prefix_normal_form(word1, bottom);
+								w2n = norm->prefix_normal_form(word2, bottom);
+								w1_succ = search_tables(w1n);
+								w2_succ = search_tables(w2n);
+							}
+							word1.pop_back();
+							word2.pop_back();
 
 							if(*w1_succ != *w2_succ) {
 								if(w1_succ->acceptance.size() == w2_succ->acceptance.size()) {
@@ -851,9 +883,6 @@ class angluin_observationtable : public learning_algorithm<answer> {
 									}
 								}
 							}
-
-							word1.pop_back();
-							word2.pop_back();
 						}
 					}
 				}
