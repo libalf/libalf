@@ -74,8 +74,8 @@ normalizer_msc::normalizer_msc(vector<int> &total_order, vector<int> &process_ma
 		buffercount += 1;
 		buffers = new queue<int>[buffercount];
 
-		if(label_bound > buffercount)
-			label_bound = buffercount;
+		if(label_bound > buffer_match.size())
+			label_bound = buffer_match.size();
 	} else {
 		buffercount = 0;
 		buffers = NULL;
