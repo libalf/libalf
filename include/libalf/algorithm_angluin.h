@@ -725,6 +725,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 				}
 			}
 
+printf("close(): return %s\n", changed ? "true" : "false");
 			return changed;
 		}}}
 
@@ -888,6 +889,8 @@ class angluin_observationtable : public learning_algorithm<answer> {
 				}
 			}
 
+printf("close(): return %s\n", changed ? "true" : "false");
+
 			return changed;
 		}}}
 
@@ -900,18 +903,26 @@ class angluin_observationtable : public learning_algorithm<answer> {
 				initialized = true;
 			}
 
+			printf("checking fields: ");
 			ret = fill_missing_columns();
+			if(ret)
+				printf("some are missing\n");
+			else
+				printf("is filled\n");
 
 			if(!ret) {
 				if(close()) {
+					printf("had to complete\n");
 					return complete();
 				}
 
 				if(make_consistent()) {
+					printf("had to make consistent\n");
 					return complete();
 				}
 			}
 
+			printf("ret.\n");
 			return ret;
 		}}}
 
