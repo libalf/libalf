@@ -381,7 +381,6 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			bool bottom;
 			if(norm)
 				word = norm->prefix_normal_form(word, bottom);
-			// bottom: we don't care. add_word_to_upper_table will.
 			list<int> prefix = word;
 			int ps;
 
@@ -389,15 +388,17 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			int new_asize;
 			bool asize_changed = false;
 
-			// check for increase in alphabet size
-			for(wi = word.begin(); wi != word.end(); wi++) {
-				if(*wi >= alphabet_size) {
-					new_asize = *wi+1;
-					asize_changed = true;
+			if(!bottom) {
+				// check for increase in alphabet size
+				for(wi = word.begin(); wi != word.end(); wi++) {
+					if(*wi >= alphabet_size) {
+						new_asize = *wi+1;
+						asize_changed = true;
+					}
 				}
+				if(asize_changed)
+					increase_alphabet_size(new_asize);
 			}
-			if(asize_changed)
-				increase_alphabet_size(new_asize);
 
 			// add word and all prefixes to upper table
 			for(ps = prefix.size(); ps > 0; ps--) {
@@ -405,12 +406,14 @@ class angluin_observationtable : public learning_algorithm<answer> {
 				prefix.pop_back();
 			}
 
-			typename table::iterator uti = search_upper_table(word);
-			if(uti->acceptance.size() == 0) {
-				uti->acceptance.push_back(a);
-			} else {
-				// XXX SHOULD NEVER HAPPEN
-				uti->acceptance[0] = a;
+			if(!bottom) {
+				typename table::iterator uti = search_upper_table(word);
+				if(uti->acceptance.size() == 0) {
+					uti->acceptance.push_back(a);
+				} else {
+					// XXX SHOULD NEVER HAPPEN
+					uti->acceptance[0] = a;
+				}
 			}
 		}}}
 
@@ -419,22 +422,23 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			bool bottom;
 			if(norm)
 				word = norm->prefix_normal_form(word, bottom);
-			// bottom: we don't care. add_word_to_upper_table will.
 			list<int> prefix = word;
 
 			list<int>::iterator wi;
 			int new_asize;
 			bool asize_changed = false;
 
-			// check for increase in alphabet size
-			for(wi = word.begin(); wi != word.end(); wi++) {
-				if(*wi >= alphabet_size) {
-					new_asize = *wi+1;
-					asize_changed = true;
+			if(!bottom) {
+				// check for increase in alphabet size
+				for(wi = word.begin(); wi != word.end(); wi++) {
+					if(*wi >= alphabet_size) {
+						new_asize = *wi+1;
+						asize_changed = true;
+					}
 				}
+				if(asize_changed)
+					increase_alphabet_size(new_asize);
 			}
-			if(asize_changed)
-				increase_alphabet_size(new_asize);
 
 			// add word and all prefixes to upper table
 			while(!prefix.empty()) {
@@ -665,8 +669,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			}
 		}}}
 
-		// sample implementation only:
-		//  all possible answer-rows in
+		//  all existing answer-rows in
 		//  lower table already exist in upper table
 		//  (for angluin)
 		virtual bool is_closed()
@@ -725,11 +728,9 @@ class angluin_observationtable : public learning_algorithm<answer> {
 				}
 			}
 
-printf("close(): return %s\n", changed ? "true" : "false");
 			return changed;
 		}}}
 
-		// sample implementation only:
 		//  for all _equal_ rows in upper table: all +1 successors over all
 		//  members of alphabet have to have equal rows
 		virtual bool is_consistent()
@@ -743,6 +744,11 @@ printf("close(): return %s\n", changed ? "true" : "false");
 
 			ut_last_row = upper_table.end();
 			ut_last_row--;
+
+			// mask bottom row, if one exists
+			for(i = 0, uti_1 = upper_table.begin(); uti_1 != upper_table.end(); i++, uti_1++)
+				if(uti_1->index.front() == BOTTOM_CHAR)
+					urow_ok[i] = true;
 
 			for(i = 0, uti_1 = upper_table.begin(); uti_1 != ut_last_row; i++, uti_1++) {
 				if(urow_ok[i])
@@ -760,38 +766,27 @@ printf("close(): return %s\n", changed ? "true" : "false");
 						list<int> word2 = uti_2->index;
 						typename table::iterator w1succ, w2succ;
 						int sigma;
-						if(norm) {
-							list<int> w1n;
-							list<int> w2n;
-							bool bottom;
-							for(sigma = 0; sigma < alphabet_size; sigma++) {
-								word1.push_back(sigma);
+						for(sigma = 0; sigma < alphabet_size; sigma++) {
+							word1.push_back(sigma);
+							word2.push_back(sigma);
+
+							if(norm) {
+								bool bottom;
+								list<int> w1n, w2n;
 								w1n = norm->prefix_normal_form(word1, bottom);
-								word1.pop_back();
-								w1succ = search_tables(w1n);
-
-								word2.push_back(sigma);
 								w2n = norm->prefix_normal_form(word2, bottom);
-								word2.pop_back();
+								w1succ = search_tables(w1n);
 								w2succ = search_tables(w2n);
-
-								if(*w1succ != *w2succ)
-									return false;
-							}
-						} else {
-							for(sigma = 0; sigma < alphabet_size; sigma++) {
-								word1.push_back(sigma);
+							} else {
 								w1succ = search_tables(word1);
-
-								word2.push_back(sigma);
 								w2succ = search_tables(word2);
-
-								if(*w1succ != *w2succ)
-									return false;
-
-								word1.pop_back();
-								word2.pop_back();
 							}
+
+							word1.pop_back();
+							word2.pop_back();
+
+							if(*w1succ != *w2succ)
+								return false;
 						}
 					}
 				}
@@ -816,6 +811,11 @@ printf("close(): return %s\n", changed ? "true" : "false");
 			ut_last_row = upper_table.end();
 			ut_last_row--;
 
+			// mask bottom row, if one exists
+			for(i = 0, uti_1 = upper_table.begin(); uti_1 != upper_table.end(); i++, uti_1++)
+				if(uti_1->index.front() == BOTTOM_CHAR)
+					urow_ok[i] = true;
+
 			for(i = 0, uti_1 = upper_table.begin(); uti_1 != ut_last_row; i++, uti_1++) {
 				if(urow_ok[i])
 					continue;
@@ -835,16 +835,15 @@ printf("close(): return %s\n", changed ? "true" : "false");
 							word1.push_back(sigma);
 							word2.push_back(sigma);
 							if(norm) {
-								w1_succ = search_tables(word1);
-								w2_succ = search_tables(word2);
-							} else {
-								list<int> w1n;
-								list<int> w2n;
 								bool bottom;
+								list<int> w1n, w2n;
 								w1n = norm->prefix_normal_form(word1, bottom);
 								w2n = norm->prefix_normal_form(word2, bottom);
 								w1_succ = search_tables(w1n);
 								w2_succ = search_tables(w2n);
+							} else {
+								w1_succ = search_tables(word1);
+								w2_succ = search_tables(word2);
 							}
 							word1.pop_back();
 							word2.pop_back();
@@ -889,7 +888,6 @@ printf("close(): return %s\n", changed ? "true" : "false");
 				}
 			}
 
-printf("close(): return %s\n", changed ? "true" : "false");
 
 			return changed;
 		}}}
@@ -903,26 +901,16 @@ printf("close(): return %s\n", changed ? "true" : "false");
 				initialized = true;
 			}
 
-			printf("checking fields: ");
 			ret = fill_missing_columns();
-			if(ret)
-				printf("some are missing\n");
-			else
-				printf("is filled\n");
 
 			if(!ret) {
-				if(close()) {
-					printf("had to complete\n");
+				if(close())
 					return complete();
-				}
 
-				if(make_consistent()) {
-					printf("had to make consistent\n");
+				if(make_consistent())
 					return complete();
-				}
 			}
 
-			printf("ret.\n");
 			return ret;
 		}}}
 
@@ -981,7 +969,15 @@ printf("close(): return %s\n", changed ? "true" : "false");
 				for(int i = 0; i < alphabet_size; i++) {
 					// find successor in table
 					index.push_back(i);
-					ti = search_tables(index);
+					if(norm) {
+						bool bottom;
+						list<int> nw;
+						nw = norm->prefix_normal_form(index, bottom);
+						ti = search_tables(nw);
+					} else {
+						ti = search_tables(index);
+					}
+					index.pop_back();
 
 					// find matching state for successor
 					for(state_it2 = states.begin(); state_it2 != states.end(); state_it2++) {
@@ -995,8 +991,6 @@ printf("close(): return %s\n", changed ? "true" : "false");
 							break;
 						}
 					}
-
-					index.pop_back();
 				}
 			}
 
@@ -1320,18 +1314,18 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 				this->upper_table.push_back(row);
 			}
 
-			if(bottom)
+			if(bottom) // no suffixed required, they would be bottom again.
 				return;
 
 			// add all suffixes of word to lower table
 			for( int i = 0; i < this->alphabet_size; i++ ) {
-				word.push_back(i);
+				nw.push_back(i);
 				// normalize word
 				if(this->norm)
-					nw = this->norm->prefix_normal_form(word, bottom);
+					word = this->norm->prefix_normal_form(nw, bottom);
 				else
-					nw = word;
-				word.pop_back();
+					word = nw;
+				nw.pop_back();
 
 				if(!bottom) {
 					done = false;
@@ -1339,15 +1333,15 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 						// if the suffixed word was in lower table, the word would
 						// already have been in the upper table. we only need to check, if
 						// the suffixed word is in the upper table.
-						done = ( this->search_upper_table(nw) != this->upper_table.end() );
+						done = ( this->search_upper_table(word) != this->upper_table.end() );
 					}
 					if(!done) {
-						row.index = nw;
+						row.index = word;
 						this->lower_table.push_back(row);
 					}
 				} else {
-					if(this->search_upper_table(nw) == this->upper_table.end()) {
-						row.index = nw;
+					if(this->search_upper_table(word) == this->upper_table.end()) {
+						row.index = word;
 						this->upper_table.push_back(row);
 					}
 				}

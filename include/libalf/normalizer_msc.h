@@ -44,11 +44,6 @@ namespace msc {
 
 			inline void connect_process(msc_node * other)
 			{{{
-				if(other->process_in)
-					printf("ASSERT: PROC: other node is already referenced\n");
-				if(this->process_out)
-					printf("ASSERT: PROC: this is already connected\n");
-
 				other->process_in = this;
 				this->process_out = other;
 			}}}
@@ -65,11 +60,6 @@ namespace msc {
 
 			inline void connect_buffer(msc_node * other)
 			{{{
-				if(other->buffer_in)
-					printf("ASSERT: BUFFER: other node is already referenced\n");
-				if(this->buffer_out)
-					printf("ASSERT: BUFFER: this is already connected\n");
-
 				other->buffer_in = this;
 				this->buffer_out = other;
 			}}}
