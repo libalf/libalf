@@ -390,8 +390,6 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			bool asize_changed = false;
 
 			if(!bottom) {
-				if(answer == true)
-					(*log)(LOGGER_ERROR, "counterexample is bottom but answer is true\n");
 				// check for increase in alphabet size
 				for(wi = word.begin(); wi != word.end(); wi++) {
 					if(*wi >= alphabet_size) {
@@ -417,6 +415,9 @@ class angluin_observationtable : public learning_algorithm<answer> {
 					// XXX SHOULD NEVER HAPPEN
 					uti->acceptance[0] = a;
 				}
+			} else {
+				if(a == true)
+					(*log)(LOGGER_ERROR, "counterexample is bottom but answer is true\n");
 			}
 		}}}
 
@@ -432,8 +433,6 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			bool asize_changed = false;
 
 			if(!bottom) {
-				if(answer == true)
-					(*log)(LOGGER_ERROR, "counterexample is bottom but answer is true\n");
 				// check for increase in alphabet size
 				for(wi = word.begin(); wi != word.end(); wi++) {
 					if(*wi >= alphabet_size) {
@@ -835,10 +834,8 @@ class angluin_observationtable : public learning_algorithm<answer> {
 						// -> test if all equal suffixes result in equal acceptance as well
 						list<int> word1 = uti_1->index;
 						list<int> word2 = uti_2->index;
-printf("comparing suffixes of "); print_word(uti_1->index); printf(" and "); print_word(uti_2->index); printf("\n");
 						typename table::iterator w1_succ, w2_succ;
 						for(int sigma = 0; sigma < alphabet_size; sigma++) {
-printf(" sigma %d\n", sigma);
 							word1.push_back(sigma);
 							word2.push_back(sigma);
 							if(norm) {
@@ -856,7 +853,6 @@ printf(" sigma %d\n", sigma);
 							word2.pop_back();
 
 							if(*w1_succ != *w2_succ) {
-printf("make_consistent(): succs differ\n");
 								if(w1_succ->acceptance.size() == w2_succ->acceptance.size()) {
 									// add suffixes resulting in different states to column_names
 									changed = true;
@@ -872,13 +868,11 @@ printf("make_consistent(): succs differ\n");
 
 									while(w1_acc_it != w1_succ->acceptance.end()) {
 										if(*w1_acc_it != *w2_acc_it) {
-printf("differ suffix: ")
 											list<int> newsuffix;
 
 											// generate and add suffix
 											newsuffix = *ci;
 											newsuffix.push_front(sigma);
-print_word(newsuffix); printf("\n");
 											add_column(newsuffix);
 											ci = column_names.begin();
 											// when changing the column list, the last iterator may change.
@@ -891,8 +885,6 @@ print_word(newsuffix); printf("\n");
 										ci++;
 										cindex++;
 									}
-								} else {
-									printf("because of size\n");
 								}
 							}
 						}
