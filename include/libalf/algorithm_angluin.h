@@ -390,6 +390,8 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			bool asize_changed = false;
 
 			if(!bottom) {
+				if(answer == true)
+					(*log)(LOGGER_ERROR, "counterexample is bottom but answer is true\n");
 				// check for increase in alphabet size
 				for(wi = word.begin(); wi != word.end(); wi++) {
 					if(*wi >= alphabet_size) {
@@ -430,6 +432,8 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			bool asize_changed = false;
 
 			if(!bottom) {
+				if(answer == true)
+					(*log)(LOGGER_ERROR, "counterexample is bottom but answer is true\n");
 				// check for increase in alphabet size
 				for(wi = word.begin(); wi != word.end(); wi++) {
 					if(*wi >= alphabet_size) {

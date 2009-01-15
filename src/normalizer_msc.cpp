@@ -450,7 +450,6 @@ int normalizer_msc::graph_reduce(bool pnf)
 			if(((*extrema)->label % 2 == 0) && ((*ni)->label % 2) ) {
 				if(check_buffer((*ni)->label, true))
 					extrema = ni;
-				extrema = ni;
 				continue;
 			}
 			if(total_order[(*ni)->label] < total_order[(*extrema)->label]) {
@@ -478,10 +477,8 @@ int normalizer_msc::graph_reduce(bool pnf)
 				continue;
 			}
 			if(total_order[(*ni)->label] < total_order[(*extrema)->label]) {
-				if(check_buffer((*ni)->label, false)) {
+				if(check_buffer((*ni)->label, false))
 					extrema = ni;
-					continue;
-				}
 			}
 		}
 	}
