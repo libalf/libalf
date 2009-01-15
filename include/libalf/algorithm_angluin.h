@@ -376,6 +376,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			return true;
 		}}}
 
+		// FIXME: warn if bottom and true
 		virtual void add_counterexample(list<int> word, answer a)
 		{{{
 			bool bottom;
@@ -830,8 +831,10 @@ class angluin_observationtable : public learning_algorithm<answer> {
 						// -> test if all equal suffixes result in equal acceptance as well
 						list<int> word1 = uti_1->index;
 						list<int> word2 = uti_2->index;
+printf("comparing suffixes of "); print_word(uti_1->index); printf(" and "); print_word(uti_2->index); printf("\n");
 						typename table::iterator w1_succ, w2_succ;
 						for(int sigma = 0; sigma < alphabet_size; sigma++) {
+printf(" sigma %d\n", sigma);
 							word1.push_back(sigma);
 							word2.push_back(sigma);
 							if(norm) {
@@ -849,6 +852,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 							word2.pop_back();
 
 							if(*w1_succ != *w2_succ) {
+printf("make_consistent(): succs differ\n");
 								if(w1_succ->acceptance.size() == w2_succ->acceptance.size()) {
 									// add suffixes resulting in different states to column_names
 									changed = true;
@@ -864,11 +868,13 @@ class angluin_observationtable : public learning_algorithm<answer> {
 
 									while(w1_acc_it != w1_succ->acceptance.end()) {
 										if(*w1_acc_it != *w2_acc_it) {
+printf("differ suffix: ")
 											list<int> newsuffix;
 
 											// generate and add suffix
 											newsuffix = *ci;
 											newsuffix.push_front(sigma);
+print_word(newsuffix); printf("\n");
 											add_column(newsuffix);
 											ci = column_names.begin();
 											// when changing the column list, the last iterator may change.
@@ -881,6 +887,8 @@ class angluin_observationtable : public learning_algorithm<answer> {
 										ci++;
 										cindex++;
 									}
+								} else {
+									printf("because of size\n");
 								}
 							}
 						}
