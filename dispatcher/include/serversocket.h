@@ -18,11 +18,9 @@
 using namespace std;
 
 class serversocket {
-	protected:
+	public:
 		int sock;
 
-
-	public:
 		serversocket();
 		serversocket(int socketid);
 		~serversocket();
