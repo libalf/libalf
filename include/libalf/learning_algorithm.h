@@ -79,6 +79,7 @@ class learning_algorithm {
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit) = 0;
 
 		virtual void print(ostream &os) = 0;
+		virtual string tostring() = 0;
 
 		// check acceptance of word in data structure
 		// if status unknown, return (false, ?)

@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <functional>
 #include <ostream>
+#include <sstream>
 
 #include <arpa/inet.h>
 
@@ -249,6 +250,13 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			}
 
 			os << "}\n";
+		}}}
+
+		virtual string tostring()
+		{{{
+			stringstream str;
+			this->print(str);
+			return str.str();
 		}}}
 
 		// searches column first, then row
