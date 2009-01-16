@@ -129,7 +129,7 @@ int main(int argc, char**argv)
 		FD_SET(master->sock, &fds);
 		t.tv_sec = 1;
 		t.tv_usec = 0;
-		if(select(master->sock+1, NULL, NULL, &fds, &t)) {
+		if(select(master->sock+1, &fds, &fds, &fds, &t)) {
 			serversocket *cl = master->accept();
 
 			if( ! cl) {
