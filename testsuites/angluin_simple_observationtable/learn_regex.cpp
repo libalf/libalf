@@ -192,6 +192,9 @@ int main(int argc, char**argv)
 	cout << "sizes: bytes: " << stats.table_size.bytes
 	     << ", members: " << stats.table_size.members
 	     << ", words: " << stats.table_size.words << "\n";
+	cout << "upper table rows: " << stats.table_size.upper_table
+	     << ", lower table rows: " << stats.table_size.lower_table
+	     << ", columns: " << stats.table_size.columns << "\n";
 	cout << "minimal state count: " << hypothesis.get_state_count() << "\n";
 	// cout << "difference to original state count: " << dfa->get_state_count() - hypothesis.get_state_count() << "\n";
 

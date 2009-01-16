@@ -379,34 +379,33 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		// FIXME: warn if bottom and true
 		virtual void add_counterexample(list<int> word, answer a)
 		{{{
-			bool bottom;
-			if(norm)
-				word = norm->prefix_normal_form(word, bottom);
-			list<int> prefix = word;
-			int ps;
+			bool bottom = false;
+			list<int> prefix;
 
 			list<int>::iterator wi;
 			int new_asize;
 			bool asize_changed = false;
 
-			if(!bottom) {
-				// check for increase in alphabet size
-				for(wi = word.begin(); wi != word.end(); wi++) {
-					if(*wi >= alphabet_size) {
-						new_asize = *wi+1;
-						asize_changed = true;
-					}
+			// check for increase in alphabet size
+			for(wi = word.begin(); wi != word.end(); wi++) {
+				if(*wi >= alphabet_size) {
+					new_asize = *wi+1;
+					asize_changed = true;
 				}
-				if(asize_changed)
-					increase_alphabet_size(new_asize);
 			}
+			if(asize_changed)
+				increase_alphabet_size(new_asize);
 
 			// add word and all prefixes to upper table
-			for(ps = prefix.size(); ps > 0; ps--) {
+			prefix = word;
+			while(!prefix.empty()) {
 				add_word_to_upper_table(prefix);
 				prefix.pop_back();
 			}
 
+			// add answer for counterexample
+			if(norm)
+				word = norm->prefix_normal_form(word, bottom);
 			if(!bottom) {
 				typename table::iterator uti = search_upper_table(word);
 				if(uti->acceptance.size() == 0) {
@@ -416,6 +415,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 					uti->acceptance[0] = a;
 				}
 			} else {
+				// bottom is filled automatically
 				if(a == true)
 					(*log)(LOGGER_ERROR, "counterexample is bottom but answer is true\n");
 			}
@@ -423,31 +423,24 @@ class angluin_observationtable : public learning_algorithm<answer> {
 
 		virtual void add_counterexample(list<int> word)
 		{{{
-			bool bottom;
-			if(norm)
-				word = norm->prefix_normal_form(word, bottom);
-			list<int> prefix = word;
-
 			list<int>::iterator wi;
 			int new_asize;
 			bool asize_changed = false;
 
-			if(!bottom) {
-				// check for increase in alphabet size
-				for(wi = word.begin(); wi != word.end(); wi++) {
-					if(*wi >= alphabet_size) {
-						new_asize = *wi+1;
-						asize_changed = true;
-					}
+			// check for increase in alphabet size
+			for(wi = word.begin(); wi != word.end(); wi++) {
+				if(*wi >= alphabet_size) {
+					new_asize = *wi+1;
+					asize_changed = true;
 				}
-				if(asize_changed)
-					increase_alphabet_size(new_asize);
 			}
+			if(asize_changed)
+				increase_alphabet_size(new_asize);
 
 			// add word and all prefixes to upper table
-			while(!prefix.empty()) {
-				add_word_to_upper_table(prefix);
-				prefix.pop_back();
+			while(!word.empty()) {
+				add_word_to_upper_table(word);
+				word.pop_back();
 			}
 		}}}
 
