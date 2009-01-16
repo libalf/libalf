@@ -101,6 +101,7 @@ cout << "client command " << cmd << ".\n";
 		case CM_SES_REQ_STATS:
 		case CM_SES_SET_STATS:
 		case CM_SES_REQ_LOG:
+		case CM_SES_LOG_TABLE:
 			if(!client->stream_receive_int(session_id)) {
 				cout << "failed to receive session id in session-related command. disconnecting.\n";
 				return false;
@@ -142,6 +143,8 @@ cout << "client command " << cmd << ".\n";
 					return ses->set_stats(client);
 				case CM_SES_REQ_LOG:
 					return ses->answer_log_request(client);
+				case CM_SES_LOG_TABLE:
+					return ses->log_table(client);
 				default:
 					cout << "FIXME: unimplemented session command " << cmd << "!\n";
 					return false;

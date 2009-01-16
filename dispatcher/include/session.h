@@ -48,6 +48,7 @@ class session {
 		bool answer_stats(serversocket * sock);
 		bool set_stats(serversocket * sock);
 		bool answer_log_request(serversocket * sock);
+		bool log_table(serversocket * sock);
 
 	protected:
 		bool set_normalizer(basic_string<int32_t> blob);

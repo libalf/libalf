@@ -237,7 +237,6 @@ cout << "session set_status\n";
 bool session::answer_conjecture(serversocket * sock)
 {{{
 cout << "session answer_conjecture\n";
-	alg->print(cout);
 	if(!sock->stream_send_int(htonl(SM_SES_ACK_CONJECTURE)))
 		return false;
 	return sock->stream_send_int(htonl( alg->conjecture_ready() ? 1 : 0 ));
@@ -493,5 +492,11 @@ cout << "session answer_log_request\n";
 	delete s;
 
 	return true;
+}}}
+bool session::log_table(serversocket * sock)
+{{{
+	string s = alg->tostring();
+	logger(LOGGER_DEBUG, "%s", s.c_str());
+	return sock->stream_send_int(SM_SES_ACK_LOG_TABLE);
 }}}
 
