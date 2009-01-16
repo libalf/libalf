@@ -25,6 +25,9 @@ class statistics {
 			int bytes;
 			int members;
 			int words;
+			int upper_table;
+			int lower_table;
+			int columns;
 		} table_size;
 
 		struct {

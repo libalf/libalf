@@ -1136,11 +1136,15 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 			int ut_count = this->upper_table.size();
 			int lt_count = this->lower_table.size();
 
-			int members = column_count * ut_count + column_count * lt_count;
+			int members = column_count * (ut_count + lt_count);
 
 			stats.table_size.bytes = sizeof(this) + sizeof(answer) * members;
 			stats.table_size.members = members;
 			stats.table_size.words = members;
+
+			stats.table_size.upper_table = ut_count;
+			stats.table_size.lower_table = lt_count;
+			stats.table_size.columns = column_count;
 
 			for(ci = this->column_names.begin(); ci != this->column_names.end(); ci++)
 				stats.table_size.bytes += sizeof(int) * ci->size() + sizeof(list<int>);

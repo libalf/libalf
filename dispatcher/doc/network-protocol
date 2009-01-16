@@ -472,6 +472,9 @@ int32_t statistics [] {
 	table size: bytes
 	table size: members
 	table size: words
+	table size: upper table
+	table size: lower table
+	table size: columns
 	membership query count
 	equivalence query count
 }

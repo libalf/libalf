@@ -31,6 +31,10 @@ void statistics::reset()
 	table_size.members = 0;
 	table_size.words = 0;
 
+	table_size.upper_table = 0;
+	table_size.lower_table = 0;
+	table_size.columns = 0;
+
 	query_count.membership = 0;
 	query_count.equivalence = 0;
 }}}
@@ -44,6 +48,9 @@ basic_string<int32_t> statistics::serialize()
 	ret += htonl(table_size.bytes);
 	ret += htonl(table_size.members);
 	ret += htonl(table_size.words);
+	ret += htonl(table_size.upper_table);
+	ret += htonl(table_size.lower_table);
+	ret += htonl(table_size.columns);
 
 	ret += htonl(query_count.membership);
 	ret += htonl(query_count.equivalence);
@@ -71,6 +78,15 @@ bool statistics::deserialize(basic_string<int32_t>::iterator & it, basic_string<
 	// table_size.words
 	it++; size--; if(size <= 0 || limit == it) goto deserialization_failed;
 	table_size.words = ntohl(*it);
+	// table_size.upper_table
+	it++; size--; if(size <= 0 || limit == it) goto deserialization_failed;
+	table_size.upper_table = ntohl(*it);
+	// table_size.lower_table
+	it++; size--; if(size <= 0 || limit == it) goto deserialization_failed;
+	table_size.lower_table = ntohl(*it);
+	// table_size.columns
+	it++; size--; if(size <= 0 || limit == it) goto deserialization_failed;
+	table_size.columns = ntohl(*it);
 
 	// query_count.membership
 	it++; size--; if(size <= 0 || limit == it) goto deserialization_failed;
