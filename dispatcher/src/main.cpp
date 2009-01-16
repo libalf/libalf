@@ -19,6 +19,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/select.h>
 
 #include "protocol.h"
 #include "serversocket.h"
@@ -120,37 +121,45 @@ int main(int argc, char**argv)
 		return -2;
 	}
 
+	fd_set fds;
+	timeval t;
+
 	while(1) {
-		serversocket *cl = master->accept();
+		FD_ZERO(&fds);
+		FD_SET(master->sock, &fds);
+		t.tv_sec = 1;
+		t.tv_usec = 0;
+		if(select(master->sock+1, NULL, NULL, &fds, &t)) {
+			serversocket *cl = master->accept();
 
-		if( ! cl) {
-			cout << "ASSERT: master->accept() returned NULL. ignoring.\n";
-		} else {
-			int pid = fork();
-			if(pid < 0) {
-				cout << "failed to fork. aborting.\n";
-				return -3;
-			}
-			if(pid == 0) {
-				// child
-				// get rid of master socket
-				delete master;
-
-				servant sv(cl);
-
-				while(sv.serve());
-
-				// end child.
-				cout << "child pid " << getpid() << " terminating.\n";
-				return 0;
+			if( ! cl) {
+				cout << "ASSERT: master->accept() returned NULL. ignoring.\n";
 			} else {
-				cout << "client forked, pid " << pid << ".\n";
-				// parent
-				// get rid of client socket
-				delete cl;
+				int pid = fork();
+				if(pid < 0) {
+					cout << "failed to fork. aborting.\n";
+					return -3;
+				}
+				if(pid == 0) {
+					// child
+					// get rid of master socket
+					delete master;
+
+					servant sv(cl);
+
+					while(sv.serve());
+
+					// end child.
+					cout << "child pid " << getpid() << " terminating.\n";
+					return 0;
+				} else {
+					cout << "client forked, pid " << pid << ".\n";
+					// parent
+					// get rid of client socket
+					delete cl;
+				}
 			}
 		}
-
 		waitpid(-1, NULL, WNOHANG);
 	}
 
