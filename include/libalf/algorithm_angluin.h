@@ -34,7 +34,7 @@ namespace libalf {
 using namespace std;
 
 	namespace algorithm_angluin {
-		template <class answer, class table>
+		template <class table>
 		class automaton_state {
 			public:
 				int id;
@@ -924,10 +924,10 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			// derive deterministic finite automaton from this table
 			typename table::iterator uti, ti;
 
-			algorithm_angluin::automaton_state<answer, table> state;
-			list<algorithm_angluin::automaton_state<answer, table> > states;
+			algorithm_angluin::automaton_state<table> state;
+			list<algorithm_angluin::automaton_state<table> > states;
 			state.id = 0;
-			typename list<algorithm_angluin::automaton_state<answer, table> >::iterator state_it, state_it2;
+			typename list<algorithm_angluin::automaton_state<table> >::iterator state_it, state_it2;
 
 			list<int> initial;
 
