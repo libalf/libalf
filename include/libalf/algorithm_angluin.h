@@ -750,11 +750,6 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			ut_last_row = upper_table.end();
 			ut_last_row--;
 
-			// mask bottom row, if one exists
-			for(i = 0, uti_1 = upper_table.begin(); uti_1 != upper_table.end(); i++, uti_1++)
-				if(uti_1->index.front() == BOTTOM_CHAR)
-					urow_ok[i] = true;
-
 			for(i = 0, uti_1 = upper_table.begin(); uti_1 != ut_last_row; i++, uti_1++) {
 				if(urow_ok[i])
 					continue;
@@ -772,8 +767,10 @@ class angluin_observationtable : public learning_algorithm<answer> {
 						typename table::iterator w1succ, w2succ;
 						int sigma;
 						for(sigma = 0; sigma < alphabet_size; sigma++) {
-							word1.push_back(sigma);
-							word2.push_back(sigma);
+							if(word1.front() != BOTTOM_CHAR)
+								word1.push_back(sigma);
+							if(word2.front() != BOTTOM_CHAR)
+								word2.push_back(sigma);
 
 							if(norm) {
 								bool bottom;
@@ -787,8 +784,10 @@ class angluin_observationtable : public learning_algorithm<answer> {
 								w2succ = search_tables(word2);
 							}
 
-							word1.pop_back();
-							word2.pop_back();
+							if(word1.front() != BOTTOM_CHAR)
+								word1.pop_back();
+							if(word2.front() != BOTTOM_CHAR)
+								word2.pop_back();
 
 							if(*w1succ != *w2succ)
 								return false;
@@ -816,11 +815,6 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			ut_last_row = upper_table.end();
 			ut_last_row--;
 
-			// mask bottom row, if one exists
-			for(i = 0, uti_1 = upper_table.begin(); uti_1 != upper_table.end(); i++, uti_1++)
-				if(uti_1->index.front() == BOTTOM_CHAR)
-					urow_ok[i] = true;
-
 			for(i = 0, uti_1 = upper_table.begin(); uti_1 != ut_last_row; i++, uti_1++) {
 				if(urow_ok[i])
 					continue;
@@ -837,8 +831,10 @@ class angluin_observationtable : public learning_algorithm<answer> {
 						list<int> word2 = uti_2->index;
 						typename table::iterator w1_succ, w2_succ;
 						for(int sigma = 0; sigma < alphabet_size; sigma++) {
-							word1.push_back(sigma);
-							word2.push_back(sigma);
+							if(word1.front() != BOTTOM_CHAR)
+								word1.push_back(sigma);
+							if(word2.front() != BOTTOM_CHAR)
+								word2.push_back(sigma);
 							if(norm) {
 								bool bottom;
 								list<int> w1n, w2n;
@@ -850,8 +846,10 @@ class angluin_observationtable : public learning_algorithm<answer> {
 								w1_succ = search_tables(word1);
 								w2_succ = search_tables(word2);
 							}
-							word1.pop_back();
-							word2.pop_back();
+							if(word1.front() != BOTTOM_CHAR)
+								word1.pop_back();
+							if(word2.front() != BOTTOM_CHAR)
+								word2.pop_back();
 
 							if(*w1_succ != *w2_succ) {
 								if(w1_succ->acceptance.size() == w2_succ->acceptance.size()) {
