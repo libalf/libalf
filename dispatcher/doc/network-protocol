@@ -512,7 +512,6 @@ int32_t statistics [] {
 
 int32_t serialized word [] {
 	length
-	bound
 	data[]
 }
 
