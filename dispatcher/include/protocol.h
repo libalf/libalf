@@ -33,7 +33,8 @@ enum client_message {
 	CM_SES_REQ_STATS = 33,
 	CM_SES_SET_STATS = 34,
 	CM_SES_REQ_LOG = 35,
-	CM_SES_LOG_TABLE = 100
+	CM_SES_LOG_TABLE = 100,
+	CM_SES_NORMALIZE_WORD = 101
 };
 
 enum server_message {
@@ -56,7 +57,8 @@ enum server_message {
 	SM_SES_ACK_REQ_STATS = 33,
 	SM_SES_ACK_SET_STATS = 34,
 	SM_SES_ACK_LOG = 35,
-	SM_SES_ACK_LOG_TABLE = 100
+	SM_SES_ACK_LOG_TABLE = 100,
+	SM_SES_ACK_NORMALIZE_WORD = 101
 };
 
 enum capability_type {

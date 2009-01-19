@@ -191,8 +191,20 @@ SESSION-RELATED COMMANDS:
 	request table to be logged to logger (note loglevel LOGGER_DEBUG)
 		client sends
 			CM_SES_LOG_TABLE
+			session id
 		server answers
 			SM_SES_ACK_LOG_TABLE
+
+	normalize word with active
+		client sends
+			CM_SES_NORMALIZE_WORD
+			session id (for choice of normalizer)
+			bool prefix normal form (set to false for suffix normal form)
+			serialized word
+		server answers
+			SM_SES_ACK_NORMALIZE_WORD
+			bool bottom
+			serialized word
 
 
 
@@ -234,7 +246,8 @@ enum client_message {
 
 	CM_SES_REQ_LOG = 35,
 
-	CM_SES_LOG_TABLE = 100
+	CM_SES_LOG_TABLE = 100,
+	CM_SES_NORMALIZE_WORD = 101
 }
 
 // (enum client_message corresponds to dispatcher::client_message)
@@ -274,7 +287,8 @@ enum server_message {
 
 	SM_SES_ACK_LOG = 35,
 
-	SM_SES_ACK_LOG_TABLE = 100
+	SM_SES_ACK_LOG_TABLE = 100,
+	SM_SES_ACK_NORMALIZE_WORD = 101
 }
 
 // (enum server_message corresponds to dispatcher::server_message)

@@ -153,7 +153,7 @@ int main(int argc, char**argv)
 					cout << "child pid " << getpid() << " terminating.\n";
 					return 0;
 				} else {
-					cout << "client forked, pid " << pid << ".\n";
+					cout << "child forked, pid " << pid << ".\n";
 					// parent
 					// get rid of client socket
 					delete cl;

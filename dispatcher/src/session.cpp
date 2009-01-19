@@ -66,7 +66,6 @@ session::~session()
 
 bool session::set_normalizer(basic_string<int32_t> blob)
 {{{
-cout << "      trying to set now...\n";
 	int length;
 	basic_string<int32_t>::iterator bi;
 	enum normalizer::type type;
@@ -197,7 +196,6 @@ bool session::set_modalities(serversocket * sock)
 }}}
 bool session::answer_status(serversocket * sock)
 {{{
-cout << "session answer_status\n";
 	if(!sock->stream_send_int(htonl(SM_SES_ACK_REQ_STATUS)))
 		return false;
 	basic_string<int32_t> blob;
@@ -206,7 +204,6 @@ cout << "session answer_status\n";
 }}}
 bool session::set_status(serversocket * sock)
 {{{
-cout << "session set_status\n";
 	int count;
 	int32_t d;
 	basic_string<int32_t> blob; // ntohl of this is done in alg->deserialize() !
@@ -236,14 +233,12 @@ cout << "session set_status\n";
 }}}
 bool session::answer_conjecture(serversocket * sock)
 {{{
-cout << "session answer_conjecture\n";
 	if(!sock->stream_send_int(htonl(SM_SES_ACK_CONJECTURE)))
 		return false;
 	return sock->stream_send_int(htonl( alg->conjecture_ready() ? 1 : 0 ));
 }}}
 bool session::advance(serversocket * sock)
 {{{
-cout << "session advance\n";
 	basic_string<int32_t> blob;
 
 	if(latest_query)
@@ -268,7 +263,6 @@ cout << "session advance\n";
 }}}
 bool session::get_sqt(serversocket * sock)
 {{{
-cout << "session get_sqt\n";
 	int32_t count;
 	int32_t d;
 
@@ -322,7 +316,6 @@ cout << "session get_sqt\n";
 }}}
 bool session::get_counterexamples(serversocket * sock)
 {{{
-cout << "session get_counterexamples\n";
 	int wordcount, count;
 	int32_t d;
 
@@ -352,9 +345,8 @@ cout << "session get_counterexamples\n";
 		return false;
 	return sock->stream_send_int(htonl(1));
 }}}
-bool session::get_counterexamples_and_examples(serversocket * sock)
+bool session::get_counterexamples_and_answer(serversocket * sock)
 {{{
-cout << "session get_counterexamples\n";
 	int wordcount, count;
 	int32_t d;
 
@@ -393,7 +385,6 @@ cout << "session get_counterexamples\n";
 }}}
 bool session::answer_alphabet_size(serversocket * sock)
 {{{
-cout << "session answer_alphabet_size\n";
 	if(!sock->stream_send_int(htonl(SM_SES_ACK_ALPHABET_SIZE)))
 		return false;
 
@@ -435,7 +426,6 @@ bool session::increase_alphabet_size(serversocket * sock)
 }}}
 bool session::answer_stats(serversocket * sock)
 {{{
-cout << "session answer_stats\n";
 	if(!sock->stream_send_int(htonl(SM_SES_ACK_REQ_STATS)))
 		return false;
 
@@ -447,7 +437,6 @@ cout << "session answer_stats\n";
 }}}
 bool session::set_stats(serversocket * sock)
 {{{
-cout << "session set_stats\n";
 	int count;
 	int32_t d;
 	basic_string<int32_t> blob;
@@ -472,7 +461,6 @@ cout << "session set_stats\n";
 }}}
 bool session::answer_log_request(serversocket * sock)
 {{{
-cout << "session answer_log_request\n";
 	std::string * s;
 	const char * c;
 	int l;
@@ -498,5 +486,47 @@ bool session::log_table(serversocket * sock)
 	string s = alg->tostring();
 	logger(LOGGER_DEBUG, "%s", s.c_str());
 	return sock->stream_send_int(SM_SES_ACK_LOG_TABLE);
+}}}
+bool session::normalize_word(serversocket * sock)
+{{{
+	int count;
+	int32_t d;
+
+	list<int> word;
+	bool pnf;
+	bool bottom = false;
+
+	// get PNF-flag
+	if(!sock->stream_receive_int(d))
+		return false;
+	pnf = ntohl(d);
+
+	// receive serialized word
+	if(!sock->stream_receive_int(d))
+		return false;
+	for(count = ntohl(d); count > 0; count--) {
+		if(!sock->stream_receive_int(d))
+			return false;
+
+		word.push_back(ntohl(d));
+	}
+
+	if(norm) {
+		if(pnf)
+			word = norm->prefix_normal_form(word, bottom);
+		else
+			word = norm->suffix_normal_form(word, bottom);
+	} else {
+		logger(LOGGER_WARN, "you requested a word to be normalized but"
+				"there was no normalizer set. returning same word.\n");
+	}
+
+	basic_string<int32_t> ret;
+
+	ret += htonl(SM_SES_ACK_NORMALIZE_WORD);
+	ret += htonl(bottom ? 0 : 1);
+	ret += serialize_word(word);
+
+	return sock->stream_send_blob(ret);
 }}}
 

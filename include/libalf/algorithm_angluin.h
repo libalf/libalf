@@ -425,7 +425,9 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			} else {
 				// bottom is filled automatically
 				if(a == true)
-					(*log)(LOGGER_ERROR, "counterexample is bottom but answer is true\n");
+					(*log)(LOGGER_ERROR, "counterexample is bottom and answer is even true\n");
+				else
+					(*log)(LOGGER_ERROR, "counterexample is bottom\n");
 			}
 		}}}
 

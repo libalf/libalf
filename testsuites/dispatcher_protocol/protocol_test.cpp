@@ -122,6 +122,23 @@ int main()
 	print_blob(data);
 
 	data.clear();
+	data += 101; // normalize word
+	data += 0; // sid
+	data += 1; // PNF: yes.
+	data += 4; // word length
+	data += 0;
+	data += 0;
+	data += 1;
+	data += 1;
+
+	send_blob(sock, data);
+
+	data = receive_blob(sock, 7);
+	cout << "answer " << ntohl(data[0]) << ".\n";
+	print_blob(data);
+
+
+	data.clear();
 	data += 0; // DISCONNECT
 	send_blob(sock, data);
 }

@@ -41,7 +41,7 @@ class session {
 		bool advance(serversocket * sock);
 		bool get_sqt(serversocket * sock);
 		bool get_counterexamples(serversocket * sock);
-		bool get_counterexamples_and_examples(serversocket * sock);
+		bool get_counterexamples_and_answer(serversocket * sock);
 		bool answer_alphabet_size(serversocket * sock);
 		bool set_alphabet_size(serversocket * sock);
 		bool increase_alphabet_size(serversocket * sock);
@@ -49,6 +49,7 @@ class session {
 		bool set_stats(serversocket * sock);
 		bool answer_log_request(serversocket * sock);
 		bool log_table(serversocket * sock);
+		bool normalize_word(serversocket * sock);
 
 	protected:
 		bool set_normalizer(basic_string<int32_t> blob);

@@ -9,6 +9,9 @@
  * see LICENSE file for licensing information.
  */
 
+#include <sys/types.h>
+#include <unistd.h>
+
 #include <iostream>
 #include <string>
 
@@ -46,7 +49,7 @@ bool servant::serve()
 
 	if(!capa_sent) {
 		if(!send_capabilities()) {
-			cout << "sending of initial CAPA failed. disconnecting.\n";
+			cout << "client " << getpid() << " sending of initial CAPA failed. disconnecting.\n";
 			return false;
 		}
 		capa_sent = true;
@@ -57,33 +60,33 @@ bool servant::serve()
 	int32_t session_id;
 
 	if(!client->stream_receive_int(cmd)) {
-		cout << "socket to client failed. disconnecting.\n";
+		cout << "socket to client " << getpid() << " failed. disconnecting.\n";
 		return false;
 	}
 	cmd = ntohl(cmd);
 
-cout << "client command " << cmd << ".\n";
+	cout << "client " << getpid() << " command " << cmd << ".\n";
 
 	switch(cmd) {
 		default:
 		case CM_STARTTLS: // not implemented.
-			cout << "received invalid command " << cmd << " from client. disconnecting.\n";
+			cout << "received invalid command " << cmd << " from " << getpid() << " client. disconnecting.\n";
 			return false;
 		case CM_DISCONNECT:
 			if(!client->stream_send_int(SM_ACK_DISCONNECT))
-				cout << "tried to send SM_ACK_DISCONNET. failed. disconnecting anyway ;)\n";
+				cout << "socket to client " << getpid() << " failed when trying to send SM_ACK_DISCONNET. disconnecting anyway ;)\n";
 			else
-				cout << "client said CM_DISCONNECT. disconnecting.\n";
+				cout << "client " << getpid() << " said CM_DISCONNECT. disconnecting.\n";
 			return false;
 		case CM_REQ_CAPA:
 			if(!send_capabilities()) {
-				cout << "sending of initial CAPA failed. disconnecting.\n";
+				cout << "socket to client " << getpid() << " failed when trying to send CAPA. disconnecting.\n";
 				return false;
 			}
 			return true;
 		case CM_REQ_SESSION:
 			if(!new_session()) {
-				cout << "new session failed. disconnecting.\n";
+				cout << "INTERNAL ERROR: new_session() failed (client " << getpid() << ". disconnecting.\n";
 				return false;
 			}
 			return true;
@@ -102,13 +105,14 @@ cout << "client command " << cmd << ".\n";
 		case CM_SES_SET_STATS:
 		case CM_SES_REQ_LOG:
 		case CM_SES_LOG_TABLE:
+		case CM_SES_NORMALIZE_WORD:
 			if(!client->stream_receive_int(session_id)) {
-				cout << "failed to receive session id in session-related command. disconnecting.\n";
+				cout << "client " << getpid() << ": failed to receive session id in session-related command. disconnecting.\n";
 				return false;
 			}
 			session_id = ntohl(session_id);
 			if(session_id < 0 || session_id > (int)sessions.size()) {
-				cout << "received invalid session id " << session_id << " from client. disconnecting.\n";
+				cout << "client " << getpid() << ": received invalid session id " << session_id << ". disconnecting.\n";
 				return false;
 			}
 
@@ -130,7 +134,7 @@ cout << "client command " << cmd << ".\n";
 				case CM_SES_GIVE_COUNTEREXAMPLES:
 					return ses->get_counterexamples(client);
 				case CM_SES_GIVE_COUNTEREXAMPLES_AND_ANSWERS:
-					return ses->get_counterexamples_and_examples(client);
+					return ses->get_counterexamples_and_answer(client);
 				case CM_SES_REQ_ALPHABET_SIZE:
 					return ses->answer_alphabet_size(client);
 				case CM_SES_SET_ALPHABET_SIZE:
@@ -145,14 +149,16 @@ cout << "client command " << cmd << ".\n";
 					return ses->answer_log_request(client);
 				case CM_SES_LOG_TABLE:
 					return ses->log_table(client);
+				case CM_SES_NORMALIZE_WORD:
+					return ses->normalize_word(client);
 				default:
-					cout << "FIXME: unimplemented session command " << cmd << "!\n";
+					cout << "FIXME: unimplemented session command " << cmd << " from client " << getpid() << "!\n";
 					return false;
 			}
 	}
 
 	// should never be reached.
-	cout << "reached invalid code.\n";
+	cout << "INTERNAL ERROR: reached invalid code (client " << getpid() << ")\n";
 
 	return false;
 }}}
