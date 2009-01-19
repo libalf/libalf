@@ -48,23 +48,6 @@ class automaton_run {
 		}}}
 };
 
-class automaton_run_less : binary_function<automaton_run, automaton_run, bool> {
-	public:
-		bool operator()(automaton_run first, automaton_run second)
-		{
-			return true;
-		};
-};
-
-// an automaton implementation may throw this exception in case
-// a function/operation is not defined
-/*
-class automaton_implementation_exception {
-	virtual ~automaton_implementation_exception() { };
-	virtual const char* what() const throw() = 0;
-};
-*/
-
 class finite_automaton {
 	public:
 		virtual ~finite_automaton() { };
