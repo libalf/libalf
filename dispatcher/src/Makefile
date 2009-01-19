@@ -10,7 +10,6 @@ VERSION=svn-r${SVNREVISION}${LOCALCHANGES}
 CPPFLAGS+=-Wall -I../../include/ -I ../include/ -ggdb3
 CPPFLAGS+=-D__cplusplus -DVERSION="\"${VERSION}\""
 LDFLAGS+=-lalf -lAMoRE
-#-lboost_system -lpthread
 
 OBJECTS=amore.o main.o servant.o serversocket.o session.o
 

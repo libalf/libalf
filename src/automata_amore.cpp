@@ -22,7 +22,6 @@
 
 # include "libalf/automata.h"
 # include "libalf/automata_amore.h"
-# include "libalf/alphabet.h"
 
 # include <amore/nfa.h>
 # include <amore/dfa.h>
