@@ -524,7 +524,7 @@ bool session::normalize_word(serversocket * sock)
 	basic_string<int32_t> ret;
 
 	ret += htonl(SM_SES_ACK_NORMALIZE_WORD);
-	ret += htonl(bottom ? 0 : 1);
+	ret += htonl(bottom ? 1 : 0);
 	ret += serialize_word(word);
 
 	return sock->stream_send_blob(ret);
