@@ -20,6 +20,7 @@
 // for htonl / ntohl
 # include <arpa/inet.h>
 
+# define LIBALF_LIBRARY_COMPILATION
 # include "libalf/automata.h"
 # include "libalf/automata_amore.h"
 
