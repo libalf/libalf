@@ -195,7 +195,7 @@ SESSION-RELATED COMMANDS:
 		server answers
 			SM_SES_ACK_LOG_TABLE
 
-	normalize word with active
+	normalize word with sessions current normalizer
 		client sends
 			CM_SES_NORMALIZE_WORD
 			session id (for choice of normalizer)
@@ -204,7 +204,7 @@ SESSION-RELATED COMMANDS:
 		server answers
 			SM_SES_ACK_NORMALIZE_WORD
 			bool bottom
-			serialized word
+			serialized word (may be obscure if bottom = true)
 
 
 
