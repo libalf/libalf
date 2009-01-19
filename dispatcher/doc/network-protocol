@@ -118,7 +118,7 @@ SESSION-RELATED COMMANDS:
 			session id
 			count
 			{
-				serialized word
+				serialized word[]
 			} (count times)
 		server answers:
 			SM_SES_ACK_COUNTEREXAMPLES
@@ -130,7 +130,7 @@ SESSION-RELATED COMMANDS:
 			session id
 			count
 			{
-				serialized word
+				serialized word[]
 				answer
 			} (count times)
 		server answers:
@@ -200,11 +200,11 @@ SESSION-RELATED COMMANDS:
 			CM_SES_NORMALIZE_WORD
 			session id (for choice of normalizer)
 			bool prefix normal form (set to false for suffix normal form)
-			serialized word
+			serialized word[]
 		server answers
 			SM_SES_ACK_NORMALIZE_WORD
 			bool bottom
-			serialized word (may be obscure if bottom = true)
+			serialized word[] (may be obscure if bottom = true)
 
 
 
