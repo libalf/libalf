@@ -359,22 +359,27 @@ serialized NORAMLIZER_MSC {
 // the MSC normalizer consists of 4 distinct fields:
 // the total order, the message-process matching relation, the
 // message-buffer matching relation and the maximal buffer size.
+
 // the total order is a function mapping each symbol of the alphabet
 // to its position in a total order. thus to get the ordered position
 // of a label l, we use total_order[l].
-// the message-process matching (MPM) relation matches a event (or label) l
+// furthermore the total order implies the following:
+// for every label n, if total_order[n]%2==0 then it is a send-event and 
+// there exists a message m with total_order[m] = total_order[n]+1,
+// total_order[m]%2==1 that is the corresponding receive event of the
+// receiving process (thus total_order[n] / 2 == total_order[m] / 2)
+//
+// the message-process matching (MPM) relation matches an event (or label) l
 // to its corresponding sending process MPM[l]
-// the message-buffer-matching (MBM) relation matches a event (or label) l
-// to a buffer corresponding to the tuple (sender, receiver)
+//
+// the message-buffer-matching (MBM) relation matches an event (or label) l
+// to a buffer MBM[l] corresponding to the tuple (sender, receiver)
 // 
 // the max buffer size denotes how many messages there may be at most at
 // any time in a single buffer. this number increases once a sent-event
 // has happened and decreases once a receive-event has happened.
 // use any number <= 0 to denote infinite buffers.
 // 
-// there is a fifth information that is not needed to be sent: every even
-// message (0, 2, 4, ... [n%2 == 0]) is a send-event, the message n+1 is
-// its corresponding receive-event of the other, receiving process.
 
 
 // for MODALITY_EXTEND_NORMALIZER, the data consists of:

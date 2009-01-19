@@ -247,10 +247,8 @@ list<int> normalizer_msc::prefix_normal_form(list<int> & w, bool & bottom)
 	list<int>::iterator wi;
 	// create MSC
 	for(wi = w.begin(), i = 0; wi != w.end(); wi++, i++) {
-		if(*wi < 0 || *wi > (int)label_bound) {
-			graph.clear();
+		if(*wi < 0 || *wi > (int)label_bound)
 			goto bottom_fast;
-		}
 		graph_add_node(i, *wi, true);
 	}
 
@@ -269,9 +267,9 @@ list<int> normalizer_msc::prefix_normal_form(list<int> & w, bool & bottom)
 bottom:
 	clear_buffers(w);
 	ret.clear();
-	graph.clear();
 
 bottom_fast:
+	graph.clear();
 	bottom = true;
 	ret.push_back(BOTTOM_CHAR);
 	return ret;
@@ -285,10 +283,8 @@ list<int> normalizer_msc::suffix_normal_form(list<int> & w, bool & bottom)
 	list<int>::reverse_iterator rwi;
 	// create MSC (reversed)
 	for(rwi = w.rbegin(), i = 0; rwi != w.rend(); rwi++, i++) {
-		if(*rwi < 0 || *rwi > (int)label_bound) {
-			graph.clear();
+		if(*rwi < 0 || *rwi > (int)label_bound)
 			goto bottom_fast;
-		}
 		graph_add_node(i, *rwi, false);
 	}
 
@@ -307,9 +303,9 @@ list<int> normalizer_msc::suffix_normal_form(list<int> & w, bool & bottom)
 bottom:
 	clear_buffers(w);
 	ret.clear();
-	graph.clear();
 
 bottom_fast:
+	graph.clear();
 	bottom = true;
 	ret.push_back(BOTTOM_CHAR);
 	return ret;
@@ -353,17 +349,17 @@ void normalizer_msc::graph_add_node(int id, int label, bool pnf)
 	// PNF: if this is a receiving event, connect to oldest corresponding send-event that is not connected
 	// SNF: if this is a sending event, connect from oldest corresponding send-event that is not connected
 	extrema = graph.end();
-	if( (label % 2) && pnf || (label % 2 == 0) && !pnf) {
+	if( pnf && (total_order[label] % 2) || !pnf && (total_order[label] % 2 == 0)) {
 		// pnf: odd, receive-event
 		// snf: even, send-event
 		for(ni = graph.begin(); *ni != newnode; ni++) {
 			if( ((*ni)->label / 2 != label / 2))
 				continue;
 			if(pnf) {
-				if(((*ni)->label % 2) || (*ni)->is_buffer_connected())
+				if((total_order[(*ni)->label] % 2) || (*ni)->is_buffer_connected())
 					continue;
 			} else {
-				if(((*ni)->label % 2 == 0) || (*ni)->is_buffer_referenced())
+				if((total_order[(*ni)->label] % 2 == 0) || (*ni)->is_buffer_referenced())
 					continue;
 			}
 			if(extrema == graph.end()) {
@@ -392,13 +388,13 @@ bool normalizer_msc::check_buffer(int label, bool pnf)
 
 	int buffer = buffer_match[label];
 
-	if( pnf && (label % 2) || !pnf && (label % 2 == 0) ) {
+	if( pnf && (total_order[label] % 2) || !pnf && (total_order[label] % 2 == 0) ) {
 		// pnf/odd: receive-event
 		// snf/even: act like receive-event
 		// fail if buffer is empty or a different msg is at front
 		if(buffers[buffer].empty())
 			return false;
-		if(buffers[buffer].front() != label / 2)
+		if(buffers[buffer].front() != total_order[label] / 2)
 			return false;
 	} else {
 		// pnf/even: send-event
@@ -418,12 +414,12 @@ bool normalizer_msc::check_buffer(int label, bool pnf)
 void normalizer_msc::advance_buffer_status(int label, bool pnf)
 {{{
 	if(buffers) {
-		if( pnf && (label % 2) || !pnf && (label % 2 == 0) ) {
+		if( pnf && (total_order[label] % 2) || !pnf && (total_order[label] % 2 == 0) ) {
 			// receive
 			buffers[buffer_match[label]].pop();
 		} else {
 			// send
-			buffers[buffer_match[label]].push(label/2);
+			buffers[buffer_match[label]].push(total_order[label]/2);
 		}
 	}
 }}}
@@ -445,9 +441,9 @@ int normalizer_msc::graph_reduce(bool pnf)
 				continue;
 			}
 			// if there exists a minimal receive-event, never fall back to send-events
-			if(((*extrema)->label % 2) && ((*ni)->label % 2 == 0) )
+			if((total_order[(*extrema)->label] % 2) && (total_order[(*ni)->label] % 2 == 0) )
 				continue;
-			if(((*extrema)->label % 2 == 0) && ((*ni)->label % 2) ) {
+			if((total_order[(*extrema)->label] % 2 == 0) && (total_order[(*ni)->label] % 2) ) {
 				if(check_buffer((*ni)->label, true))
 					extrema = ni;
 				continue;
@@ -469,9 +465,9 @@ int normalizer_msc::graph_reduce(bool pnf)
 				continue;
 			}
 			// if there exists a minimal send-event, never fall back to receive-events
-			if(((*extrema)->label % 2 == 0) && ((*ni)->label % 2) )
+			if((total_order[(*extrema)->label] % 2 == 0) && (total_order[(*ni)->label] % 2) )
 				continue;
-			if(((*extrema)->label % 2) && ((*ni)->label % 2 == 0) ) {
+			if((total_order[(*extrema)->label] % 2) && (total_order[(*ni)->label] % 2 == 0) ) {
 				if(check_buffer((*ni)->label, false))
 					extrema = ni;
 				continue;
