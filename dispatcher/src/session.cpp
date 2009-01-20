@@ -485,7 +485,7 @@ bool session::log_table(serversocket * sock)
 {{{
 	string s = alg->tostring();
 	logger(LOGGER_DEBUG, "%s", s.c_str());
-	return sock->stream_send_int(SM_SES_ACK_LOG_TABLE);
+	return sock->stream_send_int(htonl(SM_SES_ACK_LOG_TABLE));
 }}}
 bool session::normalize_word(serversocket * sock)
 {{{
