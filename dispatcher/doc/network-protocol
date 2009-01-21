@@ -35,6 +35,14 @@ UNRELATED COMMANDS:
 				capabilities[]
 			} (count times)
 
+	request dispatcher and libalf version string
+		client sends
+			CM_REQ_VERSION
+		server answers
+			SM_ACK_VERSION
+			int length of text (in bytes!)
+			text[]
+
 	STARTTLS
 		only applicable if server supports STARTTLS (see section CAPABILITIES)
 		client sends
@@ -42,6 +50,8 @@ UNRELATED COMMANDS:
 		server answers
 			SM_ACK_STARTTLS
 		server switches to TLS mode
+
+
 
 SESSION-RELATED COMMANDS:
 	request session
@@ -183,11 +193,11 @@ SESSION-RELATED COMMANDS:
 			session id
 		server answers
 			SM_SES_ACK_LOG
-			int length (in bytes!)
+			int length of text (in bytes!)
 			text[]
 
-	debugging commands:
 
+DEBUGGING COMMANDS:
 	request table to be logged to logger (note loglevel LOGGER_DEBUG)
 		client sends
 			CM_SES_LOG_TABLE
@@ -216,6 +226,8 @@ enum client_message {
 	CM_DISCONNECT = 0,
 
 	CM_REQ_CAPA = 1,
+
+	CM_REQ_VERSION = 2,
 
 	CM_STARTTLS = 10,
 
@@ -256,6 +268,8 @@ enum server_message {
 	SM_ACK_DISCONNECT = 0,
 
 	SM_ACK_CAPA = 1,
+
+	SM_ACK_VERSION = 2,
 
 	SM_ACK_STATTLS = 10
 

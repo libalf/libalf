@@ -23,6 +23,7 @@ class servant {
 		buffered_logger logger;
 		bool capa_sent;
 		vector<session*> sessions;
+
 	public:
 		servant();
 		servant(serversocket *connection);
@@ -32,6 +33,7 @@ class servant {
 
 	private:
 		bool send_capabilities();
+		bool send_version();
 		bool new_session();
 
 };

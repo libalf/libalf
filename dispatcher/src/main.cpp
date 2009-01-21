@@ -21,6 +21,9 @@
 #include <sys/wait.h>
 #include <sys/select.h>
 
+#include <libalf/alf.h>
+
+#include "main.h"
 #include "protocol.h"
 #include "serversocket.h"
 #include "servant.h"
@@ -80,9 +83,9 @@ bool parse_commandline(int argc, char**argv)
 
 void help()
 {{{
-	cout <<
-		"\n"
-		"libalf dispatcher (version " << VERSION << ")\n"
+	cout << "\n"
+	     << dispatcher_version()
+	     << "\n"
 		"accepted command-line parameters:\n"
 		"\t-l <IP>\n"
 		"\t--listen <IP>\n"
@@ -93,6 +96,22 @@ void help()
 		"\n"
 		"to stop the server, just send a SIGINT or SIGQUIT (^C or ^\\)\n"
 		"\n";
+}}}
+
+string dispatcher_version()
+{{{
+	string ret;
+	char protov[128];
+	snprintf(protov,128, "dispatcher protocol version %d\n", DISPATCHER_PROTOCOL_VERSION);
+	protov[127] = 0;
+
+	ret += "ALF dispatcher version " VERSION "\n";
+	ret += libalf_version();
+	ret += "\n";
+	ret += protov;
+	ret += "(c) 2008/2009 by David R. Piegdon, Carsten Kern and Stefan Rieger, http://i2.informatik.rwth-aachen.de\n";
+
+	return ret;
 }}}
 
 int main(int argc, char**argv)
@@ -123,6 +142,8 @@ int main(int argc, char**argv)
 
 	fd_set fds;
 	timeval t;
+
+	cout << "dispatcher now waiting for clients.\n";
 
 	while(1) {
 		FD_ZERO(&fds);

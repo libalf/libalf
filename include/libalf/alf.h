@@ -24,5 +24,13 @@
 #include <libalf/structured_query_tree.h>
 #include <libalf/teacher.h>
 
+namespace libalf {
+
+using namespace std;
+
+const char* libalf_version();
+
+};
+
 #endif
 

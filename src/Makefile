@@ -5,13 +5,17 @@
 
 PREFIX ?= /usr/local/
 
+LOCALCHANGES = $(shell test "`svn status | wc -c`" != "0" && echo "-LocalChanges")
+SVNREVISION = $(shell LC_ALL=POSIX svn info | awk '/^Revision:/ {print $$2}')
+VERSION=svn-r${SVNREVISION}${LOCALCHANGES}
+
 CPPFLAGS+=-Wall -I../include/ -shared -fpic -ggdb3
-CPPFLAGS+=-D__cplusplus
+CPPFLAGS+=-D__cplusplus -DVERSION="\"${VERSION}\""
 LDFLAGS+=-shared -lAMoRE
 
 SONAME=libalf
 
-OBJECTS=alphabet.o answer.o automata.o automata_amore.o basic_string.o logger.o normalizer_msc.o oracle_automaton.o statistics.o
+OBJECTS=alf.o alphabet.o answer.o automata.o automata_amore.o basic_string.o logger.o normalizer_msc.o oracle_automaton.o statistics.o
 
 all:	libalf.so
 

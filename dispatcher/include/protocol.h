@@ -12,11 +12,14 @@
 #ifndef __libalf_protocol_h__
 # define __libalf_protocol_h__
 
+#define DISPATCHER_PROTOCOL_VERSION 0
+
 #define DISPATCHER_DEFAULT_PORT 23005
 
 enum client_message {
 	CM_DISCONNECT = 0,
 	CM_REQ_CAPA = 1,
+	CM_REQ_VERSION = 2,
 	CM_STARTTLS = 10,
 	CM_REQ_SESSION = 20,
 	CM_SES_SET_MODALITIES = 21,
@@ -40,6 +43,7 @@ enum client_message {
 enum server_message {
 	SM_ACK_DISCONNECT = 0,
 	SM_ACK_CAPA = 1,
+	SM_ACK_VERSION = 2,
 	SM_ACK_STATTLS = 10,
 	SM_ACK_SESSION = 20,
 	SM_SES_ACK_MODALITIES = 21,

@@ -14,6 +14,7 @@
 
 #include <algorithm>
 #include <list>
+#include <string>
 
 namespace libalf {
 

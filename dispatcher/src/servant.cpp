@@ -17,6 +17,7 @@
 
 #include <libalf/alf.h>
 
+#include "main.h"
 #include "servant.h"
 #include "serversocket.h"
 #include "protocol.h"
@@ -69,9 +70,6 @@ bool servant::serve()
 
 	switch(cmd) {
 		default:
-		case CM_STARTTLS: // not implemented.
-			cout << "received invalid command " << cmd << " from " << getpid() << " client. disconnecting.\n";
-			return false;
 		case CM_DISCONNECT:
 			if(!client->stream_send_int(SM_ACK_DISCONNECT))
 				cout << "socket to client " << getpid() << " failed when trying to send SM_ACK_DISCONNET. disconnecting anyway ;)\n";
@@ -84,12 +82,21 @@ bool servant::serve()
 				return false;
 			}
 			return true;
+		case CM_REQ_VERSION:
+			if(!send_version()) {
+				cout << "socket to client " << getpid() << " failed when trying to send version. disconnecting.\n";
+				return false;
+			}
+			return true;
 		case CM_REQ_SESSION:
 			if(!new_session()) {
 				cout << "INTERNAL ERROR: new_session() failed (client " << getpid() << ". disconnecting.\n";
 				return false;
 			}
 			return true;
+		case CM_STARTTLS: // not implemented.
+			cout << "received invalid command " << cmd << " from " << getpid() << " client. disconnecting.\n";
+			return false;
 		case CM_SES_SET_MODALITIES:
 		case CM_SES_REQ_STATUS:
 		case CM_SES_SET_STATUS:
@@ -169,11 +176,27 @@ bool servant::send_capabilities()
 	basic_string<int32_t> capa;
 
 	capa += htonl(SM_ACK_CAPA);
-	capa += htonl(0);
+	capa += htonl(DISPATCHER_PROTOCOL_VERSION);
 	// no upcoming CAPA fields. we are capable of nothing.
 	capa += htonl(0);
 
 	return client->stream_send_blob(capa);
+}}}
+
+bool servant::send_version()
+{{{
+	if(!client->stream_send_int(htonl(SM_ACK_VERSION)))
+		return false;
+
+	string version;
+	int verlen;
+
+	version = dispatcher_version();
+	verlen = strlen(version.c_str());
+
+	if(!client->stream_send_int(htonl(verlen)))
+		return false;
+	return client->stream_send(version.c_str(), verlen);
 }}}
 
 bool servant::new_session()
