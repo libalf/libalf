@@ -259,51 +259,6 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			return str.str();
 		}}}
 
-		// searches column first, then row
-/* superficial
-		virtual pair<bool, answer> check_entry(list<int> word)
-		{{{
-			columnlist::iterator ci;
-			unsigned int col_index;
-			typename table::iterator uti, lti;
-
-			pair<bool, answer> ret;
-
-			// find possible suffixes in table columns
-			for(ci = column_names.begin(), col_index = 0; ci < column_names.end(); ci++, col_index++) {
-				if(is_suffix_of(*ci, word)) {
-					// find possible prefix as column index
-					// then return truth value
-					list<int> prefix;
-					list<int>::iterator prefix_end;
-					prefix_end = word.begin();
-					for(int n = word.size() - ci->size(); n > 0; n--)
-						prefix_end++;
-					//prefix_end += word.size() - ci->size();
-					prefix.assign(word.begin(), prefix_end);
-
-					uti = search_upper_table(prefix);
-					if(uti != upper_table.end()) {
-						ret.first = true;
-						ret.second = uti->acceptance[col_index];
-						return ret;
-					}
-					lti = search_lower_table(prefix);
-					if(lti != lower_table.end()) {
-						ret.first = true;
-						ret.second = lti->acceptance[col_index];
-						return ret;
-					}
-				}
-			}
-
-			// word is not in table
-			ret.first = false;
-			ret.second = false;
-			return ret;
-		}}}
-*/
-
 		virtual bool conjecture_ready()
 		{{{
 			return initialized && columns_filled() && is_closed() && is_consistent();
@@ -1131,30 +1086,29 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 		virtual void get_memory_statistics(statistics & stats)
 		{{{
 			typename angluin_observationtable<answer, list< algorithm_angluin::simple_row<answer, vector<answer> > >, vector<answer> >::columnlist::iterator ci;
-			typename list< algorithm_angluin::simple_row<answer, vector<answer> > >::iterator uti, lti;
+			typename list< algorithm_angluin::simple_row<answer, vector<answer> > >::iterator ti;
 
-			int column_count = this->column_names.size();
-			int ut_count = this->upper_table.size();
-			int lt_count = this->lower_table.size();
+			stats.table_size.columns = this->column_names.size();
+			stats.table_size.upper_table = this->upper_table.size();
+			stats.table_size.lower_table = this->lower_table.size();
 
-			int members = column_count * (ut_count + lt_count);
+			stats.table_size.members = stats.table_size.columns * ( stats.table_size.upper_table + stats.table_size.lower_table );
+			stats.table_size.words = stats.table_size.members;
 
-			stats.table_size.bytes = sizeof(this) + sizeof(answer) * members;
-			stats.table_size.members = members;
-			stats.table_size.words = members;
-
-			stats.table_size.upper_table = ut_count;
-			stats.table_size.lower_table = lt_count;
-			stats.table_size.columns = column_count;
-
+			// approx. memory usage:
+			stats.table_size.bytes = sizeof(this);
+			// columns
+			stats.table_size.bytes += sizeof(vector<int>);
 			for(ci = this->column_names.begin(); ci != this->column_names.end(); ci++)
 				stats.table_size.bytes += sizeof(int) * ci->size() + sizeof(list<int>);
-
-			for(uti = this->upper_table.begin(); uti != this->upper_table.end(); uti++)
-				stats.table_size.bytes += sizeof(int) * uti->index.size() + sizeof(list<int>);
-
-			for(lti = this->upper_table.begin(); lti != this->upper_table.end(); lti++)
-				stats.table_size.bytes += sizeof(int) * lti->index.size() + sizeof(list<int>);
+			// upper table bare rows
+			for(ti = this->upper_table.begin(); ti != this->upper_table.end(); ti++)
+				stats.table_size.bytes += sizeof(algorithm_angluin::simple_row<answer, vector<answer> >) + sizeof(int) * ti->index.size();
+			// lower table bare rows
+			for(ti = this->lower_table.begin(); ti != this->lower_table.end(); ti++)
+				stats.table_size.bytes += sizeof(algorithm_angluin::simple_row<answer, vector<answer> >) + sizeof(int) * ti->index.size();
+			// table fields
+			stats.table_size.bytes += sizeof(answer) * stats.table_size.members;
 		}}}
 
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
