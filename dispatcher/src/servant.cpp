@@ -188,15 +188,15 @@ bool servant::send_version()
 	if(!client->stream_send_int(htonl(SM_ACK_VERSION)))
 		return false;
 
-	string version;
+	char * version;
 	int verlen;
 
 	version = dispatcher_version();
-	verlen = strlen(version.c_str());
+	verlen = strlen(version);
 
 	if(!client->stream_send_int(htonl(verlen)))
 		return false;
-	return client->stream_send(version.c_str(), verlen);
+	return client->stream_send(version, verlen);
 }}}
 
 bool servant::new_session()

@@ -12,9 +12,7 @@
 #ifndef __libalf_main_h__
 # define __libalf_main_h__
 
-#include <string>
-
-std::string dispatcher_version();
+char * dispatcher_version();
 
 #endif // __libalf_session_h__
 

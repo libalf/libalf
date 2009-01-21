@@ -84,8 +84,6 @@ bool parse_commandline(int argc, char**argv)
 void help()
 {{{
 	cout << "\n"
-	     << dispatcher_version()
-	     << "\n"
 		"accepted command-line parameters:\n"
 		"\t-l <IP>\n"
 		"\t--listen <IP>\n"
@@ -98,24 +96,31 @@ void help()
 		"\n";
 }}}
 
-string dispatcher_version()
+char * dispatcher_version()
 {{{
-	string ret;
-	char protov[128];
-	snprintf(protov,128, "dispatcher protocol version %d\n", DISPATCHER_PROTOCOL_VERSION);
-	protov[127] = 0;
+	static char version[1024];
+	static bool done = false;
 
-	ret += "ALF dispatcher version " VERSION "\n";
-	ret += libalf_version();
-	ret += "\n";
-	ret += protov;
-	ret += "(c) 2008/2009 by David R. Piegdon, Carsten Kern and Stefan Rieger, http://i2.informatik.rwth-aachen.de\n";
+	if(!done) {
+		snprintf(version, 1023, "ALF dispatcher version %s\n"
+					"%s\n"
+					"dispatcher protocol version %d\n"
+					"(c) 2008/2009 by David R. Piegdon, Carsten Kern and Stefan Rieger\n"
+					"    http://i2.informatik.rwth-aachen.de/\n",
+					VERSION,
+					libalf_version(),
+					DISPATCHER_PROTOCOL_VERSION);
+		version[1023] = 0;
+		done = true;
+	}
 
-	return ret;
+	return version;
 }}}
 
 int main(int argc, char**argv)
 {{{
+	cout << dispatcher_version() << "\n"; 
+
 	// parse command-line
 	if( ! parse_commandline(argc, argv) ) {
 		help();
@@ -140,10 +145,10 @@ int main(int argc, char**argv)
 		return -2;
 	}
 
+	cout << "dispatcher now waiting for clients.\n";
+
 	fd_set fds;
 	timeval t;
-
-	cout << "dispatcher now waiting for clients.\n";
 
 	while(1) {
 		FD_ZERO(&fds);
