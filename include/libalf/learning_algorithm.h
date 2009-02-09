@@ -35,7 +35,9 @@ class learning_algorithm {
 		enum algorithm {
 			ALG_NONE = 0,
 			ALG_ANGLUIN = 1,
-			ALG_BIERMANN = 2
+			ALG_BIERMANN = 2,
+			ALG_BIERMANN_ANGLUIN = 3,
+			ALG_RFSA = 4
 		};
 
 		virtual ~learning_algorithm() { };
@@ -88,10 +90,22 @@ class learning_algorithm {
 
 		// check if a hypothesis can be constructed without any further queries
 		virtual bool conjecture_ready() = 0;
-		// complete table and then derive automaton
+
+		// complete table and then derive automaton:
+		// if not using a teacher:
+		//	will either return an SQT or NULL in case that an automaton can be constructed.
+		//	if so, the automaton will be constructed and stored into *automaton.
+		// if using a teacher:
+		//	will repeatedly query the stored teacher and then construct an automaton into *automaton.
+		//
+		// please note that the type of automaton must match the required automaton-type of the used learning algorithm
+		// (e.g. angluin required a DFA)
 		virtual structured_query_tree<answer> * advance(finite_language_automaton * automaton) = 0;
+
+		// if no teacher was given, use this function to answer the SQT returned by advance()
 		virtual bool learn_from_structured_query(structured_query_tree<answer> &) = 0;
 
+		// in case the hypothesis is wrong, use this function to give a counter-example
 		virtual void add_counterexample(list<int>, answer) = 0;
 		virtual void add_counterexample(list<int>) = 0;
 
