@@ -3,14 +3,15 @@
 
 A)
 
-- implement caching SQT
+- implement caching SQT (+ uniq stats in dispatcher)
 - implement SQT::add_query_optimized()
 
 B)
 
-- in learn_regex: check/fix '+' operator in regex on command-line
-
 - biermann algorithm
+- RFSA + RFSA-algorithm
+
+- in learn_regex: check/fix '+' operator in regex on command-line
 
 - enable dispatcher to listen on multiple address/port combinations, IPv6 and unix domain sockets
 
