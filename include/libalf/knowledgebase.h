@@ -36,17 +36,14 @@ class knowledgebase {
 					NODE_REQUIRED = 1,
 					NODE_ANSWERED = 2
 				};
-
 			public:	// data
 				node * parent; // NULL for root-node
 				vector<node *> children; // NULL is a valid placeholder
-
 				// label is reduntant as this == parent->children[label]
 				// except for root, where label should be -1 == epsilon
 				int label;
 				enum status status;
 				answer ans;
-
 			public:	// methods
 				node()
 				{{{
@@ -54,7 +51,6 @@ class knowledgebase {
 					label = -1;
 					status = NODE_IGNORE;
 				}}}
-
 				~node()
 				// reference in parent will stay ; all children will be deleted
 				{{{
@@ -63,7 +59,6 @@ class knowledgebase {
 						if(*ci)
 							delete (*ci);
 				}}}
-
 				node * find_child(int label)
 				{{{
 					if(label < children.size())
@@ -71,7 +66,6 @@ class knowledgebase {
 					else
 						return NULL;
 				}}}
-
 				node * create_or_find_child(int label)
 				{{{
 					if(label >= children.size()) {
@@ -90,7 +84,6 @@ class knowledgebase {
 
 					return children[label];
 				}}}
-
 				bool all_answered()
 				{{{
 					if(status == NODE_REQUIRED)
@@ -105,7 +98,6 @@ class knowledgebase {
 
 					return true;
 				}}}
-
 				int get_size()
 				{{{
 					int ret;
@@ -118,7 +110,6 @@ class knowledgebase {
 
 					return ret;
 				}}}
-
 				node* get_next(node * current_child)
 				{{{
 					vector<node *>::iterator ci;
@@ -145,16 +136,19 @@ class knowledgebase {
 					else
 						return NULL;
 				}}}
-
 		}; // end of knowledgebase::node
+
+
 
 		class iterator_deref {
 			private:
 				node * current;
+				knowledgebase * knowledge;
 			public:
-				void set_current(node * current)
+				void set_current(node * current, knowledgebase * knowledge)
 				{{{
 					this->current = current;
+					this->knowledge = knowledge;
 				}}}
 				list<int> get_word()
 				{{{
@@ -170,9 +164,10 @@ class knowledgebase {
 
 					return w;
 				}}}
-				void answer(answer a)
+				void set_answer(answer a)
 				{{{
 					current->answer = a;
+					knowledge->required.remove(current);
 				}}}
 				bool is_answered()
 				{{{
@@ -184,7 +179,9 @@ class knowledgebase {
 				}}}
 		}; // end of knowledgebase::iterator_deref
 
-		class iterator : forward_iterator<> {
+
+
+		class iterator : forward_iterator</* FIXME */> {
 			private:
 				bool queries_only;
 				node * current;
@@ -228,11 +225,17 @@ class knowledgebase {
 				}}}
 				iterator_deref & operator*()
 				{{{
-					deref.set_current(current);
+					deref.set_current(current, knowledge);
 					return * deref;
 				}}}
-
 		}; // end of knowledgebase::iterator
+
+
+
+		friend class iterator;
+		friend class iterator_deref;
+
+
 
 	private:
 		// full tree
