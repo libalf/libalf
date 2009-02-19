@@ -622,6 +622,8 @@ class new_sqt {
 
 			if((*current)->status == sqt::node<answer>::NODE_ANSWERED) {
 				acceptance = (*current)->answer;
+				if(stat)
+					stat->query_count.membership++;
 				return true;
 			} else {
 				return false;
