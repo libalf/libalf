@@ -217,6 +217,10 @@ class knowledgebase {
 				{{{
 					return (current == it.current);
 				}}}
+				bool operator!=(const iterator & it)
+				{{{
+					return (current != it.current);
+				}}}
 				iterator & operator=(const iterator & it)
 				{{{
 					queries_only = it.queries_only;
@@ -288,6 +292,8 @@ class knowledgebase {
 		bool deserialize_query_answer(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 		{
 		}
+
+		// assistant / filter
 
 		void clear()
 		// does not clear stats, only the tree
