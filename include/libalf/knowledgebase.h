@@ -282,11 +282,10 @@ class knowledgebase {
 		{
 		}
 
-		basic_string<int32_t> serialize_acceptances()
+		basic_string<int32_t> serialize_query()
 		{
 		}
-		// this will reduce the serialized data to acceptances only. only to be used if is_answered() !
-		bool deserialize_acceptances(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+		bool deserialize_query_answer(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 		{
 		}
 
