@@ -30,89 +30,27 @@ template <class answer>
 class knowledgebase {
 	private:
 		class node {
-			public:	// types
-				enum status {
+			friend class knowledgebase;
+			friend class knowledgebase::iterator;
+			public: // types
+				enum status_e {
 					NODE_IGNORE = 0,
 					NODE_REQUIRED = 1,
 					NODE_ANSWERED = 2
 				};
-			public:	// data
+			protected: // data
+				knowledgebase * base;
 				node * parent; // NULL for root-node
 				vector<node *> children; // NULL is a valid placeholder
 				// label is reduntant as this == parent->children[label]
 				// except for root, where label should be -1 == epsilon
 				int label;
-				enum status status;
+				enum status_e status;
 				answer ans;
-			public:	// methods
-				node()
-				{{{
-					parent = NULL;
-					label = -1;
-					status = NODE_IGNORE;
-				}}}
-				~node()
-				// reference in parent will stay ; all children will be deleted
-				{{{
-					typename vector<node*>::iterator ci;
-					for(ci = children.begin(); ci != children.end(); ci++)
-						if(*ci)
-							delete (*ci);
-				}}}
-				node * find_child(int label)
-				{{{
-					if(label < children.size())
-						return children[label];
-					else
-						return NULL;
-				}}}
-				node * create_or_find_child(int label)
-				{{{
-					if(label >= children.size()) {
-						// push back NULL until new alphabet-size is met
-						for(int c = label - children.size(); c >= 0; c--) {
-							children.push_back((node *)NULL);
-						}
-					}
-
-					if(children[label] == NULL) {
-						// on demand create new child
-						children[label]->parent = this;
-						children[label] = new node(children.size());
-						children[label]->label = label;
-					}
-
-					return children[label];
-				}}}
-				bool all_answered()
-				{{{
-					if(status == NODE_REQUIRED)
-						return false;
-
-					typename vector<node*>::iterator ci;
-
-					for(ci = children.begin(); ci != children.end(); ci++)
-						if(*ci)
-							if( ! (*ci)->all_answered() )
-								return false;
-
-					return true;
-				}}}
-				int get_size()
-				{{{
-					int ret;
-					typename vector<node*>::iterator ci;
-
-					ret = sizeof(this) + sizeof(node *) * children.size();
-					for(ci = children.begin(); ci != children.end(); ci++)
-						if(*ci)
-							ret += (*ci)->get_size();
-
-					return ret;
-				}}}
+			protected: // methods
 				node* get_next(node * current_child)
 				{{{
-					vector<node *>::iterator ci;
+					typename vector<node *>::iterator ci;
 
 					// find next after current child
 					if(current_child != NULL) {
@@ -136,57 +74,138 @@ class knowledgebase {
 					else
 						return NULL;
 				}}}
-		}; // end of knowledgebase::node
-
-
-
-		class iterator_deref {
-			private:
-				node * current;
-				knowledgebase * knowledge;
-			public:
-				void set_current(node * current, knowledgebase * knowledge)
+			public: // methods
+				node(knowledgebase * base)
 				{{{
-					this->current = current;
-					this->knowledge = knowledge;
+					this->base = base;
+					parent = NULL;
+					label = -1;
+					status = NODE_IGNORE;
 				}}}
+				~node()
+				// reference in parent will stay ; all children will be deleted
+				{{{
+					typename vector<node*>::iterator ci;
+					for(ci = children.begin(); ci != children.end(); ci++)
+						if(*ci)
+							delete (*ci);
+				}}}
+
+				node * get_parent()
+				{{{
+					  return parent;
+				}}}
+				node * child(int label)
+				{{{
+					if(label >= 0 && label < children.size())
+						return children[label];
+					else
+						return NULL;
+				}}}
+				node * find_or_create_child(int label)
+				{{{
+					if(label < 0)
+						return NULL;
+					if(label >= children.size()) {
+						// push back NULL until new alphabet-size is met
+						for(int c = label - children.size(); c >= 0; c--) {
+							children.push_back((node *)NULL);
+						}
+					}
+
+					if(children[label] == NULL) {
+						// on demand create new child
+						children[label] = new node(base);
+						children[label]->parent = this;
+						children[label]->label = label;
+					}
+
+					return children[label];
+				}}}
+				node * find_or_create_child(list<int>::iterator infix_start, list<int>::iterator infix_limit)
+				{{{
+					node * n = this;
+
+					while(infix_start != infix_limit && n != NULL) {
+						n = n->find_or_create_child(*infix_start);
+						infix_start++;
+					}
+
+					return n;
+				}}}
+
 				list<int> get_word()
 				{{{
-					node * n;
+					node * n = this;
 					list<int> w;
 
-					n = current;
-
 					while(n != NULL) {
-						w.push_front(n->label);
+						if(n->label >= 0)
+							w.push_front(n->label);
 						n = n->parent;
 					}
 
 					return w;
 				}}}
-				void set_answer(answer a)
+				bool set_answer(answer ans)
 				{{{
-					current->answer = a;
-					knowledge->required.remove(current);
+					// check for inconsistencies
+					if(status == NODE_ANSWERED)
+						return (this->ans == ans);
+
+					if(status == NODE_REQUIRED)
+						base->required.remove(this);
+
+					status = NODE_ANSWERED;
+					this->ans = ans;
 				}}}
-				bool is_answered()
+				answer get_answer()
 				{{{
-					return current->status == node::status::NODE_ANSWERED;
+					  return ans;
 				}}}
 				bool is_required()
 				{{{
-					return current->status == node::status::NODE_REQUIRED;
+					return status == NODE_REQUIRED;
 				}}}
-		}; // end of knowledgebase::iterator_deref
+				bool is_answered()
+				{{{
+					return status == NODE_ANSWERED;
+				}}}
+				bool no_subqueries()
+				{{{
+					if(status == NODE_REQUIRED)
+						return false;
+
+					typename vector<node*>::iterator ci;
+
+					for(ci = children.begin(); ci != children.end(); ci++)
+						if(*ci)
+							if( ! (*ci)->no_subqueries() )
+								return false;
+
+					return true;
+				}}}
+				int get_size()
+				{{{
+					int ret;
+					typename vector<node*>::iterator ci;
+
+					ret = sizeof(this) + sizeof(node *) * children.size();
+					for(ci = children.begin(); ci != children.end(); ci++)
+						if(*ci)
+							ret += (*ci)->get_size();
+
+					return ret;
+				}}}
+		}; // end of knowledgebase::node
 
 
 
-		class iterator : forward_iterator</* FIXME */> {
+		class iterator /* : forward_iterator< FIXME > */ {
 			private:
 				bool queries_only;
 				node * current;
 				knowledgebase * knowledge;
-				iterator_deref deref;
 			public:
 				iterator()
 				{{{
@@ -202,7 +221,7 @@ class knowledgebase {
 				iterator & operator++()
 				{{{
 					if(queries_only) {
-						list<node *>::iterator qi;
+						typename list<node *>::iterator qi;
 						qi = find(knowledge->required.begin(), knowledge->required.end(), current);
 						if(qi != knowledge->required.end())
 							current = *(qi++);
@@ -227,20 +246,15 @@ class knowledgebase {
 					current = it.current;
 					knowledge = it.knowledge;
 				}}}
-				iterator_deref & operator*()
+				node & operator*()
 				{{{
-					deref.set_current(current, knowledge);
-					return * deref;
+					return * current;
 				}}}
 		}; // end of knowledgebase::iterator
 
 
 
-		friend class iterator;
-		friend class iterator_deref;
-
-
-
+		friend class knowledgebase::iterator;
 	private:
 		// full tree
 		node * root;
@@ -251,23 +265,44 @@ class knowledgebase {
 	public:
 		knowledgebase()
 		{{{
-			root = NULL;
 			stat = NULL;
+			root = new node(this);
 		}}}
-		knowledgebase(statistics * = NULL)
+		knowledgebase(statistics * stat)
 		{{{
 			this->stat = stat;
-			root = new node();
+			root = new node(this);
+		}}}
+
+		~knowledgebase()
+		{{{
+			delete root;
 		}}}
 
 		int get_size_in_bytes()
 		{{{
-			return sizeof(this) + (root ? root->get_size() : 0);
+			int ret;
+
+			ret = sizeof(this);
+			ret += root->get_size();
+			ret += sizeof(node*) * required.size();
+
+			return ret;
 		}}}
 
 		void print(ostream &os)
-		{
-		}
+		{{{
+			iterator ki;
+
+			for(ki = this->begin(); ki != this->end(); ki++) {
+				os << "node ";
+				print_word(ki->get_word(), os);
+				os << " marked " << ki->is_answered() ? "!" : ki->is_required() ? "?" : "%";
+				if(ki->is_answered())
+					os << " answered " << (ki->get_answer() == true) ? "+" : (ki->get_answer() == false) ? "-" : "?";
+				os << "\n";
+			}
+		}}}
 
 		void set_statistics(statistics * stat)
 		{{{
@@ -285,23 +320,57 @@ class knowledgebase {
 		bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 		{
 		}
+		bool deserialize_queries(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+		{
+		}
 
-		basic_string<int32_t> serialize_query()
-		{
-		}
-		bool deserialize_query_answer(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
-		{
-		}
+		knowledgebase * create_query_tree()
+		// TODO: optimize
+		{{{
+			knowledgebase * query_tree;
+			iterator qi;
+
+			query_tree = new knowledgebase(NULL);
+
+			for(qi = this->qbegin(); qi != this->qend(); qi++)
+				query_tree->add_query(qi->get_word());
+
+			return query_tree;
+		}}}
+		bool merge_query_tree(knowledgebase * query_tree)
+		{{{
+			iterator ki;
+			for(ki = query_tree->begin(); ki != query_tree->end(); ki++)
+				if(ki->is_answered())
+					if(!add_knowledge(ki->get_word(), ki->get_answer()))
+						return false;
+			return true;
+		}}}
 
 		// assistant / filter
 
 		void clear()
 		// does not clear stats, only the tree
 		{{{
-			if(root) {
-				delete root;
-				root = new node();
+			delete root;
+			root = new node(this);
+			required.clear();
+		}}}
+
+		bool add_knowledge(list<int> & word, answer acceptance)
+		// will return false if knowledge for this word was already set and is != acceptance.
+		// in this case, the holder is in an inconsistent state and
+		// the knowledgebase will not change itself.
+		{{{
+			node * n;
+			list<int>::iterator wi;
+
+			n = root;
+			for(wi = word.begin(); wi != word.end(); wi++) {
+				n = n->find_or_create_child(*wi);
 			}
+
+			return n->set_answer(acceptance);
 		}}}
 
 		void add_query(list<int> & word, int prefix_count)
@@ -322,7 +391,7 @@ class knowledgebase {
 						required.push_back(*current);
 					}
 				}
-				current = (*current)->create_or_find_child(*wi);
+				current = (*current)->find_or_create_child(*wi);
 			}
 
 			// mark target itself
@@ -340,7 +409,7 @@ class knowledgebase {
 			current = root;
 
 			for(wi = word.begin(); wi != word.end(); wi++) {
-				current = (*current)->find_child(*wi);
+				current = (*current)->child(*wi);
 				if(current == NULL)
 					return false;
 			}
@@ -355,17 +424,48 @@ class knowledgebase {
 			}
 		}}}
 
+		bool resolve_or_add_query(list<int> & word, answer & acceptance)
+		// TODO: optimize
+		{{{
+			node * current;
+			list<int>::iterator wi;
+
+			current = root;
+
+			for(wi = word.begin(); wi != word.end(); wi++) {
+				current = (*current)->child(*wi);
+				if(current == NULL) {
+					add_query(word, 0);
+					return false;
+				}
+			}
+
+			if((*current)->status == node::NODE_ANSWERED) {
+				acceptance = (*current)->answer;
+				if(stat)
+					stat->query_count.membership++;
+				return true;
+			} else {
+				add_query(word, 0);
+				return false;
+			}
+		}}}
+
 		bool is_answered()
 		{{{
-			if(root)
-				return root->all_answered();
-			else
-				return true; // empty tree is alway answered
+			return root->no_subqueries();
 		}}}
 
 		bool is_empty()
 		{{{
-			return (root == NULL);
+			iterator it;
+			for(it = this->begin(); it != this->end(); it++) {
+				if(it->is_answered())
+					return false;
+				if(it->is_required())
+					return false;
+			}
+			return true;
 		}}}
 
 		iterator begin()
