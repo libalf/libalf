@@ -28,7 +28,7 @@ using namespace std;
 
 template <class answer>
 class knowledgebase {
-	private:
+	public: // types
 		class node {
 			friend class knowledgebase;
 			friend class knowledgebase::iterator;
@@ -217,7 +217,7 @@ class knowledgebase {
 
 
 
-		class iterator /* : forward_iterator< FIXME > */ {
+		class iterator : forward_iterator_tag {
 			private:
 				bool queries_only;
 				node * current;
@@ -271,14 +271,14 @@ class knowledgebase {
 
 
 		friend class knowledgebase::iterator;
-	private:
+	private: // data
 		// full tree
 		node * root;
 		// list of all nodes that are required
 		list<node *> required;
 
 		statistics * stat;
-	public:
+	public: // methods
 		knowledgebase()
 		{{{
 			stat = NULL;
@@ -522,7 +522,6 @@ class knowledgebase {
 			iterator it();
 			return it;
 		}}}
-
 
 };
 
