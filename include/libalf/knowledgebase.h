@@ -74,6 +74,21 @@ class knowledgebase {
 					else
 						return NULL;
 				}}}
+				void serialize_subtree(basic_string<int32_t> & into)
+				{{{
+					into += htonl(label);
+					into += htonl(status);
+
+					if(status == NODE_ANSWERED)
+						into += htonl(answer);
+
+					vector<node *>::iterator ci;
+					for(ci = children.begin(); ci != children.end(); ci++)
+						if(*ci != NULL)
+							ci->serialize_subtree(into);
+
+					into += htonl(BOTTOM_CHAR);
+				}}}
 			public: // methods
 				node(knowledgebase * base)
 				{{{
@@ -315,13 +330,21 @@ class knowledgebase {
 
 
 		basic_string<int32_t> serialize()
-		{
-		}
+		{{{
+			basic_string<int32_t> ret;
+
+			ret += 0; // sizeof, will be filled in later
+			// never forget epsilon ;-)
+			root->serialize_subtree(ret);
+			ret[0] = htonl(ret.size() - 1);
+		}}}
 		bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 		{
+			
 		}
-		bool deserialize_queries(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+		bool deserialize_query_acceptances(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 		{
+			
 		}
 
 		knowledgebase * create_query_tree()
