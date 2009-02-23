@@ -22,7 +22,7 @@
 #include <libalf/oracle.h>
 #include <libalf/statistics.h>
 #include <libalf/structured_query_tree.h>
-//#include <libalf/knowledgebase.h>
+#include <libalf/knowledgebase.h>
 #include <libalf/teacher.h>
 
 namespace libalf {

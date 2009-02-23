@@ -16,6 +16,7 @@
 
 #include <libalf/statistics.h>
 #include <libalf/structured_query_tree.h>
+#include <libalf/knowledgebase.h>
 
 namespace libalf {
 
@@ -55,6 +56,20 @@ class teacher {
 						word.pop_back();
 				}
 				qi->set_answers(results);
+			}
+		}}}
+
+		virtual void answer_knowledgebase(knowledgebase<answer> & base)
+		{{{
+			typename knowledgebase<answer>::iterator qi;
+			// resolving a query changes the query iterators...
+			// we have to walk around this
+			qi = base->qbegin();
+			while(qi != base->qend()) {
+				list<int> word;
+				word = qi->get_word();
+				qi->set_answer(this->membership_query(word));
+				qi = base->qbegin();
 			}
 		}}}
 

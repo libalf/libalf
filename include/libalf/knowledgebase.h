@@ -76,13 +76,14 @@ class knowledgebase {
 				}}}
 				void serialize_subtree(basic_string<int32_t> & into)
 				{{{
+					typename vector<node *>::iterator ci;
+
 					into += htonl(label);
 					into += htonl(status);
 
 					if(status == NODE_ANSWERED)
-						into += htonl(answer);
+						into += htonl((int32_t)ans);
 
-					vector<node *>::iterator ci;
 					for(ci = children.begin(); ci != children.end(); ci++)
 						if(*ci != NULL)
 							ci->serialize_subtree(into);
@@ -336,7 +337,10 @@ class knowledgebase {
 			ret += 0; // sizeof, will be filled in later
 			// never forget epsilon ;-)
 			root->serialize_subtree(ret);
+			// TODO: possibly reduce massive BOTTOM_CHARS at end?
 			ret[0] = htonl(ret.size() - 1);
+
+			return ret;
 		}}}
 		bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 		{
