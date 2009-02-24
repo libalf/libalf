@@ -22,6 +22,29 @@
 #include <libalf/alphabet.h>
 #include <libalf/statistics.h>
 
+// the knowledgebase holds membership information about a language.
+// to obtain information about a word w, use ::resolve_query().
+// if the requested information is not known, false will be returned.
+// if you wish it to be markes as to be acquired (status==NODE_REQUIRED),
+// use ::resolve_or_add_query().
+//
+// all membership information can be iterated via ::begin() .. ::end().
+// all queries via ::qbegin() .. ::qend().
+// the iterators resolve to a ::node. each node represents a word ::node::get_word().
+//
+// all nodes are contained in a single tree, with ::root representing epsilon.
+// thus, you can use ::node::parent() or ::node::child() to find all prefixes
+// of w or all words prefixed by w. if ::node::child() returns NULL, the concat
+// is not yet contained in the tree. using find_or_create_child() solves this
+// by adding a new node marked ::node::status==NODE_IGNORE and returning it.
+// for this task, you can also use ::add_knowledge().
+//
+// ::create_query_tree() creates a new knowledgebase containing only the
+// queries.
+//
+// ::merge_knowledgebase() merges membership information (no queries) from
+// another knowledgebase into this (e.g. an answered query tree created before)
+
 namespace libalf {
 
 using namespace std;
@@ -364,7 +387,9 @@ class knowledgebase {
 
 			return query_tree;
 		}}}
-		bool merge_query_tree(knowledgebase * query_tree)
+		bool merge_knowledgebase(knowledgebase * query_tree)
+		// only merges answered information, no queries!
+		// returns false if knowledge of the trees is inconsistent
 		{{{
 			iterator ki;
 			for(ki = query_tree->begin(); ki != query_tree->end(); ki++)
@@ -380,8 +405,8 @@ class knowledgebase {
 		// does not clear stats, only the tree
 		{{{
 			delete root;
-			root = new node(this);
 			required.clear();
+			root = new node(this);
 		}}}
 
 		bool add_knowledge(list<int> & word, answer acceptance)
