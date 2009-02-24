@@ -13,6 +13,7 @@ HEADER_INSTALLDIR=/usr/include
 CFLAGS+= -DDEBUG -DJAVAEXCEPT -DLIBAMORE -DUNIX -DLINUX -DBIT32
 CFLAGS+= -Wall
 CFLAGS+= -Iinclude
+CFLAGS+= -fno-stack-protector
 CPPFLAGS+= -shared -fpic
 
 # data objects

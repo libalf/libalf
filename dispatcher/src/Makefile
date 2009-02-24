@@ -9,6 +9,8 @@ VERSION=svn-r${SVNREVISION}${LOCALCHANGES}
 
 CPPFLAGS+=-Wall -I../../include/ -I ../include/ -ggdb3
 CPPFLAGS+=-D__cplusplus -DVERSION="\"${VERSION}\""
+# for ubuntu, try disabling stack-smashing due to linker failures:
+CPPFLAGS+=-fno-stack-protector
 LDFLAGS+=-lalf -lAMoRE
 
 OBJECTS=amore.o main.o servant.o serversocket.o session.o
