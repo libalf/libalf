@@ -240,7 +240,7 @@ class knowledgebase {
 
 
 
-		class iterator : forward_iterator_tag {
+		class iterator : std::iterator<std::forward_iterator_tag, node> {
 			private:
 				bool queries_only;
 				node * current;
@@ -251,15 +251,23 @@ class knowledgebase {
 					queries_only = false;
 					current = NULL;
 				}}}
+				iterator(const iterator & other)
+				{{{
+					queries_only = other.queries_only;
+					current = other.current;
+					knowledge = other.knowledge;
+				}}}
 				iterator(bool queries_only, node * current, knowledgebase * knowledge)
 				{{{
 					this->queries_only = queries_only;
 					this->current = current;
 					this->knowledge = knowledge;
 				}}}
+
 				iterator & operator++()
 				{{{
 					if(queries_only) {
+						// FIXME: optimize, use some internal qi.
 						typename list<node *>::iterator qi;
 						qi = find(knowledge->required.begin(), knowledge->required.end(), current);
 						if(qi != knowledge->required.end())
@@ -271,6 +279,23 @@ class knowledgebase {
 					}
 					return *this;
 				}}}
+
+				node & operator*()
+				{{{
+					return *current;
+				}}}
+				node * operator->()
+				{{{
+					return current;
+				}}}
+				iterator & operator=(const iterator & it)
+				{{{
+					queries_only = it.queries_only;
+					current = it.current;
+					knowledge = it.knowledge;
+
+					return *this;
+				}}}
 				bool operator==(const iterator & it)
 				{{{
 					return (current == it.current);
@@ -279,16 +304,7 @@ class knowledgebase {
 				{{{
 					return (current != it.current);
 				}}}
-				iterator & operator=(const iterator & it)
-				{{{
-					queries_only = it.queries_only;
-					current = it.current;
-					knowledge = it.knowledge;
-				}}}
-				node & operator*()
-				{{{
-					return * current;
-				}}}
+
 		}; // end of knowledgebase::iterator
 
 
@@ -528,7 +544,7 @@ class knowledgebase {
 
 		iterator end()
 		{{{
-			iterator it();
+			iterator it;
 			return it;
 		}}}
 
@@ -544,7 +560,7 @@ class knowledgebase {
 
 		iterator qend()
 		{{{
-			iterator it();
+			iterator it;
 			return it;
 		}}}
 
