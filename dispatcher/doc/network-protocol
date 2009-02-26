@@ -87,10 +87,25 @@ SESSION-RELATED COMMANDS:
 			CM_SES_SET_STATUS
 			session id
 			status[]
-
 		server answers
 			SM_SES_ACK_SET_STATUS
 			bool ok (true if success, false otherwise)
+
+	request session-knowledge
+		client sends
+			CM_SES_REQ_KNOWLEDGE
+			session id
+		server answers
+			SM_SES_ACK_REQ_KNOWLEDGE
+			knowledgebase[]
+	set session-knowledge
+		client sends
+			CM_SES_SET_KNOWLEDGE
+			bool [clear old knowledge?]
+			knowledgebase[]
+		server answers
+			SM_SES_ACK_SET_KNOWLEDGE
+			bool
 
 	conjecture (true, if a hypothesis can be resolved from current state)
 		client sends
@@ -519,6 +534,7 @@ int32_t statistics [] {
 	table size: lower table
 	table size: columns
 	membership query count
+	uniq membership query count
 	equivalence query count
 }
 

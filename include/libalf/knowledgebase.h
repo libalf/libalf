@@ -505,14 +505,20 @@ class knowledgebase {
 			return ret;
 		}}}
 		bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+		// FIXME
 		{
-			// FIXME
+			int size;
+			int count;
+
+			clear();
+
 			
+
 			return false;
 		}
 		bool deserialize_query_acceptances(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+		// FIXME
 		{
-			// FIXME
 			
 			return false;
 		}
@@ -530,12 +536,12 @@ class knowledgebase {
 
 			return query_tree;
 		}}}
-		bool merge_knowledgebase(knowledgebase * query_tree)
+		bool merge_knowledgebase(knowledgebase & other_tree)
 		// only merges answered information, no queries!
 		// returns false if knowledge of the trees is inconsistent
 		{{{
 			iterator ki;
-			for(ki = query_tree->begin(); ki != query_tree->end(); ++ki)
+			for(ki = other_tree.begin(); ki != other_tree.end(); ++ki)
 				if(ki->is_answered())
 					if(!add_knowledge(ki->get_word(), ki->get_answer()))
 						return false;

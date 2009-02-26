@@ -32,6 +32,7 @@ class statistics {
 
 		struct {
 			int membership;
+			int uniq_membership;
 			int equivalence;
 		} query_count;
 

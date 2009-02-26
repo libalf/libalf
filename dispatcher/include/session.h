@@ -26,7 +26,7 @@ class session {
 		learning_algorithm<extended_bool> * alg;
 		enum learning_algorithm<extended_bool>::algorithm alg_type;
 		finite_language_automaton * hypothesis_automaton;
-		structured_query_tree<extended_bool> * latest_query;
+		knowledgebase<extended_bool> knowledge;
 		normalizer * norm;
 	public:
 		session();
@@ -37,9 +37,11 @@ class session {
 		bool set_modalities(serversocket * sock);
 		bool answer_status(serversocket * sock);
 		bool set_status(serversocket * sock);
+		bool answer_knowledge(serversocket * sock);
+		bool set_knowledge(serversocket * sock);
 		bool answer_conjecture(serversocket * sock);
 		bool advance(serversocket * sock);
-		bool get_sqt(serversocket * sock);
+		bool get_query_answer(serversocket * sock);
 		bool get_counterexamples(serversocket * sock);
 		bool get_counterexamples_and_answer(serversocket * sock);
 		bool answer_alphabet_size(serversocket * sock);

@@ -30,7 +30,6 @@ session::session()
 	alg = NULL;
 	alg_type = learning_algorithm<extended_bool>::ALG_NONE;
 	hypothesis_automaton = NULL;
-	latest_query = NULL;
 	norm = NULL;
 	logger.set_minimal_loglevel(LOGGER_DEBUG);
 	logger.set_log_algorithm(true);
@@ -42,11 +41,10 @@ session::session(enum learning_algorithm<extended_bool>::algorithm algorithm, in
 	logger.set_minimal_loglevel(LOGGER_DEBUG);
 	logger.set_log_algorithm(true);
 	alg_type = algorithm;
-	latest_query = NULL;
 	norm = NULL;
 	switch (algorithm) {
 		case learning_algorithm<extended_bool>::ALG_ANGLUIN:
-			alg = new angluin_simple_observationtable<extended_bool>(NULL, &logger, alphabet_size);
+			alg = new angluin_simple_observationtable<extended_bool>(NULL, &knowledge, &logger, alphabet_size);
 			hypothesis_automaton = new deterministic_finite_amore_automaton;
 			logger(LOGGER_INFO, "new session: angluin observationtable\n");
 			break;
@@ -231,6 +229,60 @@ bool session::set_status(serversocket * sock)
 
 	return (bi == blob.end());
 }}}
+bool session::answer_knowledge(serversocket * sock);
+// TODO: CHECK!
+{{{
+	if(!sock->stream_send_int(htonl(SM_SES_ACK_REQ_KNOWLEDGE)))
+		return false;
+	basic_string<int32_t> blob;
+	blob = knowledge.serialize();
+	return sock_stream_send_blob(blob);
+}}}
+bool session::set_knowledge(serversocket * sock);
+// TODO: CHECK!
+{{{
+	int count;
+	int32_t d;
+	basic_string<int32_t> blob; // ntohl of this is done in knowledge.deserialize() !
+	basic_string<int32_t>::iterator bi;
+	bool clear_old;
+	bool ok = true;
+
+	if(!sock->stream_receive_int(d))
+		return false;
+	clear_old = d;
+
+	if(!sock->stream_receive_int(d))
+		return false;
+	blob += d;
+
+	// receive full knowledgebase data
+	for(count = ntohl(d); count > 0; count--) {
+		if(!sock->stream_receive_int(d))
+			return false;
+		blob += d;
+	}
+
+	if(!sock->stream_send_int(htonl(SM_SES_ACK_SET_KNOWLEDGE)))
+		return false;
+
+	bi = blob.begin();
+
+	if(clear_old) {
+		knowledge.clear();
+		knowledge.deserialize(bi, blob.end());
+	} else {
+		knowledgebase newknowledge;
+		newknowledge.deserialize(bi, blob.end());
+		ok = knowledge.merge_knowledgebase(newknowledge);
+	}
+
+	// send status of deserialization to client
+	if(!sock->stream_send_int(htonl(ok)))
+		return false;
+
+	return (bi == blob.end());
+}}}
 bool session::answer_conjecture(serversocket * sock)
 {{{
 	if(!sock->stream_send_int(htonl(SM_SES_ACK_CONJECTURE)))
@@ -238,81 +290,61 @@ bool session::answer_conjecture(serversocket * sock)
 	return sock->stream_send_int(htonl( alg->conjecture_ready() ? 1 : 0 ));
 }}}
 bool session::advance(serversocket * sock)
+// TODO: CHECK!
 {{{
 	basic_string<int32_t> blob;
 
-	if(latest_query)
-		delete latest_query;
-
 	latest_query = alg->advance(hypothesis_automaton);
 
-	if(latest_query) {
-		// send latest query to client
-		if(!sock->stream_send_int(htonl(SM_SES_ACK_ADVANCE_SQT)))
-			return false;
-		blob = latest_query->serialize();
-	} else {
+	if(alg->advance(hypothesis_automaton)) {
 		// send automaton to client
 		if(!sock->stream_send_int(htonl(SM_SES_ACK_ADVANCE_AUTOMATON)))
 			return false;
 		blob = hypothesis_automaton->serialize();
 		stats.query_count.equivalence++;
+	} else {
+		// send query to client
+		if(!sock->stream_send_int(htonl(SM_SES_ACK_ADVANCE_QUERY)))
+			return false;
+
+		knowledgebase * querytree;
+		querytree = knowledge.create_query_tree();
+		stats.membership.uniq_membership += querytree->count_queries();
+		blob = querytree->serialize();
+		delete querytree;
 	}
 
 	return sock->stream_send_blob(blob);
 }}}
-bool session::get_sqt(serversocket * sock)
+bool session::get_query_answer(serversocket * sock)
+// TODO: CHECK!
 {{{
-	int32_t count;
+	int count;
 	int32_t d;
+	basic_string<int32_t> blob; // ntohl of this is done in alg->deserialize() !
+	basic_string<int32_t>::iterator bi;
 
 	if(!sock->stream_receive_int(d))
 		return false;
-	count = ntohl(d);
-
-	if(!latest_query) {
-		logger(LOGGER_ERROR, "client sent answer for query but there is no active query! trying to ignore.\n");
-		for(count = ntohl(d); count > 0; count--)
-			if(!sock->stream_receive_int(d))
-				return false;
-		if(!sock->stream_send_int(htonl(SM_SES_ACK_ANSWER_SQT)))
-			return false;
-		return sock->stream_send_int(htonl(0));
-	}
-
-	basic_string<int32_t> blob;
-	basic_string<int32_t>::iterator bi;
-
-	blob += d; // count, in network byte order
+	blob += d;
 
 	for(count = ntohl(d); count > 0; count--) {
 		if(!sock->stream_receive_int(d))
 			return false;
 		blob += d;
 	}
+
+	if(!sock->stream_send_int(htonl(SM_SES_ACK_ANSWER_QUERIES)))
+		return false;
+
 	bi = blob.begin();
-	if(!latest_query->deserialize_acceptances(bi, blob.end()))
-		return false;
-	if(bi != blob.end())
-		return false;
+	d = knowledge.deserialize_query_acceptances(bi, blob.end());
 
-	if( ! latest_query->is_answered()) {
-		// skip this sqt as something failed
-		logger(LOGGER_ERROR, "client sent answers for structured query tree, but SQT seems not to be fully answered!\n");
-		if(!sock->stream_send_int(htonl(SM_SES_ACK_ANSWER_SQT)))
-			return false;
-		return sock->stream_send_int(htonl(0));
-	}
-
-	latest_query->set_statistics(&stats);
-
-	if( ! alg->learn_from_structured_query( *latest_query ))
-		logger(LOGGER_ERROR, "client sent answer for SQT which seemed to be fine for the SQT, but algorithm can not make any sense from resulting SQT.\n");
-
-	if(!sock->stream_send_int(htonl(SM_SES_ACK_ANSWER_SQT)))
+	// send status of deserialization to client
+	if(!sock->stream_send_int(htonl(d)))
 		return false;
 
-	return sock->stream_send_int(htonl(1));
+	return (bi == blob.end());
 }}}
 bool session::get_counterexamples(serversocket * sock)
 {{{

@@ -36,6 +36,7 @@ void statistics::reset()
 	table_size.columns = 0;
 
 	query_count.membership = 0;
+	query_count.uniq_membership = 0;
 	query_count.equivalence = 0;
 }}}
 
@@ -53,6 +54,7 @@ basic_string<int32_t> statistics::serialize()
 	ret += htonl(table_size.columns);
 
 	ret += htonl(query_count.membership);
+	ret += htonl(query_count.uniq_membership);
 	ret += htonl(query_count.equivalence);
 
 	ret[0] = htonl( ret.length() - 1 );
@@ -91,6 +93,9 @@ bool statistics::deserialize(basic_string<int32_t>::iterator & it, basic_string<
 	// query_count.membership
 	it++; size--; if(size <= 0 || limit == it) goto deserialization_failed;
 	query_count.membership = ntohl(*it);
+	// query_count.uniq_membership
+	it++; size--; if(size <= 0 || limit == it) goto deserialization_failed;
+	query_count.uniq_membership = ntohl(*it);
 	// query_count.equivalence
 	it++; size--; if(size <= 0 || limit == it) goto deserialization_failed;
 	query_count.equivalence = ntohl(*it);

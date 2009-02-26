@@ -101,9 +101,11 @@ bool servant::serve()
 		case CM_SES_SET_MODALITIES:
 		case CM_SES_REQ_STATUS:
 		case CM_SES_SET_STATUS:
+		case CM_SES_REQ_KNOWLEDGE:
+		case CM_SES_SET_KNOWLEDGE:
 		case CM_SES_CONJECTURE:
 		case CM_SES_ADVANCE:
-		case CM_SES_ANSWER_SQT:
+		case CM_SES_ANSWER_QUERIES:
 		case CM_SES_GIVE_COUNTEREXAMPLES:
 		case CM_SES_GIVE_COUNTEREXAMPLES_AND_ANSWERS:
 		case CM_SES_REQ_ALPHABET_SIZE:
@@ -133,12 +135,16 @@ bool servant::serve()
 					return ses->answer_status(client);
 				case CM_SES_SET_STATUS:
 					return ses->set_status(client);
+				case CM_SES_REQ_KNOWLEDGE:
+					return ses->answer_knowledge(client);
+				case CM_SES_SET_KNOWLEDGE:
+					return ses->set_knowledge(client);
 				case CM_SES_CONJECTURE:
 					return ses->answer_conjecture(client);
 				case CM_SES_ADVANCE:
 					return ses->advance(client);
-				case CM_SES_ANSWER_SQT:
-					return ses->get_sqt(client);
+				case CM_SES_ANSWER_QUERIES:
+					return ses->get_query_answer(client);
 				case CM_SES_GIVE_COUNTEREXAMPLES:
 					return ses->get_counterexamples(client);
 				case CM_SES_GIVE_COUNTEREXAMPLES_AND_ANSWERS:
