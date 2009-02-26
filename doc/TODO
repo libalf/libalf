@@ -16,6 +16,8 @@ B)
   (binary search over state count?)
 - RFSA, RFSA-algorithm
 
+- implement normalizer extension in dispatcher and normalizer
+
 C)
 
 - in learn_regex: check/fix '+' operator in regex on command-line

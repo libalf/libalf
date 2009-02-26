@@ -113,7 +113,7 @@ SESSION-RELATED COMMANDS:
 				SM_SES_ACK_ADVANCE_QUERIES
 				query tree[]
 
-	answer structured query tree
+	answer query tree
 		client sends
 			CM_SES_ANSWER_QUERIES
 			session id
@@ -307,6 +307,9 @@ enum server_message {
 
 // (enum server_message corresponds to dispatcher::server_message)
 
+#define BOTTOM_CHAR -42
+// BOTTOM_CHAR corresponds to BOTTOM_CHAR in alphabet.h
+
 enum algorithm {
 	ALG_NONE = 0,
 	ALG_ANGLUIN = 1,
@@ -452,11 +455,40 @@ int32_t automaton [] {
 	}
 }
 
+int32_t query tree[]
+this is a knowledgebase[] consisting only of queries
 
+int32_t knowledgebase[] {
+	length of upcoming data (excluding this field)
+	recursive node definition of root []
+}
 
-// FIXME: KNOWLEDGEBASE / QUERY TREE DEFINITIONS
+// where a recursive node definition looks like the following:
+{
+	label of node
+	knowledgebase_node_status
+	if answered, answer (otherwise this field is skipped!)
+	recursive node definition of all children
+	BOTTOM_CHAR
+}
 
+// the root node has a label of -1 (epsilon);
+// a node corresponds to a word. this word is the concat of all labels of all
+// nodes leading from the root node to this node, excluding any epsilon (-1)
+// and INCLUDING the label of the node itself.
+// the knowledge about a word/node is defined by a status and possibly an answer:
+// the status may be: ignore (we don't yet care about this knowledge), required
+// (we need this knowledge, this is used for a query) and answered (we already
+// have this knowledge). if answered, an answer is given. otherwise, the answer-
+// field is skipped.
 
+enum knowledgebase_node_status {
+	NODE_IGNORE			= 0,
+	NODE_REQUIRED			= 1,
+	NODE_ANSWERED			= 2
+}
+
+// (enum knowledgebase_node_status corresponds to knowledgebase::node::status_e)
 
 enum acceptance {
 	ACCEPTANCE_FALSE		= 0,
