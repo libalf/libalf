@@ -241,7 +241,7 @@ class knowledgebase {
 
 					return true;
 				}}}
-				int get_size()
+				int get_memory_usage()
 				{{{
 					int ret;
 					typename vector<node*>::iterator ci;
@@ -249,7 +249,7 @@ class knowledgebase {
 					ret = sizeof(this) + sizeof(node *) * children.size();
 					for(ci = children.begin(); ci != children.end(); ci++)
 						if(*ci)
-							ret += (*ci)->get_size();
+							ret += (*ci)->get_memory_usage();
 
 					return ret;
 				}}}
@@ -352,12 +352,12 @@ class knowledgebase {
 			delete root;
 		}}}
 
-		int get_size_in_bytes()
+		int get_memory_usage()
 		{{{
 			int ret;
 
 			ret = sizeof(this);
-			ret += root->get_size();
+			ret += root->get_memory_usage();
 			ret += sizeof(node*) * required.size();
 
 			return ret;
@@ -454,7 +454,7 @@ class knowledgebase {
 			// never forget epsilon ;-)
 			root->serialize_subtree(ret);
 			// TODO: possibly reduce massive BOTTOM_CHARS at end?
-			ret[0] = htonl(ret.size() - 1);
+			ret[0] += htonl(ret.size() - 1);
 
 			return ret;
 		}}}

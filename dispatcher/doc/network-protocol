@@ -110,16 +110,16 @@ SESSION-RELATED COMMANDS:
 				automaton[]
 		or server answers
 			B)
-				SM_SES_ACK_ADVANCE_SQT
-				structured query tree[]
+				SM_SES_ACK_ADVANCE_QUERIES
+				query tree[]
 
 	answer structured query tree
 		client sends
-			CM_SES_ANSWER_SQT
+			CM_SES_ANSWER_QUERIES
 			session id
-			answer for structured query tree[]
+			answer for query tree[]
 		server answers
-			SM_SES_ACK_ANSWER_SQT
+			SM_SES_ACK_ANSWER_QUERIES
 			bool ok (true if success, false otherwise)
 
 	give counter-examples
@@ -242,7 +242,7 @@ enum client_message {
 
 	CM_SES_ADVANCE = 25,
 
-	CM_SES_ANSWER_SQT = 27,
+	CM_SES_ANSWER_QUERIES = 27,
 
 	CM_SES_GIVE_COUNTEREXAMPLES = 28,
 	CM_SES_GIVE_COUNTEREXAMPLES_AND_ANSWERS = 29,
@@ -283,9 +283,9 @@ enum server_message {
 	SM_SES_CONJECTURE = 24,
 
 	SM_SES_ACK_ADVANCE_AUTOMATON = 25,
-	SM_SES_ACK_ADVANCE_SQT = 26,
+	SM_SES_ACK_ADVANCE_QUERIES = 26,
 
-	SM_SES_ACK_ANSWER_SQT = 27,
+	SM_SES_ACK_ANSWER_QUERIES = 27,
 	
 	SM_SES_ACK_COUNTEREXAMPLES = 28,
 	SM_SES_ACK_COUNTEREXAMPLES_AND_ANSWERS = 29,
@@ -452,45 +452,11 @@ int32_t automaton [] {
 	}
 }
 
-int32_t structured query tree [] {
-	length of upcoming data (excluding this field)
-	count
-	{
-		prefix enabled query
-	} (count times)
-}
 
-int32_t prefix enabled query {
-	length of upcoming data (excluding this field)
-	prefix count
-	serialized word[]
-	acceptance count
-	enum acceptance []
-}
 
-// note on structured query tree and prefix enabled queries:
-// for now the SQT is a list of prefix-enabled queries. 
-// a prefix-enabled query is a query for the acceptance of a word
-// and some of its longest prefixes:
-// an example:
-//    prefix enabled query {
-//		8			size
-//		5 { .0.0.1.3.2. }	serialized word
-//		2			prefix count
-//		3			acceptance count
-//		{ 4, 0, 2 }		acceptances
-// this query asks for acceptances for the word .0.0.1.3.2. and
-// two of its longest prefixes, i.e. .0.0.1.3. and .0.0.1.
-// as a prefix-enabled query may contain answers (so that an
-// just answered SQT may be serialized), acceptance count
-// is the number of upcoming acceptances. the list of these
-// acceptances (here 5,0,0) is matched to the words like this:
-// the first acceptance belongs to the word itself, the next
-// acceptance to the longest prefix, the acceptance after this
-// to the second-longest prefix and so on. thus, in the above
-// example, the word .0.0.1.3.2. is accepted, its prefix
-// .0.0.1.3. is not accepted and the acceptance for .0.0.1.
-// is unknown.
+// FIXME: KNOWLEDGEBASE / QUERY TREE DEFINITIONS
+
+
 
 enum acceptance {
 	ACCEPTANCE_FALSE		= 0,
@@ -500,7 +466,7 @@ enum acceptance {
 
 // (enum acceptance corresponds to a serialized libalf::extended_bool)
 
-int32_t answer for structured query tree [] {
+int32_t answer for query tree [] {
 	length of upcoming data (excluding this field)
 	enum acceptance[]
 }
