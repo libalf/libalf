@@ -54,6 +54,7 @@ class knowledgebase {
 	public: // types
 		class node {
 			friend class libalf::knowledgebase<answer>;
+			friend class libalf::knowledgebase<answer>::iterator;
 			public: // types
 				enum status_e {
 					NODE_IGNORE = 0,
@@ -69,7 +70,7 @@ class knowledgebase {
 				int label;
 				enum status_e status;
 				answer ans;
-			public: // internal methods
+			protected: // internal methods
 				node* get_next(node * current_child)
 				// used during iterator++
 				{{{
@@ -159,6 +160,7 @@ class knowledgebase {
 						children[label] = new node(base);
 						children[label]->parent = this;
 						children[label]->label = label;
+						base->nodecount++;
 					}
 
 					return children[label];
@@ -221,15 +223,17 @@ class knowledgebase {
 					status = NODE_ANSWERED;
 					this->ans = ans;
 
+					base->answercount++;
+
 					return true;
 				}}}
 				answer get_answer()
 				{{{
 					  return ans;
 				}}}
-				bool no_subqueries()
+				bool no_subqueries(bool check_self = true)
 				{{{
-					if(status == NODE_REQUIRED)
+					if(check_self && status == NODE_REQUIRED)
 						return false;
 
 					typename vector<node*>::iterator ci;
@@ -326,30 +330,50 @@ class knowledgebase {
 
 
 
-		friend class libalf::knowledgebase<answer>::iterator;
 		friend class libalf::knowledgebase<answer>::node;
-	private: // data
+		friend class libalf::knowledgebase<answer>::iterator;
+	protected: // data
 		// full tree
 		node * root;
 		// list of all nodes that are required
 		list<node *> required;
 
+		int nodecount;
+		int answercount;
+		// count_queries is required.size().
+
 		statistics * stat;
 	public: // methods
 		knowledgebase()
 		{{{
+			root = NULL;
+			clear();
 			stat = NULL;
-			root = new node(this);
 		}}}
 		knowledgebase(statistics * stat)
 		{{{
+			root = NULL;
+			clear();
 			this->stat = stat;
-			root = new node(this);
 		}}}
 
 		~knowledgebase()
 		{{{
 			delete root;
+		}}}
+
+		void clear()
+		// does not clear stats, only the tree
+		{{{
+			if(root) // check only required so we dont bang in constructors
+				delete root;
+
+			required.clear();
+
+			root = new node(this);
+
+			nodecount = 1;
+			answercount = 0;
 		}}}
 
 		int get_memory_usage()
@@ -362,6 +386,29 @@ class knowledgebase {
 
 			return ret;
 		}}}
+
+		bool is_answered()
+		{{{
+			return (required.size() == 0);
+		}}}
+		bool is_empty()
+		{{{
+			return ( (required.size() == 0) && (answercount == 0) );
+		}}}
+
+		int count_nodes()
+		{{{
+			return nodecount;
+		}}}
+		int count_answers()
+		{{{
+			return answercount;
+		}}}
+		int count_queries()
+		{{{
+			return required.size();
+		}}}
+
 
 		void print(ostream &os)
 		{{{
@@ -382,7 +429,6 @@ class knowledgebase {
 
 			os << "knowledgebase END\n";
 		}}}
-
 		string generate_dotfile()
 		{{{
 			string ret;
@@ -496,15 +542,7 @@ class knowledgebase {
 			return true;
 		}}}
 
-		// assistant / filter
-
-		void clear()
-		// does not clear stats, only the tree
-		{{{
-			delete root;
-			required.clear();
-			root = new node(this);
-		}}}
+		// FIXME: assistant / filter
 
 		bool add_knowledge(list<int> & word, answer acceptance)
 		// will return false if knowledge for this word was already set and is != acceptance.
@@ -521,7 +559,6 @@ class knowledgebase {
 
 			return n->set_answer(acceptance);
 		}}}
-
 		int add_query(list<int> & word, int prefix_count = 0)
 		// returns the number of new required nodes (excluding those already known.
 		{{{
@@ -547,7 +584,6 @@ class knowledgebase {
 
 			return new_queries;
 		}}}
-
 		bool resolve_query(list<int> & word, answer & acceptance)
 		// returns true if known
 		{{{
@@ -571,7 +607,6 @@ class knowledgebase {
 				return false;
 			}
 		}}}
-
 		bool resolve_or_add_query(list<int> & word, answer & acceptance)
 		// returns true if known.
 		// otherwise marks knowledge as to-be-acquired and returns false.
@@ -596,29 +631,11 @@ class knowledgebase {
 			}
 		}}}
 
-		bool is_answered()
-		{{{
-			return root->no_subqueries();
-		}}}
-
-		bool is_empty()
-		{{{
-			iterator it;
-			for(it = this->begin(); it != this->end(); ++it) {
-				if(it->is_answered())
-					return false;
-				if(it->is_required())
-					return false;
-			}
-			return true;
-		}}}
-
 		iterator begin()
 		{{{
 			iterator it(false, root, this);
 			return it;
 		}}}
-
 		iterator end()
 		{{{
 			iterator it;
@@ -634,7 +651,6 @@ class knowledgebase {
 				return it;
 			}
 		}}}
-
 		iterator qend()
 		{{{
 			iterator it;

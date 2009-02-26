@@ -466,7 +466,7 @@ int32_t knowledgebase[] {
 // where a recursive node definition looks like the following:
 {
 	label of node
-	knowledgebase_node_status
+	enum knowledgebase_node_status
 	if answered, answer (otherwise this field is skipped!)
 	recursive node definition of all children
 	BOTTOM_CHAR

@@ -16,6 +16,8 @@ B)
   (binary search over state count?)
 - RFSA, RFSA-algorithm
 
+- assistants in knowledgebase
+
 - implement normalizer extension in dispatcher and normalizer
 
 C)
