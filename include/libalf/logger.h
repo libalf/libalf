@@ -50,6 +50,11 @@ class logger : public binary_function< enum logger_loglevel, string&, void > {
 
 };
 
+class ignore_logger : public logger {
+	protected:
+		virtual void log(enum logger_loglevel l, char* s) { };
+};
+
 class ostream_logger : public logger {
 	private:
 		ostream *out;

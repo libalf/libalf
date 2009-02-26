@@ -88,6 +88,22 @@ void print_word(list<int> &word)
 		printf("%d.", *l);
 }}}
 
+string word2string(list<int> &word, char separator = '.')
+{{{
+	string ret;
+	char buf[32];
+
+	ret += separator;
+
+	for(list<int>::iterator wi = word.begin(); wi != word.end(); wi++) {
+		snprintf(buf, 32, "%d%c", *wi, separator);
+		buf[31] = 0;
+		ret += buf;
+	}
+
+	return ret;
+}}}
+
 basic_string<int32_t> serialize_word(list<int> &word)
 {{{
 	basic_string<int32_t> ret;

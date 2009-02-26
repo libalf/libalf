@@ -38,8 +38,13 @@ int main(int argc, char**argv)
 
 	finite_language_automaton *nfa;
 	ostream_logger log(&cout, LOGGER_DEBUG);
+
 	teacher_automaton<ANSWERTYPE> teach;
 	teacher<ANSWERTYPE> * teacher_p;
+
+	knowledgebase<ANSWERTYPE> knowledge;
+	knowledgebase<ANSWERTYPE> * knowledge_p;
+
 	oracle_automaton o;
 
 	char filename[128];
@@ -53,8 +58,8 @@ int main(int argc, char**argv)
 	// use NFA or DFA as oracle/teacher source?
 	bool use_nfa = false;
 
-	// use structured query tree or directly give teacher to algorithm?
-	bool use_sqt = true;
+	// use knowledgebase or directly give teacher to algorithm?
+	bool use_knowledgebase = true;
 
 	// init AMoRE buffers
 	initbuf(); // XXX LEAK
@@ -116,27 +121,26 @@ int main(int argc, char**argv)
 	o.set_statistics_counter(&stats);
 
 	// create angluin_simple_observationtable and teach it the automaton
-	if(use_sqt)
+	if(use_knowledgebase) {
 		teacher_p = NULL;
-	else
+		knowledge_p = &knowledge;
+	} else {
 		teacher_p = &teach;
-	angluin_simple_observationtable<ANSWERTYPE> ot(teacher_p, &log, alphabet_size);
+		knowledge_p = NULL;
+	}
+	angluin_simple_observationtable<ANSWERTYPE> ot(teacher_p, knowledge_p, &log, alphabet_size);
 	deterministic_finite_amore_automaton hypothesis;
 
 	for(iteration = 1; iteration <= 100; iteration++) {
-		structured_query_tree<ANSWERTYPE> * sqt;
-		while( (sqt = ot.advance(&hypothesis)) != NULL) {
-
-			// resolve SQT
-			teach.answer_structured_query(*sqt);
-
-			// apply SQT
-			if( ! ot.learn_from_structured_query(*sqt) ) {
-				cout << "failed to learn from incomplete SQT!\n";
-				return 1;
+		while( ! ot.advance(&hypothesis) ) {
+			// resolve missing knowledge
+			teach.answer_knowledgebase(*knowledge_p);
+			if(use_knowledgebase) {
+				snprintf(filename, 128, "knowledgebase%2d.dot", iteration);
+				file.open(filename);
+				file << knowledge.generate_dotfile();
+				file.close();
 			}
-
-			delete sqt;
 		}
 
 		snprintf(filename, 128, "observationtable%2d.text.angluin", iteration);

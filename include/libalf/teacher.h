@@ -15,7 +15,6 @@
 #include <list>
 
 #include <libalf/statistics.h>
-#include <libalf/structured_query_tree.h>
 #include <libalf/knowledgebase.h>
 
 namespace libalf {
@@ -37,26 +36,6 @@ class teacher {
 		virtual void set_statistics_counter(statistics * stats)
 		{{{
 			this->stats = stats;
-		}}}
-
-		virtual void answer_structured_query(structured_query_tree<answer> & sqt)
-		{{{
-			typename structured_query_tree<answer>::iterator qi;
-
-			for(qi = sqt.begin(); qi != sqt.end(); qi++) {
-				int prefix;
-				list<int> word;
-				list<answer> results;
-
-				word = qi->get_word();
-
-				for(prefix = qi->get_prefix_count(); prefix >= 0; prefix--) {
-					results.push_back(this->membership_query(word));
-					if(prefix)
-						word.pop_back();
-				}
-				qi->set_answers(results);
-			}
 		}}}
 
 		virtual void answer_knowledgebase(knowledgebase<answer> & base)

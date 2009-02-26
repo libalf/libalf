@@ -25,9 +25,7 @@
 #include <libalf/alphabet.h>
 #include <libalf/logger.h>
 #include <libalf/learning_algorithm.h>
-#include <libalf/structured_query_tree.h>
 #include <libalf/automata.h>
-#include <libalf/normalizer.h>
 
 namespace libalf {
 
@@ -74,18 +72,15 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		table upper_table;
 		table lower_table;
 
-		teacher<answer> * teach;
-		logger * log;
-		normalizer * norm;
 		int alphabet_size;
 		bool initialized;
 
 	public:
 		angluin_observationtable()
 		{{{
-			teach = NULL;
-			log = NULL;
-			norm = NULL;
+			this->set_knowledge_source(NULL, NULL);
+			this->set_logger(NULL);
+			this->set_normalizer(NULL);
 			alphabet_size = 0;
 			initialized = false;
 		}}}
@@ -100,66 +95,21 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			return alphabet_size;
 		}}}
 
-		virtual void set_teacher(teacher<answer> * teach)
-		{{{
-			this->teach = teach;
-		}}}
-
-		virtual void unset_teacher()
-		{{{
-			this->teach = NULL;
-		}}}
-
-		virtual teacher<answer> * get_teacher()
-		{{{
-			return teach;
-		}}}
-
-		virtual void set_logger(logger * l)
-		{{{
-			log = l;
-		}}}
-
-		virtual logger * get_logger()
-		{{{
-			return log;
-		}}}
-
-		virtual void set_normalizer(normalizer * norm)
-		{{{
-			if(this->norm)
-				delete this->norm;
-			this->norm = norm;
-		}}}
-
-		virtual normalizer * get_normalizer()
-		{{{
-			  return norm;
-		}}}
-
-		virtual void unset_normalizer()
-		{{{
-			if(norm)
-				delete norm;
-			norm = NULL;
-		}}}
 
 		virtual void get_memory_statistics(statistics & stats) = 0;
 
 		virtual void undo()
 		{{{
-			  if(log)
-				  (*log)(LOGGER_ERROR, "simple_observationtable::undo() is not implemented.\naborting.\n");
+			(*this->my_logger)(LOGGER_ERROR, "simple_observationtable::undo() is not implemented.\naborting.\n");
 
-			  // FIXME: undo is not implemented
+			// FIXME: undo is not implemented
 		}}}
 
 		virtual void redo()
 		{{{
-			  if(log)
-				  (*log)(LOGGER_ERROR, "simple_observationtable::redo() is not implemented.\naborting.\n");
+			(*this->my_logger)(LOGGER_ERROR, "simple_observationtable::redo() is not implemented.\naborting.\n");
 
-			  // FIXME: redo is not implemented
+			// FIXME: redo is not implemented
 		}}}
 
 		virtual basic_string<int32_t> serialize()
@@ -264,81 +214,6 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			return initialized && columns_filled() && is_closed() && is_consistent();
 		}}}
 
-		virtual structured_query_tree<answer> * advance(finite_language_automaton * automaton)
-		{{{
-			structured_query_tree<answer> * ret;
-
-			ret = complete();
-
-			if(!ret)
-				if( ! derive_automaton(automaton) )
-					(*log)(LOGGER_ERROR, "angluin_observationtable::advance(): derive of complete tabled failed!\n");
-
-			return ret;
-		}}}
-
-		virtual bool learn_from_structured_query(structured_query_tree<answer> & sqt)
-		{{{
-			typename table::iterator uti, lti;
-
-			// upper table
-			for(uti = upper_table.begin(); uti != upper_table.end(); uti++) {
-				if(uti->acceptance.size() < column_names.size()) {
-					// fill in missing acceptance information
-					columnlist::iterator ci;
-					ci = column_names.begin();
-					ci += uti->acceptance.size();
-					for(/* -- */; ci != column_names.end(); ci++) {
-						if(!ci->empty() && ci->front() == BOTTOM_CHAR) {
-							answer a;
-							a = false;
-							uti->acceptance.push_back(a);
-						} else {
-							list<int> *w;
-							answer a;
-							w = concat(uti->index, *ci);
-							if( ! sqt.resolve_query(*w, a) ) {
-								return false;
-							}
-
-							uti->acceptance.push_back(a);
-
-							delete w;
-						}
-					}
-				}
-			}
-			// lower table
-			for(lti = lower_table.begin(); lti != lower_table.end(); lti++) {
-				if(lti->acceptance.size() < column_names.size()) {
-					// fill in missing acceptance information
-					columnlist::iterator ci;
-					ci = column_names.begin();
-					ci += lti->acceptance.size();
-					for(/* -- */; ci != column_names.end(); ci++) {
-						if(!ci->empty() && ci->front() == BOTTOM_CHAR) {
-							answer a;
-							a = false;
-							lti->acceptance.push_back(a);
-						} else {
-							list<int> *w;
-							answer a;
-							w = concat(lti->index, *ci);
-							if( ! sqt.resolve_query(*w, a) ) {
-								return false;
-							}
-
-							lti->acceptance.push_back(a);
-
-							delete w;
-						}
-					}
-				}
-			}
-
-			return true;
-		}}}
-
 		// FIXME: warn if bottom and true
 		virtual void add_counterexample(list<int> word, answer a)
 		{{{
@@ -367,8 +242,8 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			}
 
 			// add answer for counterexample
-			if(norm)
-				word = norm->prefix_normal_form(word, bottom);
+			if(this->norm)
+				word = this->norm->prefix_normal_form(word, bottom);
 			if(!bottom) {
 				typename table::iterator uti = search_upper_table(word);
 				if(uti->acceptance.size() == 0) {
@@ -380,9 +255,9 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			} else {
 				// bottom is filled automatically
 				if(a == true)
-					(*log)(LOGGER_ERROR, "counterexample is bottom and answer is even true\n");
+					(*this->my_logger)(LOGGER_ERROR, "counterexample is bottom and answer is even true\n");
 				else
-					(*log)(LOGGER_ERROR, "counterexample is bottom\n");
+					(*this->my_logger)(LOGGER_ERROR, "counterexample is bottom\n");
 			}
 		}}}
 
@@ -507,8 +382,8 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			list<int> nw;
 
 			bool bottom;
-			if(norm)
-				nw = norm->suffix_normal_form(word, bottom);
+			if(this->norm)
+				nw = this->norm->suffix_normal_form(word, bottom);
 			else
 				nw = word;
 
@@ -538,45 +413,49 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			return true;
 		}}}
 
-		virtual structured_query_tree<answer> * fill_missing_columns()
+		// return true if all columns could be filled,
+		// false if new knowledge is required (in case of knowledgebase)
+		virtual bool fill_missing_columns(table & t)
 		{{{
-			typename table::iterator uti, lti;
-			structured_query_tree<answer> * sqt = NULL;
+			typename table::iterator ti;
 			bool complete = true;
 
-			if(!teach)
-				sqt = new structured_query_tree<answer>();
-
 			// upper table
-			for(uti = upper_table.begin(); uti != upper_table.end(); uti++) {
-				if(uti->acceptance.size() < column_names.size()) {
-					if(!uti->index.empty() && uti->index.front() == BOTTOM_CHAR) {
-						int delta = column_names.size() - uti->acceptance.size();
+			for(ti = t.begin(); ti != t.end(); ti++) {
+				if(ti->acceptance.size() < column_names.size()) {
+					if(!ti->index.empty() && ti->index.front() == BOTTOM_CHAR) {
+						int delta = column_names.size() - ti->acceptance.size();
 						answer a;
 						a = false;
 						for(/* -- */; delta > 0; delta--)
-							uti->acceptance.push_back(a);
+							ti->acceptance.push_back(a);
 					} else {
 						// fill in missing acceptance information
 						columnlist::iterator ci;
 						ci = column_names.begin();
-						ci += uti->acceptance.size();
+						ci += ti->acceptance.size();
+						bool column_skipped = false;
 						for(/* -- */; ci != column_names.end(); ci++) {
 							if(!ci->empty() && ci->front() == BOTTOM_CHAR) {
-								if(teach) {
-									answer a;
-									a = false;
-									uti->acceptance.push_back(a);
-								}
-								// for SQT: learn_from_structured_query will check later
+								answer a;
+								a = false;
+								ti->acceptance.push_back(a);
 							} else {
 								list<int> *w;
-								w = concat(uti->index, *ci);
-								if(teach) {
-									uti->acceptance.push_back(teach->membership_query(*w));
+								w = concat(ti->index, *ci);
+								if(this->my_teacher) {
+									ti->acceptance.push_back(this->my_teacher->membership_query(*w));
 								} else {
-									sqt->add_query(*w, 0);
-									complete = false;
+									if(this->my_knowledge) {
+										answer a;
+										if(this->my_knowledge->resolve_or_add_query(*w, a)) {
+											if(!column_skipped)
+												ti->acceptance.push_back(a);
+										} else {
+											column_skipped = true;
+											complete = false;
+										}
+									}
 								}
 
 								delete w;
@@ -585,50 +464,8 @@ class angluin_observationtable : public learning_algorithm<answer> {
 					}
 				}
 			}
-			// lower table
-			for(lti = lower_table.begin(); lti != lower_table.end(); lti++) {
-				if(lti->acceptance.size() < column_names.size()) {
-					if(!lti->index.empty() && lti->index.front() == BOTTOM_CHAR) {
-						int delta = column_names.size() - lti->acceptance.size();
-						answer a;
-						a = false;
-						for(/* -- */; delta > 0; delta--)
-							lti->acceptance.push_back(a);
-					} else {
-						// fill in missing acceptance information
-						columnlist::iterator ci;
-						ci = column_names.begin();
-						ci += lti->acceptance.size();
-						for(/* -- */; ci != column_names.end(); ci++) {
-							if(!ci->empty() && ci->front() == BOTTOM_CHAR) {
-								if(teach) {
-									answer a;
-									a = false;
-									lti->acceptance.push_back(a);
-								}
-								// for SQT: learn_from_structured_query will check later
-							} else {
-								list<int> *w;
-								w = concat(lti->index, *ci);
-								if(teach) {
-									lti->acceptance.push_back(teach->membership_query(*w));
-								} else {
-									sqt->add_query(*w, 0);
-									complete = false;
-								}
-								delete w;
-							}
-						}
-					}
-				}
-			}
 
-			if(complete) {
-				delete sqt;
-				return NULL;
-			} else {
-				return sqt;
-			}
+			return complete;
 		}}}
 
 		//  all existing answer-rows in
@@ -653,11 +490,11 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		}}}
 
 		// close table: perform operations to close it.
-		// returns false if table was closed before,
-		//         true if table was changed (and thus needs to be filled)
+		// returns true if table was closed.
+		// returns false if table was changed (and thus needs to be filled)
 		virtual bool close()
 		{{{
-			bool changed = false;
+			bool not_changed = true;
 			typename table::iterator uti, lti, tmplti;
 
 			for(lti = lower_table.begin(); lti != lower_table.end(); /* -- */) {
@@ -683,14 +520,14 @@ class angluin_observationtable : public learning_algorithm<answer> {
 					lower_table.erase(lti);
 					lti = tmplti;
 
-					changed = true;
+					not_changed = false;
 				} else {
 					// go to next
 					lti++;
 				}
 			}
 
-			return changed;
+			return not_changed;
 		}}}
 
 		//  for all _equal_ rows in upper table: all +1 successors over all
@@ -729,11 +566,11 @@ class angluin_observationtable : public learning_algorithm<answer> {
 							if(word2.front() != BOTTOM_CHAR)
 								word2.push_back(sigma);
 
-							if(norm) {
+							if(this->norm) {
 								bool bottom;
 								list<int> w1n, w2n;
-								w1n = norm->prefix_normal_form(word1, bottom);
-								w2n = norm->prefix_normal_form(word2, bottom);
+								w1n = this->norm->prefix_normal_form(word1, bottom);
+								w2n = this->norm->prefix_normal_form(word2, bottom);
 								w1succ = search_tables(w1n);
 								w2succ = search_tables(w2n);
 							} else {
@@ -756,11 +593,11 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		}}}
 
 		// make table consistent: perform operations to do that.
-		// returns false if table was consistent before,
-		//         true if table was changed (and thus needs to be filled)
+		// returns true if table was consistent.
+		// returns false if table was changed (and thus needs to be filled)
 		virtual bool make_consistent()
 		{{{
-			bool changed = false;
+			bool not_changed = true;
 
 			bool urow_ok[upper_table.size()];
 			typename table::iterator uti_1, uti_2, ut_last_row;
@@ -792,11 +629,11 @@ class angluin_observationtable : public learning_algorithm<answer> {
 								word1.push_back(sigma);
 							if(word2.front() != BOTTOM_CHAR)
 								word2.push_back(sigma);
-							if(norm) {
+							if(this->norm) {
 								bool bottom;
 								list<int> w1n, w2n;
-								w1n = norm->prefix_normal_form(word1, bottom);
-								w2n = norm->prefix_normal_form(word2, bottom);
+								w1n = this->norm->prefix_normal_form(word1, bottom);
+								w2n = this->norm->prefix_normal_form(word2, bottom);
 								w1_succ = search_tables(w1n);
 								w2_succ = search_tables(w2n);
 							} else {
@@ -811,7 +648,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 							if(*w1_succ != *w2_succ) {
 								if(w1_succ->acceptance.size() == w2_succ->acceptance.size()) {
 									// add suffixes resulting in different states to column_names
-									changed = true;
+									not_changed = false;
 
 									typename columnlist::iterator ci;
 									int cindex = 0;
@@ -849,29 +686,32 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			}
 
 
-			return changed;
+			return not_changed;
 		}}}
 
-		virtual structured_query_tree<answer> * complete()
+		// complete table, so an automaton can be derived
+		// returns true, if automaton may be derived.
+		// returns false if new knowledge is required (in case of knowledgebase).
+		virtual bool complete()
 		{{{
-			structured_query_tree<answer> * ret;
-
 			if(!initialized) {
 				initialize_table();
 				initialized = true;
 			}
 
-			ret = fill_missing_columns();
-
-			if(!ret) {
-				if(close())
+			if(fill_missing_columns(upper_table) && fill_missing_columns(lower_table)) {
+				if(!close()) {
 					return complete();
+				}
 
-				if(make_consistent())
+				if(!make_consistent()) {
 					return complete();
+				}
+
+				return true;
+			} else {
+				return false;
 			}
-
-			return ret;
 		}}}
 
 		virtual bool derive_automaton(finite_language_automaton * automaton)
@@ -929,10 +769,10 @@ class angluin_observationtable : public learning_algorithm<answer> {
 				for(int i = 0; i < alphabet_size; i++) {
 					// find successor in table
 					index.push_back(i);
-					if(norm) {
+					if(this->norm) {
 						bool bottom;
 						list<int> nw;
-						nw = norm->prefix_normal_form(index, bottom);
+						nw = this->norm->prefix_normal_form(index, bottom);
 						ti = search_tables(nw);
 					} else {
 						ti = search_tables(index);
@@ -1073,14 +913,14 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 		angluin_simple_observationtable()
 		{{{
 			this->alphabet_size = 0;
-			this->set_teacher(NULL);
+			this->set_knowledge_source(NULL, NULL);
 			this->set_logger(NULL);
 		}}}
-		angluin_simple_observationtable(teacher<answer> *teach, logger *log, int alphabet_size)
+		angluin_simple_observationtable(teacher<answer> *teach, knowledgebase<answer> *base, logger *log, int alphabet_size)
 		{{{
 			this->alphabet_size = alphabet_size;
-			this->set_teacher(teach);
 			this->set_logger(log);
+			this->set_knowledge_source(teach, base);
 		}}}
 
 		virtual void get_memory_statistics(statistics & stats)

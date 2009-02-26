@@ -53,8 +53,7 @@ template <class answer>
 class knowledgebase {
 	public: // types
 		class node {
-			friend class knowledgebase;
-			friend class knowledgebase::iterator;
+			friend class libalf::knowledgebase<answer>;
 			public: // types
 				enum status_e {
 					NODE_IGNORE = 0,
@@ -70,8 +69,9 @@ class knowledgebase {
 				int label;
 				enum status_e status;
 				answer ans;
-			protected: // methods
+			public: // internal methods
 				node* get_next(node * current_child)
+				// used during iterator++
 				{{{
 					typename vector<node *>::iterator ci;
 
@@ -98,6 +98,7 @@ class knowledgebase {
 						return NULL;
 				}}}
 				void serialize_subtree(basic_string<int32_t> & into)
+				// used during serialization
 				{{{
 					typename vector<node *>::iterator ci;
 
@@ -113,7 +114,8 @@ class knowledgebase {
 
 					into += htonl(BOTTOM_CHAR);
 				}}}
-			public: // methods
+
+			public: // really public usable methods
 				node(knowledgebase * base)
 				{{{
 					this->base = base;
@@ -145,7 +147,7 @@ class knowledgebase {
 				{{{
 					if(label < 0)
 						return NULL;
-					if(label >= children.size()) {
+					if(label >= (int)children.size()) {
 						// push back NULL until new alphabet-size is met
 						for(int c = label - children.size(); c >= 0; c--) {
 							children.push_back((node *)NULL);
@@ -175,8 +177,8 @@ class knowledgebase {
 
 				list<int> get_word()
 				{{{
-					node * n = this;
 					list<int> w;
+					node * n = this;
 
 					while(n != NULL) {
 						if(n->label >= 0)
@@ -186,7 +188,28 @@ class knowledgebase {
 
 					return w;
 				}}}
+				bool mark_required()
+				// returns true if node is now required,
+				// false if knowledge is already known.
+				{{{
+					if(status == NODE_IGNORE) {
+						status = NODE_REQUIRED;
+						base->required.push_back(this);
+						return true;
+					} else {
+						return (status == NODE_REQUIRED);
+					}
+				}}}
+				bool is_required()
+				{{{
+					return status == NODE_REQUIRED;
+				}}}
+				bool is_answered()
+				{{{
+					return status == NODE_ANSWERED;
+				}}}
 				bool set_answer(answer ans)
+				// return false in case of inconsistency (if this was already known and both knowledges differ)
 				{{{
 					// check for inconsistencies
 					if(status == NODE_ANSWERED)
@@ -197,18 +220,12 @@ class knowledgebase {
 
 					status = NODE_ANSWERED;
 					this->ans = ans;
+
+					return true;
 				}}}
 				answer get_answer()
 				{{{
 					  return ans;
-				}}}
-				bool is_required()
-				{{{
-					return status == NODE_REQUIRED;
-				}}}
-				bool is_answered()
-				{{{
-					return status == NODE_ANSWERED;
 				}}}
 				bool no_subqueries()
 				{{{
@@ -244,7 +261,7 @@ class knowledgebase {
 			private:
 				bool queries_only;
 				node * current;
-				knowledgebase * knowledge;
+				knowledgebase * base;
 			public:
 				iterator()
 				{{{
@@ -255,13 +272,13 @@ class knowledgebase {
 				{{{
 					queries_only = other.queries_only;
 					current = other.current;
-					knowledge = other.knowledge;
+					base = other.base;
 				}}}
-				iterator(bool queries_only, node * current, knowledgebase * knowledge)
+				iterator(bool queries_only, node * current, knowledgebase * base)
 				{{{
 					this->queries_only = queries_only;
 					this->current = current;
-					this->knowledge = knowledge;
+					this->base = base;
 				}}}
 
 				iterator & operator++()
@@ -269,11 +286,11 @@ class knowledgebase {
 					if(queries_only) {
 						// FIXME: optimize, use some internal qi.
 						typename list<node *>::iterator qi;
-						qi = find(knowledge->required.begin(), knowledge->required.end(), current);
-						if(qi != knowledge->required.end())
+						qi = find(base->required.begin(), base->required.end(), current);
+						if(qi != base->required.end())
 							current = *(qi++);
 						else
-							current = required.front();
+							current = base->required.front();
 					} else {
 						current = current->get_next(NULL);
 					}
@@ -292,7 +309,7 @@ class knowledgebase {
 				{{{
 					queries_only = it.queries_only;
 					current = it.current;
-					knowledge = it.knowledge;
+					base = it.base;
 
 					return *this;
 				}}}
@@ -309,7 +326,8 @@ class knowledgebase {
 
 
 
-		friend class knowledgebase::iterator;
+		friend class libalf::knowledgebase<answer>::iterator;
+		friend class libalf::knowledgebase<answer>::node;
 	private: // data
 		// full tree
 		node * root;
@@ -348,15 +366,74 @@ class knowledgebase {
 		void print(ostream &os)
 		{{{
 			iterator ki;
+				list<int> w;
 
-			for(ki = this->begin(); ki != this->end(); ki++) {
+			os << "knowledgebase BEGIN\n";
+
+			for(ki = this->begin(); ki != this->end(); ++ki) {
 				os << "node ";
-				print_word(ki->get_word(), os);
-				os << " marked " << ki->is_answered() ? "!" : ki->is_required() ? "?" : "%";
+				w = ki->get_word();
+				print_word(os, w);
+				os << " marked " << ( (ki->is_answered()) ? "!" : ( (ki->is_required()) ? "?" : "%" ) );
 				if(ki->is_answered())
-					os << " answered " << (ki->get_answer() == true) ? "+" : (ki->get_answer() == false) ? "-" : "?";
+					os << " answered " << ( (ki->get_answer() == true) ? "+" : ( (ki->get_answer() == false) ? "-" : "?" ) );
 				os << "\n";
 			}
+
+			os << "knowledgebase END\n";
+		}}}
+
+		string generate_dotfile()
+		{{{
+			string ret;
+
+			char buf[128];
+			iterator it;
+
+			list<int> word;
+			string wname;
+
+			ret = "digraph knowledgebase {\n"
+				"\trankdir=LR;\n"
+				"\tsize=8;\n";
+
+			// add all nodes
+			for(it = this->begin(); it != this->end(); ++it) {
+				word = it->get_word();
+				wname = word2string(word, '.');
+				snprintf(buf, 128, "\tnode [shape=\"%s\", style=\"filled\", color=\"%s\"]; \"%s\";\n",
+						// shape
+						it->is_answered() ? "ellipse" : "pentagon",
+						// color
+						it->is_answered() ? ( (it->get_answer() == true) ? "green" : (it->get_answer() == false ? "red" : "blue"))
+								  : (it->is_required() ? "darkorange" : "grey"),
+						// name
+						wname.c_str()
+					);
+				buf[127] = 0;
+				ret += buf;
+			}
+			// and add all connections
+			for(it = this->begin(); it != this->end(); ++it) {
+				typename vector<node *>::iterator ci;
+				string toname;
+
+				word = it->get_word();
+				wname = word2string(word, '.');
+				for(ci = it->children.begin(); ci != it->children.end(); ci++) {
+					if(*ci) {
+						word = (*ci)->get_word();
+						toname = word2string(word, '.');
+
+						snprintf(buf, 128, "\t\"%s\" -> \"%s\" [ label = \"%d\" ];\n", wname.c_str(), toname.c_str(), (*ci)->label);
+						buf[127] = 0;
+						ret += buf;
+					}
+				}
+			}
+
+			ret += "}\n";
+			return ret;
 		}}}
 
 		void set_statistics(statistics * stat)
@@ -383,11 +460,15 @@ class knowledgebase {
 		}}}
 		bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 		{
+			// FIXME
 			
+			return false;
 		}
 		bool deserialize_query_acceptances(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 		{
+			// FIXME
 			
+			return false;
 		}
 
 		knowledgebase * create_query_tree()
@@ -398,7 +479,7 @@ class knowledgebase {
 
 			query_tree = new knowledgebase(NULL);
 
-			for(qi = this->qbegin(); qi != this->qend(); qi++)
+			for(qi = this->qbegin(); qi != this->qend(); ++qi)
 				query_tree->add_query(qi->get_word());
 
 			return query_tree;
@@ -408,7 +489,7 @@ class knowledgebase {
 		// returns false if knowledge of the trees is inconsistent
 		{{{
 			iterator ki;
-			for(ki = query_tree->begin(); ki != query_tree->end(); ki++)
+			for(ki = query_tree->begin(); ki != query_tree->end(); ++ki)
 				if(ki->is_answered())
 					if(!add_knowledge(ki->get_word(), ki->get_answer()))
 						return false;
@@ -441,35 +522,34 @@ class knowledgebase {
 			return n->set_answer(acceptance);
 		}}}
 
-		void add_query(list<int> & word, int prefix_count)
+		int add_query(list<int> & word, int prefix_count = 0)
+		// returns the number of new required nodes (excluding those already known.
 		{{{
 			node * current;
 			list<int>::iterator wi;
 			int skip_prefixes;
+			int new_queries = 0;
 
 			skip_prefixes = word.size() - prefix_count;
 			current = root;
 
 			// walk path to target and mark all required prefixes
 			for(wi = word.begin(); wi != word.end(); wi++, skip_prefixes--) {
-				if(skip_prefixes <= 0) {
-					// if already known or marked, skip
-					if((*current)->status == node::NODE_IGNORE) {
-						(*current)->status = node::NODE_REQUIRED;
-						required.push_back(*current);
-					}
-				}
-				current = (*current)->find_or_create_child(*wi);
+				if(skip_prefixes <= 0)
+					if(current->mark_required())
+						new_queries++;
+				current = current->find_or_create_child(*wi);
 			}
 
 			// mark target itself
-			if((*current)->status == node::NODE_IGNORE) {
-				(*current)->status = node::NODE_REQUIRED;
-				required.push_back(*current);
-			}
+			if(current->mark_required())
+				new_queries++;
+
+			return new_queries;
 		}}}
 
 		bool resolve_query(list<int> & word, answer & acceptance)
+		// returns true if known
 		{{{
 			node * current;
 			list<int>::iterator wi;
@@ -482,8 +562,8 @@ class knowledgebase {
 					return false;
 			}
 
-			if((*current)->status == node::NODE_ANSWERED) {
-				acceptance = (*current)->answer;
+			if(current->is_answered()) {
+				acceptance = current->get_answer();
 				if(stat)
 					stat->query_count.membership++;
 				return true;
@@ -493,6 +573,8 @@ class knowledgebase {
 		}}}
 
 		bool resolve_or_add_query(list<int> & word, answer & acceptance)
+		// returns true if known.
+		// otherwise marks knowledge as to-be-acquired and returns false.
 		// TODO: optimize
 		{{{
 			node * current;
@@ -500,21 +582,16 @@ class knowledgebase {
 
 			current = root;
 
-			for(wi = word.begin(); wi != word.end(); wi++) {
-				current = (*current)->child(*wi);
-				if(current == NULL) {
-					add_query(word, 0);
-					return false;
-				}
-			}
+			for(wi = word.begin(); wi != word.end(); wi++)
+				current = current->find_or_create_child(*wi);
 
-			if((*current)->status == node::NODE_ANSWERED) {
-				acceptance = (*current)->answer;
+			if(current->is_answered()) {
+				acceptance = current->get_answer();
 				if(stat)
 					stat->query_count.membership++;
 				return true;
 			} else {
-				add_query(word, 0);
+				current->mark_required();
 				return false;
 			}
 		}}}
@@ -527,7 +604,7 @@ class knowledgebase {
 		bool is_empty()
 		{{{
 			iterator it;
-			for(it = this->begin(); it != this->end(); it++) {
+			for(it = this->begin(); it != this->end(); ++it) {
 				if(it->is_answered())
 					return false;
 				if(it->is_required())

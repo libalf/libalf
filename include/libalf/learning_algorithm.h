@@ -16,11 +16,11 @@
 #include <list>
 #include <utility>
 
-#include <libalf/teacher.h>
-#include <libalf/structured_query_tree.h>
-#include <libalf/automata.h>
 #include <libalf/logger.h>
+#include <libalf/teacher.h>
+#include <libalf/knowledgebase.h>
 #include <libalf/normalizer.h>
+#include <libalf/automata.h>
 
 namespace libalf {
 
@@ -29,9 +29,16 @@ using namespace std;
 // basic interface for different implementations (e.g. one table and one tree)
 template <class answer>
 class learning_algorithm {
+	protected: // data
+		ignore_logger ignore;
+		logger * my_logger;
 
-	public:
+		teacher<answer> * my_teacher;
+		knowledgebase<answer> * my_knowledge;
 
+		normalizer * norm;
+
+	public:	// types
 		enum algorithm {
 			ALG_NONE = 0,
 			ALG_ANGLUIN = 1,
@@ -40,6 +47,14 @@ class learning_algorithm {
 			ALG_RFSA = 4
 		};
 
+	public: // methods
+		learning_algorithm()
+		{{{
+			my_logger = &(this->ignore);
+			my_teacher = NULL;
+			my_knowledge = NULL;
+			norm = NULL;
+		}}}
 		virtual ~learning_algorithm() { };
 
 		// set_alphabet_size() is only for initial setting.
@@ -49,19 +64,41 @@ class learning_algorithm {
 
 		virtual void increase_alphabet_size(int new_asize) = 0;
 
-		// if teacher is NULL (or unset), advance() will return a
-		// structured query tree. an answer to a structured query tree
-		// has to be given via learn_from_structured_query()
-		virtual void set_teacher(teacher<answer> *) = 0;
-		virtual teacher<answer> * get_teacher() = 0;
-		virtual void unset_teacher() = 0;
 
-		virtual void set_logger(logger *) = 0;
-		virtual logger * get_logger() = 0;
+		virtual void set_logger(logger * l)
+		{{{
+			my_logger = l;
+		}}}
 
-		virtual void set_normalizer(normalizer * norm) = 0;
-		virtual normalizer * get_normalizer() = 0;
-		virtual void unset_normalizer() = 0;
+		virtual void set_knowledge_source(teacher<answer> *teach, knowledgebase<answer> *base)
+		// set a source for all membership information. either use teacher or knowledgebase.
+		// teacher will overrule knowledgebase.
+		{{{
+			if(teach) {
+				my_teacher = teach;
+				my_knowledge = NULL;
+			} else {
+				my_teacher = NULL;
+				my_knowledge = base;
+			}
+		}}}
+
+		virtual void set_normalizer(normalizer * norm)
+		{{{
+			if(this->norm)
+				delete this->norm;
+			this->norm = norm;
+		}}}
+		virtual normalizer * get_normalizer()
+		{{{
+			  return norm;
+		}}}
+		virtual void unset_normalizer()
+		{{{
+			if(norm)
+				delete norm;
+			norm = NULL;
+		}}}
 
 		virtual void get_memory_statistics(statistics & stats) = 0;
 
@@ -92,18 +129,32 @@ class learning_algorithm {
 		virtual bool conjecture_ready() = 0;
 
 		// complete table and then derive automaton:
-		// if not using a teacher:
-		//	will either return an SQT or NULL in case that an automaton can be constructed.
-		//	if so, the automaton will be constructed and stored into *automaton.
+		// if using a knowledgebase:
+		//	will resolve required knowledge from knowledgebase. if the knowledge was unknown
+		//	it will be marked as required and false will be returned.
+		//	knowledgebase needs to be updated by you, then.
+		//
+		//	if all knowledge was found and an automaton is ready, it will be stored into
+		//	automaton and true will be returned.
 		// if using a teacher:
 		//	will repeatedly query the stored teacher and then construct an automaton into *automaton.
+		//	will always return true
 		//
 		// please note that the type of automaton must match the required automaton-type of the used learning algorithm
 		// (e.g. angluin required a DFA)
-		virtual structured_query_tree<answer> * advance(finite_language_automaton * automaton) = 0;
-
-		// if no teacher was given, use this function to answer the SQT returned by advance()
-		virtual bool learn_from_structured_query(structured_query_tree<answer> &) = 0;
+		virtual bool advance(finite_language_automaton * automaton)
+		{{{
+			if(complete()) {
+				if(!derive_automaton(automaton)) {
+					(*my_logger)(LOGGER_ERROR, "learning_algorithm::advance(): derive from completed tabled failed! wrong kind of automaton passed or internal error.\n");
+					return false;
+				} else {
+					return true;
+				}
+			} else {
+				return false;
+			}
+		}}};
 
 		// in case the hypothesis is wrong, use this function to give a counter-example
 		virtual void add_counterexample(list<int>, answer) = 0;
@@ -111,7 +162,9 @@ class learning_algorithm {
 
 	protected:
 		// complete table in such a way that an automata can be derived
-		virtual structured_query_tree<answer> * complete() = 0;
+		// return true if table is complete.
+		// return false if table could not be completed due to missing knowledge
+		virtual bool complete() = 0;
 		// derive an automaton from data structure
 		virtual bool derive_automaton(finite_language_automaton * automaton) = 0;
 };
