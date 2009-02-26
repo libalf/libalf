@@ -13,8 +13,8 @@ B)
 
 - biermann algorithm -> miniSAT, generic SAT interface
   siehe "learning meets verification" (2.2)
-  (binary search with state count?)
-- RFSA + RFSA-algorithm
+  (binary search over state count?)
+- RFSA, RFSA-algorithm
 
 C)
 
