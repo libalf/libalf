@@ -3,22 +3,19 @@
 
 A)
 
-- move dispatcher to knowledgebase
-- - add correct protocol specifications
-- - add knowledgebase to session status
-
-B)
-
 - biermann algorithm -> miniSAT, generic SAT interface
   siehe "learning meets verification" (2.2)
   (binary search over state count?)
+
 - RFSA, RFSA-algorithm
+
+B)
 
 - assistants in knowledgebase
 
 - implement normalizer extension in dispatcher and normalizer
 
-C)
+B)
 
 - in learn_regex: check/fix '+' operator in regex on command-line
 - enable dispatcher to listen on multiple address/port combinations, IPv6 and unix domain sockets
