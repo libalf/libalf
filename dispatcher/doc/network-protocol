@@ -322,9 +322,6 @@ enum server_message {
 
 // (enum server_message corresponds to dispatcher::server_message)
 
-#define BOTTOM_CHAR -42
-// BOTTOM_CHAR corresponds to BOTTOM_CHAR in alphabet.h
-
 enum algorithm {
 	ALG_NONE = 0,
 	ALG_ANGLUIN = 1,
@@ -475,7 +472,7 @@ this is a knowledgebase[] consisting only of queries
 
 int32_t knowledgebase[] {
 	length of upcoming data (excluding this field)
-	recursive node definition of root []
+	recursive node definition of root
 }
 
 // where a recursive node definition looks like the following:
@@ -483,11 +480,13 @@ int32_t knowledgebase[] {
 	label of node
 	enum knowledgebase_node_status
 	if answered, answer (otherwise this field is skipped!)
-	recursive node definition of all children
-	BOTTOM_CHAR
+	number of child nodes
+	recursive node definition of all child nodes
 }
 
-// the root node has a label of -1 (epsilon);
+// the root node has a label of -1 (epsilon) (the -1 may be lost due to
+// network-byte-order transformations! just ignore the root-label!).
+//
 // a node corresponds to a word. this word is the concat of all labels of all
 // nodes leading from the root node to this node, excluding any epsilon (-1)
 // and INCLUDING the label of the node itself.
