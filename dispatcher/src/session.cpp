@@ -230,7 +230,6 @@ bool session::set_status(serversocket * sock)
 	return (bi == blob.end());
 }}}
 bool session::answer_knowledge(serversocket * sock);
-// TODO: CHECK!
 {{{
 	if(!sock->stream_send_int(htonl(SM_SES_ACK_REQ_KNOWLEDGE)))
 		return false;
@@ -239,7 +238,6 @@ bool session::answer_knowledge(serversocket * sock);
 	return sock_stream_send_blob(blob);
 }}}
 bool session::set_knowledge(serversocket * sock);
-// TODO: CHECK!
 {{{
 	int count;
 	int32_t d;
@@ -248,10 +246,12 @@ bool session::set_knowledge(serversocket * sock);
 	bool clear_old;
 	bool ok = true;
 
+	// bool: clear old?
 	if(!sock->stream_receive_int(d))
 		return false;
-	clear_old = d;
+	clear_old = ntohl(d);
 
+	// size
 	if(!sock->stream_receive_int(d))
 		return false;
 	blob += d;
@@ -290,7 +290,6 @@ bool session::answer_conjecture(serversocket * sock)
 	return sock->stream_send_int(htonl( alg->conjecture_ready() ? 1 : 0 ));
 }}}
 bool session::advance(serversocket * sock)
-// TODO: CHECK!
 {{{
 	basic_string<int32_t> blob;
 
@@ -317,7 +316,6 @@ bool session::advance(serversocket * sock)
 	return sock->stream_send_blob(blob);
 }}}
 bool session::get_query_answer(serversocket * sock)
-// TODO: CHECK!
 {{{
 	int count;
 	int32_t d;
@@ -334,14 +332,11 @@ bool session::get_query_answer(serversocket * sock)
 		blob += d;
 	}
 
-	if(!sock->stream_send_int(htonl(SM_SES_ACK_ANSWER_QUERIES)))
+	bi = blob.begin();
+	if(!knowledge.deserialize_query_acceptances(bi, blob.end()))
 		return false;
 
-	bi = blob.begin();
-	d = knowledge.deserialize_query_acceptances(bi, blob.end());
-
-	// send status of deserialization to client
-	if(!sock->stream_send_int(htonl(d)))
+	if(!sock->stream_send_int(htonl(SM_SES_ACK_ANSWER_QUERIES)))
 		return false;
 
 	return (bi == blob.end());

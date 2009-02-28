@@ -76,6 +76,8 @@ SESSION-RELATED COMMANDS:
 			bool ok (true if success, false otherwise)
 
 	request session-status
+		// please note that to store a complete session,
+		// you will have to store the session-knowledge as well
 		client sends
 			CM_SES_REQ_STATUS
 			session id
@@ -135,7 +137,6 @@ SESSION-RELATED COMMANDS:
 			answer for query tree[]
 		server answers
 			SM_SES_ACK_ANSWER_QUERIES
-			bool ok (true if success, false otherwise)
 
 	give counter-examples
 		client sends
