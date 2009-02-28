@@ -134,7 +134,7 @@ int main(int argc, char**argv)
 	for(iteration = 1; iteration <= 100; iteration++) {
 		int c = 'a';
 		while( ! ot.advance(&hypothesis) ) {
-			printf("iteration %d%c\n", iteration, c);
+//			printf("iteration %d%c\n", iteration, c);
 			// resolve missing knowledge
 			if(use_knowledgebase) {
 				snprintf(filename, 128, "knowledgebase%2d%c.dot", iteration, c);
@@ -143,8 +143,10 @@ int main(int argc, char**argv)
 				file.close();
 
 #if 0
+// do hast answering of knowledgebase?
 				teach.answer_knowledgebase(*knowledge_p);
 #else
+// or test query-tree construction and merging?
 				knowledgebase<ANSWERTYPE> * query;
 				query = knowledge_p->create_query_tree();
 
@@ -153,9 +155,19 @@ int main(int argc, char**argv)
 				file << query->generate_dotfile();
 				file.close();
 
-				// FIXME: test serialize/deserialize HERE.
-
 				teach.answer_knowledgebase(*query);
+
+#if 0
+// test serialize/deserialize of knowledgebase ?
+				basic_string<int32_t> str;
+				basic_string<int32_t>::iterator si;
+				str = query->serialize();
+				si = str.begin();
+				if(!query->deserialize(si, str.end()))
+					printf("deser failed.\n");
+				if(si != str.end())
+					printf("remainder (*=%d)\n", *si);
+#endif
 
 				snprintf(filename, 128, "knowledgebase%2d%c-r.dot", iteration, c);
 				file.open(filename);

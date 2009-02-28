@@ -109,36 +109,44 @@ class knowledgebase {
 					if(is_answered())
 						into += htonl((int32_t)ans);
 
+					int childcount = 0;
 					for(ci = children.begin(); ci != children.end(); ci++)
 						if(*ci != NULL)
-							ci->serialize_subtree(into);
+							childcount++;
+					into += htonl(childcount);
 
-					into += htonl(BOTTOM_CHAR);
+					for(ci = children.begin(); ci != children.end(); ci++)
+						if(*ci != NULL)
+							(*ci)->serialize_subtree(into);
+
 				}}}
-				bool deserialize_subtree(basic_string<int32_t>::iterator it, basic_string<int32_t>::iterator limit, int & count)
+				bool deserialize_subtree(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator limit, int & count)
 				{{{
+					int childcount;
+
 					if(it == limit) return false;
 
+					// skip label, was set by parent
 					it++, count--; if(it == limit) return false;
-
-					status = ntohl(*it);
-					it++, count--; if(it == limit) return false;
+					status = (enum node::status_e)ntohl(*it);
 
 					if(is_answered()) {
+						it++, count--; if(it == limit) return false;
 						ans = ntohl(*it);
-						it++, count--; if(it == limit) return false;
 					}
 
-					status = ntohl(*it);
 					it++, count--; if(it == limit) return false;
-
-					while(ntohl(*it) != BOTTOM_CHAR) {
-						node* c;
-						c = this->find_or_chreate_child(ntohl(*it));
-						c->deserialize_subtree(it, limit, count);
-						it++, count--; if(it == limit) return false;
-					}
+					childcount = ntohl(*it);
 					it++, count--;
+
+					for(/* nothing */; childcount > 0; childcount--) {
+						node* c;
+
+						if(it == limit) return false;
+
+						c = this->find_or_create_child(ntohl(*it));
+						c->deserialize_subtree(it, limit, count);
+					}
 
 					return true;
 				}}}
@@ -547,7 +555,6 @@ class knowledgebase {
 		bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 		{{{
 			int size;
-			int count;
 
 			if(it == limit)
 				goto deserialization_failed;
@@ -557,8 +564,9 @@ class knowledgebase {
 			size = ntohl(*it);
 			it++; if(it == limit) goto deserialization_failed;
 
-			if(htonl(*it) != -1)
-				goto deserialization_failed;
+// ntohl is uint :-(
+//			if(ntohl(*it) != -1)
+//				goto deserialization_failed;
 
 			if(!root->deserialize_subtree(it, limit, size))
 				goto deserialization_failed;
