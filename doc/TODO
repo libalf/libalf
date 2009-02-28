@@ -6,8 +6,6 @@ A)
 - move dispatcher to knowledgebase
 - - add correct protocol specifications
 - - add knowledgebase to session status
-- - add new command get/set knowledgebase
-- add uniq query stats
 
 B)
 

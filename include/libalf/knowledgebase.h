@@ -106,7 +106,7 @@ class knowledgebase {
 					into += htonl(label);
 					into += htonl(status);
 
-					if(status == NODE_ANSWERED)
+					if(is_answered())
 						into += htonl((int32_t)ans);
 
 					for(ci = children.begin(); ci != children.end(); ci++)
@@ -114,6 +114,33 @@ class knowledgebase {
 							ci->serialize_subtree(into);
 
 					into += htonl(BOTTOM_CHAR);
+				}}}
+				bool deserialize_subtree(basic_string<int32_t>::iterator it, basic_string<int32_t>::iterator limit, int & count)
+				{{{
+					if(it == limit) return false;
+
+					it++, count--; if(it == limit) return false;
+
+					status = ntohl(*it);
+					it++, count--; if(it == limit) return false;
+
+					if(is_answered()) {
+						ans = ntohl(*it);
+						it++, count--; if(it == limit) return false;
+					}
+
+					status = ntohl(*it);
+					it++, count--; if(it == limit) return false;
+
+					while(ntohl(*it) != BOTTOM_CHAR) {
+						node* c;
+						c = this->find_or_chreate_child(ntohl(*it));
+						c->deserialize_subtree(it, limit, count);
+						it++, count--; if(it == limit) return false;
+					}
+					it++, count--;
+
+					return true;
 				}}}
 
 			public: // really public usable methods
@@ -217,7 +244,7 @@ class knowledgebase {
 					if(status == NODE_ANSWERED)
 						return (this->ans == ans);
 
-					if(status == NODE_REQUIRED)
+				//	if(status == NODE_REQUIRED)
 						base->required.remove(this);
 
 					status = NODE_ANSWERED;
@@ -263,37 +290,49 @@ class knowledgebase {
 
 		class iterator : std::iterator<std::forward_iterator_tag, node> {
 			private:
-				bool queries_only;
-				node * current;
 				knowledgebase * base;
+
+				node * current;
+
+				bool queries_only;
+				typename list<node*>::iterator qi;
 			public:
 				iterator()
 				{{{
 					queries_only = false;
 					current = NULL;
+					qi = base->required.end();
 				}}}
 				iterator(const iterator & other)
 				{{{
-					queries_only = other.queries_only;
-					current = other.current;
 					base = other.base;
+
+					current = other.current;
+
+					queries_only = other.queries_only;
+					qi = other.qi;
 				}}}
-				iterator(bool queries_only, node * current, knowledgebase * base)
+				iterator(bool queries_only, typename list<node*>::iterator currentquery, node * current, knowledgebase * base)
 				{{{
-					this->queries_only = queries_only;
-					this->current = current;
 					this->base = base;
+					this->current = current;
+					this->queries_only = queries_only;
+					this->qi = qi;
 				}}}
 
 				iterator & operator++()
 				{{{
 					if(queries_only) {
-						// FIXME: optimize, use some internal qi.
-						typename list<node *>::iterator qi;
+						// FIXME: we really dont want to search this each time.
+						// but how?!
 						qi = find(base->required.begin(), base->required.end(), current);
-						if(qi != base->required.end())
-							current = *(qi++);
-						else
+						if(qi != base->required.end()) {
+							qi++;
+							if(qi != base->required.end())
+								current = *qi;
+							else
+								current = NULL;
+						} else
 							current = base->required.front();
 					} else {
 						current = current->get_next(NULL);
@@ -311,9 +350,12 @@ class knowledgebase {
 				}}}
 				iterator & operator=(const iterator & it)
 				{{{
-					queries_only = it.queries_only;
-					current = it.current;
 					base = it.base;
+
+					current = it.current;
+
+					queries_only = it.queries_only;
+					qi = it.qi;
 
 					return *this;
 				}}}
@@ -497,25 +539,37 @@ class knowledgebase {
 			basic_string<int32_t> ret;
 
 			ret += 0; // sizeof, will be filled in later
-			// never forget epsilon ;-)
 			root->serialize_subtree(ret);
-			// TODO: possibly reduce massive BOTTOM_CHARS at end?
 			ret[0] += htonl(ret.size() - 1);
 
 			return ret;
 		}}}
 		bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
-		// FIXME
-		{
+		{{{
 			int size;
 			int count;
 
+			if(it == limit)
+				goto deserialization_failed;
+
 			clear();
 
-			
+			size = ntohl(*it);
+			it++; if(it == limit) goto deserialization_failed;
 
+			if(htonl(*it) != -1)
+				goto deserialization_failed;
+
+			if(!root->deserialize_subtree(it, limit, size))
+				goto deserialization_failed;
+
+			if(size == 0)
+				return true;
+
+		deserialization_failed:
+			clear();
 			return false;
-		}
+		}}}
 		bool deserialize_query_acceptances(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 		// FIXME
 		{
@@ -524,15 +578,17 @@ class knowledgebase {
 		}
 
 		knowledgebase * create_query_tree()
-		// TODO: optimize
 		{{{
 			knowledgebase * query_tree;
 			iterator qi;
 
 			query_tree = new knowledgebase(NULL);
 
-			for(qi = this->qbegin(); qi != this->qend(); ++qi)
-				query_tree->add_query(qi->get_word());
+			for(qi = this->qbegin(); qi != this->qend(); ++qi) {
+				list<int> qw;
+				qw = qi->get_word();
+				query_tree->add_query(qw, 0);
+			}
 
 			return query_tree;
 		}}}
@@ -542,9 +598,12 @@ class knowledgebase {
 		{{{
 			iterator ki;
 			for(ki = other_tree.begin(); ki != other_tree.end(); ++ki)
-				if(ki->is_answered())
-					if(!add_knowledge(ki->get_word(), ki->get_answer()))
+				if(ki->is_answered()) {
+					list<int> w;
+					w = ki->get_word();
+					if(!this->add_knowledge(w, ki->get_answer()))
 						return false;
+				}
 			return true;
 		}}}
 
@@ -559,9 +618,8 @@ class knowledgebase {
 			list<int>::iterator wi;
 
 			n = root;
-			for(wi = word.begin(); wi != word.end(); wi++) {
+			for(wi = word.begin(); wi != word.end(); wi++)
 				n = n->find_or_create_child(*wi);
-			}
 
 			return n->set_answer(acceptance);
 		}}}
@@ -639,7 +697,7 @@ class knowledgebase {
 
 		iterator begin()
 		{{{
-			iterator it(false, root, this);
+			iterator it(false, required.end(), root, this);
 			return it;
 		}}}
 		iterator end()
@@ -653,7 +711,7 @@ class knowledgebase {
 			if(required.empty()) {
 				return qend();
 			} else {
-				iterator it(false, required.front(), this);
+				iterator it(true, required.begin(), required.front(), this);
 				return it;
 			}
 		}}}

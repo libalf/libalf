@@ -132,15 +132,43 @@ int main(int argc, char**argv)
 	deterministic_finite_amore_automaton hypothesis;
 
 	for(iteration = 1; iteration <= 100; iteration++) {
+		int c = 'a';
 		while( ! ot.advance(&hypothesis) ) {
+			printf("iteration %d%c\n", iteration, c);
 			// resolve missing knowledge
-			teach.answer_knowledgebase(*knowledge_p);
 			if(use_knowledgebase) {
-				snprintf(filename, 128, "knowledgebase%2d.dot", iteration);
+				snprintf(filename, 128, "knowledgebase%2d%c.dot", iteration, c);
 				file.open(filename);
 				file << knowledge.generate_dotfile();
 				file.close();
+
+#if 0
+				teach.answer_knowledgebase(*knowledge_p);
+#else
+				knowledgebase<ANSWERTYPE> * query;
+				query = knowledge_p->create_query_tree();
+
+				snprintf(filename, 128, "knowledgebase%2d%c-q.dot", iteration, c);
+				file.open(filename);
+				file << query->generate_dotfile();
+				file.close();
+
+				// FIXME: test serialize/deserialize HERE.
+
+				teach.answer_knowledgebase(*query);
+
+				snprintf(filename, 128, "knowledgebase%2d%c-r.dot", iteration, c);
+				file.open(filename);
+				file << query->generate_dotfile();
+				file.close();
+
+				knowledge_p->merge_knowledgebase(*query);
+				delete query;
+#endif
+			} else {
+				printf("ERROR: teacher-enabled OT returned false!\n");
 			}
+			c++;
 		}
 
 		snprintf(filename, 128, "observationtable%2d.text.angluin", iteration);
@@ -188,6 +216,12 @@ int main(int argc, char**argv)
 		ot.add_counterexample(oracle_answer.second.front());
 		file.close();
 	}
+
+	iteration++;
+	snprintf(filename, 128, "knowledgebase%2d-final.dot", iteration);
+	file.open(filename);
+	file << knowledge.generate_dotfile();
+	file.close();
 
 	ot.get_memory_statistics(stats);
 
