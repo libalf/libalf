@@ -564,7 +564,7 @@ class knowledgebase {
 			size = ntohl(*it);
 			it++; if(it == limit) goto deserialization_failed;
 
-// ntohl is uint :-(
+// network byte order... try not to mess with negative numbers...
 //			if(ntohl(*it) != -1)
 //				goto deserialization_failed;
 
@@ -579,9 +579,36 @@ class knowledgebase {
 			return false;
 		}}}
 		bool deserialize_query_acceptances(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
-		// FIXME
+		// TODO: check correctness
 		{
-			
+			int size;
+			iterator it;
+
+			if(it == limit)
+				goto deserialization_failed;
+
+			size = ntohl(*it);
+			it++;
+
+			// we expect _exactly_ as much answers as we have required nodes
+			if(size != required.size())
+				goto deserialization_failed;
+
+			for(it = this->begin(); it != this->end() && !required.empty(); it++) {
+				if(it->is_required()) {
+					if(it == limit)
+						goto deserialization_failed;
+					it->set_answer(ntohl(*it));
+					it++;
+					size--;
+				}
+			}
+
+			if(size == 0)
+				return true;
+
+		deserialization_failed:
+			clear();
 			return false;
 		}
 

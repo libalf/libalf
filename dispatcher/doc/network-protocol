@@ -470,6 +470,14 @@ int32_t automaton [] {
 int32_t query tree[]
 this is a knowledgebase[] consisting only of queries
 
+int32_t answer for query tree[]
+this is a list of answers for all queries from the tree, assuming that the
+queries were listed from the tree via depth-first-sorting. thus a query for
+{ . .0. .1. .0.0. .0.1. .1.0. .1.1. }
+will answer exactly in the following order:
+. .0. .0.0. .0.1. .1. .1.0. .1.1.
+
+
 int32_t knowledgebase[] {
 	length of upcoming data (excluding this field)
 	recursive node definition of root
