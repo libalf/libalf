@@ -60,6 +60,17 @@ void logger::set_log_algorithm(bool log_algorithm)
 
 
 
+ignore_logger::~ignore_logger()
+{{{
+	/* nothing */
+}}}
+void ignore_logger::log(enum logger_loglevel l, const char* s)
+{{{
+	/* nothing */
+}}}
+
+
+
 ostream_logger::ostream_logger()
 {{{
 	minimal_loglevel = LOGGER_ERROR;
@@ -82,7 +93,7 @@ ostream_logger::~ostream_logger()
 	log(LOGGER_INTERNAL, "stopped logger instance\n");
 }}}
 
-void ostream_logger::log(enum logger_loglevel l, char* s)
+void ostream_logger::log(enum logger_loglevel l, const char* s)
 {{{
 	//				internal, error, warn,   info,   debug, algorithm
 	static const char *colors[] = { C_OK,     C_ERR, C_WARN, C_BOLD, "",    C_ATT };
@@ -136,7 +147,7 @@ string * buffered_logger::receive_and_flush()
 	return tmp;
 }}}
 
-void buffered_logger::log(enum logger_loglevel l, char* s)
+void buffered_logger::log(enum logger_loglevel l, const char* s)
 {{{
 	buffer->append(s);
 }}}

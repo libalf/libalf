@@ -46,13 +46,16 @@ class logger : public binary_function< enum logger_loglevel, string&, void > {
 		void set_log_algorithm(bool log_algorithm);
 
 	protected:
-		virtual void log(enum logger_loglevel l, char* s) = 0;
+		virtual void log(enum logger_loglevel l, const char* s) = 0;
 
 };
 
 class ignore_logger : public logger {
+	public:
+		virtual ~ignore_logger();
+
 	protected:
-		virtual void log(enum logger_loglevel l, char* s) { };
+		virtual void log(enum logger_loglevel l, const char* s);
 };
 
 class ostream_logger : public logger {
@@ -66,7 +69,7 @@ class ostream_logger : public logger {
 		virtual ~ostream_logger();
 
 	protected:
-		virtual void log(enum logger_loglevel l, char* s);
+		virtual void log(enum logger_loglevel l, const char* s);
 };
 
 class buffered_logger : public logger {
@@ -81,7 +84,7 @@ class buffered_logger : public logger {
 		string * receive_and_flush();
 
 	protected:
-		virtual void log(enum logger_loglevel l, char* s);
+		virtual void log(enum logger_loglevel l, const char* s);
 };
 
 }; // end namespace libalf
