@@ -68,6 +68,7 @@ class knowledgebase {
 				// label is reduntant as this == parent->children[label]
 				// except for root, where label should be -1 == epsilon
 				int label;
+				int time_label;
 				enum status_e status;
 				answer ans;
 			protected: // internal methods
@@ -104,6 +105,7 @@ class knowledgebase {
 					typename vector<node *>::iterator ci;
 
 					into += htonl(label);
+					into += htonl(time_label);
 					into += htonl(status);
 
 					if(is_answered())
@@ -127,6 +129,9 @@ class knowledgebase {
 					if(it == limit) return false;
 
 					// skip label, was set by parent
+					it++, count--; if(it == limit) return false;
+					time_label = (int)ntohl(*it);
+
 					it++, count--; if(it == limit) return false;
 					status = (enum node::status_e)ntohl(*it);
 
@@ -158,6 +163,7 @@ class knowledgebase {
 					parent = NULL;
 					label = -1;
 					status = NODE_IGNORE;
+					time_label = -1;
 				}}}
 				~node()
 				// reference in parent will stay ; all children will be deleted
