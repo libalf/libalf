@@ -579,10 +579,11 @@ class knowledgebase {
 			return false;
 		}}}
 		bool deserialize_query_acceptances(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
-		// TODO: check correctness
-		{
+		// TODO: optimize (via this->required() ?)
+		//       currently this is O(|this|)
+		{{{
 			int size;
-			iterator it;
+			iterator ki;
 
 			if(it == limit)
 				goto deserialization_failed;
@@ -594,11 +595,11 @@ class knowledgebase {
 			if(size != required.size())
 				goto deserialization_failed;
 
-			for(it = this->begin(); it != this->end() && !required.empty(); it++) {
-				if(it->is_required()) {
+			for(ki = this->begin(); ki != this->end() && !required.empty(); ki++) {
+				if(ki->is_required()) {
 					if(it == limit)
 						goto deserialization_failed;
-					it->set_answer(ntohl(*it));
+					ki->set_answer(ntohl(*it));
 					it++;
 					size--;
 				}
@@ -610,7 +611,7 @@ class knowledgebase {
 		deserialization_failed:
 			clear();
 			return false;
-		}
+		}}}
 
 		knowledgebase * create_query_tree()
 		{{{
