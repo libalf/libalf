@@ -229,15 +229,15 @@ bool session::set_status(serversocket * sock)
 
 	return (bi == blob.end());
 }}}
-bool session::answer_knowledge(serversocket * sock);
+bool session::answer_knowledge(serversocket * sock)
 {{{
 	if(!sock->stream_send_int(htonl(SM_SES_ACK_REQ_KNOWLEDGE)))
 		return false;
 	basic_string<int32_t> blob;
 	blob = knowledge.serialize();
-	return sock_stream_send_blob(blob);
+	return sock->stream_send_blob(blob);
 }}}
-bool session::set_knowledge(serversocket * sock);
+bool session::set_knowledge(serversocket * sock)
 {{{
 	int count;
 	int32_t d;
@@ -272,7 +272,7 @@ bool session::set_knowledge(serversocket * sock);
 		knowledge.clear();
 		knowledge.deserialize(bi, blob.end());
 	} else {
-		knowledgebase newknowledge;
+		knowledgebase<extended_bool> newknowledge;
 		newknowledge.deserialize(bi, blob.end());
 		ok = knowledge.merge_knowledgebase(newknowledge);
 	}
@@ -293,8 +293,6 @@ bool session::advance(serversocket * sock)
 {{{
 	basic_string<int32_t> blob;
 
-	latest_query = alg->advance(hypothesis_automaton);
-
 	if(alg->advance(hypothesis_automaton)) {
 		// send automaton to client
 		if(!sock->stream_send_int(htonl(SM_SES_ACK_ADVANCE_AUTOMATON)))
@@ -303,12 +301,12 @@ bool session::advance(serversocket * sock)
 		stats.query_count.equivalence++;
 	} else {
 		// send query to client
-		if(!sock->stream_send_int(htonl(SM_SES_ACK_ADVANCE_QUERY)))
+		if(!sock->stream_send_int(htonl(SM_SES_ACK_ADVANCE_QUERIES)))
 			return false;
 
-		knowledgebase * querytree;
+		knowledgebase<extended_bool> * querytree;
 		querytree = knowledge.create_query_tree();
-		stats.membership.uniq_membership += querytree->count_queries();
+		stats.query_count.uniq_membership += querytree->count_queries();
 		blob = querytree->serialize();
 		delete querytree;
 	}

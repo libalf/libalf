@@ -132,7 +132,7 @@ class knowledgebase {
 
 					if(is_answered()) {
 						it++, count--; if(it == limit) return false;
-						ans = ntohl(*it);
+						ans = (int32_t)ntohl(*it);
 					}
 
 					it++, count--; if(it == limit) return false;
@@ -250,7 +250,7 @@ class knowledgebase {
 				{{{
 					// check for inconsistencies
 					if(status == NODE_ANSWERED)
-						return (this->ans == ans);
+						return ((answer)this->ans == (answer)ans);
 
 				//	if(status == NODE_REQUIRED)
 						base->required.remove(this);
@@ -592,14 +592,16 @@ class knowledgebase {
 			it++;
 
 			// we expect _exactly_ as much answers as we have required nodes
-			if(size != required.size())
+			if(size != (int)required.size())
 				goto deserialization_failed;
 
-			for(ki = this->begin(); ki != this->end() && !required.empty(); ki++) {
+			for(ki = this->begin(); ki != this->end() && !required.empty(); ++ki) {
 				if(ki->is_required()) {
 					if(it == limit)
 						goto deserialization_failed;
-					ki->set_answer(ntohl(*it));
+					answer a;
+					a = (int32_t)ntohl(*it);
+					ki->set_answer(a);
 					it++;
 					size--;
 				}
