@@ -85,7 +85,6 @@ bool session::set_normalizer(basic_string<int32_t> blob)
 			// already unset :)
 			return true;
 		case normalizer::NORMALIZER_MSC:
-			// FIXME
 			norm = new normalizer_msc();
 			break;
 		default:
@@ -506,6 +505,18 @@ bool session::answer_log_request(serversocket * sock)
 
 	return true;
 }}}
+bool session::undo(serversocket * sock)
+{
+	// FIXME
+	logger(LOGGER_WARN, "undo command is not implemented yet\n");
+	return true;
+}
+bool session::redo(serversocket * sock)
+{
+	// FIXME
+	logger(LOGGER_WARN, "redo command is not implemented yet\n");
+	return true;
+}
 bool session::log_table(serversocket * sock)
 {{{
 	string s = alg->tostring();
@@ -554,4 +565,9 @@ bool session::normalize_word(serversocket * sock)
 
 	return sock->stream_send_blob(ret);
 }}}
-
+bool session::log_knowledgebase(serversocket * sock)
+{{{
+	string s = knowledge.generate_dotfile();
+	logger(LOGGER_DEBUG, "%s", s.c_str());
+	return sock->stream_send_int(htonl(SM_SES_ACK_LOG_KNOWLEDGE_DOTFILE));
+}}}

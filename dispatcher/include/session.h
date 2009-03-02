@@ -33,7 +33,7 @@ class session {
 		session(enum learning_algorithm<extended_bool>::algorithm algorithm, int alphabet_size);
 		~session();
 
-		// protocol implementation functions:
+		// protocol implementation:
 		bool set_modalities(serversocket * sock);
 		bool answer_status(serversocket * sock);
 		bool set_status(serversocket * sock);
@@ -50,8 +50,12 @@ class session {
 		bool answer_stats(serversocket * sock);
 		bool set_stats(serversocket * sock);
 		bool answer_log_request(serversocket * sock);
+		bool undo(serversocket * sock);
+		bool redo(serversocket * sock);
+		// debugging commands:
 		bool log_table(serversocket * sock);
 		bool normalize_word(serversocket * sock);
+		bool log_knowledgebase(serversocket * sock);
 
 	protected:
 		bool set_normalizer(basic_string<int32_t> blob);

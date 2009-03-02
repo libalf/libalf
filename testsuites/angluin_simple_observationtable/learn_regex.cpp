@@ -143,7 +143,7 @@ int main(int argc, char**argv)
 				file.close();
 
 #if 0
-// do hast answering of knowledgebase?
+// do fast answering of knowledgebase?
 				teach.answer_knowledgebase(*knowledge_p);
 #else
 // or test query-tree construction and merging?

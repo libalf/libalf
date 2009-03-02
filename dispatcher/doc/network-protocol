@@ -247,14 +247,12 @@ DEBUGGING COMMANDS:
 			SM_SES_ACK_NORMALIZE_WORD
 			bool bottom
 			serialized word[] (may be obscure if bottom = true)
-	get dotfile of knowledgebase:
+	request dotfile of knowledgebase to be logged to logger (note loglevel LOGGER_DEBUG)
 		client sends
-			CM_SES_GET_KNOWLEDGE_DOTFILE
+			CM_SES_LOG_KNOWLEDGE_DOTFILE
 			sessions id
 		server answers
-			SM_SES_ACK_KNOWLEDGE_DOTFILE
-			length in BYTES
-			dotfile[]
+			SM_SES_ACK_LOG_KNOWLEDGE_DOTFILE
 
 
 
@@ -306,7 +304,7 @@ enum client_message {
 
 	CM_SES_LOG_TABLE = 100,
 	CM_SES_NORMALIZE_WORD = 101,
-	CM_SES_GET_KNOWLEDGE_DOTFILE = 102
+	CM_SES_LOG_KNOWLEDGE_DOTFILE = 102
 }
 
 // (enum client_message corresponds to dispatcher::client_message)
@@ -356,7 +354,7 @@ enum server_message {
 
 	SM_SES_ACK_LOG_TABLE = 100,
 	SM_SES_ACK_NORMALIZE_WORD = 101
-	SM_SES_ACK_KNOWLEDGE_DOTFILE = 102
+	SM_SES_ACK_LOG_KNOWLEDGE_DOTFILE = 102
 }
 
 // (enum server_message corresponds to dispatcher::server_message)

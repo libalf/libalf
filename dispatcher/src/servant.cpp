@@ -118,7 +118,7 @@ bool servant::serve()
 		case CM_SES_REDO:
 		case CM_SES_LOG_TABLE:
 		case CM_SES_NORMALIZE_WORD:
-		case CM_SES_GET_KNOWLEDGE_DOTFILE:
+		case CM_SES_LOG_KNOWLEDGE_DOTFILE:
 			if(!client->stream_receive_int(session_id)) {
 				cout << "client " << getpid() << ": failed to receive session id in session-related command. disconnecting.\n";
 				return false;
@@ -169,11 +169,13 @@ bool servant::serve()
 				case CM_SES_NORMALIZE_WORD:
 					return ses->normalize_word(client);
 				case CM_SES_UNDO:
+					return ses->undo(client);
 				case CM_SES_REDO:
-				case CM_SES_GET_KNOWLEDGE_DOTFILE:
-					// FIXME: implement
+					return ses->redo(client);
+				case CM_SES_LOG_KNOWLEDGE_DOTFILE:
+					return ses->log_knowledgebase(client);
 				default:
-					cout << "FIXME: unimplemented session command " << cmd << " from client " << getpid() << "!\n";
+					cout << "ATTENTION: unimplemented session command " << cmd << " from client " << getpid() << "!\n";
 					return false;
 			}
 	}
