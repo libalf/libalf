@@ -40,7 +40,7 @@ class logger : public binary_function< enum logger_loglevel, string&, void > {
 		virtual ~logger() { };
 
 		virtual void operator()(enum logger_loglevel, string&);
-		virtual void operator()(enum logger_loglevel, char* format, ...);
+		virtual void operator()(enum logger_loglevel, const char* format, ...);
 
 		void set_minimal_loglevel(enum logger_loglevel minimal_loglevel);
 		void set_log_algorithm(bool log_algorithm);

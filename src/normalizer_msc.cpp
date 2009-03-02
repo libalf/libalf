@@ -325,7 +325,7 @@ void normalizer_msc::graph_add_node(int id, int label, bool pnf)
 	// SNF: connection from node to other youngest node with same process that is not connected
 	extrema = graph.end();
 	for(ni = graph.begin(); *ni != newnode; ni++) {
-		if(pnf && (*ni)->is_process_connected() || !pnf && (*ni)->is_process_referenced())
+		if( (pnf && (*ni)->is_process_connected()) || (!pnf && (*ni)->is_process_referenced()) )
 			continue;
 		if(process_match[(*ni)->label] != process_match[label])
 			continue;
@@ -349,7 +349,7 @@ void normalizer_msc::graph_add_node(int id, int label, bool pnf)
 	// PNF: if this is a receiving event, connect to oldest corresponding send-event that is not connected
 	// SNF: if this is a sending event, connect from oldest corresponding send-event that is not connected
 	extrema = graph.end();
-	if( pnf && (total_order[label] % 2) || !pnf && (total_order[label] % 2 == 0)) {
+	if( (pnf && (total_order[label] % 2)) || (!pnf && (total_order[label] % 2 == 0)) ){
 		// pnf: odd, receive-event
 		// snf: even, send-event
 		for(ni = graph.begin(); *ni != newnode; ni++) {
@@ -388,7 +388,7 @@ bool normalizer_msc::check_buffer(int label, bool pnf)
 
 	int buffer = buffer_match[label];
 
-	if( pnf && (total_order[label] % 2) || !pnf && (total_order[label] % 2 == 0) ) {
+	if( (pnf && (total_order[label] % 2)) || (!pnf && (total_order[label] % 2 == 0)) ) {
 		// pnf/odd: receive-event
 		// snf/even: act like receive-event
 		// fail if buffer is empty or a different msg is at front
@@ -414,7 +414,7 @@ bool normalizer_msc::check_buffer(int label, bool pnf)
 void normalizer_msc::advance_buffer_status(int label, bool pnf)
 {{{
 	if(buffers) {
-		if( pnf && (total_order[label] % 2) || !pnf && (total_order[label] % 2 == 0) ) {
+		if( (pnf && (total_order[label] % 2)) || (!pnf && (total_order[label] % 2 == 0)) ) {
 			// receive
 			buffers[buffer_match[label]].pop();
 		} else {

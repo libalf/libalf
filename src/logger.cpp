@@ -34,7 +34,7 @@ void logger::operator()(enum logger_loglevel l, string &s)
 	}
 }}}
 
-void logger::operator()(enum logger_loglevel l, char * format, ...)
+void logger::operator()(enum logger_loglevel l, const char * format, ...)
 {{{
 	if( (l<=minimal_loglevel) || (log_algorithm && l==LOGGER_ALGORITHM)) {
 		va_list ap;
