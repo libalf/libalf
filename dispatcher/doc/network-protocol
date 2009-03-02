@@ -231,6 +231,14 @@ DEBUGGING COMMANDS:
 			SM_SES_ACK_NORMALIZE_WORD
 			bool bottom
 			serialized word[] (may be obscure if bottom = true)
+	get dotfile of knowledgebase:
+		client sends
+			CM_SES_GET_KNOWLEDGE_DOTFILE
+			sessions id
+		server answers
+			SM_SES_ACK_KNOWLEDGE_DOTFILE
+			length in BYTES
+			dotfile[]
 
 
 
@@ -278,7 +286,8 @@ enum client_message {
 	CM_SES_REQ_LOG = 37,
 
 	CM_SES_LOG_TABLE = 100,
-	CM_SES_NORMALIZE_WORD = 101
+	CM_SES_NORMALIZE_WORD = 101,
+	CM_SES_GET_KNOWLEDGE_DOTFILE = 102
 }
 
 // (enum client_message corresponds to dispatcher::client_message)
@@ -325,6 +334,7 @@ enum server_message {
 
 	SM_SES_ACK_LOG_TABLE = 100,
 	SM_SES_ACK_NORMALIZE_WORD = 101
+	SM_SES_ACK_KNOWLEDGE_DOTFILE = 102
 }
 
 // (enum server_message corresponds to dispatcher::server_message)
@@ -493,6 +503,7 @@ int32_t knowledgebase[] {
 // where a recursive node definition looks like the following:
 {
 	label of node
+	time-label (for undo/redo-operations)
 	enum knowledgebase_node_status
 	if answered, answer (otherwise this field is skipped!)
 	number of child nodes
