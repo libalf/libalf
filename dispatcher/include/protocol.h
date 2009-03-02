@@ -41,7 +41,8 @@ enum client_message {
 	CM_SES_UNDO = 50,
 	CM_SES_REDO = 51,
 	CM_SES_LOG_TABLE = 100,
-	CM_SES_NORMALIZE_WORD = 101
+	CM_SES_NORMALIZE_WORD = 101,
+	CM_SES_GET_KNOWLEDGE_DOTFILE = 102
 };
 
 enum server_message {
@@ -70,7 +71,8 @@ enum server_message {
 	SM_SES_ACK_UNDO = 50,
 	SM_SES_ACK_REDO = 51,
 	SM_SES_ACK_LOG_TABLE = 100,
-	SM_SES_ACK_NORMALIZE_WORD = 101
+	SM_SES_ACK_NORMALIZE_WORD = 101,
+	SM_SES_ACK_KNOWLEDGE_DOTFILE = 102
 };
 
 enum capability_type {
