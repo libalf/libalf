@@ -35,6 +35,7 @@ using namespace libalf;
 int main(int argc, char**argv)
 {
 	statistics stats;
+	statistics uniq_stats;
 
 	finite_language_automaton *nfa;
 	ostream_logger log(&cout, LOGGER_DEBUG);
@@ -117,7 +118,12 @@ int main(int argc, char**argv)
 	delete nfa; // not needed anymore
 
 	// create oracle instance and teacher instance
-	teach.set_statistics_counter(&stats);
+	if(use_knowledgebase) {
+		teach.set_statistics(&uniq_stats);
+		knowledge.set_statistics(&stats);
+	} else {
+		teach.set_statistics(&stats);
+	}
 	o.set_statistics_counter(&stats);
 
 	// create angluin_simple_observationtable and teach it the automaton
@@ -238,6 +244,8 @@ int main(int argc, char**argv)
 	ot.get_memory_statistics(stats);
 
 	cout << "required membership queries: " << stats.query_count.membership << "\n";
+	if(use_knowledgebase)
+		cout << "required uniq membership queries: " << uniq_stats.query_count.membership << "\n";
 	cout << "required equivalence queries: " << stats.query_count.equivalence << "\n";
 	cout << "sizes: bytes: " << stats.table_size.bytes
 	     << ", members: " << stats.table_size.members

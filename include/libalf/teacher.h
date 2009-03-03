@@ -33,7 +33,7 @@ class teacher {
 
 		virtual answer membership_query(list<int> & word) = 0;
 
-		virtual void set_statistics_counter(statistics * stats)
+		virtual void set_statistics(statistics * stats)
 		{{{
 			this->stats = stats;
 		}}}

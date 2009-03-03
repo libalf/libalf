@@ -509,12 +509,21 @@ bool session::undo(serversocket * sock)
 {
 	// FIXME
 	logger(LOGGER_WARN, "undo command is not implemented yet\n");
+
+	// layout: undo stuff in knowledgebase,
+	// then ask algorithm to check internal knowledgebase/knowledge for
+	// differences and undo.
+	//
+	// critical: counter-examples
+
+
 	return true;
 }
 bool session::redo(serversocket * sock)
 {
 	// FIXME
 	logger(LOGGER_WARN, "redo command is not implemented yet\n");
+
 	return true;
 }
 bool session::log_table(serversocket * sock)
@@ -571,3 +580,4 @@ bool session::log_knowledgebase(serversocket * sock)
 	logger(LOGGER_DEBUG, "%s", s.c_str());
 	return sock->stream_send_int(htonl(SM_SES_ACK_LOG_KNOWLEDGE_DOTFILE));
 }}}
+

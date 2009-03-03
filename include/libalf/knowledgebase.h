@@ -68,7 +68,7 @@ class knowledgebase {
 				// label is reduntant as this == parent->children[label]
 				// except for root, where label should be -1 == epsilon
 				int label;
-				int time_label;
+				int timestamp;
 				enum status_e status;
 				answer ans;
 			protected: // internal methods
@@ -105,7 +105,7 @@ class knowledgebase {
 					typename vector<node *>::iterator ci;
 
 					into += htonl(label);
-					into += htonl(time_label);
+					into += htonl(timestamp);
 					into += htonl(status);
 
 					if(is_answered())
@@ -130,7 +130,9 @@ class knowledgebase {
 
 					// skip label, was set by parent
 					it++, count--; if(it == limit) return false;
-					time_label = (int)ntohl(*it);
+					timestamp = (int)ntohl(*it);
+					if(base->timestamp <= timestamp)
+						base->timestamp = timestamp + 1;
 
 					it++, count--; if(it == limit) return false;
 					status = (enum node::status_e)ntohl(*it);
@@ -156,14 +158,14 @@ class knowledgebase {
 					return true;
 				}}}
 
-			public: // really public usable methods
+			public: // public methods
 				node(knowledgebase * base)
 				{{{
 					this->base = base;
 					parent = NULL;
 					label = -1;
 					status = NODE_IGNORE;
-					time_label = -1;
+					timestamp = 0;
 				}}}
 				~node()
 				// reference in parent will stay ; all children will be deleted
@@ -237,6 +239,7 @@ class knowledgebase {
 				{{{
 					if(status == NODE_IGNORE) {
 						status = NODE_REQUIRED;
+						timestamp = base->timestamp;
 						base->required.push_back(this);
 						return true;
 					} else {
@@ -258,11 +261,12 @@ class knowledgebase {
 					if(status == NODE_ANSWERED)
 						return ((answer)this->ans == (answer)ans);
 
-				//	if(status == NODE_REQUIRED)
+					if(status == NODE_REQUIRED)
 						base->required.remove(this);
 
 					status = NODE_ANSWERED;
 					this->ans = ans;
+					this->timestamp = base->timestamp;
 
 					base->answercount++;
 
@@ -281,7 +285,7 @@ class knowledgebase {
 
 					for(ci = children.begin(); ci != children.end(); ci++)
 						if(*ci)
-							if( ! (*ci)->no_subqueries() )
+							if( ! (*ci)->no_subqueries(true) )
 								return false;
 
 					return true;
@@ -298,6 +302,43 @@ class knowledgebase {
 
 					return ret;
 				}}}
+
+				void ignore()
+				// set status to ignore (and thus delete answer)
+				// FIXME: check!
+				{{{
+					if(status == NODE_REQUIRED)
+						base->required.remove(this);
+					if(status == NODE_ANSWERED)
+						base->answercount--;
+
+					status = NODE_IGNORE;
+					timestamp = 0;
+				}}}
+				bool cleanup()
+				// remove all subtrees that consist only of ignores.
+				// please don't care for the retval.
+				{
+					bool may_remove_self;
+
+					may_remove_self = ( this->status == NODE_REQUIRED );
+
+					// remove all children that may be removed
+					typename vector<node*>::iterator ci;
+					for(ci = children.begin(); ci != children.end(); ++ci) {
+						if(*ci != NULL) {
+							if( ! (*ci)->cleanup() ) {
+								may_remove_self = false;
+							} else {
+								delete *ci;
+								*ci = NULL;
+							}
+						}
+					}
+
+					return may_remove_self;
+				}
+
 		}; // end of knowledgebase::node
 
 
@@ -398,6 +439,8 @@ class knowledgebase {
 		int answercount;
 		// count_queries is required.size().
 
+		int timestamp;
+
 		statistics * stat;
 	public: // methods
 		knowledgebase()
@@ -423,6 +466,8 @@ class knowledgebase {
 		{{{
 			if(root) // check only required so we dont bang in constructors
 				delete root;
+
+			timestamp = 1;
 
 			required.clear();
 
@@ -613,8 +658,11 @@ class knowledgebase {
 				}
 			}
 
-			if(size == 0)
+			if(size == 0) {
+				// increase timestamp so we mark one complete query with the same timestamp
+				timestamp++;
 				return true;
+			}
 
 		deserialization_failed:
 			clear();
@@ -648,15 +696,18 @@ class knowledgebase {
 					if(!this->add_knowledge(w, ki->get_answer()))
 						return false;
 				}
+			// increment timestamp so we mark one complete merge with a single timestamp
+			timestamp++;
 			return true;
 		}}}
 
-		// FIXME: assistant / filter
+		// TODO: assistant / filter
 
 		bool add_knowledge(list<int> & word, answer acceptance)
 		// will return false if knowledge for this word was already set and is != acceptance.
 		// in this case, the holder is in an inconsistent state and
 		// the knowledgebase will not change itself.
+		// NOTE: add_knowledge() will NOT increment the timestamp for undo/redo operations!
 		{{{
 			node * n;
 			list<int>::iterator wi;
@@ -763,6 +814,23 @@ class knowledgebase {
 		{{{
 			iterator it;
 			return it;
+		}}}
+
+
+		bool undo()
+		{{{
+			iterator it;
+			for(it = this->begin(); it != this->end(); ++it) {
+				if(it->timestamp >= timestamp - 1)
+					it->ignore();
+			}
+			timestamp--;
+			if(timestamp < 1)
+				timestamp = 1;
+
+			root->cleanup();
+
+			return true;
 		}}}
 
 };
