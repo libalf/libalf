@@ -267,6 +267,7 @@ class knowledgebase {
 					status = NODE_ANSWERED;
 					this->ans = ans;
 					this->timestamp = base->timestamp;
+					base->timestamp++;
 
 					base->answercount++;
 
@@ -659,9 +660,7 @@ class knowledgebase {
 			return false;
 		}}}
 		bool deserialize_query_acceptances(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
-		// TODO: optimize (via this->required() ?)
-		//       currently this is O(|this|)
-		{
+		{{{
 			int size;
 			iterator ki;
 
@@ -675,20 +674,6 @@ class knowledgebase {
 			if(size != (int)required.size())
 				goto deserialization_failed;
 
-#if 0
-// depth-first-ordering of query-answers
-			for(ki = this->begin(); ki != this->end() && !required.empty(); ++ki) {
-				if(ki->is_required()) {
-					if(it == limit)
-						goto deserialization_failed;
-					answer a;
-					a = (int32_t)ntohl(*it);
-					ki->set_answer(a);
-					it++;
-					size--;
-				}
-			}
-#else
 			while( ! required.empty() ) {
 				if(it == limit)
 					goto deserialization_failed;
@@ -697,18 +682,14 @@ class knowledgebase {
 				ki->set_answer(a);
 				size--;
 			}
-#endif
 
-			if(size == 0) {
-				// increase timestamp so we mark one complete query with the same timestamp
-				timestamp++;
+			if(size == 0)
 				return true;
-			}
 
 		deserialization_failed:
 			clear();
 			return false;
-		}
+		}}}
 
 		knowledgebase * create_query_tree()
 		{{{
@@ -728,15 +709,20 @@ class knowledgebase {
 		}}}
 		bool merge_knowledgebase(knowledgebase & other_tree)
 		// only merges answered information, no queries!
-		// returns false if knowledge of the trees is inconsistent
+		// returns false if knowledge of the trees is inconsistent.
+		// all new knowledge will have the same timestamp!
 		{{{
 			iterator ki;
+			int static_timestamp = timestamp; // we want one timestamp for
+			// the whole merge, so we have to keep it static!
+
 			for(ki = other_tree.begin(); ki != other_tree.end(); ++ki)
 				if(ki->is_answered()) {
 					list<int> w;
 					w = ki->get_word();
 					if(!this->add_knowledge(w, ki->get_answer()))
 						return false;
+					timestamp = static_timestamp;
 				}
 			// increment timestamp so we mark one complete merge with a single timestamp
 			timestamp++;
