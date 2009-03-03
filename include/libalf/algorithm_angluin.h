@@ -98,19 +98,20 @@ class angluin_observationtable : public learning_algorithm<answer> {
 
 		virtual void get_memory_statistics(statistics & stats) = 0;
 
-		virtual void undo()
-		{{{
-			(*this->my_logger)(LOGGER_ERROR, "simple_observationtable::undo() is not implemented.\naborting.\n");
+		virtual bool sync_to_knowledgebase()
+		{
+			if(this->my_knowledge == NULL) {
+				(*this->my_logger)(LOGGER_WARN, "angluin_observationtable: sync-operation is only supported in combination with a knowledgebase!\n");
+				return false;
+			}
 
-			// FIXME: undo is not implemented
-		}}}
+			(*this->my_logger)(LOGGER_ERROR, "angluin_observationtable: sync-operation not yet supported!\n");
 
-		virtual void redo()
-		{{{
-			(*this->my_logger)(LOGGER_ERROR, "simple_observationtable::redo() is not implemented.\naborting.\n");
+			// FIXME: complete sync operation
 
-			// FIXME: redo is not implemented
-		}}}
+			return false;
+		}
+
 
 		virtual basic_string<int32_t> serialize()
 		{{{

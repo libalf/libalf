@@ -128,6 +128,7 @@ SESSION-RELATED COMMANDS:
 		or server answers
 			B)
 				SM_SES_ACK_ADVANCE_QUERIES
+				int query count
 				query tree[]
 
 	answer query tree
@@ -216,16 +217,9 @@ SESSION-RELATED COMMANDS:
 		client sends
 			CM_SES_UNDO
 			session id
+			undo count
 		server answers
 			SM_SES_ACK_UNDO
-			bool ok
-
-	redo latest undone query-answers
-		client sends
-			CM_SES_REDO
-			session id
-		server answers
-			SM_SES_ACK_REDO
 			bool ok
 
 
@@ -300,7 +294,6 @@ enum client_message {
 	CM_SES_REQ_LOG = 37,
 
 	CM_SES_UNDO = 50,
-	CM_SES_REDO = 51,
 
 	CM_SES_LOG_TABLE = 100,
 	CM_SES_NORMALIZE_WORD = 101,
@@ -505,15 +498,13 @@ int32_t automaton [] {
 }
 
 int32_t query tree[]
-this is a knowledgebase[] consisting only of queries
+this is a knowledgebase[] consisting only of queries.
+NOTE the timestamp-value (1 .. n) of each query denotes the order for your answer!
 
 int32_t answer for query tree[]
-this is a list of answers for all queries from the tree, assuming that the
-queries were listed from the tree via depth-first-sorting. thus a query for
-{ . .0. .1. .0.0. .0.1. .1.0. .1.1. }
-will answer exactly in the following order:
-. .0. .0.0. .0.1. .1. .1.0. .1.1.
-
+this is a list of answers for all queries from the query-tree.
+NOTE that you have to answer in the order given by the timestamp-value of
+the queries (1 .. n)
 
 int32_t knowledgebase[] {
 	length of upcoming data (excluding this field)
@@ -523,7 +514,7 @@ int32_t knowledgebase[] {
 // where a recursive node definition looks like the following:
 {
 	label of node
-	time-label (for undo/redo-operations)
+	time-label (for undo-operations and query-ordering)
 	enum knowledgebase_node_status
 	if answered, answer (otherwise this field is skipped!)
 	number of child nodes

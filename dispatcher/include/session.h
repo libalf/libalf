@@ -51,7 +51,6 @@ class session {
 		bool set_stats(serversocket * sock);
 		bool answer_log_request(serversocket * sock);
 		bool undo(serversocket * sock);
-		bool redo(serversocket * sock);
 		// debugging commands:
 		bool log_table(serversocket * sock);
 		bool normalize_word(serversocket * sock);

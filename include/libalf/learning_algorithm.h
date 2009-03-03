@@ -102,8 +102,11 @@ class learning_algorithm {
 
 		virtual void get_memory_statistics(statistics & stats) = 0;
 
-		virtual void undo() = 0;
-		virtual void redo() = 0;
+		// knowledgebase supports undo-operations. this callback should be called after
+		// an undo operation to inform the algorithm that some knowledge may be obsolete
+		// now. the algorithm should check all internal knowledge, remove obsolete and
+		// possibly go back in its state (delete rows/columns).
+		virtual bool sync_to_knowledgebase() = 0;
 
 		/*
 		 * format for serialization:

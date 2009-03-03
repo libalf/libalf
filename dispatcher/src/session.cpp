@@ -506,26 +506,23 @@ bool session::answer_log_request(serversocket * sock)
 	return true;
 }}}
 bool session::undo(serversocket * sock)
-{
-	// FIXME
-	logger(LOGGER_WARN, "undo command is not implemented yet\n");
+{{{
+	int d;
 
-	// layout: undo stuff in knowledgebase,
-	// then ask algorithm to check internal knowledgebase/knowledge for
-	// differences and undo.
-	//
-	// critical: counter-examples
+	// get undo-count
+	if(!sock->stream_receive_int(d))
+		return false;
 
 
-	return true;
-}
-bool session::redo(serversocket * sock)
-{
-	// FIXME
-	logger(LOGGER_WARN, "redo command is not implemented yet\n");
+	knowledge.undo(ntohl(d));
+	d = alg->sync_to_knowledgebase();
 
-	return true;
-}
+
+	if(!sock->stream_send_int(htonl(SM_SES_ACK_UNDO)))
+		return false;
+
+	return sock->stream_send_int(d);
+}}}
 bool session::log_table(serversocket * sock)
 {{{
 	string s = alg->tostring();

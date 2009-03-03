@@ -115,7 +115,6 @@ bool servant::serve()
 		case CM_SES_SET_STATS:
 		case CM_SES_REQ_LOG:
 		case CM_SES_UNDO:
-		case CM_SES_REDO:
 		case CM_SES_LOG_TABLE:
 		case CM_SES_NORMALIZE_WORD:
 		case CM_SES_LOG_KNOWLEDGE_DOTFILE:
@@ -170,8 +169,6 @@ bool servant::serve()
 					return ses->normalize_word(client);
 				case CM_SES_UNDO:
 					return ses->undo(client);
-				case CM_SES_REDO:
-					return ses->redo(client);
 				case CM_SES_LOG_KNOWLEDGE_DOTFILE:
 					return ses->log_knowledgebase(client);
 				default:

@@ -305,7 +305,6 @@ class knowledgebase {
 
 				void ignore()
 				// set status to ignore (and thus delete answer)
-				// FIXME: check!
 				{{{
 					if(status == NODE_REQUIRED)
 						base->required.remove(this);
@@ -316,12 +315,12 @@ class knowledgebase {
 					timestamp = 0;
 				}}}
 				bool cleanup()
-				// remove all subtrees that consist only of ignores.
-				// please don't care for the retval.
-				{
+				// remove all branches that consist only of ignores.
+				// returns true if tree is empty (no answers, no queries)
+				{{{
 					bool may_remove_self;
 
-					may_remove_self = ( this->status == NODE_REQUIRED );
+					may_remove_self = ( this->status == NODE_IGNORE );
 
 					// remove all children that may be removed
 					typename vector<node*>::iterator ci;
@@ -337,7 +336,7 @@ class knowledgebase {
 					}
 
 					return may_remove_self;
-				}
+				}}}
 
 		}; // end of knowledgebase::node
 
@@ -477,6 +476,32 @@ class knowledgebase {
 			answercount = 0;
 		}}}
 
+		void clear_queries()
+		// remove all query-marked nodes
+		{{{
+			while(!required.empty())
+				required.front()->ignore();
+			root->cleanup();
+		}}}
+
+		bool undo(unsigned int count)
+		{{{
+			for(/* nothing */; count > 0; count--) {
+				iterator it;
+				for(it = this->begin(); it != this->end(); ++it) {
+					if(it->timestamp >= timestamp - 1)
+						it->ignore();
+				}
+				timestamp--;
+				if(timestamp < 1)
+					timestamp = 1;
+			}
+
+			root->cleanup();
+
+			return true;
+		}}}
+
 		int get_memory_usage()
 		{{{
 			int ret;
@@ -548,14 +573,14 @@ class knowledgebase {
 			for(it = this->begin(); it != this->end(); ++it) {
 				word = it->get_word();
 				wname = word2string(word, '.');
-				snprintf(buf, 128, "\tnode [shape=\"%s\", style=\"filled\", color=\"%s\"]; \"%s\";\n",
+				snprintf(buf, 128, "\tnode [shape=\"%s\", style=\"filled\", color=\"%s\"]; \"%s [%d]\";\n",
 						// shape
 						it->is_answered() ? "ellipse" : "pentagon",
 						// color
 						it->is_answered() ? ( (it->get_answer() == true) ? "green" : (it->get_answer() == false ? "red" : "blue"))
 								  : (it->is_required() ? "darkorange" : "grey"),
 						// name
-						wname.c_str()
+						wname.c_str(), it->timestamp
 					);
 				buf[127] = 0;
 				ret += buf;
@@ -572,7 +597,11 @@ class knowledgebase {
 						word = (*ci)->get_word();
 						toname = word2string(word, '.');
 
-						snprintf(buf, 128, "\t\"%s\" -> \"%s\" [ label = \"%d\" ];\n", wname.c_str(), toname.c_str(), (*ci)->label);
+						snprintf(buf, 128, "\t\"%s [%d]\" -> \"%s [%d]\" [ label = \"%d\" ];\n",
+								wname.c_str(), it->timestamp,
+								toname.c_str(), (*ci)->timestamp,
+								(*ci)->label
+							);
 						buf[127] = 0;
 						ret += buf;
 					}
@@ -632,7 +661,7 @@ class knowledgebase {
 		bool deserialize_query_acceptances(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 		// TODO: optimize (via this->required() ?)
 		//       currently this is O(|this|)
-		{{{
+		{
 			int size;
 			iterator ki;
 
@@ -646,6 +675,8 @@ class knowledgebase {
 			if(size != (int)required.size())
 				goto deserialization_failed;
 
+#if 0
+// depth-first-ordering of query-answers
 			for(ki = this->begin(); ki != this->end() && !required.empty(); ++ki) {
 				if(ki->is_required()) {
 					if(it == limit)
@@ -657,6 +688,16 @@ class knowledgebase {
 					size--;
 				}
 			}
+#else
+			while( ! required.empty() ) {
+				if(it == limit)
+					goto deserialization_failed;
+				answer a;
+				a = (int32_t)ntohl(*it);
+				ki->set_answer(a);
+				size--;
+			}
+#endif
 
 			if(size == 0) {
 				// increase timestamp so we mark one complete query with the same timestamp
@@ -667,7 +708,7 @@ class knowledgebase {
 		deserialization_failed:
 			clear();
 			return false;
-		}}}
+		}
 
 		knowledgebase * create_query_tree()
 		{{{
@@ -680,6 +721,7 @@ class knowledgebase {
 				list<int> qw;
 				qw = qi->get_word();
 				query_tree->add_query(qw, 0);
+				query_tree->timestamp++;
 			}
 
 			return query_tree;
@@ -814,23 +856,6 @@ class knowledgebase {
 		{{{
 			iterator it;
 			return it;
-		}}}
-
-
-		bool undo()
-		{{{
-			iterator it;
-			for(it = this->begin(); it != this->end(); ++it) {
-				if(it->timestamp >= timestamp - 1)
-					it->ignore();
-			}
-			timestamp--;
-			if(timestamp < 1)
-				timestamp = 1;
-
-			root->cleanup();
-
-			return true;
 		}}}
 
 };
