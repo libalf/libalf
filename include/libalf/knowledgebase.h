@@ -487,16 +487,14 @@ class knowledgebase {
 
 		bool undo(unsigned int count)
 		{{{
-			for(/* nothing */; count > 0; count--) {
-				iterator it;
-				for(it = this->begin(); it != this->end(); ++it) {
-					if(it->timestamp >= timestamp - 1)
-						it->ignore();
-				}
-				timestamp--;
-				if(timestamp < 1)
-					timestamp = 1;
+			iterator it;
+			for(it = this->begin(); it != this->end(); ++it) {
+				if(it->timestamp >= timestamp - count)
+					it->ignore();
 			}
+			timestamp -= count;
+			if(timestamp < 1)
+				timestamp = 1;
 
 			root->cleanup();
 

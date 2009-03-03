@@ -307,6 +307,9 @@ bool session::advance(serversocket * sock)
 		querytree = knowledge.create_query_tree();
 		stats.query_count.uniq_membership += querytree->count_queries();
 		blob = querytree->serialize();
+		// send query count
+		if(!sock->stream_send_int(htonl(querytree->count_queries())))
+			return false;
 		delete querytree;
 	}
 
