@@ -521,6 +521,11 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 			return ( (required.size() == 0) && (answercount == 0) );
 		}}}
 
+		int get_timestamp()
+		{{{
+			return timestamp;
+		}}}
+
 		int count_nodes()
 		{{{
 			return nodecount;

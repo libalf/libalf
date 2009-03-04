@@ -58,6 +58,8 @@ class angluin_observationtable : public learning_algorithm<answer> {
 	 *		- has to provide push_back(answer a): e.g. it->acceptance.push_back(true)
 	 *		- has to provide front(): e.g. answer b = it->acceptance.front()
 	 *		- has to provide swap(*(table::iterator).acceptance, *(table::iterator).acceptance)
+	 *	table::iterator->ut_timestamp has to be an int
+	 *	table::iterator->lt_timestamp has to be an int
 	 *	basic_string<int32_t> table::iterator->serialize()
 	 *	bool table::iterator->deserialize(basic_string<int32_t>::iterator it, basic_string<int32_t>::iterator limit);
 	 *	(see implementation notes on serialization members)
@@ -68,6 +70,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 	protected:
 		typedef vector< list<int> > columnlist;
 		columnlist column_names;
+		list<int> column_timestamps;
 
 		table upper_table;
 		table lower_table;
@@ -99,18 +102,21 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		virtual void get_memory_statistics(statistics & stats) = 0;
 
 		virtual bool sync_to_knowledgebase()
-		{
+		{{{
 			if(this->my_knowledge == NULL) {
 				(*this->my_logger)(LOGGER_WARN, "angluin_observationtable: sync-operation is only supported in combination with a knowledgebase!\n");
 				return false;
 			}
 
-			(*this->my_logger)(LOGGER_ERROR, "angluin_observationtable: sync-operation not yet supported!\n");
-
-			// FIXME: complete sync operation
+			// we will check all knowledge back with the knowledgebase.
+			bool ret = true;
+			if(!sync_columns())
+				ret = false;
+			if(!sync_tables())
+				ret = false;
 
 			return false;
-		}
+		}}}
 
 
 		virtual basic_string<int32_t> serialize()
@@ -118,6 +124,8 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			basic_string<int32_t> ret;
 			basic_string<int32_t> temp;
 			typename table::iterator ti;
+			typename columnlist::iterator ci;
+			typename list<int>::iterator tsi;
 
 			// length (filled in later)
 			ret += 0;
@@ -130,8 +138,14 @@ class angluin_observationtable : public learning_algorithm<answer> {
 
 			// column list
 			ret += htonl(column_names.size());
-			for(columnlist::iterator ci = column_names.begin(); ci != column_names.end(); ci++)
+			for(ci = column_names.begin(), tsi = column_timestamps.begin();
+					ci != column_names.end() && tsi != column_timestamps.end();
+					ci++, tsi++) {
+				// column label
 				ret += serialize_word(*ci);
+				// column timestamp
+				ret += htonl(*tsi);
+			}
 
 			// upper table
 			ret += htonl(upper_table.size());
@@ -148,27 +162,36 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			return ret;
 		}}}
 
-		// (implementation specific:)
+		// (implementation specific)
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit) = 0;
 
 		virtual void print(ostream &os)
 		{{{
 			typename columnlist::iterator ci;
+			typename list<int>::iterator tsi;
 			typename table::iterator ti;
 			typename acceptances::iterator acci;
+			char buf[32];
 
 			os << "simple_observationtable {\n";
 			os << "\tcolumns:";
-
-			for(ci = column_names.begin(); ci != column_names.end(); ci++) {
+			for(ci = column_names.begin(), tsi = column_timestamps.begin(); ci != column_names.end() && tsi != column_timestamps.end(); ci++, tsi++) {
 				os << " ";
 				print_word(os, *ci);
+				snprintf(buf, 32, " (%d)", *tsi);
+				buf[31] = 0;
+				os << buf;
 			}
 			os << " ;\n";
 
 			os << "\tupper table:\n";
 			for(ti = upper_table.begin(); ti != upper_table.end(); ti++) {
 				os << "\t\t";
+
+				snprintf(buf, 32, "(u%03d,l%03d) ", ti->ut_timestamp, ti->lt_timestamp);
+				buf[31] = 0;
+				os << buf;
+
 				print_word(os, ti->index);
 				os << ": ";
 				for(acci = ti->acceptance.begin(); acci != ti->acceptance.end(); acci++) {
@@ -186,6 +209,11 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			os << "\tlower_table:\n";
 			for(ti = lower_table.begin(); ti != lower_table.end(); ti++) {
 				os << "\t\t";
+
+				snprintf(buf, 32, "(u%03d,l%03d) ", ti->ut_timestamp, ti->lt_timestamp);
+				buf[31] = 0;
+				os << buf;
+
 				print_word(os, ti->index);
 				os << ": ";
 				for(acci = ti->acceptance.begin(); acci != ti->acceptance.end(); acci++) {
@@ -392,6 +420,11 @@ class angluin_observationtable : public learning_algorithm<answer> {
 				if(*ci == nw)
 					return;
 
+			if(this->my_knowledge != NULL)
+				column_timestamps.push_back(this->my_knowledge->get_timestamp());
+			else
+				column_timestamps.push_back(0);
+
 			column_names.push_back(nw);
 		}}}
 
@@ -467,6 +500,111 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			}
 
 			return complete;
+		}}}
+
+		virtual bool sync_columns()
+		{{{
+			// remove column-names that are too young.
+			// later in sync_tables their entries in each row will be deleted.
+
+			bool timestamp_ok = false;
+
+			while(!timestamp_ok) {
+				// FIXME: <= or < ?
+				if(column_timestamps.back() < this->my_knowledge->get_timestamp()) {
+					timestamp_ok = true;
+				} else {
+					column_names.pop_back();
+					column_timestamps.pop_back();
+				}
+			}
+
+			return true;
+		}}}
+
+		virtual bool sync_tables()
+		{{{
+			typename table::iterator uti, lti;
+			int now;
+
+			now = this->my_knowledge->get_timestamp();
+
+			uti = upper_table.begin();
+			while(uti != upper_table.end()) {
+				if(uti->ut_timestamp >= now) {
+					// if required, move entry down
+					if(uti->lt_timestamp > 0 && uti->lt_timestamp < now) {
+						uti->lt_timestamp = 0;
+						lower_table.push_back(*uti);
+					}
+
+					// remove entry
+					upper_table.erase(uti);
+
+					uti = upper_table.begin();
+				} else {
+					uti++;
+				}
+			}
+
+			lti = lower_table.begin();
+			while(lti != lower_table.end()) {
+				if(lti->lt_timestamp >= now) {
+					// remove entry
+					lower_table.erase(lti);
+
+					lti = lower_table.begin();
+				} else {
+					lti++;
+				}
+			}
+
+			sync_table_acceptances(upper_table, true);
+			sync_table_acceptances(lower_table, false);
+
+			return true;
+		}}}
+
+		virtual void sync_table_acceptances(table & t, bool upper)
+		{{{
+			typename columnlist::iterator ci;
+			typename acceptances::iterator ai;
+			typename table::iterator ti;
+
+			for(ti = t.begin(); ti != t.end(); ti++) {
+				unsigned int col;
+
+				// sync all knowledge
+				for(ci = column_names.begin(),  ai = ti->acceptance.begin(), col = 0;
+				    ci != column_names.end() && ai != ti->acceptance.end();
+				    ci++, ai++, col++) {
+					list<int> *w;
+					answer a;
+					w = concat(ti->index, *ci);
+
+					if(this->my_knowledge->resolve_query(*w, a)) {
+						delete w;
+
+						if(*ai != a) {
+							printf("ERROR: undo: acceptances differ between revisions\n");
+							*ai = a;
+						}
+					} else {
+						delete w;
+
+						// remove anything behind this one, including this one
+						while(ti->acceptance.size() > col)
+							ti->acceptance.pop_back();
+
+						break;
+					}
+				}
+
+				// remove remainder at end of acceptances, due to deleted column_names
+				if(ai != ti->acceptance.end())
+					while( ti->acceptance.size() > column_names.size())
+						ti->acceptance.pop_back();
+			}
 		}}}
 
 		//  all existing answer-rows in
@@ -807,6 +945,8 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			public:
 				list<int> index;
 				acceptances acceptance;
+				int ut_timestamp;
+				int lt_timestamp;
 
 				bool __attribute__((const)) operator==(simple_row<answer, acceptances> &other)
 				{{{
@@ -846,6 +986,12 @@ class angluin_observationtable : public learning_algorithm<answer> {
 					// index
 					ret += serialize_word(this->index);
 
+					// ut timestamp
+					ret += htonl(ut_timestamp);
+
+					// lt timestamp
+					ret += htonl(lt_timestamp);
+
 					// accumulate acceptances
 					for(acci = this->acceptance.begin(); acci != this->acceptance.end(); acci++) {
 						temp += htonl((int32_t)(*acci));
@@ -880,14 +1026,28 @@ class angluin_observationtable : public learning_algorithm<answer> {
 					size -= this->index.size() + 1;
 					if(size <= 0 || it == limit) goto deserialization_failed;
 
+					// ut timestamp
+					ut_timestamp = ntohl(*it);
+					it++, size--;
+					if(it == limit || size <= 0)
+						goto deserialization_failed;
+
+					// lt timestamp
+					lt_timestamp = ntohl(*it);
+					it++, size--;
+					if(it == limit || size <= 0)
+						goto deserialization_failed;
+
 					// number of acceptances
 					count = ntohl(*it);
 					it++, size--;
-					if(it == limit || count <= 0 || size != count)
+					if(size != count)
 						goto deserialization_failed;
 
 					// acceptances
 					for(/* -- */; count > 0 && it != limit; count--, it++) {
+						if(it == limit)
+							goto deserialization_failed;
 						answer a;
 						a = (int32_t)(ntohl(*it));
 						acceptance.push_back(a);
@@ -985,17 +1145,26 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 			if(count < 0)
 				goto deserialization_failed;
 
-			// columns
+			// column list
 			it++; size--; if(size <= 0 || it == limit) goto deserialization_failed;
 			for(/* -- */; count > 0; count--) {
+				// column label
 				list<int> column_label;
 				if(!deserialize_word(column_label, it, limit))
 					goto deserialization_failed;
 				size -= column_label.size();
 				this->column_names.push_back(column_label);
+
+				// column timestamp
+				if(it == limit)
+					goto deserialization_failed;
+				this->column_timestamps.push_back(ntohl(*it));
+				it++; size--;
 			}
 
 			// upper table
+			if(it == limit)
+				goto deserialization_failed;
 			count = ntohl(*it);
 			if(count < 0)
 				goto deserialization_failed;
@@ -1015,6 +1184,8 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 			}
 
 			// lower table
+			if(it == limit)
+				goto deserialization_failed;
 			count = ntohl(*it);
 			if(count < 0)
 				goto deserialization_failed;
@@ -1076,6 +1247,7 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 
 			// add epsilon as column
 			this->column_names.push_back(word);
+			this->column_timestamps.push_back(0);
 
 			// add epsilon to upper table
 			// and all suffixes to lower table
@@ -1106,6 +1278,10 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 					ti = this->search_lower_table(nw);
 					if(ti != this->lower_table.end()) {
 						done = true;
+						if(this->my_knowledge != NULL)
+							ti->ut_timestamp = this->my_knowledge->get_timestamp();
+						else
+							ti->ut_timestamp = 0;
 						this->upper_table.push_back(*ti);
 						this->lower_table.erase(ti);
 					}
@@ -1115,6 +1291,13 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 			// add the word to the upper table
 			if(!done) {
 				row.index = nw;
+				if(this->my_knowledge != NULL) {
+					row.ut_timestamp = this->my_knowledge->get_timestamp();
+					row.lt_timestamp = 0;
+				} else {
+					row.ut_timestamp = 0;
+					row.lt_timestamp = 0;
+				}
 				this->upper_table.push_back(row);
 			}
 
@@ -1141,11 +1324,25 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 					}
 					if(!done) {
 						row.index = word;
+						if(this->my_knowledge != NULL) {
+							row.ut_timestamp = 0;
+							row.lt_timestamp = this->my_knowledge->get_timestamp();
+						} else {
+							row.ut_timestamp = 0;
+							row.lt_timestamp = 0;
+						}
 						this->lower_table.push_back(row);
 					}
 				} else {
 					if(this->search_upper_table(word) == this->upper_table.end()) {
 						row.index = word;
+						if(this->my_knowledge != NULL) {
+							row.ut_timestamp = 0;
+							row.lt_timestamp = this->my_knowledge->get_timestamp();
+						} else {
+							row.ut_timestamp = 0;
+							row.lt_timestamp = 0;
+						}
 						this->upper_table.push_back(row);
 					}
 				}
