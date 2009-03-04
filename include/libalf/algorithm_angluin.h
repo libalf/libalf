@@ -70,7 +70,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 	protected:
 		typedef vector< list<int> > columnlist;
 		columnlist column_names;
-		list<int> column_timestamps;
+		list<unsigned int> column_timestamps;
 
 		table upper_table;
 		table lower_table;
@@ -125,7 +125,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			basic_string<int32_t> temp;
 			typename table::iterator ti;
 			typename columnlist::iterator ci;
-			typename list<int>::iterator tsi;
+			typename list<unsigned int>::iterator tsi;
 
 			// length (filled in later)
 			ret += 0;
@@ -168,7 +168,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		virtual void print(ostream &os)
 		{{{
 			typename columnlist::iterator ci;
-			typename list<int>::iterator tsi;
+			typename list<unsigned int>::iterator tsi;
 			typename table::iterator ti;
 			typename acceptances::iterator acci;
 			char buf[32];
@@ -525,7 +525,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		virtual bool sync_tables()
 		{{{
 			typename table::iterator uti, lti;
-			int now;
+			unsigned int now;
 
 			now = this->my_knowledge->get_timestamp();
 
@@ -945,8 +945,8 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			public:
 				list<int> index;
 				acceptances acceptance;
-				int ut_timestamp;
-				int lt_timestamp;
+				unsigned int ut_timestamp;
+				unsigned int lt_timestamp;
 
 				bool __attribute__((const)) operator==(simple_row<answer, acceptances> &other)
 				{{{

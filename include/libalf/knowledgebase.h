@@ -68,7 +68,7 @@ class knowledgebase {
 				// label is reduntant as this == parent->children[label]
 				// except for root, where label should be -1 == epsilon
 				int label;
-				int timestamp;
+				unsigned int timestamp;
 				enum status_e status;
 				answer ans;
 			protected: // internal methods
@@ -439,7 +439,7 @@ class knowledgebase {
 		int answercount;
 		// count_queries is required.size().
 
-		int timestamp;
+		unsigned int timestamp;
 
 		statistics * stat;
 	public: // methods
@@ -521,7 +521,7 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 			return ( (required.size() == 0) && (answercount == 0) );
 		}}}
 
-		int get_timestamp()
+		unsigned int get_timestamp()
 		{{{
 			return timestamp;
 		}}}
