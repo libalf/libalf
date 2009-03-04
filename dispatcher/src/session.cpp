@@ -516,9 +516,13 @@ bool session::undo(serversocket * sock)
 	if(!sock->stream_receive_int(d))
 		return false;
 
-
-	knowledge.undo(ntohl(d));
-	d = alg->sync_to_knowledgebase();
+	if(alg->supports_sync()) {
+		knowledge.undo(ntohl(d));
+		d = alg->sync_to_knowledgebase();
+	} else {
+		logger(LOGGER_WARN, "sessions algorithm does not support undo operations. skipping.\n");
+		d = 0;
+	}
 
 
 	if(!sock->stream_send_int(htonl(SM_SES_ACK_UNDO)))

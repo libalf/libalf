@@ -106,7 +106,13 @@ class learning_algorithm {
 		// an undo operation to inform the algorithm that some knowledge may be obsolete
 		// now. the algorithm should check all internal knowledge, remove obsolete and
 		// possibly go back in its state (delete rows/columns).
+		// please use knowledgebase->get_timestamp() for book-keeping and to check
+		// which changes to revert.
+		// you may choose not to support undo operations. then supports_sync must return false.
 		virtual bool sync_to_knowledgebase() = 0;
+
+		// supports_sync() must return true, if undo/sync is supported. false otherwise.
+		virtual bool supports_sync() = 0;
 
 		/*
 		 * format for serialization:
@@ -122,11 +128,6 @@ class learning_algorithm {
 
 		virtual void print(ostream &os) = 0;
 		virtual string tostring() = 0;
-
-		// check acceptance of word in data structure
-		// if status unknown, return (false, ?)
-		// otherwise return (true, <answer>)
-//		virtual pair<bool, answer> check_entry(list<int>) = 0;
 
 		// check if a hypothesis can be constructed without any further queries
 		virtual bool conjecture_ready() = 0;

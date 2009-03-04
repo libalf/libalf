@@ -118,6 +118,9 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			return false;
 		}}}
 
+		virtual bool supports_sync()
+		{ return true; }
+
 
 		virtual basic_string<int32_t> serialize()
 		{{{
