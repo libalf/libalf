@@ -182,7 +182,7 @@ class knowledgebase {
 				}}}
 				node * child(int label)
 				{{{
-					if(label >= 0 && label < children.size())
+					if(label >= 0 && label < (int)children.size())
 						return children[label];
 					else
 						return NULL;
@@ -488,6 +488,7 @@ class knowledgebase {
 		bool undo(unsigned int count)
 		{{{
 			iterator it;
+printf("undo %d with current timestamp %d\n", count, timestamp);
 			for(it = this->begin(); it != this->end(); ++it)
 				if(it->timestamp >= (timestamp - (int)count))
 					it->ignore();
@@ -777,7 +778,7 @@ class knowledgebase {
 			current = root;
 
 			for(wi = word.begin(); wi != word.end(); wi++) {
-				current = (*current)->child(*wi);
+				current = current->child(*wi);
 				if(current == NULL)
 					return false;
 			}
