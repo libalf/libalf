@@ -377,8 +377,9 @@ int32_t status [] {
 	enum algorithm
 	data []
 } // you should just take the whole data as a blank structure
-  // you save to disk and reload later on. the total order is not included,
-  // you will need to set these again (via modality)
+  // you save to disk and reload later on. 
+  // total order and knowledgebase are not included,
+  // you will need to set them again.
 
 int32_t modality [] {
 	length (exluding this field, including type field)
