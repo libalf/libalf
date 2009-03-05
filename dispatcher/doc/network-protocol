@@ -44,7 +44,8 @@ UNRELATED COMMANDS:
 			text[]
 
 	STARTTLS
-		only applicable if server supports STARTTLS (see section CAPABILITIES)
+		only applicable if server supports STARTTLS
+		(see section CAPABILITIES)
 		client sends
 			CM_STARTTLS
 		server answers
@@ -76,8 +77,8 @@ SESSION-RELATED COMMANDS:
 			bool ok (true if success, false otherwise)
 
 	request session-status
-		// please note that to store a complete session,
-		// you will have to store the session-knowledge as well
+	// please note that to store a complete session,
+	// you will have to store the session-knowledge as well
 		client sends
 			CM_SES_REQ_STATUS
 			session id
@@ -103,13 +104,18 @@ SESSION-RELATED COMMANDS:
 	set session-knowledge
 		client sends
 			CM_SES_SET_KNOWLEDGE
-			bool [clear old knowledge?]
+			bool	// clear old knowledge? if
+				// false, new knowledge will be
+				// merged into old knowledge.
+				// in case of inconsistencies,
+				// false will be returned
 			knowledgebase[]
 		server answers
 			SM_SES_ACK_SET_KNOWLEDGE
 			bool
 
-	conjecture (true, if a hypothesis can be resolved from current state)
+	conjecture
+	(true, if a hypothesis can be resolved from current state)
 		client sends
 			CM_SES_CONJECTURE
 			session id
@@ -172,7 +178,8 @@ SESSION-RELATED COMMANDS:
 			SM_SES_ACK_ALPHABET_SIZE
 			alphabet size
 
-	set alphabet size (if new size is <= old size, old size will remain)
+	set alphabet size
+	// if new size is <= old size, old size will remain
 		client sends
 			CM_SES_SET_ALPHABET_SIZE
 			session id
@@ -502,11 +509,6 @@ int32_t query tree[]
 this is a knowledgebase[] consisting only of queries.
 NOTE the timestamp-value (1 .. n) of each query denotes the order for your answer!
 
-int32_t answer for query tree[]
-this is a list of answers for all queries from the query-tree.
-NOTE that you have to answer in the order given by the timestamp-value of
-the queries (1 .. n)
-
 int32_t knowledgebase[] {
 	length of upcoming data (excluding this field)
 	recursive node definition of root
@@ -550,9 +552,13 @@ enum acceptance {
 
 // (enum acceptance corresponds to a serialized libalf::extended_bool)
 
+
 int32_t answer for query tree [] {
 	length of upcoming data (excluding this field)
-	enum acceptance[]
+	enum acceptance[]		// this is a list of answers for all queries from
+					// the query-tree. NOTE that you have to answer
+					// in the order given by the timestamp-value of
+					// the queries (1 .. n)
 }
 
 // note on answer for structured query tree:
