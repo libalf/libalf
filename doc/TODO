@@ -11,6 +11,8 @@ A)
 
 B)
 
+- check network/deserialization code for bugs
+
 - assistants in knowledgebase
 
 - implement normalizer extension in dispatcher and normalizer

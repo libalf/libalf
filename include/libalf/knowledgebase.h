@@ -25,7 +25,7 @@
 // the knowledgebase holds membership information about a language.
 // to obtain information about a word w, use ::resolve_query().
 // if the requested information is not known, false will be returned.
-// if you wish it to be markes as to be acquired (status==NODE_REQUIRED),
+// if you wish it to be marked as to be acquired (status==NODE_REQUIRED),
 // use ::resolve_or_add_query().
 //
 // all membership information can be iterated via ::begin() .. ::end().
@@ -33,8 +33,8 @@
 // the iterators resolve to a ::node. each node represents a word ::node::get_word().
 //
 // all nodes are contained in a single tree, with ::root representing epsilon.
-// thus, you can use ::node::parent() or ::node::child() to find all prefixes
-// of w or all words prefixed by w. if ::node::child() returns NULL, the concat
+// thus, you can use ::node::parent() or ::node::find_child() to find all prefixes
+// of w or all words prefixed by w. if ::node::find_child() returns NULL, the concat
 // is not yet contained in the tree. using find_or_create_child() solves this
 // by adding a new node marked ::node::status==NODE_IGNORE and returning it.
 // for this task, you can also use ::add_knowledge().
@@ -180,12 +180,23 @@ class knowledgebase {
 				{{{
 					  return parent;
 				}}}
-				node * child(int label)
+				node * find_child(int label)
 				{{{
 					if(label >= 0 && label < (int)children.size())
 						return children[label];
 					else
 						return NULL;
+				}}}
+				node * find_child(list<int>::iterator infix_start, list<int>::iterator infix_limit)
+				{{{
+					node * n = this;
+
+					while(infix_start != infix_limit && n != NULL) {
+						n = n->find_child(*infix_start);
+						infix_start++;
+					}
+
+					return n;
 				}}}
 				node * find_or_create_child(int label)
 				{{{
@@ -663,6 +674,7 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 			return false;
 		}}}
 		bool deserialize_query_acceptances(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+		// please see create_query_tree() for the expected order
 		{{{
 			int size;
 			iterator ki;
@@ -695,6 +707,8 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 		}}}
 
 		knowledgebase * create_query_tree()
+		// the timestamp in the resulting query tree represents
+		// the order we expect in deserialize_query_acceptances()
 		{{{
 			knowledgebase * query_tree;
 			iterator qi;
@@ -732,22 +746,31 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 			return true;
 		}}}
 
-		// TODO: assistant / filter
+		/*
+		 * TODO: assistant / filter
+		 *
+		 * template <class answer> class assistant {
+		 *	public:
+		 *		bool resolve_query(list<int> word, knowledgebase & base, answer & result)
+		 * }
+		 *
+		 * internal: list<assistant*>
+		 *
+		 * add_assistant(assistant*)
+		 * remove_assistant(assistant*)
+		 * clear_assistants()
+		 */
 
 		bool add_knowledge(list<int> & word, answer acceptance)
 		// will return false if knowledge for this word was already set and is != acceptance.
 		// in this case, the holder is in an inconsistent state and
 		// the knowledgebase will not change itself.
-		// NOTE: add_knowledge() will NOT increment the timestamp for undo/redo operations!
 		{{{
-			node * n;
-			list<int>::iterator wi;
+			node * current;
 
-			n = root;
-			for(wi = word.begin(); wi != word.end(); wi++)
-				n = n->find_or_create_child(*wi);
+			current = root->find_or_create_child(word.begin(), word.end());
 
-			return n->set_answer(acceptance);
+			return current->set_answer(acceptance);
 		}}}
 		int add_query(list<int> & word, int prefix_count = 0)
 		// returns the number of new required nodes (excluding those already known.
@@ -778,17 +801,10 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 		// returns true if known
 		{{{
 			node * current;
-			list<int>::iterator wi;
 
-			current = root;
+			current = root->find_child(word.begin(), word.end());
 
-			for(wi = word.begin(); wi != word.end(); wi++) {
-				current = current->child(*wi);
-				if(current == NULL)
-					return false;
-			}
-
-			if(current->is_answered()) {
+			if(current != NULL && current->is_answered()) {
 				acceptance = current->get_answer();
 				if(stat)
 					stat->query_count.membership++;
@@ -800,15 +816,10 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 		bool resolve_or_add_query(list<int> & word, answer & acceptance)
 		// returns true if known.
 		// otherwise marks knowledge as to-be-acquired and returns false.
-		// TODO: optimize
 		{{{
 			node * current;
-			list<int>::iterator wi;
 
-			current = root;
-
-			for(wi = word.begin(); wi != word.end(); wi++)
-				current = current->find_or_create_child(*wi);
+			current = root->find_or_create_child(word.begin(), word.end());
 
 			if(current->is_answered()) {
 				acceptance = current->get_answer();
