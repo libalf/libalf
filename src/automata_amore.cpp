@@ -96,7 +96,7 @@ nondeterministic_finite_amore_automaton::nondeterministic_finite_amore_automaton
 	// calculate alphabet size
 	p = rex;
 	while(*p) {
-		if(*p > c && *p < 'z')
+		if(*p > c && *p <= 'z')
 			c = *p;
 		p++;
 	}

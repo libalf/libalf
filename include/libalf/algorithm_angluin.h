@@ -75,7 +75,6 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		table upper_table;
 		table lower_table;
 
-		int alphabet_size;
 		bool initialized;
 
 	public:
@@ -84,20 +83,9 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			this->set_knowledge_source(NULL, NULL);
 			this->set_logger(NULL);
 			this->set_normalizer(NULL);
-			alphabet_size = 0;
+			this->set_alphabet_size(0);
 			initialized = false;
 		}}}
-
-		virtual void set_alphabet_size(int alphabet_size)
-		{{{
-			this->alphabet_size = alphabet_size;
-		}}}
-
-		virtual int get_alphabet_size()
-		{{{
-			return alphabet_size;
-		}}}
-
 
 		virtual void get_memory_statistics(statistics & stats) = 0;
 
@@ -137,7 +125,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			ret += htonl(learning_algorithm<answer>::ALG_ANGLUIN);
 
 			// alphabet size
-			ret += htonl(alphabet_size);
+			ret += htonl(this->get_alphabet_size());
 
 			// column list
 			ret += htonl(column_names.size());
@@ -258,7 +246,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 
 			// check for increase in alphabet size
 			for(wi = word.begin(); wi != word.end(); wi++) {
-				if(*wi >= alphabet_size) {
+				if(*wi >= this->get_alphabet_size()) {
 					new_asize = *wi+1;
 					asize_changed = true;
 				}
@@ -301,7 +289,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 
 			// check for increase in alphabet size
 			for(wi = word.begin(); wi != word.end(); wi++) {
-				if(*wi >= alphabet_size) {
+				if(*wi >= this->get_alphabet_size()) {
 					new_asize = *wi+1;
 					asize_changed = true;
 				}
@@ -702,7 +690,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 						list<int> word2 = uti_2->index;
 						typename table::iterator w1succ, w2succ;
 						int sigma;
-						for(sigma = 0; sigma < alphabet_size; sigma++) {
+						for(sigma = 0; sigma < this->get_alphabet_size(); sigma++) {
 							if(word1.front() != BOTTOM_CHAR)
 								word1.push_back(sigma);
 							if(word2.front() != BOTTOM_CHAR)
@@ -766,7 +754,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 						list<int> word1 = uti_1->index;
 						list<int> word2 = uti_2->index;
 						typename table::iterator w1_succ, w2_succ;
-						for(int sigma = 0; sigma < alphabet_size; sigma++) {
+						for(int sigma = 0; sigma < this->get_alphabet_size(); sigma++) {
 							if(word1.front() != BOTTOM_CHAR)
 								word1.push_back(sigma);
 							if(word2.front() != BOTTOM_CHAR)
@@ -908,7 +896,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 				list<int> index;
 				typename table::iterator ri;
 				index = state_it->tableentry->index;
-				for(int i = 0; i < alphabet_size; i++) {
+				for(int i = 0; i < this->get_alphabet_size(); i++) {
 					// find successor in table
 					index.push_back(i);
 					if(this->norm) {
@@ -936,7 +924,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 				}
 			}
 
-			return automaton->construct(alphabet_size, states.size(),
+			return automaton->construct(this->get_alphabet_size(), states.size(),
 						initial, final, transitions);
 		}}}
 
@@ -1076,13 +1064,13 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 	public:
 		angluin_simple_observationtable()
 		{{{
-			this->alphabet_size = 0;
+			this->set_alphabet_size(0);
 			this->set_knowledge_source(NULL, NULL);
 			this->set_logger(NULL);
 		}}}
 		angluin_simple_observationtable(teacher<answer> *teach, knowledgebase<answer> *base, logger *log, int alphabet_size)
 		{{{
-			this->alphabet_size = alphabet_size;
+			this->set_alphabet_size(alphabet_size);
 			this->set_logger(log);
 			this->set_knowledge_source(teach, base);
 		}}}
@@ -1138,8 +1126,8 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 
 			// alphabet size
 			it++; size--; if(size <= 0 || it == limit) goto deserialization_failed;
-			this->alphabet_size = ntohl(*it);
-			if(this->alphabet_size < 0)
+			this->set_alphabet_size(ntohl(*it));
+			if(this->get_alphabet_size() < 0)
 				goto deserialization_failed;
 
 			// column count
@@ -1212,7 +1200,7 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 			return true;
 
 		deserialization_failed:
-			this->alphabet_size = 0;
+			this->set_alphabet_size(0);
 			this->column_names.clear();
 			this->upper_table.clear();
 			this->lower_table.clear();
@@ -1221,7 +1209,7 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 
 		virtual void increase_alphabet_size(int new_asize)
 		{{{
-			if(new_asize <= this->alphabet_size)
+			if(new_asize <= this->get_alphabet_size())
 				return;
 
 			typename list< algorithm_angluin::simple_row<answer, vector<answer> > >::iterator uti;
@@ -1233,14 +1221,14 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 				row.index = uti->index;
 
 				// add them suffixed with the new characters into the lower table.
-				for(int new_suffix = this->alphabet_size; new_suffix < new_asize; new_suffix++) {
+				for(int new_suffix = this->get_alphabet_size(); new_suffix < new_asize; new_suffix++) {
 					row.index.push_back(new_suffix);
 					this->lower_table.push_back(row);
 					row.index.pop_back();
 				}
 			}
 
-			this->alphabet_size = new_asize;
+			this->set_alphabet_size(new_asize);
 		}}}
 
 	protected:
@@ -1308,7 +1296,7 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 				return;
 
 			// add all suffixes of word to lower table
-			for( int i = 0; i < this->alphabet_size; i++ ) {
+			for( int i = 0; i < this->get_alphabet_size(); i++ ) {
 				nw.push_back(i);
 				// normalize word
 				if(this->norm)

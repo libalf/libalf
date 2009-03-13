@@ -38,6 +38,8 @@ class learning_algorithm {
 
 		normalizer * norm;
 
+		int alphabet_size;
+
 	public:	// types
 		enum algorithm {
 			ALG_NONE = 0,
@@ -50,7 +52,7 @@ class learning_algorithm {
 	public: // methods
 		learning_algorithm()
 		{{{
-			my_logger = &(this->ignore);
+			set_logger(NULL);
 			my_teacher = NULL;
 			my_knowledge = NULL;
 			norm = NULL;
@@ -59,15 +61,24 @@ class learning_algorithm {
 
 		// set_alphabet_size() is only for initial setting.
 		// once any data is in the structure, use increase_alphabet_size ONLY.
-		virtual void set_alphabet_size(int alphabet_size) = 0;
-		virtual int get_alphabet_size() = 0;
+		virtual void set_alphabet_size(int alphabet_size)
+		{{{
+			this->alphabet_size = alphabet_size;
+		}}}
+		virtual int get_alphabet_size()
+		{{{
+			return alphabet_size;
+		}}}
 
 		virtual void increase_alphabet_size(int new_asize) = 0;
 
 
 		virtual void set_logger(logger * l)
 		{{{
-			my_logger = l;
+			if(l)
+				my_logger = l;
+			else
+				my_logger = (&this->ignore);
 		}}}
 
 		virtual void set_knowledge_source(teacher<answer> *teach, knowledgebase<answer> *base)
