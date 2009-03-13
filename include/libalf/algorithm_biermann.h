@@ -21,9 +21,8 @@ namespace libalf {
 
 using namespace std;
 
-// basic interface for different implementations (e.g. one table and one tree)
 template <class answer>
-class learning_algorithm {
+class algorithm_biermann {
 	protected: // data
 
 	public:	// types
@@ -99,14 +98,15 @@ class learning_algorithm {
 		{
 		}
 
-		// check if a hypothesis can be constructed without any further queries
+		// conjecture is always ready
+		// if there is a knowledgebase
 		virtual bool conjecture_ready()
 		{{{
 			// we're offline.
-			return true;
+			return (my_knowledgebase != NULL);
 		}}}
 
-		// in case the hypothesis is wrong, use this function to give a counter-example
+		// stubs for counterexamples will throw a warning to the logger
 		virtual void add_counterexample(list<int>, answer)
 		{{{
 			(*this->my_logger)(LOGGER_ERROR, "algorithm_biermann does not support counter-examples, as it is an offline-algorithm. please add the counter-example directly to the knowledgebase and rerun the algorithm.\n");
@@ -117,9 +117,6 @@ class learning_algorithm {
 		}}}
 
 	protected:
-		// complete table in such a way that an automata can be derived
-		// return true if table is complete.
-		// return false if table could not be completed due to missing knowledge
 		virtual bool complete()
 		{{{
 			// we're offline.
