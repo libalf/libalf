@@ -176,6 +176,11 @@ class knowledgebase {
 							delete (*ci);
 				}}}
 
+				node * get_selfptr()
+				{{{
+					return this;
+				}}}
+
 				node * get_parent()
 				{{{
 					  return parent;

@@ -240,8 +240,8 @@ class algorithm_biermann {
 
 					// C1: O(u) != O(u') => S_u != S_u'
 					if(ki1->get_answer() == ki2->get_answer()) {
-						clause.l1 = ki1->get_nodeid();
-						clause.l2 = ki2->get_nodeid();
+						clause.l1 = ki1->get_selfptr();
+						clause.l2 = ki2->get_selfptr();
 						clause.has_second = false;
 						clauses.insert(clause);
 					}
@@ -267,11 +267,11 @@ class algorithm_biermann {
 							continue;
 
 						if(suffix1->get_answer() == suffix2->get_answer()) {
-							clause.l1 = ki1->get_nodeid();
-							clause.l2 = ki2->get_nodeid();
+							clause.l1 = ki1->get_selfptr();
+							clause.l2 = ki2->get_selfptr();
 							clause.has_second = true;
-							clause.l3 = suffix1->get_nodeid();
-							clause.l4 = suffix2->get_nodeid();
+							clause.l3 = suffix1->get_selfptr();
+							clause.l4 = suffix2->get_selfptr();
 							clauses.insert(clause);
 						}
 					}
