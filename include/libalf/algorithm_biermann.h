@@ -49,12 +49,12 @@ namespace biermann {
 			int l4;
 
 
-			bool verify(vector<int> & literal_values)
+			bool verify(map<knowledgebase::node*, int> & solution)
 			{{{
 				if(has_second)
-					if(literal_values[l3] == literal_values[l4])
+					if(solution[l3] == solution[l4])
 						return true;
-				return literal_values[l1] != literal_values[l2];
+				return (solution[l1] != solution[l2]);
 			}}}
 
 			void print(ostream &os)
@@ -177,10 +177,10 @@ class algorithm_biermann {
 			int mdfa_size;
 			int lfdfa_size;
 
-			set<biermann::clause> clauses;
+			list<biermann::clause> clauses;
 
-			vector<int> current_solution;
-			vector<int> old_solution;
+			map<knowledgebase::node*, int> current_solution;
+			map<knowledgebase::node*, int> old_solution;
 
 			// 1) create clauses from LFDFA (knowledgebase)
 			create_clauses(clauses);
@@ -221,13 +221,13 @@ class algorithm_biermann {
 			return create_automaton(mdfa_size, current_solution, automaton);
 		}}}
 
-		virtual void create_clauses(set<biermann::clause> clauses)
+		virtual void create_clauses(list<biermann::clause> clauses)
 		{{{
 			clauses.clear();
 
 			biermann::clause clause;
 			knowledgebase::iterator ki1, ki2;
-			knowledgebase::node suffix1, suffix2;
+			knowledgebase::node * suffix1, suffix2;
 
 			for(ki1 = this->my_knowledge->begin(); ki1 != this->my_knowledge->end(); ++ki1) {
 				if(!ki1->is_answered())
@@ -281,10 +281,10 @@ class algorithm_biermann {
 				}
 			}
 		}}}
-		virtual bool solve_clauses(int lfdfa_size, int mdfa_size, set<biermann::clause> & clauses, vector<int> & solution)
+		virtual bool solve_clauses(int lfdfa_size, int mdfa_size, list<biermann::clause> & clauses, map<knowledgebase::node*, int> & solution)
 		{
 		}
-		virtual bool create_automaton(int size, vector<int> & solution, finite_language_automaton * automaton)
+		virtual bool create_automaton(int size, map<knowledgebase::node*, int> & solution, finite_language_automaton * automaton)
 		{
 		}
 
