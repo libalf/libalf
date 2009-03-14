@@ -40,21 +40,54 @@ namespace biermann {
 		// and
 		// l1 != l2 || l3 == l4
 		public:
-			int l1;
-			int l2;
+			knowledgebase<answer>::node* l1;
+			knowledgebase<answer>::node* l2;
 
 			bool has_second;
 
-			int l3;
-			int l4;
+			knowledgebase<answer>::node* l3;
+			knowledgebase<answer>::node* l4;
 
 
-			bool verify(map<knowledgebase::node*, int> & solution)
+			pair<bool, bool> verify(map<knowledgebase<answer>::node*, int> & solution)
+			// return <true, true> if all (required) information is already set and the clause is true.
+			// return <true, false> if all information is already set and the clause is false.
+			// return <false, ignore> if information is missing.
 			{{{
-				if(has_second)
-					if(solution[l3] == solution[l4])
-						return true;
-				return (solution[l1] != solution[l2]);
+				typename pair<bool, bool> ret;
+				typename map<knowledgebase<answer>::node*, int>::iterator mi1, mi2;
+
+				if(has_second) {
+					mi1 = solution.find(l3);
+					if(mi1 == solution.end())
+						goto incomplete;
+
+					mi2 = solution.find(l4);
+					if(mi2 == solution.end())
+						goto incomplete;
+
+					if(mi1->second == mi2->second) {
+						ret.first = true;
+						ret.second = true;
+						return ret;
+					}
+				}
+
+				mi1 = solution.find(l1);
+				if(mi1 == solution.end())
+					goto incomplete;
+
+				mi2 = solution.find(l2);
+				if(mi2 == solution.end())
+					goto incomplete;
+
+				ret.first = true;
+				ret.second = (mi1->second != mi2->second);
+				return ret;
+			incomplete:
+				ret.first = false;
+				ret.second = false;
+				return ret;
 			}}}
 
 			void print(ostream &os)
@@ -62,12 +95,17 @@ namespace biermann {
 				char buf1[64];
 				char buf2[64];
 
+				snprintf(buf1, 64, "(S%d != S%d)", l1, l2);
 				if(has_second)
-					snprintf(buf2, 64, " || (S%d == S%d)", l3, l4);
-				snprintf(buf1, 64, "(S%d != S%d)%s", has_second ? buf2 : "");
+					snprintf(buf2, 64, " || (S%d == S%d)]", l3, l4);
 				buf1[63] = 0;
+				buf2[63] = 0;
 
+				if(has_second)
+					os << "["
 				os << buf1;
+				if(has_second)
+					os << buf2;
 			}}}
 	}
 
@@ -179,8 +217,8 @@ class algorithm_biermann {
 
 			list<biermann::clause> clauses;
 
-			map<knowledgebase::node*, int> current_solution;
-			map<knowledgebase::node*, int> old_solution;
+			map<knowledgebase<answer>::node*, int> current_solution;
+			map<knowledgebase<answer>::node*, int> old_solution;
 
 			// 1) create clauses from LFDFA (knowledgebase)
 			create_clauses(clauses);
@@ -226,8 +264,8 @@ class algorithm_biermann {
 			clauses.clear();
 
 			biermann::clause clause;
-			knowledgebase::iterator ki1, ki2;
-			knowledgebase::node * suffix1, suffix2;
+			knowledgebase<answer>::iterator ki1, ki2;
+			knowledgebase<answer>::node * suffix1, suffix2;
 
 			for(ki1 = this->my_knowledge->begin(); ki1 != this->my_knowledge->end(); ++ki1) {
 				if(!ki1->is_answered())
@@ -281,10 +319,10 @@ class algorithm_biermann {
 				}
 			}
 		}}}
-		virtual bool solve_clauses(int lfdfa_size, int mdfa_size, list<biermann::clause> & clauses, map<knowledgebase::node*, int> & solution)
+		virtual bool solve_clauses(int lfdfa_size, int mdfa_size, list<biermann::clause> & clauses, map<knowledgebase<answer>::node*, int> & solution)
 		{
 		}
-		virtual bool create_automaton(int size, map<knowledgebase::node*, int> & solution, finite_language_automaton * automaton)
+		virtual bool create_automaton(int size, map<knowledgebase<answer>::node*, int> & solution, finite_language_automaton * automaton)
 		{
 		}
 
