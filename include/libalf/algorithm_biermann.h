@@ -353,7 +353,7 @@ return true;
 			return false;
 		}
 		virtual bool create_automaton(int size, set<knowledgebase_node_ptr> & sources, mapping & solution, finite_language_automaton * automaton)
-		{
+		{{{
 			list<int> start;
 			list<int> final;
 			list<transition> transitions;
@@ -367,13 +367,21 @@ return true;
 					if((*si)->get_answer() == true)
 						final.push_back( solution[ (*si)->get_selfptr() ] );
 					// transitions
+					transition tr;
+					tr.source = solution[ (*si)->get_selfptr() ];
 					for(int s = 0; s < this->get_alphabet_size(); s++) {
-						
+						knowledgebase_node_ptr child;
+						child = (*si)->find_child(s);
+						if(child != NULL) {
+							tr.label = s;
+							tr.destination = solution[ child->get_selfptr() ];
+							transitions.push_back(tr);
+						}
 					}
 			}
 
 			return automaton->construct(this->get_alphabet_size(), size, start, final, transitions);
-		}
+		}}}
 
 		virtual void print_clauses(list<clause> & clauses)
 		{{{
