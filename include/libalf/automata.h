@@ -161,6 +161,7 @@ class finite_language_automaton : public finite_automaton {
 
 		// the following two functions use serialize() and deserialize() and are thus implementation-independent:
 		// please stick to construct for constructing automata, not to deserialize, as the format or serialize may change
+		// also note that start, final and transitions may contain the same values multiple times!
 
 		// construct a new automaton with states 0..state_count-1
 		//

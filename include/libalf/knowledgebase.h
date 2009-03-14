@@ -410,6 +410,12 @@ class knowledgebase {
 					}
 					return *this;
 				}}}
+				iterator operator++(int foo)
+				{{{
+					iterator tmp = (*this);
+					operator++();
+					return tmp;
+				}}}
 
 				node & operator*()
 				{{{
@@ -505,7 +511,7 @@ class knowledgebase {
 		{{{
 			iterator it;
 printf("undo %d with current timestamp %d\n", count, timestamp);
-			for(it = this->begin(); it != this->end(); ++it)
+			for(it = this->begin(); it != this->end(); it++)
 				if(it->timestamp >= (timestamp - (int)count))
 					it->ignore();
 			timestamp -= count;
@@ -561,10 +567,10 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 			iterator ki;
 				list<int> w;
 
-			os << "knowledgebase BEGIN\n";
+			os << "knowledgebase {\n";
 
-			for(ki = this->begin(); ki != this->end(); ++ki) {
-				os << "node ";
+			for(ki = this->begin(); ki != this->end(); ki++) {
+				os << "\tnode ";
 				w = ki->get_word();
 				print_word(os, w);
 				os << " marked " << ( (ki->is_answered()) ? "!" : ( (ki->is_required()) ? "?" : "%" ) );
@@ -573,7 +579,7 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 				os << "\n";
 			}
 
-			os << "knowledgebase END\n";
+			os << "}\n";
 		}}}
 		string generate_dotfile()
 		{{{
@@ -590,7 +596,7 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 				"\tsize=8;\n";
 
 			// add all nodes
-			for(it = this->begin(); it != this->end(); ++it) {
+			for(it = this->begin(); it != this->end(); it++) {
 				word = it->get_word();
 				wname = word2string(word, '.');
 				snprintf(buf, 128, "\tnode [shape=\"%s\", style=\"filled\", color=\"%s\"]; \"%s [%d]\";\n",
@@ -606,7 +612,7 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 				ret += buf;
 			}
 			// and add all connections
-			for(it = this->begin(); it != this->end(); ++it) {
+			for(it = this->begin(); it != this->end(); it++) {
 				typename vector<node *>::iterator ci;
 				string toname;
 
@@ -695,6 +701,7 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 				goto deserialization_failed;
 
 			while( ! required.empty() ) {
+				ki = this->qbegin();
 				if(it == limit)
 					goto deserialization_failed;
 				answer a;
@@ -838,6 +845,7 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 		}}}
 
 		iterator begin()
+		// begin() always begins at root node (epsilon)!
 		{{{
 			iterator it(false, required.end(), root, this);
 			return it;

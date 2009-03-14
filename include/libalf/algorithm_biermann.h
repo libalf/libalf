@@ -43,8 +43,9 @@ class simple_biermann : public learning_algorithm<answer> {
 
 	public:	// types
 		class node_comparator {
-			bool operator() (typename knowledgebase<answer>::node * a, typename knowledgebase<answer>::node * b)
-			{ return a < b; };
+			public:
+				bool operator() (typename knowledgebase<answer>::node * a, typename knowledgebase<answer>::node * b)
+				{ return a < b; };
 		};
 		typedef typename knowledgebase<answer>::node* knowledgebase_node_ptr;
 
@@ -132,7 +133,7 @@ class simple_biermann : public learning_algorithm<answer> {
 	public: // methods
 		simple_biermann(knowledgebase<answer> * base, logger * log, int alphabet_size)
 		{{{
-			this->alphabet_size = alphabet_size;
+			this->set_alphabet_size(alphabet_size);
 			this->set_logger(log);
 			this->set_knowledge_source(NULL, base);
 		}}}
@@ -235,8 +236,8 @@ class simple_biermann : public learning_algorithm<answer> {
 		virtual bool derive_automaton(finite_language_automaton * automaton)
 		{
 			int mdfa_size;
-			int lfdfa_size;
 
+			set<knowledgebase_node_ptr> sources;
 			list<clause> clauses;
 
 			mapping current_solution;
@@ -246,22 +247,21 @@ class simple_biermann : public learning_algorithm<answer> {
 				return false;
 
 			// 1) create clauses from LoopFreeDFA (knowledgebase)
-			create_clauses(clauses);
+			create_clauses(sources, clauses);
 print_clauses(clauses);
 return true;
-
-			lfdfa_size = this->my_knowledge->count_answers();
 
 			// 2) find CSP solution
 			bool solved = false;
 			bool failed_before = false;
 			bool success_before = false;
 			// pick an initial mDFA size [FIXME]
-			mdfa_size = (int)sqrtf((float)lfdfa_size);
+			mdfa_size = (int)sqrtf((float)this->my_knowledge->count_nodes());
+			// FIXME: use binary search instead
 			while(!solved) {
 				old_solution = current_solution;
 
-				if( solve_clauses(lfdfa_size, mdfa_size, clauses, current_solution) ) {
+				if( solve_clauses(mdfa_size, sources, clauses, current_solution) ) {
 					if(failed_before) {
 						// we found the minimal solution
 						solved = true;
@@ -283,33 +283,34 @@ return true;
 			}
 
 			// 3) derive automaton from current_solution and mdfa_size
-			return create_automaton(mdfa_size, current_solution, automaton);
+			return create_automaton(mdfa_size, sources, current_solution, automaton);
 		}
 
-		virtual void create_clauses(list<clause> & clauses)
+		virtual void create_clauses(set<knowledgebase_node_ptr> & sources, list<clause> & clauses)
 		{{{
 			clause clause;
 			typename knowledgebase<answer>::iterator ki1, ki2;
 			typename knowledgebase<answer>::node *suffix1, *suffix2;
 
+			sources.clear();
 			clauses.clear();
 
-			for(ki1 = this->my_knowledge->begin(); ki1 != this->my_knowledge->end(); ++ki1) {
-				if(!ki1->is_answered())
-					continue;
-
+			for(ki1 = this->my_knowledge->begin(); ki1 != this->my_knowledge->end(); ki1++) {
 				ki2 = ki1;
 				++ki2;
 				while(ki2 != this->my_knowledge->end()) {
-					if(!ki2->is_answered())
-						continue;
-
 					// C1: O(u) != O(u') => S_u != S_u'
-					if(ki1->get_answer() != ki2->get_answer()) {
-						clause.l1 = ki1->get_selfptr();
-						clause.l2 = ki2->get_selfptr();
-						clause.has_second = false;
-						clauses.push_back(clause);
+					if(ki1->is_answered() && ki2->is_answered()) {
+						if(   (ki1->get_answer() == true && ki2->get_answer() == false)
+						   || (ki1->get_answer() == false && ki2->get_answer() == true) ) {
+							clause.l1 = ki1->get_selfptr();
+							clause.l2 = ki2->get_selfptr();
+							clause.has_second = false;
+
+							sources.insert(ki1->get_selfptr());
+							sources.insert(ki2->get_selfptr());
+							clauses.push_back(clause);
+						}
 					}
 
 					// C2: a \in \Sigma,
@@ -323,23 +324,22 @@ return true;
 						suffix1 = ki1->find_child(s);
 						if(suffix1 == NULL)
 							continue;
-						if(!suffix1->is_answered())
-							continue;
 
 						suffix2 = ki2->find_child(s);
 						if(suffix2 == NULL)
 							continue;
-						if(!suffix2->is_answered())
-							continue;
 
-						if(suffix1->get_answer() == suffix2->get_answer()) {
-							clause.l1 = ki1->get_selfptr();
-							clause.l2 = ki2->get_selfptr();
-							clause.has_second = true;
-							clause.l3 = suffix1->get_selfptr();
-							clause.l4 = suffix2->get_selfptr();
-							clauses.push_back(clause);
-						}
+						clause.l1 = ki1->get_selfptr();
+						clause.l2 = ki2->get_selfptr();
+						clause.has_second = true;
+						clause.l3 = suffix1->get_selfptr();
+						clause.l4 = suffix2->get_selfptr();
+
+						sources.insert(ki1->get_selfptr());
+						sources.insert(ki2->get_selfptr());
+						sources.insert(suffix1->get_selfptr());
+						sources.insert(suffix2->get_selfptr());
+						clauses.push_back(clause);
 					}
 
 					// next pair.
@@ -347,15 +347,32 @@ return true;
 				}
 			}
 		}}}
-		virtual bool solve_clauses(int lfdfa_size, int mdfa_size, list<clause> & clauses, mapping & solution)
+		virtual bool solve_clauses(int mdfa_size, set<knowledgebase_node_ptr> & sources, list<clause> & clauses, mapping & solution)
 		{
 			// FIXME
 			return false;
 		}
-		virtual bool create_automaton(int size, mapping & solution, finite_language_automaton * automaton)
+		virtual bool create_automaton(int size, set<knowledgebase_node_ptr> & sources, mapping & solution, finite_language_automaton * automaton)
 		{
-			// FIXME
-			return false;
+			list<int> start;
+			list<int> final;
+			list<transition> transitions;
+			typename set<knowledgebase_node_ptr>::iterator si;
+
+			// knowledgebase.begin() always starts at root node (epsilon)
+			start.push_back( solution[ this->my_knowledge->begin()->get_selfptr() ] );
+
+			for(si = sources.begin(); si != sources.end(); si++) {
+					// acceptance-status
+					if((*si)->get_answer() == true)
+						final.push_back( solution[ (*si)->get_selfptr() ] );
+					// transitions
+					for(int s = 0; s < this->get_alphabet_size(); s++) {
+						
+					}
+			}
+
+			return automaton->construct(this->get_alphabet_size(), size, start, final, transitions);
 		}
 
 		virtual void print_clauses(list<clause> & clauses)
@@ -365,9 +382,9 @@ return true;
 
 			cout << "clauses {\n";
 			for(n=0, ci = clauses.begin(); ci != clauses.end(); n++, ci++) {
-				printf("\t#%03d: ", n);
+				cout << "\t";
 				ci->print(cout);
-				printf("\n");
+				cout << "\n";
 			}
 			cout << "}\n";
 		}}}
