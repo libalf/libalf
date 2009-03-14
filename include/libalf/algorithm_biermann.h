@@ -248,7 +248,8 @@ class simple_biermann : public learning_algorithm<answer> {
 
 			// 1) create clauses from LoopFreeDFA (knowledgebase)
 			create_clauses(sources, clauses);
-print_clauses(clauses);
+
+debug_print(cout, sources, clauses);
 return true;
 
 			// 2) find CSP solution
@@ -383,18 +384,34 @@ return true;
 			return automaton->construct(this->get_alphabet_size(), size, start, final, transitions);
 		}}}
 
-		virtual void print_clauses(list<clause> & clauses)
+		void debug_print(ostream &os, set<knowledgebase_node_ptr> & sources, list<clause> & clauses)
+		{
+			typename set<knowledgebase_node_ptr>::iterator si;
+
+			os << "sources {\n";
+			for(si = sources.begin(); si != sources.end(); si++) {
+				list<int> word;
+				string s;
+				word = (*si)->get_word();
+				s = word2string(word, '.');
+				os << "\t" << s << "\n";
+			}
+			os << "}\n";
+
+			print_clauses(os, clauses);
+		}
+		virtual void print_clauses(ostream &os, list<clause> & clauses)
 		{{{
 			typename list<clause>::iterator ci;
 			int n;
 
-			cout << "clauses {\n";
+			os << "clauses {\n";
 			for(n=0, ci = clauses.begin(); ci != clauses.end(); n++, ci++) {
-				cout << "\t";
-				ci->print(cout);
-				cout << "\n";
+				os << "\t";
+				ci->print(os);
+				os << "\n";
 			}
-			cout << "}\n";
+			os << "}\n";
 		}}}
 
 };
