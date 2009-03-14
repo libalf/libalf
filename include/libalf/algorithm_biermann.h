@@ -175,29 +175,26 @@ class simple_biermann : public learning_algorithm<answer> {
 			return false;
 		}}}
 
-		/*
-		 * format for serialization:
-		 * all values in NETWORK BYTE ORDER!
-		 * <serialized learning algorithm data>
-		 *	length of string (excluding this length field; not in bytes but in int32_t)
-		 *	type of learning algorithm (see enum learning_algorithm::algorithm)
-		 *	algorithm-specific data
-		 * </serialized learning algorithm data>
-		 */
 		virtual basic_string<int32_t> serialize()
 		{{{
 			basic_string<int32_t> ret;
 
 			// we don't have any internal data
-			ret += htonl(0);
+			ret += htonl(1);
+			ret += htonl(learning_algorithm<answer>::ALG_BIERMANN);
 
 			return ret;
 		}}}
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 		{{{
-			if(ntohl(*it) != 0)
+			if(ntohl(*it) != 1)
 				return false;
 			it++;
+
+			if(ntohl(*it) != learning_algorithm<answer>::ALG_BIERMANN)
+				return false;
+			it++;
+
 			return true;
 		}}}
 
