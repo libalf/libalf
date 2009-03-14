@@ -13,6 +13,7 @@
 
 #include <libalf/alf.h>
 #include <libalf/algorithm_angluin.h>
+#include <libalf/algorithm_biermann.h>
 #include <libalf/automata_amore.h>
 #include <libalf/normalizer_msc.h>
 
@@ -47,6 +48,11 @@ session::session(enum learning_algorithm<extended_bool>::algorithm algorithm, in
 			alg = new angluin_simple_observationtable<extended_bool>(NULL, &knowledge, &logger, alphabet_size);
 			hypothesis_automaton = new deterministic_finite_amore_automaton;
 			logger(LOGGER_INFO, "new session: angluin observationtable\n");
+			break;
+		case learning_algorithm<extended_bool>::ALG_BIERMANN:
+			alg = new simple_biermann<extended_bool>(&knowledge, &logger, alphabet_size);
+			hypothesis_automaton = new deterministic_finite_amore_automaton;
+			logger(LOGGER_INFO, "new session: simple biermann\n");
 			break;
 		default:
 			alg = NULL;
