@@ -37,11 +37,7 @@ int main(int argc, char**argv)
 
 	knowledgebase<ANSWERTYPE> knowledge;
 
-	char filename[128];
 	ofstream file;
-
-	int iteration;
-	bool success = false;
 
 	int alphabet_size;
 
@@ -49,7 +45,9 @@ int main(int argc, char**argv)
 	initbuf(); // XXX LEAK
 
 /*
+	char filename[128];
 	bool regex_ok;
+
 	if(argc == 3) {
 		nfa = new nondeterministic_finite_amore_automaton(atoi(argv[1]), argv[2], regex_ok); // XXX LEAK
 	} else {

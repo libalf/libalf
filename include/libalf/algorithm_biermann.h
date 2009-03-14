@@ -137,10 +137,10 @@ class simple_biermann : public learning_algorithm<answer> {
 			this->set_knowledge_source(NULL, base);
 		}}}
 		virtual ~simple_biermann()
-		{
+		{{{
 			// nothing.
 			return;
-		}
+		}}}
 
 		virtual void increase_alphabet_size(int new_asize)
 		{{{
@@ -162,8 +162,7 @@ class simple_biermann : public learning_algorithm<answer> {
 		}}}
 
 		virtual void get_memory_statistics(statistics & stats)
-		{
-		}
+		{ /* FIXME: maybe keep some stats from last run? */ }
 
 		virtual bool sync_to_knowledgebase()
 		{{{
@@ -186,18 +185,32 @@ class simple_biermann : public learning_algorithm<answer> {
 		 * </serialized learning algorithm data>
 		 */
 		virtual basic_string<int32_t> serialize()
-		{
-		}
+		{{{
+			basic_string<int32_t> ret;
+
+			// we don't have any internal data
+			ret += htonl(0);
+
+			return ret;
+		}}}
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
-		{
-		}
+		{{{
+			if(ntohl(*it) != 0)
+				return false;
+			it++;
+			return true;
+		}}}
 
 		virtual void print(ostream &os)
-		{
-		}
+		{{{
+			os << "biermann is an offline algorithm that does not have any persistent data structures.\n";
+		}}}
 		virtual string tostring()
-		{
-		}
+		{{{
+			string ret;
+			ret = "biermann is an offline algorithm that does not have any persistent data structures.\n";
+			return ret;
+		}}}
 
 		// conjecture is always ready if there is a knowledgebase
 		virtual bool conjecture_ready()
@@ -223,7 +236,7 @@ class simple_biermann : public learning_algorithm<answer> {
 		}}}
 		// derive an automaton from data structure
 		virtual bool derive_automaton(finite_language_automaton * automaton)
-		{{{
+		{
 			int mdfa_size;
 			int lfdfa_size;
 
@@ -247,7 +260,7 @@ return true;
 			bool failed_before = false;
 			bool success_before = false;
 			// pick an initial mDFA size [FIXME]
-			mdfa_size = sqrtf((float)lfdfa_size);
+			mdfa_size = (int)sqrtf((float)lfdfa_size);
 			while(!solved) {
 				old_solution = current_solution;
 
@@ -274,7 +287,7 @@ return true;
 
 			// 3) derive automaton from current_solution and mdfa_size
 			return create_automaton(mdfa_size, current_solution, automaton);
-		}}}
+		}
 
 		virtual void create_clauses(list<clause> & clauses)
 		{{{
@@ -339,9 +352,13 @@ return true;
 		}}}
 		virtual bool solve_clauses(int lfdfa_size, int mdfa_size, list<clause> & clauses, mapping & solution)
 		{
+			// FIXME
+			return false;
 		}
 		virtual bool create_automaton(int size, mapping & solution, finite_language_automaton * automaton)
 		{
+			// FIXME
+			return false;
 		}
 
 		virtual void print_clauses(list<clause> & clauses)
