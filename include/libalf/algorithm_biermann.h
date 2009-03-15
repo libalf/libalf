@@ -38,9 +38,7 @@ namespace libalf {
 using namespace std;
 
 template <class answer>
-class simple_biermann : public learning_algorithm<answer> {
-	protected: // data
-
+class basic_biermann : public learning_algorithm<answer> {
 	public:	// types
 		class node_comparator {
 			public:
@@ -130,14 +128,19 @@ class simple_biermann : public learning_algorithm<answer> {
 				}}}
 		};
 
+	protected: // data
+		int mdfa_size;
+		list<clause> clauses;
+		set<knowledgebase_node_ptr> sources;
+		mapping solution;
+
+
 	public: // methods
-		simple_biermann(knowledgebase<answer> * base, logger * log, int alphabet_size)
+		basic_biermann()
 		{{{
-			this->set_alphabet_size(alphabet_size);
-			this->set_logger(log);
-			this->set_knowledge_source(NULL, base);
+			// nothing
 		}}}
-		virtual ~simple_biermann()
+		virtual ~basic_biermann()
 		{{{
 			// nothing.
 			return;
@@ -234,20 +237,14 @@ class simple_biermann : public learning_algorithm<answer> {
 		}}}
 		// derive an automaton from data structure
 		virtual bool derive_automaton(finite_language_automaton * automaton)
-		{
-			int mdfa_size;
-
-			set<knowledgebase_node_ptr> sources;
-			list<clause> clauses;
-
-			mapping current_solution;
+		{{{
 			mapping old_solution;
 
 			if(this->my_knowledge == NULL)
 				return false;
 
 			// 1) create clauses from LoopFreeDFA (knowledgebase)
-			create_clauses(sources, clauses);
+			create_clauses();
 
 debug_print(cout, sources, clauses);
 return true;
@@ -260,9 +257,9 @@ return true;
 			mdfa_size = (int)sqrtf((float)this->my_knowledge->count_nodes());
 			// FIXME: use binary search instead
 			while(!solved) {
-				old_solution = current_solution;
+				old_solution = solution;
 
-				if( solve_clauses(mdfa_size, sources, clauses, current_solution) ) {
+				if( solve_clauses() ) {
 					if(failed_before) {
 						// we found the minimal solution
 						solved = true;
@@ -274,7 +271,7 @@ return true;
 
 					if(success_before) {
 						// we found the minimal solution in the iteration before.
-						current_solution = old_solution;
+						solution = old_solution;
 						solved = true;
 					} else {
 						failed_before = true;
@@ -284,10 +281,10 @@ return true;
 			}
 
 			// 3) derive automaton from current_solution and mdfa_size
-			return create_automaton(mdfa_size, sources, current_solution, automaton);
-		}
+			return create_automaton(automaton);
+		}}}
 
-		virtual void create_clauses(set<knowledgebase_node_ptr> & sources, list<clause> & clauses)
+		virtual void create_clauses()
 		{{{
 			clause clause;
 			typename knowledgebase<answer>::iterator ki1, ki2;
@@ -348,12 +345,10 @@ return true;
 				}
 			}
 		}}}
-		virtual bool solve_clauses(int mdfa_size, set<knowledgebase_node_ptr> & sources, list<clause> & clauses, mapping & solution)
-		{
-			// FIXME
-			return false;
-		}
-		virtual bool create_automaton(int size, set<knowledgebase_node_ptr> & sources, mapping & solution, finite_language_automaton * automaton)
+
+		virtual bool solve_clauses() = 0;
+
+		virtual bool create_automaton(finite_language_automaton * automaton)
 		{{{
 			list<int> start;
 			list<int> final;
@@ -381,11 +376,11 @@ return true;
 					}
 			}
 
-			return automaton->construct(this->get_alphabet_size(), size, start, final, transitions);
+			return automaton->construct(this->get_alphabet_size(), mdfa_size, start, final, transitions);
 		}}}
 
 		void debug_print(ostream &os, set<knowledgebase_node_ptr> & sources, list<clause> & clauses)
-		{
+		{{{
 			typename set<knowledgebase_node_ptr>::iterator si;
 
 			os << "sources {\n";
@@ -399,7 +394,7 @@ return true;
 			os << "}\n";
 
 			print_clauses(os, clauses);
-		}
+		}}}
 		virtual void print_clauses(ostream &os, list<clause> & clauses)
 		{{{
 			typename list<clause>::iterator ci;
@@ -414,6 +409,65 @@ return true;
 			os << "}\n";
 		}}}
 
+};
+
+
+
+
+/*
+// biermann using MiniSAT
+template <class answer>
+class MiniSAT_biermann : public basic_biermann<answer> {
+	public:
+		MiniSAT_biermann(knowledgebase<answer> * base, logger * log, int alphabet_size)
+		{{{
+			this->set_alphabet_size(alphabet_size);
+			this->set_logger(log);
+			this->set_knowledge_source(NULL, base);
+		}}}
+		virtual ~MiniSAT_biermann()
+		{{{
+			// nothing.
+			return;
+		}}}
+
+	protected:
+		virtual bool solve_clauses()
+		{
+			// FIXME
+			
+			return false;
+		}
+};
+*/
+
+
+
+
+// biermann using Dependency Directed Backtracking, as described in
+// "Arlindo L. Oliveira and João P.M. Silva - Efficient Algorithms for the Inference of Minimum Size DFAs"
+template <class answer>
+class DDB_biermann : public basic_biermann<answer> {
+	public:
+		DDB_biermann(knowledgebase<answer> * base, logger * log, int alphabet_size)
+		{{{
+			this->set_alphabet_size(alphabet_size);
+			this->set_logger(log);
+			this->set_knowledge_source(NULL, base);
+		}}}
+		virtual ~DDB_biermann()
+		{{{
+			// nothing.
+			return;
+		}}}
+
+	protected:
+		virtual bool solve_clauses()
+		{
+			// FIXME
+			
+			return false;
+		}
 };
 
 }; // end namespace libalf

@@ -106,7 +106,7 @@ int main(int argc, char**argv)
 	if(nfa)
 		delete nfa; // not needed anymore
 
-	simple_biermann<ANSWERTYPE> diebels(&knowledge, &log, alphabet_size);
+	DDB_biermann<ANSWERTYPE> diebels(&knowledge, &log, alphabet_size);
 
 	deterministic_finite_amore_automaton hypothesis;
 
