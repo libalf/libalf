@@ -49,8 +49,8 @@ class basic_biermann : public learning_algorithm<answer> {
 
 		typedef map<knowledgebase_node_ptr, int, node_comparator> mapping;
 
-		class clause {
-			// very reduced clause: can only represent the following formulas:
+		class constraint {
+			// very reduced constraint: can only represent the following formulas:
 			// l1 != l2
 			// and
 			// l1 != l2 || l3 == l4
@@ -59,8 +59,8 @@ class basic_biermann : public learning_algorithm<answer> {
 				bool has_second;
 
 				pair<bool, bool> verify(mapping & solution)
-				// return <true, true> if all (required) information is already set and the clause is true.
-				// return <true, false> if all information is already set and the clause is false.
+				// return <true, true> if all (required) information is already set and the constraint is true.
+				// return <true, false> if all information is already set and the constraint is false.
 				// return <false, ignore> if information is missing.
 				{{{
 					pair<bool, bool> ret;
@@ -130,7 +130,7 @@ class basic_biermann : public learning_algorithm<answer> {
 
 	protected: // data
 		int mdfa_size;
-		list<clause> clauses;
+		list<constraint> constraints;
 		set<knowledgebase_node_ptr> sources;
 		mapping solution;
 
@@ -243,10 +243,10 @@ class basic_biermann : public learning_algorithm<answer> {
 			if(this->my_knowledge == NULL)
 				return false;
 
-			// 1) create clauses from LoopFreeDFA (knowledgebase)
-			create_clauses();
+			// 1) create constraints from LoopFreeDFA (knowledgebase)
+			create_constraints();
 
-debug_print(cout, sources, clauses);
+debug_print(cout, sources, constraints);
 return true;
 
 			// 2) find CSP solution
@@ -259,7 +259,7 @@ return true;
 			while(!solved) {
 				old_solution = solution;
 
-				if( solve_clauses() ) {
+				if( solve_constraints() ) {
 					if(failed_before) {
 						// we found the minimal solution
 						solved = true;
@@ -284,14 +284,14 @@ return true;
 			return create_automaton(automaton);
 		}}}
 
-		virtual void create_clauses()
+		virtual void create_constraints()
 		{{{
-			clause clause;
+			constraint constraint;
 			typename knowledgebase<answer>::iterator ki1, ki2;
 			typename knowledgebase<answer>::node *suffix1, *suffix2;
 
 			sources.clear();
-			clauses.clear();
+			constraints.clear();
 
 			for(ki1 = this->my_knowledge->begin(); ki1 != this->my_knowledge->end(); ki1++) {
 				ki2 = ki1;
@@ -301,13 +301,13 @@ return true;
 					if(ki1->is_answered() && ki2->is_answered()) {
 						if(   (ki1->get_answer() == true && ki2->get_answer() == false)
 						   || (ki1->get_answer() == false && ki2->get_answer() == true) ) {
-							clause.l1 = ki1->get_selfptr();
-							clause.l2 = ki2->get_selfptr();
-							clause.has_second = false;
+							constraint.l1 = ki1->get_selfptr();
+							constraint.l2 = ki2->get_selfptr();
+							constraint.has_second = false;
 
 							sources.insert(ki1->get_selfptr());
 							sources.insert(ki2->get_selfptr());
-							clauses.push_back(clause);
+							constraints.push_back(constraint);
 						}
 					}
 
@@ -327,17 +327,17 @@ return true;
 						if(suffix2 == NULL)
 							continue;
 
-						clause.l1 = ki1->get_selfptr();
-						clause.l2 = ki2->get_selfptr();
-						clause.has_second = true;
-						clause.l3 = suffix1->get_selfptr();
-						clause.l4 = suffix2->get_selfptr();
+						constraint.l1 = ki1->get_selfptr();
+						constraint.l2 = ki2->get_selfptr();
+						constraint.has_second = true;
+						constraint.l3 = suffix1->get_selfptr();
+						constraint.l4 = suffix2->get_selfptr();
 
 						sources.insert(ki1->get_selfptr());
 						sources.insert(ki2->get_selfptr());
 						sources.insert(suffix1->get_selfptr());
 						sources.insert(suffix2->get_selfptr());
-						clauses.push_back(clause);
+						constraints.push_back(constraint);
 					}
 
 					// next pair.
@@ -346,7 +346,7 @@ return true;
 			}
 		}}}
 
-		virtual bool solve_clauses() = 0;
+		virtual bool solve_constraints() = 0;
 
 		virtual bool create_automaton(finite_language_automaton * automaton)
 		{{{
@@ -379,11 +379,11 @@ return true;
 			return automaton->construct(this->get_alphabet_size(), mdfa_size, start, final, transitions);
 		}}}
 
-		void debug_print(ostream &os, set<knowledgebase_node_ptr> & sources, list<clause> & clauses)
+		void debug_print(ostream &os, set<knowledgebase_node_ptr> & sources, list<constraint> & constraints)
 		{{{
 			typename set<knowledgebase_node_ptr>::iterator si;
 
-			os << "sources {\n";
+			os << "mapping sources {\n";
 			for(si = sources.begin(); si != sources.end(); si++) {
 				list<int> word;
 				string s;
@@ -393,15 +393,15 @@ return true;
 			}
 			os << "}\n";
 
-			print_clauses(os, clauses);
+			print_constraints(os, constraints);
 		}}}
-		virtual void print_clauses(ostream &os, list<clause> & clauses)
+		virtual void print_constraints(ostream &os, list<constraint> & constraints)
 		{{{
-			typename list<clause>::iterator ci;
+			typename list<constraint>::iterator ci;
 			int n;
 
-			os << "clauses {\n";
-			for(n=0, ci = clauses.begin(); ci != clauses.end(); n++, ci++) {
+			os << "constraints {\n";
+			for(n=0, ci = constraints.begin(); ci != constraints.end(); n++, ci++) {
 				os << "\t";
 				ci->print(os);
 				os << "\n";
@@ -432,7 +432,7 @@ class MiniSAT_biermann : public basic_biermann<answer> {
 		}}}
 
 	protected:
-		virtual bool solve_clauses()
+		virtual bool solve_constraints()
 		{
 			// FIXME
 			
@@ -462,7 +462,7 @@ class DDB_biermann : public basic_biermann<answer> {
 		}}}
 
 	protected:
-		virtual bool solve_clauses()
+		virtual bool solve_constraints()
 		{
 			// FIXME
 			
