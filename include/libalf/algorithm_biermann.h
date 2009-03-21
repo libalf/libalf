@@ -33,6 +33,8 @@
 #include <libalf/automata.h>
 #include <libalf/learning_algorithm.h>
 
+#include <libalf/minisat_Solver.h>
+
 namespace libalf {
 
 using namespace std;
@@ -414,18 +416,19 @@ return true;
 
 
 
-/*
-// biermann using MiniSAT
+// biermann using MiniSat
 template <class answer>
-class MiniSAT_biermann : public basic_biermann<answer> {
+class MiniSat_biermann : public basic_biermann<answer> {
+	protected:
+		MiniSat::Solver solver;
 	public:
-		MiniSAT_biermann(knowledgebase<answer> * base, logger * log, int alphabet_size)
+		MiniSat_biermann(knowledgebase<answer> * base, logger * log, int alphabet_size)
 		{{{
 			this->set_alphabet_size(alphabet_size);
 			this->set_logger(log);
 			this->set_knowledge_source(NULL, base);
 		}}}
-		virtual ~MiniSAT_biermann()
+		virtual ~MiniSat_biermann()
 		{{{
 			// nothing.
 			return;
@@ -439,7 +442,6 @@ class MiniSAT_biermann : public basic_biermann<answer> {
 			return false;
 		}
 };
-*/
 
 
 

@@ -50,9 +50,9 @@ session::session(enum learning_algorithm<extended_bool>::algorithm algorithm, in
 			logger(LOGGER_INFO, "new session: angluin observationtable\n");
 			break;
 		case learning_algorithm<extended_bool>::ALG_BIERMANN:
-			alg = new DDB_biermann<extended_bool>(&knowledge, &logger, alphabet_size);
+			alg = new MiniSat_biermann<extended_bool>(&knowledge, &logger, alphabet_size);
 			hypothesis_automaton = new deterministic_finite_amore_automaton;
-			logger(LOGGER_INFO, "new session: biermann with dependency directed backtracking\n");
+			logger(LOGGER_INFO, "new session: biermann with CSP2SAT and MiniSat SAT-solver\n");
 			break;
 		default:
 			alg = NULL;

@@ -1,0 +1,2 @@
+libalf is using libAMoRE-1.0, with some patches, as included in the source-tree. just make install it.
+libalf is also using MiniSat v1.14. it is fully incorporated (namespace libalf::MiniSat) but has no changes
