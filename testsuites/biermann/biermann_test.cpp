@@ -116,6 +116,8 @@ int main(int argc, char**argv)
 		printf("advance returnred false\n");
 	}
 
+	diebels.print(cout);
+
 	// release AMoRE buffers
 	freebuf();
 

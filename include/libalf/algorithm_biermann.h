@@ -49,6 +49,7 @@ class basic_biermann : public learning_algorithm<answer> {
 		};
 		typedef typename knowledgebase<answer>::node* knowledgebase_node_ptr;
 
+		// mapping is the final solution, a mapping from the LFDFAs states to the final mDFAs states
 		typedef map<knowledgebase_node_ptr, int, node_comparator> mapping;
 
 		class constraint {
@@ -145,13 +146,11 @@ class basic_biermann : public learning_algorithm<answer> {
 		virtual ~basic_biermann()
 		{{{
 			// nothing.
-			return;
 		}}}
 
 		virtual void increase_alphabet_size(int new_asize)
 		{{{
-			// we dont care
-			return;
+			this->set_alphabet_size(new_asize);
 		}}}
 
 		virtual void set_knowledge_source(teacher<answer> *teach, knowledgebase<answer> *base)
@@ -172,20 +171,19 @@ class basic_biermann : public learning_algorithm<answer> {
 
 		virtual bool sync_to_knowledgebase()
 		{{{
-			(*this->my_logger)(LOGGER_ERROR, "algorithm_biermann does not support undo operations, as it is an offline-algorithm.\n");
-			return false;
+			return true;
 		}}}
 
 		virtual bool supports_sync()
 		{{{
-			return false;
+			return true;
 		}}}
 
 		virtual basic_string<int32_t> serialize()
 		{{{
 			basic_string<int32_t> ret;
 
-			// we don't have any internal data
+			// we don't have any internal, persistent data
 			ret += htonl(1);
 			ret += htonl(learning_algorithm<answer>::ALG_BIERMANN);
 
@@ -206,16 +204,36 @@ class basic_biermann : public learning_algorithm<answer> {
 
 		virtual void print(ostream &os)
 		{{{
-			os << "biermann is an offline algorithm that does not have any persistent data structures.\n";
+			typename set<knowledgebase_node_ptr>::iterator si;
+			typename list<constraint>::iterator ci;
+
+			os << "mapping sources {\n";
+			for(si = sources.begin(); si != sources.end(); si++) {
+				list<int> word;
+				string s;
+				word = (*si)->get_word();
+				s = word2string(word, '.');
+				os << "\t" << s << "\n";
+			}
+			os << "}\n";
+
+			os << "constraints {\n";
+			for(ci = constraints.begin(); ci != constraints.end(); ci++) {
+				os << "\t";
+				ci->print(os);
+				os << "\n";
+			}
+			os << "}\n";
 		}}}
 		virtual string tostring()
-		{{{
+		// FIXME: print clauses etc from last run
+		{
 			string ret;
-			ret = "biermann is an offline algorithm that does not have any persistent data structures.\n";
+			ret = "bla bla";
 			return ret;
-		}}}
+		}
 
-		// conjecture is always ready if there is a knowledgebase
+		// conjecture is always ready if there is a non-empty knowledgebase
 		virtual bool conjecture_ready()
 		{{{
 			return ( (this->my_knowledge != NULL) && (this->my_knowledge->count_answers() > 0) );
@@ -245,10 +263,10 @@ class basic_biermann : public learning_algorithm<answer> {
 			if(this->my_knowledge == NULL)
 				return false;
 
-			// 1) create constraints from LoopFreeDFA (knowledgebase)
+			// 1) create constraints from LoopFreeDFA (LFDFA = knowledgebase)
 			create_constraints();
 
-debug_print(cout, sources, constraints);
+// FIXME
 return true;
 
 			// 2) find CSP solution
@@ -301,6 +319,7 @@ return true;
 				while(ki2 != this->my_knowledge->end()) {
 					// C1: O(u) != O(u') => S_u != S_u'
 					if(ki1->is_answered() && ki2->is_answered()) {
+						// note: depending on <answer>, ki*->get_answer() may return neither true nor false.
 						if(   (ki1->get_answer() == true && ki2->get_answer() == false)
 						   || (ki1->get_answer() == false && ki2->get_answer() == true) ) {
 							constraint.l1 = ki1->get_selfptr();
@@ -381,42 +400,13 @@ return true;
 			return automaton->construct(this->get_alphabet_size(), mdfa_size, start, final, transitions);
 		}}}
 
-		void debug_print(ostream &os, set<knowledgebase_node_ptr> & sources, list<constraint> & constraints)
-		{{{
-			typename set<knowledgebase_node_ptr>::iterator si;
-
-			os << "mapping sources {\n";
-			for(si = sources.begin(); si != sources.end(); si++) {
-				list<int> word;
-				string s;
-				word = (*si)->get_word();
-				s = word2string(word, '.');
-				os << "\t" << s << "\n";
-			}
-			os << "}\n";
-
-			print_constraints(os, constraints);
-		}}}
-		virtual void print_constraints(ostream &os, list<constraint> & constraints)
-		{{{
-			typename list<constraint>::iterator ci;
-			int n;
-
-			os << "constraints {\n";
-			for(n=0, ci = constraints.begin(); ci != constraints.end(); n++, ci++) {
-				os << "\t";
-				ci->print(os);
-				os << "\n";
-			}
-			os << "}\n";
-		}}}
-
 };
 
 
 
 
-// biermann using MiniSat
+// biermann using CSP2SAT + MiniSat, as described in
+// "M. Leucker, O. Grinchtein, N. Piterman - Inferring Network Invariants Automatically"
 template <class answer>
 class MiniSat_biermann : public basic_biermann<answer> {
 	protected:
