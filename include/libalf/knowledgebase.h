@@ -318,21 +318,25 @@ class knowledgebase {
 						return false;
 					}
 				}}}
-				bool recursive_different(node * other)
-				// two nodes are recursive different if there exists a word w in Sigma*
-				// with this.w is different from other.w
+				bool recursive_different(node * other, int depth)
+				// two nodes are recursive different if there exists a word w
+				// of maximum length `depth' in Sigma* with this.w is different from other.w .
+				// to allow infinite long words, use depth = -1.
 				{{{
 					typename vector<node*>::iterator ci, oci;
 
 					if(different(other))
 						return true;
 
+					if(depth == 0)
+						return false;
+
 					for(ci = children.begin(), oci = other->children.begin();
 					    ci != children.end() && oci != other->children.end();
 					    ci++, oci++)   {
 						if((*ci) == NULL || (*oci) == NULL)
 							continue;
-						if((*ci)->recursive_different(*oci))
+						if((*ci)->recursive_different(*oci), depth > 0 ? depth-1 : -1)
 							return true;
 					}
 
