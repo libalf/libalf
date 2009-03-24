@@ -18,7 +18,7 @@
 #include "libalf/alf.h"
 
 #include <libalf/automata_amore.h>
-#include <libalf/algorithm_biermann.h>
+#include <libalf/algorithm_biermann_minisat.h>
 
 #include <amore/vars.h>
 #include <amore/rexFromString.h>

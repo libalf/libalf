@@ -16,7 +16,6 @@
  *	* Martin Leucker - Learning Meets Verification
  *	* Arlindo L. Oliveira and João P.M. Silva - Efficient Algorithms for the Inference of Minimum Size DFAs
  * NOTE that due to it being offline, only knowledgebases are supported, no teachers.
- * also, undo operations are not supported.
  */
 
 
@@ -32,8 +31,6 @@
 #include <libalf/knowledgebase.h>
 #include <libalf/automata.h>
 #include <libalf/learning_algorithm.h>
-
-#include <libalf/minisat_Solver.h>
 
 namespace libalf {
 
@@ -401,39 +398,6 @@ return true;
 		}}}
 
 };
-
-
-
-
-// biermann using CSP2SAT + MiniSat, as described in
-// "M. Leucker, O. Grinchtein, N. Piterman - Inferring Network Invariants Automatically"
-template <class answer>
-class MiniSat_biermann : public basic_biermann<answer> {
-	protected:
-		MiniSat::Solver solver;
-	public:
-		MiniSat_biermann(knowledgebase<answer> * base, logger * log, int alphabet_size)
-		{{{
-			this->set_alphabet_size(alphabet_size);
-			this->set_logger(log);
-			this->set_knowledge_source(NULL, base);
-		}}}
-		virtual ~MiniSat_biermann()
-		{{{
-			// nothing.
-			return;
-		}}}
-
-	protected:
-		virtual bool solve_constraints()
-		{
-			// FIXME
-			
-			return false;
-		}
-};
-
-
 
 
 // biermann using Dependency Directed Backtracking, as described in

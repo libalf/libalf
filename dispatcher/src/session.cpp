@@ -13,7 +13,7 @@
 
 #include <libalf/alf.h>
 #include <libalf/algorithm_angluin.h>
-#include <libalf/algorithm_biermann.h>
+#include <libalf/algorithm_biermann_minisat.h>
 #include <libalf/automata_amore.h>
 #include <libalf/normalizer_msc.h>
 
