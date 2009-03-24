@@ -307,6 +307,37 @@ class knowledgebase {
 
 					return true;
 				}}}
+				bool different(node * other)
+				{{{
+					if(is_answered() && other->is_answered()) {
+						return (
+							(get_answer() == true && other->get_answer() == false)
+						     || (get_answer() == false && other->get_answer() == true)
+						);
+					} else {
+						return false;
+					}
+				}}}
+				bool recursive_different(node * other)
+				// two nodes are recursive different if there exists a word w in Sigma*
+				// with this.w is different from other.w
+				{{{
+					typename vector<node*>::iterator ci, oci;
+
+					if(different(other))
+						return true;
+
+					for(ci = children.begin(), oci = other->children.begin();
+					    ci != children.end() && oci != other->children.end();
+					    ci++, oci++)   {
+						if((*ci) == NULL || (*oci) == NULL)
+							continue;
+						if((*ci)->recursive_different(*oci))
+							return true;
+					}
+
+					return false;
+				}}}
 				int get_memory_usage()
 				{{{
 					int ret;

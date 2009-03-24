@@ -316,9 +316,7 @@ return true;
 				while(ki2 != this->my_knowledge->end()) {
 					// C1: O(u) != O(u') => S_u != S_u'
 					if(ki1->is_answered() && ki2->is_answered()) {
-						// note: depending on <answer>, ki*->get_answer() may return neither true nor false.
-						if(   (ki1->get_answer() == true && ki2->get_answer() == false)
-						   || (ki1->get_answer() == false && ki2->get_answer() == true) ) {
+						if(ki1->different(ki2->get_selfptr())) {
 							constraint.l1 = ki1->get_selfptr();
 							constraint.l2 = ki2->get_selfptr();
 							constraint.has_second = false;
