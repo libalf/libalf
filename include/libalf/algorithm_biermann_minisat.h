@@ -45,13 +45,12 @@ class MiniSat_biermann : public basic_biermann<answer> {
 		}}}
 
 	protected:
-		virtual void csp2sat(MiniSat::Solver & solver, map<typename basic_biermann<answer>::knowledgebase_node_ptr, vector<MiniSat::Var>, typename basic_biermann<answer>::node_comparator > & vars)
+		virtual bool csp2sat(MiniSat::Solver & solver, map<typename basic_biermann<answer>::knowledgebase_node_ptr, vector<MiniSat::Var>, typename basic_biermann<answer>::node_comparator > & vars)
 		{{{
-//printf("csp2sat START\n");
 			typename set< typename basic_biermann<answer>::knowledgebase_node_ptr >::iterator si;
 			int clausecount = 0;
 
-			// create solver vars
+			// create vars
 			// and on the fly add clauses enforcing unary encoding
 			for(si = this->sources.begin(); si != this->sources.end(); si++) {
 				vector<MiniSat::Var> state_vars;
@@ -85,19 +84,24 @@ class MiniSat_biermann : public basic_biermann<answer> {
 				while(!carry) {
 					// NOTE: any boolean function may be represented by
 					// conjunction of minterms of its indexes evaluation to 0.
-					typename MiniSat::vec<MiniSat::Lit> clause;
 
 					if(set_count != 1) {
+						typename MiniSat::vec<MiniSat::Lit> clause;
+						clause.growTo(this->mdfa_size);
 						// create minterm for this index
 printf("\tclause");
 						for(svi = state_vars.begin(), i = 0; svi != state_vars.end(); svi++, i++) {
 							MiniSat::Lit l(*svi, !varcounter[i]);
-							clause.push(l);
-printf(" %c%d", MiniSat::sign(l) ? '!' : ' ', MiniSat::var(l));
+							clause[i] = l;
+printf(" %c%2d", MiniSat::sign(l) ? '!' : ' ', MiniSat::var(l));
 						}
 						clausecount++;
-printf("; (%d)\n", clause.size());
+printf("\n");
 						solver.addClause(clause);
+						if(!solver.okay()) {
+							(*this->my_logger)(LOGGER_ALGORITHM, "biermann+MiniSat: found conflict during CSP2SAT.\n", clausecount);
+							return false;
+						}
 					}
 
 					// increment: try next clause
@@ -124,7 +128,7 @@ printf("; (%d)\n", clause.size());
 					// if carry is still true, we've got an overflow and are done.
 				}
 			}
-//printf("\n\tconstraints:\n\n");
+printf("\n\tconstraints\n\n");
 
 			// add clauses for each constraint:
 			typename list<typename basic_biermann<answer>::constraint>::iterator csi;
@@ -153,42 +157,43 @@ printf("; (%d)\n", clause.size());
 							MiniSat::vec<MiniSat::Lit> clause;
 							MiniSat::Lit l3(*svi3, false);
 							MiniSat::Lit l4(*svi4, true);
-
-printf("\tclause");
-							clause.push(l1);
-printf(" %c%d", MiniSat::sign(l1) ? '!' : ' ', MiniSat::var(l1));
-							clause.push(l2);
-printf(" %c%d", MiniSat::sign(l2) ? '!' : ' ', MiniSat::var(l2));
-							clause.push(l3);
-printf(" %c%d", MiniSat::sign(l3) ? '!' : ' ', MiniSat::var(l3));
-							clause.push(l4);
-printf(" %c%d", MiniSat::sign(l4) ? '!' : ' ', MiniSat::var(l4));
+							clause.growTo(4);
+							clause[0] = l1;
+							clause[1] = l2;
+							clause[2] = l3;
+							clause[3] = l4;
+printf("\tclause %c%2d %c%2d %c%2d %c%2d\n", MiniSat::sign(l1) ? '!' : ' ', MiniSat::var(l1), MiniSat::sign(l2) ? '!' : ' ', MiniSat::var(l2), MiniSat::sign(l3) ? '!' : ' ', MiniSat::var(l3), MiniSat::sign(l4) ? '!' : ' ', MiniSat::var(l4));
 							clausecount++;
-printf("; (%d)\n", clause.size());
 							solver.addClause(clause);
+							if(!solver.okay()) {
+								(*this->my_logger)(LOGGER_ALGORITHM, "biermann+MiniSat: found conflict during CSP2SAT.\n", clausecount);
+								return false;
+							}
 
 							svi3++;
 							svi4++;
 						}
 					} else {
 						MiniSat::vec<MiniSat::Lit> clause;
+						clause.growTo(2);
+						clause[0] = l1;
+						clause[1] = l2;
 
-printf("\tclause");
-						clause.push(l1);
-printf(" %c%d", MiniSat::sign(l1) ? '!' : ' ', MiniSat::var(l1));
-						clause.push(l2);
-printf(" %c%d", MiniSat::sign(l2) ? '!' : ' ', MiniSat::var(l2));
+printf("\tclause %c%2d %c%2d\n", MiniSat::sign(l1) ? '!' : ' ', MiniSat::var(l1), MiniSat::sign(l2) ? '!' : ' ', MiniSat::var(l2));
 						clausecount++;
-printf("; (%d)\n", clause.size());
 						solver.addClause(clause);
+						if(!solver.okay()) {
+							(*this->my_logger)(LOGGER_ALGORITHM, "biermann+MiniSat: found conflict during CSP2SAT.\n", clausecount);
+							return false;
+						}
 					}
 
 					svi1++;
 					svi2++;
 				}
 			}
-			(*this->my_logger)(LOGGER_ALGORITHM, "biermann+MiniSat: translated CSP to %d CNF clauses.\n", clausecount);
-//printf("csp2sat END\n");
+			(*this->my_logger)(LOGGER_ALGORITHM, "biermann+MiniSat: translated CSP to %d clauses of %d vars.\n", clausecount, solver.nVars());
+			return true;
 		}}}
 
 		virtual bool solve_constraints()
@@ -198,8 +203,7 @@ printf("; (%d)\n", clause.size());
 
 //			solver.verbosity = 1;
 
-			csp2sat(solver, vars);
-			if(!solver.okay())
+			if(!csp2sat(solver, vars))
 				return false;
 
 			(*this->my_logger)(LOGGER_ALGORITHM, "biermann+MiniSat: trying to solve %d clauses.\n", solver.nClauses());
