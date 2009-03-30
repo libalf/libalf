@@ -223,7 +223,7 @@ class basic_biermann : public learning_algorithm<answer> {
 			os << "}\n";
 		}}}
 		virtual string tostring()
-		// FIXME: print clauses etc from last run
+		// FIXME: print constraints etc from last run
 		{
 			string ret;
 			ret = "bla bla";
@@ -263,29 +263,34 @@ class basic_biermann : public learning_algorithm<answer> {
 			// 1) create constraints from LoopFreeDFA (LFDFA = knowledgebase)
 			create_constraints();
 
-// FIXME
-return true;
-
 			// 2) find CSP solution
 			bool solved = false;
 			bool failed_before = false;
 			bool success_before = false;
 			// pick an initial mDFA size [FIXME]
 			mdfa_size = (int)sqrtf((float)this->my_knowledge->count_nodes());
+			if(mdfa_size < 1)
+				mdfa_size = 1;
 			// FIXME: use binary search instead
+this->print(cout);
 			while(!solved) {
+				(*this->my_logger)(LOGGER_ALGORITHM, "biermann: trying to solve CSP with %d states.\n", mdfa_size);
 				old_solution = solution;
 
 				if( solve_constraints() ) {
+					(*this->my_logger)(LOGGER_ALGORITHM, "biermann: success.\n");
 					if(failed_before) {
 						// we found the minimal solution
 						solved = true;
 					} else {
 						success_before = true;
-						mdfa_size--;
+						if(mdfa_size == 1)
+							solved = true;
+						else
+							mdfa_size--;
 					}
 				} else {
-
+					(*this->my_logger)(LOGGER_ALGORITHM, "biermann: failed.\n");
 					if(success_before) {
 						// we found the minimal solution in the iteration before.
 						solution = old_solution;
@@ -304,6 +309,7 @@ return true;
 		virtual void create_constraints()
 		{{{
 			constraint constraint;
+			int ccount = 0;
 			typename knowledgebase<answer>::iterator ki1, ki2;
 			typename knowledgebase<answer>::node *suffix1, *suffix2;
 
@@ -324,6 +330,7 @@ return true;
 							sources.insert(ki1->get_selfptr());
 							sources.insert(ki2->get_selfptr());
 							constraints.push_back(constraint);
+							ccount++;
 						}
 					}
 
@@ -354,12 +361,14 @@ return true;
 						sources.insert(suffix1->get_selfptr());
 						sources.insert(suffix2->get_selfptr());
 						constraints.push_back(constraint);
+						ccount++;
 					}
 
 					// next pair.
 					++ki2;
 				}
 			}
+			(*this->my_logger)(LOGGER_ALGORITHM, "biermann: CSP has %d constraints.\n", ccount);
 		}}}
 
 		virtual bool solve_constraints() = 0;

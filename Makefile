@@ -1,13 +1,16 @@
 # $Id$
 # libalf Makefile
 
-.PHONY: all clean install uninstall
+.PHONY: all testsuites clean install uninstall
 
 PREFIX ?= /usr/local/
 
 all:
 	make -C src all
 	make -C dispatcher all
+
+testsuites: install
+	make -C testsuites
 
 clean:
 	make -C src clean
