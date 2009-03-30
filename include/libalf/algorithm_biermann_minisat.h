@@ -26,6 +26,7 @@ namespace libalf {
 
 
 using namespace std;
+using namespace libalf::MiniSat;
 
 // biermann using CSP2SAT + MiniSat, as described in
 // "M. Leucker, O. Grinchtein, N. Piterman - Inferring Network Invariants Automatically"
@@ -45,7 +46,7 @@ class MiniSat_biermann : public basic_biermann<answer> {
 		}}}
 
 	protected:
-		virtual bool csp2sat(MiniSat::Solver & solver, map<typename basic_biermann<answer>::knowledgebase_node_ptr, vector<MiniSat::Var>, typename basic_biermann<answer>::node_comparator > & vars)
+		virtual bool csp2sat(Solver & solver, map<typename basic_biermann<answer>::knowledgebase_node_ptr, vector<Var>, typename basic_biermann<answer>::node_comparator > & vars)
 		{{{
 			typename set< typename basic_biermann<answer>::knowledgebase_node_ptr >::iterator si;
 			int clausecount = 0;
@@ -53,8 +54,8 @@ class MiniSat_biermann : public basic_biermann<answer> {
 			// create vars
 			// and on the fly add clauses enforcing unary encoding
 			for(si = this->sources.begin(); si != this->sources.end(); si++) {
-				vector<MiniSat::Var> state_vars;
-				vector<MiniSat::Var>::iterator svi;
+				vector<Var> state_vars;
+				vector<Var>::iterator svi;
 				bool varcounter[this->mdfa_size];
 				bool carry;
 				int set_count;
@@ -66,7 +67,7 @@ class MiniSat_biermann : public basic_biermann<answer> {
 //s = word2string(word, '.');
 //printf("\n\t%s new vars", s.c_str());
 				for(int i = 0; i < this->mdfa_size; i++) {
-					MiniSat::Var v;
+					Var v;
 
 					v = solver.newVar();
 //printf(" %d", v);
@@ -86,13 +87,13 @@ class MiniSat_biermann : public basic_biermann<answer> {
 					// conjunction of minterms of its indexes evaluation to 0.
 
 					if(set_count != 1) {
-						typename MiniSat::vec<MiniSat::Lit> clause;
+						vec<Lit> clause;
 						clause.growTo(this->mdfa_size);
 						// create minterm for this index
 printf("\tclause");
 						for(svi = state_vars.begin(), i = 0; svi != state_vars.end(); svi++, i++) {
-							clause[i] = varcounter[i] ? ~MiniSat::Lit(*svi) : MiniSat::Lit(*svi);
-printf(" %c%2d", MiniSat::sign(clause[i]) ? '!' : ' ', MiniSat::var(clause[i]));
+							clause[i] = varcounter[i] ? ~Lit(*svi) : Lit(*svi);
+printf(" %c%2d", sign(clause[i]) ? '!' : ' ', var(clause[i]));
 						}
 						clausecount++;
 printf("\n");
@@ -132,7 +133,7 @@ printf("\n");
 			// add clauses for each constraint:
 			typename list<typename basic_biermann<answer>::constraint>::iterator csi;
 			for(csi = this->constraints.begin(); csi != this->constraints.end(); csi++) {
-				vector<MiniSat::Var>::iterator svi1, svi2, svi1e, svi2e;
+				vector<Var>::iterator svi1, svi2, svi1e, svi2e;
 
 				svi1 = vars[csi->l1].begin();
 				svi1e = vars[csi->l1].end();
@@ -141,8 +142,8 @@ printf("\n");
 
 				while(svi1 != svi1e && svi2 != svi2e) {
 					if(csi->has_second) {
-						MiniSat::vec<MiniSat::Lit> clause;
-						vector<MiniSat::Var>::iterator svi3, svi4, svi3e, svi4e;
+						vec<Lit> clause;
+						vector<Var>::iterator svi3, svi4, svi3e, svi4e;
 
 						svi3 = vars[csi->l3].begin();
 						svi3e = vars[csi->l3].end();
@@ -150,13 +151,13 @@ printf("\n");
 						svi4e = vars[csi->l4].end();
 
 						while(svi3 != svi3e && svi4 != svi4e) {
-							MiniSat::vec<MiniSat::Lit> clause;
+							vec<Lit> clause;
 							clause.growTo(4);
-							clause[0] = ~MiniSat::Lit(*svi1);
-							clause[1] = ~MiniSat::Lit(*svi2);
-							clause[2] = MiniSat::Lit(*svi3);
-							clause[3] = ~MiniSat::Lit(*svi4);
-printf("\tclause %c%2d %c%2d %c%2d %c%2d\n", MiniSat::sign(clause[0]) ? '!' : ' ', MiniSat::var(clause[0]), MiniSat::sign(clause[1]) ? '!' : ' ', MiniSat::var(clause[1]), MiniSat::sign(clause[2]) ? '!' : ' ', MiniSat::var(clause[2]), MiniSat::sign(clause[3]) ? '!' : ' ', MiniSat::var(clause[3]));
+							clause[0] = ~Lit(*svi1);
+							clause[1] = ~Lit(*svi2);
+							clause[2] = Lit(*svi3);
+							clause[3] = ~Lit(*svi4);
+printf("\tclause %c%2d %c%2d %c%2d %c%2d\n", sign(clause[0]) ? '!' : ' ', var(clause[0]), sign(clause[1]) ? '!' : ' ', var(clause[1]), sign(clause[2]) ? '!' : ' ', var(clause[2]), sign(clause[3]) ? '!' : ' ', var(clause[3]));
 							clausecount++;
 							solver.addClause(clause);
 							if(!solver.okay()) {
@@ -168,12 +169,12 @@ printf("\tclause %c%2d %c%2d %c%2d %c%2d\n", MiniSat::sign(clause[0]) ? '!' : ' 
 							svi4++;
 						}
 					} else {
-						MiniSat::vec<MiniSat::Lit> clause;
+						vec<Lit> clause;
 						clause.growTo(2);
-						clause[0] = ~MiniSat::Lit(*svi1);
-						clause[1] = ~MiniSat::Lit(*svi2);
+						clause[0] = ~Lit(*svi1);
+						clause[1] = ~Lit(*svi2);
 
-printf("\tclause %c%2d %c%2d\n", MiniSat::sign(clause[0]) ? '!' : ' ', MiniSat::var(clause[0]), MiniSat::sign(clause[1]) ? '!' : ' ', MiniSat::var(clause[1]));
+printf("\tclause %c%2d %c%2d\n", sign(clause[0]) ? '!' : ' ', var(clause[0]), sign(clause[1]) ? '!' : ' ', var(clause[1]));
 						clausecount++;
 						solver.addClause(clause);
 						if(!solver.okay()) {
@@ -192,8 +193,8 @@ printf("\tclause %c%2d %c%2d\n", MiniSat::sign(clause[0]) ? '!' : ' ', MiniSat::
 
 		virtual bool solve_constraints()
 		{
-			MiniSat::Solver solver;
-			map<typename basic_biermann<answer>::knowledgebase_node_ptr, vector<MiniSat::Var>, typename basic_biermann<answer>::node_comparator > vars;
+			Solver solver;
+			map<typename basic_biermann<answer>::knowledgebase_node_ptr, vector<Var>, typename basic_biermann<answer>::node_comparator > vars;
 
 //			solver.verbosity = 1;
 
@@ -211,8 +212,8 @@ printf("\tclause %c%2d %c%2d\n", MiniSat::sign(clause[0]) ? '!' : ' ', MiniSat::
 				//solver.model
 printf("satisfiable ");
 for (int i = 0; i < solver.nVars(); i++)
-	if (solver.model[i] != MiniSat::l_Undef)
-		printf(" %c%d", (solver.model[i]==MiniSat::l_True)?' ':'!', i);
+	if (solver.model[i] != l_Undef)
+		printf(" %c%d", (solver.model[i]==l_True)?' ':'!', i);
 printf("\n");
 
 				
