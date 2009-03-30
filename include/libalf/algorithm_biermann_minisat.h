@@ -99,7 +99,7 @@ printf(" %c%2d", MiniSat::sign(l) ? '!' : ' ', MiniSat::var(l));
 printf("\n");
 						solver.addClause(clause);
 						if(!solver.okay()) {
-							(*this->my_logger)(LOGGER_ALGORITHM, "biermann+MiniSat: found conflict during CSP2SAT.\n", clausecount);
+							(*this->my_logger)(LOGGER_ALGORITHM, "biermann+MiniSat: SAT: found conflict during CSP2SAT.\n", clausecount);
 							return false;
 						}
 					}
@@ -128,7 +128,7 @@ printf("\n");
 					// if carry is still true, we've got an overflow and are done.
 				}
 			}
-printf("\n\tconstraints\n\n");
+printf("constraints\n");
 
 			// add clauses for each constraint:
 			typename list<typename basic_biermann<answer>::constraint>::iterator csi;
@@ -166,7 +166,7 @@ printf("\tclause %c%2d %c%2d %c%2d %c%2d\n", MiniSat::sign(l1) ? '!' : ' ', Mini
 							clausecount++;
 							solver.addClause(clause);
 							if(!solver.okay()) {
-								(*this->my_logger)(LOGGER_ALGORITHM, "biermann+MiniSat: found conflict during CSP2SAT.\n", clausecount);
+								(*this->my_logger)(LOGGER_ALGORITHM, "biermann+MiniSat: SAT: found conflict during CSP2SAT.\n", clausecount);
 								return false;
 							}
 
@@ -183,7 +183,7 @@ printf("\tclause %c%2d %c%2d\n", MiniSat::sign(l1) ? '!' : ' ', MiniSat::var(l1)
 						clausecount++;
 						solver.addClause(clause);
 						if(!solver.okay()) {
-							(*this->my_logger)(LOGGER_ALGORITHM, "biermann+MiniSat: found conflict during CSP2SAT.\n", clausecount);
+							(*this->my_logger)(LOGGER_ALGORITHM, "biermann+MiniSat: SAT: found conflict during CSP2SAT.\n", clausecount);
 							return false;
 						}
 					}
@@ -206,20 +206,24 @@ printf("\tclause %c%2d %c%2d\n", MiniSat::sign(l1) ? '!' : ' ', MiniSat::var(l1)
 			if(!csp2sat(solver, vars))
 				return false;
 
+			solver.simplifyDB();
+			if(!solver.okay()) {
+				(*this->my_logger)(LOGGER_ALGORITHM, "biermann+MiniSat: SAT: early conflict found.\n");
+				return false;
+			}
+
 			(*this->my_logger)(LOGGER_ALGORITHM, "biermann+MiniSat: trying to solve %d clauses.\n", solver.nClauses());
-printf("solve...\n");
 			if(solver.solve()) {
-printf("+\n");
 				//solver.model
-				
-				for (int i = 0; i < solver.nVars(); i++)
-					if (solver.model[i] != MiniSat::l_Undef)
-						printf("%s%s%d ", (i==0)?"":" ", (solver.model[i]==MiniSat::l_True)?"":"-", i+1);
-				printf("\n");
+printf("satisfiable ");
+for (int i = 0; i < solver.nVars(); i++)
+	if (solver.model[i] != MiniSat::l_Undef)
+		printf(" %c%d", (solver.model[i]==MiniSat::l_True)?' ':'!', i);
+printf("\n");
+
 				
 				return true;
 			} else {
-printf("-\n");
 				return false;
 			}
 		}
