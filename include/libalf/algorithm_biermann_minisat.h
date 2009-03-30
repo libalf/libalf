@@ -91,9 +91,8 @@ class MiniSat_biermann : public basic_biermann<answer> {
 						// create minterm for this index
 printf("\tclause");
 						for(svi = state_vars.begin(), i = 0; svi != state_vars.end(); svi++, i++) {
-							MiniSat::Lit l(*svi, !varcounter[i]);
-							clause[i] = l;
-printf(" %c%2d", MiniSat::sign(l) ? '!' : ' ', MiniSat::var(l));
+							clause[i] = varcounter[i] ? ~MiniSat::Lit(*svi) : MiniSat::Lit(*svi);
+printf(" %c%2d", MiniSat::sign(clause[i]) ? '!' : ' ', MiniSat::var(clause[i]));
 						}
 						clausecount++;
 printf("\n");
@@ -128,7 +127,7 @@ printf("\n");
 					// if carry is still true, we've got an overflow and are done.
 				}
 			}
-printf("constraints\n");
+printf("\n");
 
 			// add clauses for each constraint:
 			typename list<typename basic_biermann<answer>::constraint>::iterator csi;
@@ -141,9 +140,6 @@ printf("constraints\n");
 				svi2e = vars[csi->l2].end();
 
 				while(svi1 != svi1e && svi2 != svi2e) {
-					MiniSat::Lit l1(*svi1, true);
-					MiniSat::Lit l2(*svi2, true);
-
 					if(csi->has_second) {
 						MiniSat::vec<MiniSat::Lit> clause;
 						vector<MiniSat::Var>::iterator svi3, svi4, svi3e, svi4e;
@@ -155,14 +151,12 @@ printf("constraints\n");
 
 						while(svi3 != svi3e && svi4 != svi4e) {
 							MiniSat::vec<MiniSat::Lit> clause;
-							MiniSat::Lit l3(*svi3, false);
-							MiniSat::Lit l4(*svi4, true);
 							clause.growTo(4);
-							clause[0] = l1;
-							clause[1] = l2;
-							clause[2] = l3;
-							clause[3] = l4;
-printf("\tclause %c%2d %c%2d %c%2d %c%2d\n", MiniSat::sign(l1) ? '!' : ' ', MiniSat::var(l1), MiniSat::sign(l2) ? '!' : ' ', MiniSat::var(l2), MiniSat::sign(l3) ? '!' : ' ', MiniSat::var(l3), MiniSat::sign(l4) ? '!' : ' ', MiniSat::var(l4));
+							clause[0] = ~MiniSat::Lit(*svi1);
+							clause[1] = ~MiniSat::Lit(*svi2);
+							clause[2] = MiniSat::Lit(*svi3);
+							clause[3] = ~MiniSat::Lit(*svi4);
+printf("\tclause %c%2d %c%2d %c%2d %c%2d\n", MiniSat::sign(clause[0]) ? '!' : ' ', MiniSat::var(clause[0]), MiniSat::sign(clause[1]) ? '!' : ' ', MiniSat::var(clause[1]), MiniSat::sign(clause[2]) ? '!' : ' ', MiniSat::var(clause[2]), MiniSat::sign(clause[3]) ? '!' : ' ', MiniSat::var(clause[3]));
 							clausecount++;
 							solver.addClause(clause);
 							if(!solver.okay()) {
@@ -176,10 +170,10 @@ printf("\tclause %c%2d %c%2d %c%2d %c%2d\n", MiniSat::sign(l1) ? '!' : ' ', Mini
 					} else {
 						MiniSat::vec<MiniSat::Lit> clause;
 						clause.growTo(2);
-						clause[0] = l1;
-						clause[1] = l2;
+						clause[0] = ~MiniSat::Lit(*svi1);
+						clause[1] = ~MiniSat::Lit(*svi2);
 
-printf("\tclause %c%2d %c%2d\n", MiniSat::sign(l1) ? '!' : ' ', MiniSat::var(l1), MiniSat::sign(l2) ? '!' : ' ', MiniSat::var(l2));
+printf("\tclause %c%2d %c%2d\n", MiniSat::sign(clause[0]) ? '!' : ' ', MiniSat::var(clause[0]), MiniSat::sign(clause[1]) ? '!' : ' ', MiniSat::var(clause[1]));
 						clausecount++;
 						solver.addClause(clause);
 						if(!solver.okay()) {
@@ -192,7 +186,7 @@ printf("\tclause %c%2d %c%2d\n", MiniSat::sign(l1) ? '!' : ' ', MiniSat::var(l1)
 					svi2++;
 				}
 			}
-			(*this->my_logger)(LOGGER_ALGORITHM, "biermann+MiniSat: translated CSP to %d clauses of %d vars.\n", clausecount, solver.nVars());
+			(*this->my_logger)(LOGGER_ALGORITHM, "biermann+MiniSat: translated CSP to %d CNF clauses of %d vars.\n", clausecount, solver.nVars());
 			return true;
 		}}}
 
