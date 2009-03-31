@@ -214,7 +214,13 @@ class MiniSat_biermann : public basic_biermann<answer> {
 			}
 
 			(*this->my_logger)(LOGGER_ALGORITHM, "biermann+MiniSat: trying to solve %d clauses.\n", solver.nClauses());
-			if(solver.solve()) {
+
+			// enforce 0 as initial state.
+			vec<Lit> assumptions;
+			Lit force_initial(0,false);
+			assumptions.push(force_initial);
+
+			if(solver.solve(assumptions)) {
 
 printf("satisfiable ");
 for (int i = 0; i < solver.nVars(); i++) {
