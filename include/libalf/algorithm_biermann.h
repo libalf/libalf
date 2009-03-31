@@ -274,13 +274,12 @@ class basic_biermann : public learning_algorithm<answer> {
 			if(mdfa_size < 1)
 				mdfa_size = 1;
 			// FIXME: use binary search instead
-this->print(cout);
 			while(!solved) {
 				(*this->my_logger)(LOGGER_INFO, "biermann: trying to solve CSP with %d states.\n", mdfa_size);
 				old_solution = solution;
 
 				if( solve_constraints() ) {
-					(*this->my_logger)(LOGGER_INFO, "biermann: success.\n");
+					(*this->my_logger)(LOGGER_INFO, "biermann: satisfiable.\n");
 					if(failed_before) {
 						// we found the minimal solution
 						solved = true;
@@ -292,7 +291,7 @@ this->print(cout);
 							mdfa_size--;
 					}
 				} else {
-					(*this->my_logger)(LOGGER_INFO, "biermann: failed.\n");
+					(*this->my_logger)(LOGGER_INFO, "biermann: unsatisfiable.\n");
 					if(success_before) {
 						// we found the minimal solution in the iteration before.
 						solution = old_solution;
@@ -391,6 +390,11 @@ this->print(cout);
 			start.push_back( solution[ this->my_knowledge->begin()->get_selfptr() ] );
 
 			for(si = sources.begin(); si != sources.end(); si++) {
+list<int> w;
+string s;
+w = (*si)->get_word();
+s = word2string(w, '.');
+printf("source %s:\n", s.c_str());
 					// acceptance-status
 					if((*si)->get_answer() == true)
 						final.push_back( solution[ (*si)->get_selfptr() ] );
@@ -404,7 +408,9 @@ this->print(cout);
 							tr.label = s;
 							tr.destination = solution[ child->get_selfptr() ];
 							transitions.push_back(tr);
+printf("transition %d -%d-> %d\n", tr.source, tr.label, tr.destination);
 						}
+else printf("transition %d -%d-|\n", tr.source, s);
 					}
 			}
 

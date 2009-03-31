@@ -44,8 +44,8 @@ int main(int argc, char**argv)
 	// init AMoRE buffers
 	initbuf(); // XXX LEAK
 
-/*
 	char filename[128];
+/*
 	bool regex_ok;
 
 	if(argc == 3) {
@@ -113,10 +113,16 @@ int main(int argc, char**argv)
 	if(diebels.advance(&hypothesis)) {
 		printf("advance returned true\n");
 	} else {
-		printf("advance returnred false\n");
+		printf("advance returned false\n");
 	}
 
+	printf("\n\n");
 	diebels.print(cout);
+
+	snprintf(filename, 128, "hypothesis.dot");
+	file.open(filename);
+	file << hypothesis.generate_dotfile();
+	file.close();
 
 	// release AMoRE buffers
 	freebuf();

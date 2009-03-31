@@ -196,7 +196,7 @@ printf("\tclause %c%2d %c%2d\n", sign(clause[0]) ? '!' : ' ', var(clause[0]), si
 			Solver solver;
 			map<typename basic_biermann<answer>::knowledgebase_node_ptr, vector<Var>, typename basic_biermann<answer>::node_comparator > vars;
 
-//			solver.verbosity = 1;
+			solver.verbosity = 1;
 
 			if(!csp2sat(solver, vars))
 				return false;
@@ -214,14 +214,46 @@ printf("\tclause %c%2d %c%2d\n", sign(clause[0]) ? '!' : ' ', var(clause[0]), si
 
 			(*this->my_logger)(LOGGER_ALGORITHM, "biermann+MiniSat: trying to solve %d clauses.\n", solver.nClauses());
 			if(solver.solve()) {
-				//solver.model
+
 printf("satisfiable ");
-for (int i = 0; i < solver.nVars(); i++)
-	if (solver.model[i] != l_Undef)
+for (int i = 0; i < solver.nVars(); i++) {
+	if(solver.model[i] != l_Undef)
 		printf(" %c%d", (solver.model[i]==l_True)?' ':'!', i);
+}
 printf("\n");
 
-				
+				typename map<typename basic_biermann<answer>::knowledgebase_node_ptr, vector<Var>, typename basic_biermann<answer>::node_comparator>::iterator vsi;
+				int vindex = 0;
+
+				for(vsi = vars.begin(); vsi != vars.end(); vsi++) {
+					vector<Var>::iterator vi;
+					bool assigned = false;
+					int stateid;
+					int i;
+					for(i = 0, vi = vsi->second.begin(); vi != vsi->second.end(); i++, vi++, vindex++) {
+						if(solver.model[vindex] == l_True) {
+							if(assigned) {
+								(*this->my_logger)(LOGGER_ERROR, "biermann+MiniSat: received bad var assignment from MiniSat (non-unary encoding: %d and %d).\n", stateid, i);
+								return false;
+							} else {
+								assigned = true;
+								stateid = i;
+							}
+						} else {
+							if(solver.model[vindex] != l_False) {
+								(*this->my_logger)(LOGGER_ERROR, "biermann+MiniSat: received unassigned var from MiniSat. trying to ignore.\n");
+							}
+						}
+					}
+
+					if(!assigned) {
+						(*this->my_logger)(LOGGER_ERROR, "biermann+MiniSat: received bad var assignment from MiniSat (none set at all).\n");
+						return false;
+					}
+
+					this->solution[vsi->first] = stateid;
+				}
+
 				return true;
 			} else {
 				return false;
