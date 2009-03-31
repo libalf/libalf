@@ -271,9 +271,10 @@ class basic_biermann : public learning_algorithm<answer> {
 			bool failed_before = false;
 			bool success_before = false;
 			// pick an initial mDFA size [FIXME]
-			mdfa_size = (int)sqrtf((float)this->my_knowledge->count_nodes());
-			if(mdfa_size < 1)
-				mdfa_size = 1;
+//			mdfa_size = (int)sqrtf((float)this->my_knowledge->count_nodes());
+//			if(mdfa_size < 1)
+//				mdfa_size = 1;
+			mdfa_size = 1;
 			// FIXME: use binary search instead
 			while(!solved) {
 				(*this->my_logger)(LOGGER_INFO, "biermann: trying to solve CSP with %d states.\n", mdfa_size);

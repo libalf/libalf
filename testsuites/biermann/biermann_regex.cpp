@@ -49,6 +49,7 @@ int run_length = 8;
 int main(int argc, char**argv)
 {
 	finite_language_automaton *nfa = NULL;
+	finite_language_automaton *dfa = NULL;
 	ostream_logger log(&cout, LOGGER_DEBUG);
 
 	knowledgebase<ANSWERTYPE> knowledge;
@@ -87,6 +88,13 @@ int main(int argc, char**argv)
 		log(LOGGER_ERROR, "regex failed.\n");
 		return 1;
 	}
+
+	dfa = nfa->determinize();
+	dfa->minimize();
+	file.open("original-dfa.dot");
+	file << dfa->generate_dotfile();
+	file.close();
+	delete dfa;
 
 	alphabet_size = nfa->get_alphabet_size();
 
