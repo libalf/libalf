@@ -161,7 +161,7 @@ class learning_algorithm {
 		{{{
 			if(complete()) {
 				if(!derive_automaton(automaton)) {
-					(*my_logger)(LOGGER_ERROR, "learning_algorithm::advance(): derive from completed tabled failed! wrong kind of automaton passed or internal error.\n");
+					(*my_logger)(LOGGER_ERROR, "learning_algorithm::advance(): derive from completed table failed! wrong kind of automaton passed or internal error.\n");
 					return false;
 				} else {
 					return true;

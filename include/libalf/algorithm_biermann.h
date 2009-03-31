@@ -257,8 +257,10 @@ class basic_biermann : public learning_algorithm<answer> {
 		{{{
 			mapping old_solution;
 
-			if(this->my_knowledge == NULL)
+			if(this->my_knowledge == NULL) {
+				(*this->my_logger)(LOGGER_ERROR, "biermann: no knowledgebase set!\n");
 				return false;
+			}
 
 			// 1) create constraints from LoopFreeDFA (LFDFA = knowledgebase)
 			create_constraints();
@@ -274,11 +276,11 @@ class basic_biermann : public learning_algorithm<answer> {
 			// FIXME: use binary search instead
 this->print(cout);
 			while(!solved) {
-				(*this->my_logger)(LOGGER_ALGORITHM, "biermann: trying to solve CSP with %d states.\n", mdfa_size);
+				(*this->my_logger)(LOGGER_INFO, "biermann: trying to solve CSP with %d states.\n", mdfa_size);
 				old_solution = solution;
 
 				if( solve_constraints() ) {
-					(*this->my_logger)(LOGGER_ALGORITHM, "biermann: success.\n");
+					(*this->my_logger)(LOGGER_INFO, "biermann: success.\n");
 					if(failed_before) {
 						// we found the minimal solution
 						solved = true;
@@ -290,14 +292,19 @@ this->print(cout);
 							mdfa_size--;
 					}
 				} else {
-					(*this->my_logger)(LOGGER_ALGORITHM, "biermann: failed.\n");
+					(*this->my_logger)(LOGGER_INFO, "biermann: failed.\n");
 					if(success_before) {
 						// we found the minimal solution in the iteration before.
 						solution = old_solution;
 						solved = true;
 					} else {
 						failed_before = true;
-						mdfa_size++;
+						if(mdfa_size == (int)sources.size()) {
+							(*this->my_logger)(LOGGER_ERROR, "biermann: failed to find mapping with LFDFA size == mDFA size. this will be a serious bug in libalf :-(\n");
+							return false;
+						} else {
+							mdfa_size++;
+						}
 					}
 				}
 			}

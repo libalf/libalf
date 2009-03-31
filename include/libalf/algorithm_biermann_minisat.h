@@ -207,6 +207,11 @@ printf("\tclause %c%2d %c%2d\n", sign(clause[0]) ? '!' : ' ', var(clause[0]), si
 				return false;
 			}
 
+			if(solver.nClauses() <= 0) {
+				(*this->my_logger)(LOGGER_ALGORITHM, "biermann+MiniSat: resolved to 0 clauses. aborting this run.\n", solver.nClauses());
+				return false;
+			}
+
 			(*this->my_logger)(LOGGER_ALGORITHM, "biermann+MiniSat: trying to solve %d clauses.\n", solver.nClauses());
 			if(solver.solve()) {
 				//solver.model
