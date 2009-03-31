@@ -42,7 +42,10 @@ string finite_language_automaton::generate_dotfile()
 
 	si = serialized.begin();
 
-	ret = "digraph finite_automaton {\n"
+	ret = "digraph labeled_automaton {\n"
+		"graph[fontsize=8]\n"
+		"label=\"Finite Automaton\\n\\n Initial states are grey.\\nAccepting states are doublecircles.\"\n"
+		"subgraph finite_automaton {\n"
 		"\trankdir=LR;\n"
 		"\tsize=8;\n";
 
@@ -136,7 +139,7 @@ string finite_language_automaton::generate_dotfile()
 	}
 
 	// end
-	ret += "}\n";
+	ret += "}\n}\n";
 
 	return ret;
 }}}
