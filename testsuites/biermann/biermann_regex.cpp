@@ -1,4 +1,4 @@
-/* $Id: biermann_test.cpp 425 2009-03-31 18:11:18Z davidpiegdon $
+/* $Id$
  * vim: fdm=marker
  *
  * libalf - Automata Learning Factory
