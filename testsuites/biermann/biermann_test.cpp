@@ -80,6 +80,7 @@ int main(int argc, char**argv)
 */
 	// FIXME:
 	// create sample set in knowledgebase
+	/*
 	{
 		// for now, just add some samples...
 		alphabet_size = 2;
@@ -98,6 +99,36 @@ int main(int argc, char**argv)
 		w.push_back(0);
 		knowledge.add_knowledge(w, true);
 	}
+	*/
+	{
+		alphabet_size = 2;
+		list<int> w;
+		w.push_back(0);
+		knowledge.add_knowledge(w, false);
+		w.push_back(1);
+		knowledge.add_knowledge(w, true);
+		w.pop_back();
+		w.push_back(0);
+		knowledge.add_knowledge(w, false);
+		w.push_back(0);
+		knowledge.add_knowledge(w, true);
+		w.pop_back();
+		w.pop_back();
+		w.pop_back();
+		w.push_back(1);
+		knowledge.add_knowledge(w, false);
+		w.push_back(1);
+		knowledge.add_knowledge(w, false);
+		w.push_back(1);
+		knowledge.add_knowledge(w, true);
+		w.push_back(0);
+		w.push_back(1);
+		knowledge.add_knowledge(w, true);
+	};
+
+
+
+
 
 	cout << "\n";
 	knowledge.print(cout);
