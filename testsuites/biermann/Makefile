@@ -7,16 +7,18 @@ CPPFLAGS=-Wall -ggdb3  -I../../include
 
 LDFLAGS=-L../../src -lalf -lAMoRE -lm
 
-all: biermann_test
+all: biermann_static biermann_regex
 
 clean:
 	-rm *.o
-	-rm biermann_test
+	-rm biermann_regex biermann_static
 	-rm *.dot
 	-rm *.jpg
 
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;
 
-biermann_test: biermann_test.cpp
+biermann_static: biermann_static.cpp
+
+biermann_regex: biermann_regex.cpp
 
