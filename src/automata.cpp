@@ -75,7 +75,7 @@ string finite_language_automaton::generate_dotfile()
 	for(sti = initial.begin(); sti != initial.end(); sti++) {
 		if(final.find(*sti) == final.end()) {
 			if(!header_written) {
-				ret += "\tnode [shape=circle, style=bold];";
+				ret += "\tnode [shape=circle, style=bold, style=filled, color=grey];";
 				header_written = true;
 			}
 			snprintf(buf, 128, " S%d", *sti);
@@ -90,7 +90,7 @@ string finite_language_automaton::generate_dotfile()
 	for(sti = initial.begin(); sti != initial.end(); sti++) {
 		if(final.find(*sti) != final.end()) {
 			if(!header_written) {
-				ret += "\tnode [shape=doublecircle, style=bold];";
+				ret += "\tnode [shape=doublecircle, style=bold, style=filled, color=grey];";
 				header_written = true;
 			}
 			snprintf(buf, 128, " S%d", *sti);
@@ -105,7 +105,7 @@ string finite_language_automaton::generate_dotfile()
 	for(sti = final.begin(); sti != final.end(); sti++) {
 		if(initial.find(*sti) == initial.end()) {
 			if(!header_written) {
-				ret += "\tnode [shape=doublecircle, style=\"\"];";
+				ret += "\tnode [shape=doublecircle, style=\"\", color=black];";
 				header_written = true;
 			}
 			snprintf(buf, 128, " S%d", *sti);
@@ -117,7 +117,7 @@ string finite_language_automaton::generate_dotfile()
 
 
 	// default
-	ret += "\tnode [shape=circle, style=\"\"];\n";
+	ret += "\tnode [shape=circle, style=\"\", color=black];\n";
 
 	// transitions
 	while(si != serialized.end()) {

@@ -813,11 +813,7 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 		// in this case, the holder is in an inconsistent state and
 		// the knowledgebase will not change itself.
 		{{{
-			node * current;
-
-			current = root->find_or_create_child(word.begin(), word.end());
-
-			return current->set_answer(acceptance);
+			return root->find_or_create_child(word.begin(), word.end())->set_answer(acceptance);
 		}}}
 		int add_query(list<int> & word, int prefix_count = 0)
 		// returns the number of new required nodes (excluding those already known.
