@@ -245,7 +245,6 @@ void vec<T>::clear(bool dealloc) {
 
 class lbool {
     int     value;
-    explicit lbool(int v) : value(v) { }
 
 public:
     lbool()       : value(0) { }
@@ -254,17 +253,17 @@ public:
 
     bool  operator == (const lbool& other) const { return value == other.value; }
     bool  operator != (const lbool& other) const { return value != other.value; }
-    lbool operator ~  (void)               const { return lbool(-value); }
+    lbool operator ~  (void)               const { if(value==1) return lbool(false); if(value==-1) return lbool(true); return lbool(); }
 
     friend int   toInt  (lbool l);
     friend lbool toLbool(int   v);
 };
 inline int   toInt  (lbool l) { return l.toInt(); }
-inline lbool toLbool(int   v) { return lbool(v);  }
+inline lbool toLbool(int   v) { if(v==1) return lbool(true); if(v==-1) return lbool(false); return lbool(); }
 
-const lbool l_True  = toLbool( 1);
-const lbool l_False = toLbool(-1);
-const lbool l_Undef = toLbool( 0);
+#define l_True (lbool(true))
+#define l_False (lbool(false))
+#define l_Undef (lbool())
 
 
 //=================================================================================================
