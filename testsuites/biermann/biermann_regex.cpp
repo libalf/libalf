@@ -90,6 +90,8 @@ int main(int argc, char**argv)
 
 	alphabet_size = nfa->get_alphabet_size();
 
+	printf("alphabet size set to %d\n", alphabet_size);
+
 	file.open("original-nfa.dot");
 	file << nfa->generate_dotfile();
 	file.close();
@@ -105,7 +107,7 @@ int main(int argc, char**argv)
 		w.clear();
 		for(int j = 0; j < run_length; j++) {
 			unsigned long int r = rand();
-			r = (r * (alphabet_size-1)) / RAND_MAX;
+			r = (r * alphabet_size) / RAND_MAX;
 			w.push_back(r);
 			knowledge.add_knowledge(w, nfa->contains(w));
 		}
