@@ -256,6 +256,7 @@ class basic_biermann : public learning_algorithm<answer> {
 		virtual bool derive_automaton(finite_language_automaton * automaton)
 		{{{
 			mapping old_solution;
+			int old_size;
 
 			if(this->my_knowledge == NULL) {
 				(*this->my_logger)(LOGGER_ERROR, "biermann: no knowledgebase set!\n");
@@ -285,16 +286,19 @@ class basic_biermann : public learning_algorithm<answer> {
 						solved = true;
 					} else {
 						success_before = true;
-						if(mdfa_size == 1)
+						if(mdfa_size == 1) {
 							solved = true;
-						else
+						} else {
+							old_size = mdfa_size;
 							mdfa_size--;
+						}
 					}
 				} else {
 					(*this->my_logger)(LOGGER_INFO, "biermann: unsatisfiable.\n");
 					if(success_before) {
 						// we found the minimal solution in the iteration before.
 						solution = old_solution;
+						mdfa_size = old_size;
 						solved = true;
 					} else {
 						failed_before = true;
@@ -302,6 +306,7 @@ class basic_biermann : public learning_algorithm<answer> {
 							(*this->my_logger)(LOGGER_ERROR, "biermann: failed to find mapping with LFDFA size == mDFA size. this will be a serious bug in libalf :-(\n");
 							return false;
 						} else {
+							old_size = mdfa_size;
 							mdfa_size++;
 						}
 					}
@@ -390,14 +395,10 @@ class basic_biermann : public learning_algorithm<answer> {
 			start.push_back( solution[ this->my_knowledge->begin()->get_selfptr() ] );
 
 			for(si = sources.begin(); si != sources.end(); si++) {
-list<int> w;
-string s;
-w = (*si)->get_word();
-s = word2string(w, '.');
-printf("source %s:\n", s.c_str());
 					// acceptance-status
-					if((*si)->get_answer() == true)
-						final.push_back( solution[ (*si)->get_selfptr() ] );
+					if((*si)->is_answered())
+						if((*si)->get_answer() == true)
+							final.push_back( solution[ (*si)->get_selfptr() ] );
 					// transitions
 					transition tr;
 					tr.source = solution[ (*si)->get_selfptr() ];
@@ -408,9 +409,7 @@ printf("source %s:\n", s.c_str());
 							tr.label = s;
 							tr.destination = solution[ child->get_selfptr() ];
 							transitions.push_back(tr);
-printf("transition %d -%d-> %d\n", tr.source, tr.label, tr.destination);
 						}
-else printf("transition %d -%d-|\n", tr.source, s);
 					}
 			}
 

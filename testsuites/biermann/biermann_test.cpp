@@ -80,7 +80,7 @@ int main(int argc, char**argv)
 */
 	// FIXME:
 	// create sample set in knowledgebase
-	/*
+#if 1
 	{
 		// for now, just add some samples...
 		alphabet_size = 2;
@@ -99,7 +99,7 @@ int main(int argc, char**argv)
 		w.push_back(0);
 		knowledge.add_knowledge(w, true);
 	}
-	*/
+#else
 	{
 		alphabet_size = 2;
 		list<int> w;
@@ -125,6 +125,7 @@ int main(int argc, char**argv)
 		w.push_back(1);
 		knowledge.add_knowledge(w, true);
 	};
+#endif
 
 
 
@@ -141,11 +142,8 @@ int main(int argc, char**argv)
 
 	deterministic_finite_amore_automaton hypothesis;
 
-	if(diebels.advance(&hypothesis)) {
-		printf("advance returned true\n");
-	} else {
-		printf("advance returned false\n");
-	}
+	if(!diebels.advance(&hypothesis))
+		printf("\nadvance returned false\n\n");
 
 	printf("\n\n");
 	diebels.print(cout);

@@ -1222,7 +1222,7 @@ bool deterministic_finite_amore_automaton::construct(int alphabet_size, int stat
 		tj = ti;
 		for(tj++; tj != transitions.end(); tj++) {
 			if(*ti << *tj) {
-				// we could only create and NFA from this
+				// we could only create an NFA from this
 				return false;
 			}
 		}

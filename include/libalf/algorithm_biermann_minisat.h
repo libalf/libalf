@@ -82,6 +82,7 @@ class MiniSat_biermann : public basic_biermann<answer> {
 				for(i = 0; i < this->mdfa_size; i++)
 					varcounter[i] = false;
 				carry = false;
+				set_count = 0;
 				while(!carry) {
 					// NOTE: any boolean function may be represented by
 					// conjunction of minterms of its indexes evaluation to 0.
@@ -90,13 +91,13 @@ class MiniSat_biermann : public basic_biermann<answer> {
 						vec<Lit> clause;
 						clause.growTo(this->mdfa_size);
 						// create minterm for this index
-printf("\tclause");
+//printf("\tclause");
 						for(svi = state_vars.begin(), i = 0; svi != state_vars.end(); svi++, i++) {
 							clause[i] = varcounter[i] ? ~Lit(*svi) : Lit(*svi);
-printf(" %c%2d", sign(clause[i]) ? '!' : ' ', var(clause[i]));
+//printf(" %c%2d", sign(clause[i]) ? '!' : ' ', var(clause[i]));
 						}
 						clausecount++;
-printf("\n");
+//printf("\n");
 						solver.addClause(clause);
 						if(!solver.okay()) {
 							(*this->my_logger)(LOGGER_ALGORITHM, "biermann+MiniSat: SAT: found conflict during CSP2SAT.\n", clausecount);
@@ -128,7 +129,7 @@ printf("\n");
 					// if carry is still true, we've got an overflow and are done.
 				}
 			}
-printf("\n");
+//printf("\n");
 
 			// add clauses for each constraint:
 			typename list<typename basic_biermann<answer>::constraint>::iterator csi;
@@ -157,7 +158,7 @@ printf("\n");
 							clause[1] = ~Lit(*svi2);
 							clause[2] = Lit(*svi3);
 							clause[3] = ~Lit(*svi4);
-printf("\tclause %c%2d %c%2d %c%2d %c%2d\n", sign(clause[0]) ? '!' : ' ', var(clause[0]), sign(clause[1]) ? '!' : ' ', var(clause[1]), sign(clause[2]) ? '!' : ' ', var(clause[2]), sign(clause[3]) ? '!' : ' ', var(clause[3]));
+//printf("\tclause %c%2d %c%2d %c%2d %c%2d\n", sign(clause[0]) ? '!' : ' ', var(clause[0]), sign(clause[1]) ? '!' : ' ', var(clause[1]), sign(clause[2]) ? '!' : ' ', var(clause[2]), sign(clause[3]) ? '!' : ' ', var(clause[3]));
 							clausecount++;
 							solver.addClause(clause);
 							if(!solver.okay()) {
@@ -174,7 +175,7 @@ printf("\tclause %c%2d %c%2d %c%2d %c%2d\n", sign(clause[0]) ? '!' : ' ', var(cl
 						clause[0] = ~Lit(*svi1);
 						clause[1] = ~Lit(*svi2);
 
-printf("\tclause %c%2d %c%2d\n", sign(clause[0]) ? '!' : ' ', var(clause[0]), sign(clause[1]) ? '!' : ' ', var(clause[1]));
+//printf("\tclause %c%2d %c%2d\n", sign(clause[0]) ? '!' : ' ', var(clause[0]), sign(clause[1]) ? '!' : ' ', var(clause[1]));
 						clausecount++;
 						solver.addClause(clause);
 						if(!solver.okay()) {
@@ -192,11 +193,11 @@ printf("\tclause %c%2d %c%2d\n", sign(clause[0]) ? '!' : ' ', var(clause[0]), si
 		}}}
 
 		virtual bool solve_constraints()
-		{
+		{{{
 			Solver solver;
 			map<typename basic_biermann<answer>::knowledgebase_node_ptr, vector<Var>, typename basic_biermann<answer>::node_comparator > vars;
 
-			solver.verbosity = 1;
+			//solver.verbosity = 1;
 
 			if(!csp2sat(solver, vars))
 				return false;
@@ -258,7 +259,7 @@ printf("\n");
 			} else {
 				return false;
 			}
-		}
+		}}}
 };
 
 
