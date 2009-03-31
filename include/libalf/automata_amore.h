@@ -112,7 +112,7 @@ class deterministic_finite_amore_automaton : public deterministic_finite_automat
 		virtual basic_string<int32_t> serialize();
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
 
-		bool construct(int alphabet_size, int state_count, list<int> start, list<int> final, list<transition> transitions);
+		virtual bool construct(int alphabet_size, int state_count, list<int> &start, list<int> &final, list<transition> &transitions);
 
 	// new
 		virtual void set_dfa(dfa a);

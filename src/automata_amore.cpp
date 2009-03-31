@@ -1205,7 +1205,7 @@ nfaa_deserialization_failed:
 	return false;
 }}}
 
-bool deterministic_finite_amore_automaton::construct(int alphabet_size, int state_count, list<int> start, list<int> final, list<transition> transitions)
+bool deterministic_finite_amore_automaton::construct(int alphabet_size, int state_count, list<int> &start, list<int> &final, list<transition> &transitions)
 {{{
 	dfa a;
 	list<transition>::iterator ti, tj;
