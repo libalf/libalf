@@ -35,7 +35,7 @@ using namespace libalf;
 
 
 
-// add knowledge abount epsilon?
+// add knowledge about epsilon?
 bool add_epsilon = true;
 // how many runs should be used to generate knowledge from regex-generated automaton?
 int runs = 100;
@@ -60,16 +60,16 @@ int main(int argc, char**argv)
 	int alphabet_size;
 
 	// init AMoRE buffers
-	initbuf(); // XXX LEAK
+	initbuf();
 
 
 	bool regex_ok;
 
 	if(argc == 3) {
-		nfa = new nondeterministic_finite_amore_automaton(atoi(argv[1]), argv[2], regex_ok); // XXX LEAK
+		nfa = new nondeterministic_finite_amore_automaton(atoi(argv[1]), argv[2], regex_ok);
 	} else {
 		if(argc == 2) {
-			nfa = new nondeterministic_finite_amore_automaton(argv[1], regex_ok); // XXX LEAK
+			nfa = new nondeterministic_finite_amore_automaton(argv[1], regex_ok);
 		} else {
 			cout << "either give a sole regex as parameter, or give <alphabet size> <regex>.\n\n";
 			cout << "example regular expressions:\n";
@@ -89,13 +89,6 @@ int main(int argc, char**argv)
 		return 1;
 	}
 
-	dfa = nfa->determinize();
-	dfa->minimize();
-	file.open("original-dfa.dot");
-	file << dfa->generate_dotfile();
-	file.close();
-	delete dfa;
-
 	alphabet_size = nfa->get_alphabet_size();
 
 	printf("alphabet size set to %d\n", alphabet_size);
@@ -103,6 +96,13 @@ int main(int argc, char**argv)
 	file.open("original-nfa.dot");
 	file << nfa->generate_dotfile();
 	file.close();
+
+	dfa = nfa->determinize();
+	dfa->minimize();
+	file.open("original-dfa.dot");
+	file << dfa->generate_dotfile();
+	file.close();
+	delete dfa;
 
 	srand(time(NULL));
 
@@ -132,16 +132,17 @@ int main(int argc, char**argv)
 
 	deterministic_finite_amore_automaton hypothesis;
 
-	if(!diebels.advance(&hypothesis))
-		printf("\nadvance returned false\n\n");
+	if(!diebels.advance(&hypothesis)) {
+		printf("\n\n\nadvance returned false\n\n");
+	} else {
+//		diebels.print(cout);
 
-	printf("\n\n");
-//	diebels.print(cout);
-
-	snprintf(filename, 128, "hypothesis.dot");
-	file.open(filename);
-	file << hypothesis.generate_dotfile();
-	file.close();
+		snprintf(filename, 128, "hypothesis.dot");
+		file.open(filename);
+		file << hypothesis.generate_dotfile();
+		file.close();
+		printf("\n\nhypothesis saved.\n\n");
+	}
 
 	// release AMoRE buffers
 	freebuf();

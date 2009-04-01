@@ -42,7 +42,7 @@ int main(int argc, char**argv)
 	int alphabet_size;
 
 	// init AMoRE buffers
-	initbuf(); // XXX LEAK
+	initbuf();
 
 	// create sample set in knowledgebase
 #if 0
@@ -103,16 +103,17 @@ int main(int argc, char**argv)
 
 	deterministic_finite_amore_automaton hypothesis;
 
-	if(!diebels.advance(&hypothesis))
-		printf("\nadvance returned false\n\n");
+	if(!diebels.advance(&hypothesis)) {
+		printf("\n\n\nadvance returned false\n\n");
+	} else {
+//		diebels.print(cout);
 
-	printf("\n\n");
-	diebels.print(cout);
-
-	snprintf(filename, 128, "hypothesis.dot");
-	file.open(filename);
-	file << hypothesis.generate_dotfile();
-	file.close();
+		snprintf(filename, 128, "hypothesis.dot");
+		file.open(filename);
+		file << hypothesis.generate_dotfile();
+		file.close();
+		printf("\n\nhypothesis saved.\n\n");
+	}
 
 	// release AMoRE buffers
 	freebuf();
