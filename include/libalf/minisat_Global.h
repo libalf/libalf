@@ -2,7 +2,9 @@
  * vim: fdm=marker
  *
  * MiniSat v1.14
- * only changes are indent, format of sourcecode and namespaces
+ * changes are indent, format of sourcecode, namespaces
+ * and FIXING of the lbool type that had an error due to two distinct
+ * but very similar constructors
  * 2009-03-21 David R. Piegdon <david-i2@piegdon.de>
  */
 
