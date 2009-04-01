@@ -21,11 +21,7 @@
 #include <libalf/algorithm_biermann_minisat.h>
 
 #include <amore/vars.h>
-#include <amore/rexFromString.h>
-#include <amore/rex2nfa.h>
-
-//#define ANSWERTYPE extended_bool
-#define ANSWERTYPE bool
+#include <amore/buffer.h>
 
 using namespace std;
 using namespace libalf;
@@ -34,7 +30,7 @@ int main(int argc, char**argv)
 {
 	ostream_logger log(&cout, LOGGER_DEBUG);
 
-	knowledgebase<ANSWERTYPE> knowledge;
+	knowledgebase<bool> knowledge;
 
 	ofstream file;
 	char filename[128];
@@ -48,8 +44,10 @@ int main(int argc, char**argv)
 #if 0
 	{
 		// for now, just add some samples...
-		alphabet_size = 2;
 		list<int> w;
+
+		alphabet_size = 2;
+
 		knowledge.add_knowledge(w, false);
 		w.push_back(0);
 		knowledge.add_knowledge(w, true);
@@ -67,8 +65,10 @@ int main(int argc, char**argv)
 	}
 #else
 	{
-		alphabet_size = 2;
 		list<int> w;
+
+		alphabet_size = 2;
+
 		w.push_back(0);
 		knowledge.add_knowledge(w, false);
 		w.push_back(1);
@@ -99,7 +99,7 @@ int main(int argc, char**argv)
 	knowledge.print(cout);
 	cout << "\n";
 
-	MiniSat_biermann<ANSWERTYPE> diebels(&knowledge, &log, alphabet_size);
+	MiniSat_biermann<bool> diebels(&knowledge, &log, alphabet_size);
 
 	deterministic_finite_amore_automaton hypothesis;
 

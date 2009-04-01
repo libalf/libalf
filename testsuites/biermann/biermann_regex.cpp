@@ -23,8 +23,7 @@
 #include <libalf/algorithm_biermann_minisat.h>
 
 #include <amore/vars.h>
-#include <amore/rexFromString.h>
-#include <amore/rex2nfa.h>
+#include <amore/buffer.h>
 
 //#define ANSWERTYPE extended_bool
 #define ANSWERTYPE bool

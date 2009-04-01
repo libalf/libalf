@@ -23,8 +23,7 @@
 #include <libalf/algorithm_angluin.h>
 
 #include <amore/vars.h>
-#include <amore/rexFromString.h>
-#include <amore/rex2nfa.h>
+#include <amore/buffer.h>
 
 //#define ANSWERTYPE extended_bool
 #define ANSWERTYPE bool
@@ -63,14 +62,14 @@ int main(int argc, char**argv)
 	bool use_knowledgebase = true;
 
 	// init AMoRE buffers
-	initbuf(); // XXX LEAK
+	initbuf();
 
 	bool regex_ok;
 	if(argc == 3) {
-		nfa = new nondeterministic_finite_amore_automaton(atoi(argv[1]), argv[2], regex_ok); // XXX LEAK
+		nfa = new nondeterministic_finite_amore_automaton(atoi(argv[1]), argv[2], regex_ok);
 	} else {
 		if(argc == 2) {
-			nfa = new nondeterministic_finite_amore_automaton(argv[1], regex_ok); // XXX LEAK
+			nfa = new nondeterministic_finite_amore_automaton(argv[1], regex_ok);
 		} else {
 			cout << "either give a sole regex as parameter, or give <alphabet size> <regex>.\n\n";
 			cout << "example regular expressions:\n";
@@ -103,13 +102,13 @@ int main(int argc, char**argv)
 		finite_language_automaton *dfa;
 
 		dfa = nfa->determinize();
-		dfa->minimize(); // XXX LEAK
+		dfa->minimize();
 
 		file.open("original-dfa.dot");
 		file << dfa->generate_dotfile();
 		file.close();
 
-		teach.set_automaton(*dfa); // XXX LEAK
+		teach.set_automaton(*dfa);
 		o.set_automaton(*dfa);
 
 		delete dfa;
@@ -220,7 +219,7 @@ int main(int argc, char**argv)
 		// if this test is ok, all worked well
 
 		pair<bool, list< list<int> > > oracle_answer;
-		oracle_answer = o.equivalence_query(hypothesis); // XXX LEAK
+		oracle_answer = o.equivalence_query(hypothesis);
 
 		if(oracle_answer.first) {
 			cout << "success.\n";
