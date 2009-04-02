@@ -22,7 +22,8 @@ OBJECTS=alf.o alphabet.o answer.o automata.o automata_amore.o basic_string.o log
 all:	libalf.so
 
 libalf.so: ${OBJECTS}
-	ld ${OBJECTS} ${LDFLAGS} -o $@
+	g++ $(OBJECTS) $(LDFLAGS) -o $@
+#	ld ${OBJECTS} ${LDFLAGS} -o $@
 
 clean:
 	-rm *.o

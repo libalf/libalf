@@ -441,7 +441,7 @@ namespace libalf {
 			if(value(p) != l_Undef)
 				return value(p) != l_False;
 			else {
-				assigns[var(p)] = toInt(bool2lbool(!sign(p)));
+				assigns[var(p)] = toInt(lbool(!sign(p)));
 				level[var(p)] = decisionLevel();
 				reason[var(p)] = from;
 				trail.push(p);
