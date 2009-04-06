@@ -269,23 +269,29 @@ class angluin_observationtable : public learning_algorithm<answer> {
 				if(uti->acceptance.size() == 0) {
 					uti->acceptance.push_back(a);
 				} else {
-					// XXX SHOULD NEVER HAPPEN
-					uti->acceptance[0] = a;
+					(*this->my_logger)(LOGGER_ERROR, "angluin_observationtable: you are overriding an already set information with a new counterexample! trying to ignore...\n");
 				}
 			} else {
 				// bottom is filled automatically
 				if(a == true)
-					(*this->my_logger)(LOGGER_ERROR, "counterexample is bottom and answer is even true\n");
+					(*this->my_logger)(LOGGER_ERROR, "angluin_observationtable: counterexample is bottom and answer is even true\n");
 				else
-					(*this->my_logger)(LOGGER_ERROR, "counterexample is bottom\n");
+					(*this->my_logger)(LOGGER_ERROR, "angluin_observationtable: counterexample is bottom\n");
 			}
 		}}}
 
 		virtual void add_counterexample(list<int> word)
 		{{{
+			table::iterator ti;
 			list<int>::iterator wi;
 			int new_asize;
 			bool asize_changed = false;
+
+			ti = search_upper_table(word);
+			if(ti != lower_table.end()) {
+				(*this->my_logger)(LOGGER_WARN, "angluin_observationtable: you are giving a counterexample thats information is already in the table! trying to ignore...\n");
+				return;
+			}
 
 			// check for increase in alphabet size
 			for(wi = word.begin(); wi != word.end(); wi++) {
