@@ -221,13 +221,14 @@ class MiniSat_biermann : public basic_biermann<answer> {
 			assumptions.push(force_initial);
 
 			if(solver.solve(assumptions)) {
-
-printf("satisfiable ");
-for (int i = 0; i < solver.nVars(); i++) {
-	if(solver.model[i] != l_Undef)
-		printf(" %c%d", (solver.model[i]==l_True)?' ':'!', i);
-}
-printf("\n");
+				/*
+				printf("satisfiable ");
+				for (int i = 0; i < solver.nVars(); i++) {
+					if(solver.model[i] != l_Undef)
+						printf(" %c%d", (solver.model[i]==l_True)?' ':'!', i);
+				}
+				printf("\n");
+				*/
 
 				typename map<typename basic_biermann<answer>::knowledgebase_node_ptr, vector<Var>, typename basic_biermann<answer>::node_comparator>::iterator vsi;
 				int vindex = 0;

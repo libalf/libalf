@@ -269,8 +269,8 @@ class angluin_observationtable : public learning_algorithm<answer> {
 				if(uti->acceptance.size() == 0) {
 					uti->acceptance.push_back(a);
 				} else {
-					string s = word2string(word);
-					if(uti->acceptance.first() == a) {
+					string s = word2string(word, '.');
+					if((answer)uti->acceptance[0] == (answer)a) {
 						(*this->my_logger)(LOGGER_ERROR, "angluin_observationtable: you are trying to add a counterexample (%s) which is already contained in the table. at least you try to set the same acceptance for it. trying to ignore.\n", s.c_str());
 					} else {
 						(*this->my_logger)(LOGGER_ERROR, "angluin_observationtable: you are trying to add a counterexample (%s) which is already contained in the table. you even try to set a different acceptance for it! trying to ignore.\n", s.c_str());
@@ -287,14 +287,14 @@ class angluin_observationtable : public learning_algorithm<answer> {
 
 		virtual void add_counterexample(list<int> word)
 		{{{
-			table::iterator ti;
+			typename table::iterator ti;
 			list<int>::iterator wi;
 			int new_asize;
 			bool asize_changed = false;
 
-			ti = search_upper_table(word);
+			ti = search_tables(word);
 			if(ti != lower_table.end()) {
-				string s = word2string(word);
+				string s = word2string(word, '.');
 				(*this->my_logger)(LOGGER_WARN, "angluin_observationtable: angluin_observationtable: you are trying to add a counterexample (%s) which is already contained in the table. trying to ignore...\n", s.c_str());
 				return;
 			}
