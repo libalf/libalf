@@ -107,16 +107,16 @@ class basic_biermann : public learning_algorithm<answer> {
 					string s1,s2;
 
 					word = l1->get_word();
-					s1 = word2string(word, '.');
+					s1 = word2string(word);
 					word = l2->get_word();
-					s2 = word2string(word, '.');
+					s2 = word2string(word);
 
 					snprintf(buf1, 64, "(%s != %s)", s1.c_str(), s2.c_str());
 					if(has_second) {
 						word = l3->get_word();
-						s1 = word2string(word, '.');
+						s1 = word2string(word);
 						word = l4->get_word();
-						s2 = word2string(word, '.');
+						s2 = word2string(word);
 						snprintf(buf2, 64, " || (%s == %s)", s1.c_str(), s2.c_str());
 					}
 					buf1[63] = 0;
@@ -209,7 +209,7 @@ class basic_biermann : public learning_algorithm<answer> {
 				list<int> word;
 				string s;
 				word = (*si)->get_word();
-				s = word2string(word, '.');
+				s = word2string(word);
 				os << "\t" << s << "\n";
 			}
 			os << "}\n";

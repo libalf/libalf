@@ -38,6 +38,9 @@ void print_word(list<int> &word);
 
 string word2string(list<int> &word, char separator);
 
+inline string word2string(list<int> &word)
+{ return word2string(word, '.'); };
+
 basic_string<int32_t> serialize_word(list<int> &word);
 
 bool deserialize_word(list<int32_t> &into, basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);

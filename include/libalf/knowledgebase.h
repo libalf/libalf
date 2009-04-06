@@ -633,7 +633,7 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 			// add all nodes
 			for(it = this->begin(); it != this->end(); it++) {
 				word = it->get_word();
-				wname = word2string(word, '.');
+				wname = word2string(word);
 				snprintf(buf, 128, "\tnode [shape=\"%s\", style=\"filled\", color=\"%s\"]; \"%s [%d]\";\n",
 						// shape
 						it->is_answered() ? "ellipse" : "pentagon",
@@ -652,11 +652,11 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 				string toname;
 
 				word = it->get_word();
-				wname = word2string(word, '.');
+				wname = word2string(word);
 				for(ci = it->children.begin(); ci != it->children.end(); ci++) {
 					if(*ci) {
 						word = (*ci)->get_word();
-						toname = word2string(word, '.');
+						toname = word2string(word);
 
 						snprintf(buf, 128, "\t\"%s [%d]\" -> \"%s [%d]\" [ label = \"%d\" ];\n",
 								wname.c_str(), it->timestamp,
