@@ -269,7 +269,12 @@ class angluin_observationtable : public learning_algorithm<answer> {
 				if(uti->acceptance.size() == 0) {
 					uti->acceptance.push_back(a);
 				} else {
-					(*this->my_logger)(LOGGER_ERROR, "angluin_observationtable: you are overriding an already set information with a new counterexample! trying to ignore...\n");
+					string s = word2string(word);
+					if(uti->acceptance.first() == a) {
+						(*this->my_logger)(LOGGER_ERROR, "angluin_observationtable: you are trying to add a counterexample (%s) which is already contained in the table. at least you try to set the same acceptance for it. trying to ignore.\n", s.c_str());
+					} else {
+						(*this->my_logger)(LOGGER_ERROR, "angluin_observationtable: you are trying to add a counterexample (%s) which is already contained in the table. you even try to set a different acceptance for it! trying to ignore.\n", s.c_str());
+					}
 				}
 			} else {
 				// bottom is filled automatically
@@ -289,7 +294,8 @@ class angluin_observationtable : public learning_algorithm<answer> {
 
 			ti = search_upper_table(word);
 			if(ti != lower_table.end()) {
-				(*this->my_logger)(LOGGER_WARN, "angluin_observationtable: you are giving a counterexample thats information is already in the table! trying to ignore...\n");
+				string s = word2string(word);
+				(*this->my_logger)(LOGGER_WARN, "angluin_observationtable: angluin_observationtable: you are trying to add a counterexample (%s) which is already contained in the table. trying to ignore...\n", s.c_str());
 				return;
 			}
 
