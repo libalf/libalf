@@ -1254,7 +1254,7 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 			// and all suffixes to lower table
 			this->add_word_to_upper_table(word, false);
 
-			initialized = true;
+			this->initialized = true;
 		}}}
 
 		virtual void add_word_to_upper_table(list<int> word, bool check_uniq = true)
