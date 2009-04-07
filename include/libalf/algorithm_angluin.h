@@ -836,10 +836,8 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		// returns false if new knowledge is required (in case of knowledgebase).
 		virtual bool complete()
 		{{{
-			if(!initialized) {
+			if(!initialized)
 				initialize_table();
-				initialized = true;
-			}
 
 			if(fill_missing_columns(upper_table) && fill_missing_columns(lower_table)) {
 				if(!close()) {
@@ -1255,6 +1253,8 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 			// add epsilon to upper table
 			// and all suffixes to lower table
 			this->add_word_to_upper_table(word, false);
+
+			initialized = true;
 		}}}
 
 		virtual void add_word_to_upper_table(list<int> word, bool check_uniq = true)
