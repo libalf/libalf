@@ -3,13 +3,19 @@
 
 A)
 
-- biermann algorithm -> miniSAT, generic SAT interface
-  siehe "learning meets verification" (2.2)
-  (binary search over state count?)
-
 - RFSA, RFSA-algorithm
 
+- documentation (?)
+
+- integrate oracle into online-algorithms
+
+- JNI, explain Daniel what he needs for that (similar to dispatcher session)
+
 B)
+
+- RPNI
+
+- BL*
 
 - check network/deserialization code for bugs
 
@@ -19,7 +25,7 @@ B)
 
 - knowledgebase also without undo/timestamps, to reduce memory footprint
 
-B)
+C)
 
 - in learn_regex: check/fix '+' operator in regex on command-line
 - enable dispatcher to listen on multiple address/port combinations, IPv6 and unix domain sockets
