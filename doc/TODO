@@ -5,6 +5,8 @@ A)
 
 - RFSA, RFSA-algorithm
 
+- ``make install'' auch ohne super-user-privileges
+
 - documentation (?)
 
 - integrate oracle into online-algorithms
