@@ -158,22 +158,35 @@ deserialization_failed:
 
 				}}}
 
-				void print(ostream &os)
+				string tostring();
 				{{{
+					string s;
 					list<answer>::iterator acci;
 
-					print_word(os, index);
-					os << ": ";
+					s = word2string(index);
+					s += ": ";
 					for(acci = acceptance.begin(); acci != acceptance.end(); acci++) {
 						if(*acci == true)
-							os << "+ ";
+							s += "+ ";
 						else
 							if(*acci == false)
-								os << "- ";
+								s += "- ";
 							else
-								os << "? ";
+								s += "? ";
 					}
-					os << ";\n";
+					s += ";\n";
+
+					return s;
+				}}}
+				size_t memory_usage()
+				{{{
+					size_t s;
+					list< list<int> >::iterator acci;
+
+					s += sizeof(list<int>) + sizeof(int) * index.length();
+					s += sizeof(acceptances) + sizeof(answer) * acceptances.length();
+
+					return s;
 				}}}
 		};
 
@@ -202,9 +215,25 @@ deserialization_failed:
 		}
 
 		virtual void get_memory_statistics(statistics & stats)
-		{
-			
-		}
+		{{{
+			// get memory footprint:
+			columnlist::iterator ci;
+			table::iterator ti;
+
+			stats.bytes = sizeof(this);
+			for(ci = column_names.begin(); ci != column_names.end(); ci++)
+				stats.bytes += sizeof(list<int>) + sizeof(int) * (ci->length());
+			for(ti = upper_table.begin(); ti != upper_table.end(); ti++) {
+				stats.bytes += ti->memory_usage();
+			for(ti = lower_table.begin(); ti != lower_table.end(); ti++) {
+				stats.bytes += ti->memory_usage();
+			// members
+			stats.columns = column_names.length();
+			stats.upper_table = upper_tables.length();
+			stats.lower_table = lower_tables.length();
+			stats.members = stats.columns * (stats.upper_table + stats.lower_table);
+			stats.words = stats.members;
+		}}}
 
 		virtual bool sync_to_knowledgebase()
 		{{{
@@ -225,14 +254,34 @@ deserialization_failed:
 		}
 
 		virtual void print(ostream &os)
-		{
-			
-		}
+		{{{
+			os << this->tostring();
+		}}}
 
 		virtual string tostring()
-		{
-			
-		}
+		{{{
+			string s;
+			columntlist::iterator ci;
+			table::iterator ti;
+
+			s = "NL* table {\n";
+			s += "\tcolumns:";
+			for(ci = column_names.begin(); ci != column_names.end(); ci++) {
+				s += " ";
+				s += word2string(*ci);
+			};
+			s += " ;\n\tupper table:\n";
+			for(ti = upper_table.begin(); ti != upper_table.end(); ti++) {
+				s += "\t\t";
+				s += ti->tostring();
+			}
+			s += "\n\tlower table:\n";
+			for(ti = lower_table.begin(); ti != lower_table.end(); ti++) {
+				s += "\t\t";
+				s += ti->tostring();
+			}
+			s += "}\n";
+		}}}
 
 		virtual bool conjecture_ready()
 		{
@@ -259,10 +308,96 @@ deserialization_failed:
 			initialized = true;
 		}}}
 
-		virtual bool complete()
+		// return true if all columns could be filled,
+		// false if new knowledge is required (in case of knowledgebase)
+		virtual bool fill_missing_columns(table & t)
+		{{{
+			typename table::iterator ti;
+			bool complete = true;
+
+			// upper table
+			for(ti = t.begin(); ti != t.end(); ti++) {
+				if(ti->acceptance.size() < column_names.size()) {
+					if(!ti->index.empty() && ti->index.front() == BOTTOM_CHAR) {
+						int delta = column_names.size() - ti->acceptance.size();
+						answer a;
+						a = false;
+						for(/* -- */; delta > 0; delta--)
+							ti->acceptance.push_back(a);
+					} else {
+						// fill in missing acceptance information
+						columnlist::iterator ci;
+						ci = column_names.begin();
+						ci += ti->acceptance.size();
+						bool column_skipped = false;
+						for(/* -- */; ci != column_names.end(); ci++) {
+							if(!ci->empty() && ci->front() == BOTTOM_CHAR) {
+								answer a;
+								a = false;
+								ti->acceptance.push_back(a);
+							} else {
+								list<int> *w;
+								w = concat(ti->index, *ci);
+								if(this->my_teacher) {
+									ti->acceptance.push_back(this->my_teacher->membership_query(*w));
+								} else {
+									if(this->my_knowledge) {
+										answer a;
+										if(this->my_knowledge->resolve_or_add_query(*w, a)) {
+											if(!column_skipped)
+												ti->acceptance.push_back(a);
+										} else {
+											column_skipped = true;
+											complete = false;
+										}
+									}
+								}
+
+								delete w;
+							}
+						}
+					}
+				}
+			}
+
+			return complete;
+		}}}
+
+		// close table: perform operations to close it.
+		// returns true if table was closed.
+		// returns false if table was changed (and thus needs to be filled)
+		virtual bool close()
 		{
 			
 		}
+
+		// make table consistent: perform operations to do that.
+		// returns true if table was consistent.
+		// returns false if table was changed (and thus needs to be filled)
+		virtual bool make_consistent()
+		{
+			
+		}
+
+		virtual bool complete()
+		{{{
+			if(!initialized)
+				initialize_table();
+
+			if(fill_missing_columns(upper_table) && fill_missing_columns(lower_table)) {
+				if(!close()) {
+					return complete();
+				}
+
+				if(!make_consistent()) {
+					return complete();
+				}
+
+				return true;
+			} else {
+				return false;
+			}
+		}}}
 
 		virtual bool derive_automaton(finite_language_automaton * automaton)
 		{
