@@ -378,44 +378,6 @@ bool session::get_counterexamples(serversocket * sock)
 		return false;
 	return sock->stream_send_int(htonl(1));
 }}}
-bool session::get_counterexamples_and_answer(serversocket * sock)
-{{{
-	int wordcount, count;
-	int32_t d;
-
-	list<int> word;
-	extended_bool answer;
-
-	if(!sock->stream_receive_int(d))
-		return false;
-
-	for(wordcount = ntohl(d); wordcount > 0; wordcount--) {
-		word.clear();
-
-		// receive serialized word
-		if(!sock->stream_receive_int(d))
-			return false;
-		for(count = ntohl(d); count > 0; count--) {
-			if(!sock->stream_receive_int(d))
-				return false;
-
-			word.push_back(ntohl(d));
-		}
-
-		// answer
-		if(!sock->stream_receive_int(d))
-			return false;
-
-		answer = (int32_t) ntohl(d);
-
-		// add it as a counter-example
-		alg->add_counterexample(word, answer);
-	}
-
-	if(!sock->stream_send_int(htonl(SM_SES_ACK_COUNTEREXAMPLES_AND_ANSWERS)))
-		return false;
-	return sock->stream_send_int(htonl(1));
-}}}
 bool session::answer_alphabet_size(serversocket * sock)
 {{{
 	if(!sock->stream_send_int(htonl(SM_SES_ACK_ALPHABET_SIZE)))

@@ -236,11 +236,7 @@ class basic_biermann : public learning_algorithm<answer> {
 			return ( (this->my_knowledge != NULL) && (this->my_knowledge->count_answers() > 0) );
 		}}}
 
-		// stubs for counterexamples will throw a warning to the logger
-		virtual void add_counterexample(list<int>, answer)
-		{{{
-			(*this->my_logger)(LOGGER_ERROR, "algorithm_biermann does not support counter-examples, as it is an offline-algorithm. please add the counter-example directly to the knowledgebase and rerun the algorithm.\n");
-		}}}
+		// stubs for counterexample will throw a warning to the logger
 		virtual void add_counterexample(list<int>)
 		{{{
 			(*this->my_logger)(LOGGER_ERROR, "algorithm_biermann does not support counter-examples, as it is an offline-algorithm. please add the counter-example directly to the knowledgebase and rerun the algorithm.\n");

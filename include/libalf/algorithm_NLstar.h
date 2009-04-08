@@ -288,7 +288,39 @@ deserialization_failed:
 			
 		}
 
+		virtual void add_counterexample(list<int> w)
+		{{{
+			// add counterexample and all its suffixes to the columns
+			int sigma = -1;
+			while(!w.empty()) {
+				if(!add_column(w)) {
+					// if a prefix is already in, we dont need
+					// to check the other. column_names is prefix-closed.
+					break;
+				}
+				if(w.front() > sigma)
+					sigma = w.front();
+				w.pop_front();
+			}
+			if(sigma+1 > get_alphabet_size())
+				increase_alphabet_size(sigma+1);
+		}}}
+
 	protected:
+		// returns true if word was added, false if it was already in column_names
+		virtual bool add_column(list<int> word)
+		{{{
+			typename columnlist::iterator ci;
+			list<int> nw;
+
+			for(ci = column_names.begin(); ci != column_names.end(); ci++)
+				if(*ci == nw)
+					return false;
+
+			column_names.push_back(nw);
+			return true;
+		}}}
+
 		virtual void add_word_to_upper_table(list<int> word, bool check_uniq = true)
 		{
 			

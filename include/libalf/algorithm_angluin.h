@@ -234,57 +234,6 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			return initialized && columns_filled() && is_closed() && is_consistent();
 		}}}
 
-		// FIXME: warn if bottom and true
-		virtual void add_counterexample(list<int> word, answer a)
-		{{{
-			bool bottom = false;
-			list<int> prefix;
-
-			list<int>::iterator wi;
-			int new_asize;
-			bool asize_changed = false;
-
-			// check for increase in alphabet size
-			for(wi = word.begin(); wi != word.end(); wi++) {
-				if(*wi >= this->get_alphabet_size()) {
-					new_asize = *wi+1;
-					asize_changed = true;
-				}
-			}
-			if(asize_changed)
-				increase_alphabet_size(new_asize);
-
-			// add word and all prefixes to upper table
-			prefix = word;
-			while(!prefix.empty()) {
-				add_word_to_upper_table(prefix);
-				prefix.pop_back();
-			}
-
-			// add answer for counterexample
-			if(this->norm)
-				word = this->norm->prefix_normal_form(word, bottom);
-			if(!bottom) {
-				typename table::iterator uti = search_upper_table(word);
-				if(uti->acceptance.size() == 0) {
-					uti->acceptance.push_back(a);
-				} else {
-					string s = word2string(word);
-					if((answer)uti->acceptance[0] == (answer)a) {
-						(*this->my_logger)(LOGGER_ERROR, "angluin_observationtable: you are trying to add a counterexample (%s) which is already contained in the table. at least you try to set the same acceptance for it. trying to ignore.\n", s.c_str());
-					} else {
-						(*this->my_logger)(LOGGER_ERROR, "angluin_observationtable: you are trying to add a counterexample (%s) which is already contained in the table. you even try to set a different acceptance for it! trying to ignore.\n", s.c_str());
-					}
-				}
-			} else {
-				// bottom is filled automatically
-				if(a == true)
-					(*this->my_logger)(LOGGER_ERROR, "angluin_observationtable: counterexample is bottom and answer is even true\n");
-				else
-					(*this->my_logger)(LOGGER_ERROR, "angluin_observationtable: counterexample is bottom\n");
-			}
-		}}}
-
 		virtual void add_counterexample(list<int> word)
 		{{{
 			typename table::iterator ti;

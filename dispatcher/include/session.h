@@ -43,7 +43,6 @@ class session {
 		bool advance(serversocket * sock);
 		bool get_query_answer(serversocket * sock);
 		bool get_counterexamples(serversocket * sock);
-		bool get_counterexamples_and_answer(serversocket * sock);
 		bool answer_alphabet_size(serversocket * sock);
 		bool set_alphabet_size(serversocket * sock);
 		bool increase_alphabet_size(serversocket * sock);

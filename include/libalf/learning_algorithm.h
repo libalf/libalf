@@ -172,7 +172,6 @@ class learning_algorithm {
 		}}};
 
 		// in case the hypothesis is wrong, use this function to give a counter-example
-		virtual void add_counterexample(list<int>, answer) = 0;
 		virtual void add_counterexample(list<int>) = 0;
 
 	protected:
