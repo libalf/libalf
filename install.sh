@@ -22,8 +22,8 @@ mkdir -p $PREFIX $BINDIR $LIBDIR $HEADER_INSTALLDIR
 #mkdir -p $DOCDIR
 
 
-export CXXFLAGS="$CXXFLAGS -I$PREFIX/include"
-export LDFLAGS="-L$PREFIX/lib"
+#export CXXFLAGS="$CXXFLAGS -I$PREFIX/include"
+#export LDFLAGS="-L$PREFIX/lib"
 
 
 cd libAMoRE-1.0

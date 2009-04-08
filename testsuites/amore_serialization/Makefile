@@ -3,9 +3,11 @@
 
 .PHONY: all clean run jpegs test
 
-CPPFLAGS=-Wall -ggdb3  -I../../include
+PREFIX ?= /usr/local
 
-LDFLAGS=-L../../src -lalf -lAMoRE
+CPPFLAGS+=-I../../include -I${PREFIX}/include -Wall -ggdb3
+
+LDFLAGS+=-L../../src -L${PREFIX}/lib -lalf -lAMoRE
 
 all: amore_serialization
 

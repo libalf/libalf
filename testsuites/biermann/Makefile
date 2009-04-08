@@ -3,9 +3,11 @@
 
 .PHONY: all clean jpegs
 
-CPPFLAGS=-Wall -ggdb3  -I../../include
+PREFIX ?= /usr/local
 
-LDFLAGS=-L../../src -lalf -lAMoRE -lm
+CPPFLAGS+=-I../../include -I${PREFIX}/include -Wall -ggdb3
+
+LDFLAGS+=-L../../src -L${PREFIX}/lib -lalf -lAMoRE -lm
 
 all: biermann_static biermann_regex
 
