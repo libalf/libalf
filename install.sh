@@ -1,4 +1,7 @@
 #/bin/sh
+# $Id$
+#
+# install-skript for non-superuser
 
 if [ "$#" != "1" ]; then
 	echo "exactly one parameter is required: prefix-directory"
@@ -29,4 +32,16 @@ make && make install
 
 cd ..
 make clean install
+
+echo " "
+echo " "
+echo " "
+echo " "
+echo "note that, to run any programs linked against the installed libs, you will have to call"
+echo " "
+echo " $ LD_LIBRARY_PATH=\"$LIBDIR\" ./my_program"
+echo " "
+echo " "
+echo " "
+echo " "
 
