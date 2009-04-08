@@ -3,6 +3,8 @@
 
 .PHONY: all clean install uninstall
 
+PREFIX ?= /usr/local/
+
 LOCALCHANGES = $(shell test "`svn status | wc -c`" != "0" && echo "-LocalChanges")
 SVNREVISION = $(shell LC_ALL=POSIX svn info | awk '/^Revision:/ {print $$2}')
 VERSION=svn-r${SVNREVISION}${LOCALCHANGES}
@@ -25,6 +27,7 @@ clean:
 	-rm dispatcher
 
 install: dispatcher
+	cp dispatcher ${PREFIX}/bin/
 
 uninstall:
 

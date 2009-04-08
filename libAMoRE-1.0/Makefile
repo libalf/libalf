@@ -6,9 +6,9 @@
 
 #include ../conf.mk
 
-LIBDIR=/usr/lib
-DOCDIR=/usr/share/doc
-HEADER_INSTALLDIR=/usr/include
+LIBDIR?=/usr/lib
+DOCDIR?=/usr/share/doc
+HEADER_INSTALLDIR?=/usr/include
 #-ggdb3
 CFLAGS+= -DDEBUG -DJAVAEXCEPT -DLIBAMORE -DUNIX -DLINUX -DBIT32
 CFLAGS+= -Wall
