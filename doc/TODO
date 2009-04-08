@@ -3,7 +3,7 @@
 
 A)
 
-- RFSA, RFSA-algorithm
+- RFSA, RFSA- NL* algorithm
 
 - CPU/MEM stats for biermann
 
@@ -15,13 +15,16 @@ A)
 
 B)
 
-- RPNI
+- add normalizer to NL*
 
-- BL*
+- RPNI algorithm
 
-- check network/deserialization code for bugs
+- BL* algorithm
 
-- assistants in knowledgebase
+- check network/deserialization code for bugs (or make dispatcher obsolete)
+
+- assistants in knowledgebase (problem: when algorithm works with pointers, either the non-normalized
+  does not have a pointer or we need to add it each time something is requested. even for bottom...)
 
 - implement normalizer extension in dispatcher and normalizer
 
@@ -30,6 +33,7 @@ B)
 C)
 
 - in learn_regex: check/fix '+' operator in regex on command-line
+
 - enable dispatcher to listen on multiple address/port combinations, IPv6 and unix domain sockets
 
 
