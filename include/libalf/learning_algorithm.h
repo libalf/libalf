@@ -174,6 +174,8 @@ class learning_algorithm {
 		// in case the hypothesis is wrong, use this function to give a counter-example
 		virtual void add_counterexample(list<int>) = 0;
 
+//		virtual void set_properties(map<int, string>) = 0;
+
 	protected:
 		// complete table in such a way that an automata can be derived
 		// return true if table is complete.
