@@ -7,7 +7,7 @@ PREFIX ?= /usr/local
 
 CPPFLAGS+=-I../../include -I${PREFIX}/include -Wall -ggdb3
 
-LDFLAGS+=-L../../src -L${PREFIX}/lib -lalf -lAMoRE -lm
+LDFLAGS+=-L../../src -L${PREFIX}/lib -lalf -lm
 
 all: biermann_static biermann_regex
 

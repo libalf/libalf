@@ -15,7 +15,6 @@
  *	* A.W. Biermann, J.A. Feldman - On the Synthesis of Finite-State Machines from Samples of their Behavior
  *	* Martin Leucker - Learning Meets Verification
  *	* Arlindo L. Oliveira and João P.M. Silva - Efficient Algorithms for the Inference of Minimum Size DFAs
- * NOTE that due to it being offline, only knowledgebases are supported, no teachers.
  */
 
 
@@ -29,7 +28,7 @@
 #include <math.h>
 
 #include <libalf/knowledgebase.h>
-#include <libalf/automata.h>
+#include <libalf/automaton_constructor.h>
 #include <libalf/learning_algorithm.h>
 
 namespace libalf {
@@ -150,19 +149,6 @@ class basic_biermann : public learning_algorithm<answer> {
 			this->set_alphabet_size(new_asize);
 		}}}
 
-		virtual void set_knowledge_source(teacher<answer> *teach, knowledgebase<answer> *base)
-		// throw error to logger if teacher is set
-		{{{
-			if(teach) {
-				(*this->my_logger)(LOGGER_ERROR, "algorithm_biermann does not support teachers, as it is an offline-algorithm. please either use an online-algorithm like angluin or use a knowledgebase.\n");
-				this->my_teacher = NULL;
-				this->my_knowledge = NULL;
-			} else {
-				this->my_teacher = NULL;
-				this->my_knowledge = base;
-			}
-		}}}
-
 		virtual void get_memory_statistics(statistics & stats)
 		{ /* FIXME: maybe keep some stats from last run? */ }
 
@@ -249,7 +235,7 @@ class basic_biermann : public learning_algorithm<answer> {
 			return true;
 		}}}
 		// derive an automaton from data structure
-		virtual bool derive_automaton(finite_language_automaton * automaton)
+		virtual bool derive_automaton(automaton_constructor * automaton)
 		{{{
 			mapping old_solution;
 			int old_size;
@@ -311,7 +297,7 @@ class basic_biermann : public learning_algorithm<answer> {
 			}
 
 			// 3) derive automaton from current_solution and mdfa_size
-			return create_automaton(automaton);
+			return solution2automaton(automaton);
 		}}}
 
 		virtual void create_constraints()
@@ -381,21 +367,21 @@ class basic_biermann : public learning_algorithm<answer> {
 
 		virtual bool solve_constraints() = 0;
 
-		virtual bool create_automaton(finite_language_automaton * automaton)
+		virtual bool solution2automaton(automaton_constructor * automaton)
 		{{{
-			list<int> start;
-			list<int> final;
-			list<transition> transitions;
+			set<int> start;
+			set<int> final;
+			transition_set transitions;
 			typename set<knowledgebase_node_ptr>::iterator si;
 
 			// knowledgebase.begin() always starts at root node (epsilon)
-			start.push_back( solution[ this->my_knowledge->begin()->get_selfptr() ] );
+			start.insert( solution[ this->my_knowledge->begin()->get_selfptr() ] );
 
 			for(si = sources.begin(); si != sources.end(); si++) {
 					// acceptance-status
 					if((*si)->is_answered())
 						if((*si)->get_answer() == true)
-							final.push_back( solution[ (*si)->get_selfptr() ] );
+							final.insert( solution[ (*si)->get_selfptr() ] );
 					// transitions
 					transition tr;
 					tr.source = solution[ (*si)->get_selfptr() ];
@@ -405,12 +391,12 @@ class basic_biermann : public learning_algorithm<answer> {
 						if(child != NULL) {
 							tr.label = s;
 							tr.destination = solution[ child->get_selfptr() ];
-							transitions.push_back(tr);
+							transitions.insert(tr);
 						}
 					}
 			}
 
-			return automaton->construct(this->get_alphabet_size(), mdfa_size, start, final, transitions);
+			return automaton->construct(true, this->get_alphabet_size(), mdfa_size, start, final, transitions);
 		}}}
 
 };

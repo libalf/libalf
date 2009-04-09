@@ -22,15 +22,10 @@ mkdir -p $PREFIX $BINDIR $LIBDIR $HEADER_INSTALLDIR
 #mkdir -p $DOCDIR
 
 
-#export CXXFLAGS="$CXXFLAGS -I$PREFIX/include"
-#export LDFLAGS="-L$PREFIX/lib"
+#cd libAMoRE-1.0
+#make && make install
 
 
-cd libAMoRE-1.0
-make && make install
-
-
-cd ..
 make clean install
 
 echo " "

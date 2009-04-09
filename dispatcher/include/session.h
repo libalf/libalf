@@ -16,6 +16,7 @@
 #include <libalf/learning_algorithm.h>
 #include <libalf/answer.h>
 #include <libalf/statistics.h>
+#include <libalf/automaton_constructor.h>
 
 using namespace libalf;
 
@@ -25,7 +26,7 @@ class session {
 		statistics stats;
 		learning_algorithm<extended_bool> * alg;
 		enum learning_algorithm<extended_bool>::algorithm alg_type;
-		finite_language_automaton * hypothesis_automaton;
+		basic_automaton_holder hypothesis_automaton;
 		knowledgebase<extended_bool> knowledge;
 		normalizer * norm;
 	public:

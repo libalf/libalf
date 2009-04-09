@@ -37,7 +37,7 @@ class MiniSat_biermann : public basic_biermann<answer> {
 		{{{
 			this->set_alphabet_size(alphabet_size);
 			this->set_logger(log);
-			this->set_knowledge_source(NULL, base);
+			this->set_knowledge_source(base);
 		}}}
 		virtual ~MiniSat_biermann()
 		{{{

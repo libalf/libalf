@@ -18,7 +18,7 @@
 #include <ostream>
 
 #include <libalf/learning_algorithm.h>
-#include <libalf/automata.h>
+#include <libalf/automaton_constructor.h>
 
 namespace libalf {
 
@@ -201,11 +201,11 @@ deserialization_failed:
 		bool initialized;
 
 	public:
-		NLstar_table(teacher<answer> *teach, knowledgebase<answer> *base, logger *log, int alphabet_size)
+		NLstar_table(knowledgebase<answer> *base, logger *log, int alphabet_size)
 		{{{
 			set_alphabet_size(alphabet_size);
 			set_logger(log);
-			set_knowledge_source(teach, base);
+			set_knowledge_source(base);
 			initialized = false;
 		}}}
 
@@ -370,19 +370,13 @@ deserialization_failed:
 							} else {
 								list<int> *w;
 								w = concat(ti->index, *ci);
-								if(this->my_teacher) {
-									ti->acceptance.push_back(this->my_teacher->membership_query(*w));
+								answer a;
+								if(this->my_knowledge->resolve_or_add_query(*w, a)) {
+									if(!column_skipped)
+										ti->acceptance.push_back(a);
 								} else {
-									if(this->my_knowledge) {
-										answer a;
-										if(this->my_knowledge->resolve_or_add_query(*w, a)) {
-											if(!column_skipped)
-												ti->acceptance.push_back(a);
-										} else {
-											column_skipped = true;
-											complete = false;
-										}
-									}
+									column_skipped = true;
+									complete = false;
 								}
 
 								delete w;
@@ -431,7 +425,7 @@ deserialization_failed:
 			}
 		}}}
 
-		virtual bool derive_automaton(finite_language_automaton * automaton)
+		virtual bool derive_automaton(automaton_constructor * automaton)
 		{
 			
 		}

@@ -13,11 +13,11 @@ CPPFLAGS+=-Wall -I../include/ -I${PREFIX}/include -shared -fpic -ggdb3
 CPPFLAGS+=-D__cplusplus -DVERSION="\"${VERSION}\""
 # for ubuntu, try disabling stack-smashing due to linker failures:
 CPPFLAGS+=-fno-stack-protector
-LDFLAGS+=-shared -lAMoRE -L${PREFIX}/lib
+LDFLAGS+=-shared -L${PREFIX}/lib
 
 SONAME=libalf
 
-OBJECTS=alf.o alphabet.o answer.o automata.o automata_amore.o basic_string.o logger.o minisat_solver.o normalizer_msc.o oracle_automaton.o statistics.o
+OBJECTS=alf.o alphabet.o answer.o automaton_constructor.o basic_string.o logger.o minisat_solver.o normalizer_msc.o statistics.o
 
 all:	libalf.so
 

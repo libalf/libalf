@@ -25,7 +25,7 @@
 #include <libalf/alphabet.h>
 #include <libalf/logger.h>
 #include <libalf/learning_algorithm.h>
-#include <libalf/automata.h>
+#include <libalf/automaton_constructor.h>
 
 namespace libalf {
 
@@ -80,7 +80,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 	public:
 		angluin_observationtable()
 		{{{
-			this->set_knowledge_source(NULL, NULL);
+			this->set_knowledge_source(NULL);
 			this->set_logger(NULL);
 			this->set_normalizer(NULL);
 			this->set_alphabet_size(0);
@@ -429,19 +429,13 @@ class angluin_observationtable : public learning_algorithm<answer> {
 							} else {
 								list<int> *w;
 								w = concat(ti->index, *ci);
-								if(this->my_teacher) {
-									ti->acceptance.push_back(this->my_teacher->membership_query(*w));
+								answer a;
+								if(this->my_knowledge->resolve_or_add_query(*w, a)) {
+									if(!column_skipped)
+										ti->acceptance.push_back(a);
 								} else {
-									if(this->my_knowledge) {
-										answer a;
-										if(this->my_knowledge->resolve_or_add_query(*w, a)) {
-											if(!column_skipped)
-												ti->acceptance.push_back(a);
-										} else {
-											column_skipped = true;
-											complete = false;
-										}
-									}
+									column_skipped = true;
+									complete = false;
 								}
 
 								delete w;
@@ -803,7 +797,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			}
 		}}}
 
-		virtual bool derive_automaton(finite_language_automaton * automaton)
+		virtual bool derive_automaton(automaton_constructor * automaton)
 		{{{
 			// derive deterministic finite automaton from this table
 			typename table::iterator uti, ti;
@@ -813,11 +807,9 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			state.id = 0;
 			typename list<algorithm_angluin::automaton_state<table> >::iterator state_it, state_it2;
 
-			list<int> initial;
-
-			list<int> final;
-
-			list<transition> transitions;
+			set<int> initial;
+			set<int> final;
+			transition_set transitions;
 
 			// list of states of automaton: each different acceptance-row
 			// in the upper table represents one DFA state
@@ -842,13 +834,13 @@ class angluin_observationtable : public learning_algorithm<answer> {
 
 			// q0 is row(epsilon)
 			// as epsilon is the first row in uti, it will have id 0.
-			initial.push_back( 0 );
+			initial.insert( 0 );
 
 			for(state_it = states.begin(); state_it != states.end(); state_it++) {
 				// the final, accepting states are the rows with
 				// acceptance in the epsilon-column
 				if(state_it->tableentry->acceptance.front() == true)
-					final.push_back(state_it->id);
+					final.insert(state_it->id);
 
 				// the transformation function is:
 				// \delta: (row, char) -> row : (row(s), a) -> row(sa)
@@ -876,14 +868,14 @@ class angluin_observationtable : public learning_algorithm<answer> {
 							tr.source = state_it->id;
 							tr.label = i;
 							tr.destination = state_it2->id;
-							transitions.push_back(tr);
+							transitions.insert(tr);
 							break;
 						}
 					}
 				}
 			}
 
-			return automaton->construct(this->get_alphabet_size(), states.size(),
+			return automaton->construct(true, this->get_alphabet_size(), states.size(),
 						initial, final, transitions);
 		}}}
 
@@ -1024,14 +1016,14 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 		angluin_simple_observationtable()
 		{{{
 			this->set_alphabet_size(0);
-			this->set_knowledge_source(NULL, NULL);
+			this->set_knowledge_source(NULL);
 			this->set_logger(NULL);
 		}}}
-		angluin_simple_observationtable(teacher<answer> *teach, knowledgebase<answer> *base, logger *log, int alphabet_size)
+		angluin_simple_observationtable(knowledgebase<answer> *base, logger *log, int alphabet_size)
 		{{{
 			this->set_alphabet_size(alphabet_size);
 			this->set_logger(log);
-			this->set_knowledge_source(teach, base);
+			this->set_knowledge_source(base);
 		}}}
 
 		virtual void get_memory_statistics(statistics & stats)

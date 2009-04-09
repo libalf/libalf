@@ -17,10 +17,9 @@
 #include <utility>
 
 #include <libalf/logger.h>
-#include <libalf/teacher.h>
 #include <libalf/knowledgebase.h>
 #include <libalf/normalizer.h>
-#include <libalf/automata.h>
+#include <libalf/automaton_constructor.h>
 
 namespace libalf {
 
@@ -33,7 +32,6 @@ class learning_algorithm {
 		ignore_logger ignore;
 		logger * my_logger;
 
-		teacher<answer> * my_teacher;
 		knowledgebase<answer> * my_knowledge;
 
 		normalizer * norm;
@@ -53,7 +51,6 @@ class learning_algorithm {
 		learning_algorithm()
 		{{{
 			set_logger(NULL);
-			my_teacher = NULL;
 			my_knowledge = NULL;
 			norm = NULL;
 		}}}
@@ -81,17 +78,10 @@ class learning_algorithm {
 				my_logger = (&this->ignore);
 		}}}
 
-		virtual void set_knowledge_source(teacher<answer> *teach, knowledgebase<answer> *base)
-		// set a source for all membership information. either use teacher or knowledgebase.
-		// teacher will overrule knowledgebase.
+		virtual void set_knowledge_source(knowledgebase<answer> *base)
+		// set a source for all membership information.
 		{{{
-			if(teach) {
-				my_teacher = teach;
-				my_knowledge = NULL;
-			} else {
-				my_teacher = NULL;
-				my_knowledge = base;
-			}
+			my_knowledge = base;
 		}}}
 
 		virtual void set_normalizer(normalizer * norm)
@@ -151,13 +141,10 @@ class learning_algorithm {
 		//
 		//	if all knowledge was found and an automaton is ready, it will be stored into
 		//	automaton and true will be returned.
-		// if using a teacher:
-		//	will repeatedly query the stored teacher and then construct an automaton into *automaton.
-		//	will always return true
 		//
 		// please note that the type of automaton must match the required automaton-type of the used learning algorithm
 		// (e.g. angluin required a DFA)
-		virtual bool advance(finite_language_automaton * automaton)
+		virtual bool advance(automaton_constructor * automaton)
 		{{{
 			if(complete()) {
 				if(!derive_automaton(automaton)) {
@@ -177,12 +164,12 @@ class learning_algorithm {
 //		virtual void set_properties(map<int, string>) = 0;
 
 	protected:
-		// complete table in such a way that an automata can be derived
+		// complete table in such a way that an automaton can be derived
 		// return true if table is complete.
 		// return false if table could not be completed due to missing knowledge
 		virtual bool complete() = 0;
 		// derive an automaton from data structure
-		virtual bool derive_automaton(finite_language_automaton * automaton) = 0;
+		virtual bool derive_automaton(automaton_constructor * automaton) = 0;
 };
 
 }; // end namespace libalf

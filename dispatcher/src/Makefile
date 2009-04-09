@@ -13,9 +13,9 @@ CPPFLAGS+=-Wall -I../../include/ -I ../include/ -I${PREFIX}/include -ggdb3
 CPPFLAGS+=-D__cplusplus -DVERSION="\"${VERSION}\""
 # for ubuntu, try disabling stack-smashing due to linker failures:
 CPPFLAGS+=-fno-stack-protector
-LDFLAGS+=-lalf -lAMoRE -L${PREFIX}/lib
+LDFLAGS+=-lalf -L${PREFIX}/lib
 
-OBJECTS=amore.o main.o servant.o serversocket.o session.o
+OBJECTS=main.o servant.o serversocket.o session.o
 
 all:	dispatcher
 

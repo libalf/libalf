@@ -14,7 +14,7 @@
 #include <libalf/alf.h>
 #include <libalf/algorithm_angluin.h>
 #include <libalf/algorithm_biermann_minisat.h>
-#include <libalf/automata_amore.h>
+#include <libalf/automaton_constructor.h>
 #include <libalf/normalizer_msc.h>
 
 #include <arpa/inet.h>
@@ -30,7 +30,6 @@ session::session()
 {{{
 	alg = NULL;
 	alg_type = learning_algorithm<extended_bool>::ALG_NONE;
-	hypothesis_automaton = NULL;
 	norm = NULL;
 	logger.set_minimal_loglevel(LOGGER_DEBUG);
 	logger.set_log_algorithm(true);
@@ -45,18 +44,15 @@ session::session(enum learning_algorithm<extended_bool>::algorithm algorithm, in
 	norm = NULL;
 	switch (algorithm) {
 		case learning_algorithm<extended_bool>::ALG_ANGLUIN:
-			alg = new angluin_simple_observationtable<extended_bool>(NULL, &knowledge, &logger, alphabet_size);
-			hypothesis_automaton = new deterministic_finite_amore_automaton;
+			alg = new angluin_simple_observationtable<extended_bool>(&knowledge, &logger, alphabet_size);
 			logger(LOGGER_INFO, "new session: angluin observationtable\n");
 			break;
 		case learning_algorithm<extended_bool>::ALG_BIERMANN:
 			alg = new MiniSat_biermann<extended_bool>(&knowledge, &logger, alphabet_size);
-			hypothesis_automaton = new deterministic_finite_amore_automaton;
 			logger(LOGGER_INFO, "new session: biermann with CSP2SAT and MiniSat SAT-solver\n");
 			break;
 		default:
 			alg = NULL;
-			hypothesis_automaton = NULL;
 			logger(LOGGER_ERROR, "new session: received invalid algorithm '%d'\n", algorithm);
 			break;
 	}
@@ -298,11 +294,11 @@ bool session::advance(serversocket * sock)
 {{{
 	basic_string<int32_t> blob;
 
-	if(alg->advance(hypothesis_automaton)) {
+	if(alg->advance(&hypothesis_automaton)) {
 		// send automaton to client
 		if(!sock->stream_send_int(htonl(SM_SES_ACK_ADVANCE_AUTOMATON)))
 			return false;
-		blob = hypothesis_automaton->serialize();
+		blob = hypothesis_automaton.serialize();
 		stats.query_count.equivalence++;
 	} else {
 		// send query to client

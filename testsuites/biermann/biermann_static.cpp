@@ -17,11 +17,8 @@
 
 #include "libalf/alf.h"
 
-#include <libalf/automata_amore.h>
+#include <libalf/automaton_constructor.h>
 #include <libalf/algorithm_biermann_minisat.h>
-
-#include <amore/vars.h>
-#include <amore/buffer.h>
 
 using namespace std;
 using namespace libalf;
@@ -36,9 +33,6 @@ int main(int argc, char**argv)
 	char filename[128];
 
 	int alphabet_size;
-
-	// init AMoRE buffers
-	initbuf();
 
 	// create sample set in knowledgebase
 #if 0
@@ -101,7 +95,7 @@ int main(int argc, char**argv)
 
 	MiniSat_biermann<bool> diebels(&knowledge, &log, alphabet_size);
 
-	deterministic_finite_amore_automaton hypothesis;
+	basic_automaton_holder hypothesis;
 
 	if(!diebels.advance(&hypothesis)) {
 		printf("\n\n\nadvance returned false\n\n");
@@ -114,9 +108,6 @@ int main(int argc, char**argv)
 		file.close();
 		printf("\n\nhypothesis saved.\n\n");
 	}
-
-	// release AMoRE buffers
-	freebuf();
 
 	return 0;
 }
