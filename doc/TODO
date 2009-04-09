@@ -3,6 +3,8 @@
 
 A)
 
+- refactor automata interface: basic class has only "construct()"
+
 - RFSA, RFSA- NL* algorithm
 
 - CPU/MEM stats for biermann
