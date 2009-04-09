@@ -1,7 +1,7 @@
 /* $Id$
  * vim: fdm=marker
  *
- * libalf - Automata Learning Factory
+ * libAMoRE C++ interface
  *
  * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
  *        <david-i2@piegdon.de>
@@ -9,24 +9,22 @@
  * see LICENSE file for licensing information.
  */
 
-#ifndef __libalf_automata_amore_h__
-# define __libalf_automata_amore_h__
+#ifndef __libAMoRE_automata_amore_h__
+# define __libAMoRE_automata_amore_h__
 
 #include <list>
 #include <string>
 #include <set>
 
-#include <libalf/automata.h>
+#include <amore++/finite_automaton.h>
 
-#ifdef LIBALF_LIBRARY_COMPILATION
+#ifdef AMORE_LIBRARY_COMPILATION
 # include <amore/nfa.h>
-# include <amore/dfa.h>
 #else
 # define nfa void*
-# define dfa void*
 #endif
 
-namespace libalf {
+namespace amore {
 
 /*
  * at some point you need to call amore::initbuf() before using any amore stuff
@@ -70,59 +68,7 @@ namespace libalf {
 
 using namespace std;
 
-class deterministic_finite_amore_automaton : public deterministic_finite_automaton {
-	private:
-		dfa dfa_p;
-
-	public:
-		deterministic_finite_amore_automaton();
-		deterministic_finite_amore_automaton(dfa a);
-		virtual ~deterministic_finite_amore_automaton();
-
-		virtual enum automaton_type get_type() {
-			return DETERMINISTIC_FINITE_AUTOMATON;
-		}
-		virtual enum automaton_implementation get_implementation() {
-			return IMP_AMORE;
-		}
-
-	// from finite_automaton
-		virtual deterministic_finite_amore_automaton * clone();
-
-	// from finite_language_automaton
-		virtual int get_state_count();
-		virtual int get_alphabet_size();
-		virtual list<int> get_sample_word(bool & is_empty);
-		virtual bool is_empty();
-		virtual bool operator==(finite_language_automaton &other);
-		virtual bool lang_subset_of(finite_language_automaton &other);
-		virtual bool lang_disjoint_to(finite_language_automaton &other);
-		virtual bool contains(list<int> &word);
-		virtual void minimize();
-		virtual void lang_complement();
-		virtual nondeterministic_finite_automaton * lang_union(finite_language_automaton &other);
-		virtual finite_language_automaton * lang_intersect(finite_language_automaton &other);
-		virtual deterministic_finite_amore_automaton * lang_difference(finite_language_automaton &other);
-		virtual nondeterministic_finite_automaton * lang_symmetric_difference(finite_language_automaton &other);
-		virtual nondeterministic_finite_automaton * lang_concat(finite_language_automaton &other);
-
-		virtual nondeterministic_finite_automaton * nondeterminize();
-		virtual deterministic_finite_amore_automaton * determinize();
-
-		virtual basic_string<int32_t> serialize();
-		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
-
-		virtual bool construct(int alphabet_size, int state_count, list<int> &start, list<int> &final, list<transition> &transitions);
-
-	// new
-		virtual void set_dfa(dfa a);
-		virtual dfa get_dfa();
-
-	protected:
-		virtual bool accepts_suffix(int starting_state, list<int>::iterator suffix_begin, list<int>::iterator suffix_end);
-};
-
-class nondeterministic_finite_amore_automaton : public nondeterministic_finite_automaton {
+class nondeterministic_finite_automaton : public finite_automaton {
 	private:
 		nfa nfa_p;
 
@@ -176,12 +122,10 @@ class nondeterministic_finite_amore_automaton : public nondeterministic_finite_a
 		virtual bool accepts_suffix(set<int> &starting_states, list<int>::iterator suffix_begin, list<int>::iterator suffix_end);
 };
 
+}; // end namespace amore
 
-}; // end namespace libalf
-
-#ifndef LIBALF_LIBRARY_COMPILATION
+#ifndef AMORE_LIBRARY_COMPILATION
 # undef nfa
-# undef dfa
 #endif
 
 #endif

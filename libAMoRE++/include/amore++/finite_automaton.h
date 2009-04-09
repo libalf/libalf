@@ -16,21 +16,9 @@
 #include <set>
 #include <string>
 
-namespace libalf {
+namespace amore {
 
 using namespace std;
-
-enum automaton_type {
-	FINITE_AUTOMATON,
-	FINITE_LANGUAGE_AUTOMATON,
-	NONDETERMINISTIC_FINITE_AUTOMATON,
-	DETERMINISTIC_FINITE_AUTOMATON
-};
-
-enum automaton_implementation {
-	IMP_NO_IMPLEMENTATION,
-	IMP_AMORE
-};
 
 class automaton_run {
 	public:
@@ -46,21 +34,6 @@ class automaton_run {
 		{{{
 			state = first_state;
 		}}}
-};
-
-class finite_automaton {
-	public:
-		virtual ~finite_automaton() { };
-
-		virtual enum automaton_type get_type() {
-			return FINITE_AUTOMATON;
-		}
-
-		virtual enum automaton_implementation get_implementation() {
-			return IMP_NO_IMPLEMENTATION;
-		}
-
-		virtual finite_automaton * clone() = 0;
 };
 
 class transition {
@@ -81,20 +54,17 @@ class transition {
 		}}}
 
 		bool operator<<(transition &other)
+		// same source and label? (then automaton is a NFA)
 		{{{
 			return ((source == other.source) && (label == other.label) && (destination != other.destination));
 		}}}
 };
 
-class finite_language_automaton : public finite_automaton {
+class finite_automaton {
 	public:
-		virtual ~finite_language_automaton() { };
+		virtual ~finite_automaton() { };
 
-		virtual enum automaton_type get_type() {
-			return FINITE_LANGUAGE_AUTOMATON;
-		}
-
-		virtual finite_language_automaton * clone() = 0;
+		virtual finite_automaton * clone() = 0;
 
 		// LANGUAGE/AUTOMATON OPERATIONS
 		virtual int get_state_count() = 0;
@@ -109,12 +79,12 @@ class finite_language_automaton : public finite_automaton {
 
 		// BINARY TESTS
 		// test if this == other
-		virtual bool operator==(finite_language_automaton &other) = 0;
+		virtual bool operator==(finite_automaton &other) = 0;
 
 		// test if this is a subset of other
-		virtual bool lang_subset_of(finite_language_automaton &other) = 0;
+		virtual bool lang_subset_of(finite_automaton &other) = 0;
 		// test if this and other are disjoint
-		virtual bool lang_disjoint_to(finite_language_automaton &other) = 0;
+		virtual bool lang_disjoint_to(finite_automaton &other) = 0;
 
 		// test if word is contained in language of this
 		virtual bool contains(list<int>&) = 0;
@@ -125,18 +95,18 @@ class finite_language_automaton : public finite_automaton {
 
 		// BINARY OPERATIONS
 		// this+b
-		virtual finite_language_automaton * lang_union(finite_language_automaton &other) = 0;
+		virtual finite_automaton * lang_union(finite_automaton &other) = 0;
 		// this AND b
-		virtual finite_language_automaton * lang_intersect(finite_language_automaton &other) = 0;
+		virtual finite_automaton * lang_intersect(finite_automaton &other) = 0;
 		// this\b
-		virtual finite_language_automaton * lang_difference(finite_language_automaton &other) = 0;
+		virtual finite_automaton * lang_difference(finite_automaton &other) = 0;
 		// (this\other) + (other\this)
-		virtual finite_language_automaton * lang_symmetric_difference(finite_language_automaton &other) = 0;
+		virtual finite_automaton * lang_symmetric_difference(finite_automaton &other) = 0;
 		// this.b
-		virtual finite_language_automaton * lang_concat(finite_language_automaton &other) = 0;
+		virtual finite_automaton * lang_concat(finite_automaton &other) = 0;
 
-		virtual finite_language_automaton * nondeterminize() = 0;
-		virtual finite_language_automaton * determinize() = 0;
+		virtual finite_automaton * nondeterminize() = 0;
+		virtual finite_automaton * determinize() = 0;
 
 		// format for serialization:
 		// all values in NETWORK BYTE ORDER!
@@ -173,31 +143,7 @@ class finite_language_automaton : public finite_automaton {
 		virtual string generate_dotfile();
 };
 
-class nondeterministic_finite_automaton;
-
-class deterministic_finite_automaton : public finite_language_automaton {
-	public:
-		virtual ~deterministic_finite_automaton() { };
-
-		virtual enum automaton_type get_type() {
-			return DETERMINISTIC_FINITE_AUTOMATON;
-		}
-};
-
-class nondeterministic_finite_automaton : public finite_language_automaton {
-	public:
-		virtual ~nondeterministic_finite_automaton() { };
-
-		virtual enum automaton_type get_type() {
-			return NONDETERMINISTIC_FINITE_AUTOMATON;
-		}
-
-		virtual void epsilon_closure(set<int> & states) = 0;
-};
-
-
-
-}; // end namespace libalf
+}; // end namespace amore
 
 #endif
 

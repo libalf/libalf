@@ -15,14 +15,13 @@
 
 #include <arpa/inet.h>
 
-#include "libalf/automata.h"
+#include "amore++/finite_automaton.h"
 
-
-namespace libalf {
+namespace amore {
 
 using namespace std;
 
-string finite_language_automaton::generate_dotfile()
+string finite_automaton::generate_dotfile()
 {{{
 	basic_string<int32_t> serialized;
 	basic_string<int32_t>::iterator si;
@@ -147,7 +146,7 @@ string finite_language_automaton::generate_dotfile()
 // inefficient (as it only wraps another interface), but it works for all automata implementations
 // that implement serialize and deserialize. implementations may provide their own, more performant
 // implementation of construct().
-bool finite_language_automaton::construct(int alphabet_size, int state_count, list<int> &start, list<int> &final, list<transition> &transitions)
+bool finite_automaton::construct(int alphabet_size, int state_count, list<int> &start, list<int> &final, list<transition> &transitions)
 {{{
 	basic_string<int32_t> ser;
 	list<int>::iterator sit;
@@ -182,5 +181,5 @@ bool finite_language_automaton::construct(int alphabet_size, int state_count, li
 	return this->deserialize(ser_begin, ser.end());
 }}}
 
-} // end namespace libalf
+} // end namespace amore
 
