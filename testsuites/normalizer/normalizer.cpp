@@ -16,8 +16,6 @@
 #include <libalf/alf.h>
 #include <libalf/normalizer_msc.h>
 
-#include <amore/vars.h>
-
 using namespace std;
 using namespace libalf;
 

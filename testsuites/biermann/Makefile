@@ -22,5 +22,6 @@ jpegs:
 
 biermann_static: biermann_static.cpp
 
+biermann_regex: LDFLAGS+=-lAMoRE
 biermann_regex: biermann_regex.cpp
 
