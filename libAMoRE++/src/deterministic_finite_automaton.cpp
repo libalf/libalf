@@ -265,31 +265,17 @@ finite_automaton * deterministic_finite_automaton::lang_union(finite_automaton &
 	return ret;
 }}}
 
-
-//----- ABOVE: fixed. BELOW: FIXME
-
-
 finite_automaton * deterministic_finite_automaton::lang_intersect(finite_automaton &other)
 {{{
-	deterministic_finite_automaton *ret = NULL;
-
+	deterministic_finite_automaton * ret;
 	deterministic_finite_automaton * o_d;
-	finite_automaton * o_n;
 	bool had_to_determinize = false;
 
 	o_d = dynamic_cast<deterministic_finite_automaton*> (&other);
 
 	if(!o_d) {
-		o_n = dynamic_cast<finite_automaton*> (&other);
-		if(!o_n) {
-			// FIXME: non-compatible automaton
-			// should throw exception
-			return NULL;
-		}
-
-		// determinize
 		had_to_determinize = true;
-		o_d = dynamic_cast<deterministic_finite_automaton*>(o_n->determinize());
+		o_d = dynamic_cast<deterministic_finite_automaton*>(other.determinize());
 	}
 
 	ret = new deterministic_finite_automaton(insecfa(dfa_p, o_d->dfa_p, false));
@@ -302,25 +288,15 @@ finite_automaton * deterministic_finite_automaton::lang_intersect(finite_automat
 
 deterministic_finite_automaton * deterministic_finite_automaton::lang_difference(finite_automaton &other)
 {{{
-	deterministic_finite_automaton *ret = NULL;
-
+	deterministic_finite_automaton * ret;
 	deterministic_finite_automaton * o_d;
-	finite_automaton * o_n;
 	bool had_to_determinize = false;
 
 	o_d = dynamic_cast<deterministic_finite_automaton*> (&other);
 
 	if(!o_d) {
-		o_n = dynamic_cast<finite_automaton*> (&other);
-		if(!o_n) {
-			// FIXME: non-compatible automaton
-			// should throw exception
-			return NULL;
-		}
-
-		// determinize
 		had_to_determinize = true;
-		o_d = dynamic_cast<deterministic_finite_automaton*>(o_n->determinize());
+		o_d = dynamic_cast<deterministic_finite_automaton*>(other.determinize());
 	}
 
 	ret = new deterministic_finite_automaton(insecfa(dfa_p, o_d->dfa_p, true));
@@ -334,7 +310,7 @@ deterministic_finite_automaton * deterministic_finite_automaton::lang_difference
 finite_automaton * deterministic_finite_automaton::lang_symmetric_difference(finite_automaton &other)
 {{{
 	// return L1\L2 + L2\L1
-	deterministic_finite_automaton * L1_without_L2;
+	finite_automaton * L1_without_L2;
 	finite_automaton * L2_without_L1;
 	finite_automaton * ret = NULL;
 
@@ -352,34 +328,11 @@ finite_automaton * deterministic_finite_automaton::lang_symmetric_difference(fin
 finite_automaton * deterministic_finite_automaton::lang_concat(finite_automaton &other)
 {{{
 	finite_automaton * ret;
+	finite_automaton * n;
 
-	deterministic_finite_automaton * o_d;
-	finite_automaton * o_n;
-	finite_automaton * t_n;
-
-	bool had_to_nondeterminize = false;
-
-	o_n = dynamic_cast<finite_automaton*> (&other);
-
-	if(!o_n) {
-		o_d = dynamic_cast<deterministic_finite_automaton*> (&other);
-		if(!o_d) {
-			// FIXME: non-compatible automaton
-			// should throw exception
-			return NULL;
-		}
-
-		// nondeterminize
-		had_to_nondeterminize = true;
-		o_n = dynamic_cast<finite_automaton*> (o_n->nondeterminize());
-	}
-
-	t_n = this->nondeterminize();
-	ret = dynamic_cast<finite_automaton*>(t_n->lang_concat(*o_n));
-	delete t_n;
-
-	if(had_to_nondeterminize)
-		delete o_n;
+	n = this->nondeterminize();
+	ret = n->lang_concat(other);
+	delete n;
 
 	return ret;
 }}}

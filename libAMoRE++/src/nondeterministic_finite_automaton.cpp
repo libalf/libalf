@@ -402,37 +402,14 @@ nondeterministic_finite_automaton * nondeterministic_finite_automaton::lang_unio
 	return ret;
 }}}
 
-
-//----- ABOVE: fixed. BELOW: FIXME
-
-
 finite_automaton * nondeterministic_finite_automaton::lang_intersect(finite_automaton &other)
 {{{
 	finite_automaton * ret;
+	finite_automaton * d;
 
-	finite_automaton * o_d;
-	nondeterministic_finite_automaton * o_n;
-
-	bool had_to_determinize = false;
-
-	o_d = dynamic_cast<finite_automaton*> (&other);
-	if(!o_d) {
-		o_n = dynamic_cast<nondeterministic_finite_automaton*> (&other);
-		if(!o_n) {
-			// FIXME: non-compatible automaton
-			// should throw exception
-			return NULL;
-		}
-
-		// determinize
-		had_to_determinize = true;
-		o_d = dynamic_cast<finite_automaton*> (o_n->determinize());
-	}
-
-	ret = o_d->lang_difference(*this);
-
-	if(had_to_determinize)
-		delete o_d;
+	d = this->determinize();
+	ret = d->lang_intersect(other);
+	delete d;
 
 	return ret;
 }}}
@@ -440,33 +417,11 @@ finite_automaton * nondeterministic_finite_automaton::lang_intersect(finite_auto
 finite_automaton * nondeterministic_finite_automaton::lang_difference(finite_automaton &other)
 {{{
 	finite_automaton * ret;
+	finite_automaton * d;
 
-	finite_automaton * o_d;
-	nondeterministic_finite_automaton * o_n;
-	finite_automaton * t_d;
-
-	bool had_to_determinize = false;
-
-	o_d = dynamic_cast<finite_automaton*> (&other);
-	if(!o_d) {
-		o_n = dynamic_cast<nondeterministic_finite_automaton*> (&other);
-		if(!o_n) {
-			// FIXME: non-compatible automaton
-			// should throw exception
-			return NULL;
-		}
-
-		// determinize
-		had_to_determinize = true;
-		o_d = dynamic_cast<finite_automaton*> (o_n->determinize());
-	}
-
-	t_d = dynamic_cast<finite_automaton*>(this->determinize());
-	ret = t_d->lang_difference(*o_d);
-	delete t_d;
-
-	if(had_to_determinize)
-		delete o_d;
+	d = this->determinize();
+	ret = d->lang_difference(other);
+	delete d;
 
 	return ret;
 }}}
@@ -491,8 +446,6 @@ finite_automaton * nondeterministic_finite_automaton::lang_symmetric_difference(
 nondeterministic_finite_automaton * nondeterministic_finite_automaton::lang_concat(finite_automaton &other)
 {{{
 	nondeterministic_finite_automaton * ret;
-
-	finite_automaton * o_d;
 	nondeterministic_finite_automaton * o_n;
 
 	bool had_to_nondeterminize = false;
@@ -500,16 +453,8 @@ nondeterministic_finite_automaton * nondeterministic_finite_automaton::lang_conc
 	o_n = dynamic_cast<nondeterministic_finite_automaton*> (&other);
 
 	if(!o_n) {
-		o_d = dynamic_cast<finite_automaton*> (&other);
-		if(!o_d) {
-			// FIXME: non-compatible automaton
-			// should throw exception
-			return NULL;
-		}
-
-		// nondeterminize
 		had_to_nondeterminize = true;
-		o_n = dynamic_cast<nondeterministic_finite_automaton*> (o_n->nondeterminize());
+		o_n = dynamic_cast<nondeterministic_finite_automaton*> (other.nondeterminize());
 	}
 
 	ret = new nondeterministic_finite_automaton(concatfa(nfa_p, o_n->nfa_p));
