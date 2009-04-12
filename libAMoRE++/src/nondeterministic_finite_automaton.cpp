@@ -726,12 +726,16 @@ nfaa_deserialization_failed:
 	return false;
 }}}
 
+bool nondeterministic_finite_automaton::is_deterministic()
+{ return false; };
+
 finite_automaton * nondeterministic_finite_automaton::determinize()
 {{{
 	deterministic_finite_automaton *a;
 	a = new deterministic_finite_automaton( nfa2dfa(nfa_p) );
 	return a;
 }}}
+
 nondeterministic_finite_automaton * nondeterministic_finite_automaton::nondeterminize()
 {{{
 	return this->clone();

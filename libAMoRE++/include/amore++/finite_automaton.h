@@ -105,6 +105,8 @@ class finite_automaton {
 		// this.b
 		virtual finite_automaton * lang_concat(finite_automaton &other) = 0;
 
+		virtual bool is_deterministic() = 0;
+
 		virtual finite_automaton * nondeterminize() = 0;
 		virtual finite_automaton * determinize() = 0;
 

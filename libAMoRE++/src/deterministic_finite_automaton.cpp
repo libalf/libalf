@@ -598,10 +598,14 @@ bool deterministic_finite_automaton::construct(int alphabet_size, int state_coun
 	return true;
 }}}
 
+bool deterministic_finite_automaton::is_deterministic()
+{ return true; };
+
 deterministic_finite_automaton * deterministic_finite_automaton::determinize()
 {{{
 	return this->clone();
 }}}
+
 finite_automaton * deterministic_finite_automaton::nondeterminize()
 {{{
 	nondeterministic_finite_automaton *a;

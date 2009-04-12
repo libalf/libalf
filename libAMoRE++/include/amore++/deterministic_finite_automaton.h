@@ -73,6 +73,7 @@ class deterministic_finite_automaton : public finite_automaton {
 		virtual finite_automaton * lang_symmetric_difference(finite_automaton &other);
 		virtual finite_automaton * lang_concat(finite_automaton &other);
 
+		virtual bool is_deterministic();
 		virtual finite_automaton * nondeterminize();
 		virtual deterministic_finite_automaton * determinize();
 
