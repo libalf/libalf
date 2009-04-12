@@ -7,7 +7,7 @@ PREFIX ?= /usr/local
 
 CPPFLAGS+=-I../../include -I${PREFIX}/include -Wall -ggdb3
 
-LDFLAGS+=-L../../src -L${PREFIX}/lib -lalf -lAMoRE
+LDFLAGS+=-L../../src -L${PREFIX}/lib -lalf -lAMoRE++
 
 all: learn_regex
 

@@ -15,37 +15,28 @@
 #include <fstream>
 #include <algorithm>
 
-#include "libalf/alf.h"
-
-#include <libalf/automata_amore.h>
-#include <libalf/teacher_automaton.h>
-#include <libalf/oracle_automaton.h>
+#include <libalf/alf.h>
 #include <libalf/algorithm_angluin.h>
 
-#include <amore/vars.h>
-#include <amore/buffer.h>
+#include <amore++/nondeterministic_finite_automaton.h>
+
+#include "amore_alf_glue.h"
 
 //#define ANSWERTYPE extended_bool
 #define ANSWERTYPE bool
 
 using namespace std;
 using namespace libalf;
+using namespace amore;
 
 int main(int argc, char**argv)
 {
 	statistics stats;
-	statistics uniq_stats;
 
-	finite_language_automaton *nfa;
+	finite_automaton *nfa;
 	ostream_logger log(&cout, LOGGER_DEBUG);
 
-	teacher_automaton<ANSWERTYPE> teach;
-	teacher<ANSWERTYPE> * teacher_p;
-
 	knowledgebase<ANSWERTYPE> knowledge;
-	knowledgebase<ANSWERTYPE> * knowledge_p;
-
-	oracle_automaton o;
 
 	char filename[128];
 	ofstream file;
@@ -55,21 +46,12 @@ int main(int argc, char**argv)
 
 	int alphabet_size;
 
-	// use NFA or DFA as oracle/teacher source?
-	bool use_nfa = false;
-
-	// use knowledgebase or directly give teacher to algorithm?
-	bool use_knowledgebase = true;
-
-	// init AMoRE buffers
-	initbuf();
-
 	bool regex_ok;
 	if(argc == 3) {
-		nfa = new nondeterministic_finite_amore_automaton(atoi(argv[1]), argv[2], regex_ok);
-	} else {
+		nfa = new nondeterministic_finite_automaton(atoi(argv[1]), argv[2], regex_ok);
+	} else /* find alphabet size or show some example regex */ {{{
 		if(argc == 2) {
-			nfa = new nondeterministic_finite_amore_automaton(argv[1], regex_ok);
+			nfa = new nondeterministic_finite_automaton(argv[1], regex_ok);
 		} else {
 			cout << "either give a sole regex as parameter, or give <alphabet size> <regex>.\n\n";
 			cout << "example regular expressions:\n";
@@ -80,127 +62,74 @@ int main(int argc, char**argv)
 			cout << "3 '(cbb(ab(c)*))* U (a((cbb*) U a+b+bc)+)'\n";
 			return 1;
 		}
-	}
+	}}}
 
 	if(regex_ok) {
-		log(LOGGER_INFO, "regex ok.\n");
+		log(LOGGER_INFO, "REGEX ok.\n");
 	} else {
-		log(LOGGER_ERROR, "regex failed.\n");
+		log(LOGGER_ERROR, "REGEX failed.\n");
 		return 1;
 	}
 
 	alphabet_size = nfa->get_alphabet_size();
 
-	file.open("original-nfa.dot");
-	file << nfa->generate_dotfile();
-	file.close();
+	{{{ /* dump original automata */
+		file.open("original-nfa.dot"); file << nfa->generate_dotfile(); file.close();
 
-	if(use_nfa) {
-		teach.set_automaton(*nfa);
-		o.set_automaton(*nfa);
-	} else {
-		finite_language_automaton *dfa;
-
+		finite_automaton * dfa;
 		dfa = nfa->determinize();
 		dfa->minimize();
-
-		file.open("original-dfa.dot");
-		file << dfa->generate_dotfile();
-		file.close();
-
-		teach.set_automaton(*dfa);
-		o.set_automaton(*dfa);
-
+		file.open("original-dfa.dot"); file << dfa->generate_dotfile(); file.close();
 		delete dfa;
-	};
+	}}}
 
-	delete nfa; // not needed anymore
 
 	// create oracle instance and teacher instance
-	if(use_knowledgebase) {
-		teach.set_statistics(&uniq_stats);
-		knowledge.set_statistics(&stats);
-	} else {
-		teach.set_statistics(&stats);
-	}
-	o.set_statistics_counter(&stats);
+	knowledge.set_statistics(&stats);
 
 	// create angluin_simple_observationtable and teach it the automaton
-	if(use_knowledgebase) {
-		teacher_p = NULL;
-		knowledge_p = &knowledge;
-	} else {
-		teacher_p = &teach;
-		knowledge_p = NULL;
-	}
-	angluin_simple_observationtable<ANSWERTYPE> ot(teacher_p, knowledge_p, &log, alphabet_size);
-	deterministic_finite_amore_automaton hypothesis;
+	angluin_simple_observationtable<ANSWERTYPE> ot(&knowledge, &log, alphabet_size);
+	amore_alf_glue::amore_automaton_holder hypothesis;
 
 	for(iteration = 1; iteration <= 100; iteration++) {
 		int c = 'a';
 		while( ! ot.advance(&hypothesis) ) {
-//			printf("iteration %d%c\n", iteration, c);
-			// resolve missing knowledge
-			if(use_knowledgebase) {
-				snprintf(filename, 128, "knowledgebase%2d%c.dot", iteration, c);
-				file.open(filename);
-				file << knowledge.generate_dotfile();
-				file.close();
+			// resolve missing knowledge:
 
-#if 0
-// do fast answering of knowledgebase?
-				teach.answer_knowledgebase(*knowledge_p);
-#else
-// or test query-tree construction and merging?
-				knowledgebase<ANSWERTYPE> * query;
-				query = knowledge_p->create_query_tree();
+			snprintf(filename, 128, "knowledgebase%2d%c.dot", iteration, c);
+			file.open(filename); file << knowledge.generate_dotfile(); file.close();
 
-				snprintf(filename, 128, "knowledgebase%2d%c-q.dot", iteration, c);
-				file.open(filename);
-				file << query->generate_dotfile();
-				file.close();
+			// create query-tree
+			knowledgebase<ANSWERTYPE> * query;
+			query = knowledge.create_query_tree();
 
-				teach.answer_knowledgebase(*query);
+			snprintf(filename, 128, "knowledgebase%2d%c-q.dot", iteration, c);
+			file.open(filename); file << query->generate_dotfile(); file.close();
 
-#if 0
-// test serialize/deserialize of knowledgebase ?
-				basic_string<int32_t> str;
-				basic_string<int32_t>::iterator si;
-				str = query->serialize();
-				si = str.begin();
-				if(!query->deserialize(si, str.end()))
-					printf("deser failed.\n");
-				if(si != str.end())
-					printf("remainder (*=%d)\n", *si);
-#endif
+			// answer queries
+			stats.query_count.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*nfa, *query);
 
-				snprintf(filename, 128, "knowledgebase%2d%c-r.dot", iteration, c);
-				file.open(filename);
-				file << query->generate_dotfile();
-				file.close();
+			snprintf(filename, 128, "knowledgebase%2d%c-r.dot", iteration, c);
+			file.open(filename); file << query->generate_dotfile(); file.close();
 
-				knowledge_p->merge_knowledgebase(*query);
-				delete query;
-#endif
-			} else {
-				printf("ERROR: teacher-enabled OT returned false!\n");
-			}
+			// merge answers into knowledgebase
+			knowledge.merge_knowledgebase(*query);
+			delete query;
 			c++;
 		}
 
-		snprintf(filename, 128, "observationtable%2d.text.angluin", iteration);
-		file.open(filename);
-		ot.print(file);
-		file.close();
 
-		{
-			snprintf(filename, 128, "observationtable%2d.serialized.angluin", iteration);
-			file.open(filename);
-
+		{{{ /* dump/serialize observationtable */
 			basic_string<int32_t> serialized;
 			basic_string<int32_t>::iterator it;
 
+			snprintf(filename, 128, "observationtable%2d.text.angluin", iteration);
+			file.open(filename); ot.print(file); file.close();
+
 			serialized = ot.serialize();
+
+			snprintf(filename, 128, "observationtable%2d.serialized.angluin", iteration);
+			file.open(filename);
 
 			for(it = serialized.begin(); it != serialized.end(); it++) {
 				file << ntohl(*it);
@@ -208,20 +137,17 @@ int main(int argc, char**argv)
 			}
 
 			file.close();
-		}
+		}}}
 
 		snprintf(filename, 128, "hypothesis%2d.dot", iteration);
-		file.open(filename);
-		file << hypothesis.generate_dotfile();
-		file.close();
+		file.open(filename); file << hypothesis.get_automaton()->generate_dotfile(); file.close();
 
 		// once an automaton is generated, test for equivalence with oracle_automaton
 		// if this test is ok, all worked well
 
-		pair<bool, list< list<int> > > oracle_answer;
-		oracle_answer = o.equivalence_query(hypothesis);
-
-		if(oracle_answer.first) {
+		list<int> counterexample;
+		if(amore_alf_glue::automaton_equivalence_query(*nfa, *(hypothesis.get_automaton()), counterexample)) {
+			// equivalent
 			cout << "success.\n";
 			success = true;
 			break;
@@ -229,8 +155,8 @@ int main(int argc, char**argv)
 
 		snprintf(filename, 128, "counterexample%2d.angluin", iteration);
 		file.open(filename);
-		print_word(file, oracle_answer.second.front());
-		ot.add_counterexample(oracle_answer.second.front());
+		print_word(file, counterexample);
+		ot.add_counterexample(counterexample);
 		file.close();
 	}
 
@@ -242,9 +168,10 @@ int main(int argc, char**argv)
 
 	ot.get_memory_statistics(stats);
 
+	delete nfa;
+
 	cout << "required membership queries: " << stats.query_count.membership << "\n";
-	if(use_knowledgebase)
-		cout << "required uniq membership queries: " << uniq_stats.query_count.membership << "\n";
+	cout << "required uniq membership queries: " << stats.query_count.uniq_membership << "\n";
 	cout << "required equivalence queries: " << stats.query_count.equivalence << "\n";
 	cout << "sizes: bytes: " << stats.table_size.bytes
 	     << ", members: " << stats.table_size.members
@@ -252,11 +179,7 @@ int main(int argc, char**argv)
 	cout << "upper table rows: " << stats.table_size.upper_table
 	     << ", lower table rows: " << stats.table_size.lower_table
 	     << ", columns: " << stats.table_size.columns << "\n";
-	cout << "minimal state count: " << hypothesis.get_state_count() << "\n";
-	// cout << "difference to original state count: " << dfa->get_state_count() - hypothesis.get_state_count() << "\n";
-
-	// release AMoRE buffers
-	freebuf();
+	cout << "minimal state count: " << hypothesis.get_automaton()->get_state_count() << "\n";
 
 	if(success)
 		return 0;

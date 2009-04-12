@@ -56,42 +56,26 @@ class amore_automaton_holder : public automaton_constructor {
 		virtual bool can_construct_DFA()
 		{ return false; }
 
-		virtual bool construct(bool is_dfa, int alphabet_size, int state_count, set<int> &start, set<int> &final, transition_set &transitions)
+		virtual bool construct(bool is_dfa, int alphabet_size, int state_count, set<int> &start, set<int> &final, libalf::transition_set &transitions)
 		{
+			amore::transition_set * transition_caster;
+			transition_caster = (amore::transition_set *) &transitions;
+
 			clear_automaton();
 			if(is_dfa)
 				automaton = new deterministic_finite_automaton;
 			else
 				automaton = new nondeterministic_finite_automaton;
-			automaton->construct(alphabet_size, state_count, start, final, transitions);
+			return automaton->construct(alphabet_size, state_count, start, final, *transition_caster);
 		}
 
-		virtual finite_automaton & get_automaton()
+		virtual finite_automaton * get_automaton()
 		{
-			return &(*automaton);
+			return automaton;
 		}
 
 };
 
-
-template<answer>
-inline void automaton_answer_knowledgebase(finite_automaton & automaton, knowledgebase<answer> & base)
-{
-	knowledgebase<answer>::iterator qi;
-	qi = base.qbegin();
-	while(qi != base.qend()) {
-		list<int> word;
-		word = qi->get_word();
-		qi->set_answer( (answer) automaton_membership_query(automaton, word) );
-		qi = base.qbegin();
-	}
-};
-
-
-inline bool automaton_membership_query(finite_automaton & automaton, list<int> & word)
-{
-	return automaton->contains(word);
-};
 
 
 inline bool automaton_equivalence_query(finite_automaton & automaton, finite_automaton & hypothesis, list<int> & counterexample)
@@ -99,13 +83,41 @@ inline bool automaton_equivalence_query(finite_automaton & automaton, finite_aut
 	finite_automaton * difference;
 	bool is_empty;
 
-	difference = automaton->lang_symmetric_difference(hypothesis);
+	difference = automaton.lang_symmetric_difference(hypothesis);
 	counterexample = difference->get_sample_word(is_empty);
 	if(is_empty)
 		return true;
 	else
 		return false;
 };
+
+
+
+inline bool automaton_membership_query(finite_automaton & automaton, list<int> & word)
+{
+	return automaton.contains(word);
+};
+
+
+
+template<class answer>
+inline int automaton_answer_knowledgebase(finite_automaton & automaton, knowledgebase<answer> & base)
+{
+	typename knowledgebase<answer>::iterator qi;
+	int count = 0;
+
+	qi = base.qbegin();
+	while(qi != base.qend()) {
+		list<int> word;
+		word = qi->get_word();
+		qi->set_answer( (answer) automaton_membership_query(automaton, word) );
+		qi = base.qbegin();
+		count++;
+	}
+	return count;
+};
+
+
 
 }; // end of namespace amore_alf_glue
 

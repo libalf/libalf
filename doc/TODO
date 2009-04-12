@@ -3,7 +3,7 @@
 
 A)
 
-- refactor automata interface: basic class has only "construct()"
+- check EPSILON in amore/amore++ (-1 or > alphabet_size ?!)
 
 - RFSA, RFSA- NL* algorithm
 
