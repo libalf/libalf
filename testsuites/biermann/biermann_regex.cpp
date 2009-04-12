@@ -17,20 +17,17 @@
 
 #include <stdlib.h> // for PRNG
 
-#include "libalf/alf.h"
-
-#include <libalf/automata_amore.h>
+#include <libalf/alf.h>
 #include <libalf/algorithm_biermann_minisat.h>
 
-#include <amore/vars.h>
-#include <amore/buffer.h>
+#include <amore++/deterministic_finite_automaton.h>
+#include <amore++/nondeterministic_finite_automaton.h>
 
-//#define ANSWERTYPE extended_bool
-#define ANSWERTYPE bool
+#include "amore_alf_glue.h"
 
 using namespace std;
 using namespace libalf;
-
+using namespace amore;
 
 
 
@@ -44,31 +41,26 @@ int run_length = 8;
 
 
 
-
 int main(int argc, char**argv)
 {
-	finite_language_automaton *nfa = NULL;
-	finite_language_automaton *dfa = NULL;
+	finite_automaton *nfa = NULL;
+	finite_automaton *dfa = NULL;
+
 	ostream_logger log(&cout, LOGGER_DEBUG);
 
-	knowledgebase<ANSWERTYPE> knowledge;
+	knowledgebase<bool> knowledge;
 
 	ofstream file;
 	char filename[128];
 
 	int alphabet_size;
 
-	// init AMoRE buffers
-	initbuf();
-
-
 	bool regex_ok;
-
 	if(argc == 3) {
-		nfa = new nondeterministic_finite_amore_automaton(atoi(argv[1]), argv[2], regex_ok);
-	} else {
+		nfa = new nondeterministic_finite_automaton(atoi(argv[1]), argv[2], regex_ok);
+	} else /* find alphabet size or show some example regex */ {{{
 		if(argc == 2) {
-			nfa = new nondeterministic_finite_amore_automaton(argv[1], regex_ok);
+			nfa = new nondeterministic_finite_automaton(argv[1], regex_ok);
 		} else {
 			cout << "either give a sole regex as parameter, or give <alphabet size> <regex>.\n\n";
 			cout << "example regular expressions:\n";
@@ -79,35 +71,29 @@ int main(int argc, char**argv)
 			cout << "3 '(cbb(ab(c)*))* U (a((cbb*) U a+b+bc)+)'\n";
 			return 1;
 		}
-	}
+	}}}
 
 	if(regex_ok) {
-		log(LOGGER_INFO, "regex ok.\n");
+		log(LOGGER_INFO, "REGEX ok.\n");
 	} else {
-		log(LOGGER_ERROR, "regex failed.\n");
+		log(LOGGER_ERROR, "REGEX failed.\n");
 		return 1;
 	}
 
-	alphabet_size = nfa->get_alphabet_size();
-
-	printf("alphabet size set to %d\n", alphabet_size);
-
-	file.open("original-nfa.dot");
-	file << nfa->generate_dotfile();
-	file.close();
+	file.open("original-nfa.dot"); file << nfa->generate_dotfile(); file.close();
 
 	dfa = nfa->determinize();
+	delete nfa;
 	dfa->minimize();
-	file.open("original-dfa.dot");
-	file << dfa->generate_dotfile();
-	file.close();
-	delete dfa;
+	file.open("original-dfa.dot"); file << dfa->generate_dotfile(); file.close();
+
+	alphabet_size = dfa->get_alphabet_size();
 
 	srand(time(NULL));
 
 	list<int> w;
 	if(add_epsilon)
-		knowledge.add_knowledge(w, nfa->contains(w));
+		knowledge.add_knowledge(w, dfa->contains(w));
 
 	// create sample set in knowledgebase
 	for(int i = 0; i < runs; i++) {
@@ -116,7 +102,7 @@ int main(int argc, char**argv)
 			unsigned long int r = rand();
 			r = (r * alphabet_size) / RAND_MAX;
 			w.push_back(r);
-			knowledge.add_knowledge(w, nfa->contains(w));
+			knowledge.add_knowledge(w, dfa->contains(w));
 		}
 	}
 
@@ -124,27 +110,33 @@ int main(int argc, char**argv)
 	knowledge.print(cout);
 	cout << "\n";
 
-	if(nfa)
-		delete nfa; // not needed anymore
-
-	MiniSat_biermann<ANSWERTYPE> diebels(&knowledge, &log, alphabet_size);
-
-	deterministic_finite_amore_automaton hypothesis;
+	MiniSat_biermann<bool> diebels(&knowledge, &log, alphabet_size);
+	amore_alf_glue::amore_automaton_holder hypothesis;
 
 	if(!diebels.advance(&hypothesis)) {
-		printf("\n\n\nadvance returned false\n\n");
+		log(LOGGER_ERROR, "advance() returned false!\n");
 	} else {
 //		diebels.print(cout);
 
 		snprintf(filename, 128, "hypothesis.dot");
-		file.open(filename);
-		file << hypothesis.generate_dotfile();
-		file.close();
-		printf("\n\nhypothesis saved.\n\n");
-	}
+		file.open(filename); file << hypothesis.get_automaton()->generate_dotfile(); file.close();
 
-	// release AMoRE buffers
-	freebuf();
+		finite_automaton * ndifference, * difference;
+		ndifference = dfa->lang_symmetric_difference( * (hypothesis.get_automaton()) );
+		difference = ndifference->determinize();
+		delete ndifference;
+		difference->minimize();
+
+		snprintf(filename, 128, "difference.dot");
+		file.open(filename); file << difference->generate_dotfile(); file.close();
+
+		delete difference;
+
+		printf("\n\nhypothesis/difference saved.\n\n");
+
+
+
+	}
 
 	return 0;
 }

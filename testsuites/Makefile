@@ -1,18 +1,12 @@
 # $Id$
 # libalf Makefile
 
-.PHONY: all clean angluin_simple_observationtable amore_epsilon_closure amore_serialization biermann normalizer
+.PHONY: all clean angluin_simple_observationtable biermann normalizer
 
-all: angluin_simple_observationtable amore_serialization amore_epsilon_closure biermann normalizer
+all: angluin_simple_observationtable biermann normalizer
 
 angluin_simple_observationtable:
 	make -C angluin_simple_observationtable
-
-amore_epsilon_closure:
-	make -C amore_epsilon_closure
-
-amore_serialization:
-	make -C amore_serialization
 
 biermann:
 	make -C biermann
