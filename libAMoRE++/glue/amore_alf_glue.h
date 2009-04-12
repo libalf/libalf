@@ -16,9 +16,18 @@
 // it gives everything required to make algorithms construct amore automata
 // or to teach algorithms from automata (teacher and oracle)
 
+#include <amore++/finite_automaton.h>
+#include <amore++/deterministic_finite_automaton.h>
+#include <amore++/nondeterministic_finite_automaton.h>
+
+#include <libalf/automaton_constructor.h>
+
+namespace amore_alf_glue {
+
 using namespace std;
 using namespace libalf;
 using namespace amore;
+
 
 class amore_automaton_holder : public automaton_constructor {
 	private:
@@ -31,8 +40,14 @@ class amore_automaton_holder : public automaton_constructor {
 		}
 		virtual ~amore_automaton_holder()
 		{
-			if(automaton)
+			clear_automaton();
+		}
+		virtual void clear_automaton()
+		{
+			if(automaton) {
 				delete automaton;
+				automaton = NULL;
+			}
 		}
 
 		virtual bool can_construct_NFA()
@@ -43,13 +58,11 @@ class amore_automaton_holder : public automaton_constructor {
 
 		virtual bool construct(bool dfa, int alphabet_size, int state_count, set<int> &start, set<int> &final, transition_set &transitions)
 		{
-			if(automaton)
-				delete automaton;
-			if(dfa) {
+			clear_automaton();
+			if(dfa)
 				automaton = new deterministic_finite_automaton;
-			} else {
+			else
 				automaton = new nondeterministic_finite_automaton;
-			}
 			automaton->construct(alphabet_size, state_count, start, final, transitions);
 		}
 
@@ -57,27 +70,31 @@ class amore_automaton_holder : public automaton_constructor {
 		{
 			return &(*automaton);
 		}
+
 };
 
+
 template<answer>
-inline void answer_knowledgebase_from_automaton(knowledgebase<answer> & base, finite_automaton & automaton)
+inline void automaton_answer_knowledgebase(finite_automaton & automaton, knowledgebase<answer> & base)
 {
 	knowledgebase<answer>::iterator qi;
 	qi = base.qbegin();
 	while(qi != base.qend()) {
 		list<int> word;
 		word = qi->get_word();
-		qi->set_answer( (answer) membership_query(automaton, word) );
+		qi->set_answer( (answer) automaton_membership_query(automaton, word) );
 		qi = base.qbegin();
 	}
 };
 
-inline bool membership_query(finite_automaton & automaton, list<int> & word)
+
+inline bool automaton_membership_query(finite_automaton & automaton, list<int> & word)
 {
 	return automaton->contains(word);
 };
 
-inline bool equivalence_query(finite_automaton & automaton, finite_automaton & hypothesis, list<int> & counterexample)
+
+inline bool automaton_equivalence_query(finite_automaton & automaton, finite_automaton & hypothesis, list<int> & counterexample)
 {
 	finite_automaton * difference;
 	bool is_empty;
@@ -89,6 +106,8 @@ inline bool equivalence_query(finite_automaton & automaton, finite_automaton & h
 	else
 		return false;
 };
+
+}; // end of namespace amore_alf_glue
 
 #endif
 
