@@ -35,20 +35,13 @@ class amore_automaton_holder : public automaton_constructor {
 
 	public:
 		amore_automaton_holder()
-		{
-			automaton = NULL;
-		}
+		{ automaton = NULL; }
+
 		virtual ~amore_automaton_holder()
-		{
-			clear_automaton();
-		}
+		{ clear_automaton(); }
+
 		virtual void clear_automaton()
-		{
-			if(automaton) {
-				delete automaton;
-				automaton = NULL;
-			}
-		}
+		{ if(automaton) { delete automaton; automaton = NULL; } }
 
 		virtual bool can_construct_NFA()
 		{ return true; }
@@ -66,16 +59,13 @@ class amore_automaton_holder : public automaton_constructor {
 				automaton = new deterministic_finite_automaton;
 			else
 				automaton = new nondeterministic_finite_automaton;
+
 			return automaton->construct(alphabet_size, state_count, start, final, *transition_caster);
 		}
 
 		virtual finite_automaton * get_automaton()
-		{
-			return automaton;
-		}
-
+		{ return automaton; }
 };
-
 
 
 inline bool automaton_equivalence_query(finite_automaton & automaton, finite_automaton & hypothesis, list<int> & counterexample)
@@ -85,28 +75,22 @@ inline bool automaton_equivalence_query(finite_automaton & automaton, finite_aut
 
 	difference = automaton.lang_symmetric_difference(hypothesis);
 	counterexample = difference->get_sample_word(is_empty);
-	if(is_empty)
-		return true;
-	else
-		return false;
-};
+	delete difference;
 
+	return is_empty;
+};
 
 
 inline bool automaton_membership_query(finite_automaton & automaton, list<int> & word)
-{
-	return automaton.contains(word);
-};
-
+{ return automaton.contains(word); };
 
 
 template<class answer>
 inline int automaton_answer_knowledgebase(finite_automaton & automaton, knowledgebase<answer> & base)
 {
-	typename knowledgebase<answer>::iterator qi;
 	int count = 0;
+	typename knowledgebase<answer>::iterator qi = base.qbegin();
 
-	qi = base.qbegin();
 	while(qi != base.qend()) {
 		list<int> word;
 		word = qi->get_word();
@@ -114,9 +98,9 @@ inline int automaton_answer_knowledgebase(finite_automaton & automaton, knowledg
 		qi = base.qbegin();
 		count++;
 	}
+
 	return count;
 };
-
 
 
 }; // end of namespace amore_alf_glue
