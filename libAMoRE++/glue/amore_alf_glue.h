@@ -1,7 +1,7 @@
 /* $Id$
  * vim: fdm=marker
  *
- * libalf "value-add"
+ * libAMoRE "value-add": glue between libalf and libAMoRE++
  *
  * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
  *        <david-i2@piegdon.de>

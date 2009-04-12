@@ -1,7 +1,7 @@
 /* $Id$
  * vim: fdm=marker
  *
- * libalf - Automata Learning Factory
+ * amore++
  *
  * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
  *        <david-i2@piegdon.de>
@@ -15,23 +15,16 @@
 #include <fstream>
 #include <algorithm>
 
-#include "libalf/alf.h"
-
-#include "libalf/automata_amore.h"
-
-#include <amore/vars.h>
-#include <amore/buffer.h>
+#include "amore++/nondeterministic_finite_automaton.h"
+#include "amore++/deterministic_finite_automaton.h"
 
 using namespace std;
-using namespace libalf;
+using namespace amore;
 
 int main(int argc, char**argv)
 {
-	statistics stats;
-
-	finite_language_automaton *nfa;
-	finite_language_automaton *dfa;
-	logger *log;
+	finite_automaton *nfa;
+	finite_automaton *dfa;
 
 	basic_string<int32_t> serialized;
 	basic_string<int32_t>::iterator sit;
@@ -39,18 +32,12 @@ int main(int argc, char**argv)
 
 	bool success = false;
 
-	// init AMoRE buffers
-	initbuf();
-
-	// init logger
-	log = new ostream_logger(&cout, LOGGER_DEBUG);
-
 	bool regex_ok;
 	if(argc == 3) {
-		nfa = new nondeterministic_finite_amore_automaton(atoi(argv[1]), argv[2], regex_ok);
+		nfa = new nondeterministic_finite_automaton(atoi(argv[1]), argv[2], regex_ok);
 	} else {
 		if(argc == 2) {
-			nfa = new nondeterministic_finite_amore_automaton(argv[1], regex_ok);
+			nfa = new nondeterministic_finite_automaton(argv[1], regex_ok);
 		} else {
 			cout << "either give a sole regex as parameter, or give <alphabet size> <regex>.\n\n";
 			cout << "example regular expressions:\n";
@@ -64,9 +51,9 @@ int main(int argc, char**argv)
 	}
 
 	if(regex_ok) {
-		(*log)(LOGGER_INFO, "regex ok.\n");
+		printf("REGEX ok.\n");
 	} else {
-		(*log)(LOGGER_ERROR, "regex failed.\n");
+		printf("REGEX failed.\n");
 		return 1;
 	}
 
@@ -89,7 +76,7 @@ int main(int argc, char**argv)
 	sit = serialized.begin();
 
 	delete nfa;
-	nfa = new nondeterministic_finite_amore_automaton();
+	nfa = new nondeterministic_finite_automaton();
 	if(! nfa->deserialize(sit, serialized.end()) ) {
 		cout << "nfaa serialization failed: returned false.\n";
 	} else {
@@ -107,7 +94,7 @@ int main(int argc, char**argv)
 	sit = serialized.begin();
 
 	delete dfa;
-	dfa = new deterministic_finite_amore_automaton();
+	dfa = new deterministic_finite_automaton();
 	if(! dfa->deserialize(sit, serialized.end()) ) {
 		cout << "dfaa serialization failed: returned false.\n";
 	} else {
@@ -120,15 +107,8 @@ int main(int argc, char**argv)
 		}
 	}
 
-
-
-
-	delete log;
 	delete nfa;
 	delete dfa;
-
-	// release AMoRE buffers
-	freebuf();
 
 	if(success)
 		return 0;

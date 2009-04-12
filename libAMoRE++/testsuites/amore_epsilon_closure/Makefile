@@ -7,7 +7,7 @@ PREFIX ?= /usr/local
 
 CPPFLAGS+=-I../../include -I${PREFIX}/include -Wall -ggdb3
 
-LDFLAGS+=-L../../src -L${PREFIX}/lib -lalf -lAMoRE
+LDFLAGS+=-L../../src -L${PREFIX}/lib -lAMoRE++
 
 all: epsilon_closure
 
@@ -18,9 +18,6 @@ clean: nodata
 nodata:
 	-rm *.dot
 	-rm *.jpg
-
-run:
-	LD_LIBRARY_PATH=../../src ./epsilon_closure
 
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;

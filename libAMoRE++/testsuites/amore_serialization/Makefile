@@ -7,7 +7,7 @@ PREFIX ?= /usr/local
 
 CPPFLAGS+=-I../../include -I${PREFIX}/include -Wall -ggdb3
 
-LDFLAGS+=-L../../src -L${PREFIX}/lib -lalf -lAMoRE
+LDFLAGS+=-L../../src -L${PREFIX}/lib -lAMoRE++
 
 all: amore_serialization
 
@@ -20,9 +20,6 @@ nodata:
 	-rm *.jpg
 	-rm *.angluin
 	-rm testlog
-
-run:
-	LD_LIBRARY_PATH=../../src ./amore_serialization
 
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;

@@ -1,7 +1,7 @@
 /* $Id$
  * vim: fdm=marker
  *
- * libalf - Automata Learning Factory
+ * amore++
  *
  * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
  *        <david-i2@piegdon.de>
@@ -17,13 +17,17 @@
 
 #include "arpa/inet.h"
 
-#include "libalf/alf.h"
-#include "libalf/automata_amore.h"
-
-#include <amore/vars.h>
+#include "amore++/nondeterministic_finite_automaton.h"
 
 using namespace std;
-using namespace libalf;
+using namespace amore;
+
+void print_word(ostream &os, list<int> &word)
+{{{
+	ostream_iterator<int> out(os, ".");
+	os << ".";
+	copy(word.begin(), word.end(), out);
+}}}
 
 int main()
 {
@@ -44,7 +48,7 @@ int main()
 		3,1,3,
 		3,1,2
 	};
-	nondeterministic_finite_amore_automaton *nfa;
+	nondeterministic_finite_automaton *nfa;
 	basic_string<int32_t> serial;
 	basic_string<int32_t>::iterator sit;
 	set<int> states;
@@ -55,7 +59,7 @@ int main()
 		serial += htonl(automaton[i]);
 	}
 
-	nfa = new nondeterministic_finite_amore_automaton();
+	nfa = new nondeterministic_finite_automaton();
 	sit = serial.begin();
 	if( ! nfa->deserialize(sit, serial.end()) ) {
 		cout << "deserialization failed. check automaton.\n";
