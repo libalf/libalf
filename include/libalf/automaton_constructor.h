@@ -60,13 +60,13 @@ class automaton_constructor {
 		virtual bool can_construct_NFA() = 0;
 		virtual bool can_construct_DFA() = 0;
 
-		virtual bool construct(bool dfa, int alphabet_size, int state_count, set<int> &start, set<int> &final, transition_set &transitions) = 0;
+		virtual bool construct(bool is_dfa, int alphabet_size, int state_count, set<int> &start, set<int> &final, transition_set &transitions) = 0;
 };
 
 
 class basic_automaton_holder : public automaton_constructor {
 	public:
-		bool dfa;
+		bool is_dfa;
 		int alphabet_size;
 		int state_count;
 		set<int> start;
@@ -85,7 +85,7 @@ class basic_automaton_holder : public automaton_constructor {
 
 		virtual void clear();
 
-		virtual bool construct(bool dfa, int alphabet_size, int state_count, set<int> &start, set<int> &final, transition_set &transitions);
+		virtual bool construct(bool is_dfa, int alphabet_size, int state_count, set<int> &start, set<int> &final, transition_set &transitions);
 
 		virtual bool empty()
 		{ return (state_count == 0); };

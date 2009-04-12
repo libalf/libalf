@@ -32,11 +32,11 @@ void basic_automaton_holder::clear()
 	transitions.clear();
 }}}
 
-bool basic_automaton_holder::construct(bool dfa, int alphabet_size, int state_count, set<int> &start, set<int> &final, transition_set &transitions)
+bool basic_automaton_holder::construct(bool is_dfa, int alphabet_size, int state_count, set<int> &start, set<int> &final, transition_set &transitions)
 {{{
 	clear();
 
-	this->dfa = dfa;
+	this->is_dfa = is_dfa;
 	this->alphabet_size = alphabet_size;
 	this->state_count = state_count;
 	this->start = start;

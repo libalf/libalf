@@ -56,10 +56,10 @@ class amore_automaton_holder : public automaton_constructor {
 		virtual bool can_construct_DFA()
 		{ return false; }
 
-		virtual bool construct(bool dfa, int alphabet_size, int state_count, set<int> &start, set<int> &final, transition_set &transitions)
+		virtual bool construct(bool is_dfa, int alphabet_size, int state_count, set<int> &start, set<int> &final, transition_set &transitions)
 		{
 			clear_automaton();
-			if(dfa)
+			if(is_dfa)
 				automaton = new deterministic_finite_automaton;
 			else
 				automaton = new nondeterministic_finite_automaton;
