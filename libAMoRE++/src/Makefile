@@ -17,7 +17,7 @@ LDFLAGS+=-shared -L${PREFIX}/lib
 
 SONAME=libalf
 
-OBJECTS=finite_automaton.o nondeterministic_finite_automaton.o deterministic_finite_automaton.o
+OBJECTS=generic.o finite_automaton.o nondeterministic_finite_automaton.o deterministic_finite_automaton.o
 
 all:	libAMoRE++.so
 
