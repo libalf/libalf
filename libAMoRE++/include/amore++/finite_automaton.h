@@ -1,7 +1,7 @@
 /* $Id$
  * vim: fdm=marker
  *
- * libalf - Automata Learning Factory
+ * amore++
  *
  * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
  *        <david-i2@piegdon.de>
@@ -9,8 +9,8 @@
  * see LICENSE file for licensing information.
  */
 
-#ifndef __libalf_automata_h__
-# define __libalf_automata_h__
+#ifndef __amore_automaton_h__
+# define __amore_automaton_h__
 
 #include <list>
 #include <set>
