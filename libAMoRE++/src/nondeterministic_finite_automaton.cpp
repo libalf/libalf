@@ -160,6 +160,8 @@ int nondeterministic_finite_automaton::get_state_count()
 bool nondeterministic_finite_automaton::is_empty()
 {{{
 	bool ret;
+	// libAMoRE-1.0 has empty_full_lan(), but it requires
+	// a minimized DFA as input
 	get_sample_word(ret);
 	return ret;
 }}}
@@ -235,32 +237,13 @@ list<int> nondeterministic_finite_automaton::get_sample_word(bool & is_empty)
 
 bool nondeterministic_finite_automaton::operator==(finite_automaton &other)
 {{{
+	// FIXME efficient equiv-algorithm for NFAs?
 	bool ret;
+	finite_automaton * d;
 
-	finite_automaton * o_d;
-	nondeterministic_finite_automaton * o_n;
-	bool had_to_determinize = false;
-
-	o_d = dynamic_cast<finite_automaton*> (&other);
-
-	if(!o_d) {
-		o_n = dynamic_cast<nondeterministic_finite_automaton*> (&other);
-		if(!o_n) {
-			// FIXME: non-compatible automaton
-			// should throw exception
-			return false;
-		}
-
-		// determinize
-		had_to_determinize = true;
-		o_d = dynamic_cast<finite_automaton*>(o_n->determinize());
-	}
-
-	ret = ((*o_d) == *this);
-
-	if(had_to_determinize) {
-		delete o_d;
-	}
+	d = this->determinize();
+	ret = (*d == other);
+	delete d;
 
 	return ret;
 }}}
@@ -269,32 +252,11 @@ bool nondeterministic_finite_automaton::lang_subset_of(finite_automaton &other)
 {{{
 	bool ret;
 
-	finite_automaton * o_d;
-	nondeterministic_finite_automaton * o_n;
-	finite_automaton * t_d;
+	finite_automaton * d;
 
-	bool had_to_determinize = false;
-
-	o_d = dynamic_cast<finite_automaton*> (&other);
-	if(!o_d) {
-		o_n = dynamic_cast<nondeterministic_finite_automaton*> (&other);
-		if(!o_n) {
-			// FIXME: non-compatible automaton
-			// should throw exception
-			return false;
-		}
-
-		// determinize
-		had_to_determinize = true;
-		o_d = dynamic_cast<finite_automaton*> (o_n->determinize());
-	}
-
-	t_d = this->determinize();
-	ret = t_d->lang_subset_of(*o_d);
-	delete t_d;
-
-	if(had_to_determinize)
-		delete o_d;
+	d = this->determinize();
+	ret = d->lang_subset_of(other);
+	delete d;
 
 	return ret;
 }}}
@@ -303,29 +265,11 @@ bool nondeterministic_finite_automaton::lang_disjoint_to(finite_automaton &other
 {{{
 	bool ret;
 
-	finite_automaton * o_d;
-	nondeterministic_finite_automaton * o_n;
+	finite_automaton * d;
 
-	bool had_to_determinize = false;
-
-	o_d = dynamic_cast<finite_automaton*> (&other);
-	if(!o_d) {
-		o_n = dynamic_cast<nondeterministic_finite_automaton*> (&other);
-		if(!o_n) {
-			// FIXME: non-compatible automaton
-			// should throw exception
-			return false;
-		}
-
-		// determinize
-		had_to_determinize = true;
-		o_d = dynamic_cast<finite_automaton*> (o_n->determinize());
-	}
-
-	ret = o_d->lang_disjoint_to(*this);
-
-	if(had_to_determinize)
-		delete o_d;
+	d = this->determinize();
+	ret = d->lang_disjoint_to(*this);
+	delete d;
 
 	return ret;
 }}}
@@ -434,29 +378,21 @@ void nondeterministic_finite_automaton::lang_complement()
 }}}
 
 nondeterministic_finite_automaton * nondeterministic_finite_automaton::lang_union(finite_automaton &other)
+// libAMoRE says: alphabets need to be the same
 {{{
 	nondeterministic_finite_automaton * ret;
-	finite_automaton * o_d;
-	nondeterministic_finite_automaton *o_n;
+	nondeterministic_finite_automaton * o_n;
 	bool had_to_nfa = false;
 
 	o_n = dynamic_cast<nondeterministic_finite_automaton*> (&other);
 
 	if(!o_n) {
-		o_d = dynamic_cast<finite_automaton*> (&other);
-		if(!o_d) {
-			// FIXME: non-compatible automaton
-			// should throw exception
-			return NULL;
-		}
-
 		had_to_nfa = true;
-		o_n = dynamic_cast<nondeterministic_finite_automaton*>(o_d->nondeterminize());
+		o_n = dynamic_cast<nondeterministic_finite_automaton*>(other.nondeterminize());
 	}
 
 	nfa a;
 
-	// (AMoRE says:) alphabets need to be the same
 	a = unionfa(nfa_p, o_n->nfa_p);
 	ret = new nondeterministic_finite_automaton(a);
 
@@ -465,6 +401,10 @@ nondeterministic_finite_automaton * nondeterministic_finite_automaton::lang_unio
 
 	return ret;
 }}}
+
+
+//----- ABOVE: fixed. BELOW: FIXME
+
 
 finite_automaton * nondeterministic_finite_automaton::lang_intersect(finite_automaton &other)
 {{{
