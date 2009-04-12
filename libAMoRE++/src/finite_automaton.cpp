@@ -27,8 +27,8 @@ string finite_automaton::generate_dotfile()
 	basic_string<int32_t>::iterator si;
 	int n;
 
-	set<int32_t> initial, final;
-	set<int32_t>::iterator sti;
+	std::set<int32_t> initial, final;
+	std::set<int32_t>::iterator sti;
 
 	bool header_written;
 	char buf[128];
@@ -146,11 +146,11 @@ string finite_automaton::generate_dotfile()
 // inefficient (as it only wraps another interface), but it works for all automata implementations
 // that implement serialize and deserialize. implementations may provide their own, more performant
 // implementation of construct().
-bool finite_automaton::construct(int alphabet_size, int state_count, list<int> &start, list<int> &final, list<transition> &transitions)
+bool finite_automaton::construct(int alphabet_size, int state_count, std::set<int> &start, std::set<int> &final, transition_set &transitions)
 {{{
 	basic_string<int32_t> ser;
-	list<int>::iterator sit;
-	list<transition>::iterator tit;
+	std::set<int>::iterator sit;
+	transition_set::iterator tit;
 
 	// serialize that data and call deserialize :)
 	ser += 0;

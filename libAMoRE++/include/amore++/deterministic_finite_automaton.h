@@ -80,7 +80,7 @@ class deterministic_finite_automaton : public finite_automaton {
 		virtual basic_string<int32_t> serialize();
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
 
-		virtual bool construct(int alphabet_size, int state_count, list<int> &start, list<int> &final, list<transition> &transitions);
+		virtual bool construct(int alphabet_size, int state_count, std::set<int> &start, std::set<int> &final, transition_set &transitions);
 
 	// new
 		virtual void set_dfa(dfa a);

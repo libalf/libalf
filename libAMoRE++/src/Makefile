@@ -33,7 +33,7 @@ install: libAMoRE++.so
 	echo installing libAMoRE++ to ${PREFIX}/lib/
 	mkdir -p ${PREFIX}/lib
 	cp libAMoRE++.so ${PREFIX}/lib
-	chmod 755 ${PREFIX}/lib
+	chmod 755 ${PREFIX}/lib/libAMoRE++.so
 
 uninstall:
 	echo removing libAMoRE++.so from ${PREFIX}/lib/

@@ -46,12 +46,10 @@ class transition {
 		{{{
 			return ((source == other.source) && (label == other.label) && (destination == other.destination));
 		}}}
-
-		bool operator<<(transition &other)
-		{{{
-			return ((source == other.source) && (label == other.label) && (destination != other.destination));
-		}}}
 };
+
+inline bool deterministic_transitions(const transition & t1, const transition & t2)
+{ return (t1.source != t2.source) || (t1.label != t2.label) || (t1.destination == t2.destination); }
 
 typedef set<transition, transition::comparator> transition_set;
 

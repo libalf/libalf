@@ -471,10 +471,11 @@ dfaa_deserialization_failed:
 	return false;
 }}}
 
-bool deterministic_finite_automaton::construct(int alphabet_size, int state_count, list<int> &start, list<int> &final, list<transition> &transitions)
+bool deterministic_finite_automaton::construct(int alphabet_size, int state_count, std::set<int> &start, std::set<int> &final, transition_set &transitions)
 {{{
 	dfa a;
-	list<transition>::iterator ti, tj;
+	amore::transition_set::iterator ti, tj;
+	std::set<int>::iterator si;
 
 	// DO SOME SANITY CHECKS
 
@@ -487,7 +488,7 @@ bool deterministic_finite_automaton::construct(int alphabet_size, int state_coun
 	for(ti = transitions.begin(); ti != transitions.end(); ti++) {
 		tj = ti;
 		for(tj++; tj != transitions.end(); tj++) {
-			if(*ti << *tj) {
+			if(!deterministic_transitions(*tj, *ti)) {
 				// we could only create an NFA from this
 				return false;
 			}
@@ -498,10 +499,11 @@ bool deterministic_finite_automaton::construct(int alphabet_size, int state_coun
 	a = newdfa();
 
 	a->highest_state = state_count - 1; // states [0 .. highest_state]
-	a->init = start.front(); // initial states
+	si = start.begin();
+	a->init = *si; // initial states
 	a->alphabet_size = alphabet_size; // alphabet size
 	a->final = newfinal(a->highest_state); // final states
-	for(list<int>::iterator i = final.begin(); i != final.end(); i++)
+	for(std::set<int>::iterator i = final.begin(); i != final.end(); i++)
 		setfinal((a->final[*i]), 1);
 	a->delta = newddelta(a->alphabet_size, a->highest_state); // transition function: delta[sigma][source] = destination
 	for(ti = transitions.begin(); ti != transitions.end(); ti++)
