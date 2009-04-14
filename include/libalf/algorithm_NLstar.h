@@ -86,6 +86,15 @@ class NLstar_table : public learning_algorithm<answer> {
 					return ( ! (*this == other) );
 				}}}
 
+				// join other row into this row
+				void operator|=(table_row & other)
+				{{{
+					acceptances::iterator ai1, ai2;
+					for(ai1 = this->acceptance.begin(), ai2 = other.acceptance.begin(); ai1 != this->acceptance.end() && ai2 != other.acceptance.end(); ai1++, ai2++)
+						if(*ai2 == true)
+							*ai1 = true;
+				}}}
+
 				basic_string<int32_t> serialize()
 				{{{
 					basic_string<int32_t> ret;
@@ -284,9 +293,9 @@ deserialization_failed:
 		}}}
 
 		virtual bool conjecture_ready()
-		{
-			
-		}
+		{{{
+			return initialized && columns_filled() && is_closed() && is_consistent();
+		}}}
 
 		virtual void add_counterexample(list<int> w)
 		{{{
@@ -389,10 +398,39 @@ deserialization_failed:
 			return complete;
 		}}}
 
+		virtual bool columns_filled()
+		{{{
+			typename table::iterator ti;
+			unsigned int columns;
+
+			columns = column_names.size();
+
+			// check upper table
+			for(ti = upper_table.begin(); ti != upper_table.end(); ti++)
+				if(ti->acceptance.size() != columns)
+					return false;
+			// check lower table
+			for(ti = lower_table.begin(); ti != lower_table.end(); ti++)
+				if(ti->acceptance.size() != columns)
+					return false;
+
+			return true;
+		}}}
+
+		virtual bool is_closed()
+		{
+			
+		}
+
 		// close table: perform operations to close it.
 		// returns true if table was closed.
 		// returns false if table was changed (and thus needs to be filled)
 		virtual bool close()
+		{
+			
+		}
+
+		virtual bool is_consistent()
 		{
 			
 		}
@@ -411,13 +449,11 @@ deserialization_failed:
 				initialize_table();
 
 			if(fill_missing_columns(upper_table) && fill_missing_columns(lower_table)) {
-				if(!close()) {
+				if(!close())
 					return complete();
-				}
 
-				if(!make_consistent()) {
+				if(!make_consistent())
 					return complete();
-				}
 
 				return true;
 			} else {

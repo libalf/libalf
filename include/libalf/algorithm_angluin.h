@@ -783,13 +783,11 @@ class angluin_observationtable : public learning_algorithm<answer> {
 				initialize_table();
 
 			if(fill_missing_columns(upper_table) && fill_missing_columns(lower_table)) {
-				if(!close()) {
+				if(!close())
 					return complete();
-				}
 
-				if(!make_consistent()) {
+				if(!make_consistent())
 					return complete();
-				}
 
 				return true;
 			} else {
