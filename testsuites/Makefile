@@ -16,7 +16,5 @@ normalizer:
 
 clean:
 	make -C angluin_simple_observationtable clean
-	make -C amore_epsilon_closure clean
-	make -C amore_serialization clean
 	make -C biermann clean
 	make -C normalizer clean
