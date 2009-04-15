@@ -16,6 +16,7 @@
 #include <list>
 #include <vector>
 #include <string>
+#include <sstream>
 #include <arpa/inet.h>
 
 #include <libalf/answer.h>
@@ -615,6 +616,12 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 			}
 
 			os << "}\n";
+		}}}
+		string tostring()
+		{{{
+			stringstream str;
+			this->print(str);
+			return str.str();
 		}}}
 		string generate_dotfile()
 		{{{
