@@ -84,6 +84,11 @@ class learning_algorithm {
 			my_knowledge = base;
 		}}}
 
+		virtual knowledgebase<answer> * get_knowledge_source()
+		{{{
+			return my_knowledgebase;
+		}}}
+
 		virtual void set_normalizer(normalizer * norm)
 		{{{
 			if(this->norm)
