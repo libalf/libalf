@@ -1,7 +1,23 @@
+/* $Id$
+ * vim: fdm=marker
+ *
+ * libalf JNI - Java Native Interface for Automata Learning Factory
+ *
+ * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
+ *        <david-i2@piegdon.de>
+ *    and Daniel Neider, i7 Informatik RWTH-Aachen
+ *        <neider@automata.rwth-aachen.de>
+ *
+ * see LICENSE file for licensing information.
+ */
+
+#include <iostream>
+
 #include <libalf/automaton_constructor.h>
 #include <libalf/knowledgebase.h>
-#include <iostream>
+
 #include <jni.h>
+
 #include "jni_knowledgebase.h"
 
 using namespace std;
@@ -80,7 +96,7 @@ JNIEXPORT jobject JNICALL Java_Knowledgebase_getQueries (JNIEnv *env, jobject ob
 		cout << "Could not create new 'LinkedList' object!\nReturning NULL\n";
 		return NULL;
 	}
-	
+
 	// Get the knowledgebase object
 	knowledgebase<bool> *base = (knowledgebase<bool>*)pointer;
 
@@ -154,3 +170,4 @@ JNIEXPORT jboolean JNICALL Java_Knowledgebase_add_1knowledge (JNIEnv *env, jobje
 	bool acc = acceptance;
 	return base->add_knowledge(w, acc);
 }
+

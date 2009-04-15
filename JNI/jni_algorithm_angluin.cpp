@@ -1,9 +1,25 @@
+/* $Id$
+ * vim: fdm=marker
+ *
+ * libalf JNI - Java Native Interface for Automata Learning Factory
+ *
+ * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
+ *        <david-i2@piegdon.de>
+ *    and Daniel Neider, i7 Informatik RWTH-Aachen
+ *        <neider@automata.rwth-aachen.de>
+ *
+ * see LICENSE file for licensing information.
+ */
+
+#include <iostream>
+
 #include <libalf/automaton_constructor.h>
 #include <libalf/knowledgebase.h>
 #include <libalf/learning_algorithm.h>
 #include <libalf/algorithm_angluin.h>
-#include <iostream>
+
 #include <jni.h>
+
 #include "jni_algorithm_angluin.h"
 
 using namespace std;
@@ -27,27 +43,27 @@ basic_automaton_holder* create_example() {
 	tr.label=0;
 	tr.destination=1;
 	a->transitions.insert(tr);
-	
+
 	// 0 -1-> 2
 	tr.label=1;
 	tr.destination=2;
 	a->transitions.insert(tr);
-	
+
 	// 2 -1-> 1
 	tr.source=2;
 	tr.destination=1;
 	a->transitions.insert(tr);
-	
+
 	// 2 -0-> 0;
 	tr.label = 0;
 	tr.destination = 0;
 	a->transitions.insert(tr);
-	
+
 	// 1 -0-> 2;
 	tr.source = 1;
 	tr.destination = 2;
 	a->transitions.insert(tr);
-	
+
 	// 1 -1-> 0;
 	tr.label = 1;
 	tr.destination = 0;
@@ -100,7 +116,7 @@ jobject convertAutomaton(JNIEnv* env, basic_automaton_holder* automaton) {
 	// Make new object
 	jobject java_automaton = env->NewObject(jcls, jmid, automaton->is_dfa, automaton->state_count, automaton->alphabet_size);
 	if(jmid == NULL) {
-		cout << "Could not vreate new 'LibALFAutomaton' object!\nReturning NULL\n";
+		cout << "Could not create new 'LibALFAutomaton' object!\nReturning NULL\n";
 		return NULL;
 	}
 
@@ -158,7 +174,7 @@ jobject convertAutomaton(JNIEnv* env, basic_automaton_holder* automaton) {
 JNIEXPORT jint JNICALL Java_AlgorithmAngluin_init (JNIEnv *env, jobject obj, jint alphabet_size, jint knowledgebase_pointer) {
 	// Get the knowledgebase object
 	knowledgebase<bool> *base = (knowledgebase<bool>*) knowledgebase_pointer;
-	  
+
 	/*
 	 * Return the new object
 	 */
@@ -176,7 +192,7 @@ JNIEXPORT void JNICALL Java_AlgorithmAngluin_add_1counterexample (JNIEnv *env , 
 	for(int i=0; i<len; i++) ce.push_back(((jint)entry[i]));
 	// Clean
 	env->ReleaseIntArrayElements(counterexample, entry, 0);
-  
+
 	// Get the algorithm object
 	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
 	// Forward method call
@@ -189,10 +205,10 @@ JNIEXPORT jobject JNICALL Java_AlgorithmAngluin_advance (JNIEnv *env, jobject ob
 
 	// Create a new automaton
 	basic_automaton_holder* automaton = new basic_automaton_holder;
-	
+
 	// Advance!
 	bool conjecture_ready = algorithm->advance(automaton);
-	
+
 	// Return a conjectrue if ready of NULL otherwise
 	if(conjecture_ready == true) return convertAutomaton(env, automaton);
 	else return NULL;
