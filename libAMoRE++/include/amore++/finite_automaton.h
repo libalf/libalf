@@ -147,7 +147,7 @@ class finite_automaton {
 		//
 		// states are named 0 .. state_count-1,
 		// transition attributes are 0 .. alphabet_size-1,
-		// an epsilon transition is denoted as alphabet_size
+		// an epsilon transition is denoted as -1
 		virtual bool construct(int alphabet_size, int state_count, std::set<int> &start, std::set<int> &final, transition_set &transitions);
 
 		virtual string generate_dotfile();

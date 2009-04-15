@@ -50,8 +50,8 @@ using namespace std;
 // libAMoRE is using '0' as epsilon, thus in amore, he alphabet is [1 .. size]
 // and not [0 .. size-1]
 //
-// libalf uses (in construct) any int >= alphabet_size to indicate an epsilon
-// transition and uses [0 .. size-1] as the alphabet.
+// libalf uses (in construct) -1 to indicate an epsilon transition and
+// uses [0 .. size-1] as the alphabet.
 
 
 deterministic_finite_automaton::deterministic_finite_automaton()

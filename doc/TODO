@@ -3,19 +3,16 @@
 
 A)
 
-- check EPSILON in amore/amore++ (-1 or > alphabet_size ?!)
-
-- RFSA, RFSA- NL* algorithm
+- RFSA + NL* algorithm
 
 - CPU/MEM stats for biermann
 
 - documentation (?)
 
-- integrate oracle into online-algorithms
-
-- JNI, explain Daniel what he needs for that (similar to dispatcher session)
-
 B)
+
+- check if template can be removed from learning_algorithm
+  (thus all alg. are of class learning_algorithm<bool>)
 
 - add normalizer to NL*
 
@@ -33,6 +30,8 @@ B)
 - knowledgebase also without undo/timestamps, to reduce memory footprint
 
 C)
+
+- efficient L* algorithm (tree-like)
 
 - in learn_regex: check/fix '+' operator in regex on command-line
 
