@@ -29,6 +29,8 @@ B)
 
 - knowledgebase also without undo/timestamps, to reduce memory footprint
 
+- in AMoRE++: _init and _fini are not working (linker stuff...)
+
 C)
 
 - efficient L* algorithm (tree-like)
