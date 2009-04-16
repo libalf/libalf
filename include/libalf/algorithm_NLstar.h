@@ -368,7 +368,28 @@ deserialization_failed:
 			
 		}
 
-		virtual void initialize_table()
+		virtual typename table::iterator search_upper_table(list<int> &word)
+		{
+			
+		}
+
+		virtual typename table::iterator search_lower_table(list<int> &word)
+		{
+			
+		}
+
+		virtual typename table::iterator search_tables(list<int> &word)
+		{{{
+			typename table::iterator it;
+
+			it = search_upper_table(word);
+			if(it != upper_table.end())
+				return it;
+
+			return search_lower_table(word);
+		}}}
+
+		virtual void initi_alize_table()
 		{{{
 			list<int> word; // empty word;
 
@@ -503,7 +524,39 @@ deserialization_failed:
 
 		virtual bool is_consistent()
 		{
-			
+			table::iterator uti1, uti2;
+
+			for(uti1 = upper_table.begin(); uti1 != upper_table.end(); uti1++) {
+				uti2 = uti1;
+				uti2++;
+				for(/* nothing */; uti2 != upper_table.end(); uti2++) {
+					if(uti1->covers(*uti2)) {
+						// check if all suffixes of uti1 cover the corresp. suffixes of uti2
+						list<int> w1, w2;
+						w1 = uti1->index;
+						w2 = uti2->index;
+
+						for(int sigma = 0; sigma < this->get_alphabet_size(); sigma++) {
+							table::iterator suffix1, suffix2;
+
+							w1.index.push_back(sigma);
+							suffix1 = search_table(w1);
+							w1.index.pop_back();
+
+							w2.ndex.push_back(sigma);
+							suffix2 = search_table(w2);
+							w2.index.pop_back();
+
+							if( ! suffix1->covers(*suffix2)) {
+								// uti1 covers uti2, but uti1.N does not cover uti2.N
+								return false;
+							}
+						}
+					}
+				}
+			}
+
+			return true;
 		}
 
 		// make table consistent: perform operations to do that.
