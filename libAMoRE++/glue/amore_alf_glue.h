@@ -43,6 +43,9 @@ class amore_automaton_holder : public automaton_constructor {
 		virtual void clear_automaton()
 		{ if(automaton) { delete automaton; automaton = NULL; } }
 
+		virtual void forget_automaton()
+		{ automaton = NULL; }
+
 		virtual bool can_construct_NFA()
 		{ return true; }
 
@@ -64,6 +67,7 @@ class amore_automaton_holder : public automaton_constructor {
 		}
 
 		virtual finite_automaton * get_automaton()
+		// the returned automaton instance will be deleted at some point if you don't holder->forget_automaton().
 		{ return automaton; }
 };
 
