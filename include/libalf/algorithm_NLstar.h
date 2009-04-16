@@ -46,6 +46,7 @@ class NLstar_table : public learning_algorithm<answer> {
 					for(ai1 = this->acceptance.begin(), ai2 = other.acceptance.begin(); ai1 != this->acceptance.end() && ai2 != other.acceptance.end(); ai1++, ai2++)
 						if(*ai1 == false && *ai2 == true)
 							return false;
+
 					return ( ai1 == this->acceptance.end() && ai2 == other.acceptance.end() );
 				}}}
 				bool __attribute__((const)) mutual_noncover(table_row & other)
@@ -79,7 +80,7 @@ class NLstar_table : public learning_algorithm<answer> {
 						if(*ai1 != *ai2)
 							return false;
 
-					return true;
+					return ( ai1 == this->acceptances.end() && ai2 == other.acceptance.end() );
 				}}}
 				bool __attribute__((const)) operator!=(table_row & other)
 				{{{
@@ -330,6 +331,38 @@ deserialization_failed:
 			return true;
 		}}}
 
+		virtual bool row_is_prime(const table::iterator & row)
+		// TODO: efficiency
+		{
+			table_row merge;
+			int cn = column_names.size();
+			int i;
+
+			// initialize merge-row
+			answer a_false = false;
+			for(i = 0; i < cn; i++)
+				merge.acceptance.push_back(a_false);
+
+			// join all covered rows into merge-row
+			table::iterator ti;
+			for(ti = upper_table.begin(); ti != upper_table.end(); ti++)
+				if(ti != row)
+					if(row->covers(*ti))
+						merge |= *ti;
+
+			// quick check if we are done
+			if(merge == *row)
+				return true;
+
+			for(ti = lower_table.begin(); ti != lower_table.end(); ti++)
+				if(ti != row)
+					if(row->covers(*ti))
+						merge |= *ti;
+
+			// if they are equal now, *row is composed from other rows
+			return (merge != *row);
+		}
+
 		virtual void add_word_to_upper_table(list<int> word, bool check_uniq = true)
 		{
 			
@@ -417,9 +450,47 @@ deserialization_failed:
 			return true;
 		}}}
 
+		// table is closed if for all rows R in lower table, R is composed from upper primes
+		// that are covered by R
 		virtual bool is_closed()
 		{
-			
+			table::iterator ti;
+			list<table::iterator> upper_primes;
+			// so first find all upper primes
+			for(ti = upper_table.begin(); ti != upper_table.end(); ti++)
+				if(row_is_prime(ti))
+					upper_primes.push_back(ti);
+
+			// prepare merge row
+			table_row merge;
+			answer a_false = false;
+			int cn = column_names.size();
+			int i;
+			for(i = 0; i < cn; i++)
+				merge.acceptance.push_back(a_false);
+			bool first = true;
+
+			// now check closed-ness of lower table
+			for(ti = lower_table.begin(); ti != lower_table.end(); ti++) {
+				// reset merge row
+				if(first)
+					first = false;
+				else
+					for(i = 0; i < cn; i++)
+						merge.acceptance[i] = a_false;
+
+				list<table::iterator>::iterator pri;
+				for(pri = upper_primes.begin(); pri != upper_primes.end(); pri++)
+					if(ti->covers(*pri))
+						merge |= *ti;
+
+				if(merge != *ti) {
+					// this row is not composed from upper primes!
+					return false;
+				}
+			}
+
+			return true;
 		}
 
 		// close table: perform operations to close it.
