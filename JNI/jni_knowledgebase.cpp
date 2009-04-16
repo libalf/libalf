@@ -3,10 +3,8 @@
  *
  * libalf JNI - Java Native Interface for Automata Learning Factory
  *
- * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
- *        <david-i2@piegdon.de>
- *    and Daniel Neider, i7 Informatik RWTH-Aachen
- *        <neider@automata.rwth-aachen.de>
+ * (c) Daniel Neider, i7 Informatik RWTH-Aachen
+ *     <neider@automata.rwth-aachen.de>
  *
  * see LICENSE file for licensing information.
  */
@@ -335,3 +333,4 @@ JNIEXPORT jstring JNICALL Java_de_libalf_jni_Knowledgebase_tostring (JNIEnv *env
 
 	return env->NewStringUTF(c);
 }
+

@@ -99,3 +99,4 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_AlgorithmAngluin_supports_1sync
 }
 #endif
 #endif
+

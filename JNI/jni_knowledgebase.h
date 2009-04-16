@@ -163,3 +163,4 @@ JNIEXPORT jstring JNICALL Java_de_libalf_jni_Knowledgebase_tostring
 }
 #endif
 #endif
+

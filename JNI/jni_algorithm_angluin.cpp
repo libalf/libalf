@@ -3,10 +3,8 @@
  *
  * libalf JNI - Java Native Interface for Automata Learning Factory
  *
- * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
- *        <david-i2@piegdon.de>
- *    and Daniel Neider, i7 Informatik RWTH-Aachen
- *        <neider@automata.rwth-aachen.de>
+ * (c) Daniel Neider, i7 Informatik RWTH-Aachen
+ *     <neider@automata.rwth-aachen.de>
  *
  * see LICENSE file for licensing information.
  */
@@ -279,3 +277,4 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_AlgorithmAngluin_supports_1sync (J
 	// Forward method call
 	return algorithm->supports_sync();
 }
+
