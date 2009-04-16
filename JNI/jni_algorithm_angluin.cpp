@@ -77,21 +77,21 @@ jobject create_transition(JNIEnv* env, int source, int label, int destination) {
 	 *Create new Java LibALFTransition object
 	 */
 	// Find class
-	jclass jcls = env->FindClass("LibALFTransition");
+	jclass jcls = env->FindClass("de/libalf/jni/BasicTransition");
 	if(jcls == NULL) {
-		cout << "Could not find Java Class 'LibALFTransition'!\nReturning NULL\n";
+		cout << "Could not find Java Class 'BasicTransition'!\nReturning NULL\n";
 		return NULL;
 	}
 	// Find constructor
 	jmethodID jmid = env->GetMethodID(jcls, "<init>", "(III)V");
 	if(jmid == NULL) {
-		cout << "Could not find constructor of 'LibALFTransition'!\nReturning NULL\n";
+		cout << "Could not find constructor of 'BasicTransition'!\nReturning NULL\n";
 		return NULL;
 	}
 	// Make new object
 	jobject java_transition = env->NewObject(jcls, jmid, source, label, destination);
 	if(jmid == NULL) {
-		cout << "Could not create new 'LibALFTransition' object!\nReturning NULL\n";
+		cout << "Could not create new 'BasicTransition' object!\nReturning NULL\n";
 		return NULL;
 	}
 	return java_transition;
@@ -102,21 +102,21 @@ jobject convertAutomaton(JNIEnv* env, basic_automaton_holder* automaton) {
 	 *Create new Java LibALFAutomaton object
 	 */
 	// Find class
-	jclass jcls = env->FindClass("LibALFAutomaton");
+	jclass jcls = env->FindClass("de/libalf/jni/BasicAutomaton");
 	if(jcls == NULL) {
-		cout << "Could not find Java Class 'LibALFAutomaton'!\nReturning NULL\n";
+		cout << "Could not find Java Class 'BaiscAutomaton'!\nReturning NULL\n";
 		return NULL;
 	}
 	// Find constructor
 	jmethodID jmid = env->GetMethodID(jcls, "<init>", "(ZII)V");
 	if(jmid == NULL) {
-		cout << "Could not find constructor of 'LibALFAutomaton'!\nReturning NULL\n";
+		cout << "Could not find constructor of 'BasicAutomaton'!\nReturning NULL\n";
 		return NULL;
 	}
 	// Make new object
 	jobject java_automaton = env->NewObject(jcls, jmid, automaton->is_dfa, automaton->state_count, automaton->alphabet_size);
 	if(jmid == NULL) {
-		cout << "Could not create new 'LibALFAutomaton' object!\nReturning NULL\n";
+		cout << "Could not create new 'BasicAutomaton' object!\nReturning NULL\n";
 		return NULL;
 	}
 
@@ -128,7 +128,7 @@ jobject convertAutomaton(JNIEnv* env, basic_automaton_holder* automaton) {
 	// Find the add initial states method
 	jmid = env->GetMethodID(jcls, "addInitialState", "(I)V");
 	if(jmid == 0) {
-		cout << "Could not find addInitialState of 'LibALFAutomaton'!\nReturning NULL\n";
+		cout << "Could not find addInitialState of 'BasicAutomaton'!\nReturning NULL\n";
 		return NULL;
 	}
 	// Process all initial states
@@ -143,7 +143,7 @@ jobject convertAutomaton(JNIEnv* env, basic_automaton_holder* automaton) {
 	// Find the add final states method
 	jmid = env->GetMethodID(jcls, "addFinalState", "(I)V");
 	if(jmid == 0) {
-		cout << "Could not find addFinalState of 'LibALFAutomaton'!\nReturning NULL\n";
+		cout << "Could not find addFinalState of 'BasicAutomaton'!\nReturning NULL\n";
 		return NULL;
 	}
 	// Process all initial states
@@ -155,9 +155,9 @@ jobject convertAutomaton(JNIEnv* env, basic_automaton_holder* automaton) {
 	 * Finally, process the transitions
 	 */
 	// Find the add transition method
-	jmid = env->GetMethodID(jcls, "addTransition", "(LLibALFTransition;)V");
+	jmid = env->GetMethodID(jcls, "addTransition", "(Lde/libalf/jni/BasicTransition;)V");
 	if(jmid == 0) {
-		cout << "Could not find addTransition of 'LibALFAutomaton'!\nReturning NULL\n";
+		cout << "Could not find addTransition of 'BasicFAutomaton'!\nReturning NULL\n";
 		return NULL;
 	}
 	// Process all transitions
@@ -171,7 +171,7 @@ jobject convertAutomaton(JNIEnv* env, basic_automaton_holder* automaton) {
 	return java_automaton;
 }
 
-JNIEXPORT jint JNICALL Java_AlgorithmAngluin_init (JNIEnv *env, jobject obj, jint alphabet_size, jint knowledgebase_pointer) {
+JNIEXPORT jint JNICALL Java_de_libalf_jni_AlgorithmAngluin_init (JNIEnv *env, jobject obj, jint alphabet_size, jint knowledgebase_pointer) {
 	// Get the knowledgebase object
 	knowledgebase<bool> *base = (knowledgebase<bool>*) knowledgebase_pointer;
 
@@ -182,7 +182,7 @@ JNIEXPORT jint JNICALL Java_AlgorithmAngluin_init (JNIEnv *env, jobject obj, jin
 	return ((jint)algorithm);
 }
 
-JNIEXPORT void JNICALL Java_AlgorithmAngluin_add_1counterexample (JNIEnv *env , jobject obj, jintArray counterexample, jint pointer) {
+JNIEXPORT void JNICALL Java_de_libalf_jni_AlgorithmAngluin_add_1counterexample (JNIEnv *env , jobject obj, jintArray counterexample, jint pointer) {
 	// Get Java array info
 	jsize length = env->GetArrayLength(counterexample);
 	jint *entry = env->GetIntArrayElements(counterexample, 0);
@@ -199,7 +199,7 @@ JNIEXPORT void JNICALL Java_AlgorithmAngluin_add_1counterexample (JNIEnv *env , 
 	algorithm->add_counterexample(ce);
 }
 
-JNIEXPORT jobject JNICALL Java_AlgorithmAngluin_advance (JNIEnv *env, jobject obj, jint pointer) {
+JNIEXPORT jobject JNICALL Java_de_libalf_jni_AlgorithmAngluin_advance (JNIEnv *env, jobject obj, jint pointer) {
 	// Get the algorithm object
 	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
 
@@ -214,7 +214,7 @@ JNIEXPORT jobject JNICALL Java_AlgorithmAngluin_advance (JNIEnv *env, jobject ob
 	else return NULL;
 }
 
-JNIEXPORT jboolean JNICALL Java_AlgorithmAngluin_conjecture_1ready (JNIEnv *evn, jobject obj, jint pointer) {
+JNIEXPORT jboolean JNICALL Java_de_libalf_jni_AlgorithmAngluin_conjecture_1ready (JNIEnv *evn, jobject obj, jint pointer) {
 	// Get the algorithm object
 	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
 
@@ -222,7 +222,7 @@ JNIEXPORT jboolean JNICALL Java_AlgorithmAngluin_conjecture_1ready (JNIEnv *evn,
 	return algorithm->conjecture_ready();
 }
 
-JNIEXPORT jint JNICALL Java_AlgorithmAngluin_get_1alphabet_1size (JNIEnv *env, jobject obj, jint pointer) {
+JNIEXPORT jint JNICALL Java_de_libalf_jni_AlgorithmAngluin_get_1alphabet_1size (JNIEnv *env, jobject obj, jint pointer) {
 	// Get the algorithm object
 	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
 
@@ -230,7 +230,7 @@ JNIEXPORT jint JNICALL Java_AlgorithmAngluin_get_1alphabet_1size (JNIEnv *env, j
 	return algorithm->get_alphabet_size();
 }
 
-JNIEXPORT void JNICALL Java_AlgorithmAngluin_increase_1alphabet_1size (JNIEnv *env, jobject obj, jint newSize, jint pointer) {
+JNIEXPORT void JNICALL Java_de_libalf_jni_AlgorithmAngluin_increase_1alphabet_1size (JNIEnv *env, jobject obj, jint newSize, jint pointer) {
 	// Get the algorithm object
 	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
 
@@ -238,7 +238,7 @@ JNIEXPORT void JNICALL Java_AlgorithmAngluin_increase_1alphabet_1size (JNIEnv *e
 	return algorithm->increase_alphabet_size(newSize);
 }
 
-JNIEXPORT void JNICALL Java_AlgorithmAngluin_set_1alphabet_1size (JNIEnv *env, jobject obj, jint newSize, jint pointer) {
+JNIEXPORT void JNICALL Java_de_libalf_jni_AlgorithmAngluin_set_1alphabet_1size (JNIEnv *env, jobject obj, jint newSize, jint pointer) {
 	// Get the algorithm object
 	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
 
@@ -246,7 +246,7 @@ JNIEXPORT void JNICALL Java_AlgorithmAngluin_set_1alphabet_1size (JNIEnv *env, j
 	return algorithm->set_alphabet_size(newSize);
 }
 
-JNIEXPORT void JNICALL Java_AlgorithmAngluin_set_1knowledge_1source (JNIEnv *env, jobject obj, jint knowledgebase_pointer, jint pointer) {
+JNIEXPORT void JNICALL Java_de_libalf_jni_AlgorithmAngluin_set_1knowledge_1source (JNIEnv *env, jobject obj, jint knowledgebase_pointer, jint pointer) {
 	// Get the knowledgebase object
 	knowledgebase<bool> *base = (knowledgebase<bool>*) knowledgebase_pointer;
 	// Get the algorithm object
@@ -256,7 +256,7 @@ JNIEXPORT void JNICALL Java_AlgorithmAngluin_set_1knowledge_1source (JNIEnv *env
 	return algorithm->set_knowledge_source(base);
 }
 
-JNIEXPORT void JNICALL Java_AlgorithmAngluin_set_1knowledge_1source_1NULL (JNIEnv *env, jobject obj, jint pointer) {
+JNIEXPORT void JNICALL Java_de_libalf_jni_AlgorithmAngluin_set_1knowledge_1source_1NULL (JNIEnv *env, jobject obj, jint pointer) {
 	// Get the algorithm object
 	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
 
@@ -264,3 +264,18 @@ JNIEXPORT void JNICALL Java_AlgorithmAngluin_set_1knowledge_1source_1NULL (JNIEn
 	return algorithm->set_knowledge_source(NULL);
 }
 
+JNIEXPORT jboolean JNICALL Java_de_libalf_jni_AlgorithmAngluin_sync_1to_1knowledgebase (JNIEnv *env, jobject obj, jint pointer) {
+	// Get the algorithm object
+	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
+
+	// Forward method call
+	return algorithm->sync_to_knowledgebase();
+}
+
+JNIEXPORT jboolean JNICALL Java_de_libalf_jni_AlgorithmAngluin_supports_1sync (JNIEnv *env, jobject obj, jint pointer) {
+	// Get the algorithm object
+	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
+
+	// Forward method call
+	return algorithm->supports_sync();
+}
