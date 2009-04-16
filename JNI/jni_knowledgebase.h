@@ -25,6 +25,14 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_Knowledgebase_is_1answered
 
 /*
  * Class:     de_libalf_jni_Knowledgebase
+ * Method:    getKnowledge
+ * Signature: (I)Lde/libalf/jni/WordList;
+ */
+JNIEXPORT jobject JNICALL Java_de_libalf_jni_Knowledgebase_getKnowledge
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     de_libalf_jni_Knowledgebase
  * Method:    is_empty
  * Signature: (I)Z
  */
@@ -42,7 +50,7 @@ JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_count_1queries
 /*
  * Class:     de_libalf_jni_Knowledgebase
  * Method:    getQueries
- * Signature: (I)Lde/libalf/jni/Queries;
+ * Signature: (I)Lde/libalf/jni/WordList;
  */
 JNIEXPORT jobject JNICALL Java_de_libalf_jni_Knowledgebase_getQueries
   (JNIEnv *, jobject, jint);
@@ -50,10 +58,18 @@ JNIEXPORT jobject JNICALL Java_de_libalf_jni_Knowledgebase_getQueries
 /*
  * Class:     de_libalf_jni_Knowledgebase
  * Method:    resolve_query
- * Signature: ([IZI)Z
+ * Signature: ([II)I
  */
-JNIEXPORT jboolean JNICALL Java_de_libalf_jni_Knowledgebase_resolve_1query
-  (JNIEnv *, jobject, jintArray, jboolean, jint);
+JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_resolve_1query
+  (JNIEnv *, jobject, jintArray, jint);
+
+/*
+ * Class:     de_libalf_jni_Knowledgebase
+ * Method:    resolve_or_add_query
+ * Signature: ([II)I
+ */
+JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_resolve_1or_1add_1query
+  (JNIEnv *, jobject, jintArray, jint);
 
 /*
  * Class:     de_libalf_jni_Knowledgebase
@@ -109,6 +125,38 @@ JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_get_1timestamp
  * Signature: (I)I
  */
 JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_count_1answers
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     de_libalf_jni_Knowledgebase
+ * Method:    generate_dotfile
+ * Signature: (I)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_de_libalf_jni_Knowledgebase_generate_1dotfile
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     de_libalf_jni_Knowledgebase
+ * Method:    serialize
+ * Signature: (I)[I
+ */
+JNIEXPORT jintArray JNICALL Java_de_libalf_jni_Knowledgebase_serialize
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     de_libalf_jni_Knowledgebase
+ * Method:    deserialize
+ * Signature: ([II)Z
+ */
+JNIEXPORT jboolean JNICALL Java_de_libalf_jni_Knowledgebase_deserialize
+  (JNIEnv *, jobject, jintArray, jint);
+
+/*
+ * Class:     de_libalf_jni_Knowledgebase
+ * Method:    tostring
+ * Signature: (I)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_de_libalf_jni_Knowledgebase_tostring
   (JNIEnv *, jobject, jint);
 
 #ifdef __cplusplus

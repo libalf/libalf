@@ -12,8 +12,14 @@
  */
 
 #include <string>
+#include <list>
+
+#include <jni.h>
 
 using namespace std;
 
 int32_t *basic_string2intarray(basic_string<int32_t> str);
 
+jintArray basic_string2jintArray(JNIEnv *, basic_string<int32_t>);
+
+jintArray list_int2jintArray(JNIEnv *, list<int>);

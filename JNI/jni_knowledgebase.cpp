@@ -12,6 +12,9 @@
  */
 
 #include <iostream>
+#include <string>
+
+#include "jni_tools.h"
 
 #include <libalf/automaton_constructor.h>
 #include <libalf/knowledgebase.h>
@@ -22,25 +25,6 @@
 
 using namespace std;
 using namespace libalf;
-
-jintArray makeJavaIntArray(JNIEnv *env, list<int> l) {
-	// Create new Java int array
-	jintArray arr = env->NewIntArray(l.size());
-
-	// Copy array
-	int intArray[l.size()];
-	int i=0;
-	list<int>::iterator li;
-	for(li = l.begin(); li != l.end(); li++) {
-		intArray[i] = *li;
-		i++;
-	}
-
-	// Fill Java array
-	env->SetIntArrayRegion(arr, 0, l.size(), (jint *)intArray);
-
-	return arr;
-}
 
 JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_init (JNIEnv *env, jobject obj) {
 	/*
@@ -66,6 +50,58 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_Knowledgebase_is_1empty (JNIEnv *e
 	return base->is_answered();
 }
 
+JNIEXPORT jobject JNICALL Java_de_libalf_jni_Knowledgebase_getKnowledge (JNIEnv *env, jobject obj, jint pointer) {
+	/*
+	 *Create new Java WordList object
+	 */
+	// Find class
+	jclass jcls = env->FindClass("de/libalf/jni/WordList");
+	if(jcls == NULL) {
+		cout << "Could not find Java Class 'WordList'!\nReturning NULL\n";
+		return NULL;
+	}
+	// Find constructor
+	jmethodID jmid = env->GetMethodID(jcls, "<init>", "()V");
+	if(jmid == NULL) {
+		cout << "Could not find constructor of 'WordList'!\nReturning NULL\n";
+		return NULL;
+	}
+	// Make new object
+	jobject java_queries = env->NewObject(jcls, jmid);
+	if(jmid == NULL) {
+		cout << "Could not create new 'WordList' object!\nReturning NULL\n";
+		return NULL;
+	}
+
+	// Get the knowledgebase object
+	knowledgebase<bool> *base = (knowledgebase<bool>*)pointer;
+
+	/*
+	 * Fill list
+	 */
+	knowledgebase<bool>::iterator ki;
+
+	// Find add method
+	jmid = env->GetMethodID(jcls, "jniAdd", "([I)V");
+	if(jmid == NULL) {
+		cout << "Could not find add method of 'WordList'!\nReturning NULL\n";
+		return NULL;
+	}
+	// Loop through all queries
+	for(ki = base->begin(); ki != base->end(); ki++) {
+		// Convert list to a Java array
+		jintArray arr = list_int2jintArray(env, ki->get_word());
+
+		/*
+		 * Add the array to the linked list
+		 */
+		env->CallVoidMethod(java_queries, jmid, arr);
+
+	}
+
+	return java_queries;
+}
+
 JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_count_1queries (JNIEnv *env, jobject obj, jint pointer) {
 	// Get the knowledgebase object
 	knowledgebase<bool> *base = (knowledgebase<bool>*)pointer;
@@ -76,24 +112,24 @@ JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_count_1queries (JNIEnv *
 
 JNIEXPORT jobject JNICALL Java_de_libalf_jni_Knowledgebase_getQueries (JNIEnv *env, jobject obj, jint pointer) {
 	/*
-	 *Create new Java LinkedList object
+	 *Create new Java WordList object
 	 */
 	// Find class
-	jclass jcls = env->FindClass("de/libalf/jni/Queries");
+	jclass jcls = env->FindClass("de/libalf/jni/WordList");
 	if(jcls == NULL) {
-		cout << "Could not find Java Class 'Queries'!\nReturning NULL\n";
+		cout << "Could not find Java Class 'WordList'!\nReturning NULL\n";
 		return NULL;
 	}
 	// Find constructor
 	jmethodID jmid = env->GetMethodID(jcls, "<init>", "()V");
 	if(jmid == NULL) {
-		cout << "Could not find constructor of 'Queries'!\nReturning NULL\n";
+		cout << "Could not find constructor of 'WordList'!\nReturning NULL\n";
 		return NULL;
 	}
 	// Make new object
 	jobject java_queries = env->NewObject(jcls, jmid);
 	if(jmid == NULL) {
-		cout << "Could not create new 'Queries' object!\nReturning NULL\n";
+		cout << "Could not create new 'WordList' object!\nReturning NULL\n";
 		return NULL;
 	}
 
@@ -109,13 +145,13 @@ JNIEXPORT jobject JNICALL Java_de_libalf_jni_Knowledgebase_getQueries (JNIEnv *e
 	//jmid = env->GetMethodID(jcls, "add", "(Ljava/lang/Object;)Z ");
 	jmid = env->GetMethodID(jcls, "jniAdd", "([I)V");
 	if(jmid == NULL) {
-		cout << "Could not find add method of 'LinkedList'!\nReturning NULL\n";
+		cout << "Could not find add method of 'WordList'!\nReturning NULL\n";
 		return NULL;
 	}
 	// Loop through all queries
 	for(ki = base->qbegin(); ki != base->qend(); ki++) {
 		// Convert list to a Java array
-		jintArray arr = makeJavaIntArray(env, ki->get_word());
+		jintArray arr = list_int2jintArray(env, ki->get_word());
 
 		/*
 		 * Add the array to the linked list
@@ -127,7 +163,7 @@ JNIEXPORT jobject JNICALL Java_de_libalf_jni_Knowledgebase_getQueries (JNIEnv *e
 	return java_queries;
 }
 
-JNIEXPORT jboolean JNICALL Java_de_libalf_jni_Knowledgebase_resolve_1query (JNIEnv *env, jobject obj, jintArray word, jboolean acceptance, jint pointer) {
+JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_resolve_1query (JNIEnv *env , jobject obj, jintArray word, jint pointer) {
 	// Get Java array info
 	jsize length = env->GetArrayLength(word);
 	jint *entry = env->GetIntArrayElements(word, 0);
@@ -141,8 +177,38 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_Knowledgebase_resolve_1query (JNIE
 	// Get the knowledgebase object
 	knowledgebase<bool> *base = (knowledgebase<bool>*)pointer;
 	// Forward method call
-	bool acc = acceptance;
-	return base->resolve_query(w, acc);
+	bool acc;
+	bool exists = base->resolve_query(w, acc);
+	
+	if(exists) {
+		if(acc) return 2;
+		else return 0;
+	}
+	else return 1;
+}
+
+JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_resolve_1or_1add_1query (JNIEnv *env, jobject obj, jintArray word, jint pointer) {
+	// Get Java array info
+	jsize length = env->GetArrayLength(word);
+	jint *entry = env->GetIntArrayElements(word, 0);
+	// Copy array
+	int len = (int)length;
+	list<int> w;
+	for(int i=0; i<len; i++) w.push_back(((jint)entry[i]));
+	// Clean
+	env->ReleaseIntArrayElements(word, entry, 0);
+
+	// Get the knowledgebase object
+	knowledgebase<bool> *base = (knowledgebase<bool>*)pointer;
+	// Forward method call
+	bool acc;
+	bool exists = base->resolve_or_add_query(w, acc);
+	
+	if(exists) {
+		if(acc) return 2;
+		else return 0;
+	}
+	else return 1;
 }
 
 JNIEXPORT jboolean JNICALL Java_de_libalf_jni_Knowledgebase_add_1knowledge (JNIEnv *env, jobject obj, jintArray word, jboolean acceptance, jint pointer) {
@@ -209,4 +275,63 @@ JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_count_1answers (JNIEnv *
 
 	// Forward method call
 	return base->count_answers();
+}
+
+JNIEXPORT jstring JNICALL Java_de_libalf_jni_Knowledgebase_generate_1dotfile (JNIEnv *env, jobject obj, jint pointer) {
+	// Get the knowledgebase object
+	knowledgebase<bool> *base = (knowledgebase<bool>*)pointer;
+
+	// Get string
+	string str;
+	str = base->generate_dotfile();
+
+	//Convert string
+	const char* c = str.c_str();
+
+	return env->NewStringUTF(c);
+}
+
+JNIEXPORT jintArray JNICALL Java_de_libalf_jni_Knowledgebase_serialize (JNIEnv *env, jobject obj, jint pointer) {
+	// Get the knowledgebase object
+	knowledgebase<bool> *base = (knowledgebase<bool>*)pointer;
+
+	// Convert
+	jintArray arr = basic_string2jintArray(env, base->serialize());
+
+	return arr;
+}
+
+JNIEXPORT jboolean JNICALL Java_de_libalf_jni_Knowledgebase_deserialize (JNIEnv *env, jobject obj, jintArray serialization, jint pointer) {
+	// Get Java array info
+	jsize length = env->GetArrayLength(serialization);
+	jint *entry = env->GetIntArrayElements(serialization, 0);
+	// Copy array
+	int len = (int)length;
+	basic_string<int32_t> ser;
+	for(int i=0; i<len; i++) ser.push_back(((jint)entry[i]));
+	// Clean
+	env->ReleaseIntArrayElements(serialization, entry, 0);
+
+	// Get the knowledgebase object
+	knowledgebase<bool> *base = (knowledgebase<bool>*)pointer;
+
+	// Forward method call
+	basic_string<int32_t>::iterator si;
+	si = ser.begin();
+	return base->deserialize(si, ser.end());
+}
+
+// Fix method
+JNIEXPORT jstring JNICALL Java_de_libalf_jni_Knowledgebase_tostring (JNIEnv *env , jobject obj, jint pointer) {
+	// Get the knowledgebase object
+	knowledgebase<bool> *base = (knowledgebase<bool>*)pointer;
+
+	// Get string
+	string str;
+	str = base->generate_dotfile();
+
+	//Convert string
+	const char* c = str.c_str();
+
+	return env->NewStringUTF(c);
 }
