@@ -369,14 +369,25 @@ deserialization_failed:
 		}
 
 		virtual typename table::iterator search_upper_table(list<int> &word)
-		{
-			
-		}
+		{{{
+			typename table::iterator uti;
+
+			for(uti = upper_table.begin(); uti != upper_table.end(); uti++) {
+				if(word == uti->index)
+					return uti;
+			}
+			return upper_table.end();
+		}}}
 
 		virtual typename table::iterator search_lower_table(list<int> &word)
-		{
-			
-		}
+		{{{
+			typename table::iterator lti;
+
+			for(lti = lower_table.begin(); lti != lower_table.end(); lti++)
+				if(word == lti->index)
+					return lti;
+			return lower_table.end();
+		}}}
 
 		virtual typename table::iterator search_tables(list<int> &word)
 		{{{
@@ -522,6 +533,8 @@ deserialization_failed:
 			
 		}
 
+		// table is consistent if for all upper rows with index u, v:
+		// u covers v -> for all N in sigma: u.N covers v.N
 		virtual bool is_consistent()
 		{
 			table::iterator uti1, uti2;
@@ -539,13 +552,13 @@ deserialization_failed:
 						for(int sigma = 0; sigma < this->get_alphabet_size(); sigma++) {
 							table::iterator suffix1, suffix2;
 
-							w1.index.push_back(sigma);
+							w1.push_back(sigma);
 							suffix1 = search_table(w1);
-							w1.index.pop_back();
+							w1.pop_back();
 
-							w2.ndex.push_back(sigma);
+							w2.push_back(sigma);
 							suffix2 = search_table(w2);
-							w2.index.pop_back();
+							w2.pop_back();
 
 							if( ! suffix1->covers(*suffix2)) {
 								// uti1 covers uti2, but uti1.N does not cover uti2.N
