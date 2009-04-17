@@ -14,6 +14,7 @@
 #include <libalf/alf.h>
 #include <libalf/algorithm_angluin.h>
 #include <libalf/algorithm_biermann_minisat.h>
+#include <libalf/algorithm_NLstar.h>
 #include <libalf/automaton_constructor.h>
 #include <libalf/normalizer_msc.h>
 
@@ -51,6 +52,10 @@ session::session(enum learning_algorithm<extended_bool>::algorithm algorithm, in
 			alg = new MiniSat_biermann<extended_bool>(&knowledge, &logger, alphabet_size);
 			logger(LOGGER_INFO, "new session: biermann with CSP2SAT and MiniSat SAT-solver\n");
 			break;
+//		case learning_algorithm<extended_bool>::ALG_NL_STAR:
+//			alg = new NLstar_table<extended_bool>(&knowledge, &logger, alphabet_size);
+//			logger(LOGGER_INFO, "new session: NL* algorithm, angluin-like learning of RFSA\n");
+//			break;
 		default:
 			alg = NULL;
 			logger(LOGGER_ERROR, "new session: received invalid algorithm '%d'\n", algorithm);

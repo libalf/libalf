@@ -14,7 +14,9 @@ CFLAGS+= -DDEBUG -DJAVAEXCEPT -DLIBAMORE -DUNIX -DLINUX -DBIT32
 CFLAGS+= -Wall
 CFLAGS+= -Iinclude
 CFLAGS+= -fno-stack-protector
-CPPFLAGS+= -shared -fpic
+CFLAGS+= -ggdb3
+
+LDFLAGS+= -ggdb3 -fpic -shared
 
 # data objects
 LdoOBJ = nfa.o dfa.o regexp.o sfexp.o mon.o language.o rexFromString.o
@@ -44,7 +46,7 @@ libAMoRE.a: $(OBJ)
 	ar rs $@ $?
 
 libAMoRE.so: $(OBJ)
-	ld -o $@ -shared -fpic $?
+	gcc ${LDFLAGS} -o $@ $?
 
 docs/html/index.html:
 	$(MAKE) doc

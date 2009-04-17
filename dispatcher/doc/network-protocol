@@ -347,7 +347,9 @@ enum server_message {
 enum algorithm {
 	ALG_NONE = 0,
 	ALG_ANGLUIN = 1,
-	ALG_BIERMANN = 2
+	ALG_BIERMANN = 2,
+	ALG_BIERMANN_ANGLUIN = 3,
+	ALG_NL_STAR = 4
 }
 
 // (enum algorithm corresponds to enum libalf::learning_algorithm::algorithm)

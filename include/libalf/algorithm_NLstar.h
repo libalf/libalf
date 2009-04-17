@@ -42,7 +42,7 @@ class NLstar_table : public learning_algorithm<answer> {
 			public:
 				bool __attribute__((const)) covers(table_row & other)
 				{{{
-					acceptances::iterator ai1, ai2;
+					typename acceptances::iterator ai1, ai2;
 					for(ai1 = this->acceptance.begin(), ai2 = other.acceptance.begin(); ai1 != this->acceptance.end() && ai2 != other.acceptance.end(); ai1++, ai2++)
 						if(*ai1 == false && *ai2 == true)
 							return false;
@@ -51,7 +51,7 @@ class NLstar_table : public learning_algorithm<answer> {
 				}}}
 				bool __attribute__((const)) mutual_noncover(table_row & other)
 				{{{
-					acceptances::iterator ai1, ai2;
+					typename acceptances::iterator ai1, ai2;
 					bool tNCo = false, oNCt = false;
 					for(ai1 = this->acceptance.begin(), ai2 = other.acceptance.begin(); ai1 != this->acceptance.end() && ai2 != other.acceptance.end(); ai1++, ai2++) {
 						if(*ai1 == false && *ai2 == true) {
@@ -69,18 +69,18 @@ class NLstar_table : public learning_algorithm<answer> {
 					}
 
 					if( ai1 == this->acceptance.end() && ai2 == other.acceptance.end() )
-						return tC0 && oCt;
+						return tNCo && oNCt;
 					else
 						return false;
 				}}}
 				bool __attribute__((const)) operator==(table_row & other)
 				{{{
-					acceptances::iterator ai1, ai2;
+					typename acceptances::iterator ai1, ai2;
 					for(ai1 = this->acceptance.begin(), ai2 = other.acceptance.begin(); ai1 != this->acceptance.end() && ai2 != other.acceptance.end(); ai1++, ai2++)
 						if(*ai1 != *ai2)
 							return false;
 
-					return ( ai1 == this->acceptances.end() && ai2 == other.acceptance.end() );
+					return ( ai1 == this->acceptance.end() && ai2 == other.acceptance.end() );
 				}}}
 				bool __attribute__((const)) operator!=(table_row & other)
 				{{{
@@ -90,7 +90,7 @@ class NLstar_table : public learning_algorithm<answer> {
 				// join other row into this row
 				void operator|=(table_row & other)
 				{{{
-					acceptances::iterator ai1, ai2;
+					typename acceptances::iterator ai1, ai2;
 					for(ai1 = this->acceptance.begin(), ai2 = other.acceptance.begin(); ai1 != this->acceptance.end() && ai2 != other.acceptance.end(); ai1++, ai2++)
 						if(*ai2 == true)
 							*ai1 = true;
@@ -168,10 +168,10 @@ deserialization_failed:
 
 				}}}
 
-				string tostring();
+				string tostring()
 				{{{
 					string s;
-					list<answer>::iterator acci;
+					typename acceptances::iterator acci;
 
 					s = word2string(index);
 					s += ": ";
@@ -193,8 +193,8 @@ deserialization_failed:
 					size_t s;
 					list< list<int> >::iterator acci;
 
-					s += sizeof(list<int>) + sizeof(int) * index.length();
-					s += sizeof(acceptances) + sizeof(answer) * acceptances.length();
+					s += sizeof(list<int>) + sizeof(int) * index.size();
+					s += sizeof(acceptances) + sizeof(answer) * acceptance.size();
 
 					return s;
 				}}}
@@ -213,9 +213,9 @@ deserialization_failed:
 	public:
 		NLstar_table(knowledgebase<answer> *base, logger *log, int alphabet_size)
 		{{{
-			set_alphabet_size(alphabet_size);
-			set_logger(log);
-			set_knowledge_source(base);
+			this->set_alphabet_size(alphabet_size);
+			this->set_logger(log);
+			this->set_knowledge_source(base);
 			initialized = false;
 		}}}
 
@@ -227,27 +227,28 @@ deserialization_failed:
 		virtual void get_memory_statistics(statistics & stats)
 		{{{
 			// get memory footprint:
-			columnlist::iterator ci;
-			table::iterator ti;
+			typename columnlist::iterator ci;
+			typename table::iterator ti;
 
-			stats.bytes = sizeof(this);
+			stats.table_size.bytes = sizeof(this);
 			for(ci = column_names.begin(); ci != column_names.end(); ci++)
-				stats.bytes += sizeof(list<int>) + sizeof(int) * (ci->length());
-			for(ti = upper_table.begin(); ti != upper_table.end(); ti++) {
-				stats.bytes += ti->memory_usage();
-			for(ti = lower_table.begin(); ti != lower_table.end(); ti++) {
-				stats.bytes += ti->memory_usage();
+				stats.table_size.bytes += sizeof(list<int>) + sizeof(int) * (ci->size());
+			for(ti = upper_table.begin(); ti != upper_table.end(); ti++)
+				stats.table_size.bytes += ti->memory_usage();
+			for(ti = lower_table.begin(); ti != lower_table.end(); ti++)
+				stats.table_size.bytes += ti->memory_usage();
 			// members
-			stats.columns = column_names.length();
-			stats.upper_table = upper_tables.length();
-			stats.lower_table = lower_tables.length();
-			stats.members = stats.columns * (stats.upper_table + stats.lower_table);
-			stats.words = stats.members;
+			stats.table_size.columns = column_names.size();
+			stats.table_size.upper_table = upper_table.size();
+			stats.table_size.lower_table = lower_table.size();
+			stats.table_size.members = stats.table_size.columns * (stats.table_size.upper_table + stats.table_size.lower_table);
+			stats.table_size.words = stats.table_size.members;
 		}}}
 
 		virtual bool sync_to_knowledgebase()
 		{{{
 			(*this->my_logger)(LOGGER_ERROR, "NL* does not support sync-operation (undo) for now.\n");
+			return false;
 		}}}
 		virtual bool supports_sync()
 		{{{
@@ -271,8 +272,8 @@ deserialization_failed:
 		virtual string tostring()
 		{{{
 			string s;
-			columntlist::iterator ci;
-			table::iterator ti;
+			typename columnlist::iterator ci;
+			typename table::iterator ti;
 
 			s = "NL* table {\n";
 			s += "\tcolumns:";
@@ -291,6 +292,8 @@ deserialization_failed:
 				s += ti->tostring();
 			}
 			s += "}\n";
+
+			return s;
 		}}}
 
 		virtual bool conjecture_ready()
@@ -312,7 +315,7 @@ deserialization_failed:
 					sigma = w.front();
 				w.pop_front();
 			}
-			if(sigma+1 > get_alphabet_size())
+			if(sigma+1 > this->get_alphabet_size())
 				increase_alphabet_size(sigma+1);
 		}}}
 
@@ -331,7 +334,7 @@ deserialization_failed:
 			return true;
 		}}}
 
-		virtual bool row_is_prime(const table::iterator & row)
+		virtual bool row_is_prime(typename table::iterator & row)
 		// TODO: efficiency
 		{
 			table_row merge;
@@ -339,12 +342,13 @@ deserialization_failed:
 			int i;
 
 			// initialize merge-row
-			answer a_false = false;
+			answer a_false;
+			a_false = false;
 			for(i = 0; i < cn; i++)
 				merge.acceptance.push_back(a_false);
 
 			// join all covered rows into merge-row
-			table::iterator ti;
+			typename table::iterator ti;
 			for(ti = upper_table.begin(); ti != upper_table.end(); ti++)
 				if(ti != row)
 					if(row->covers(*ti))
@@ -400,7 +404,7 @@ deserialization_failed:
 			return search_lower_table(word);
 		}}}
 
-		virtual void initi_alize_table()
+		virtual void initialize_table()
 		{{{
 			list<int> word; // empty word;
 
@@ -434,7 +438,8 @@ deserialization_failed:
 						// fill in missing acceptance information
 						columnlist::iterator ci;
 						ci = column_names.begin();
-						ci += ti->acceptance.size();
+						for(int i = ti->acceptance.size(); i > 0; i--)
+							ci++;
 						bool column_skipped = false;
 						for(/* -- */; ci != column_names.end(); ci++) {
 							if(!ci->empty() && ci->front() == BOTTOM_CHAR) {
@@ -486,8 +491,8 @@ deserialization_failed:
 		// that are covered by R
 		virtual bool is_closed()
 		{
-			table::iterator ti;
-			list<table::iterator> upper_primes;
+			typename table::iterator ti;
+			list<typename table::iterator> upper_primes;
 			// so first find all upper primes
 			for(ti = upper_table.begin(); ti != upper_table.end(); ti++)
 				if(row_is_prime(ti))
@@ -495,7 +500,8 @@ deserialization_failed:
 
 			// prepare merge row
 			table_row merge;
-			answer a_false = false;
+			answer a_false;
+			a_false = false;
 			int cn = column_names.size();
 			int i;
 			for(i = 0; i < cn; i++)
@@ -511,9 +517,9 @@ deserialization_failed:
 					for(i = 0; i < cn; i++)
 						merge.acceptance[i] = a_false;
 
-				list<table::iterator>::iterator pri;
+				typename list<typename table::iterator>::iterator pri;
 				for(pri = upper_primes.begin(); pri != upper_primes.end(); pri++)
-					if(ti->covers(*pri))
+					if(ti->covers(**pri))
 						merge |= *ti;
 
 				if(merge != *ti) {
@@ -537,7 +543,7 @@ deserialization_failed:
 		// u covers v -> for all N in sigma: u.N covers v.N
 		virtual bool is_consistent()
 		{
-			table::iterator uti1, uti2;
+			typename table::iterator uti1, uti2;
 
 			for(uti1 = upper_table.begin(); uti1 != upper_table.end(); uti1++) {
 				uti2 = uti1;
@@ -550,14 +556,14 @@ deserialization_failed:
 						w2 = uti2->index;
 
 						for(int sigma = 0; sigma < this->get_alphabet_size(); sigma++) {
-							table::iterator suffix1, suffix2;
+							typename table::iterator suffix1, suffix2;
 
 							w1.push_back(sigma);
-							suffix1 = search_table(w1);
+							suffix1 = search_tables(w1);
 							w1.pop_back();
 
 							w2.push_back(sigma);
-							suffix2 = search_table(w2);
+							suffix2 = search_tables(w2);
 							w2.pop_back();
 
 							if( ! suffix1->covers(*suffix2)) {

@@ -44,7 +44,7 @@ class learning_algorithm {
 			ALG_ANGLUIN = 1,
 			ALG_BIERMANN = 2,
 			ALG_BIERMANN_ANGLUIN = 3,
-			ALG_RFSA = 4
+			ALG_NL_STAR = 4
 		};
 
 	public: // methods
