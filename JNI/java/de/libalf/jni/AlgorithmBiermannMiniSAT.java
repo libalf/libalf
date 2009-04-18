@@ -1,8 +1,8 @@
 package de.libalf.jni;
 
-public class AlgorithmAngluin extends JNIAlgorithm {
+public class AlgorithmBiermannMiniSAT extends JNIAlgorithm {
 
-	public AlgorithmAngluin(Knowledgebase knowledgebase, int alphabet_size) {
+	public AlgorithmBiermannMiniSAT(Knowledgebase knowledgebase, int alphabet_size) {
 		this.knowledgebase = knowledgebase;
 		this.pointer = init(alphabet_size, knowledgebase.getPointer());
 	}
