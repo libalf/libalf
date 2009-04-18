@@ -1,0 +1,168 @@
+/* $Id: jni_algorithm_angluin.cpp 490 2009-04-16 20:40:34Z davidpiegdon $
+ * vim: fdm=marker
+ *
+ * libalf JNI - Java Native Interface for Automata Learning Factory
+ *
+ * (c) Daniel Neider, i7 Informatik RWTH-Aachen
+ *     <neider@automata.rwth-aachen.de>
+ *
+ * see LICENSE file for licensing information.
+ */
+
+#include <iostream>
+#include <string>
+
+#include "jni_tools.h"
+
+#include <libalf/automaton_constructor.h>
+#include <libalf/knowledgebase.h>
+#include <libalf/learning_algorithm.h>
+
+#include <jni.h>
+
+#include "jni_algorithm.h"
+
+using namespace std;
+using namespace libalf;
+
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithm_add_1counterexample (JNIEnv *env , jobject obj, jintArray counterexample, jint pointer) {
+	// Get Java array info
+	jsize length = env->GetArrayLength(counterexample);
+	jint *entry = env->GetIntArrayElements(counterexample, 0);
+	// Copy array
+	int len = (int)length;
+	list<int> ce;
+	for(int i=0; i<len; i++) ce.push_back(((jint)entry[i]));
+	// Clean
+	env->ReleaseIntArrayElements(counterexample, entry, 0);
+
+	// Get the algorithm object
+	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
+	// Forward method call
+	algorithm->add_counterexample(ce);
+}
+
+JNIEXPORT jobject JNICALL Java_de_libalf_jni_JNIAlgorithm_advance (JNIEnv *env, jobject obj, jint pointer) {
+	// Get the algorithm object
+	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
+
+	// Create a new automaton
+	basic_automaton_holder* automaton = new basic_automaton_holder;
+
+	// Advance!
+	bool conjecture_ready = algorithm->advance(automaton);
+
+	// Return a conjectrue if ready of NULL otherwise
+	if(conjecture_ready == true) return convertAutomaton(env, automaton);
+	else return NULL;
+}
+
+JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithm_conjecture_1ready (JNIEnv *evn, jobject obj, jint pointer) {
+	// Get the algorithm object
+	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
+
+	// Forward method call
+	return algorithm->conjecture_ready();
+}
+
+JNIEXPORT jint JNICALL Java_de_libalf_jni_JNIAlgorithm_get_1alphabet_1size (JNIEnv *env, jobject obj, jint pointer) {
+	// Get the algorithm object
+	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
+
+	// Forward method call
+	return algorithm->get_alphabet_size();
+}
+
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithm_increase_1alphabet_1size (JNIEnv *env, jobject obj, jint newSize, jint pointer) {
+	// Get the algorithm object
+	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
+
+	// Forward method call
+	return algorithm->increase_alphabet_size(newSize);
+}
+
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithm_set_1alphabet_1size (JNIEnv *env, jobject obj, jint newSize, jint pointer) {
+	// Get the algorithm object
+	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
+
+	// Forward method call
+	return algorithm->set_alphabet_size(newSize);
+}
+
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithm_set_1knowledge_1source (JNIEnv *env, jobject obj, jint knowledgebase_pointer, jint pointer) {
+	// Get the knowledgebase object
+	knowledgebase<bool> *base = (knowledgebase<bool>*) knowledgebase_pointer;
+	// Get the algorithm object
+	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
+
+	// Forward method call
+	return algorithm->set_knowledge_source(base);
+}
+
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithm_set_1knowledge_1source_1NULL (JNIEnv *env, jobject obj, jint pointer) {
+	// Get the algorithm object
+	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
+
+	// Forward method call
+	return algorithm->set_knowledge_source(NULL);
+}
+
+JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithm_sync_1to_1knowledgebase (JNIEnv *env, jobject obj, jint pointer) {
+	// Get the algorithm object
+	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
+
+	// Forward method call
+	return algorithm->sync_to_knowledgebase();
+}
+
+JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithm_supports_1sync (JNIEnv *env, jobject obj, jint pointer) {
+	// Get the algorithm object
+	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
+
+	// Forward method call
+	return algorithm->supports_sync();
+}
+
+JNIEXPORT jintArray JNICALL Java_de_libalf_jni_JNIAlgorithm_serialize (JNIEnv *env, jobject obj, jint pointer) {
+	// Get the algorithm object
+	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
+
+	// Convert
+	jintArray arr = basic_string2jintArray(env, algorithm->serialize());
+
+	return arr;
+}
+
+JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithm_deserialize (JNIEnv *env, jobject obj, jintArray serialization, jint pointer) {
+	// Get Java array info
+	jsize length = env->GetArrayLength(serialization);
+	jint *entry = env->GetIntArrayElements(serialization, 0);
+	// Copy array
+	int len = (int)length;
+	basic_string<int32_t> ser;
+	for(int i=0; i<len; i++) ser.push_back(((jint)entry[i]));
+	// Clean
+	env->ReleaseIntArrayElements(serialization, entry, 0);
+
+	// Get the algorithm object
+	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
+
+	// Forward method call
+	basic_string<int32_t>::iterator si;
+	si = ser.begin();
+	return algorithm->deserialize(si, ser.end());
+}
+
+JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNIAlgorithm_tostring (JNIEnv *env, jobject obj, jint pointer) {
+	// Get the algorithm object
+	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
+
+	// Get string
+	string str;
+	str = algorithm->tostring();
+
+	//Convert string
+	const char* c = str.c_str();
+
+	return env->NewStringUTF(c);
+}

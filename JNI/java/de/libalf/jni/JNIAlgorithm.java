@@ -1,0 +1,112 @@
+package de.libalf.jni;
+
+/**
+ * Simply override the constructor to initialize a certain learning algorithm. All
+ * other methods are provided by this class.
+ *
+ * Also make sure that this class cannot be initialized.
+ *
+ * @author Daniel Neider, Chair of Computer Science 7, RWTH Aachen University
+ * @version 1.0
+ */
+public abstract class JNIAlgorithm extends LibALFObject implements LearningAlgorithm {
+
+	Knowledgebase knowledgebase;
+
+	@Override
+	public Knowledgebase get_knowledge_source() {
+		return knowledgebase;
+	}
+
+	@Override
+	public void add_counterexample(int[] counterexample) {
+		add_counterexample(counterexample, this.pointer);
+	}
+
+	private native void add_counterexample(int[] counterexample, int pointer);
+
+	@Override
+	public BasicAutomaton advance() {
+		return advance(this.pointer);
+	}
+
+	private native BasicAutomaton advance(int pointer);
+
+	@Override
+	public boolean conjecture_ready() {
+		return conjecture_ready(this.pointer);
+	}
+
+	private native boolean conjecture_ready(int pointer);
+
+	@Override
+	public int get_alphabet_size() {
+		return get_alphabet_size(this.pointer);
+	}
+
+	private native int get_alphabet_size(int pointer);
+
+	@Override
+	public void increase_alphabet_size(int newSize) {
+		increase_alphabet_size(newSize, this.pointer);
+
+	}
+
+	private native void increase_alphabet_size(int newSize, int pointer);
+
+	@Override
+	public void set_alphabet_size(int alphabetSize) {
+		set_alphabet_size(alphabetSize, this.pointer);
+
+	}
+
+	private native void set_alphabet_size(int alphabetSize, int pointer);
+
+	@Override
+	public void set_knowledge_source(Knowledgebase base) {
+		if (base == null)
+			set_knowledge_source_NULL(this.pointer);
+		else
+			set_knowledge_source(base.getPointer(), this.pointer);
+	}
+
+	private native void set_knowledge_source(int knowledgebase_pointer,
+			int pointer);
+
+	private native void set_knowledge_source_NULL(int pointer);
+
+	@Override
+	public boolean sync_to_knowledgebase() {
+		return sync_to_knowledgebase(this.pointer);
+	}
+
+	private native boolean sync_to_knowledgebase(int pointer);
+
+	@Override
+	public boolean supports_sync() {
+		return supports_sync(this.pointer);
+	}
+
+	private native boolean supports_sync(int pointer);
+
+	@Override
+	public int[] serialize() {
+		return serialize(this.pointer);
+	}
+
+	private native int[] serialize(int pointer);
+	
+	@Override
+	public boolean deserialize(int[] serialization) {
+		return deserialize(serialization, this.pointer);
+	}
+
+	private native boolean deserialize(int[] serialization, int pointer);
+
+	@Override	
+	public String toString() {
+		return tostring(this.pointer);
+	}
+
+	private native String tostring(int pointer);
+}
