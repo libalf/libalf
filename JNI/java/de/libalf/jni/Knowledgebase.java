@@ -141,15 +141,15 @@ public class Knowledgebase extends LibALFObject {
 
 	private native int[] serialize(int pointer);
 
-	public String toString() {
-		return tostring(this.pointer);
-	}
-
 	public boolean deserialize(int[] serialization) {
 		return deserialize(serialization, this.pointer);
 	}
 
 	private native boolean deserialize(int[] serialization, int pointer);
+
+	public String toString() {
+		return tostring(this.pointer);
+	}
 
 	private native String tostring(int pointer);
 
@@ -157,7 +157,7 @@ public class Knowledgebase extends LibALFObject {
 	// //////////////////////////////////////////////////////////
 
 	public static void main(String[] args) {
-		System.loadLibrary("alf_jni");
+		//System.loadLibrary("alf_jni");
 		Knowledgebase base = new Knowledgebase();
 
 		base.add_knowledge(new int[] {}, true);

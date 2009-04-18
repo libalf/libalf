@@ -12,11 +12,17 @@
 #include <string>
 #include <list>
 
+#include <libalf/automaton_constructor.h>
+
 #include <jni.h>
 
 using namespace std;
+using namespace libalf;
 
 jintArray basic_string2jintArray(JNIEnv *, basic_string<int32_t>);
 
 jintArray list_int2jintArray(JNIEnv *, list<int>);
 
+jobject create_transition(JNIEnv*, int, int, int);
+
+jobject convertAutomaton(JNIEnv*, basic_automaton_holder*);
