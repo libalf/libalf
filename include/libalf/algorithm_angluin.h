@@ -1166,14 +1166,15 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 
 			// for all words in the upper table,
 			for(uti = this->upper_table.begin(); uti != this->upper_table.end(); uti++) {
-				list<int> word;
-				row.index = uti->index;
+				list<int> w;
+				w = uti->index;
 
 				// add them suffixed with the new characters into the lower table.
 				for(int new_suffix = this->get_alphabet_size(); new_suffix < new_asize; new_suffix++) {
-					row.index.push_back(new_suffix);
+					w.push_back(new_suffix);
+					row.index = prefix_normal_form(w);
+					w.pop_back();
 					this->lower_table.push_back(row);
-					row.index.pop_back();
 				}
 			}
 
