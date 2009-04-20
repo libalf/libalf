@@ -356,6 +356,7 @@ deserialization_failed:
 
 		virtual bool row_is_prime(typename table::iterator & row)
 		{{{
+//			cout << "\tchecking if "; print_word(cout, row->index); cout << " is prime:\n";
 			table_row merge;
 			int cn = column_names.size();
 			int i;
@@ -375,6 +376,7 @@ deserialization_failed:
 					if(row->covers(*ti)) {
 						merge |= *ti;
 						joined = true;
+//						cout << "\t\tjoining upper " << ti->tostring() << "\t\t\t=> " << merge.tostring();
 					}
 
 			// quick check if we are done
@@ -387,6 +389,7 @@ deserialization_failed:
 					if(row->covers(*ti)) {
 						joined = true;
 						merge |= *ti;
+//						cout << "\t\tjoining lower " << ti->tostring() << "\t\t\t=> " << merge.tostring();
 					}
 
 			// if they are equal now, *row is composed from other rows
@@ -583,12 +586,15 @@ deserialization_failed:
 					for(i = 0; i < cn; i++)
 						merge.acceptance[i] = a_false;
 
+				bool joined = false;
 				typename list<typename table::iterator>::iterator pri;
 				for(pri = upper_primes.begin(); pri != upper_primes.end(); pri++)
-					if(ti->covers(**pri))
-						merge |= *ti;
+					if(ti->covers(**pri)) {
+						merge |= **pri;
+						joined = true;
+					}
 
-				if(merge != *ti) {
+				if(!joined || merge != *ti) {
 					// this row is not composed from upper primes!
 					return false;
 				}
@@ -602,6 +608,7 @@ deserialization_failed:
 		// returns false if table was changed (and thus needs to be filled)
 		virtual bool close()
 		{{{
+//			cout << "close() getting upper primes:\n";
 			typename table::iterator ti;
 			list<typename table::iterator> upper_primes;
 			// prepare merge row
@@ -613,36 +620,57 @@ deserialization_failed:
 
 			// first find all upper primes
 			for(ti = upper_table.begin(); ti != upper_table.end(); ti++)
-				if(row_is_prime(ti))
+				if(row_is_prime(ti)) {
 					upper_primes.push_back(ti);
+//					cout << "\t" << word2string(ti->index) << " is upper prime.\n";
+				}
 
 			first = true;
 			a_false = false;
 			for(i = 0; i < cn; i++)
 				merge.acceptance.push_back(a_false);
 
+//			cout << "close() finding non-prime-covered rows in lower table:\n";
 			// now check closed-ness of lower table
 			for(ti = lower_table.begin(); ti != lower_table.end(); ti++) {
+//				cout << "\tchecking " << word2string(ti->index) << " :\n";
 				// reset merge row
 				if(first)
 					first = false;
 				else
 					for(i = 0; i < cn; i++)
 						merge.acceptance[i] = a_false;
-				bool joined = false;
 
+				bool joined = false;
 				typename list<typename table::iterator>::iterator pri;
 				for(pri = upper_primes.begin(); pri != upper_primes.end(); pri++)
 					if(ti->covers(**pri)) {
 						merge |= **pri;
 						joined = true;
+//						cout << "\t\tjoining upper " << (*pri)->tostring() << "\t\t\t=> " << merge.tostring();
 					}
 
 				if(!joined || merge != *ti) {
 					// this row is not composed from upper primes!
-					// move it to upper table.
-					add_word_to_upper_table(ti->index);
-					return false;
+					// find a non-covered prime in lower and move it up:
+
+					for(ti = lower_table.begin(); ti != lower_table.end(); ti++) {
+						if(row_is_prime(ti)) {
+							bool already_in_upper = false;
+							for(pri = upper_primes.begin(); pri != upper_primes.end(); pri++) {
+								if(**pri == *ti) {
+									already_in_upper = true;
+									break;
+								}
+							}
+							if(!already_in_upper) {
+//								cout << "    moving word " << word2string(ti->index) << " to upper to close table.\n";
+								add_word_to_upper_table(ti->index);
+								return false;
+
+							}
+						}
+					}
 				}
 			}
 
@@ -745,6 +773,7 @@ deserialization_failed:
 				initialize_table();
 
 			if(fill_missing_columns(upper_table) && fill_missing_columns(lower_table)) {
+//				cout << "----------------------- \n"; print(cout);
 				if(!close())
 					return complete();
 
