@@ -96,20 +96,20 @@ int main(int argc, char**argv)
 		while( ! ot.advance(&hypothesis) ) {
 			// resolve missing knowledge:
 
-			snprintf(filename, 128, "knowledgebase%2d%c.dot", iteration, c);
+			snprintf(filename, 128, "knowledgebase%02d%c.dot", iteration, c);
 			file.open(filename); file << knowledge.generate_dotfile(); file.close();
 
 			// create query-tree
 			knowledgebase<ANSWERTYPE> * query;
 			query = knowledge.create_query_tree();
 
-			snprintf(filename, 128, "knowledgebase%2d%c-q.dot", iteration, c);
+			snprintf(filename, 128, "knowledgebase%02d%c-q.dot", iteration, c);
 			file.open(filename); file << query->generate_dotfile(); file.close();
 
 			// answer queries
 			stats.query_count.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*nfa, *query);
 
-			snprintf(filename, 128, "knowledgebase%2d%c-r.dot", iteration, c);
+			snprintf(filename, 128, "knowledgebase%02d%c-r.dot", iteration, c);
 			file.open(filename); file << query->generate_dotfile(); file.close();
 
 			// merge answers into knowledgebase
@@ -123,12 +123,13 @@ int main(int argc, char**argv)
 			basic_string<int32_t> serialized;
 			basic_string<int32_t>::iterator it;
 
-			snprintf(filename, 128, "observationtable%2d.text.angluin", iteration);
+			snprintf(filename, 128, "observationtable%02d.text.angluin", iteration);
 			file.open(filename); ot.print(file); file.close();
 
+			/*
 			serialized = ot.serialize();
 
-			snprintf(filename, 128, "observationtable%2d.serialized.angluin", iteration);
+			snprintf(filename, 128, "observationtable%02d.serialized.angluin", iteration);
 			file.open(filename);
 
 			for(it = serialized.begin(); it != serialized.end(); it++) {
@@ -137,9 +138,10 @@ int main(int argc, char**argv)
 			}
 
 			file.close();
+			*/
 		}}}
 
-		snprintf(filename, 128, "hypothesis%2d.dot", iteration);
+		snprintf(filename, 128, "hypothesis%02d.dot", iteration);
 		file.open(filename); file << hypothesis.get_automaton()->generate_dotfile(); file.close();
 
 		// once an automaton is generated, test for equivalence with oracle_automaton
@@ -153,7 +155,7 @@ int main(int argc, char**argv)
 			break;
 		}
 
-		snprintf(filename, 128, "counterexample%2d.angluin", iteration);
+		snprintf(filename, 128, "counterexample%02d.angluin", iteration);
 		file.open(filename);
 		print_word(file, counterexample);
 		ot.add_counterexample(counterexample);
@@ -161,7 +163,7 @@ int main(int argc, char**argv)
 	}
 
 	iteration++;
-	snprintf(filename, 128, "knowledgebase%2d-final.dot", iteration);
+	snprintf(filename, 128, "knowledgebase%02d-final.dot", iteration);
 	file.open(filename);
 	file << knowledge.generate_dotfile();
 	file.close();
