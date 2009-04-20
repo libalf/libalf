@@ -541,23 +541,25 @@ deserialization_failed:
 		// table is closed if for all rows R in lower table, R is composed from upper primes
 		// that are covered by R
 		virtual bool is_closed()
-		{
+		{{{
 			typename table::iterator ti;
 			list<typename table::iterator> upper_primes;
+			// prepare merge row
+			int i;
+			int cn = column_names.size();
+			bool first = true;
+			table_row merge;
+			answer a_false;
+
 			// so first find all upper primes
 			for(ti = upper_table.begin(); ti != upper_table.end(); ti++)
 				if(row_is_prime(ti))
 					upper_primes.push_back(ti);
 
-			// prepare merge row
-			table_row merge;
-			answer a_false;
+			first = true;
 			a_false = false;
-			int cn = column_names.size();
-			int i;
 			for(i = 0; i < cn; i++)
 				merge.acceptance.push_back(a_false);
-			bool first = true;
 
 			// now check closed-ness of lower table
 			for(ti = lower_table.begin(); ti != lower_table.end(); ti++) {
@@ -580,61 +582,71 @@ deserialization_failed:
 			}
 
 			return true;
-		}
+		}}}
 
 		// close table: perform operations to close it.
 		// returns true if table was closed.
 		// returns false if table was changed (and thus needs to be filled)
 		virtual bool close()
 		{
+			bool changed = false;
+
 			
+
+			return changed;
 		}
 
+		virtual bool w1suffixes_cover_w2suffixes(list<int> w1, list<int> w2)
+		{{{
+			for(int sigma = 0; sigma < this->get_alphabet_size(); sigma++) {
+				typename table::iterator suffix1, suffix2;
+
+				w1.push_back(sigma);
+				suffix1 = search_tables(w1);
+				w1.pop_back();
+
+				w2.push_back(sigma);
+				suffix2 = search_tables(w2);
+				w2.pop_back();
+
+				if( ! suffix1->covers(*suffix2))
+					return false;
+			}
+			return true;
+		}}}
+
 		// table is consistent if for all upper rows with index u, v:
-		// u covers v -> for all N in sigma: u.N covers v.N
+		// u covers v -> for all N in Sigma: u.N covers v.N
 		virtual bool is_consistent()
-		{
+		{{{
 			typename table::iterator uti1, uti2;
 
 			for(uti1 = upper_table.begin(); uti1 != upper_table.end(); uti1++) {
 				uti2 = uti1;
 				uti2++;
 				for(/* nothing */; uti2 != upper_table.end(); uti2++) {
-					if(uti1->covers(*uti2)) {
-						// check if all suffixes of uti1 cover the corresp. suffixes of uti2
-						list<int> w1, w2;
-						w1 = uti1->index;
-						w2 = uti2->index;
-
-						for(int sigma = 0; sigma < this->get_alphabet_size(); sigma++) {
-							typename table::iterator suffix1, suffix2;
-
-							w1.push_back(sigma);
-							suffix1 = search_tables(w1);
-							w1.pop_back();
-
-							w2.push_back(sigma);
-							suffix2 = search_tables(w2);
-							w2.pop_back();
-
-							if( ! suffix1->covers(*suffix2)) {
-								// uti1 covers uti2, but uti1.N does not cover uti2.N
+					if(uti1->covers(*uti2))
+						if(!w1suffixes_cover_w2suffixes(uti1->index, uti2->index))
 								return false;
-							}
-						}
-					}
+					if(uti2->covers(*uti1))
+						if(!w1suffixes_cover_w2suffixes(uti2->index, uti1->index))
+								return false;
 				}
 			}
 
 			return true;
-		}
+		}}}
 
 		// make table consistent: perform operations to do that.
 		// returns true if table was consistent.
 		// returns false if table was changed (and thus needs to be filled)
 		virtual bool make_consistent()
 		{
+			bool changed = false;
+
 			
+
+			return false;
 		}
 
 		virtual bool complete()
@@ -656,9 +668,61 @@ deserialization_failed:
 		}}}
 
 		virtual bool derive_automaton(automaton_constructor * automaton)
-		{
-			
-		}
+		{{{
+			// NFA is (Q, Q0, F, delta)
+			// with
+			//	Q =		upper primes
+			//	Q0 =		{ r \in Q | r is covered by epsilon }
+			//			NOTE: epsilon is not in Q0 iff. epsilon is not prime (iff. epsilon not in Q)
+			//	F =		{ r \in Q | .r.epsilon. = + }
+			//	delta(u, a) =	{ r \in Q | r is covered by .u.a. for all u in Q }
+			vector<typename table::iterator> upper_primes;
+			typename table::iterator ti;
+			typename table::iterator epsilon = upper_table.begin();
+
+			set<int> initial;
+			set<int> final;
+			transition_set transitions;
+
+			// get all distinguished states
+			for(ti = upper_table.begin(); ti != upper_table.end(); ti++)
+				if(row_is_prime(ti))
+					upper_primes.push_back(ti);
+
+			for(unsigned int i = 0; i < upper_primes.size(); i++) {
+				list<int> succ_w;
+				typename table::iterator successor;
+				transition tr;
+
+				// get initial states
+				if(epsilon->covers(*upper_primes[i]))
+					initial.insert(i);
+
+				// get final states (column 0 is always epsilon)
+				if(upper_primes[i]->acceptance.front() == true)
+					final.insert(i);
+
+				// and all transitions from this state
+				tr.source = i;
+				succ_w = upper_primes[i]->index;
+				for(unsigned int sigma = 0; sigma < this->get_alphabet_size(); sigma++) {
+					succ_w.push_back(sigma);
+					successor = search_tables(succ_w);
+					succ_w.pop_back();
+					tr.label = sigma;
+
+					for(int dst = 0; dst < upper_primes.size(); dst++) {
+						if(successor->covers(*upper_primes[dst])) {
+							tr.destination = dst;
+							transitions.insert(tr);
+						}
+					}
+
+				}
+			}
+
+			return automaton->construct(false, this->get_alphabet_size(), upper_primes.size(), initial, final, transitions);
+		}}}
 
 };
 
