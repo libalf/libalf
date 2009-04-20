@@ -274,11 +274,14 @@ deserialization_failed:
 
 		virtual basic_string<int32_t> serialize()
 		{
+			basic_string<int32_t> ret;
 			
+			return ret;
 		}
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 		{
 			
+			return true;
 		}
 
 		virtual void print(ostream &os)
@@ -705,13 +708,13 @@ deserialization_failed:
 				// and all transitions from this state
 				tr.source = i;
 				succ_w = upper_primes[i]->index;
-				for(unsigned int sigma = 0; sigma < this->get_alphabet_size(); sigma++) {
+				for(unsigned int sigma = 0; sigma < (int)this->get_alphabet_size(); sigma++) {
 					succ_w.push_back(sigma);
 					successor = search_tables(succ_w);
 					succ_w.pop_back();
 					tr.label = sigma;
 
-					for(int dst = 0; dst < upper_primes.size(); dst++) {
+					for(unsigned int dst = 0; dst < upper_primes.size(); dst++) {
 						if(successor->covers(*upper_primes[dst])) {
 							tr.destination = dst;
 							transitions.insert(tr);
