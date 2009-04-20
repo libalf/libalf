@@ -13,6 +13,8 @@ public abstract class JNIAlgorithm extends LibALFObject implements LearningAlgor
 
 	Knowledgebase knowledgebase;
 
+	BufferedLogger logger;
+	
 	@Override
 	public Knowledgebase get_knowledge_source() {
 		return knowledgebase;
@@ -103,6 +105,14 @@ public abstract class JNIAlgorithm extends LibALFObject implements LearningAlgor
 
 	private native boolean deserialize(int[] serialization, long pointer);
 
+	@Override
+	public void set_logger(BufferedLogger logger) {
+		this.logger = logger;
+		set_logger(this.logger.getPointer(), this.pointer);
+	}
+	
+	private native void set_logger(long logger_pointer, long pointer); 
+	
 	@Override	
 	public String toString() {
 		return tostring(this.pointer);

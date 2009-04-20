@@ -1,54 +1,189 @@
 package de.libalf.jni;
 
+/**
+ * <p>
+ * A knowledgebase stores information about the membership of words <em>w</em>
+ * with respect to a formal language <em>L</em>. A word is a sequence of
+ * integers represented as an integer array. The knowledgebase stores either
+ * {@link Acceptance#ACCEPT} or {@link Acceptance#REJECT} depending on whether
+ * <em>w</em> belongs to <em>L</em> or not. If this information is not yet
+ * available, the word is marked as {@link Acceptance#UNKNOWN}.<br>
+ * Each {@link LearningAlgorithm} is associated with a knowledgebase and
+ * retrieves its exclusively information from it. However, a knowledgebase can
+ * be an information source for many learning algorithms simultaneously.
+ * </p>
+ * <p>
+ * If the learning algorithm is able to ask <em>membership queries</em> - like
+ * Angluin's algorithm (see {@link AlgorithmAngluin}) -, the algorithm add the
+ * words to the knowledgebase and marks them as {@link Acceptance#UNKNOWN}. Such
+ * unknown words can then be retrieved via the
+ * {@link Knowledgebase#getQueries()} -method. A query can be answered by
+ * calling {@link Knowledgebase#add_knowledge(int[], boolean)}.
+ * </p>
+ * <p>
+ * <b>Note:</b><br>
+ * <ul>
+ * <li>This is a Java implementation of the <em>knowledgebase</em> C++ class.
+ * All method calls are forwarded to the LibALF C++ library via the JNI
+ * interface.</li>
+ * <li>
+ * This JavaDoc is only a rough overview. For a detailed documentation please
+ * refer to the original LibALF C++ documentation.</li>
+ * </p>
+ * 
+ * @author Daniel Neider (<a
+ *         href="mailto:neider@automata.rwth-aachen.de">neider@automata.
+ *         rwth-aachen.de</a>), Chair of Computer Science 7, RWTH Aachen
+ *         University
+ * @version 1.0
+ */
 public class Knowledgebase extends LibALFObject {
 
 	private final int ACCEPTANCE_TRUE = 2;
 	private final int ACCEPTANCE_FALSE = 0;
 	private final int ACCEPTANCE_UNKNOWN = 1;
 
+	/**
+	 * Indicates whether a word belongs to a formal language or not or whether
+	 * this information is not known.
+	 * 
+	 * @author Daniel Neider (<a
+	 *         href="mailto:neider@automata.rwth-aachen.de">neider@automata.
+	 *         rwth-aachen.de</a>), Chair of Computer Science 7, RWTH Aachen
+	 *         University
+	 * @version 1.0
+	 * 
+	 */
 	public enum Acceptance {
 		ACCEPT, REJECT, UNKNOWN
 	}
 
+	/**
+	 * Creates an empty knowledgebase.
+	 */
 	public Knowledgebase() {
 		this.pointer = init();
 	}
 
+	/**
+	 * <p>
+	 * <em>JNI metod call:</em>
+	 * </p>
+	 * Initializes a new C++ knowledgebase object without any parameters and
+	 * returns the pointer to this object.
+	 * 
+	 * @return a pointer to the memory location of the new C++ object.
+	 */
 	private native long init();
 
+	/**
+	 * Checks whether there are any unanswered questions, i.e. if there are any
+	 * words marked as {@link Acceptance#UNKNOWN}.
+	 * 
+	 * @return the number of unanswered queries.
+	 */
 	public boolean is_answered() {
 		return is_answered(this.pointer);
 	}
 
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See {@link Knowledgebase#is_answered()}.
+	 * </p>
+	 * 
+	 * @param pointer
+	 *            the pointer to the C++ object.
+	 * @return the result of the JNI call.
+	 */
 	private native boolean is_answered(long pointer);
 
-	public boolean is_empty() {
-		return is_empty(this.pointer);
-	}
-
 	/**
-	 * Returns all nodes not only the knowledge
+	 * <p>
+	 * Returns all words stored in the knowledgebase.
+	 * </p>
+	 * <p>
+	 * Note that for efficiency reasons the knowledgebase also stores prefixes
+	 * of all added words.
+	 * <p>
 	 * 
-	 * @return
+	 * @return all words stored in the knowledgebase.
 	 */
 	public WordList getKnowledge() {
 		return getKnowledge(this.pointer);
 	}
 
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See {@link Knowledgebase#getKnowledge()}.
+	 * </p>
+	 * 
+	 * @param pointer
+	 *            the pointer to the C++ object.
+	 * @return the result of the JNI call.
+	 */
 	private native WordList getKnowledge(long pointer);
 
+	/**
+	 * Checks whether the knowledgebase is empty.
+	 * 
+	 * @return <em>true</em>, if the knowledgebase is empty and otherwise
+	 *         <em>false</em>.
+	 */
+	public boolean is_empty() {
+		return is_empty(this.pointer);
+	}
+
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See {@link Knowledgebase#is_empty()}.
+	 * </p>
+	 * 
+	 * @param pointer
+	 *            the pointer to the C++ object.
+	 * @return the result of the JNI call.
+	 */
 	private native boolean is_empty(long pointer);
 
+	/**
+	 * Counts the queries contained in the knowledgebase, i.e. the words marked
+	 * as {@link Acceptance#UNKNOWN}.
+	 * 
+	 * @return the number of queries.
+	 */
 	public int count_queries() {
 		return count_queries(this.pointer);
 	}
 
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See {@link Knowledgebase#count_queries()}.
+	 * </p>
+	 * 
+	 * @param pointer
+	 *            the pointer to the C++ object.
+	 * @return the result of the JNI call.
+	 */
 	private native int count_queries(long pointer);
 
+	/**
+	 * Retrieves the list of queries stored in the knowledgebase.
+	 * 
+	 * @return a list of queries. The result is always a valid object even if
+	 *         there are no queries.
+	 */
 	public WordList getQueries() {
 		return getQueries(this.pointer);
 	}
 
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See {@link Knowledgebase#count_queries()}.
+	 * </p>
+	 * 
+	 * @param pointer
+	 *            the pointer to the C++ object.
+	 * @return the result of the JNI call.
+	 */
 	private native WordList getQueries(long pointer);
 
 	public Acceptance resolve_query(int[] word) {
@@ -155,21 +290,4 @@ public class Knowledgebase extends LibALFObject {
 	}
 
 	private native String tostring(long pointer);
-
-	// //////////////////////////////////////////////////////////
-	// //////////////////////////////////////////////////////////
-
-	public static void main(String[] args) {
-		// System.loadLibrary("alf_jni");
-		Knowledgebase base = new Knowledgebase();
-
-		base.add_knowledge(new int[] {}, true);
-		base.add_knowledge(new int[] { 1, 2 }, false);
-		base.add_knowledge(new int[] { 2 }, true);
-
-		System.out.println(base.getKnowledge());
-		System.out.println(base.resolve_or_add_query(new int[] { 1, 2 }));
-		System.out.println(base.getKnowledge());
-	}
-
 }

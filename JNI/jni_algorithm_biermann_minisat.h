@@ -12,8 +12,16 @@ extern "C" {
  * Method:    init
  * Signature: (JI)J
  */
-JNIEXPORT jlong JNICALL Java_de_libalf_jni_AlgorithmBiermannMiniSAT_init
+JNIEXPORT jlong JNICALL Java_de_libalf_jni_AlgorithmBiermannMiniSAT_init__JI
   (JNIEnv *, jobject, jlong, jint);
+
+/*
+ * Class:     de_libalf_jni_AlgorithmBiermannMiniSAT
+ * Method:    init
+ * Signature: (JIJ)J
+ */
+JNIEXPORT jlong JNICALL Java_de_libalf_jni_AlgorithmBiermannMiniSAT_init__JIJ
+  (JNIEnv *, jobject, jlong, jint, jlong);
 
 #ifdef __cplusplus
 }

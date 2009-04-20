@@ -30,5 +30,7 @@ public interface LearningAlgorithm {
 
 	public boolean deserialize(int[] serialization);
 
+	public void set_logger(BufferedLogger logger);
+	
 	public String toString();
 }

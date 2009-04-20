@@ -153,6 +153,17 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithm_deserialize (JNIEnv *
 	return algorithm->deserialize(si, ser.end());
 }
 
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithm_set_1logger (JNIEnv *env, jobject obj, jlong logger_pointer, jlong pointer) {
+	// Get the algorithm object
+	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
+
+	// Get the logger object
+	buffered_logger* logger = (buffered_logger*)logger_pointer;
+
+	// Forward method call
+	algorithm->set_logger(logger);
+}
+
 JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNIAlgorithm_tostring (JNIEnv *env, jobject obj, jlong pointer) {
 	// Get the algorithm object
 	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;

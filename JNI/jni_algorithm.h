@@ -105,6 +105,14 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithm_deserialize
 
 /*
  * Class:     de_libalf_jni_JNIAlgorithm
+ * Method:    set_logger
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithm_set_1logger
+  (JNIEnv *, jobject, jlong, jlong);
+
+/*
+ * Class:     de_libalf_jni_JNIAlgorithm
  * Method:    tostring
  * Signature: (J)Ljava/lang/String;
  */
