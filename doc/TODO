@@ -3,18 +3,19 @@
 
 A)
 
-- RFSA + NL* algorithm
-
 - CPU/MEM stats for biermann
 
 - documentation (?)
 
 B)
 
-- check if template can be removed from learning_algorithm
-  (thus all alg. are of class learning_algorithm<bool>)
-
 - add normalizer to NL*
+
+- add undo to NL*
+
+- check increase_alphabet_size() in NL*
+
+- check undo and increase_alphabet_size() in angluin
 
 - RPNI algorithm
 
@@ -22,16 +23,21 @@ B)
 
 - check network/deserialization code for bugs (or make dispatcher obsolete)
 
-- assistants in knowledgebase (problem: when algorithm works with pointers, either the non-normalized
-  does not have a pointer or we need to add it each time something is requested. even for bottom...)
+- check idea of assistants in knowledgebase
+  [ problem: when algorithm works with pointers, either the non-normalized does not have
+    a pointer or we need to add it each time something is requested. even for bottom... ]
 
-- implement normalizer extension in dispatcher and normalizer
-
-- knowledgebase also without undo/timestamps, to reduce memory footprint
+- implement `extend normalizer' in dispatcher and normalizer
 
 - in AMoRE++: _init and _fini are not working (linker stuff...)
 
 C)
+
+- check if template can be removed from learning_algorithm
+  (thus all alg. are of class learning_algorithm<bool>)
+  [ possibly not due to BL* ]
+
+- knowledgebase also without undo/timestamps, to reduce memory footprint
 
 - efficient L* algorithm (tree-like)
 
