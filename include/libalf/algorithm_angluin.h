@@ -1053,6 +1053,7 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 		}}}
 
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+		// FIXME: put initialized into serialized stream
 		{{{
 			int size;
 			enum learning_algorithm<answer>::algorithm type;
@@ -1146,6 +1147,7 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 
 			if(it != limit) goto deserialization_failed;
 
+			this->initialized = false;
 			return true;
 
 		deserialization_failed:
@@ -1153,6 +1155,7 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 			this->column_names.clear();
 			this->upper_table.clear();
 			this->lower_table.clear();
+			this->initialized = false;
 			return false;
 		}}}
 
@@ -1206,7 +1209,7 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 
 			// add epsilon to upper table
 			// and all suffixes to lower table
-			this->add_word_to_upper_table(word, false);
+			this->add_word_to_upper_table(word);
 
 			this->initialized = true;
 		}}}

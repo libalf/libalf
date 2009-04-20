@@ -17,6 +17,8 @@
 #include <string>
 #include <ostream>
 
+#include <arpa/inet.h>
+
 #include <libalf/learning_algorithm.h>
 #include <libalf/automaton_constructor.h>
 
@@ -275,13 +277,47 @@ deserialization_failed:
 		virtual basic_string<int32_t> serialize()
 		{
 			basic_string<int32_t> ret;
+
+			ret += 0; // size - filled in later.
+			ret += htonl(learning_algorithm<answer>::ALG_NL_STAR);
+
 			
+
+			ret[0] = htonl(ret.length() - 1);
+
 			return ret;
 		}
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+		// FIXME: put initialized into serialized stream
 		{
+			int size;
+//			int count;
+			enum learning_algorithm<answer>::algorithm type;
+
+			if(it == limit) return false;
+			size = ntohl(*it);
+
+			it++; if(size <= 0 || it == limit) return false;
+			type = (enum learning_algorithm<answer>::algorithm) ntohl(*it);
+			if(type != learning_algorithm<answer>::ALG_NL_STAR)
+				goto deserialization_failed;
+
+			it++; size--; if(size <= 0 || it == limit) return false;
+
 			
+
+			it++;
+
+			initialized = false;
 			return true;
+
+deserialization_failed:
+			this->set_alphabet_size(0);
+			column_names.clear();
+			upper_table.clear();
+			lower_table.clear();
+			initialized = false;
+			return false;
 		}
 
 		virtual void print(ostream &os)
@@ -480,7 +516,7 @@ deserialization_failed:
 			lower_table.clear();
 
 			column_names.push_back(word);
-			add_word_to_upper_table(word, false);
+			add_word_to_upper_table(word);
 
 			initialized = true;
 		}}}

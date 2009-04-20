@@ -174,12 +174,14 @@ class basic_biermann : public learning_algorithm<answer> {
 		}}}
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 		{{{
+			if(it == limit) return false;
 			if(ntohl(*it) != 1)
 				return false;
-			it++;
 
+			it++; if(it == limit) return false;
 			if(ntohl(*it) != learning_algorithm<answer>::ALG_BIERMANN)
 				return false;
+
 			it++;
 
 			return true;
