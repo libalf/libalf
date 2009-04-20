@@ -1,15 +1,19 @@
 # $Id$
 # amore++ Makefile
 
-.PHONY: all clean install uninstall
+.PHONY: all testsuites clean install uninstall
 
 PREFIX ?= /usr/local/
 
 all:
 	make -C src all
 
+testsuites:
+	make -C testsuites
+
 clean:
 	make -C src clean
+	make -C testsuites clean
 
 install:
 	make -C include install
