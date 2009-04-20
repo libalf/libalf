@@ -667,12 +667,42 @@ deserialization_failed:
 				uti2++;
 				for(/* nothing */; uti2 != upper_table.end(); uti2++) {
 					if(uti1->covers(*uti2) && !w1suffixes_cover_w2suffixes(uti1->index, uti2->index))
-								return false;
+						return false;
 					if(uti2->covers(*uti1) && !w1suffixes_cover_w2suffixes(uti2->index, uti1->index))
-								return false;
+						return false;
 				}
 			}
 
+			return true;
+		}}}
+
+		virtual bool let_w1suffixes_cover_w2suffixes(list<int> w1, list<int> w2)
+		// returns false if something was changed
+		{{{
+			for(int sigma = 0; sigma < this->get_alphabet_size(); sigma++) {
+				typename table::iterator suffix1, suffix2;
+
+				w1.push_back(sigma);
+				suffix1 = search_tables(w1);
+				w1.pop_back();
+
+				w2.push_back(sigma);
+				suffix2 = search_tables(w2);
+				w2.pop_back();
+
+				typename table_row::acceptances::iterator ai1, ai2;
+				columnlist::iterator ci;
+				for(ai1 = suffix1->acceptance.begin(), ai2 = suffix2->acceptance.begin(), ci = column_names.begin();
+				    ai1 != suffix1->acceptance.end(); ++ai1, ++ai2, ++ci) {
+					if(*ai1 == false && *ai2 == true) {
+						list<int> new_suffix;
+						new_suffix = *ci;
+						new_suffix.push_front(sigma);
+						add_column(new_suffix);
+						return false;
+					}
+				}
+			}
 			return true;
 		}}}
 
@@ -680,20 +710,22 @@ deserialization_failed:
 		// returns true if table was consistent.
 		// returns false if table was changed (and thus needs to be filled)
 		virtual bool make_consistent()
-		{
+		{{{
 			typename table::iterator uti1, uti2;
 
 			for(uti1 = upper_table.begin(); uti1 != upper_table.end(); uti1++) {
 				uti2 = uti1;
 				uti2++;
 				for(/* nothing */; uti2 != upper_table.end(); uti2++) {
-					// TODO
-					
+					if(uti1->covers(*uti2) && !let_w1suffixes_cover_w2suffixes(uti1->index, uti2->index))
+						return false;
+					if(uti2->covers(*uti1) && !let_w1suffixes_cover_w2suffixes(uti2->index, uti1->index))
+						return false;
 				}
 			}
 
 			return true;
-		}
+		}}}
 
 		virtual bool complete()
 		{{{
