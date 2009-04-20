@@ -343,10 +343,11 @@ deserialization_failed:
 		// returns true if word was added, false if it was already in column_names
 		virtual bool add_column(list<int> word)
 		{{{
-			typename columnlist::iterator ci;
+			typename columnlist::reverse_iterator ci;
 			list<int> nw;
 
-			for(ci = column_names.begin(); ci != column_names.end(); ci++)
+			// going reversed may abort faster, as the longer suffixes are at the back
+			for(ci = column_names.rbegin(); ci != column_names.rend(); ci++)
 				if(*ci == nw)
 					return false;
 
@@ -587,17 +588,54 @@ deserialization_failed:
 			return true;
 		}}}
 
-		// close table: perform operations to close it.
+		// close table
 		// returns true if table was closed.
 		// returns false if table was changed (and thus needs to be filled)
 		virtual bool close()
-		{
-			bool changed = false;
+		{{{
+			typename table::iterator ti;
+			list<typename table::iterator> upper_primes;
+			// prepare merge row
+			int i;
+			int cn = column_names.size();
+			bool first = true;
+			table_row merge;
+			answer a_false;
 
-			
+			// so first find all upper primes
+			for(ti = upper_table.begin(); ti != upper_table.end(); ti++)
+				if(row_is_prime(ti))
+					upper_primes.push_back(ti);
 
-			return changed;
-		}
+			first = true;
+			a_false = false;
+			for(i = 0; i < cn; i++)
+				merge.acceptance.push_back(a_false);
+
+			// now check closed-ness of lower table
+			for(ti = lower_table.begin(); ti != lower_table.end(); ti++) {
+				// reset merge row
+				if(first)
+					first = false;
+				else
+					for(i = 0; i < cn; i++)
+						merge.acceptance[i] = a_false;
+
+				typename list<typename table::iterator>::iterator pri;
+				for(pri = upper_primes.begin(); pri != upper_primes.end(); pri++)
+					if(ti->covers(**pri))
+						merge |= *ti;
+
+				if(merge != *ti) {
+					// this row is not composed from upper primes!
+					// move it to upper table.
+					add_word_to_upper_table(ti->index);
+					return false;
+				}
+			}
+
+			return true;
+		}}}
 
 		virtual bool w1suffixes_cover_w2suffixes(list<int> w1, list<int> w2)
 		{{{
@@ -628,11 +666,9 @@ deserialization_failed:
 				uti2 = uti1;
 				uti2++;
 				for(/* nothing */; uti2 != upper_table.end(); uti2++) {
-					if(uti1->covers(*uti2))
-						if(!w1suffixes_cover_w2suffixes(uti1->index, uti2->index))
+					if(uti1->covers(*uti2) && !w1suffixes_cover_w2suffixes(uti1->index, uti2->index))
 								return false;
-					if(uti2->covers(*uti1))
-						if(!w1suffixes_cover_w2suffixes(uti2->index, uti1->index))
+					if(uti2->covers(*uti1) && !w1suffixes_cover_w2suffixes(uti2->index, uti1->index))
 								return false;
 				}
 			}
@@ -640,16 +676,23 @@ deserialization_failed:
 			return true;
 		}}}
 
-		// make table consistent: perform operations to do that.
+		// make table consistent
 		// returns true if table was consistent.
 		// returns false if table was changed (and thus needs to be filled)
 		virtual bool make_consistent()
 		{
-			bool changed = false;
+			typename table::iterator uti1, uti2;
 
-			
+			for(uti1 = upper_table.begin(); uti1 != upper_table.end(); uti1++) {
+				uti2 = uti1;
+				uti2++;
+				for(/* nothing */; uti2 != upper_table.end(); uti2++) {
+					// TODO
+					
+				}
+			}
 
-			return false;
+			return true;
 		}
 
 		virtual bool complete()
@@ -708,7 +751,7 @@ deserialization_failed:
 				// and all transitions from this state
 				tr.source = i;
 				succ_w = upper_primes[i]->index;
-				for(unsigned int sigma = 0; sigma < (int)this->get_alphabet_size(); sigma++) {
+				for(unsigned int sigma = 0; (int)sigma < this->get_alphabet_size(); sigma++) {
 					succ_w.push_back(sigma);
 					successor = search_tables(succ_w);
 					succ_w.pop_back();
