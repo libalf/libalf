@@ -220,9 +220,26 @@ deserialization_failed:
 		}}}
 
 		virtual void increase_alphabet_size(int new_asize)
-		{
-			
-		}
+		{{{
+			// add new suffixes for all words in upper table
+			if(new_asize < this->get_alphabet_size())
+				return;
+
+			typename table::iterator uti;
+			table_row row;
+
+			for(uti = upper_table.begin(); uti != upper_table.end(); uti++) {
+				row.index = uti->index;
+
+				for(int new_suffix = this->get_alphabet_size(); new_suffix < new_asize; new_suffix++) {
+					row.index.push_back(new_suffix);
+					this->lower_table.push_back(row);
+					row.index.pop_back();
+				}
+
+				this->set_alphabet_size(new_asize);
+			}
+		}}}
 
 		virtual void get_memory_statistics(statistics & stats)
 		{{{
@@ -336,7 +353,7 @@ deserialization_failed:
 
 		virtual bool row_is_prime(typename table::iterator & row)
 		// TODO: efficiency
-		{
+		{{{
 			table_row merge;
 			int cn = column_names.size();
 			int i;
@@ -365,12 +382,46 @@ deserialization_failed:
 
 			// if they are equal now, *row is composed from other rows
 			return (merge != *row);
-		}
+		}}}
 
-		virtual void add_word_to_upper_table(list<int> word, bool check_uniq = true)
-		{
-			
-		}
+		virtual void add_word_to_upper_table(list<int> & word, bool check_uniq = true)
+		{{{
+			table_row row;
+			bool done;
+
+			if(check_uniq) {
+				if(this->search_upper_table(word) != this->upper_table.end())
+					return;
+
+				typename table::iterator ti;
+				ti = this->search_lower_table(word);
+				if(ti != this->lower_table.end()) {
+					// word is already in lower. so move it up.
+					done = true;
+					this->upper_table.push_back(*ti);
+					this->lower_table.erase(ti);
+				}
+			}
+
+			if(!done) {
+				row.index = word;
+				this->upper_table.push_back(row);
+			}
+
+			// add all suffixes to lower table
+			for(int sigma = 0; sigma < this->get_alphabet_size(); sigma++) {
+				row.index.push_back(sigma);
+
+				if(check_uniq) {
+					if(search_upper_table(word) == upper_table.end())
+						lower_table.push_back(row);
+				} else {
+					lower_table.push_back(row);
+				}
+
+				row.index.pop_back();
+			}
+		}}}
 
 		virtual typename table::iterator search_upper_table(list<int> &word)
 		{{{

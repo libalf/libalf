@@ -146,7 +146,7 @@ list<int> deterministic_finite_automaton::get_sample_word(bool & is_empty)
 
 bool deterministic_finite_automaton::operator==(finite_automaton &other)
 // note: calling operator== will minimize() this and other
-// possibly avoid this?
+// FIXME: avoid this? efficient algorithm?
 {{{
 	bool ret;
 
