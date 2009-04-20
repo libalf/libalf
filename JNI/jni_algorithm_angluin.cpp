@@ -23,7 +23,7 @@
 using namespace std;
 using namespace libalf;
 
-JNICALL JNIEXPORT jint JNICALL Java_de_libalf_jni_AlgorithmAngluin_init (JNIEnv *env, jobject obj, jint alphabet_size, jint knowledgebase_pointer) {
+JNICALL JNIEXPORT jlong JNICALL Java_de_libalf_jni_AlgorithmAngluin_init (JNIEnv *env, jobject obj, jlong knowledgebase_pointer, jint alphabet_size) {
 	// Get the knowledgebase object
 	knowledgebase<bool> *base = (knowledgebase<bool>*) knowledgebase_pointer;
 
@@ -31,5 +31,5 @@ JNICALL JNIEXPORT jint JNICALL Java_de_libalf_jni_AlgorithmAngluin_init (JNIEnv 
 	 * Return the new object
 	 */
 	learning_algorithm<bool>* algorithm = new angluin_simple_observationtable<bool>(base, NULL, alphabet_size);
-	return ((jint)algorithm);
+	return ((jlong)algorithm);
 }

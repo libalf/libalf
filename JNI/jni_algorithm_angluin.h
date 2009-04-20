@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     de_libalf_jni_AlgorithmAngluin
  * Method:    init
- * Signature: (II)I
+ * Signature: (JI)J
  */
-JNIEXPORT jint JNICALL Java_de_libalf_jni_AlgorithmAngluin_init
-  (JNIEnv *, jobject, jint, jint);
+JNIEXPORT jlong JNICALL Java_de_libalf_jni_AlgorithmAngluin_init
+  (JNIEnv *, jobject, jlong, jint);
 
 #ifdef __cplusplus
 }

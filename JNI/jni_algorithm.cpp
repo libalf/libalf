@@ -25,7 +25,7 @@
 using namespace std;
 using namespace libalf;
 
-JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithm_add_1counterexample (JNIEnv *env , jobject obj, jintArray counterexample, jint pointer) {
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithm_add_1counterexample (JNIEnv *env , jobject obj, jintArray counterexample, jlong pointer) {
 	// Get Java array info
 	jsize length = env->GetArrayLength(counterexample);
 	jint *entry = env->GetIntArrayElements(counterexample, 0);
@@ -42,7 +42,7 @@ JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithm_add_1counterexample (JNIE
 	algorithm->add_counterexample(ce);
 }
 
-JNIEXPORT jobject JNICALL Java_de_libalf_jni_JNIAlgorithm_advance (JNIEnv *env, jobject obj, jint pointer) {
+JNIEXPORT jobject JNICALL Java_de_libalf_jni_JNIAlgorithm_advance (JNIEnv *env, jobject obj, jlong pointer) {
 	// Get the algorithm object
 	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
 
@@ -57,7 +57,7 @@ JNIEXPORT jobject JNICALL Java_de_libalf_jni_JNIAlgorithm_advance (JNIEnv *env, 
 	else return NULL;
 }
 
-JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithm_conjecture_1ready (JNIEnv *evn, jobject obj, jint pointer) {
+JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithm_conjecture_1ready (JNIEnv *evn, jobject obj, jlong pointer) {
 	// Get the algorithm object
 	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
 
@@ -65,7 +65,7 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithm_conjecture_1ready (JN
 	return algorithm->conjecture_ready();
 }
 
-JNIEXPORT jint JNICALL Java_de_libalf_jni_JNIAlgorithm_get_1alphabet_1size (JNIEnv *env, jobject obj, jint pointer) {
+JNIEXPORT jint JNICALL Java_de_libalf_jni_JNIAlgorithm_get_1alphabet_1size (JNIEnv *env, jobject obj, jlong pointer) {
 	// Get the algorithm object
 	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
 
@@ -73,7 +73,7 @@ JNIEXPORT jint JNICALL Java_de_libalf_jni_JNIAlgorithm_get_1alphabet_1size (JNIE
 	return algorithm->get_alphabet_size();
 }
 
-JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithm_increase_1alphabet_1size (JNIEnv *env, jobject obj, jint newSize, jint pointer) {
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithm_increase_1alphabet_1size (JNIEnv *env, jobject obj, jint newSize, jlong pointer) {
 	// Get the algorithm object
 	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
 
@@ -81,7 +81,7 @@ JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithm_increase_1alphabet_1size 
 	return algorithm->increase_alphabet_size(newSize);
 }
 
-JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithm_set_1alphabet_1size (JNIEnv *env, jobject obj, jint newSize, jint pointer) {
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithm_set_1alphabet_1size (JNIEnv *env, jobject obj, jint newSize, jlong pointer) {
 	// Get the algorithm object
 	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
 
@@ -89,7 +89,7 @@ JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithm_set_1alphabet_1size (JNIE
 	return algorithm->set_alphabet_size(newSize);
 }
 
-JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithm_set_1knowledge_1source (JNIEnv *env, jobject obj, jint knowledgebase_pointer, jint pointer) {
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithm_set_1knowledge_1source (JNIEnv *env, jobject obj, jlong knowledgebase_pointer, jlong pointer) {
 	// Get the knowledgebase object
 	knowledgebase<bool> *base = (knowledgebase<bool>*) knowledgebase_pointer;
 	// Get the algorithm object
@@ -99,7 +99,7 @@ JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithm_set_1knowledge_1source (J
 	return algorithm->set_knowledge_source(base);
 }
 
-JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithm_set_1knowledge_1source_1NULL (JNIEnv *env, jobject obj, jint pointer) {
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithm_set_1knowledge_1source_1NULL (JNIEnv *env, jobject obj, jlong pointer) {
 	// Get the algorithm object
 	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
 
@@ -107,7 +107,7 @@ JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithm_set_1knowledge_1source_1N
 	return algorithm->set_knowledge_source(NULL);
 }
 
-JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithm_sync_1to_1knowledgebase (JNIEnv *env, jobject obj, jint pointer) {
+JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithm_sync_1to_1knowledgebase (JNIEnv *env, jobject obj, jlong pointer) {
 	// Get the algorithm object
 	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
 
@@ -115,7 +115,7 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithm_sync_1to_1knowledgeba
 	return algorithm->sync_to_knowledgebase();
 }
 
-JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithm_supports_1sync (JNIEnv *env, jobject obj, jint pointer) {
+JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithm_supports_1sync (JNIEnv *env, jobject obj, jlong pointer) {
 	// Get the algorithm object
 	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
 
@@ -123,7 +123,7 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithm_supports_1sync (JNIEn
 	return algorithm->supports_sync();
 }
 
-JNIEXPORT jintArray JNICALL Java_de_libalf_jni_JNIAlgorithm_serialize (JNIEnv *env, jobject obj, jint pointer) {
+JNIEXPORT jintArray JNICALL Java_de_libalf_jni_JNIAlgorithm_serialize (JNIEnv *env, jobject obj, jlong pointer) {
 	// Get the algorithm object
 	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
 
@@ -133,7 +133,7 @@ JNIEXPORT jintArray JNICALL Java_de_libalf_jni_JNIAlgorithm_serialize (JNIEnv *e
 	return arr;
 }
 
-JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithm_deserialize (JNIEnv *env, jobject obj, jintArray serialization, jint pointer) {
+JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithm_deserialize (JNIEnv *env, jobject obj, jintArray serialization, jlong pointer) {
 	// Get Java array info
 	jsize length = env->GetArrayLength(serialization);
 	jint *entry = env->GetIntArrayElements(serialization, 0);
@@ -153,7 +153,7 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithm_deserialize (JNIEnv *
 	return algorithm->deserialize(si, ser.end());
 }
 
-JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNIAlgorithm_tostring (JNIEnv *env, jobject obj, jint pointer) {
+JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNIAlgorithm_tostring (JNIEnv *env, jobject obj, jlong pointer) {
 	// Get the algorithm object
 	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
 

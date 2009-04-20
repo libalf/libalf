@@ -10,106 +10,106 @@ extern "C" {
 /*
  * Class:     de_libalf_jni_JNIAlgorithm
  * Method:    add_counterexample
- * Signature: ([II)V
+ * Signature: ([IJ)V
  */
 JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithm_add_1counterexample
-  (JNIEnv *, jobject, jintArray, jint);
+  (JNIEnv *, jobject, jintArray, jlong);
 
 /*
  * Class:     de_libalf_jni_JNIAlgorithm
  * Method:    advance
- * Signature: (I)Lde/libalf/jni/BasicAutomaton;
+ * Signature: (J)Lde/libalf/jni/BasicAutomaton;
  */
 JNIEXPORT jobject JNICALL Java_de_libalf_jni_JNIAlgorithm_advance
-  (JNIEnv *, jobject, jint);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     de_libalf_jni_JNIAlgorithm
  * Method:    conjecture_ready
- * Signature: (I)Z
+ * Signature: (J)Z
  */
 JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithm_conjecture_1ready
-  (JNIEnv *, jobject, jint);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     de_libalf_jni_JNIAlgorithm
  * Method:    get_alphabet_size
- * Signature: (I)I
+ * Signature: (J)I
  */
 JNIEXPORT jint JNICALL Java_de_libalf_jni_JNIAlgorithm_get_1alphabet_1size
-  (JNIEnv *, jobject, jint);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     de_libalf_jni_JNIAlgorithm
  * Method:    increase_alphabet_size
- * Signature: (II)V
+ * Signature: (IJ)V
  */
 JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithm_increase_1alphabet_1size
-  (JNIEnv *, jobject, jint, jint);
+  (JNIEnv *, jobject, jint, jlong);
 
 /*
  * Class:     de_libalf_jni_JNIAlgorithm
  * Method:    set_alphabet_size
- * Signature: (II)V
+ * Signature: (IJ)V
  */
 JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithm_set_1alphabet_1size
-  (JNIEnv *, jobject, jint, jint);
+  (JNIEnv *, jobject, jint, jlong);
 
 /*
  * Class:     de_libalf_jni_JNIAlgorithm
  * Method:    set_knowledge_source
- * Signature: (II)V
+ * Signature: (JJ)V
  */
 JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithm_set_1knowledge_1source
-  (JNIEnv *, jobject, jint, jint);
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     de_libalf_jni_JNIAlgorithm
  * Method:    set_knowledge_source_NULL
- * Signature: (I)V
+ * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithm_set_1knowledge_1source_1NULL
-  (JNIEnv *, jobject, jint);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     de_libalf_jni_JNIAlgorithm
  * Method:    sync_to_knowledgebase
- * Signature: (I)Z
+ * Signature: (J)Z
  */
 JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithm_sync_1to_1knowledgebase
-  (JNIEnv *, jobject, jint);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     de_libalf_jni_JNIAlgorithm
  * Method:    supports_sync
- * Signature: (I)Z
+ * Signature: (J)Z
  */
 JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithm_supports_1sync
-  (JNIEnv *, jobject, jint);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     de_libalf_jni_JNIAlgorithm
  * Method:    serialize
- * Signature: (I)[I
+ * Signature: (J)[I
  */
 JNIEXPORT jintArray JNICALL Java_de_libalf_jni_JNIAlgorithm_serialize
-  (JNIEnv *, jobject, jint);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     de_libalf_jni_JNIAlgorithm
  * Method:    deserialize
- * Signature: ([II)Z
+ * Signature: ([IJ)Z
  */
 JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithm_deserialize
-  (JNIEnv *, jobject, jintArray, jint);
+  (JNIEnv *, jobject, jintArray, jlong);
 
 /*
  * Class:     de_libalf_jni_JNIAlgorithm
  * Method:    tostring
- * Signature: (I)Ljava/lang/String;
+ * Signature: (J)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNIAlgorithm_tostring
-  (JNIEnv *, jobject, jint);
+  (JNIEnv *, jobject, jlong);
 
 #ifdef __cplusplus
 }

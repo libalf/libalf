@@ -14,13 +14,13 @@ public abstract class LibALFObject {
 	/**
 	 * Stores the reference of the C++ object.
 	 */
-	int pointer;
+	long pointer;
 
 	/**
 	 * Returns the pointer to the C++ object.
 	 * @return the pointer to the C++ object.
 	 */
-	public int getPointer() {
+	public long getPointer() {
 		return this.pointer;
 	}
 	

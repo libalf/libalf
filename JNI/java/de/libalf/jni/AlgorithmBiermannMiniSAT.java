@@ -4,8 +4,8 @@ public class AlgorithmBiermannMiniSAT extends JNIAlgorithm {
 
 	public AlgorithmBiermannMiniSAT(Knowledgebase knowledgebase, int alphabet_size) {
 		this.knowledgebase = knowledgebase;
-		this.pointer = init(alphabet_size, knowledgebase.getPointer());
+		this.pointer = init(knowledgebase.getPointer(), alphabet_size);
 	}
 
-	native int init(int knowledgebase_pointer, int alphabet_size);
+	native long init(long knowledgebase_pointer, int alphabet_size);
 }

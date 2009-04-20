@@ -10,157 +10,156 @@ extern "C" {
 /*
  * Class:     de_libalf_jni_Knowledgebase
  * Method:    init
- * Signature: ()I
+ * Signature: ()J
  */
-JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_init
+JNIEXPORT jlong JNICALL Java_de_libalf_jni_Knowledgebase_init
   (JNIEnv *, jobject);
 
 /*
  * Class:     de_libalf_jni_Knowledgebase
  * Method:    is_answered
- * Signature: (I)Z
+ * Signature: (J)Z
  */
 JNIEXPORT jboolean JNICALL Java_de_libalf_jni_Knowledgebase_is_1answered
-  (JNIEnv *, jobject, jint);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     de_libalf_jni_Knowledgebase
  * Method:    getKnowledge
- * Signature: (I)Lde/libalf/jni/WordList;
+ * Signature: (J)Lde/libalf/jni/WordList;
  */
 JNIEXPORT jobject JNICALL Java_de_libalf_jni_Knowledgebase_getKnowledge
-  (JNIEnv *, jobject, jint);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     de_libalf_jni_Knowledgebase
  * Method:    is_empty
- * Signature: (I)Z
+ * Signature: (J)Z
  */
 JNIEXPORT jboolean JNICALL Java_de_libalf_jni_Knowledgebase_is_1empty
-  (JNIEnv *, jobject, jint);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     de_libalf_jni_Knowledgebase
  * Method:    count_queries
- * Signature: (I)I
+ * Signature: (J)I
  */
 JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_count_1queries
-  (JNIEnv *, jobject, jint);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     de_libalf_jni_Knowledgebase
  * Method:    getQueries
- * Signature: (I)Lde/libalf/jni/WordList;
+ * Signature: (J)Lde/libalf/jni/WordList;
  */
 JNIEXPORT jobject JNICALL Java_de_libalf_jni_Knowledgebase_getQueries
-  (JNIEnv *, jobject, jint);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     de_libalf_jni_Knowledgebase
  * Method:    resolve_query
- * Signature: ([II)I
+ * Signature: ([IJ)I
  */
 JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_resolve_1query
-  (JNIEnv *, jobject, jintArray, jint);
+  (JNIEnv *, jobject, jintArray, jlong);
 
 /*
  * Class:     de_libalf_jni_Knowledgebase
  * Method:    resolve_or_add_query
- * Signature: ([II)I
+ * Signature: ([IJ)I
  */
 JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_resolve_1or_1add_1query
-  (JNIEnv *, jobject, jintArray, jint);
+  (JNIEnv *, jobject, jintArray, jlong);
 
 /*
  * Class:     de_libalf_jni_Knowledgebase
  * Method:    add_knowledge
- * Signature: ([IZI)Z
+ * Signature: ([IZJ)Z
  */
 JNIEXPORT jboolean JNICALL Java_de_libalf_jni_Knowledgebase_add_1knowledge
-  (JNIEnv *, jobject, jintArray, jboolean, jint);
+  (JNIEnv *, jobject, jintArray, jboolean, jlong);
 
 /*
  * Class:     de_libalf_jni_Knowledgebase
  * Method:    clear
- * Signature: (I)V
+ * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_de_libalf_jni_Knowledgebase_clear
-  (JNIEnv *, jobject, jint);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     de_libalf_jni_Knowledgebase
  * Method:    clear_queries
- * Signature: (I)V
+ * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_de_libalf_jni_Knowledgebase_clear_1queries
-  (JNIEnv *, jobject, jint);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     de_libalf_jni_Knowledgebase
  * Method:    undo
- * Signature: (II)Z
+ * Signature: (IJ)Z
  */
 JNIEXPORT jboolean JNICALL Java_de_libalf_jni_Knowledgebase_undo
-  (JNIEnv *, jobject, jint, jint);
+  (JNIEnv *, jobject, jint, jlong);
 
 /*
  * Class:     de_libalf_jni_Knowledgebase
  * Method:    get_memory_usage
- * Signature: (I)I
+ * Signature: (J)I
  */
 JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_get_1memory_1usage
-  (JNIEnv *, jobject, jint);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     de_libalf_jni_Knowledgebase
  * Method:    get_timestamp
- * Signature: (I)I
+ * Signature: (J)I
  */
 JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_get_1timestamp
-  (JNIEnv *, jobject, jint);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     de_libalf_jni_Knowledgebase
  * Method:    count_answers
- * Signature: (I)I
+ * Signature: (J)I
  */
 JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_count_1answers
-  (JNIEnv *, jobject, jint);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     de_libalf_jni_Knowledgebase
  * Method:    generate_dotfile
- * Signature: (I)Ljava/lang/String;
+ * Signature: (J)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_de_libalf_jni_Knowledgebase_generate_1dotfile
-  (JNIEnv *, jobject, jint);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     de_libalf_jni_Knowledgebase
  * Method:    serialize
- * Signature: (I)[I
+ * Signature: (J)[I
  */
 JNIEXPORT jintArray JNICALL Java_de_libalf_jni_Knowledgebase_serialize
-  (JNIEnv *, jobject, jint);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     de_libalf_jni_Knowledgebase
  * Method:    deserialize
- * Signature: ([II)Z
+ * Signature: ([IJ)Z
  */
 JNIEXPORT jboolean JNICALL Java_de_libalf_jni_Knowledgebase_deserialize
-  (JNIEnv *, jobject, jintArray, jint);
+  (JNIEnv *, jobject, jintArray, jlong);
 
 /*
  * Class:     de_libalf_jni_Knowledgebase
  * Method:    tostring
- * Signature: (I)Ljava/lang/String;
+ * Signature: (J)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_de_libalf_jni_Knowledgebase_tostring
-  (JNIEnv *, jobject, jint);
+  (JNIEnv *, jobject, jlong);
 
 #ifdef __cplusplus
 }
 #endif
 #endif
-

@@ -24,15 +24,15 @@
 using namespace std;
 using namespace libalf;
 
-JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_init (JNIEnv *env, jobject obj) {
+JNIEXPORT jlong JNICALL Java_de_libalf_jni_Knowledgebase_init (JNIEnv *env, jobject obj) {
 	/*
 	 * Return the new object
 	 */
 	knowledgebase<bool> *base = new knowledgebase<bool>;
-	return ((jint)base);
+	return ((jlong)base);
 }
 
-JNIEXPORT jboolean JNICALL Java_de_libalf_jni_Knowledgebase_is_1answered (JNIEnv *env, jobject obj, jint pointer) {
+JNIEXPORT jboolean JNICALL Java_de_libalf_jni_Knowledgebase_is_1answered (JNIEnv *env, jobject obj, jlong pointer) {
 	// Get the knowledgebase object
 	knowledgebase<bool> *base = (knowledgebase<bool>*)pointer;
 
@@ -40,7 +40,7 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_Knowledgebase_is_1answered (JNIEnv
 	return base->is_empty();
 }
 
-JNIEXPORT jboolean JNICALL Java_de_libalf_jni_Knowledgebase_is_1empty (JNIEnv *env, jobject obj, jint pointer) {
+JNIEXPORT jboolean JNICALL Java_de_libalf_jni_Knowledgebase_is_1empty (JNIEnv *env, jobject obj, jlong pointer) {
 	// Get the knowledgebase object
 	knowledgebase<bool> *base = (knowledgebase<bool>*)pointer;
 
@@ -48,7 +48,7 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_Knowledgebase_is_1empty (JNIEnv *e
 	return base->is_answered();
 }
 
-JNIEXPORT jobject JNICALL Java_de_libalf_jni_Knowledgebase_getKnowledge (JNIEnv *env, jobject obj, jint pointer) {
+JNIEXPORT jobject JNICALL Java_de_libalf_jni_Knowledgebase_getKnowledge (JNIEnv *env, jobject obj, jlong pointer) {
 	/*
 	 *Create new Java WordList object
 	 */
@@ -100,7 +100,7 @@ JNIEXPORT jobject JNICALL Java_de_libalf_jni_Knowledgebase_getKnowledge (JNIEnv 
 	return java_queries;
 }
 
-JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_count_1queries (JNIEnv *env, jobject obj, jint pointer) {
+JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_count_1queries (JNIEnv *env, jobject obj, jlong pointer) {
 	// Get the knowledgebase object
 	knowledgebase<bool> *base = (knowledgebase<bool>*)pointer;
 
@@ -108,7 +108,7 @@ JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_count_1queries (JNIEnv *
 	return base->count_queries();
 }
 
-JNIEXPORT jobject JNICALL Java_de_libalf_jni_Knowledgebase_getQueries (JNIEnv *env, jobject obj, jint pointer) {
+JNIEXPORT jobject JNICALL Java_de_libalf_jni_Knowledgebase_getQueries (JNIEnv *env, jobject obj, jlong pointer) {
 	/*
 	 *Create new Java WordList object
 	 */
@@ -161,7 +161,7 @@ JNIEXPORT jobject JNICALL Java_de_libalf_jni_Knowledgebase_getQueries (JNIEnv *e
 	return java_queries;
 }
 
-JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_resolve_1query (JNIEnv *env , jobject obj, jintArray word, jint pointer) {
+JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_resolve_1query (JNIEnv *env , jobject obj, jintArray word, jlong pointer) {
 	// Get Java array info
 	jsize length = env->GetArrayLength(word);
 	jint *entry = env->GetIntArrayElements(word, 0);
@@ -185,7 +185,7 @@ JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_resolve_1query (JNIEnv *
 	else return 1;
 }
 
-JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_resolve_1or_1add_1query (JNIEnv *env, jobject obj, jintArray word, jint pointer) {
+JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_resolve_1or_1add_1query (JNIEnv *env, jobject obj, jintArray word, jlong pointer) {
 	// Get Java array info
 	jsize length = env->GetArrayLength(word);
 	jint *entry = env->GetIntArrayElements(word, 0);
@@ -209,7 +209,7 @@ JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_resolve_1or_1add_1query 
 	else return 1;
 }
 
-JNIEXPORT jboolean JNICALL Java_de_libalf_jni_Knowledgebase_add_1knowledge (JNIEnv *env, jobject obj, jintArray word, jboolean acceptance, jint pointer) {
+JNIEXPORT jboolean JNICALL Java_de_libalf_jni_Knowledgebase_add_1knowledge (JNIEnv *env, jobject obj, jintArray word, jboolean acceptance, jlong pointer) {
 	// Get Java array info
 	jsize length = env->GetArrayLength(word);
 	jint *entry = env->GetIntArrayElements(word, 0);
@@ -227,7 +227,7 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_Knowledgebase_add_1knowledge (JNIE
 	return base->add_knowledge(w, acc);
 }
 
-JNIEXPORT void JNICALL Java_de_libalf_jni_Knowledgebase_clear (JNIEnv *env, jobject obj, jint pointer) {
+JNIEXPORT void JNICALL Java_de_libalf_jni_Knowledgebase_clear (JNIEnv *env, jobject obj, jlong pointer) {
 	// Get the knowledgebase object
 	knowledgebase<bool> *base = (knowledgebase<bool>*)pointer;
 
@@ -235,7 +235,7 @@ JNIEXPORT void JNICALL Java_de_libalf_jni_Knowledgebase_clear (JNIEnv *env, jobj
 	base->clear();
 }
 
-JNIEXPORT void JNICALL Java_de_libalf_jni_Knowledgebase_clear_1queries (JNIEnv *env, jobject obj, jint pointer) {
+JNIEXPORT void JNICALL Java_de_libalf_jni_Knowledgebase_clear_1queries (JNIEnv *env, jobject obj, jlong pointer) {
 	// Get the knowledgebase object
 	knowledgebase<bool> *base = (knowledgebase<bool>*)pointer;
 
@@ -243,7 +243,7 @@ JNIEXPORT void JNICALL Java_de_libalf_jni_Knowledgebase_clear_1queries (JNIEnv *
 	base->clear_queries();
 }
 
-JNIEXPORT jboolean JNICALL Java_de_libalf_jni_Knowledgebase_undo (JNIEnv *env, jobject obj, jint count , jint pointer) {
+JNIEXPORT jboolean JNICALL Java_de_libalf_jni_Knowledgebase_undo (JNIEnv *env, jobject obj, jint count , jlong pointer) {
 	// Get the knowledgebase object
 	knowledgebase<bool> *base = (knowledgebase<bool>*)pointer;
 
@@ -251,7 +251,7 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_Knowledgebase_undo (JNIEnv *env, j
 	base->undo(count);
 }
 
-JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_get_1memory_1usage (JNIEnv *env, jobject obj, jint pointer) {
+JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_get_1memory_1usage (JNIEnv *env, jobject obj, jlong pointer) {
 	// Get the knowledgebase object
 	knowledgebase<bool> *base = (knowledgebase<bool>*)pointer;
 
@@ -259,7 +259,7 @@ JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_get_1memory_1usage (JNIE
 	return base->get_memory_usage();
 }
 
-JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_get_1timestamp (JNIEnv *env, jobject obj, jint pointer) {
+JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_get_1timestamp (JNIEnv *env, jobject obj, jlong pointer) {
 	// Get the knowledgebase object
 	knowledgebase<bool> *base = (knowledgebase<bool>*)pointer;
 
@@ -267,7 +267,7 @@ JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_get_1timestamp (JNIEnv *
 	return base->get_timestamp();
 }
 
-JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_count_1answers (JNIEnv *env, jobject obj, jint pointer) {
+JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_count_1answers (JNIEnv *env, jobject obj, jlong pointer) {
 	// Get the knowledgebase object
 	knowledgebase<bool> *base = (knowledgebase<bool>*)pointer;
 
@@ -275,7 +275,7 @@ JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_count_1answers (JNIEnv *
 	return base->count_answers();
 }
 
-JNIEXPORT jstring JNICALL Java_de_libalf_jni_Knowledgebase_generate_1dotfile (JNIEnv *env, jobject obj, jint pointer) {
+JNIEXPORT jstring JNICALL Java_de_libalf_jni_Knowledgebase_generate_1dotfile (JNIEnv *env, jobject obj, jlong pointer) {
 	// Get the knowledgebase object
 	knowledgebase<bool> *base = (knowledgebase<bool>*)pointer;
 
@@ -289,7 +289,7 @@ JNIEXPORT jstring JNICALL Java_de_libalf_jni_Knowledgebase_generate_1dotfile (JN
 	return env->NewStringUTF(c);
 }
 
-JNIEXPORT jintArray JNICALL Java_de_libalf_jni_Knowledgebase_serialize (JNIEnv *env, jobject obj, jint pointer) {
+JNIEXPORT jintArray JNICALL Java_de_libalf_jni_Knowledgebase_serialize (JNIEnv *env, jobject obj, jlong pointer) {
 	// Get the knowledgebase object
 	knowledgebase<bool> *base = (knowledgebase<bool>*)pointer;
 
@@ -299,7 +299,7 @@ JNIEXPORT jintArray JNICALL Java_de_libalf_jni_Knowledgebase_serialize (JNIEnv *
 	return arr;
 }
 
-JNIEXPORT jboolean JNICALL Java_de_libalf_jni_Knowledgebase_deserialize (JNIEnv *env, jobject obj, jintArray serialization, jint pointer) {
+JNIEXPORT jboolean JNICALL Java_de_libalf_jni_Knowledgebase_deserialize (JNIEnv *env, jobject obj, jintArray serialization, jlong pointer) {
 	// Get Java array info
 	jsize length = env->GetArrayLength(serialization);
 	jint *entry = env->GetIntArrayElements(serialization, 0);
@@ -320,7 +320,7 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_Knowledgebase_deserialize (JNIEnv 
 }
 
 // Fix method
-JNIEXPORT jstring JNICALL Java_de_libalf_jni_Knowledgebase_tostring (JNIEnv *env , jobject obj, jint pointer) {
+JNIEXPORT jstring JNICALL Java_de_libalf_jni_Knowledgebase_tostring (JNIEnv *env , jobject obj, jlong pointer) {
 	// Get the knowledgebase object
 	knowledgebase<bool> *base = (knowledgebase<bool>*)pointer;
 
@@ -333,4 +333,3 @@ JNIEXPORT jstring JNICALL Java_de_libalf_jni_Knowledgebase_tostring (JNIEnv *env
 
 	return env->NewStringUTF(c);
 }
-
