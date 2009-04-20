@@ -148,6 +148,7 @@ int main(int argc, char**argv)
 		// if this test is ok, all worked well
 
 		list<int> counterexample;
+		stats.query_count.equivalence++;
 		if(amore_alf_glue::automaton_equivalence_query(*nfa, *(hypothesis.get_automaton()), counterexample)) {
 			// equivalent
 			cout << "success.\n";

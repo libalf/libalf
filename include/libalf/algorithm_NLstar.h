@@ -193,7 +193,7 @@ deserialization_failed:
 					size_t s;
 					list< list<int> >::iterator acci;
 
-					s += sizeof(list<int>) + sizeof(int) * index.size();
+					s = sizeof(list<int>) + sizeof(int) * index.size();
 					s += sizeof(acceptances) + sizeof(answer) * acceptance.size();
 
 					return s;
@@ -325,7 +325,7 @@ deserialization_failed:
 		{{{
 			// add counterexample and all its suffixes to the columns
 			int sigma = -1;
-			while(!w.empty()) {
+			while(!w.empty()) { // epsilon is always in table
 				if(!add_column(w)) {
 					// if a prefix is already in, we dont need
 					// to check the other. column_names is prefix-closed.
@@ -344,23 +344,22 @@ deserialization_failed:
 		virtual bool add_column(list<int> word)
 		{{{
 			typename columnlist::reverse_iterator ci;
-			list<int> nw;
 
 			// going reversed may abort faster, as the longer suffixes are at the back
 			for(ci = column_names.rbegin(); ci != column_names.rend(); ci++)
-				if(*ci == nw)
+				if(*ci == word)
 					return false;
 
-			column_names.push_back(nw);
+			column_names.push_back(word);
 			return true;
 		}}}
 
 		virtual bool row_is_prime(typename table::iterator & row)
-		// TODO: efficiency
 		{{{
 			table_row merge;
 			int cn = column_names.size();
 			int i;
+			bool joined = false; // avoid taking a pure "-" row as non prime
 
 			// initialize merge-row
 			answer a_false;
@@ -371,53 +370,63 @@ deserialization_failed:
 			// join all covered rows into merge-row
 			typename table::iterator ti;
 			for(ti = upper_table.begin(); ti != upper_table.end(); ti++)
-				if(ti != row)
-					if(row->covers(*ti))
+				// NEVER EVER join a row r that is equal to row!
+				if(ti != row && *ti != *row)
+					if(row->covers(*ti)) {
 						merge |= *ti;
+						joined = true;
+					}
 
 			// quick check if we are done
-			if(merge == *row)
-				return true;
+			if(joined && (merge == *row))
+				return false;
 
 			for(ti = lower_table.begin(); ti != lower_table.end(); ti++)
-				if(ti != row)
-					if(row->covers(*ti))
+				// NEVER EVER join a row r that is equal to row!
+				if(ti != row && *ti != *row)
+					if(row->covers(*ti)) {
+						joined = true;
 						merge |= *ti;
+					}
 
 			// if they are equal now, *row is composed from other rows
-			return (merge != *row);
+			return (! (joined && (merge == *row)));
 		}}}
 
 		virtual void add_word_to_upper_table(list<int> & word, bool check_uniq = true)
 		{{{
 			table_row row;
-			bool done;
+			bool done = false;
 
 			if(check_uniq) {
-				if(this->search_upper_table(word) != this->upper_table.end())
+				if(search_upper_table(word) != upper_table.end())
 					return;
 
 				typename table::iterator ti;
-				ti = this->search_lower_table(word);
-				if(ti != this->lower_table.end()) {
+				ti = search_lower_table(word);
+				if(ti != lower_table.end()) {
 					// word is already in lower. so move it up.
 					done = true;
-					this->upper_table.push_back(*ti);
-					this->lower_table.erase(ti);
+					upper_table.push_back(*ti);
+					// we have to do this before erase(), because word may be a ref from a row we are about to delete.
+					row.index = word;
+					lower_table.erase(ti);
 				}
+			} else {
+				// don't move this out of else, otherwise it may conflict with deleted reference
+				row.index = word;
 			}
 
-			if(!done) {
-				row.index = word;
-				this->upper_table.push_back(row);
-			}
+			if(!done)
+				upper_table.push_back(row);
 
 			// add all suffixes to lower table
-			for(int sigma = 0; sigma < this->get_alphabet_size(); sigma++) {
+//			for(int sigma = 0; sigma < this->get_alphabet_size(); sigma++) {
+			for(int sigma = this->get_alphabet_size()-1; sigma >= 0; sigma--) {
 				row.index.push_back(sigma);
 
 				if(check_uniq) {
-					if(search_upper_table(word) == upper_table.end())
+					if(search_upper_table(row.index) == upper_table.end())
 						lower_table.push_back(row);
 				} else {
 					lower_table.push_back(row);
@@ -602,7 +611,7 @@ deserialization_failed:
 			table_row merge;
 			answer a_false;
 
-			// so first find all upper primes
+			// first find all upper primes
 			for(ti = upper_table.begin(); ti != upper_table.end(); ti++)
 				if(row_is_prime(ti))
 					upper_primes.push_back(ti);
@@ -620,13 +629,16 @@ deserialization_failed:
 				else
 					for(i = 0; i < cn; i++)
 						merge.acceptance[i] = a_false;
+				bool joined = false;
 
 				typename list<typename table::iterator>::iterator pri;
 				for(pri = upper_primes.begin(); pri != upper_primes.end(); pri++)
-					if(ti->covers(**pri))
-						merge |= *ti;
+					if(ti->covers(**pri)) {
+						merge |= **pri;
+						joined = true;
+					}
 
-				if(merge != *ti) {
+				if(!joined || merge != *ti) {
 					// this row is not composed from upper primes!
 					// move it to upper table.
 					add_word_to_upper_table(ti->index);
