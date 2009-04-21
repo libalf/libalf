@@ -9,8 +9,8 @@
  * see LICENSE file for licensing information.
  */
 
-#ifndef __amore_nondeterministic_h__
-# define __amore_nondeterministic_h__
+#ifndef __amore_nondeterministic_automaton_h__
+# define __amore_nondeterministic_automaton_h__
 
 #include <list>
 #include <string>
