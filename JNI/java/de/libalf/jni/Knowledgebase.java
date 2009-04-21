@@ -18,7 +18,8 @@ package de.libalf.jni;
  * words to the knowledgebase and marks them as {@link Acceptance#UNKNOWN}. Such
  * unknown words can then be retrieved via the
  * {@link Knowledgebase#getQueries()} -method. A query can be answered by
- * calling {@link Knowledgebase#add_knowledge(int[], boolean)}.
+ * calling {@link Knowledgebase#add_knowledge(int[], boolean)} providing the
+ * word and its information.
  * </p>
  * <p>
  * <b>Note:</b><br>
@@ -67,10 +68,10 @@ public class Knowledgebase extends LibALFObject {
 
 	/**
 	 * <p>
-	 * <em>JNI metod call:</em>
+	 * <em>JNI method call:</em>
 	 * </p>
-	 * Initializes a new C++ knowledgebase object without any parameters and
-	 * returns the pointer to this object.
+	 * Invokes the JNI interface to initialize a new C++ knowledgebase object
+	 * without any parameters and returns the pointer to this object.
 	 * 
 	 * @return a pointer to the memory location of the new C++ object.
 	 */
@@ -188,10 +189,12 @@ public class Knowledgebase extends LibALFObject {
 
 	/**
 	 * Looks for the word in the knowledgebase. If the word is known, either
-	 * {@link Acceptance#ACCEPT} or {@link Acceptance#REJECT} is returned. If the word is not present, the method 
+	 * {@link Acceptance#ACCEPT} or {@link Acceptance#REJECT} is returned. If
+	 * the word is not present, the method returns {@link Acceptance#UNKNOWN}.
 	 * 
 	 * @param word
-	 * @return
+	 *            the word to look for
+	 * @return the stored information about the word.
 	 */
 	public Acceptance resolve_query(int[] word) {
 		int acceptance = resolve_query(word, this.pointer);
@@ -214,12 +217,27 @@ public class Knowledgebase extends LibALFObject {
 	 * <em>JNI method call:</em> See {@link Knowledgebase#resolve_query(int[])}.
 	 * </p>
 	 * 
+	 * @param word
+	 *            the word to look for
+	 * 
 	 * @param pointer
 	 *            the pointer to the C++ object.
 	 * @return the result of the JNI call.
 	 */
 	private native int resolve_query(int[] word, long pointer);
 
+	/**
+	 * Looks for the word in the knowledgebase. If the word is known, either
+	 * {@link Acceptance#ACCEPT} or {@link Acceptance#REJECT} is returned. If
+	 * the word is not present, it is added to the knowledgebase and marked as
+	 * unknown. In this case the method returns {@link Acceptance#UNKNOWN}.
+	 * Hence, the {@link Knowledgebase#getQueries()}-method returns the word as
+	 * query at the next call.
+	 * 
+	 * @param word
+	 *            the word to look for
+	 * @return the stored information about the word.
+	 */
 	public Acceptance resolve_or_add_query(int[] word) {
 		int acceptanceOrExists = resolve_or_add_query(word, this.pointer);
 		switch (acceptanceOrExists) {
@@ -238,72 +256,257 @@ public class Knowledgebase extends LibALFObject {
 		}
 	}
 
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See
+	 * {@link Knowledgebase#resolve_or_add_query(int[])}.
+	 * </p>
+	 * 
+	 * @param word
+	 *            the word to look for
+	 * @param pointer
+	 *            the pointer to the C++ object.
+	 * @return the result of the JNI call.
+	 */
 	private native int resolve_or_add_query(int[] word, long pointer);
 
+	/**
+	 * Stores the information about the word in the knowledgebase. The
+	 * information added by this method is persistent meaning that it cannot be
+	 * altered afterwards.
+	 * 
+	 * @param word
+	 *            the word to add to the knowledgebase
+	 * @param acceptance
+	 *            the information associated with the word
+	 * @return <ul>
+	 *         <li><em>true</em> if the word is not known to to knowledgebase or
+	 *         if the word is known and the provided information is the same as
+	 *         stored in the knowledgebase.</li>
+	 *         <li><em>false</em> if the word is known but does not match the
+	 *         information stored in the knowledgebase.</li>
+	 *         </ul>
+	 * 
+	 */
 	public boolean add_knowledge(int[] word, boolean acceptance) {
 		return add_knowledge(word, acceptance, this.pointer);
 	}
 
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See
+	 * {@link Knowledgebase#add_knowledge(int[], boolean)}.
+	 * </p>
+	 * 
+	 * @param word
+	 *            the word to add to the knowledgebase
+	 * @param pointer
+	 *            the pointer to the C++ object.
+	 * @return the result of the JNI call.
+	 */
 	private native boolean add_knowledge(int[] word, boolean acceptance,
 			long pointer);
 
+	/**
+	 * Removes all data from the knowledgebase, i.e. the knowledgebase is empty.
+	 */
 	public void clear() {
 		clear(this.pointer);
 	}
 
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See {@link Knowledgebase#clear()}.
+	 * </p>
+	 * 
+	 * @param pointer
+	 *            the pointer to the C++ object.
+	 */
 	private native void clear(long pointer);
 
+	/**
+	 * Removes all queries from the knowledgebase. All known information is left
+	 * unchanged.
+	 */
 	public void clear_queries() {
 		clear_queries(this.pointer);
 	}
 
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See {@link Knowledgebase#clear_queries()}.
+	 * </p>
+	 * 
+	 * @param pointer
+	 *            the pointer to the C++ object.
+	 */
 	private native void clear_queries(long pointer);
 
+	/**
+	 * Undoes the last operations on the knowledgebase.
+	 * 
+	 * @param count
+	 *            the number of undo operations
+	 * @return true, if the operation was successful and false, otherwise.
+	 */
 	public boolean undo(int count) {
 		return undo(count, this.pointer);
 	}
 
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See {@link Knowledgebase#undo(int)}.
+	 * </p>
+	 * 
+	 * @param count
+	 *            the number of undo operations
+	 * @param pointer
+	 *            the pointer to the C++ object.
+	 * @return the result of the JNI call.
+	 */
 	private native boolean undo(int count, long pointer);
 
+	/**
+	 * Calculates the memory consumption of the knowledgebase.
+	 * 
+	 * @return the consumed memory in bytes.
+	 */
 	public int get_memory_usage() {
 		return get_memory_usage(this.pointer);
 	}
 
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See {@link Knowledgebase#get_memory_usage()}.
+	 * </p>
+	 * 
+	 * @param pointer
+	 *            the pointer to the C++ object.
+	 * @return the result of the JNI call.
+	 */
 	private native int get_memory_usage(long pointer);
 
+	/**
+	 * TODO: Make a description.
+	 * 
+	 * @return something
+	 */
 	public int get_timestamp() {
 		return get_timestamp(this.pointer);
 	}
 
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See {@link Knowledgebase#get_timestamp()}.
+	 * </p>
+	 * 
+	 * @param pointer
+	 *            the pointer to the C++ object.
+	 * @return the result of the JNI call.
+	 */
 	private native int get_timestamp(long pointer);
 
+	/**
+	 * TODO: Make a description.
+	 * 
+	 * @return Something
+	 */
 	public int count_answers() {
 		return count_answers(this.pointer);
 	}
 
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See {@link Knowledgebase#count_answers()}.
+	 * </p>
+	 * 
+	 * @param pointer
+	 *            the pointer to the C++ object.
+	 * @return the result of the JNI call.
+	 */
 	private native int count_answers(long pointer);
 
+	/**
+	 * Generates a 'dot' representations of the knowledgebase (also see <a
+	 * href="http://www.graphviz.org/">Graphviz</a>).
+	 * 
+	 * @return a dot representation of the knowledgebase.
+	 */
 	public String generate_dotfile() {
 		return generate_dotfile(this.pointer);
 	}
 
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See {@link Knowledgebase#generate_dotfile()}.
+	 * </p>
+	 * 
+	 * @param pointer
+	 *            the pointer to the C++ object.
+	 * @return the result of the JNI call.
+	 */
 	private native String generate_dotfile(long pointer);
 
+	/**
+	 * Serializes the data stored in the knowledgebase. This serialization can
+	 * be saved and the knowledgebase can be restored using the
+	 * {@link Knowledgebase#deserialize(int[])} method.
+	 * 
+	 * @return an int array that stores the serialization of the knowledgebase.
+	 */
 	public int[] serialize() {
 		return serialize(this.pointer);
 	}
 
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See {@link Knowledgebase#generate_dotfile()}.
+	 * </p>
+	 * 
+	 * @param pointer
+	 *            the pointer to the C++ object.
+	 * @return the result of the JNI call.
+	 */
 	private native int[] serialize(long pointer);
 
+	/**
+	 * Restores the data of an a priori serialized knowledgebase. All data
+	 * contained in the knowledgebase is dropped before.
+	 * 
+	 * @param serialization
+	 *            a serialization of a knowledgebase
+	 * @return true, if the recovery was successful and false, otherwise.
+	 */
 	public boolean deserialize(int[] serialization) {
 		return deserialize(serialization, this.pointer);
 	}
 
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See {@link Knowledgebase#deserialize(int[])}.
+	 * </p>
+	 * 
+	 * @param serialization
+	 *            a serialization of a knowledgebase
+	 * @param pointer
+	 *            the pointer to the C++ object.
+	 * @return the result of the JNI call.
+	 */
 	private native boolean deserialize(int[] serialization, long pointer);
 
+	@Override
 	public String toString() {
 		return tostring(this.pointer);
 	}
 
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See {@link Knowledgebase#toString()}.
+	 * </p>
+	 * 
+	 * @param pointer
+	 *            the pointer to the C++ object.
+	 * @return the result of the JNI call.
+	 */
 	private native String tostring(long pointer);
 }
