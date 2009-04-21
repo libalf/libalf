@@ -1,13 +1,14 @@
 
 (priority ordered)
 
-A)
+
+
 
 - CPU/MEM stats for biermann
 
 - documentation (?)
 
-B)
+- add (de)serialize to NL*
 
 - add normalizer to NL*
 
@@ -29,9 +30,13 @@ B)
 
 - implement `extend normalizer' in dispatcher and normalizer
 
+
+
+
 - in AMoRE++: _init and _fini are not working (linker stuff...)
 
-C)
+
+
 
 - check if template can be removed from learning_algorithm
   (thus all alg. are of class learning_algorithm<bool>)
