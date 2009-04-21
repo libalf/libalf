@@ -186,6 +186,13 @@ public class Knowledgebase extends LibALFObject {
 	 */
 	private native WordList getQueries(long pointer);
 
+	/**
+	 * Looks for the word in the knowledgebase. If the word is known, either
+	 * {@link Acceptance#ACCEPT} or {@link Acceptance#REJECT} is returned. If the word is not present, the method 
+	 * 
+	 * @param word
+	 * @return
+	 */
 	public Acceptance resolve_query(int[] word) {
 		int acceptance = resolve_query(word, this.pointer);
 		switch (acceptance) {
@@ -202,6 +209,15 @@ public class Knowledgebase extends LibALFObject {
 		}
 	}
 
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See {@link Knowledgebase#resolve_query(int[])}.
+	 * </p>
+	 * 
+	 * @param pointer
+	 *            the pointer to the C++ object.
+	 * @return the result of the JNI call.
+	 */
 	private native int resolve_query(int[] word, long pointer);
 
 	public Acceptance resolve_or_add_query(int[] word) {
