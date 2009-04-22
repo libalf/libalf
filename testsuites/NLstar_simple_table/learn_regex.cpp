@@ -40,6 +40,7 @@ int main(int argc, char**argv)
 
 	char filename[128];
 	ofstream file;
+	int mindfa_statecount;
 
 	int iteration;
 	bool success = false;
@@ -79,6 +80,7 @@ int main(int argc, char**argv)
 		finite_automaton * dfa;
 		dfa = nfa->determinize();
 		dfa->minimize();
+		mindfa_statecount = dfa->get_state_count();
 		file.open("original-dfa.dot"); file << dfa->generate_dotfile(); file.close();
 		delete dfa;
 	}}}
@@ -182,7 +184,8 @@ int main(int argc, char**argv)
 	cout << "upper table rows: " << stats.table_size.upper_table
 	     << ", lower table rows: " << stats.table_size.lower_table
 	     << ", columns: " << stats.table_size.columns << "\n";
-	cout << "minimal state count: " << hypothesis.get_automaton()->get_state_count() << "\n";
+	cout << "minimal DFA state count: " << mindfa_statecount << "\n";
+	cout << "final hypothesis state count: " << hypothesis.get_automaton()->get_state_count() << "\n";
 
 	if(success)
 		return 0;
