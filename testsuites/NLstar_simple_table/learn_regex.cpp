@@ -120,7 +120,6 @@ int main(int argc, char**argv)
 			c++;
 		}
 
-
 		{{{ /* dump/serialize table */
 			basic_string<int32_t> serialized;
 			basic_string<int32_t>::iterator it;
@@ -182,7 +181,7 @@ int main(int argc, char**argv)
 	cout << "upper table rows: " << stats.table_size.upper_table
 	     << ", lower table rows: " << stats.table_size.lower_table
 	     << ", columns: " << stats.table_size.columns << "\n";
-	cout << "original NFA state count: " << nfa->get_state_count();
+	cout << "original NFA state count: " << nfa->get_state_count() << "\n";
 	cout << "minimal DFA state count: " << mindfa_statecount << "\n";
 	cout << "final hypothesis state count: " << hypothesis.get_automaton()->get_state_count() << "\n";
 
