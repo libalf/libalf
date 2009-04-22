@@ -173,8 +173,6 @@ int main(int argc, char**argv)
 
 	ot.get_memory_statistics(stats);
 
-	delete nfa;
-
 	cout << "required membership queries: " << stats.query_count.membership << "\n";
 	cout << "required uniq membership queries: " << stats.query_count.uniq_membership << "\n";
 	cout << "required equivalence queries: " << stats.query_count.equivalence << "\n";
@@ -184,8 +182,11 @@ int main(int argc, char**argv)
 	cout << "upper table rows: " << stats.table_size.upper_table
 	     << ", lower table rows: " << stats.table_size.lower_table
 	     << ", columns: " << stats.table_size.columns << "\n";
+	cout << "original NFA state count: " << nfa->get_state_count();
 	cout << "minimal DFA state count: " << mindfa_statecount << "\n";
 	cout << "final hypothesis state count: " << hypothesis.get_automaton()->get_state_count() << "\n";
+
+	delete nfa;
 
 	if(success)
 		return 0;
