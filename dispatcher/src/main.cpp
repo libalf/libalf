@@ -17,6 +17,7 @@
 #include <getopt.h>
 #include <errno.h>
 #include <string.h>
+#include <time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/select.h>
@@ -117,6 +118,22 @@ char * dispatcher_version()
 	return version;
 }}}
 
+void print_time()
+{{{
+	char timestr[64];
+	time_t now;
+	struct tm* now_brk;
+
+
+	now = time(NULL);
+	now_brk = localtime(&now);
+
+	strftime(timestr, 64, "[%F %H:%M] ", now_brk);
+	timestr[63] = 0;
+
+	cout << timestr;
+}}}
+
 int main(int argc, char**argv)
 {{{
 	cout << dispatcher_version() << "\n"; 
@@ -145,6 +162,7 @@ int main(int argc, char**argv)
 		return -2;
 	}
 
+	print_time();
 	cout << "dispatcher now waiting for clients.\n";
 
 	fd_set fds;
@@ -162,6 +180,7 @@ int main(int argc, char**argv)
 				cout << "ASSERT: master->accept() returned NULL. ignoring.\n";
 			} else {
 				int pid = fork();
+				print_time();
 				if(pid < 0) {
 					cout << "failed to fork. aborting.\n";
 					return -3;
