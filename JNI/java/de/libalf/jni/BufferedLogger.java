@@ -1,6 +1,45 @@
 package de.libalf.jni;
 
 /**
+ * <p>
+ * A <code>BufferedLogger</code> logs events that occur during a learning
+ * process and the logged events can be received as a <code>String</code>. A
+ * logger is given as parameter when creating a new {@link LearningAlgorithm}.
+ * </p>
+ * <p>
+ * Each logged event is associated with a specific {@link LoggerLevel}, which
+ * indicates the type of the event. The logger levels are thereby ordered:
+ * <table>
+ * <tr>
+ * <td>0</td>
+ * <td>{@link LoggerLevel#LOGGER_INTERNAL}</td>
+ * </tr>
+ * <tr>
+ * <td>1</td>
+ * <td>{@link LoggerLevel#LOGGER_ERROR}</td>
+ * </tr>
+ * <tr>
+ * <td>2</td>
+ * <td>{@link LoggerLevel#LOGGER_WARN}</td>
+ * </tr>
+ * <tr>
+ * <td>3</td>
+ * <td>{@link LoggerLevel#LOGGER_INFO}</td>
+ * </tr>
+ * <tr>
+ * <td>4</td>
+ * <td>{@link LoggerLevel#LOGGER_DEBUG}</td>
+ * </tr>
+ * <tr>
+ * <td>5</td>
+ * <td>{@link LoggerLevel#LOGGER_ALGORITHM}</td>
+ * </tr>
+ * </table>
+ * <br>
+ * If the logger level of an event is less than the logger's
+ * <code>minimalLogLevel</code>, the event is discarded. Only events with logger
+ * level greater and equal to the minimal logger level are in fact logged.
+ * </p>
  * 
  * @author Daniel Neider (<a
  *         href="mailto:neider@automata.rwth-aachen.de">neider@automata.
@@ -22,7 +61,7 @@ public class BufferedLogger extends LibALFObject {
 	private final int ALGORITHM = 5;
 
 	/**
-	 * Enumeration of all available log levels.
+	 * Enumeration of all available logger levels.
 	 * 
 	 * @author Daniel Neider (<a
 	 *         href="mailto:neider@automata.rwth-aachen.de">neider@automata.
@@ -60,7 +99,9 @@ public class BufferedLogger extends LibALFObject {
 
 	/**
 	 * Creates a new buffered logger. The logger has the given minimal log level
-	 * and TODO: Description
+	 * or {@link BufferedLogger#DEFAULT_LOGGER_LEVEL} if
+	 * <code>minimalLogLevel</code> is <code>null</code>.<br>
+	 * TODO: What does the logAlgorithm parameter?
 	 * 
 	 * @param minimalLogLevel
 	 *            the minimal log level, an integer between 0 (INTERNAL) and 5
