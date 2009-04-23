@@ -41,7 +41,9 @@ using namespace std;
 	};
 
 /*
- * table for angluin learning algorithm
+ * template-table for angluin learning algorithm
+ * NEVER use this direclty. if you need an alguin-style learning algorithm,
+ * please stick to those declared below this template.
  */
 template <class answer, class table, class acceptances>
 class angluin_table : public learning_algorithm<answer> {
@@ -357,7 +359,9 @@ class angluin_table : public learning_algorithm<answer> {
 			return search_lower_table(word, index);
 		}}}
 
-		virtual void add_column(list<int> word)
+		virtual bool add_column(list<int> word)
+		// returns true if column was added,
+		// false if column was there earlier
 		{{{
 			typename columnlist::iterator ci;
 			list<int> nw;
@@ -370,7 +374,7 @@ class angluin_table : public learning_algorithm<answer> {
 
 			for(ci = column_names.begin(); ci != column_names.end(); ci++)
 				if(*ci == nw)
-					return;
+					return false;
 
 			if(this->my_knowledge != NULL)
 				column_timestamps.push_back(this->my_knowledge->get_timestamp());
@@ -378,6 +382,7 @@ class angluin_table : public learning_algorithm<answer> {
 				column_timestamps.push_back(0);
 
 			column_names.push_back(nw);
+			return true;
 		}}}
 
 		virtual bool columns_filled()
@@ -1008,8 +1013,12 @@ class angluin_table : public learning_algorithm<answer> {
 	};
 
 
+
+
 template <class answer>
 class angluin_simple_table : public angluin_table<answer, list< algorithm_angluin::simple_row<answer, vector<answer> > >, vector<answer> > {
+	// this is the classical angluin learning algorithm, L*, implemented in a table-fashion:
+	// prefix-closed rows and suffix-closed columns
 	public:
 		angluin_simple_table()
 		{{{
@@ -1309,6 +1318,94 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 			}
 		}}}
 
+};
+
+
+
+template <class answer>
+class angluin_reverse_table : public angluin_simple_table<answer> {
+	// the reverse-table version handles counter-examples in a different way:
+	// instead of adding counterexamples and their prefixes to the upper table,
+	// counterexamples and their suffixes are added to the columns.
+	// this way the table never can be __inconsistens__, so several
+	// functions can be reduced in complexity.
+	public:
+		angluin_reverse_table()
+		{{{
+			this->set_alphabet_size(0);
+			this->set_knowledge_source(NULL);
+			this->set_logger(NULL);
+		}}}
+		angluin_reverse_table(knowledgebase<answer> *base, logger *log, int alphabet_size)
+		{{{
+			this->set_alphabet_size(alphabet_size);
+			this->set_logger(log);
+			this->set_knowledge_source(base);
+		}}}
+
+		virtual void add_counterexample(list<int> word)
+		{{{
+			typename vector< list<int> >::iterator ci;
+			list<int>::iterator wi;
+			int new_asize;
+			bool asize_changed = false;
+
+			ci = this->search_columns(word);
+			if(ci != this->column_names.end()) {
+				string s = word2string(word);
+				(*this->my_logger)(LOGGER_WARN, "angluin_reverse_table: angluin_table: you are trying to add a counterexample (%s) which is already contained in the table. trying to ignore...\n", s.c_str());
+				return;
+			}
+
+			// check for increase in alphabet size
+			for(wi = word.begin(); wi != word.end(); wi++) {
+				if(*wi >= this->get_alphabet_size()) {
+					new_asize = *wi+1;
+					asize_changed = true;
+				}
+			}
+			if(asize_changed)
+				this->increase_alphabet_size(new_asize);
+
+			// add word and all suffixes to the columns
+			while(!word.empty()) {
+				if(!this->add_column(word))
+					break;
+				word.pop_front();
+			}
+
+		}}}
+
+	protected:
+		virtual typename vector< list<int> >::iterator search_columns(list<int> &word)
+		{{{
+			typename vector< list<int> >::iterator ci;
+
+			for(ci = this->column_names.begin(); ci != this->column_names.end(); ++ci) {
+				if(*ci == word)
+					break;
+			}
+
+			return ci;
+		}}}
+		virtual bool conjecture_ready()
+		{{{
+			return this->initialized && this->columns_filled() && this->is_closed();
+		}}}
+		virtual bool complete()
+		{{{
+			if(!this->initialized)
+				this->initialize_table();
+
+			if(this->fill_missing_columns(this->upper_table) && this->fill_missing_columns(this->lower_table)) {
+				if(!this->close())
+					return complete();
+
+				return true;
+			} else {
+				return false;
+			}
+		}}}
 };
 
 
