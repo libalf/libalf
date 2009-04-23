@@ -41,10 +41,10 @@ using namespace std;
 	};
 
 /*
- * observation table for angluin learning algorithm
+ * table for angluin learning algorithm
  */
 template <class answer, class table, class acceptances>
-class angluin_observationtable : public learning_algorithm<answer> {
+class angluin_table : public learning_algorithm<answer> {
 	/*\
 	 * NOTES FOR <TABLE> AND <ACCEPTANCE> TEMPLATE CLASSES:
 	 *	table has to be iterable. iterator elements have to provide the following:
@@ -78,7 +78,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		bool initialized;
 
 	public:
-		angluin_observationtable()
+		angluin_table()
 		{{{
 			this->set_knowledge_source(NULL);
 			this->set_logger(NULL);
@@ -92,7 +92,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 		virtual bool sync_to_knowledgebase()
 		{{{
 			if(this->my_knowledge == NULL) {
-				(*this->my_logger)(LOGGER_WARN, "angluin_observationtable: sync-operation is only supported in combination with a knowledgebase!\n");
+				(*this->my_logger)(LOGGER_WARN, "angluin_table: sync-operation is only supported in combination with a knowledgebase!\n");
 				return false;
 			}
 
@@ -164,7 +164,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			typename acceptances::iterator acci;
 			char buf[32];
 
-			os << "simple_observationtable {\n";
+			os << "angluin_table {\n";
 			os << "\tcolumns:";
 			for(ci = column_names.begin(), tsi = column_timestamps.begin(); ci != column_names.end() && tsi != column_timestamps.end(); ci++, tsi++) {
 				os << " ";
@@ -244,7 +244,7 @@ class angluin_observationtable : public learning_algorithm<answer> {
 			ti = search_tables(word);
 			if(ti != lower_table.end()) {
 				string s = word2string(word);
-				(*this->my_logger)(LOGGER_WARN, "angluin_observationtable: angluin_observationtable: you are trying to add a counterexample (%s) which is already contained in the table. trying to ignore...\n", s.c_str());
+				(*this->my_logger)(LOGGER_WARN, "angluin_table: angluin_table: you are trying to add a counterexample (%s) which is already contained in the table. trying to ignore...\n", s.c_str());
 				return;
 			}
 
@@ -1009,15 +1009,15 @@ class angluin_observationtable : public learning_algorithm<answer> {
 
 
 template <class answer>
-class angluin_simple_observationtable : public angluin_observationtable<answer, list< algorithm_angluin::simple_row<answer, vector<answer> > >, vector<answer> > {
+class angluin_simple_table : public angluin_table<answer, list< algorithm_angluin::simple_row<answer, vector<answer> > >, vector<answer> > {
 	public:
-		angluin_simple_observationtable()
+		angluin_simple_table()
 		{{{
 			this->set_alphabet_size(0);
 			this->set_knowledge_source(NULL);
 			this->set_logger(NULL);
 		}}}
-		angluin_simple_observationtable(knowledgebase<answer> *base, logger *log, int alphabet_size)
+		angluin_simple_table(knowledgebase<answer> *base, logger *log, int alphabet_size)
 		{{{
 			this->set_alphabet_size(alphabet_size);
 			this->set_logger(log);
@@ -1026,7 +1026,7 @@ class angluin_simple_observationtable : public angluin_observationtable<answer, 
 
 		virtual void get_memory_statistics(statistics & stats)
 		{{{
-			typename angluin_observationtable<answer, list< algorithm_angluin::simple_row<answer, vector<answer> > >, vector<answer> >::columnlist::iterator ci;
+			typename angluin_table<answer, list< algorithm_angluin::simple_row<answer, vector<answer> > >, vector<answer> >::columnlist::iterator ci;
 			typename list< algorithm_angluin::simple_row<answer, vector<answer> > >::iterator ti;
 
 			stats.table_size.columns = this->column_names.size();

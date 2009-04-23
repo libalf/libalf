@@ -45,8 +45,8 @@ session::session(enum learning_algorithm<extended_bool>::algorithm algorithm, in
 	norm = NULL;
 	switch (algorithm) {
 		case learning_algorithm<extended_bool>::ALG_ANGLUIN:
-			alg = new angluin_simple_observationtable<extended_bool>(&knowledge, &logger, alphabet_size);
-			logger(LOGGER_INFO, "new session: angluin observationtable\n");
+			alg = new angluin_simple_table<extended_bool>(&knowledge, &logger, alphabet_size);
+			logger(LOGGER_INFO, "new session: angluin table\n");
 			break;
 		case learning_algorithm<extended_bool>::ALG_BIERMANN:
 			alg = new MiniSat_biermann<extended_bool>(&knowledge, &logger, alphabet_size);
@@ -54,7 +54,7 @@ session::session(enum learning_algorithm<extended_bool>::algorithm algorithm, in
 			break;
 		case learning_algorithm<extended_bool>::ALG_NL_STAR:
 			alg = new NLstar_table<extended_bool>(&knowledge, &logger, alphabet_size);
-			logger(LOGGER_INFO, "new session: NL* algorithm, angluin-like learning of RFSA\n");
+			logger(LOGGER_INFO, "new session: NL* algorithm, angluin-reverse-table-like learning of RFSA\n");
 			break;
 		default:
 			alg = NULL;

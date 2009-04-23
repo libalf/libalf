@@ -30,7 +30,7 @@ JNIEXPORT jlong JNICALL Java_de_libalf_jni_AlgorithmAngluin_init__JI (JNIEnv *en
 	/*
 	 * Return the new object
 	 */
-	learning_algorithm<bool>* algorithm = new angluin_simple_observationtable<bool>(base, NULL, alphabet_size);
+	learning_algorithm<bool>* algorithm = new angluin_simple_table<bool>(base, NULL, alphabet_size);
 	return ((jlong)algorithm);
 }
 
@@ -44,6 +44,6 @@ JNIEXPORT jlong JNICALL Java_de_libalf_jni_AlgorithmAngluin_init__JIJ (JNIEnv *e
 	/*
 	 * Return the new object
 	 */
-	learning_algorithm<bool>* algorithm = new angluin_simple_observationtable<bool>(base, logger, alphabet_size);
+	learning_algorithm<bool>* algorithm = new angluin_simple_table<bool>(base, logger, alphabet_size);
 	return ((jlong)algorithm);
 }
