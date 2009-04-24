@@ -20,14 +20,14 @@ namespace libalf {
 using namespace std;
 
 enum logger_loglevel {
-	LOGGER_INTERNAL	 = 0,
+	LOGGER_INTERNAL	 = 0,		// only internal, do not use
 
 	LOGGER_ERROR	 = 1,
 	LOGGER_WARN	 = 2,
 	LOGGER_INFO	 = 3,
 	LOGGER_DEBUG	 = 4,
 
-	LOGGER_ALGORITHM = 5
+	LOGGER_ALGORITHM = 5		// do not use as minimal loglevel
 };
 
 class logger : public binary_function< enum logger_loglevel, string&, void > {
