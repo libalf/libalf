@@ -33,9 +33,6 @@ JNIEXPORT jlong JNICALL Java_de_libalf_jni_BufferedLogger_init__IZ (JNIEnv *env,
 	enum logger_loglevel loglevel;
 
 	switch(minimal_loglevel) {
-	case 0:
-		loglevel = LOGGER_INTERNAL;
-		break;
 	case 1:
 		loglevel = LOGGER_ERROR;
 		break;
@@ -48,11 +45,8 @@ JNIEXPORT jlong JNICALL Java_de_libalf_jni_BufferedLogger_init__IZ (JNIEnv *env,
 	case 4:
 		loglevel = LOGGER_DEBUG;
 		break;
-	case 5:
-		loglevel = LOGGER_ALGORITHM;
-		break;
 	default:
-		loglevel = LOGGER_ALGORITHM;
+		loglevel = LOGGER_DEBUG;
 		break;
 	}
 

@@ -47,3 +47,4 @@ JNIEXPORT jlong JNICALL Java_de_libalf_jni_NLstar_init__JIJ (JNIEnv *env, jobjec
 	learning_algorithm<bool>* algorithm = new NLstar_table<bool>(base, logger, alphabet_size);
 	return ((jlong)algorithm);
 }
+

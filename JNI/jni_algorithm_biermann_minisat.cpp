@@ -47,3 +47,4 @@ JNIEXPORT jlong JNICALL Java_de_libalf_jni_AlgorithmBiermannMiniSAT_init__JIJ (J
 	learning_algorithm<bool>* algorithm = new MiniSat_biermann<bool>(base, logger, alphabet_size);
 	return ((jlong)algorithm);
 }
+

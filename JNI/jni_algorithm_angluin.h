@@ -27,3 +27,4 @@ JNIEXPORT jlong JNICALL Java_de_libalf_jni_AlgorithmAngluin_init__JIJ
 }
 #endif
 #endif
+

@@ -47,3 +47,4 @@ JNIEXPORT jlong JNICALL Java_de_libalf_jni_AlgorithmAngluin_init__JIJ (JNIEnv *e
 	learning_algorithm<bool>* algorithm = new angluin_simple_table<bool>(base, logger, alphabet_size);
 	return ((jlong)algorithm);
 }
+
