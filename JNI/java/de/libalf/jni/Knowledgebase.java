@@ -407,7 +407,7 @@ public class Knowledgebase extends LibALFObject {
 	private native int get_timestamp(long pointer);
 
 	/**
-	 * TODO: Make a description.
+	 * Returns the number of membership information stored in the knowledgebase.
 	 * 
 	 * @return Something
 	 */

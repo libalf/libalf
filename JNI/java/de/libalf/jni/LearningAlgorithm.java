@@ -84,8 +84,10 @@ public interface LearningAlgorithm {
 	/**
 	 * <p>
 	 * Provides the learning algorithm with a new counter-example.<br>
-	 * TODO: (Stimmt das?) The counter-example may be processed by the learning
-	 * algorithm before it is added to the knowledge base.
+	 * The algorithm will automatically query for the membership
+	 * information of the word. Thus, the counter-example may be
+	 * processed by the learning algorithm before it is added to
+	 * the {@link Knowledgebase}
 	 * </p>
 	 * <p>
 	 * <b>Note:</b> Adding counter-example is only possible in case of
@@ -100,14 +102,21 @@ public interface LearningAlgorithm {
 
 	/**
 	 * Synchronizes the learning algorithm with the associated knowledge base.
+	 * This has to be done after each undo-operation in the corresponding
+	 * {@link Knowledgebase} to remove obsolete information from the
+	 * algorithm.
 	 * 
-	 * @return TODO: Was passiert wann?
+	 * @return result of the synchronisation with the knowledgebase. If false
+	 * is returned, the algorithm is in an undefined state and should not be
+	 * used anymore.
 	 */
 	public boolean sync_to_knowledgebase();
 
 	/**
 	 * Checks whether the learning algorithm supports synchronization with the
-	 * associated {@link Knowledgebase}.
+	 * associated {@link Knowledgebase}. If so, undo-operations on the
+	 * knowledgebase are allowed. Each undo-operation has to be followed by a
+	 * call to sync_to_knowledgebase().
 	 * 
 	 * @return the result of the check.
 	 */

@@ -91,7 +91,6 @@ public class BufferedLogger extends LibALFObject {
 	 * Creates a new buffered logger. The logger has the given minimal log level
 	 * or {@link BufferedLogger#DEFAULT_LOGGER_LEVEL} if
 	 * <code>minimalLogLevel</code> is <code>null</code>.<br>
-	 * TODO: What does the logAlgorithm parameter?
 	 * 
 	 * @param minimalLogLevel
 	 *            the minimal log level, an integer between 1 (ERROR) and 4
