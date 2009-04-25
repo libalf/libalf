@@ -63,22 +63,26 @@ public class BufferedLogger extends LibALFObject {
 	public static enum LoggerLevel {
 		
 		/**
-		 * TODO: Was macht das?
+		 * all log messages that describe a non-recoverable error are marked with LOGGER_ERROR.
 		 */
 		LOGGER_ERROR,
 		
 		/**
-		 * TODO: Was macht das?
+		 * messages describing a state that is erroneous but may be ignored under most conditions
+		 * are marked with LOGGER_WARN.
 		 */
 		LOGGER_WARN,
 		
 		/**
-		 * TODO: Was macht das?
+		 * any information not describing an erroneous condition are marked with LOGGER_INFO.
 		 */
 		LOGGER_INFO,
 		
 		/**
-		 * TODO: Was macht das?
+		 * messages that may help debugging of libalf are marked with LOGGER_DEBUG.
+		 * LOGGER_DEBUG is usually only used during development of libalf and removed
+		 * afterwards, as these can be _very_ verbose and then CPU consuming.
+		 * still, some debug messages may be left in a release version.
 		 */
 		LOGGER_DEBUG
 	}
