@@ -2,15 +2,20 @@ package de.libalf.jni;
 
 /**
  * <p>
- * A knowledgebase stores information about the membership of words <em>w</em>
- * with respect to a formal language <em>L</em>. A word is a sequence of
- * integers represented as an integer array. The knowledgebase stores either
- * {@link Acceptance#ACCEPT} or {@link Acceptance#REJECT} depending on whether
- * <em>w</em> belongs to <em>L</em> or not. If this information is not yet
- * available, the word is marked as {@link Acceptance#UNKNOWN}.<br>
+ * A knowledgebase manages the information used during the learning process. It
+ * stores information about the membership of words <em>w</em> with respect to a
+ * formal language <em>L</em>. A word is a sequence of integers represented as
+ * an integer array. The knowledgebase stores either {@link Acceptance#ACCEPT}
+ * or {@link Acceptance#REJECT} depending on whether <em>w</em> belongs to
+ * <em>L</em> or not. If this information is not yet available, the word is
+ * marked as {@link Acceptance#UNKNOWN}.
+ * </p>
+ * <p>
  * Each {@link LearningAlgorithm} is associated with a knowledgebase and
- * retrieves its exclusively information from it. However, a knowledgebase can
- * be an information source for many learning algorithms simultaneously.
+ * retrieves its information exclusively this particular knowledgebase. However,
+ * a knowledgebase can be an information source for many learning algorithms
+ * simultaneously.<br>
+ * <em>Note: Synchronization (e.g. via the Java sync facility) is not yet supported.</em>
  * </p>
  * <p>
  * If the learning algorithm is able to ask <em>membership queries</em> - like
@@ -503,15 +508,15 @@ public class Knowledgebase extends LibALFObject {
 	 * @return the result of the JNI call.
 	 */
 	private native String tostring(long pointer);
-	
+
 	public static void main(String[] args) {
 		Knowledgebase base = new Knowledgebase();
-		base.add_knowledge(new int[]{}, true);
-		base.add_knowledge(new int[]{2,1,4}, false);
-		base.add_knowledge(new int[]{2,4,5}, false);
-		base.add_knowledge(new int[]{2,4}, true);
-		base.add_knowledge(new int[]{2,4,22}, true);
-		base.add_knowledge(new int[]{2,4,22,33}, false);
+		base.add_knowledge(new int[] {}, true);
+		base.add_knowledge(new int[] { 2, 1, 4 }, false);
+		base.add_knowledge(new int[] { 2, 4, 5 }, false);
+		base.add_knowledge(new int[] { 2, 4 }, true);
+		base.add_knowledge(new int[] { 2, 4, 22 }, true);
+		base.add_knowledge(new int[] { 2, 4, 22, 33 }, false);
 		System.out.println(base.generate_dotfile());
 	}
 }
