@@ -22,12 +22,12 @@ using namespace std;
 enum logger_loglevel {
 	LOGGER_INTERNAL	 = 0,		// only internal, do not use
 
-	LOGGER_ERROR	 = 1,
-	LOGGER_WARN	 = 2,
-	LOGGER_INFO	 = 3,
-	LOGGER_DEBUG	 = 4,
+	LOGGER_ERROR	 = 1,		// all log messages that describe a non-recoverable error are marked with LOGGER_ERROR.
+	LOGGER_WARN	 = 2,		// messages describing a state or command that is erroneous but may be ignored under most conditions
+	LOGGER_INFO	 = 3,		// any information not describing an erroneous condition are marked with LOGGER_INFO.
+	LOGGER_DEBUG	 = 4,		// messages that may help debugging of libalf. most likely removed before release version.
 
-	LOGGER_ALGORITHM = 5		// do not use as minimal loglevel
+	LOGGER_ALGORITHM = 5		// do not use this as minimal loglevel
 };
 
 class logger : public binary_function< enum logger_loglevel, string&, void > {

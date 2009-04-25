@@ -68,7 +68,7 @@ public class BufferedLogger extends LibALFObject {
 		LOGGER_ERROR,
 		
 		/**
-		 * messages describing a state that is erroneous but may be ignored under most conditions
+		 * messages describing a state or command that is erroneous but may be ignored under most conditions
 		 * are marked with LOGGER_WARN.
 		 */
 		LOGGER_WARN,

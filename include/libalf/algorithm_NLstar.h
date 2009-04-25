@@ -392,7 +392,9 @@ deserialization_failed:
 
 		virtual bool row_is_prime(typename table::iterator & row)
 		{{{
-//			cout << "\tchecking if "; print_word(cout, row->index); cout << " is prime:\n";
+//			string s,t;
+//			s = word2string(row->index);
+//			(*this->my_logger)(LOGGER_DEBUG, "\tchecking if %s is prime:\n", s.c_str());
 			table_row merge;
 			int cn = column_names.size();
 			int i;
@@ -412,7 +414,8 @@ deserialization_failed:
 					if(row->covers(*ti)) {
 						merge |= *ti;
 						joined = true;
-//						cout << "\t\tjoining upper " << ti->tostring() << "\t\t\t=> " << merge.tostring();
+//						s = ti->tostring(); t = merge.tostring();
+//						(*this->my_logger)(LOGGER_DEBUG, "\t\tjoining upper %s\t\t\t=> %s", s.c_str(), t.c_str());
 					}
 
 			// quick check if we are done
@@ -425,7 +428,8 @@ deserialization_failed:
 					if(row->covers(*ti)) {
 						joined = true;
 						merge |= *ti;
-//						cout << "\t\tjoining lower " << ti->tostring() << "\t\t\t=> " << merge.tostring();
+//						s = ti->tostring(); t = merge.tostring();
+//						(*this->my_logger)(LOGGER_DEBUG, "\t\tjoining lower %s\t\t\t=> %s", s.c_str(), t.c_str());
 					}
 
 			// if they are equal now, *row is composed from other rows
@@ -644,7 +648,8 @@ deserialization_failed:
 		// returns false if table was changed (and thus needs to be filled)
 		virtual bool close()
 		{{{
-//			cout << "close() getting upper primes:\n";
+//			string s,t;
+//			(*this->my_logger)(LOGGER_DEBUG, "close() getting upper primes:\n");
 			typename table::iterator ti;
 			list<typename table::iterator> upper_primes;
 			// prepare merge row
@@ -658,7 +663,8 @@ deserialization_failed:
 			for(ti = upper_table.begin(); ti != upper_table.end(); ti++)
 				if(row_is_prime(ti)) {
 					upper_primes.push_back(ti);
-//					cout << "\t" << word2string(ti->index) << " is upper prime.\n";
+//					s = word2string(ti->index);
+//					(*this->my_logger)(LOGGER_DEBUG, "\t%s is upper prime.\n", s.c_str());
 				}
 
 			first = true;
@@ -666,10 +672,11 @@ deserialization_failed:
 			for(i = 0; i < cn; i++)
 				merge.acceptance.push_back(a_false);
 
-//			cout << "close() finding non-prime-covered rows in lower table:\n";
+//			(*this->my_logger)(LOGGER_DEBUG, "close() finding non-prime-covered rows in lower table:\n");
 			// now check closed-ness of lower table
 			for(ti = lower_table.begin(); ti != lower_table.end(); ti++) {
-//				cout << "\tchecking " << word2string(ti->index) << " :\n";
+//				s = word2string(ti->index);
+//				(*this->my_logger)(LOGGER_DEBUG, "\tchecking %s :\n", s.c_str());
 				// reset merge row
 				if(first)
 					first = false;
@@ -683,7 +690,8 @@ deserialization_failed:
 					if(ti->covers(**pri)) {
 						merge |= **pri;
 						joined = true;
-//						cout << "\t\tjoining upper " << (*pri)->tostring() << "\t\t\t=> " << merge.tostring();
+//						s = (*pri)->tostring(); t = merge.tostring();
+//						(*this->my_logger)(LOGGER_DEBUG, "\t\tjoining upper %s\t\t\t=> %s", s.c_str(), t.c_str());
 					}
 
 				if(!joined || merge != *ti) {
@@ -700,7 +708,8 @@ deserialization_failed:
 								}
 							}
 							if(!already_in_upper) {
-//								cout << "    moving word " << word2string(ti->index) << " to upper to close table.\n";
+//								s = word2string(ti->index);
+//								(*this->my_logger)(LOGGER_DEBUG, "    moving word %s to upper to close table.\n", s.c_str());
 								add_word_to_upper_table(ti->index);
 								return false;
 
@@ -809,7 +818,8 @@ deserialization_failed:
 				initialize_table();
 
 			if(fill_missing_columns(upper_table) && fill_missing_columns(lower_table)) {
-//				cout << "----------------------- \n"; print(cout);
+//				string s = this->tostring();
+//				(*this->my_logger)(LOGGER_DEBUG, "----------------------- \n%s", s.c_str());
 				if(!close())
 					return complete();
 
