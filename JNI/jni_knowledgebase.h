@@ -113,14 +113,6 @@ JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_get_1memory_1usage
 
 /*
  * Class:     de_libalf_jni_Knowledgebase
- * Method:    get_timestamp
- * Signature: (J)I
- */
-JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_get_1timestamp
-  (JNIEnv *, jobject, jlong);
-
-/*
- * Class:     de_libalf_jni_Knowledgebase
  * Method:    count_answers
  * Signature: (J)I
  */

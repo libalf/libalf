@@ -259,14 +259,6 @@ JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_get_1memory_1usage (JNIE
 	return base->get_memory_usage();
 }
 
-JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_get_1timestamp (JNIEnv *env, jobject obj, jlong pointer) {
-	// Get the knowledgebase object
-	knowledgebase<bool> *base = (knowledgebase<bool>*)pointer;
-
-	// Forward method call
-	return base->get_timestamp();
-}
-
 JNIEXPORT jint JNICALL Java_de_libalf_jni_Knowledgebase_count_1answers (JNIEnv *env, jobject obj, jlong pointer) {
 	// Get the knowledgebase object
 	knowledgebase<bool> *base = (knowledgebase<bool>*)pointer;

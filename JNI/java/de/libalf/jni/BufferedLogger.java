@@ -61,7 +61,26 @@ public class BufferedLogger extends LibALFObject {
 	 * 
 	 */
 	public static enum LoggerLevel {
-		LOGGER_ERROR, LOGGER_WARN, LOGGER_INFO, LOGGER_DEBUG
+		
+		/**
+		 * TODO: Was macht das?
+		 */
+		LOGGER_ERROR,
+		
+		/**
+		 * TODO: Was macht das?
+		 */
+		LOGGER_WARN,
+		
+		/**
+		 * TODO: Was macht das?
+		 */
+		LOGGER_INFO,
+		
+		/**
+		 * TODO: Was macht das?
+		 */
+		LOGGER_DEBUG
 	}
 
 	/**

@@ -56,7 +56,21 @@ public class Knowledgebase extends LibALFObject {
 	 * 
 	 */
 	public enum Acceptance {
-		ACCEPT, REJECT, UNKNOWN
+
+		/**
+		 * Indicates that the word belongs to the language.
+		 */
+		ACCEPT,
+
+		/**
+		 * Indicates that the word does not belongs to the language.
+		 */
+		REJECT,
+
+		/**
+		 * There is no information about the word.
+		 */
+		UNKNOWN
 	}
 
 	/**
@@ -387,26 +401,6 @@ public class Knowledgebase extends LibALFObject {
 	private native int get_memory_usage(long pointer);
 
 	/**
-	 * TODO: Make a description.
-	 * 
-	 * @return something
-	 */
-	public int get_timestamp() {
-		return get_timestamp(this.pointer);
-	}
-
-	/**
-	 * <p>
-	 * <em>JNI method call:</em> See {@link Knowledgebase#get_timestamp()}.
-	 * </p>
-	 * 
-	 * @param pointer
-	 *            the pointer to the C++ object.
-	 * @return the result of the JNI call.
-	 */
-	private native int get_timestamp(long pointer);
-
-	/**
 	 * Returns the number of membership information stored in the knowledgebase.
 	 * 
 	 * @return Something
@@ -509,4 +503,15 @@ public class Knowledgebase extends LibALFObject {
 	 * @return the result of the JNI call.
 	 */
 	private native String tostring(long pointer);
+	
+	public static void main(String[] args) {
+		Knowledgebase base = new Knowledgebase();
+		base.add_knowledge(new int[]{}, true);
+		base.add_knowledge(new int[]{2,1,4}, false);
+		base.add_knowledge(new int[]{2,4,5}, false);
+		base.add_knowledge(new int[]{2,4}, true);
+		base.add_knowledge(new int[]{2,4,22}, true);
+		base.add_knowledge(new int[]{2,4,22,33}, false);
+		System.out.println(base.generate_dotfile());
+	}
 }
