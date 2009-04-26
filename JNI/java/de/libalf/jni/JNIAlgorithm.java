@@ -12,6 +12,17 @@ package de.libalf.jni;
  * and override the constructor to initialize a C++ object. All other methods
  * are provided by this class.
  * </p>
+ * <p>
+ * <b>Note:</b>
+ * <ul>
+ * <li>This is a Java implementation of the <em>learning_algorithm</em> C++
+ * class. All method calls are forwarded to the LibALF C++ library via the JNI
+ * interface.</li>
+ * <li>
+ * This JavaDoc is only a rough overview. For a detailed documentation please
+ * refer to the original LibALF C++ documentation.</li>
+ * </ul>
+ * </p>
  * 
  * @author Daniel Neider (<a
  *         href="mailto:neider@automata.rwth-aachen.de">neider@automata.

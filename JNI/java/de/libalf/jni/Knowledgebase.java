@@ -27,7 +27,7 @@ package de.libalf.jni;
  * word and its information.
  * </p>
  * <p>
- * <b>Note:</b><br>
+ * <b>Note:</b>
  * <ul>
  * <li>This is a Java implementation of the <em>knowledgebase</em> C++ class.
  * All method calls are forwarded to the LibALF C++ library via the JNI
@@ -35,6 +35,7 @@ package de.libalf.jni;
  * <li>
  * This JavaDoc is only a rough overview. For a detailed documentation please
  * refer to the original LibALF C++ documentation.</li>
+ * </ul>
  * </p>
  * 
  * @author Daniel Neider (<a
@@ -292,7 +293,8 @@ public class Knowledgebase extends LibALFObject {
 	/**
 	 * Stores the information about the word in the knowledgebase. The
 	 * information added by this method is persistent meaning that it cannot be
-	 * altered afterwards.
+	 * altered afterwards (except for having been removed by an
+	 * {@link Knowledgebase#undo(int)}).
 	 * 
 	 * @param word
 	 *            the word to add to the knowledgebase

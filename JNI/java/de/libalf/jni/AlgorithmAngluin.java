@@ -1,8 +1,81 @@
 package de.libalf.jni;
 
 /**
- * @author daniel
- *
+ * <p>
+ * Angluin's L* learning algorithm for regular languages. See
+ * <ul>
+ * <li>
+ * <em>D. Angluin - Learning regular sets from queries and counterexamples</em></li>
+ * </ul>
+ * </P>
+ * <p>
+ * Angluin's L* algorithm is an <em>online learning algorithm</em>. The
+ * following example illustrates how to use online learning algorithms in
+ * LibALF:
+ * 
+ * <PRE>
+ * public BasicAutomaton learn() {
+ * 	// Prepare the knowledgebase and the algorithm
+ * 	Knowledgebase knowledgebase = new Knowledgebase();
+ * 	int alphabetSize = // Set some size
+ * 	BufferedLogger logger = new BufferedLogger();
+ * 	LearningAlgorithm algorithm = new AlgorithmAngluin(knowledgebase,
+ * 			alphabetSize, logger);
+ * 
+ * 	BasicAutomaton learnedAutomaton = null;
+ * 
+ * 	do {
+ * 		// Advance
+ * 		BasicAutomaton conjecture = algorithm.advance();
+ * 
+ * 		// Process membership query
+ * 		if (conjecture == null) {
+ * 
+ * 			// Process each query
+ * 			for (int[] word : knowledgebase.getQueries()) {
+ * 
+ * 				boolean acceptance = // Perform a membership query here
+ * 				knowledgebase.add_knowledge(word, acceptance);
+ * 			}
+ * 		}
+ * 
+ * 		// Process equivalence query
+ * 		else {
+ * 			int[] counterexample = // Perform an equivalence query here
+ * 
+ * 			// The conjecture is equivalent to the language to learn
+ * 			if (counterexample == null) {
+ * 				learnedAutomaton = conjecture;
+ * 				break;
+ * 			}
+ * 
+ * 			// Found a counter-example
+ * 			else {
+ * 				algorithm.add_counterexample(counterexample);
+ * 			}
+ * 		}
+ * 
+ * 	} while (learnedAutomaton == null);
+ * 
+ * 	return learnedAutomaton;
+ * 
+ * }
+ * </PRE>
+ * 
+ * Note that the user needs to
+ * <ul>
+ * <li>adjust the <code>alphabetSize</code> and</li>
+ * <li>provide a teacher for <em>membership</em> and <em>equivalence</em>
+ * queries.</li>
+ * </ul>
+ * </p>
+ * 
+ * @author Daniel Neider (<a
+ *         href="mailto:neider@automata.rwth-aachen.de">neider@automata.
+ *         rwth-aachen.de</a>), Chair of Computer Science 7, RWTH Aachen
+ *         University
+ * @version 1.0
+ * 
  */
 public class AlgorithmAngluin extends JNIAlgorithm {
 
@@ -29,6 +102,10 @@ public class AlgorithmAngluin extends JNIAlgorithm {
 	 * <code>knowledgebase</code> and the size of the alphabet. The pointer to
 	 * the new created C++ object is returned.
 	 * 
+	 * @param knowledgebase_pointer
+	 *            a pointer to a knowledgebase C++ object
+	 * @param alphabet_size
+	 *            the size of the used alphabet
 	 * @return a pointer to the memory location of the new C++ object.
 	 */
 	native long init(long knowledgebase_pointer, int alphabet_size);
@@ -62,7 +139,14 @@ public class AlgorithmAngluin extends JNIAlgorithm {
 	 * <code>buffered_logger</code>. The pointer to the new created C++ object
 	 * is returned.
 	 * 
+	 * @param knowledgebase_pointer
+	 *            a pointer to a knowledgebase C++ object
+	 * @param alphabet_size
+	 *            the size of the used alphabet
+	 * @param logger_pointer
+	 *            a pointer to a buffered_logger C++ object
 	 * @return a pointer to the memory location of the new C++ object.
 	 */
-	native long init(long knowledgebase_pointer, int alphabet_size, long logger);
+	native long init(long knowledgebase_pointer, int alphabet_size,
+			long logger_pointer);
 }

@@ -9,25 +9,13 @@ package de.libalf.jni;
  * <p>
  * Each logged event is associated with a specific {@link LoggerLevel}, which
  * indicates the type of the event. The logger levels are thereby ordered:
- * <table>
- * <tr>
- * <td>1</td>
- * <td>{@link LoggerLevel#LOGGER_ERROR}</td>
- * </tr>
- * <tr>
- * <td>2</td>
- * <td>{@link LoggerLevel#LOGGER_WARN}</td>
- * </tr>
- * <tr>
- * <td>3</td>
- * <td>{@link LoggerLevel#LOGGER_INFO}</td>
- * </tr>
- * <tr>
- * <td>4</td>
- * <td>{@link LoggerLevel#LOGGER_DEBUG}</td>
- * </tr>
- * </table>
- * <br>
+ * <ol>
+ * <li>{@link LoggerLevel#LOGGER_ERROR}</li>
+ * <li>{@link LoggerLevel#LOGGER_WARN}</li>
+ * <li>{@link LoggerLevel#LOGGER_INFO}</li>
+ * <li>{@link LoggerLevel#LOGGER_DEBUG}</li>
+ * </ol>
+ * 
  * If the logger level of an event is less than the logger's
  * <code>minimalLogLevel</code>, the event is discarded. Only events with logger
  * level greater and equal to the minimal logger level are in fact logged.
@@ -61,28 +49,32 @@ public class BufferedLogger extends LibALFObject {
 	 * 
 	 */
 	public static enum LoggerLevel {
-		
+
 		/**
-		 * all log messages that describe a non-recoverable error are marked with LOGGER_ERROR.
+		 * All log messages that describe a non-recoverable error are marked
+		 * with <code>LOGGER_ERROR</code>.
 		 */
 		LOGGER_ERROR,
-		
+
 		/**
-		 * messages describing a state or command that is erroneous but may be ignored under most conditions
-		 * are marked with LOGGER_WARN.
+		 * Messages describing a state or command that is erroneous but may be
+		 * ignored under most conditions are marked with
+		 * <code>LOGGER_WARN</code>.
 		 */
 		LOGGER_WARN,
-		
+
 		/**
-		 * any information not describing an erroneous condition are marked with LOGGER_INFO.
+		 * Any information not describing an erroneous condition are marked with
+		 * <code>LOGGER_INFO</code>.
 		 */
 		LOGGER_INFO,
-		
+
 		/**
-		 * messages that may help debugging of libalf are marked with LOGGER_DEBUG.
-		 * LOGGER_DEBUG is usually only used during development of libalf and removed
-		 * afterwards, as these can be _very_ verbose and then CPU consuming.
-		 * still, some debug messages may be left in a release version.
+		 * Messages that may help debugging of LibALF are marked with
+		 * <code>LOGGER_DEBUG</code>. <code>LOGGER_DEBUG</code> is usually only
+		 * used during development of libALF and removed afterwards, as these
+		 * can be <b>very</b> verbose and thus CPU consuming. Still, some debug
+		 * messages may be left in a release version.
 		 */
 		LOGGER_DEBUG
 	}
@@ -121,7 +113,7 @@ public class BufferedLogger extends LibALFObject {
 	 * @param logAlgorithm
 	 *            also log algorithm-specific information? (depends on
 	 *            algorithm)
-	 *
+	 * 
 	 */
 	public BufferedLogger(LoggerLevel minimalLogLevel, boolean logAlgorithm) {
 		switch (minimalLogLevel) {
