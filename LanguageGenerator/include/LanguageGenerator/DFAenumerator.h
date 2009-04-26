@@ -13,8 +13,8 @@
 #include <vector>
 #include <set>
 
-#ifndef __LanguageGenerator_DFAenumerator__
-# define __LanguageGenerator_DFAenumerator__
+#ifndef __LanguageGenerator_DFAenumerator_h__
+# define __LanguageGenerator_DFAenumerator_h__
 
 #include <LanguageGenerator/automaton_constructor.h>
 

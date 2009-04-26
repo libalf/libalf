@@ -17,7 +17,7 @@ LDFLAGS+=-shared -L${PREFIX}/lib
 
 SONAME=liblangen
 
-OBJECTS=automaton_constructor.o DFAenumerator.o
+OBJECTS=automaton_constructor.o DFAenumerator.o DFArandomgenerator.o
 
 all:	liblangen.so
 
