@@ -12,8 +12,14 @@
  * see LICENSE file for licensing information.
  */
 
+#include <list>
+
+#include <gmpxx.h> // GNU Multiple Precision Arithmetic Library, C++ interface
+
 #ifndef __LanguageGenerator_DFArandomgenerator_h__
 # define __LanguageGenerator_DFArandomgenerator_h__
+
+#include <LanguageGenerator/automaton_constructor.h>
 
 namespace LanguageGenerator {
 
@@ -21,10 +27,14 @@ using namespace std;
 
 class DFArandomgenerator {
 	private:
-
+		gmp_randstate_t grstate;
+	protected:
+		mpz_class elementOfC(mpz_class m, mpz_class t, mpz_class p);
+		list<mpz_class> randomElementOfK(mpz_class m, mpz_class t, mpz_class p);
 
 	public:
-
+		DFArandomgenerator();
+		bool generate(int alphabet_size, int state_count, LanguageGenerator::automaton_constructor & automaton);
 
 };
 

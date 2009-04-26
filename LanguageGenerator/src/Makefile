@@ -13,7 +13,7 @@ CPPFLAGS+=-Wall -I../include/ -I${PREFIX}/include -shared -fpic -ggdb3
 CPPFLAGS+=-D__cplusplus -DVERSION="\"${VERSION}\""
 # for ubuntu, try disabling stack-smashing due to linker failures:
 CPPFLAGS+=-fno-stack-protector
-LDFLAGS+=-shared -L${PREFIX}/lib
+LDFLAGS+=-shared -L${PREFIX}/lib -lgmpxx -lgmp
 
 SONAME=liblangen
 
