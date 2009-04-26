@@ -1,7 +1,8 @@
 /* $Id$
  * vim: fdm=marker
  *
- * amore++
+ * LanguageGenerator
+ * DFAenumerator: enumerate over all accessible n-state automata with specific alphabet size
  *
  * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
  *        <david-i2@piegdon.de>
@@ -11,13 +12,13 @@
 
 #include <iostream>
 
-#include <amore++/DFA_enumerator.h>
+#include <LanguageGenerator/DFAenumerator.h>
 
-namespace amore {
+namespace LanguageGenerator {
 
 using namespace std;
 
-DFA_enumerator::DFA_enumerator(int state_count, int alphabet_size)
+DFAenumerator::DFAenumerator(int state_count, int alphabet_size)
 {{{
 	transition tr;
 	int state;
@@ -26,7 +27,7 @@ DFA_enumerator::DFA_enumerator(int state_count, int alphabet_size)
 	completed = false;
 
 	if(state_count < 2) {
-		cout << "DFA_enumerator :: automaton_enumerator with state_count < 2 does not make any sense!\n";
+		cout << "DFAenumerator :: automaton_enumerator with state_count < 2 does not make any sense!\n";
 		state_count = 2;
 	}
 
@@ -54,7 +55,7 @@ DFA_enumerator::DFA_enumerator(int state_count, int alphabet_size)
 	}
 }}}
 
-bool DFA_enumerator::next(bool exact_state_count)
+bool DFAenumerator::next(bool exact_state_count)
 {{{
 	int i;
 	bool aborted = false;
@@ -124,10 +125,8 @@ check_reachable:
 	return true;
 }}}
 
-deterministic_finite_automaton * DFA_enumerator::derive()
+bool DFAenumerator::derive(LanguageGenerator::automaton_constructor & automaton)
 {{{
-	deterministic_finite_automaton * dfa;
-
 	set<int> fini;
 	transition_set trs;
 	unsigned int i;
@@ -139,14 +138,8 @@ deterministic_finite_automaton * DFA_enumerator::derive()
 	for(i = 0; i < transitions.size(); i++)
 		trs.insert(transitions[i]);
 
-	dfa = new deterministic_finite_automaton;
-	if(!dfa->construct(alphabet_size, state_count, initial, fini, trs)) {
-		delete dfa;
-		return NULL;
-	} else {
-		return dfa;
-	}
+	return automaton.construct(true, alphabet_size, state_count, initial, fini, trs);
 }}}
 
-}; // end of namespace amore
+}; // end of namespace LanguageGenerator
 

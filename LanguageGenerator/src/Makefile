@@ -1,5 +1,5 @@
 # $Id$
-# libalf Makefile
+# LanguageGenerator Makefile
 
 .PHONY: all clean install uninstall
 
@@ -13,30 +13,18 @@ CPPFLAGS+=-Wall -I../include/ -I${PREFIX}/include -shared -fpic -ggdb3
 CPPFLAGS+=-D__cplusplus -DVERSION="\"${VERSION}\""
 # for ubuntu, try disabling stack-smashing due to linker failures:
 CPPFLAGS+=-fno-stack-protector
-LDFLAGS+=-shared -L${PREFIX}/lib -lAMoRE
+LDFLAGS+=-shared -L${PREFIX}/lib
 
-SONAME=libalf
+SONAME=liblangen
 
-OBJECTS=generic.o finite_automaton.o nondeterministic_finite_automaton.o deterministic_finite_automaton.o
+OBJECTS=automaton_constructor.o DFAenumerator.o
 
-all:	libAMoRE++.so
+all:	liblangen.so
 
-libAMoRE++.so: ${OBJECTS}
+liblangen.so: ${OBJECTS}
 	g++ $(OBJECTS) $(LDFLAGS) -o $@
-#	ld ${OBJECTS} ${LDFLAGS} -o $@
 
 clean:
 	-rm *.o
-	-rm libAMoRE++.so
-
-install: libAMoRE++.so
-	echo installing libAMoRE++ to ${PREFIX}/lib/
-	mkdir -p ${PREFIX}/lib
-	cp libAMoRE++.so ${PREFIX}/lib
-	chmod 755 ${PREFIX}/lib/libAMoRE++.so
-
-uninstall:
-	echo removing libAMoRE++.so from ${PREFIX}/lib/
-	rm ${PREFIX}/lib/libAMoRE++.so
-
+	-rm liblangen.so
 
