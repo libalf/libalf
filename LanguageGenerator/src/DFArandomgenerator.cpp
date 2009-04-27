@@ -12,8 +12,17 @@
  * see LICENSE file for licensing information.
  */
 
+#include <map>
 #include <set>
+#include <list>
 #include <vector>
+
+#include <iostream>
+
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include <stdlib.h>
 
@@ -32,11 +41,6 @@ using namespace std;
 DFArandomgenerator::table::table(int m)
 { this->m = m; changed = false; }
 
-DFArandomgenerator::table::~table()
-{
-	
-}
-
 bool DFArandomgenerator::table::save(string path)
 {
 	
@@ -53,10 +57,27 @@ bool DFArandomgenerator::table::was_changed()
 int DFArandomgenerator::table::get_m()
 { return m; }
 
-mpz_class DFArandomgenerator::table::getElement(mpz_class t, mpz_class p)
-{
-	
-}
+mpz_class & DFArandomgenerator::table::getElement(mpz_class t, mpz_class p)
+{{{
+	static mpz_class zero;
+	map<mpz_class, mpz_class>::iterator field;
+
+	field = data[t].find(p);
+
+	if(field == data[t].end()) {
+		// field unknown. generate.
+		if(t == 1) {
+			data[t][p] = (p * (p+1)) / 2;
+		} else {
+			if(p*(m-1) < t)
+				return zero;
+			else
+				data[t][p] = getElement(t,p-1) + p * getElement(t-1,p);
+		}
+	}
+
+	return data[t][p];
+}}}
 
 
 
@@ -64,12 +85,20 @@ mpz_class DFArandomgenerator::table::getElement(mpz_class t, mpz_class p)
 
 DFArandomgenerator::DFArandomgenerator()
 {{{
+	unsigned long int seed;
+	int ran;
+	ran = open("/dev/urandom", O_RDONLY);
+	read(ran, &seed, sizeof(seed));
+	close(ran);
+
+	cout << "seed: "<<seed<<"\n";
+
 	// FIXME: make this dependent on $PREFIX
 	table_path = "/usr/local/share/LanguageGenerator";
 
 	// init GMP random number generator state
 	gmp_randinit_default(grstate);
-	gmp_randseed_ui(grstate, random()); // FIXME: do i need to seed? if so, use a better seed.
+	gmp_randseed_ui(grstate, seed); // FIXME: do i need to seed? if so, use a better seed.
 }}}
 
 DFArandomgenerator::~DFArandomgenerator()
@@ -77,11 +106,16 @@ DFArandomgenerator::~DFArandomgenerator()
 	flush_tables();
 }}}
 
-mpz_class DFArandomgenerator::elementOfC(int m, mpz_class t, mpz_class p)
+mpz_class & DFArandomgenerator::elementOfC(int m, mpz_class t, mpz_class p)
 // (where m is alphabet size)
 {{{
+	if(m < 2) {
+		static mpz_class zero;
+		return zero;
+	}
+
 	// check if any table for m is already loaded or try loading it.
-	while((int)tables.size() < m-1)
+	while((int)tables.size() <= m-1)
 		tables.push_back((table*)NULL);
 
 	if(tables[m-1] == NULL) {
@@ -96,6 +130,9 @@ mpz_class DFArandomgenerator::elementOfC(int m, mpz_class t, mpz_class p)
 list<mpz_class> DFArandomgenerator::randomElementOfK(int m, mpz_class t, mpz_class p)
 {{{
 	list<mpz_class> ret;
+
+	if(m < 2)
+		return ret;
 
 	if(p < (t/(m-1)))
 		return ret;
@@ -120,7 +157,7 @@ list<mpz_class> DFArandomgenerator::randomElementOfK(int m, mpz_class t, mpz_cla
 	} else {
 		mpz_urandomm(De.get_mpz_t(), grstate, C.get_mpz_t());
 		De += 1;
-		if(De <= elementOfC(m,t,p-1) && p > 1) {
+		if((De <= elementOfC(m,t,p-1)) && p > 1) {
 			return randomElementOfK(m,t,p-1);
 		} else {
 			ret = randomElementOfK(m,t-1,p);
