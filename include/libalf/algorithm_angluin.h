@@ -1323,20 +1323,20 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 
 
 template <class answer>
-class angluin_reverse_table : public angluin_simple_table<answer> {
-	// the reverse-table version handles counter-examples in a different way:
+class angluin_col_table : public angluin_simple_table<answer> {
+	// the col-table version handles counter-examples in a different way:
 	// instead of adding counterexamples and their prefixes to the upper table,
 	// counterexamples and their suffixes are added to the columns.
-	// this way the table never can be __inconsistens__, so several
+	// this way the table never can be __inconsistent__, so several
 	// functions can be reduced in complexity.
 	public:
-		angluin_reverse_table()
+		angluin_col_table()
 		{{{
 			this->set_alphabet_size(0);
 			this->set_knowledge_source(NULL);
 			this->set_logger(NULL);
 		}}}
-		angluin_reverse_table(knowledgebase<answer> *base, logger *log, int alphabet_size)
+		angluin_col_table(knowledgebase<answer> *base, logger *log, int alphabet_size)
 		{{{
 			this->set_alphabet_size(alphabet_size);
 			this->set_logger(log);
