@@ -17,8 +17,6 @@
 #include <list>
 #include <vector>
 
-#include <iostream>
-
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -85,20 +83,17 @@ mpz_class & DFArandomgenerator::table::getElement(mpz_class t, mpz_class p)
 
 DFArandomgenerator::DFArandomgenerator()
 {{{
+	// seed PRNG: init GMP random number generator state
 	unsigned long int seed;
 	int ran;
 	ran = open("/dev/urandom", O_RDONLY);
 	read(ran, &seed, sizeof(seed));
 	close(ran);
-
-	cout << "seed: "<<seed<<"\n";
+	gmp_randinit_default(grstate);
+	gmp_randseed_ui(grstate, seed); // FIXME: do i need to seed? if so, use a better seed.
 
 	// FIXME: make this dependent on $PREFIX
 	table_path = "/usr/local/share/LanguageGenerator";
-
-	// init GMP random number generator state
-	gmp_randinit_default(grstate);
-	gmp_randseed_ui(grstate, seed); // FIXME: do i need to seed? if so, use a better seed.
 }}}
 
 DFArandomgenerator::~DFArandomgenerator()
@@ -200,15 +195,15 @@ bool DFArandomgenerator::generate(int alphabet_size, int state_count, LanguageGe
 	list <mpz_class> K;
 	K = randomElementOfK(alphabet_size, state_count*(alphabet_size-1), state_count);
 
+	set<int> initial;
+	set<int> final;
+	transition_set transitions;
+
 	// tansform this element into a transition structure
+	initial.insert(0);	// initial state := root := state 0
 	
 
 	// add leaf transitions in a well-distributed way
-	
-	set<int> initial;
-	initial.insert(0);
-	set<int> final;
-	transition_set transitions;
 	
 
 	// construct and return resulting automaton

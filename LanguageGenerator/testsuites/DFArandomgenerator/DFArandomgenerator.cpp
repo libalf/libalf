@@ -11,10 +11,12 @@
  */
 
 #include <iostream>
+#include <fstream>
 
 #include <gmpxx.h>
 
 #include <LanguageGenerator/DFArandomgenerator.h>
+#include <LanguageGenerator/automaton_constructor.h>
 
 using namespace LanguageGenerator;
 using namespace std;
@@ -58,6 +60,15 @@ int main(int argc, char**argv)
 	cout << "\n";
 
 	// generate random automaton and store it
+	basic_automaton_holder automaton;
+
+	rag.generate(alphabet_size, state_count, automaton);
+
+	ofstream file;
+
+	file.open("random.dot");
+	file << automaton.generate_dotfile();
+	file.close();
 
 	return 0;
 }
