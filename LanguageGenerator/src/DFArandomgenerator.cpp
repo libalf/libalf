@@ -13,6 +13,7 @@
  */
 
 #include <set>
+#include <vector>
 
 #include <stdlib.h>
 
@@ -26,12 +27,73 @@ namespace LanguageGenerator {
 
 using namespace std;
 
-mpz_class DFArandomgenerator::elementOfC(mpz_class m, mpz_class t, mpz_class p)
+
+
+DFArandomgenerator::table::table(int m)
+{ this->m = m; changed = false; }
+
+DFArandomgenerator::table::~table()
 {
 	
 }
 
-list<mpz_class> DFArandomgenerator::randomElementOfK(mpz_class m, mpz_class t, mpz_class p)
+bool DFArandomgenerator::table::save(string path)
+{
+	
+}
+
+bool DFArandomgenerator::table::load(string path)
+{
+	
+}
+
+bool DFArandomgenerator::table::was_changed()
+{ return changed; }
+
+int DFArandomgenerator::table::get_m()
+{ return m; }
+
+mpz_class DFArandomgenerator::table::getElement(mpz_class t, mpz_class p)
+{
+	
+}
+
+
+
+
+
+DFArandomgenerator::DFArandomgenerator()
+{{{
+	// FIXME: make this dependent on $PREFIX
+	table_path = "/usr/local/share/LanguageGenerator";
+
+	// init GMP random number generator state
+	gmp_randinit_default(grstate);
+	gmp_randseed_ui(grstate, random()); // FIXME: do i need to seed? if so, use a better seed.
+}}}
+
+DFArandomgenerator::~DFArandomgenerator()
+{{{
+	flush_tables();
+}}}
+
+mpz_class DFArandomgenerator::elementOfC(int m, mpz_class t, mpz_class p)
+// (where m is alphabet size)
+{{{
+	// check if any table for m is already loaded or try loading it.
+	while((int)tables.size() < m-1)
+		tables.push_back((table*)NULL);
+
+	if(tables[m-1] == NULL) {
+		tables[m-1] = new table(m);
+		tables[m-1]->load(table_path);
+	}
+
+	// return table element
+	return tables[m-1]->getElement(t,p);
+}}}
+
+list<mpz_class> DFArandomgenerator::randomElementOfK(int m, mpz_class t, mpz_class p)
 {{{
 	list<mpz_class> ret;
 
@@ -68,11 +130,32 @@ list<mpz_class> DFArandomgenerator::randomElementOfK(mpz_class m, mpz_class t, m
 	}
 }}}
 
-DFArandomgenerator::DFArandomgenerator()
+bool DFArandomgenerator::flush_tables()
 {{{
-	// init GMP random number generator state
-	gmp_randinit_default(grstate);
-	gmp_randseed_ui(grstate, random()); // FIXME: do i need to seed? if so, use a better seed.
+	bool success_saving = true;
+	// check and save changed tables
+	vector<table*>::iterator ti;
+	for(ti = tables.begin(); ti != tables.end(); ti++)
+		if(*ti && (*ti)->was_changed())
+			if(!(*ti)->save(table_path))
+				success_saving = false;
+	discard_tables();
+	return success_saving;
+}}}
+
+void DFArandomgenerator::discard_tables()
+{{{
+	while(!tables.empty()) {
+		table * t = tables.back();
+		tables.pop_back();
+		if(t)
+			delete t;
+	}
+}}}
+
+void DFArandomgenerator::set_table_path(string path)
+{{{
+	table_path = path;
 }}}
 
 bool DFArandomgenerator::generate(int alphabet_size, int state_count, LanguageGenerator::automaton_constructor & automaton)
@@ -83,8 +166,10 @@ bool DFArandomgenerator::generate(int alphabet_size, int state_count, LanguageGe
 	// tansform this element into a transition structure
 	
 
-	// add/label transitions in a well-distributed way
+	// add leaf transitions in a well-distributed way
+	
 	set<int> initial;
+	initial.insert(0);
 	set<int> final;
 	transition_set transitions;
 	
