@@ -371,8 +371,10 @@ deserialization_failed:
 					sigma = w.front();
 				w.pop_front();
 			}
-			if(sigma+1 > this->get_alphabet_size())
+			if(sigma+1 > this->get_alphabet_size()) {
+				(*this->my_logger)(LOGGER_ALGORITHM, "NLstar_table: counterexample: implicit increase of alphabet_size from %d to %d.\n", this->get_alphabet_size(), sigma+1);
 				increase_alphabet_size(sigma+1);
+			}
 		}}}
 
 	protected:

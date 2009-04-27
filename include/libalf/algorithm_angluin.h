@@ -257,8 +257,10 @@ class angluin_table : public learning_algorithm<answer> {
 					asize_changed = true;
 				}
 			}
-			if(asize_changed)
+			if(asize_changed) {
+				(*this->my_logger)(LOGGER_ALGORITHM, "angluin_table: counterexample: implicit increase of alphabet_size from %d to %d.\nNOTE: it is possible that the next hypothesis does not increase in state-count.\n", this->get_alphabet_size(), new_asize);
 				increase_alphabet_size(new_asize);
+			}
 
 			// add word and all prefixes to upper table
 			while(!word.empty()) {
@@ -1353,7 +1355,7 @@ class angluin_col_table : public angluin_simple_table<answer> {
 			ci = this->search_columns(word);
 			if(ci != this->column_names.end()) {
 				string s = word2string(word);
-				(*this->my_logger)(LOGGER_WARN, "angluin_reverse_table: angluin_table: you are trying to add a counterexample (%s) which is already contained in the table. trying to ignore...\n", s.c_str());
+				(*this->my_logger)(LOGGER_WARN, "angluin_col_table: angluin_table: you are trying to add a counterexample (%s) which is already contained in the table. trying to ignore...\n", s.c_str());
 				return;
 			}
 
@@ -1364,8 +1366,10 @@ class angluin_col_table : public angluin_simple_table<answer> {
 					asize_changed = true;
 				}
 			}
-			if(asize_changed)
+			if(asize_changed) {
+				(*this->my_logger)(LOGGER_ALGORITHM, "angluin_col_table: counterexample: implicit increase of alphabet_size from %d to %d.\nNOTE: it is possible that the next hypothesis does not increase in state-count.\n", this->get_alphabet_size(), new_asize);
 				this->increase_alphabet_size(new_asize);
+			}
 
 			// add word and all suffixes to the columns
 			while(!word.empty()) {
