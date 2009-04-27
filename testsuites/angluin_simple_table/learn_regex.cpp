@@ -45,6 +45,7 @@ int main(int argc, char**argv)
 	bool success = false;
 
 	int alphabet_size;
+	int hypothesis_state_count = 0;
 
 	bool regex_ok;
 	if(argc == 3) {
@@ -144,6 +145,13 @@ int main(int argc, char**argv)
 		snprintf(filename, 128, "hypothesis%02d.dot", iteration);
 		file.open(filename); file << hypothesis.get_automaton()->generate_dotfile(); file.close();
 
+		printf("hypothesis %02d state count %02d\n", iteration, hypothesis.get_automaton()->get_state_count());
+		if(hypothesis_state_count >= hypothesis.get_automaton()->get_state_count()) {
+			log(LOGGER_ERROR, "STATE COUNT DID NOT INCREASE\n");
+			getchar();
+		}
+		hypothesis_state_count = hypothesis.get_automaton()->get_state_count();
+
 		// once an automaton is generated, test for equivalence with oracle_automaton
 		// if this test is ok, all worked well
 
@@ -173,7 +181,7 @@ int main(int argc, char**argv)
 
 	delete nfa;
 
-	cout << "required membership queries: " << stats.query_count.membership << "\n";
+	cout << "\nrequired membership queries: " << stats.query_count.membership << "\n";
 	cout << "required uniq membership queries: " << stats.query_count.uniq_membership << "\n";
 	cout << "required equivalence queries: " << stats.query_count.equivalence << "\n";
 	cout << "sizes: bytes: " << stats.table_size.bytes
