@@ -80,37 +80,65 @@ string basic_automaton_holder::generate_dotfile()
 	if(empty())
 		return "digraph empty_automaton { }\n";
 
-	string s;
-	int i;
+	string ret;
 	char buf[64];
 
-	// head
-	s = "digraph automaton {\n\trankdir=LR;\n\tsize=8;\n";
+	set<int>::iterator sti;
+	bool header_written;
 
-	// states
-	for(i = 0; i < state_count; i++) {
-		snprintf(buf, 64, "\tnode [shape=%s, style=%s, color=%s]; S%d\n",
-			final.find(i) != final.end() ? "doublecircle" : "circle",
-			start.find(i) != start.end() ? "filled" : "\"\"",
-			start.find(i) != start.end() ? "grey" : "black",
-			i);
-		buf[63] = 0;
-		s += buf;
+	// head
+	ret = "digraph automaton {\n"
+		"\tgraph[fontsize=8]\n"
+		"\trankdir=LR;\n"
+		"\tsize=8;\n\n";
+
+	// mark final states
+	header_written = false;
+	for(sti = final.begin(); sti != final.end(); ++sti) {
+		if(!header_written) {
+			ret += "\tnode [shape=doublecircle, style=\"\", color=black];";
+			header_written = true;
+		}
+		snprintf(buf, 128, " S%d", *sti);
+		ret += buf;
 	}
+	if(header_written)
+		ret += "\n";
+
+	// default
+	ret += "\tnode [shape=circle, style=\"\", color=black];\n";
 
 	// transitions
 	transition_set::iterator ti;
 	for(ti = transitions.begin(); ti != transitions.end(); ti++) {
-		snprintf(buf, 64, "\tS%d -> S%d [ label = \"%d\" ];\n",
-				ti->source, ti->destination, ti->label);
+		snprintf(buf, 64, "\tS%d -> S%d [ label = \"%d\" ];\n", ti->source, ti->destination, ti->label);
 		buf[63] = 0;
-		s += buf;
+		ret += buf;
 	}
 
-	// body
-	s += "};\n";
+	// add non-visible states for arrows to initial states
+	header_written = false;
+	for(sti = start.begin(); sti != start.end(); ++sti) {
+		if(!header_written) {
+			ret += "\n\tnode [shape=plaintext, label=\"\", style=\"\"];";
+			header_written = true;
+		}
+		snprintf(buf, 128, " iS%d", *sti);
+		ret += buf;
+	}
+	if(header_written)
+		ret += "\n";
 
-	return s;
+	// and arrows to mark initial states
+	for(sti = start.begin(); sti != start.end(); ++sti) {
+		snprintf(buf, 128, "\tiS%d -> S%d [ color = blue ];\n", *sti, *sti);
+		ret += buf;
+	}
+
+	// end
+	ret += "};\n";
+
+	return ret;
 }}}
 
 }; // end of namespace LanguageGenerator

@@ -42,9 +42,9 @@ string finite_automaton::generate_dotfile()
 	si = serialized.begin();
 
 	ret = "digraph automaton {\n"
-		"graph[fontsize=8]\n"
+		"\tgraph[fontsize=8]\n"
 		"\trankdir=LR;\n"
-		"\tsize=8;\n";
+		"\tsize=8;\n\n";
 
 	si++; // skip length field
 
@@ -70,51 +70,18 @@ string finite_automaton::generate_dotfile()
 	// skip number of transitions (assumed to be correct)
 	si++;
 
-	// initial states that are not final
+	// mark final states
 	header_written = false;
-	for(sti = initial.begin(); sti != initial.end(); sti++) {
-		if(final.find(*sti) == final.end()) {
-			if(!header_written) {
-				ret += "\tnode [shape=circle, style=bold, style=filled, color=grey];";
-				header_written = true;
-			}
-			snprintf(buf, 128, " S%d", *sti);
-			ret += buf;
+	for(sti = final.begin(); sti != final.end(); ++sti) {
+		if(!header_written) {
+			ret += "\tnode [shape=doublecircle, style=\"\", color=black];";
+			header_written = true;
 		}
+		snprintf(buf, 128, " S%d", *sti);
+		ret += buf;
 	}
 	if(header_written)
 		ret += "\n";
-
-	// initial states that are final
-	header_written = false;
-	for(sti = initial.begin(); sti != initial.end(); sti++) {
-		if(final.find(*sti) != final.end()) {
-			if(!header_written) {
-				ret += "\tnode [shape=doublecircle, style=bold, style=filled, color=grey];";
-				header_written = true;
-			}
-			snprintf(buf, 128, " S%d", *sti);
-			ret += buf;
-		}
-	}
-	if(header_written)
-		ret += "\n";
-
-	// final states that are not initial
-	header_written = false;
-	for(sti = final.begin(); sti != final.end(); sti++) {
-		if(initial.find(*sti) == initial.end()) {
-			if(!header_written) {
-				ret += "\tnode [shape=doublecircle, style=\"\", color=black];";
-				header_written = true;
-			}
-			snprintf(buf, 128, " S%d", *sti);
-			ret += buf;
-		}
-	}
-	if(header_written)
-		ret += "\n";
-
 
 	// default
 	ret += "\tnode [shape=circle, style=\"\", color=black];\n";
@@ -132,6 +99,25 @@ string finite_automaton::generate_dotfile()
 			snprintf(buf, 128, "\tS%d -> S%d [ label = \"%d\" ];\n", src, dst, label);
 		else
 			snprintf(buf, 128, "\tS%d -> S%d;\n", src, dst);
+		ret += buf;
+	}
+
+	// add non-visible states for arrows to initial states
+	header_written = false;
+	for(sti = initial.begin(); sti != initial.end(); ++sti) {
+		if(!header_written) {
+			ret += "\n\tnode [shape=plaintext, label=\"\", style=\"\"];";
+			header_written = true;
+		}
+		snprintf(buf, 128, " iS%d", *sti);
+		ret += buf;
+	}
+	if(header_written)
+		ret += "\n";
+
+	// and arrows to mark initial states
+	for(sti = initial.begin(); sti != initial.end(); ++sti) {
+		snprintf(buf, 128, "\tiS%d -> S%d [ color = blue ];\n", *sti, *sti);
 		ret += buf;
 	}
 
