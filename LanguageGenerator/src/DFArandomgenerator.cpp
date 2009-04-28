@@ -216,9 +216,6 @@ bool DFArandomgenerator::generate(int alphabet_size, int state_count, LanguageGe
 	if(state_count < 1)
 		return false;
 
-	transition_set transitions;
-	transition tr;
-
 	list <int> K;
 	K = randomElementOfK(alphabet_size, state_count*(alphabet_size-1), state_count);
 
@@ -227,6 +224,9 @@ bool DFArandomgenerator::generate(int alphabet_size, int state_count, LanguageGe
 	int internal_done;		// the number of internal nodes that have so far been created
 	int current_state;		// the current state number
 	bool implicit_done = false;	// in K(m,t,p), the final (implicit) element is missing. here we keep track if we have created it.
+
+	transition_set transitions;	// set of transitions in final DFA
+	transition tr;
 
 	// note: all LEAFs of the extended m-ary tree of order m are not evaluated to states
 	// of the final DFA, but to transitions of their predecessors.
