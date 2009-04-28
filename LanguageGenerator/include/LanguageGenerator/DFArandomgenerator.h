@@ -70,7 +70,7 @@ class DFArandomgenerator {
 		{ return this->elementOfC(m,t,p); }
 
 		// get a random element of K(m,t,p)
-		list<mpz_class> randomElementOfK(int m, mpz_class t, mpz_class p);
+		list<int> randomElementOfK(int m, mpz_class t, mpz_class p);
 
 		// generate a random automaton
 		bool generate(int alphabet_size, int state_count, LanguageGenerator::automaton_constructor & automaton);

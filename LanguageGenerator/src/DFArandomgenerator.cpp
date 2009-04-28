@@ -16,12 +16,14 @@
 #include <set>
 #include <list>
 #include <vector>
+#include <stack>
+
+#include <iostream>
 
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
 #include <stdlib.h>
 
 #include <gmp.h>
@@ -122,9 +124,9 @@ mpz_class & DFArandomgenerator::elementOfC(int m, mpz_class t, mpz_class p)
 	return tables[m-1]->getElement(t,p);
 }}}
 
-list<mpz_class> DFArandomgenerator::randomElementOfK(int m, mpz_class t, mpz_class p)
+list<int> DFArandomgenerator::randomElementOfK(int m, mpz_class t, mpz_class p)
 {{{
-	list<mpz_class> ret;
+	list<int> ret;
 
 	if(m < 2)
 		return ret;
@@ -147,7 +149,7 @@ list<mpz_class> DFArandomgenerator::randomElementOfK(int m, mpz_class t, mpz_cla
 			De -= x;
 			x++;
 		};
-		ret.push_back(x);
+		ret.push_back(x.get_si());
 		return ret;
 	} else {
 		mpz_urandomm(De.get_mpz_t(), grstate, C.get_mpz_t());
@@ -156,7 +158,7 @@ list<mpz_class> DFArandomgenerator::randomElementOfK(int m, mpz_class t, mpz_cla
 			return randomElementOfK(m,t,p-1);
 		} else {
 			ret = randomElementOfK(m,t-1,p);
-			ret.push_back(p);
+			ret.push_back(p.get_si());
 			return ret;
 		}
 	}
@@ -190,22 +192,134 @@ void DFArandomgenerator::set_table_path(string path)
 	table_path = path;
 }}}
 
+struct transition_constraint {
+	int dst;
+	int min_dst_depth;
+};
+
 bool DFArandomgenerator::generate(int alphabet_size, int state_count, LanguageGenerator::automaton_constructor & automaton)
 {
-	list <mpz_class> K;
+	list <int> K;
 	K = randomElementOfK(alphabet_size, state_count*(alphabet_size-1), state_count);
+
+	stack<int> internal;
+	stack<int> current_label;
+	int internal_done;
+	int current_state;
+
+	set<int> depth_members[state_count];
+
+	vector<transition_constraint> missing_transitions[state_count];
 
 	set<int> initial;
 	set<int> final;
 	transition_set transitions;
+	transition tr;
 
 	// tansform this element into a transition structure
 	initial.insert(0);	// initial state := root := state 0
+
+	internal_done = 0;
+
+	bool implicit_done = false;
+
+	// add root node
+	internal.push(0);
+	current_label.push(0);
+	depth_members[0].insert(0);
+	internal_done = 1;
+
+	current_state = 1;
+
+	list<int>::iterator ni;
+	cout << "K: (";
+	for(ni = K.begin(); ni != K.end(); ni++)
+		cout << *ni << " ";
+	cout << ")\n";
+	ni = K.begin();
+	while(!implicit_done || ni == K.end()) {
+		transition_constraint tcon;
+		if(ni != K.end()) {
+			// if all children of current internal are done, pop it.
+			while(current_label.top() >= alphabet_size) {
+				internal.pop();
+				current_label.pop();
+			}
+			while(*ni > internal_done) {
+				// add new internal node and transition
+				tcon.dst = current_state;
+				tcon.min_dst_depth = -1;
+				missing_transitions[internal.top()].push_back(tcon);
+
+				depth_members[internal.size()].insert(current_state);
+				current_label.top()++;
+				internal.push(current_state);
+				current_label.push(0);
+				current_state++;
+				internal_done++;
+			}
+		} else {
+			implicit_done = true; // (below)
+		}
+
+		// if all children of current internal are done, pop it.
+		while(current_label.top() >= alphabet_size) {
+			internal.pop();
+			current_label.pop();
+		}
+
+		// add leaf (i.e. mark outgoing transition as to-be-done)
+		tcon.dst = -1;
+		tcon.min_dst_depth = internal.size();
+		missing_transitions[internal.top()].push_back(tcon);
+
+		current_label.top()++;
+
+		ni++;
+	}
+
+	for(int depth = 0; depth < state_count; depth++) {
+		cout << "depth " << depth << ": ";
+		for(set<int>::iterator si = depth_members[depth].begin(); si != depth_members[depth].end(); si++)
+			cout << *si << " ";
+		cout << "\n";
+	}
+	cout << "\n";
+	for(current_state = 0; current_state < state_count; current_state++) {
+		cout << "source: " << current_state << ":\n";
+		for(vector<transition_constraint>::iterator tci = missing_transitions[current_state].begin(); tci != missing_transitions[current_state].end(); tci++) {
+			cout << "\t to " << tci->dst << " (min depth " << tci->min_dst_depth << ")\n";
+		}
+	}
+
+	// add missing transitions in a well-distributed way.
+
+	// prepare arrays so we can do fast lookups
+	int more_than_depth[state_count + 1];
+	int depth_limited_state[state_count];
+	more_than_depth[state_count] = 0;
+	current_state = 0;
+	for(int i = state_count - 1; i >= 0; --i) {
+		for(set<int>::iterator si = depth_members[i].begin(); si != depth_members[i].end(); ++si, ++current_state)
+			depth_limited_state[current_state] = *si;
+		more_than_depth[i] = more_than_depth[i+1] + depth_members[i].size();
+	}
+
+	// now to pick a random state of min depth >= n, pick a random element from
+	// depth_limited_state[ 0 .. mode_than_depth[n]-1 ]
+
+	cout << "\ndepth limited state: ";
+	for(int i = 0; i < state_count; i++)
+		cout << depth_limited_state[i] << " ";
+	cout << "\nmore than depth: ";
+	for(int i = 0; i < state_count; i++)
+		cout << more_than_depth[i] << " ";
+	cout << "\n\n";
+
 	
 
-	// add leaf transitions in a well-distributed way
+	// pick random set of final states
 	
-
 	// construct and return resulting automaton
 	return automaton.construct(true, alphabet_size, state_count, initial, final, transitions);
 }

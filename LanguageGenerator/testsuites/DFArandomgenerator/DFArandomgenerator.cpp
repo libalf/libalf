@@ -30,8 +30,8 @@ int main(int argc, char**argv)
 
 	mpz_class c;
 
-	list<mpz_class> K;
-	list<mpz_class>::iterator ki;
+	list<int> K;
+	list<int>::iterator ki;
 
 	if(argc != 3) {
 		cout << "please give <alphabet size> and <state count> as parameters\n";
@@ -47,6 +47,7 @@ int main(int argc, char**argv)
 	cout << "C[" << alphabet_size << "," << state_count*(alphabet_size-1) << "," << state_count
 		<< "] = " << c << "\n";
 
+/*
 	// get random element of K and print it
 	for(int i = 0; i < 5; i++) {
 		K = rag.randomElementOfK(alphabet_size, state_count*(alphabet_size-1), state_count);
@@ -56,6 +57,7 @@ int main(int argc, char**argv)
 			cout << (*ki) << " ";
 		cout << ")\n";
 	}
+*/
 
 	cout << "\n";
 
