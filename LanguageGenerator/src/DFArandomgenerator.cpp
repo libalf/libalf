@@ -198,11 +198,6 @@ void DFArandomgenerator::set_table_path(string path)
 	table_path = path;
 }}}
 
-struct transition_constraint {
-	int dst;
-	int max_dst_depth;
-};
-
 int my_rand(int limit)
 // will return a random integer in [0,limit]
 {{{
@@ -221,37 +216,35 @@ bool DFArandomgenerator::generate(int alphabet_size, int state_count, LanguageGe
 	if(state_count < 1)
 		return false;
 
+	transition_set transitions;
+	transition tr;
+
 	list <int> K;
 	K = randomElementOfK(alphabet_size, state_count*(alphabet_size-1), state_count);
 
-	stack<int> internal;
-	stack<int> current_label;
-	int internal_done;
-	int current_state;
-	bool implicit_done = false;
+	stack<int> internal;		// we're doing depth first. this stack keeps track of interior nodes
+	stack<int> current_label;	// and the labels of these that are done
+	int internal_done;		// the number of internal nodes that have so far been created
+	int current_state;		// the current state number
+	bool implicit_done = false;	// in K(m,t,p), the final (implicit) element is missing. here we keep track if we have created it.
 
-	set<int> depth_members[state_count];
-	list<transition_constraint> missing_transitions[state_count];
+	// note: all LEAFs of the extended m-ary tree of order m are not evaluated to states
+	// of the final DFA, but to transitions of their predecessors.
 
 	internal_done = 0;
 
 	// add root node
 	internal.push(0);
 	current_label.push(0);
-	depth_members[0].insert(0);
 	internal_done++;
 
 	current_state = 1;
 
 	// tansform this element into a transition structure
 	list<int>::iterator ni;
-/* {{{ cout << "K: (";
-for(ni = K.begin(); ni != K.end(); ni++)
-	cout << *ni << " ";
-cout << ")\n"; }}} */
+	// cout << "K: ("; for(ni = K.begin(); ni != K.end(); ni++) cout << *ni << " "; cout << ")\n";
 	ni = K.begin();
 	while(!implicit_done || ni == K.end()) {
-		transition_constraint tcon;
 		if(ni != K.end()) {
 			// if all children of current internal are done, pop it.
 			while(current_label.top() >= alphabet_size) {
@@ -259,12 +252,13 @@ cout << ")\n"; }}} */
 				current_label.pop();
 			}
 			while(*ni > internal_done) {
-				// add new internal node and transition
-				tcon.dst = current_state;
-				tcon.max_dst_depth = -1;
-				missing_transitions[internal.top()].push_back(tcon);
+				// add transition between internal nodes
+				tr.source = internal.top();
+				tr.label = current_label.top();
+				tr.destination = current_state;
+				transitions.insert(tr);
 
-				depth_members[internal.size()].insert(current_state);
+				// add new internal node
 				current_label.top()++;
 				internal.push(current_state);
 				current_label.push(0);
@@ -281,83 +275,15 @@ cout << ")\n"; }}} */
 			current_label.pop();
 		}
 
-		// add leaf (i.e. mark outgoing transition as to-be-done)
-		tcon.dst = -1;
-		tcon.max_dst_depth = internal.size();
-		missing_transitions[internal.top()].push_back(tcon);
+		// add leaf (i.e. create outgoing transition from predecessor)
+		tr.source = internal.top();
+		tr.label = current_label.top();
+		tr.destination = my_rand(current_state-1);
+		transitions.insert(tr);
 
 		current_label.top()++;
 
 		ni++;
-	}
-
-/* {{{ for(int depth = 0; depth < state_count; depth++) {
-	cout << "depth " << depth << ": ";
-	for(set<int>::iterator si = depth_members[depth].begin(); si != depth_members[depth].end(); si++)
-		cout << *si << " ";
-	cout << "\n";
-}
-cout << "\n";
-for(current_state = 0; current_state < state_count; current_state++) {
-	cout << "source: " << current_state << ":\n";
-	for(list<transition_constraint>::iterator tci = missing_transitions[current_state].begin(); tci != missing_transitions[current_state].end(); tci++) {
-		cout << "\t to " << tci->dst << " (max depth " << tci->max_dst_depth << ")\n";
-	}
-} }}} */
-
-	// add missing transitions in a well-distributed way.
-
-	// prepare arrays so we can do fast lookups
-	int LEQ_than_depth[state_count+1]; // +1 because if all states are in a row, last may connect to depth state_count
-	int depth_limited_state[state_count];
-	current_state = 0;
-	for(int i = 0; i < state_count; ++i) {
-		for(set<int>::iterator si = depth_members[i].begin(); si != depth_members[i].end(); ++si, ++current_state)
-			depth_limited_state[current_state] = *si;
-		LEQ_than_depth[i] = (i==0?0:LEQ_than_depth[i-1]) + depth_members[i].size();
-	}
-	LEQ_than_depth[state_count] = LEQ_than_depth[state_count-1];
-
-	// now to pick a random state of max depth >= n, pick a random element from
-	// depth_limited_state[ 0 .. LEQ_than_depth[n] - 1 ]
-
-/* {{{
-cout << "\ndepth limited state:      ";
-for(int i = 0; i < state_count; i++)
-	cout << depth_limited_state[i] << " ";
-cout << "\nless than or equal depth: ";
-for(int i = 0; i <= state_count; i++)
-	cout << LEQ_than_depth[i] << " ";
-cout << "\n\n";
-}}} */
-
-	transition_set transitions;
-	transition tr;
-
-	for(current_state = 0; current_state < state_count; ++current_state) {
-		transition tr;
-		list<int> valid_labels;
-
-		for(int i = 0; i < alphabet_size; ++i)
-			valid_labels.push_back(i);
-		tr.source = current_state;
-
-		for(list<transition_constraint>::iterator tci = missing_transitions[current_state].begin(); tci != missing_transitions[current_state].end(); tci++) {
-			// pick random label for this transition and remove it from the list of valid labels
-			int l = my_rand(valid_labels.size() - 1);
-			list<int>::iterator li = valid_labels.begin();
-			while(l) { li++; l--; };
-			tr.label = *li;
-			valid_labels.erase(li);
-
-			if(tci->dst >= 0) {
-				tr.destination = tci->dst;
-			} else {
-				// pick random destination of valid depth
-				tr.destination = depth_limited_state[ my_rand(LEQ_than_depth[tci->max_dst_depth]-1) ];
-			}
-			transitions.insert(tr);
-		}
 	}
 
 	// pick random set of final states
