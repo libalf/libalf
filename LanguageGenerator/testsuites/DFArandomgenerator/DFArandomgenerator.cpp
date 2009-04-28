@@ -64,7 +64,10 @@ int main(int argc, char**argv)
 	// generate random automaton and store it
 	basic_automaton_holder automaton;
 
-	rag.generate(alphabet_size, state_count, automaton);
+	if(!rag.generate(alphabet_size, state_count, automaton)) {
+		cout << "generator returned false. bad parameters?\n";
+		return 1;
+	}
 
 	ofstream file;
 

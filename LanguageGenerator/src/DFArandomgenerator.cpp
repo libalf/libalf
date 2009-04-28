@@ -216,6 +216,11 @@ int my_rand(int limit)
 
 bool DFArandomgenerator::generate(int alphabet_size, int state_count, LanguageGenerator::automaton_constructor & automaton)
 {
+	if(alphabet_size < 2)
+		return false;
+	if(state_count < 1)
+		return false;
+
 	list <int> K;
 	K = randomElementOfK(alphabet_size, state_count*(alphabet_size-1), state_count);
 
