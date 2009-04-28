@@ -9,8 +9,8 @@
  * see LICENSE file for licensing information.
  */
 
-#ifndef __amore_automaton_holder_h__
-# define __amore_automaton_holder_h__
+#ifndef __amore_alf_automaton_holder_h__
+# define __amore_alf_automaton_holder_h__
 
 // this is the glue between libAMoRE(++) and libalf,
 // it gives everything required to make algorithms construct amore automata
