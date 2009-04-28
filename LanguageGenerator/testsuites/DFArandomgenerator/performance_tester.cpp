@@ -64,7 +64,7 @@ int main(int argc, char**argv)
 		"seconds) is averaged over %d randomly generated DFAs.\n\n\n",
 		NUM_OPS);
 
-	for(alphabet_size = 2; alphabet_size < 6; alphabet_size++) {
+	for(alphabet_size = 2; alphabet_size <= 6; alphabet_size += 2) {
 		printf("alphabet size %2d | singletime |compoundtime| reduction\n"
 		       "state count      | (secs/DFA) | (secs/DFA) | to\n"
 		       "------------------------------------------------------\n", alphabet_size);
