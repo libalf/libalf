@@ -33,10 +33,10 @@ long double exact_time()
 long double generate(int alphabet_size, int state_count, int count)
 {{{
 	long double time;
+	DFArandomgenerator rag;
 
 	time = exact_time();
 	while(count > 0) {
-		DFArandomgenerator rag;
 		basic_automaton_holder automaton;
 
 		if(!rag.generate(alphabet_size, state_count, automaton)) {
@@ -48,7 +48,7 @@ long double generate(int alphabet_size, int state_count, int count)
 	return (exact_time() - time);
 }}}
 
-#define NUM_OPS 50
+#define NUM_OPS 25
 
 int main(int argc, char**argv)
 {
@@ -56,22 +56,32 @@ int main(int argc, char**argv)
 	int alphabet_size;
 	int state_count;
 
+	printf( "\n\n"
+		"This program tests, how fast the random generation of n-state-DFAs is.\n"
+		"It compares compound-creation (the data structure cashes intermediate\n"
+		"results between DFAs) vs. single-creation. For each combination in\n"
+		"(state count, alphabet size, {compound,single}), the timing (in\n"
+		"seconds) is averaged over %d randomly generated DFAs.\n\n\n",
+		NUM_OPS);
+
 	for(alphabet_size = 2; alphabet_size < 6; alphabet_size++) {
-		printf("ASIZE %2d            compound , single\n", alphabet_size);
-		for(state_count = 2; state_count < 100; state_count++) {
+		printf("alphabet size %2d | singletime |compoundtime| reduction\n"
+		       "state count      | (secs/DFA) | (secs/DFA) | to\n"
+		       "------------------------------------------------------\n", alphabet_size);
+		for(state_count = 3; state_count <= 150; state_count += 3) {
 
 			long double time_compound, time_single;
 
 			// first test 10 single iterations
-			time_compound = 0;
+			time_single = 0;
 			for(int i = 0; i < NUM_OPS; i++)
-				time_compound += generate(alphabet_size, state_count, 1);
-			time_compound /= NUM_OPS;
+				time_single += generate(alphabet_size, state_count, 1);
+			time_single /= NUM_OPS;
 
 			// now test 10 compound iterations
-			time_single = generate(alphabet_size, state_count, NUM_OPS);
-			time_single /= NUM_OPS;
-			printf("state count %03d - %10.6Lf , %10.6Lf  -  delta: %10.6Lf\n", state_count, time_compound, time_single, time_single - time_compound);
+			time_compound = generate(alphabet_size, state_count, NUM_OPS);
+			time_compound /= NUM_OPS;
+			printf("            %4d | %10.6Lf | %10.6Lf | %4.1Lf%%\n", state_count, time_single, time_compound, time_compound / time_single * 100);
 		}
 	}
 

@@ -1,7 +1,7 @@
 # $Id$
 # DFArandomgenerator testsuite Makefile
 
-.PHONY: all clean run nodata jpegs
+.PHONY: all clean run performance_test nodata jpegs
 
 PREFIX ?= /usr/local
 
@@ -13,7 +13,7 @@ all: DFArandomgenerator performance_tester
 
 clean: nodata
 	-rm *.o
-	-rm DFArandomgenerator
+	-rm DFArandomgenerator performance_tester
 
 nodata:
 	-rm *.dot
@@ -22,8 +22,9 @@ nodata:
 run:
 	LD_LIBRARY_PATH=../../src ./DFArandomgenerator
 
+performance_test: performance_tester
+	LD_LIBRARY_PATH=../../src ./performance_tester
+
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;
-
-DFArandomgenerator: DFArandomgenerator.cpp
 
