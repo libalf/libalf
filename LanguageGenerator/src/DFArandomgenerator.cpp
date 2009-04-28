@@ -137,7 +137,7 @@ list<int> DFArandomgenerator::randomElementOfK(int m, mpz_class t, mpz_class p)
 	if(m < 2)
 		return ret;
 
-	if(p < (t/(m-1)))
+	if(p*(m-1) < t)
 		return ret;
 
 	mpz_class C, De;
@@ -215,7 +215,7 @@ int my_rand(int limit)
 }}}
 
 bool DFArandomgenerator::generate(int alphabet_size, int state_count, LanguageGenerator::automaton_constructor & automaton)
-{
+{{{
 	if(alphabet_size < 2)
 		return false;
 	if(state_count < 1)
@@ -370,7 +370,7 @@ cout << "\n\n";
 	set<int> initial;
 	initial.insert(0);	// initial state := root := state 0
 	return automaton.construct(true, alphabet_size, state_count, initial, final, transitions);
-}
+}}}
 
 
 }; // end of namespace LanguageGenerator

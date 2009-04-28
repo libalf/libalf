@@ -16,7 +16,8 @@
 #include <gmpxx.h>
 
 #include <LanguageGenerator/DFArandomgenerator.h>
-#include <LanguageGenerator/automaton_constructor.h>
+
+#include "amore_langen_glue.h"
 
 using namespace LanguageGenerator;
 using namespace std;
@@ -40,29 +41,9 @@ int main(int argc, char**argv)
 
 	alphabet_size = atoi(argv[1]);
 	state_count = atoi(argv[2]);
-	cout << "alphabet size: " << alphabet_size << "\nstate count: " << state_count << "\n\n";
-
-	// print C[m,t,p] for given data
-	c = rag.getTableContent(alphabet_size, state_count*(alphabet_size-1), state_count);
-	cout << "C[" << alphabet_size << "," << state_count*(alphabet_size-1) << "," << state_count
-		<< "] = " << c << "\n";
-
-/*
-	// get random element of K and print it
-	for(int i = 0; i < 5; i++) {
-		K = rag.randomElementOfK(alphabet_size, state_count*(alphabet_size-1), state_count);
-
-		cout << "K: ( ";
-		for(ki = K.begin(); ki != K.end(); ++ki)
-			cout << (*ki) << " ";
-		cout << ")\n";
-	}
-*/
-
-	cout << "\n";
 
 	// generate random automaton and store it
-	basic_automaton_holder automaton;
+	amore_langen_glue::amore_automaton_holder automaton;
 
 	if(!rag.generate(alphabet_size, state_count, automaton)) {
 		cout << "generator returned false. bad parameters?\n";
@@ -71,9 +52,17 @@ int main(int argc, char**argv)
 
 	ofstream file;
 
-	file.open("random.dot");
-	file << automaton.generate_dotfile();
+	file.open("random-f.dot");
+	file << automaton.get_automaton()->generate_dotfile();
 	file.close();
+
+	automaton.get_automaton()->minimize();
+
+	file.open("random-m.dot");
+	file << automaton.get_automaton()->generate_dotfile();
+	file.close();
+
+	printf("alphabet size %2d state count %2d mdfa size %2d\n", alphabet_size, state_count, automaton.get_automaton()->get_state_count());
 
 	return 0;
 }

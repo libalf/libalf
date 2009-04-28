@@ -7,7 +7,7 @@ PREFIX ?= /usr/local
 
 CPPFLAGS+=-I../../include -I${PREFIX}/include -Wall -ggdb3
 
-LDFLAGS+=-L../../src -L${PREFIX}/lib -llangen -lgmpxx -lgmp
+LDFLAGS+=-L../../src -L${PREFIX}/lib -llangen -lgmpxx -lgmp -lAMoRE++
 
 all: DFArandomgenerator
 

@@ -49,7 +49,11 @@ class DFArandomgenerator {
 		vector<table*> tables;
 		string table_path;
 	protected:
+		// get table content for m,t,p
 		mpz_class & elementOfC(int m, mpz_class t, mpz_class p);
+
+		// get a random element of K(m,t,p)
+		list<int> randomElementOfK(int m, mpz_class t, mpz_class p);
 
 	public:
 		DFArandomgenerator();
@@ -64,13 +68,6 @@ class DFArandomgenerator {
 		bool flush_tables();
 		// does the same as flush_tables() except not saving them.
 		void discard_tables();
-
-		// non-reference version for public export
-		mpz_class getTableContent(int m, mpz_class t, mpz_class p)
-		{ return this->elementOfC(m,t,p); }
-
-		// get a random element of K(m,t,p)
-		list<int> randomElementOfK(int m, mpz_class t, mpz_class p);
 
 		// generate a random automaton
 		bool generate(int alphabet_size, int state_count, LanguageGenerator::automaton_constructor & automaton);
