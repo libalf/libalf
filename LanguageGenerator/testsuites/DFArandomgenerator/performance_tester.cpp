@@ -48,7 +48,7 @@ long double generate(int alphabet_size, int state_count, int count)
 	return (exact_time() - time);
 }}}
 
-#define NUM_OPS 25
+#define NUM_OPS 50
 
 int main(int argc, char**argv)
 {
@@ -60,14 +60,20 @@ int main(int argc, char**argv)
 		"This program tests, how fast the random generation of n-state-DFAs is.\n"
 		"It compares compound-creation (the data structure cashes intermediate\n"
 		"results between DFAs) vs. single-creation. For each combination in\n"
-		"(state count, alphabet size, {compound,single}), the timing (in\n"
-		"seconds) is averaged over %d randomly generated DFAs.\n\n\n",
+		"(state count, alphabet size, {compound,single}), the timing is\n"
+		"averaged over %d randomly generated DFAs.\n"
+		"\n"
+		"The compound timing includes the first-time-generation of non-cached\n"
+		"data.\n"
+		,
 		NUM_OPS);
 
 	for(alphabet_size = 2; alphabet_size <= 6; alphabet_size += 2) {
-		printf("alphabet size %2d | singletime |compoundtime| reduction\n"
-		       "state count      | (secs/DFA) | (secs/DFA) | to\n"
-		       "------------------------------------------------------\n", alphabet_size);
+		printf("\n"
+		       "-----------------------------------------------\n"
+		       "| asize:  %3d | single   | compound |reduction|\n"
+		       "| state count | secs/DFA | secs/DFA |   to    |\n"
+		       "|-------------|----------|----------|---------|\n", alphabet_size);
 		for(state_count = 3; state_count <= 150; state_count += 3) {
 
 			long double time_compound, time_single;
@@ -81,8 +87,9 @@ int main(int argc, char**argv)
 			// now test 10 compound iterations
 			time_compound = generate(alphabet_size, state_count, NUM_OPS);
 			time_compound /= NUM_OPS;
-			printf("            %4d | %10.6Lf | %10.6Lf | %4.1Lf%%\n", state_count, time_single, time_compound, time_compound / time_single * 100);
+			printf("|        %4d | %8.5Lf | %8.5Lf | %5.1Lf%%  |\n", state_count, time_single, time_compound, time_compound / time_single * 100);
 		}
+		printf("-----------------------------------------------\n");
 	}
 
 	return 0;
