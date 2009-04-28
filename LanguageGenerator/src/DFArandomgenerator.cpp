@@ -211,7 +211,6 @@ int my_rand(int limit)
 		t = rand();
 	t /= RAND_MAX;
 	t *= limit+1;
-cout << "ran " << t << " == " << (int)t << "\n";
 	return (int)t;
 }}}
 
@@ -241,10 +240,10 @@ bool DFArandomgenerator::generate(int alphabet_size, int state_count, LanguageGe
 
 	// tansform this element into a transition structure
 	list<int>::iterator ni;
-{{{ cout << "K: (";
+/* {{{ cout << "K: (";
 for(ni = K.begin(); ni != K.end(); ni++)
 	cout << *ni << " ";
-cout << ")\n"; }}}
+cout << ")\n"; }}} */
 	ni = K.begin();
 	while(!implicit_done || ni == K.end()) {
 		transition_constraint tcon;
@@ -287,7 +286,7 @@ cout << ")\n"; }}}
 		ni++;
 	}
 
-{{{ for(int depth = 0; depth < state_count; depth++) {
+/* {{{ for(int depth = 0; depth < state_count; depth++) {
 	cout << "depth " << depth << ": ";
 	for(set<int>::iterator si = depth_members[depth].begin(); si != depth_members[depth].end(); si++)
 		cout << *si << " ";
@@ -299,7 +298,7 @@ for(current_state = 0; current_state < state_count; current_state++) {
 	for(list<transition_constraint>::iterator tci = missing_transitions[current_state].begin(); tci != missing_transitions[current_state].end(); tci++) {
 		cout << "\t to " << tci->dst << " (max depth " << tci->max_dst_depth << ")\n";
 	}
-} }}}
+} }}} */
 
 	// add missing transitions in a well-distributed way.
 
@@ -317,13 +316,15 @@ for(current_state = 0; current_state < state_count; current_state++) {
 	// now to pick a random state of max depth >= n, pick a random element from
 	// depth_limited_state[ 0 .. LEQ_than_depth[n] - 1 ]
 
-{{{ cout << "\ndepth limited state:      ";
+/* {{{
+cout << "\ndepth limited state:      ";
 for(int i = 0; i < state_count; i++)
 	cout << depth_limited_state[i] << " ";
 cout << "\nless than or equal depth: ";
 for(int i = 0; i <= state_count; i++)
 	cout << LEQ_than_depth[i] << " ";
-cout << "\n\n"; }}}
+cout << "\n\n";
+}}} */
 
 	transition_set transitions;
 	transition tr;
