@@ -39,20 +39,7 @@ using namespace std;
 
 
 DFArandomgenerator::table::table(int m)
-{ this->m = m; changed = false; }
-
-bool DFArandomgenerator::table::save(string path)
-{
-	
-}
-
-bool DFArandomgenerator::table::load(string path)
-{
-	
-}
-
-bool DFArandomgenerator::table::was_changed()
-{ return changed; }
+{ this->m = m; }
 
 int DFArandomgenerator::table::get_m()
 { return m; }
@@ -106,7 +93,7 @@ DFArandomgenerator::DFArandomgenerator()
 
 DFArandomgenerator::~DFArandomgenerator()
 {{{
-	flush_tables();
+	discard_tables();
 }}}
 
 mpz_class & DFArandomgenerator::elementOfC(int m, mpz_class t, mpz_class p)
@@ -121,10 +108,8 @@ mpz_class & DFArandomgenerator::elementOfC(int m, mpz_class t, mpz_class p)
 	while((int)tables.size() <= m-1)
 		tables.push_back((table*)NULL);
 
-	if(tables[m-1] == NULL) {
+	if(tables[m-1] == NULL)
 		tables[m-1] = new table(m);
-		tables[m-1]->load(table_path);
-	}
 
 	// return table element
 	return tables[m-1]->getElement(t,p);
@@ -168,19 +153,6 @@ list<int> DFArandomgenerator::randomElementOfK(int m, mpz_class t, mpz_class p)
 			return ret;
 		}
 	}
-}}}
-
-bool DFArandomgenerator::flush_tables()
-{{{
-	bool success_saving = true;
-	// check and save changed tables
-	vector<table*>::iterator ti;
-	for(ti = tables.begin(); ti != tables.end(); ti++)
-		if(*ti && (*ti)->was_changed())
-			if(!(*ti)->save(table_path))
-				success_saving = false;
-	discard_tables();
-	return success_saving;
 }}}
 
 void DFArandomgenerator::discard_tables()

@@ -32,15 +32,11 @@ class DFArandomgenerator {
 		class table {
 			private:
 				map<mpz_class, map<mpz_class, mpz_class> > data;
-				bool changed;
 				int m;
 				mpz_class t, p;
 			public:
 				table(int m);
 
-				bool save(string path);
-				bool load(string path);
-				bool was_changed();
 				int get_m();
 				mpz_class & getElement(mpz_class t, mpz_class p);
 		};
@@ -62,11 +58,7 @@ class DFArandomgenerator {
 		// set location for storage of generated tables.
 		void set_table_path(string path);
 
-		// flush all tables currently in memory. we will try to save
-		// them to <table_path> if they have been changed.
-		// returns false if unable to write tables to <table_path>
-		bool flush_tables();
-		// does the same as flush_tables() except not saving them.
+		// discard all tables currently in memory.
 		void discard_tables();
 
 		// generate a random automaton
