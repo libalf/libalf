@@ -1,7 +1,7 @@
 /* $Id$
  * vim: fdm=marker
  *
- * libAMoRE "value-add": glue between LanguageGenerator (liblangen) and libAMoRE++
+ * liblangen "value-add": glue between LanguageGenerator (liblangen) and libAMoRE++
  *
  * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
  *        <david-i2@piegdon.de>
@@ -26,7 +26,6 @@ namespace amore_langen_glue {
 using namespace std;
 using namespace LanguageGenerator;
 using namespace amore;
-
 
 class amore_automaton_holder : public automaton_constructor {
 	private:
@@ -70,7 +69,7 @@ class amore_automaton_holder : public automaton_constructor {
 		{ return automaton; }
 };
 
-}; // end of namespace amore_alf_glue
+}; // end of namespace amore_langen_glue
 
 #endif
 

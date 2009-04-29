@@ -28,3 +28,13 @@ clean:
 	-rm *.o
 	-rm liblangen.so
 
+install: liblangen.so
+	echo installing liblangen library to ${PREFIX}/lib/
+	mkdir -p ${PREFIX}/lib/
+	cp liblangen.so ${PREFIX}/lib/
+	chmod 755 ${PREFIX}/lib/liblangen.so
+
+uninstall:
+	echo removing liblangen library from ${PREFIX}/lib/
+	rm ${PREFIX}/lib/liblangen.so
+

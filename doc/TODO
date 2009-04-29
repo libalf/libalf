@@ -5,15 +5,15 @@
 A)
 - a class for random generation of RegEx, NFA, DFA (CK: but perhaps we can speak about that when I am back in Aachen)
 
-- documentation (?)
-
 - check undo and increase_alphabet_size() in angluin
+
+- efficient L* algorithm (tree-like)
+
+- documentation (?)
 
 - check network/deserialization code for bugs (or make dispatcher obsolete => CK: der darf nicht obsolete werden, da wir das Ganze ja evtl auch auf einem Server laufen lassen wollen)
 
 - implement `extend normalizer' in dispatcher and normalizer (CK: What is that)
-
-- efficient L* algorithm (tree-like)
 
 - add (de)serialize to NL*
 
@@ -24,6 +24,8 @@ A)
 - check increase_alphabet_size() in NL*
 
 B)
+
+- efficient Bierman implementation (using DDB instead of MiniSat)
 
 - RPNI algorithm
 

@@ -8,7 +8,7 @@ PREFIX ?= /usr/local/
 all:
 	make -C src all
 
-testsuites:
+testsuites: all
 	make -C testsuites
 
 clean:

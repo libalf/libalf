@@ -1,1 +1,1 @@
-../../../libAMoRE++/glue/amore_langen_glue.h
+../../glue/amore_langen_glue.h
