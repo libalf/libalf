@@ -86,9 +86,6 @@ DFArandomgenerator::DFArandomgenerator()
 	gmp_randseed_ui(grstate, gmp_seed);
 
 	srand(n_seed);
-
-	// FIXME: make this dependent on $PREFIX
-	table_path = "/usr/local/share/LanguageGenerator";
 }}}
 
 DFArandomgenerator::~DFArandomgenerator()
@@ -163,11 +160,6 @@ void DFArandomgenerator::discard_tables()
 		if(t)
 			delete t;
 	}
-}}}
-
-void DFArandomgenerator::set_table_path(string path)
-{{{
-	table_path = path;
 }}}
 
 int my_rand(int limit)

@@ -43,7 +43,6 @@ class DFArandomgenerator {
 	private:
 		gmp_randstate_t grstate;
 		vector<table*> tables;
-		string table_path;
 	protected:
 		// get table content for m,t,p
 		mpz_class & elementOfC(int m, mpz_class t, mpz_class p);
@@ -54,9 +53,6 @@ class DFArandomgenerator {
 	public:
 		DFArandomgenerator();
 		~DFArandomgenerator();
-
-		// set location for storage of generated tables.
-		void set_table_path(string path);
 
 		// discard all tables currently in memory.
 		void discard_tables();

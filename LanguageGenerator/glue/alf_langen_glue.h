@@ -26,7 +26,7 @@ using namespace libalf;
 
 class langen_automaton_constructor_wrapper : public LanguageGenerator::automaton_constructor {
 	private:
-		libalf::automaton_constructor * libalf_automaton
+		libalf::automaton_constructor * libalf_automaton;
 
 	public:
 		langen_automaton_constructor_wrapper()
@@ -35,12 +35,6 @@ class langen_automaton_constructor_wrapper : public LanguageGenerator::automaton
 		virtual ~langen_automaton_constructor_wrapper()
 		{ }
 
-		virtual void clear_automaton()
-		{ libalf_automaton->clear_automaton(); }
-
-		virtual void forget_automaton()
-		{ libalf_automaton->forget_automaton(); }
-
 		virtual bool can_construct_NFA()
 		{ return libalf_automaton->can_construct_NFA(); }
 
@@ -48,7 +42,11 @@ class langen_automaton_constructor_wrapper : public LanguageGenerator::automaton
 		{ return libalf_automaton->can_construct_DFA(); }
 
 		virtual bool construct(bool is_dfa, int alphabet_size, int state_count, set<int> &start, set<int> &final, LanguageGenerator::transition_set &transitions)
-		{ return libalf_automaton->construct(is_dfa, alphabet_size, state_count, start, final, transitions); }
+		{
+			libalf::transition_set * transition_caster;
+			transition_caster = (libalf::transition_set*) & transitions;
+			return libalf_automaton->construct(is_dfa, alphabet_size, state_count, start, final, *transition_caster);
+		}
 
 		void set_constructor(libalf::automaton_constructor * constructor)
 		{ libalf_automaton = constructor; }
