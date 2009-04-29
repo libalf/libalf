@@ -9,15 +9,20 @@ all:
 	make -C src all
 	make -C dispatcher all
 
-install-all-deps:
+install-all-deps: install
 	make -C libAMoRE-1.0 install
 	make -C libAMoRE++ install
 	make -C LanguageGenerator install
-	make all
 	make -C JNI install
 
 testsuites: install
 	make -C testsuites
+
+clean-all-deps: clean
+	make -C libAMoRE-1.0 clean
+	make -C libAMoRE++ clean
+	make -C LanguageGenerator clean
+	make -C JNI clean
 
 clean:
 	make -C src clean

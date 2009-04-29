@@ -10,7 +10,6 @@ fi;
 
 PRE=$1
 
-
 export PREFIX=$PRE
 export BINDIR=$PREFIX/bin
 export LIBDIR=$PREFIX/lib
@@ -21,12 +20,7 @@ export HEADER_INSTALLDIR=$PREFIX/include
 mkdir -p $PREFIX $BINDIR $LIBDIR $HEADER_INSTALLDIR
 #mkdir -p $DOCDIR
 
-
-#cd libAMoRE-1.0
-#make && make install
-
-
-make clean install
+make clean-all-deps install-all-deps
 
 echo " "
 echo " "

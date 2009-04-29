@@ -54,7 +54,7 @@ docs/html/index.html:
 doc:
 	doxygen docs/Doxyfile-libAMoRE
 
-install: exportHeaders
+install: exportHeaders all
 	cp libAMoRE.a $(LIBDIR)
 	chmod 644 $(LIBDIR)/libAMoRE.a
 	cp libAMoRE.so $(LIBDIR)
@@ -75,5 +75,5 @@ exportHeaders:
 	chmod 644 ${HEADER_INSTALLDIR}/amore/*
 
 clean:
-	rm -f *~ */*~ $(OBJ) libAMoRE.a libAMoRE.so
-	rm -Rf docs/html docs/latex 
+	-rm -f *~ */*~ $(OBJ) libAMoRE.a libAMoRE.so
+	-rm -Rf docs/html docs/latex 

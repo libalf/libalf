@@ -20,7 +20,7 @@ test_java_dir:
 	test -d ${JAVA_INCLUDE}
 
 clean:
-	rm *.o libalf_jni.so
+	-rm *.o libalf_jni.so
 
 install: all
 	@echo -e "\n\nNO JNI INSTALLED. generic rule is missing."
