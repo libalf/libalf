@@ -10,6 +10,8 @@
  * see LICENSE file for licensing information.
  */
 
+#include <stdlib.h>
+
 #include <iostream>
 #include <fstream>
 
