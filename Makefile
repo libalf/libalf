@@ -1,13 +1,20 @@
 # $Id$
 # libalf Makefile
 
-.PHONY: all testsuites clean install uninstall
+.PHONY: install-all-deps all testsuites clean install uninstall
 
 PREFIX ?= /usr/local/
 
 all:
 	make -C src all
 	make -C dispatcher all
+
+install-all-deps:
+	make -C libAMoRE-1.0 install
+	make -C libAMoRE++ install
+	make -C LanguageGenerator install
+	make all
+	make -C JNI install
 
 testsuites: install
 	make -C testsuites
