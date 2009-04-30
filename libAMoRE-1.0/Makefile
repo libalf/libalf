@@ -14,7 +14,7 @@ CFLAGS+= -DDEBUG -DJAVAEXCEPT -DLIBAMORE -DUNIX -DLINUX -DBIT32
 CFLAGS+= -Wall
 CFLAGS+= -Iinclude
 CFLAGS+= -fno-stack-protector
-CFLAGS+= -ggdb3
+CFLAGS+= -ggdb3 -fpic
 
 LDFLAGS+= -ggdb3 -fpic -shared
 
