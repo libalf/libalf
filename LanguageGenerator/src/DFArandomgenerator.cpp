@@ -30,7 +30,6 @@
 #include <gmpxx.h>
 
 #include <LanguageGenerator/DFArandomgenerator.h>
-#include <LanguageGenerator/automaton_constructor.h>
 
 namespace LanguageGenerator {
 
@@ -173,8 +172,12 @@ int my_rand(int limit)
 	return (int)t;
 }}}
 
-bool DFArandomgenerator::generate(int alphabet_size, int state_count, LanguageGenerator::automaton_constructor & automaton)
+bool DFArandomgenerator::generate(int alphabet_size, int state_count, bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, std::set<int> &t_initial, std::set<int> &t_final, multimap<pair<int,int>, int> &t_transitions)
 {{{
+	t_initial.clear();
+	t_final.clear();
+	t_transitions.clear();
+
 	if(alphabet_size < 2)
 		return false;
 	if(state_count < 1)
@@ -189,8 +192,6 @@ bool DFArandomgenerator::generate(int alphabet_size, int state_count, LanguageGe
 	int current_state;		// the current state number
 	bool implicit_done = false;	// in K(m,t,p), the final (implicit) element is missing. here we keep track if we have created it.
 
-	transition_set transitions;	// set of transitions in final DFA
-	transition tr;
 
 	// note: all LEAFs of the extended m-ary tree of order m are not evaluated to states
 	// of the final DFA, but to transitions of their predecessors.
@@ -217,10 +218,10 @@ bool DFArandomgenerator::generate(int alphabet_size, int state_count, LanguageGe
 			}
 			while(*ni > internal_done) {
 				// add transition between internal nodes
-				tr.source = internal.top();
-				tr.label = current_label.top();
-				tr.destination = current_state;
-				transitions.insert(tr);
+				pair<int, int> trid;
+				trid.first = internal.top();
+				trid.second = current_label.top();
+				t_transitions.insert( pair<pair<int, int>, int>( trid, current_state) );
 
 				// add new internal node
 				current_label.top()++;
@@ -240,10 +241,10 @@ bool DFArandomgenerator::generate(int alphabet_size, int state_count, LanguageGe
 		}
 
 		// add leaf (i.e. create outgoing transition from predecessor)
-		tr.source = internal.top();
-		tr.label = current_label.top();
-		tr.destination = my_rand(current_state-1);
-		transitions.insert(tr);
+		pair<int, int> trid;
+		trid.first = internal.top();
+		trid.second = current_label.top();
+		t_transitions.insert( pair<pair<int, int>, int>( trid, my_rand(current_state-1)) );
 
 		current_label.top()++;
 
@@ -251,15 +252,17 @@ bool DFArandomgenerator::generate(int alphabet_size, int state_count, LanguageGe
 	}
 
 	// pick random set of final states
-	set<int> final;
 	for(current_state = 0; current_state < state_count; ++current_state)
 		if(my_rand(1))
-			final.insert(current_state);
+			t_final.insert(current_state);
 
 	// construct and return resulting automaton
-	set<int> initial;
-	initial.insert(0);	// initial state := root := state 0
-	return automaton.construct(true, alphabet_size, state_count, initial, final, transitions);
+	t_is_dfa = true;
+	t_initial.insert(0);	// initial state := root := state 0
+	t_alphabet_size = alphabet_size;
+	t_state_count = state_count;
+
+	return true;
 }}}
 
 

@@ -9,12 +9,13 @@
  * see LICENSE file for licensing information.
  */
 
+#include <set>
+#include <map>
 #include <iostream>
 #include <string>
 
 #include "jni_tools.h"
 
-#include <libalf/automaton_constructor.h>
 #include <libalf/knowledgebase.h>
 #include <libalf/learning_algorithm.h>
 
@@ -47,13 +48,16 @@ JNIEXPORT jobject JNICALL Java_de_libalf_jni_JNIAlgorithm_advance (JNIEnv *env, 
 	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
 
 	// Create a new automaton
-	basic_automaton_holder* automaton = new basic_automaton_holder;
+	bool is_dfa;
+	int alphabet_size, state_count;
+	set<int> initial, final;
+	multimap<pair<int, int>, int> transitions;
 
 	// Advance!
-	bool conjecture_ready = algorithm->advance(automaton);
+	bool conjecture_ready = algorithm->advance(is_dfa, alphabet_size, state_count, initial, final, transitions);
 
 	// Return a conjectrue if ready of NULL otherwise
-	if(conjecture_ready == true) return convertAutomaton(env, automaton);
+	if(conjecture_ready == true) return convertAutomaton(env, is_dfa, alphabet_size, state_count, initial, final, transitions);
 	else return NULL;
 }
 

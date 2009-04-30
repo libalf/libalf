@@ -14,7 +14,6 @@
 
 #include "jni_tools.h"
 
-#include <libalf/automaton_constructor.h>
 #include <libalf/knowledgebase.h>
 
 #include <jni.h>

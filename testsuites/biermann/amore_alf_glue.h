@@ -1,1 +1,1 @@
-../../libAMoRE++/glue/amore_alf_glue.h
+../../glue/amore_alf_glue.h

@@ -125,20 +125,32 @@ check_reachable:
 	return true;
 }}}
 
-bool DFAenumerator::derive(LanguageGenerator::automaton_constructor & automaton)
+bool DFAenumerator::derive(bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, std::set<int> &t_initial, std::set<int> &t_final, multimap<pair<int,int>, int> &t_transitions)
 {{{
-	set<int> fini;
-	transition_set trs;
 	unsigned int i;
+
+	t_initial.clear();
+	t_final.clear();
+	t_transitions.clear();
+
+	t_initial = initial;
 
 	for(i = 0; i < final.size(); i++)
 		if(final[i])
-			fini.insert(i);
+			t_final.insert(i);
 
-	for(i = 0; i < transitions.size(); i++)
-		trs.insert(transitions[i]);
+	for(i = 0; i < transitions.size(); i++) {
+		pair<int, int> trid;
 
-	return automaton.construct(true, alphabet_size, state_count, initial, fini, trs);
+		trid.first = transitions[i].source;
+		trid.second = transitions[i].label;
+		t_transitions.insert( pair<pair<int, int>, int>( trid, transitions[i].destination) );
+	}
+
+	t_is_dfa = true;
+	t_alphabet_size = alphabet_size;
+	t_state_count = state_count;
+	return true;
 }}}
 
 }; // end of namespace LanguageGenerator

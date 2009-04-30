@@ -12,14 +12,15 @@
 #ifndef __libalf_learning_algorithm_h__
 # define __libalf_learning_algorithm_h__
 
-#include <string>
 #include <list>
+#include <set>
+#include <map>
 #include <utility>
+#include <string>
 
 #include <libalf/logger.h>
 #include <libalf/knowledgebase.h>
 #include <libalf/normalizer.h>
-#include <libalf/automaton_constructor.h>
 
 namespace libalf {
 
@@ -149,10 +150,16 @@ class learning_algorithm {
 		//
 		// please note that the type of automaton must match the required automaton-type of the used learning algorithm
 		// (e.g. angluin required a DFA)
-		virtual bool advance(automaton_constructor * automaton)
+		virtual bool advance(bool & t_is_dfa, int & t_alphabet_size, int & t_state_count, set<int> & t_initial, set<int> & t_final, multimap<pair<int, int>, int> & t_transitions)
 		{{{
 			if(complete()) {
-				if(!derive_automaton(automaton)) {
+				t_alphabet_size = 0;
+				t_state_count = 0;
+				t_initial.clear();
+				t_final.clear();
+				t_transitions.clear();
+
+				if(!derive_automaton(t_is_dfa, t_alphabet_size, t_state_count, t_initial, t_final, t_transitions)) {
 					(*my_logger)(LOGGER_ERROR, "learning_algorithm::advance(): derive from completed table failed! wrong kind of automaton passed or internal error.\n");
 					return false;
 				} else {
@@ -174,7 +181,7 @@ class learning_algorithm {
 		// return false if table could not be completed due to missing knowledge
 		virtual bool complete() = 0;
 		// derive an automaton from data structure
-		virtual bool derive_automaton(automaton_constructor * automaton) = 0;
+		virtual bool derive_automaton(bool & is_dfa, int & alphabet_size, int & state_count, set<int> & initial, set<int> & final, multimap<pair<int, int>, int> & transitions) = 0;
 };
 
 }; // end namespace libalf

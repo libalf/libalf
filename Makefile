@@ -7,7 +7,7 @@ PREFIX ?= /usr/local/
 
 all:
 	make -C src all
-	make -C dispatcher all
+#	make -C dispatcher all
 
 install-all-deps: install
 	make -C libAMoRE-1.0 install
@@ -32,10 +32,10 @@ clean:
 install:
 	make -C include install
 	make -C src install
-	make -C dispatcher install
+#	make -C dispatcher install
 
 uninstall:
 	make -C include uninstall
 	make -C src uninstall
-	make -C dispatcher uninstall
+#	make -C dispatcher uninstall
 

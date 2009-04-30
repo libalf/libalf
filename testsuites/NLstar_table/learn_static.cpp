@@ -119,11 +119,16 @@ int main(int argc, char**argv)
 
 	// create NLstar table and teach it the automaton
 	NLstar_table<ANSWERTYPE> ot(&knowledge, &log, alphabet_size);
-	amore_alf_glue::amore_automaton_holder hypothesis;
+	finite_automaton * hypothesis = NULL;
 
 	for(iteration = 1; iteration <= 100; iteration++) {
 		int c = 'a';
-		while( ! ot.advance(&hypothesis) ) {
+		bool f_is_dfa;
+		int f_alphabet_size, f_state_count;
+		set<int> f_initial, f_final;
+		multimap<pair<int, int>, int> f_transitions;
+
+		while( ! ot.advance(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions) ) {
 			// resolve missing knowledge:
 
 			snprintf(filename, 128, "knowledgebase%02d%c.dot", iteration, c);
@@ -146,6 +151,14 @@ int main(int argc, char**argv)
 			knowledge.merge_knowledgebase(*query);
 			delete query;
 			c++;
+		}
+
+		if(hypothesis)
+			delete hypothesis;
+		hypothesis = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
+		if(!hypothesis) {
+			printf("generation of hypothesis failed!\n");
+			return -1;
 		}
 
 		{{{ /* dump/serialize table */
@@ -171,14 +184,14 @@ int main(int argc, char**argv)
 		}}}
 
 		snprintf(filename, 128, "hypothesis%02d.dot", iteration);
-		file.open(filename); file << hypothesis.get_automaton()->generate_dotfile(); file.close();
+		file.open(filename); file << hypothesis->generate_dotfile(); file.close();
 
 		// once an automaton is generated, test for equivalence with oracle_automaton
 		// if this test is ok, all worked well
 
 		list<int> counterexample;
 		stats.query_count.equivalence++;
-		if(amore_alf_glue::automaton_equivalence_query(*nfa, *(hypothesis.get_automaton()), counterexample)) {
+		if(amore_alf_glue::automaton_equivalence_query(*nfa, *hypothesis, counterexample)) {
 			// equivalent
 			cout << "success.\n";
 			success = true;
@@ -211,8 +224,9 @@ int main(int argc, char**argv)
 	     << ", columns: " << stats.table_size.columns << "\n";
 	cout << "original NFA state count: " << nfa->get_state_count() << "\n";
 	cout << "minimal DFA state count: " << mindfa_statecount << "\n";
-	cout << "final hypothesis state count: " << hypothesis.get_automaton()->get_state_count() << "\n";
+	cout << "final hypothesis state count: " << hypothesis->get_state_count() << "\n";
 
+	delete hypothesis;
 	delete nfa;
 
 	if(success)

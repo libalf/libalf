@@ -20,7 +20,6 @@
 #include <arpa/inet.h>
 
 #include <libalf/learning_algorithm.h>
-#include <libalf/automaton_constructor.h>
 
 namespace libalf {
 
@@ -834,7 +833,7 @@ deserialization_failed:
 			}
 		}}}
 
-		virtual bool derive_automaton(automaton_constructor * automaton)
+		virtual bool derive_automaton(bool & t_is_dfa, int & t_alphabet_size, int & t_state_count, set<int> & t_initial, set<int> & t_final, multimap<pair<int, int>, int> & t_transitions)
 		{{{
 			// NFA is (Q, Q0, F, delta)
 			// with
@@ -847,10 +846,6 @@ deserialization_failed:
 			typename table::iterator ti;
 			typename table::iterator epsilon = upper_table.begin();
 
-			set<int> initial;
-			set<int> final;
-			transition_set transitions;
-
 			// get all distinguished states
 			for(ti = upper_table.begin(); ti != upper_table.end(); ti++)
 				if(row_is_prime(ti))
@@ -859,36 +854,38 @@ deserialization_failed:
 			for(unsigned int i = 0; i < upper_primes.size(); i++) {
 				list<int> succ_w;
 				typename table::iterator successor;
-				transition tr;
 
 				// get initial states
 				if(epsilon->covers(*upper_primes[i]))
-					initial.insert(i);
+					t_initial.insert(i);
 
 				// get final states (column 0 is always epsilon)
 				if(upper_primes[i]->acceptance.front() == true)
-					final.insert(i);
+					t_final.insert(i);
 
 				// and all transitions from this state
-				tr.source = i;
+				pair<int, int> trid;
+				trid.first = i;
 				succ_w = upper_primes[i]->index;
 				for(unsigned int sigma = 0; (int)sigma < this->get_alphabet_size(); sigma++) {
 					succ_w.push_back(sigma);
 					successor = search_tables(succ_w);
 					succ_w.pop_back();
-					tr.label = sigma;
 
-					for(unsigned int dst = 0; dst < upper_primes.size(); dst++) {
-						if(successor->covers(*upper_primes[dst])) {
-							tr.destination = dst;
-							transitions.insert(tr);
-						}
-					}
+					trid.second = sigma;
+
+					for(unsigned int dst = 0; dst < upper_primes.size(); dst++)
+						if(successor->covers(*upper_primes[dst]))
+							t_transitions.insert( pair<pair<int, int>, int>( trid, dst) );
 
 				}
 			}
 
-			return automaton->construct(false, this->get_alphabet_size(), upper_primes.size(), initial, final, transitions);
+			t_is_dfa = false;
+			t_alphabet_size = this->get_alphabet_size();
+			t_state_count = upper_primes.size();
+
+			return true;
 		}}}
 
 };

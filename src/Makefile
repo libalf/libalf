@@ -17,7 +17,7 @@ LDFLAGS+=-shared -L${PREFIX}/lib
 
 SONAME=libalf
 
-OBJECTS=alf.o alphabet.o answer.o automaton_constructor.o basic_string.o logger.o minisat_solver.o normalizer_msc.o statistics.o
+OBJECTS=alf.o alphabet.o answer.o automaton.o basic_string.o logger.o minisat_solver.o normalizer_msc.o statistics.o
 
 all:	libalf.so
 

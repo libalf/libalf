@@ -17,8 +17,8 @@
 
 #include "libalf/alf.h"
 
-#include <libalf/automaton_constructor.h>
 #include <libalf/algorithm_biermann_minisat.h>
+#include <libalf/automaton.h>
 
 using namespace std;
 using namespace libalf;
@@ -94,17 +94,20 @@ int main(int argc, char**argv)
 	cout << "\n";
 
 	MiniSat_biermann<bool> diebels(&knowledge, &log, alphabet_size);
+	bool f_is_dfa;
+	int f_alphabet_size, f_state_count;
+	set<int> f_initial, f_final;
+	multimap<pair<int, int>, int> f_transitions;
 
-	basic_automaton_holder hypothesis;
-
-	if(!diebels.advance(&hypothesis)) {
-		printf("\n\n\nadvance returned false\n\n");
+	if(!diebels.advance(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
+		log(LOGGER_ERROR, "advance() returned false!\n");
 	} else {
 //		diebels.print(cout);
-
 		snprintf(filename, 128, "hypothesis.dot");
 		file.open(filename);
-		file << hypothesis.generate_dotfile();
+
+		file << automaton2dotfile(f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
+
 		file.close();
 		printf("\n\nhypothesis saved.\n\n");
 	}

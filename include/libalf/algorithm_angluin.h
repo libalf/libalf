@@ -25,7 +25,6 @@
 #include <libalf/alphabet.h>
 #include <libalf/logger.h>
 #include <libalf/learning_algorithm.h>
-#include <libalf/automaton_constructor.h>
 
 namespace libalf {
 
@@ -802,7 +801,8 @@ class angluin_table : public learning_algorithm<answer> {
 			}
 		}}}
 
-		virtual bool derive_automaton(automaton_constructor * automaton)
+		// the following will derive an automaton into the given references
+		virtual bool derive_automaton(bool & t_is_dfa, int & t_alphabet_size, int & t_state_count, set<int> & t_initial, set<int> & t_final, multimap<pair<int, int>, int> & t_transitions)
 		{{{
 			// derive deterministic finite automaton from this table
 			typename table::iterator uti, ti;
@@ -811,10 +811,6 @@ class angluin_table : public learning_algorithm<answer> {
 			list<algorithm_angluin::automaton_state<table> > states;
 			state.id = 0;
 			typename list<algorithm_angluin::automaton_state<table> >::iterator state_it, state_it2;
-
-			set<int> initial;
-			set<int> final;
-			transition_set transitions;
 
 			// list of states of automaton: each different acceptance-row
 			// in the upper table represents one DFA state
@@ -839,13 +835,13 @@ class angluin_table : public learning_algorithm<answer> {
 
 			// q0 is row(epsilon)
 			// as epsilon is the first row in uti, it will have id 0.
-			initial.insert( 0 );
+			t_initial.insert( 0 );
 
 			for(state_it = states.begin(); state_it != states.end(); state_it++) {
 				// the final, accepting states are the rows with
 				// acceptance in the epsilon-column
 				if(state_it->tableentry->acceptance.front() == true)
-					final.insert(state_it->id);
+					t_final.insert(state_it->id);
 
 				// the transformation function is:
 				// \delta: (row, char) -> row : (row(s), a) -> row(sa)
@@ -868,20 +864,22 @@ class angluin_table : public learning_algorithm<answer> {
 					// find matching state for successor
 					for(state_it2 = states.begin(); state_it2 != states.end(); state_it2++) {
 						if(*ti == *(state_it2->tableentry)) {
-							transition tr;
+							pair<int, int> trid;
+							trid.first = state_it->id;
+							trid.second = i;
+							t_transitions.insert( pair<pair<int, int>, int>( trid, state_it2->id) );
 
-							tr.source = state_it->id;
-							tr.label = i;
-							tr.destination = state_it2->id;
-							transitions.insert(tr);
 							break;
 						}
 					}
 				}
 			}
 
-			return automaton->construct(true, this->get_alphabet_size(), states.size(),
-						initial, final, transitions);
+			t_alphabet_size = this->get_alphabet_size();
+			t_state_count = states.size();
+			t_is_dfa = true;
+
+			return true;
 		}}}
 
 };

@@ -592,8 +592,9 @@ bool nondeterministic_finite_automaton::deserialize(basic_string<int32_t>::itera
 
 		if(   (label < -1) || (label >= (int)nfa_p->alphabet_size)
 		   || (src < 0) || (src > (int)nfa_p->highest_state)
-		   || (dst < 0) || (dst > (int)nfa_p->highest_state) )
+		   || (dst < 0) || (dst > (int)nfa_p->highest_state) ) {
 			goto nfaa_deserialization_failed;
+		}
 
 		connect(nfa_p->delta, label+1, src, dst);
 	}

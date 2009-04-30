@@ -216,16 +216,16 @@ bool deterministic_finite_automaton::lang_disjoint_to(finite_automaton &other)
 	return ret;
 }}}
 
-bool deterministic_finite_automaton::accepts_suffix(int starting_state, list<int>::iterator suffix_begin, list<int>::iterator suffix_end)
+bool deterministic_finite_automaton::accepts_suffix(int initial_state, list<int>::iterator suffix_begin, list<int>::iterator suffix_end)
 {{{
 	if(suffix_begin == suffix_end) {
-		return (TRUE == dfa_p->final[starting_state]);
+		return (TRUE == dfa_p->final[initial_state]);
 	} else {
 		unsigned int l = (*suffix_begin);
 		if(l >= dfa_p->alphabet_size)
 			return false;
 		suffix_begin++;
-		return accepts_suffix(dfa_p->delta[l+1][starting_state], suffix_begin, suffix_end);
+		return accepts_suffix(dfa_p->delta[l+1][initial_state], suffix_begin, suffix_end);
 	}
 }}}
 
@@ -471,27 +471,26 @@ dfaa_deserialization_failed:
 	return false;
 }}}
 
-bool deterministic_finite_automaton::construct(int alphabet_size, int state_count, std::set<int> &start, std::set<int> &final, transition_set &transitions)
+bool deterministic_finite_automaton::construct(int alphabet_size, int state_count, std::set<int> &initial, std::set<int> &final, multimap<pair<int, int>, int> &transitions)
 {{{
 	dfa a;
-	amore::transition_set::iterator ti, tj;
 	std::set<int>::iterator si;
+	multimap<pair<int, int>, int>::iterator ti,tj;
 
 	// DO SOME SANITY CHECKS
 
-	// - check if start only contains one element
-	if(start.size() != 1) {
+	// - check if initial only contains one element
+	if(initial.size() != 1) {
 		// we could only create an NFA from this
 		return false;
 	}
-	// - check if transitions don't contain duplicate source,sigma tuples
+	// - check if transitions don't contain nondeterministic choices
 	for(ti = transitions.begin(); ti != transitions.end(); ti++) {
-		tj = ti;
-		for(tj++; tj != transitions.end(); tj++) {
-			if(!deterministic_transitions(*tj, *ti)) {
-				// we could only create an NFA from this
-				return false;
-			}
+		if(transitions.count(ti->first) > 2) {
+			tj = ti;
+			for(++tj ; (tj != transitions.end()) && (ti->first == tj->first) ; ++tj)
+				if(ti->second != tj->second)
+					return false;
 		}
 	}
 
@@ -499,7 +498,7 @@ bool deterministic_finite_automaton::construct(int alphabet_size, int state_coun
 	a = newdfa();
 
 	a->highest_state = state_count - 1; // states [0 .. highest_state]
-	si = start.begin();
+	si = initial.begin();
 	a->init = *si; // initial states
 	a->alphabet_size = alphabet_size; // alphabet size
 	a->final = newfinal(a->highest_state); // final states
@@ -507,7 +506,7 @@ bool deterministic_finite_automaton::construct(int alphabet_size, int state_coun
 		setfinal((a->final[*i]), 1);
 	a->delta = newddelta(a->alphabet_size, a->highest_state); // transition function: delta[sigma][source] = destination
 	for(ti = transitions.begin(); ti != transitions.end(); ti++)
-		a->delta[ti->label + 1][ti->source] = ti->destination;
+		a->delta[ti->first.second + 1][ti->first.first] = ti->second;
 	a->minimal = FALSE;
 
 	if(dfa_p)

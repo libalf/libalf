@@ -9,16 +9,15 @@
  * see LICENSE file for licensing information.
  */
 
+#include <set>
+#include <map>
 #include <string>
 #include <list>
 #include <iostream>
 
 #include <jni.h>
 
-#include <libalf/automaton_constructor.h>
-
 using namespace std;
-using namespace libalf;
 
 jintArray basic_string2jintArray(JNIEnv *env, basic_string<int32_t> str)
 {
@@ -85,7 +84,7 @@ jobject create_transition(JNIEnv* env, int source, int label, int destination) {
 	return java_transition;
 }
 
-jobject convertAutomaton(JNIEnv* env, basic_automaton_holder* automaton) {
+jobject convertAutomaton(JNIEnv* env, bool is_dfa, int alphabet_size, int state_count, set<int> & initial, set<int> & final, multimap<pair<int, int>, int> & transitions) {
 	/*
 	 *Create new Java LibALFAutomaton object
 	 */
@@ -102,7 +101,7 @@ jobject convertAutomaton(JNIEnv* env, basic_automaton_holder* automaton) {
 		return NULL;
 	}
 	// Make new object
-	jobject java_automaton = env->NewObject(jcls, jmid, automaton->is_dfa, automaton->state_count, automaton->alphabet_size);
+	jobject java_automaton = env->NewObject(jcls, jmid, is_dfa, state_count, alphabet_size);
 	if(jmid == NULL) {
 		cout << "Could not create new 'BasicAutomaton' object!\nReturning NULL\n";
 		return NULL;
@@ -121,7 +120,7 @@ jobject convertAutomaton(JNIEnv* env, basic_automaton_holder* automaton) {
 	}
 	// Process all initial states
 	set<int>::iterator i;
-	for(i = automaton->start.begin(); i != automaton->start.end(); i++)
+	for(i = initial.begin(); i != initial.end(); i++)
 		// Add state to Java object
 		env->CallVoidMethod(java_automaton, jmid, *i);
 
@@ -134,8 +133,8 @@ jobject convertAutomaton(JNIEnv* env, basic_automaton_holder* automaton) {
 		cout << "Could not find addFinalState of 'BasicAutomaton'!\nReturning NULL\n";
 		return NULL;
 	}
-	// Process all initial states
-	for(i = automaton->final.begin(); i != automaton->final.end(); i++)
+	// Process all final states
+	for(i = final.begin(); i != final.end(); i++)
 		// Add state to Java object
 		env->CallVoidMethod(java_automaton, jmid, *i);
 
@@ -149,10 +148,10 @@ jobject convertAutomaton(JNIEnv* env, basic_automaton_holder* automaton) {
 		return NULL;
 	}
 	// Process all transitions
-	transition_set::iterator si;
-	for(si = automaton->transitions.begin(); si != automaton->transitions.end(); si++) {
+	multimap<pair<int, int>, int>::iterator si;
+	for(si = transitions.begin(); si != transitions.end(); si++) {
 		// Add state to Java object
-		jobject tr = create_transition(env, si->source, si->label, si->destination);
+		jobject tr = create_transition(env, si->first.first, si->first.second, si->second);
 		env->CallVoidMethod(java_automaton, jmid, tr);
 	}
 

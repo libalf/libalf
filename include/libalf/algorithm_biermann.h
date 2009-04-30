@@ -28,7 +28,6 @@
 #include <math.h>
 
 #include <libalf/knowledgebase.h>
-#include <libalf/automaton_constructor.h>
 #include <libalf/learning_algorithm.h>
 
 namespace libalf {
@@ -237,7 +236,7 @@ class basic_biermann : public learning_algorithm<answer> {
 			return true;
 		}}}
 		// derive an automaton from data structure
-		virtual bool derive_automaton(automaton_constructor * automaton)
+		virtual bool derive_automaton(bool & t_is_dfa, int & t_alphabet_size, int & t_state_count, set<int> & t_initial, set<int> & t_final, multimap<pair<int, int>, int> & t_transitions)
 		{{{
 			mapping old_solution;
 			int old_size;
@@ -299,7 +298,7 @@ class basic_biermann : public learning_algorithm<answer> {
 			}
 
 			// 3) derive automaton from current_solution and mdfa_size
-			return solution2automaton(automaton);
+			return solution2automaton(t_is_dfa, t_alphabet_size, t_state_count, t_initial, t_final, t_transitions);
 		}}}
 
 		virtual void create_constraints()
@@ -369,36 +368,36 @@ class basic_biermann : public learning_algorithm<answer> {
 
 		virtual bool solve_constraints() = 0;
 
-		virtual bool solution2automaton(automaton_constructor * automaton)
+		virtual bool solution2automaton(bool & t_is_dfa, int & t_alphabet_size, int & t_state_count, set<int> & t_initial, set<int> & t_final, multimap<pair<int, int>, int> & t_transitions)
 		{{{
-			set<int> start;
-			set<int> final;
-			transition_set transitions;
 			typename set<knowledgebase_node_ptr>::iterator si;
 
 			// knowledgebase.begin() always starts at root node (epsilon)
-			start.insert( solution[ this->my_knowledge->begin()->get_selfptr() ] );
+			t_initial.insert( solution[ this->my_knowledge->begin()->get_selfptr() ] );
 
 			for(si = sources.begin(); si != sources.end(); si++) {
 					// acceptance-status
 					if((*si)->is_answered())
 						if((*si)->get_answer() == true)
-							final.insert( solution[ (*si)->get_selfptr() ] );
+							t_final.insert( solution[ (*si)->get_selfptr() ] );
 					// transitions
-					transition tr;
-					tr.source = solution[ (*si)->get_selfptr() ];
+					pair<int, int> trid;
+					trid.first = solution[ (*si)->get_selfptr() ];
 					for(int s = 0; s < this->get_alphabet_size(); s++) {
 						knowledgebase_node_ptr child;
 						child = (*si)->find_child(s);
 						if(child != NULL) {
-							tr.label = s;
-							tr.destination = solution[ child->get_selfptr() ];
-							transitions.insert(tr);
+							trid.second = s;
+							t_transitions.insert( pair<pair<int, int>, int>( trid, solution[ child->get_selfptr() ]) );
 						}
 					}
 			}
 
-			return automaton->construct(true, this->get_alphabet_size(), mdfa_size, start, final, transitions);
+			t_is_dfa = true;
+			t_alphabet_size = this->get_alphabet_size();
+			t_state_count = mdfa_size;
+
+			return true;
 		}}}
 
 };

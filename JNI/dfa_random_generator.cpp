@@ -11,6 +11,8 @@
  * see LICENSE file for licensing information.
  */
 
+#include <map>
+#include <set>
 #include <string>
 #include <list>
 #include <iostream>
@@ -28,13 +30,10 @@ using namespace LanguageGenerator;
 
 static DFArandomgenerator RAgen;
 
-bool create_random_DFA(int alphabet_size, int state_count, libalf::automaton_constructor & automaton)
+bool create_random_DFA(int alphabet_size, int state_count, set<int> & initial, set<int> & final, multimap<pair<int, int>, int> & transitions)
 {
-	alf_langen_glue::langen_automaton_constructor_wrapper wrapper;
-
-	wrapper.set_constructor(&automaton);
-
-	return RAgen.generate(alphabet_size, state_count, wrapper);
+	bool tmp;
+	return RAgen.generate(alphabet_size, state_count, tmp, alphabet_size, state_count, initial, final, transitions);
 }
 
 void discard_tables()

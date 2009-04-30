@@ -118,11 +118,16 @@ int main(int argc, char**argv)
 
 	// create angluin_simple_table and teach it the automaton
 	angluin_simple_table<ANSWERTYPE> ot(&knowledge, &log, alphabet_size);
-	amore_alf_glue::amore_automaton_holder hypothesis;
+	finite_automaton * hypothesis = NULL;
 
 	for(iteration = 1; iteration <= 100; iteration++) {
 		int c = 'a';
-		while( ! ot.advance(&hypothesis) ) {
+		bool f_is_dfa;
+		int f_alphabet_size, f_state_count;
+		set<int> f_initial, f_final;
+		multimap<pair<int, int>, int> f_transitions;
+
+		while( ! ot.advance(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions) ) {
 			// resolve missing knowledge:
 
 			snprintf(filename, 128, "knowledgebase%02d%c.dot", iteration, c);
@@ -147,6 +152,13 @@ int main(int argc, char**argv)
 			c++;
 		}
 
+		if(hypothesis)
+			delete hypothesis;
+		hypothesis = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
+		if(!hypothesis) {
+			printf("generation of hypothesis failed!\n");
+			return -1;
+		}
 
 		{{{ /* dump/serialize table */
 			basic_string<int32_t> serialized;
@@ -171,21 +183,21 @@ int main(int argc, char**argv)
 		}}}
 
 		snprintf(filename, 128, "hypothesis%02d.dot", iteration);
-		file.open(filename); file << hypothesis.get_automaton()->generate_dotfile(); file.close();
+		file.open(filename); file << hypothesis->generate_dotfile(); file.close();
 
-		printf("hypothesis %02d state count %02d\n", iteration, hypothesis.get_automaton()->get_state_count());
-		if(hypothesis_state_count >= hypothesis.get_automaton()->get_state_count()) {
+		printf("hypothesis %02d state count %02d\n", iteration, hypothesis->get_state_count());
+		if(hypothesis_state_count >= hypothesis->get_state_count()) {
 			log(LOGGER_ERROR, "STATE COUNT DID NOT INCREASE\n");
 			getchar();
 		}
-		hypothesis_state_count = hypothesis.get_automaton()->get_state_count();
+		hypothesis_state_count = hypothesis->get_state_count();
 
 		// once an automaton is generated, test for equivalence with oracle_automaton
 		// if this test is ok, all worked well
 
 		list<int> counterexample;
 		stats.query_count.equivalence++;
-		if(amore_alf_glue::automaton_equivalence_query(*nfa, *(hypothesis.get_automaton()), counterexample)) {
+		if(amore_alf_glue::automaton_equivalence_query(*nfa, *hypothesis, counterexample)) {
 			// equivalent
 			cout << "success.\n";
 			success = true;
@@ -218,7 +230,9 @@ int main(int argc, char**argv)
 	cout << "upper table rows: " << stats.table_size.upper_table
 	     << ", lower table rows: " << stats.table_size.lower_table
 	     << ", columns: " << stats.table_size.columns << "\n";
-	cout << "minimal state count: " << hypothesis.get_automaton()->get_state_count() << "\n";
+	cout << "minimal state count: " << hypothesis->get_state_count() << "\n";
+
+	delete hypothesis;
 
 	if(success)
 		return 0;

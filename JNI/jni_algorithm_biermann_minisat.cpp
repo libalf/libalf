@@ -11,7 +11,6 @@
 
 #include <iostream>
 
-#include <libalf/automaton_constructor.h>
 #include <libalf/knowledgebase.h>
 #include <libalf/learning_algorithm.h>
 #include <libalf/algorithm_biermann_minisat.h>

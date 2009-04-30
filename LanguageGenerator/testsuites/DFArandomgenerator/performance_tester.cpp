@@ -15,7 +15,6 @@
 #include <sys/time.h>
 
 #include <LanguageGenerator/DFArandomgenerator.h>
-#include <LanguageGenerator/automaton_constructor.h>
 
 using namespace LanguageGenerator;
 using namespace std;
@@ -37,11 +36,13 @@ long double generate(int alphabet_size, int state_count, int count)
 
 	time = exact_time();
 	while(count > 0) {
-		basic_automaton_holder automaton;
+		int asize, scount;
+		bool is_dfa;
+		set<int> ini, fini;
+		multimap<pair<int,int>, int> tra;
 
-		if(!rag.generate(alphabet_size, state_count, automaton)) {
+		if(!rag.generate(alphabet_size, state_count, is_dfa, asize, scount, ini, fini, tra))
 			return -1;
-		}
 
 		count--;
 	}

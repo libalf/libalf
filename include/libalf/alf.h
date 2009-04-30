@@ -14,7 +14,6 @@
 
 #include <libalf/alphabet.h>
 #include <libalf/answer.h>
-#include <libalf/automaton_constructor.h>
 #include <libalf/basic_string.h>
 #include <libalf/learning_algorithm.h>
 #include <libalf/logger.h>

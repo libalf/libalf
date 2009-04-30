@@ -111,18 +111,23 @@ int main(int argc, char**argv)
 	cout << "\n";
 
 	MiniSat_biermann<bool> diebels(&knowledge, &log, alphabet_size);
-	amore_alf_glue::amore_automaton_holder hypothesis;
+	finite_automaton * hypothesis = NULL;
+	bool f_is_dfa;
+	int f_alphabet_size, f_state_count;
+	set<int> f_initial, f_final;
+	multimap<pair<int, int>, int> f_transitions;
 
-	if(!diebels.advance(&hypothesis)) {
+	if(!diebels.advance(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
 		log(LOGGER_ERROR, "advance() returned false!\n");
 	} else {
 //		diebels.print(cout);
+		hypothesis = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
 
 		snprintf(filename, 128, "hypothesis.dot");
-		file.open(filename); file << hypothesis.get_automaton()->generate_dotfile(); file.close();
+		file.open(filename); file << hypothesis->generate_dotfile(); file.close();
 
 		finite_automaton * ndifference, * difference;
-		ndifference = dfa->lang_symmetric_difference( * (hypothesis.get_automaton()) );
+		ndifference = dfa->lang_symmetric_difference( *hypothesis );
 		difference = ndifference->determinize();
 		delete ndifference;
 		difference->minimize();
@@ -134,8 +139,7 @@ int main(int argc, char**argv)
 
 		printf("\n\nhypothesis/difference saved.\n\n");
 
-
-
+		delete hypothesis;
 	}
 
 	return 0;

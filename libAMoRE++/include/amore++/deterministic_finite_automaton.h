@@ -80,14 +80,14 @@ class deterministic_finite_automaton : public finite_automaton {
 		virtual basic_string<int32_t> serialize();
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
 
-		virtual bool construct(int alphabet_size, int state_count, std::set<int> &start, std::set<int> &final, transition_set &transitions);
+		virtual bool construct(int alphabet_size, int state_count, std::set<int> &initial, std::set<int> &final, multimap<pair<int,int>, int> &transitions);
 
 	// new
 		virtual void set_dfa(dfa a);
 		virtual dfa get_dfa();
 
 	protected:
-		virtual bool accepts_suffix(int starting_state, list<int>::iterator suffix_begin, list<int>::iterator suffix_end);
+		virtual bool accepts_suffix(int initial_state, list<int>::iterator suffix_begin, list<int>::iterator suffix_end);
 };
 
 }; // end namespace amore

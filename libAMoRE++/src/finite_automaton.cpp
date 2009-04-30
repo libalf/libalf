@@ -16,10 +16,31 @@
 #include <arpa/inet.h>
 
 #include "amore++/finite_automaton.h"
+#include "amore++/deterministic_finite_automaton.h"
+#include "amore++/nondeterministic_finite_automaton.h"
 
 namespace amore {
 
 using namespace std;
+
+
+finite_automaton * construct_amore_automaton(bool is_dfa, int alphabet_size, int state_count, std::set<int> &initial, std::set<int> &final, multimap<pair<int,int>, int> &transitions)
+{{{
+	finite_automaton * ret;
+	if(is_dfa)
+		ret = new deterministic_finite_automaton;
+	else
+		ret = new nondeterministic_finite_automaton;
+
+	if(ret->construct(alphabet_size, state_count, initial, final, transitions))
+		return ret;
+
+	delete ret;
+	return NULL;
+}}}
+
+
+
 
 string finite_automaton::generate_dotfile()
 {{{
@@ -130,11 +151,11 @@ string finite_automaton::generate_dotfile()
 // inefficient (as it only wraps another interface), but it works for all automata implementations
 // that implement serialize and deserialize. implementations may provide their own, more performant
 // implementation of construct().
-bool finite_automaton::construct(int alphabet_size, int state_count, std::set<int> &start, std::set<int> &final, transition_set &transitions)
+bool finite_automaton::construct(int alphabet_size, int state_count, std::set<int> &initial, std::set<int> &final, multimap<pair<int, int>, int> &transitions)
 {{{
 	basic_string<int32_t> ser;
 	std::set<int>::iterator sit;
-	transition_set::iterator tit;
+	multimap<pair<int, int>, int>::iterator tit;
 
 	// serialize that data and call deserialize :)
 	ser += 0;
@@ -143,8 +164,8 @@ bool finite_automaton::construct(int alphabet_size, int state_count, std::set<in
 
 	ser += htonl(state_count);
 
-	ser += htonl(start.size());
-	for(sit = start.begin(); sit != start.end(); sit++)
+	ser += htonl(initial.size());
+	for(sit = initial.begin(); sit != initial.end(); sit++)
 		ser += htonl(*sit);
 
 	ser += htonl(final.size());
@@ -152,10 +173,11 @@ bool finite_automaton::construct(int alphabet_size, int state_count, std::set<in
 		ser += htonl(*sit);
 
 	ser += htonl(transitions.size());
+
 	for(tit = transitions.begin(); tit != transitions.end(); tit++) {
-		ser += htonl(tit->source);
-		ser += htonl(tit->label);
-		ser += htonl(tit->destination);
+		ser += htonl(tit->first.first);  // source
+		ser += htonl(tit->first.second); // label
+		ser += htonl(tit->second);       // desination
 	}
 
 	ser[0] = htonl(ser.length() - 1);

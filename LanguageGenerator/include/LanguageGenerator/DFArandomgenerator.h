@@ -12,6 +12,7 @@
  * see LICENSE file for licensing information.
  */
 
+#include <set>
 #include <map>
 #include <list>
 #include <vector>
@@ -20,8 +21,6 @@
 
 #ifndef __LanguageGenerator_DFArandomgenerator_h__
 # define __LanguageGenerator_DFArandomgenerator_h__
-
-#include <LanguageGenerator/automaton_constructor.h>
 
 namespace LanguageGenerator {
 
@@ -58,7 +57,8 @@ class DFArandomgenerator {
 		void discard_tables();
 
 		// generate a random automaton
-		bool generate(int alphabet_size, int state_count, LanguageGenerator::automaton_constructor & automaton);
+		bool generate(int alphabet_size, int state_count,
+			      bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, std::set<int> &t_initial, std::set<int> &t_final, multimap<pair<int,int>, int> &t_transitions);
 
 };
 

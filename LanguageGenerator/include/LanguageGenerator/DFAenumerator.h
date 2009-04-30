@@ -10,13 +10,13 @@
  * see LICENSE file for licensing information.
  */
 
+#include <list>
+#include <map>
 #include <vector>
 #include <set>
 
 #ifndef __LanguageGenerator_DFAenumerator_h__
 # define __LanguageGenerator_DFAenumerator_h__
-
-#include <LanguageGenerator/automaton_constructor.h>
 
 namespace LanguageGenerator {
 
@@ -29,6 +29,12 @@ using namespace std;
 // use next() to move to the next automaton.
 
 class DFAenumerator {
+	private:
+		typedef struct transition_t {
+			int source;
+			int label;
+			int destination;
+		} transition;
 	private:
 		bool completed;
 
@@ -47,7 +53,7 @@ class DFAenumerator {
 		// if all automata have been generated (check generation_completed() ).
 		bool next(bool exact_state_count);
 
-		bool derive(LanguageGenerator::automaton_constructor & automaton);
+		bool derive(bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, std::set<int> &t_initial, std::set<int> &t_final, multimap<pair<int,int>, int> &t_transitions);
 
 		bool generation_completed()
 		{ return completed; };
