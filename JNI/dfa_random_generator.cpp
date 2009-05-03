@@ -19,13 +19,9 @@
 
 #include <jni.h>
 
-#include <libalf/automaton_constructor.h>
 #include <LanguageGenerator/DFArandomgenerator.h>
 
-#include "alf_langen_glue.h"
-
 using namespace std;
-using namespace libalf;
 using namespace LanguageGenerator;
 
 static DFArandomgenerator RAgen;
