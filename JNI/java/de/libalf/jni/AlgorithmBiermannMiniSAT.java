@@ -25,7 +25,7 @@ package de.libalf.jni;
  * public BasicAutomaton learn() {
  * 	// Prepare the knowledgebase and the algorithm
  * 	Knowledgebase knowledgebase = new Knowledgebase();
- * 	int alphabetSize = 1;// Set some size
+ * 	int alphabetSize = // Set some size
  * 	BufferedLogger logger = new BufferedLogger();
  * 	LearningAlgorithm algorithm = new AlgorithmBiermannMiniSAT(knowledgebase,
  * 			alphabetSize, logger);

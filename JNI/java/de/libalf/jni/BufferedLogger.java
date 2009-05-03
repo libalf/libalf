@@ -4,7 +4,7 @@ package de.libalf.jni;
  * <p>
  * A <code>BufferedLogger</code> logs events that occur during a learning
  * process and the logged events can be received as a <code>String</code>. A
- * logger is given as parameter when creating a new {@link LearningAlgorithm}.
+ * logger can be attached to any {@link LearningAlgorithm}.
  * </p>
  * <p>
  * Each logged event is associated with a specific {@link LoggerLevel}, which

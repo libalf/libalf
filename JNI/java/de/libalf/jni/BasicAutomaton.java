@@ -241,6 +241,21 @@ public class BasicAutomaton {
 		transitions.remove(transitionToRemove);
 	}
 
+	public String toDot() {
+		String lineSeparator = System.getProperty("line.separator");
+		String dot = "digraph Automaton {" + lineSeparator;
+		dot += "  rankdir = LR;" + lineSeparator;
+		for (int i = 0; i < numberOfStates; i++)
+			dot += "  " + i + " [shape="
+					+ (finalStates.contains(i) ? "double" : "")
+					+ "circle, label=\"" + i + "\"];" + lineSeparator;
+		for (BasicTransition t : transitions)
+			dot += "  " + t.source + " -> " + t.destination + " [label=\""
+					+ t.label + "\"];" + lineSeparator;
+		dot += "}";
+		return dot;
+	}
+
 	@Override
 	public String toString() {
 		String output = "LibALF automaton Java impementation\nNumber of States: "
