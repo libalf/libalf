@@ -1,0 +1,18 @@
+
+liblangen is a C++ library for generating (regular) languages by means
+of finite automata or regular expressions. currently it consists of
+
+	1) a equally distributed DFA generator
+
+planned are:
+
+	2) a RegEx generator
+
+	3) a NFA generator
+
+DEPENCENCIES:
+
+	liblangen only has two dependencies:
+	the GNU multiple precision arithmetics library GMP and its C++
+	interface (libgmp and libgmpxx).
+

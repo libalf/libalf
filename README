@@ -1,2 +1,27 @@
-libalf is using libAMoRE-1.0, with some patches, as included in the source-tree. just make install it.
-libalf is also using MiniSat v1.14. it is fully incorporated (namespace libalf::MiniSat) but has no changes
+
+DEPENCENCIES:
+
+	libalf is a stand-alone C++ library, no external libraries except
+	c++ standard lib and STL are required.
+
+	however, the following libraries may be of help for developing
+	applications or are required for some of the testcases:
+
+	1) libAMoRE-1.0 / libAMoRE++ : C/C++ automata library for working
+	with finite automata. (both AMoRE-1.0 with some patches and the
+	C++ interface currently reside in the subversion repository of
+	libalf. the C++ interface has been written during development of
+	libalf, but we're currently working on integrating it into the
+	original libAMoRE (upstream).
+
+	2) liblangen (LanguageGenerator) is a library for generating
+	(regular) languages in the form of automata or regular expressions.
+	it came to existence during the development of libalf and thus
+	has the same interfaces for automata. it is useful for e.g.
+	generating random automata or regex with specific constraints,
+	so algorithms can automatically massively tested.
+
+	3) MiniSat v1.14 is fully integrated into libalf, as it is
+	required for the bierman algorithm.
+	
+
