@@ -9,10 +9,10 @@ extern "C" {
 #endif
 /*
  * Class:     de_libalf_jni_RandomGenerator
- * Method:    createRandomDFA
+ * Method:    createRandomDFA_private
  * Signature: (II)Lde/libalf/jni/BasicAutomaton;
  */
-JNIEXPORT jobject JNICALL Java_de_libalf_jni_RandomGenerator_createRandomDFA
+JNIEXPORT jobject JNICALL Java_de_libalf_jni_RandomGenerator_createRandomDFA_1private
   (JNIEnv *, jclass, jint, jint);
 
 /*

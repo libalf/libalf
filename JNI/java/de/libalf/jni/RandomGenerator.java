@@ -80,7 +80,7 @@ public class RandomGenerator {
 	 *            of no use
 	 */
 	public static void main(String[] args) {
-		BasicAutomaton automaton = RandomGenerator.createRandomDFA(5, 10);
+		BasicAutomaton automaton = RandomGenerator.createRandomDFA(7, 3);
 		System.out.println(automaton.toDot());
 	}
 

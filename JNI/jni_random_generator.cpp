@@ -29,7 +29,7 @@ using namespace LanguageGenerator;
 
 static DFArandomgenerator RAgen;
 
-JNIEXPORT jobject JNICALL Java_de_libalf_jni_RandomGenerator_createRandomDFA (JNIEnv *env, jclass cl, jint numberOfStates, jint alphabetSize) {
+JNIEXPORT jobject JNICALL Java_de_libalf_jni_RandomGenerator_createRandomDFA_1private (JNIEnv *env, jclass cl, jint numberOfStates, jint alphabetSize) {
 	/*
 	 * Get the random DFA
 	 */
@@ -38,7 +38,7 @@ JNIEXPORT jobject JNICALL Java_de_libalf_jni_RandomGenerator_createRandomDFA (JN
 	multimap<pair<int, int>, int> transitions; 
 	bool is_dfa;
 	int resultNumberOfStates, resultAlphabetSize;
-	RAgen.generate(numberOfStates, alphabetSize, is_dfa, resultAlphabetSize, resultNumberOfStates, initial, final, transitions);
+	RAgen.generate(alphabetSize, numberOfStates, is_dfa, resultAlphabetSize, resultNumberOfStates, initial, final, transitions);
 
 	/*
 	 * Convert to Java Basic Automaton
