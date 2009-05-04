@@ -15,18 +15,8 @@
 #include <map>
 #include <set>
 #include <list>
-#include <vector>
 #include <stack>
 
-#include <iostream>
-
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <stdlib.h>
-
-#include <gmp.h>
 #include <gmpxx.h>
 
 #include <LanguageGenerator/DFArandomgenerator.h>
@@ -184,7 +174,6 @@ bool DFArandomgenerator::generate(int alphabet_size, int state_count, bool &t_is
 
 	// tansform this element into a transition structure
 	list<int>::iterator ni;
-	// cout << "K: ("; for(ni = K.begin(); ni != K.end(); ni++) cout << *ni << " "; cout << ")\n";
 	ni = K.begin();
 	while(!implicit_done || ni == K.end()) {
 		if(ni != K.end()) {

@@ -14,8 +14,6 @@
 #include <LanguageGenerator/regex_randomgenerator.h>
 #include <LanguageGenerator/prng.h>
 
-#include <iostream>
-
 namespace LanguageGenerator {
 
 using namespace std;
