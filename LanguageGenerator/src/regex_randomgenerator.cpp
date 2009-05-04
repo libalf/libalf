@@ -3,7 +3,7 @@
  *
  * LanguageGenerator
  * RegEx Random Generator, similar to the one described in section 4.3 of
- * "F. Denis, A. Lemay and A. Terlutte - Learning regular languages using RFSAs"
+ * [1] "F. Denis, A. Lemay and A. Terlutte - Learning regular languages using RFSAs"
  *
  * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
  *        <david-i2@piegdon.de>
@@ -48,6 +48,7 @@ retry_terminal:
 		}
 	}
 
+	// NOTE: the following lines are the difference to the one descibed in [1]
 	if(num_op == 1)
 		goto retry_terminal;
 
