@@ -56,7 +56,7 @@ int main(int argc, char**argv)
 	nondeterministic_finite_automaton automaton(alphabet_size, regex.c_str(), success);
 
 	if(!success) {
-		cout << "failed to create automaton from regex!\n";
+		cout << "failed to create automaton from regex! RegEx is: \"" << regex << "\"\n";
 		return 1;
 	}
 
