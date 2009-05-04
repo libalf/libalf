@@ -15,9 +15,14 @@
 #include <iostream>
 #include <fstream>
 
+#include <amore++/nondeterministic_finite_automaton.h>
+#include <amore++/deterministic_finite_automaton.h>
+#include <amore++/finite_automaton.h>
+
 #include <LanguageGenerator/regex_randomgenerator.h>
 
 using namespace LanguageGenerator;
+using namespace amore;
 using namespace std;
 
 int main(int argc, char**argv)
@@ -47,7 +52,22 @@ int main(int argc, char**argv)
 
 	regex = rrg.generate(num_op, alphabet_size, p_sigma, peps, pcon, puni, pstar);
 
-	cout << regex << "\n";
+	bool success;
+	nondeterministic_finite_automaton automaton(alphabet_size, regex.c_str(), success);
+
+	if(!success) {
+		cout << "failed to create automaton from regex!\n";
+		return 1;
+	}
+
+	finite_automaton * dfa;
+
+	dfa = automaton.determinize();
+	dfa->minimize();
+
+	printf("NFA has %3d, mDFA has %3d states. RegEx: %s\n", automaton.get_state_count(), dfa->get_state_count(), regex.c_str());
+
+	delete dfa;
 
 	return 0;
 }

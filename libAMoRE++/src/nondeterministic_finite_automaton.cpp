@@ -77,9 +77,9 @@ static void amore_insanitize_regex(char* regex)
 	}
 }}}
 
-nondeterministic_finite_automaton::nondeterministic_finite_automaton(char *rex, bool &success)
+nondeterministic_finite_automaton::nondeterministic_finite_automaton(const char *rex, bool &success)
 {{{
-	char *p;
+	const char *p;
 	char c = 'a';
 	int alphabet_size;
 	regex r;
@@ -112,7 +112,7 @@ nondeterministic_finite_automaton::nondeterministic_finite_automaton(char *rex, 
 		}
 	}
 }}}
-nondeterministic_finite_automaton::nondeterministic_finite_automaton(int alphabet_size, char *rex, bool &success)
+nondeterministic_finite_automaton::nondeterministic_finite_automaton(int alphabet_size, const char *rex, bool &success)
 {{{
 	regex r;
 	char *local_rex = strdup(rex);

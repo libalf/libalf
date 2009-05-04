@@ -73,8 +73,8 @@ class nondeterministic_finite_automaton : public finite_automaton {
 	public:
 		nondeterministic_finite_automaton();
 		nondeterministic_finite_automaton(nfa a);
-		nondeterministic_finite_automaton(char *regex, bool &success);
-		nondeterministic_finite_automaton(int alphabet_size, char *regex, bool &success);
+		nondeterministic_finite_automaton(const char *regex, bool &success);
+		nondeterministic_finite_automaton(int alphabet_size, const char *regex, bool &success);
 
 		virtual ~nondeterministic_finite_automaton();
 
