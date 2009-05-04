@@ -107,6 +107,7 @@ class nondeterministic_finite_automaton : public finite_automaton {
 	// new
 		virtual void set_nfa(nfa a);
 		virtual nfa get_nfa();
+		virtual std::string to_regex();
 	protected:
 		// accepts_suffix will add all epsilon-reachable states to starting_states!
 		virtual bool accepts_suffix(set<int> &starting_states, list<int>::iterator suffix_begin, list<int>::iterator suffix_end);

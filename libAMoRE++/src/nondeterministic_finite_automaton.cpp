@@ -34,6 +34,7 @@
 # include <amore/binary.h>
 # include <amore/rexFromString.h>
 # include <amore/rex2nfa.h>
+# include <amore/nfa2rex.h>
 # include <amore/nfa2mnfa.h>
 
 // attention: stupid amore headers typedef string to be char*
@@ -637,6 +638,28 @@ void nondeterministic_finite_automaton::set_nfa(nfa a)
 nfa nondeterministic_finite_automaton::get_nfa()
 {{{
 	return nfa_p;
+}}}
+
+std::string nondeterministic_finite_automaton::to_regex()
+{{{
+	regex r = nfa2rex(nfa_p);
+
+	std::string s;
+
+	char *p = r->rex;
+	while(*p != 0) {
+		if(*p != ' ') {
+			if(*p == 'U')
+				s += '|';
+			else
+				s += *p;
+		}
+		++p;
+	}
+
+	freerex(r);
+
+	return s;
 }}}
 
 } // end namespace amore

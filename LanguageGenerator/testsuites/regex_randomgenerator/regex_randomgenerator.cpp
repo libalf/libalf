@@ -29,14 +29,21 @@ int main(int argc, char**argv)
 {
 	int alphabet_size;
 	int num_op;
+	bool show_mregex = false;
 
-	if(argc != 3) {
-		cout << "please give <alphabet size> and <operand count> as parameters\n";
+	if(argc != 3 && argc != 4 || (argc == 4 && 0 != strcmp(argv[1], "-r")) ) {
+		cout << "please give <alphabet size> and <operand count> as parameters, possibly prefixed by --rex\n";
 		return 1;
 	}
 
-	alphabet_size = atoi(argv[1]);
-	num_op = atoi(argv[2]);
+	if(argc == 4) {
+		show_mregex = true;
+		alphabet_size = atoi(argv[2]);
+		num_op = atoi(argv[3]);
+	} else {
+		alphabet_size = atoi(argv[1]);
+		num_op = atoi(argv[2]);
+	}
 
 	string regex;
 	regex_randomgenerator rrg;
@@ -65,12 +72,23 @@ int main(int argc, char**argv)
 		return 1;
 	}
 
-	finite_automaton * dfa;
-
+	finite_automaton *dfa;
 	dfa = automaton.determinize();
 	dfa->minimize();
 
-	printf("NFA has %3d, mDFA has %3d states. RegEx: %s\n", automaton.get_state_count(), dfa->get_state_count(), regex.c_str());
+	printf("NFA has %3d, mDFA has %3d states.\n"
+		"\t\tRegEx:  %s\n",
+		automaton.get_state_count(), dfa->get_state_count(), regex.c_str());
+
+	if(show_mregex) {
+		nondeterministic_finite_automaton *nfa;
+
+		nfa = dynamic_cast<nondeterministic_finite_automaton*>(dfa->nondeterminize());
+		string minrex = nfa->to_regex();
+
+		printf("\t\tmRegEx: %s\n", minrex.c_str());
+		delete nfa;
+	}
 
 	delete dfa;
 
