@@ -3,13 +3,15 @@
 
 
 A)
-- a class for random generation of RegEx, NFA, DFA (CK: but perhaps we can speak about that when I am back in Aachen)
+- check NFA random generator
 
 - check undo and increase_alphabet_size() in angluin
 
 - efficient L* algorithm (tree-like)
 
 - documentation (?)
+
+- create new network protocol (similar to JNI) to make switching between JNI and dispatcher easy
 
 - check network/deserialization code for bugs (or make dispatcher obsolete => CK: der darf nicht obsolete werden, da wir das Ganze ja evtl auch auf einem Server laufen lassen wollen)
 
