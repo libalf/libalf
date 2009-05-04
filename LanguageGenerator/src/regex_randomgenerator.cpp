@@ -12,18 +12,84 @@
  */
 
 #include <LanguageGenerator/regex_randomgenerator.h>
+#include <LanguageGenerator/prng.h>
+
+#include <iostream>
 
 namespace LanguageGenerator {
 
 using namespace std;
+using namespace prng;
+
+regex_randomgenerator::regex_randomgenerator()
+{{{
+	seed_prng();
+}}}
 
 string regex_randomgenerator::normalized_generate(int num_op, int & alphabet_size, float p_sigma[], float & p_epsilon, float & p_concat, float & p_union, float & p_star)
-{
+{{{
 	if(num_op <= 0)
 		return "";
 
-	//if(
-}
+	float x, p_sum;
+
+retry_terminal:
+
+	x = random_float();
+	p_sum = 0.;
+
+
+	for(int i = 0; i < alphabet_size; ++i) {
+		p_sum += p_sigma[i];
+		if(x < p_sum) {
+			string s = "";
+			s += (char)('a' + i);
+			return s;
+		}
+	}
+
+	if(num_op == 1)
+		goto retry_terminal;
+
+	p_sum += p_epsilon;
+	if(x < p_sum) {
+		return "";
+	}
+
+	p_sum += p_concat;
+	if(x < p_sum) {
+		string s1,s2;
+		s1 = normalized_generate((num_op+1)/2, alphabet_size, p_sigma, p_epsilon, p_concat, p_union, p_star);
+		s2 = normalized_generate((num_op)/2, alphabet_size, p_sigma, p_epsilon, p_concat, p_union, p_star);
+		if(s1 == "")
+			return s2;
+		if(s2 == "")
+			return s1;
+
+		return s1 + s2;
+	}
+
+	p_sum += p_union;
+	if(x < p_sum) {
+		string s1,s2;
+		s1 = normalized_generate((num_op+1)/2, alphabet_size, p_sigma, p_epsilon, p_concat, p_union, p_star);
+		s2 = normalized_generate((num_op)/2, alphabet_size, p_sigma, p_epsilon, p_concat, p_union, p_star);
+		if(s1 == "")
+			return s2;
+		if(s2 == "")
+			return s1;
+
+		return "(" + s1 + ")|(" + s2 + ")";
+	}
+
+	// p_star in any case (normed to 1)
+	string s;
+	s = normalized_generate(num_op-1, alphabet_size, p_sigma, p_epsilon, p_concat, p_union, p_star);
+	if(s == "")
+		return "";
+
+	return "(" + s + ")*";
+}}}
 
 string regex_randomgenerator::generate(int num_op, int alphabet_size, float p_sigma[], float p_epsilon, float p_concat, float p_union, float p_star)
 {{{
@@ -44,6 +110,10 @@ string regex_randomgenerator::generate(int num_op, int alphabet_size, float p_si
 			return "";
 		p_sum += p_sigma[i];
 	}
+
+	for(int i = 0; i < alphabet_size; i++)
+		p_sigma_norm[i] = p_sigma[i] / p_sum;
+
 	p_epsilon_norm = p_epsilon / p_sum;
 	p_concat_norm = p_concat / p_sum;
 	p_union_norm = p_union / p_sum;

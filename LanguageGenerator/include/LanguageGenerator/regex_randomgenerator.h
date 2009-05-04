@@ -26,6 +26,8 @@ class regex_randomgenerator {
 	private:
 
 	public:
+		regex_randomgenerator();
+
 		// create a random regular expression
 		// the sum of all probablities may be != 1, but >= 0. the algorithm will normalize.
 		string generate(int num_op, int alphabet_size, float p_sigma[], float p_epsilon, float p_concat, float p_union, float p_star);
