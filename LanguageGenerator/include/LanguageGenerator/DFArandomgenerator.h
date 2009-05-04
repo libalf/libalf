@@ -40,7 +40,6 @@ class DFArandomgenerator {
 				mpz_class & getElement(mpz_class t, mpz_class p);
 		};
 	private:
-		gmp_randstate_t grstate;
 		vector<table*> tables;
 	protected:
 		// get table content for m,t,p

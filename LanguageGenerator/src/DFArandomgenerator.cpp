@@ -30,12 +30,13 @@
 #include <gmpxx.h>
 
 #include <LanguageGenerator/DFArandomgenerator.h>
+#include <LanguageGenerator/prng.h>
+
 
 namespace LanguageGenerator {
 
 using namespace std;
-
-
+using namespace LanguageGenerator::prng;
 
 DFArandomgenerator::table::table(int m)
 { this->m = m; }
@@ -71,20 +72,7 @@ mpz_class & DFArandomgenerator::table::getElement(mpz_class t, mpz_class p)
 
 DFArandomgenerator::DFArandomgenerator()
 {{{
-	// seed PRNG: init GMP random number generator state
-	unsigned long int gmp_seed;
-	unsigned int n_seed;
-	int ran;
-
-	ran = open("/dev/urandom", O_RDONLY);
-	read(ran, &gmp_seed, sizeof(gmp_seed));
-	read(ran, &n_seed, sizeof(n_seed));
-	close(ran);
-
-	gmp_randinit_default(grstate);
-	gmp_randseed_ui(grstate, gmp_seed);
-
-	srand(n_seed);
+	seed_prng();
 }}}
 
 DFArandomgenerator::~DFArandomgenerator()
@@ -128,7 +116,7 @@ list<int> DFArandomgenerator::randomElementOfK(int m, mpz_class t, mpz_class p)
 	if(t == 1) {
 		mpz_class Dei, x;
 
-		mpz_urandomm(Dei.get_mpz_t(), grstate, C.get_mpz_t());
+		random_mpz_class(Dei, C);
 		Dei += 1;
 		De = Dei;
 		x = 1;
@@ -139,7 +127,7 @@ list<int> DFArandomgenerator::randomElementOfK(int m, mpz_class t, mpz_class p)
 		ret.push_back(x.get_si());
 		return ret;
 	} else {
-		mpz_urandomm(De.get_mpz_t(), grstate, C.get_mpz_t());
+		random_mpz_class(De, C);
 		De += 1;
 		if((De <= elementOfC(m,t,p-1)) && p > 1) {
 			return randomElementOfK(m,t,p-1);
@@ -159,17 +147,6 @@ void DFArandomgenerator::discard_tables()
 		if(t)
 			delete t;
 	}
-}}}
-
-int my_rand(int limit)
-// will return a random integer in [0,limit]
-{{{
-	float t = RAND_MAX;
-	while(t == RAND_MAX)
-		t = rand();
-	t /= RAND_MAX;
-	t *= limit+1;
-	return (int)t;
 }}}
 
 bool DFArandomgenerator::generate(int alphabet_size, int state_count, bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, std::set<int> &t_initial, std::set<int> &t_final, multimap<pair<int,int>, int> &t_transitions)
@@ -244,7 +221,7 @@ bool DFArandomgenerator::generate(int alphabet_size, int state_count, bool &t_is
 		pair<int, int> trid;
 		trid.first = internal.top();
 		trid.second = current_label.top();
-		t_transitions.insert( pair<pair<int, int>, int>( trid, my_rand(current_state-1)) );
+		t_transitions.insert( pair<pair<int, int>, int>( trid, random_int(current_state)) );
 
 		current_label.top()++;
 
@@ -253,7 +230,7 @@ bool DFArandomgenerator::generate(int alphabet_size, int state_count, bool &t_is
 
 	// pick random set of final states
 	for(current_state = 0; current_state < state_count; ++current_state)
-		if(my_rand(1))
+		if(random_int(2))
 			t_final.insert(current_state);
 
 	// construct and return resulting automaton
