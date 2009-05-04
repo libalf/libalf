@@ -52,6 +52,11 @@ int main(int argc, char**argv)
 
 	regex = rrg.generate(num_op, alphabet_size, p_sigma, peps, pcon, puni, pstar);
 
+	if(regex == "") {
+		cout << "empty regex\n";
+		return 0;
+	}
+
 	bool success;
 	nondeterministic_finite_automaton automaton(alphabet_size, regex.c_str(), success);
 
