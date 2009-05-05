@@ -585,10 +585,9 @@ class angluin_table : public learning_algorithm<answer> {
 		// returns false if table was changed (and thus needs to be filled)
 		virtual bool close()
 		{{{
-			bool not_changed = true;
 			typename table::iterator uti, lti, tmplti;
 
-			for(lti = lower_table.begin(); lti != lower_table.end(); /* -- */) {
+			for(lti = lower_table.begin(); lti != lower_table.end(); lti++) {
 				bool match_found = false;
 
 				for(uti = upper_table.begin(); uti != upper_table.end(); uti++) {
@@ -600,25 +599,11 @@ class angluin_table : public learning_algorithm<answer> {
 				if(!match_found) {
 					// create entry in upper table
 					add_word_to_upper_table(lti->index, false);
-					typename table::iterator last = upper_table.end();
-					last--;
-					// copy acceptance status for that row
-					swap(last->acceptance, lti->acceptance);
-					// go to next and delete old lower entry
-					tmplti = lti;
-					tmplti++;
-					//lti.erase();
-					lower_table.erase(lti);
-					lti = tmplti;
-
-					not_changed = false;
-				} else {
-					// go to next
-					lti++;
+					return false;
 				}
 			}
 
-			return not_changed;
+			return true;
 		}}}
 
 		//  for all _equal_ rows in upper table: all +1 successors over all
@@ -749,11 +734,9 @@ class angluin_table : public learning_algorithm<answer> {
 									w1_acc_it = w1_succ->acceptance.begin();
 									w2_acc_it = w2_succ->acceptance.begin();
 
-
 									while(w1_acc_it != w1_succ->acceptance.end()) {
 										if(*w1_acc_it != *w2_acc_it) {
 											list<int> newsuffix;
-
 											// generate and add suffix
 											newsuffix = *ci;
 											newsuffix.push_front(sigma);
