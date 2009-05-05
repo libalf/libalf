@@ -32,7 +32,8 @@ int main(int argc, char**argv)
 	bool show_mregex = false;
 
 	if(argc != 3 && argc != 4 || (argc == 4 && 0 != strcmp(argv[1], "-r")) ) {
-		cout << "please give <alphabet size> and <operand count> as parameters, possibly prefixed by --rex\n";
+		cout << "please give <alphabet size> and <operand count> as parameters,\n"
+			"possibly prefixed by -r to see the regex derived from the mDFA\n";
 		return 1;
 	}
 
