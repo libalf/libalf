@@ -29,9 +29,6 @@ int main(int argc, char**argv)
 	int alphabet_size;
 	int state_count;
 
-	list<int> K;
-	list<int>::iterator ki;
-
 	if(argc != 3) {
 		cout << "please give <alphabet size> and <state count> as parameters\n";
 		return 1;
@@ -51,9 +48,9 @@ int main(int argc, char**argv)
 		cout << "generator returned false. bad parameters?\n";
 		return 1;
 	}
-	finite_automaton * automaton = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
 
-	if(!automaton) {
+	finite_automaton * dfa = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
+	if(!dfa) {
 		printf("construction failed\n");
 		return -1;
 	}
@@ -61,18 +58,18 @@ int main(int argc, char**argv)
 	ofstream file;
 
 	file.open("random-f.dot");
-	file << automaton->generate_dotfile();
+	file << dfa->generate_dotfile();
 	file.close();
 
-	automaton->minimize();
+	dfa->minimize();
 
 	file.open("random-m.dot");
-	file << automaton->generate_dotfile();
+	file << dfa->generate_dotfile();
 	file.close();
 
-	printf("alphabet size %2d state count %2d mdfa size %2d\n", alphabet_size, state_count, automaton->get_state_count());
+	printf("alphabet size %2d state count %2d mdfa size %2d\n", alphabet_size, state_count, dfa->get_state_count());
 
-	delete automaton;
+	delete dfa;
 
 	return 0;
 }
