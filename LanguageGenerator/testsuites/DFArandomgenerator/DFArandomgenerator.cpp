@@ -15,8 +15,6 @@
 #include <iostream>
 #include <fstream>
 
-#include <gmpxx.h>
-
 #include <LanguageGenerator/DFArandomgenerator.h>
 #include <amore++/finite_automaton.h>
 
@@ -30,8 +28,6 @@ int main(int argc, char**argv)
 
 	int alphabet_size;
 	int state_count;
-
-	mpz_class c;
 
 	list<int> K;
 	list<int>::iterator ki;
