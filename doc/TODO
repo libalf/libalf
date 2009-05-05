@@ -3,7 +3,6 @@
 
 
 A)
-- check NFA random generator
 
 - check undo and increase_alphabet_size() in angluin
 
