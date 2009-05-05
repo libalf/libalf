@@ -51,6 +51,7 @@ string finite_automaton::generate_dotfile()
 	std::set<int32_t> initial, final;
 	std::set<int32_t>::iterator sti;
 
+	int state_count;
 	bool header_written;
 	char buf[128];
 
@@ -70,7 +71,11 @@ string finite_automaton::generate_dotfile()
 	si++; // skip length field
 
 	si++; // skip alphabet size
-	si++; // skip state count
+
+	// state count
+	state_count = ntohl(*si);
+	si++;
+
 	// number of initial states
 	n = ntohl(*si);
 	si++;
@@ -98,14 +103,40 @@ string finite_automaton::generate_dotfile()
 			ret += "\tnode [shape=doublecircle, style=\"\", color=black];";
 			header_written = true;
 		}
-		snprintf(buf, 128, " S%d", *sti);
+		snprintf(buf, 128, " q%d", *sti);
 		ret += buf;
 	}
 	if(header_written)
-		ret += "\n";
+		ret += ";\n";
 
 	// default
-	ret += "\tnode [shape=circle, style=\"\", color=black];\n";
+	ret += "\tnode [shape=circle, style=\"\", color=black];";
+	for(int s = 0; s < state_count; s++){
+		if(final.find(s) == final.end()) {
+			snprintf(buf, 128, " q%d", s);
+			ret += buf;
+		}
+	}
+	ret += ";\n";
+
+	// add non-visible states for arrows to initial states
+	header_written = false;
+	for(sti = initial.begin(); sti != initial.end(); ++sti) {
+		if(!header_written) {
+			ret += "\tnode [shape=plaintext, label=\"\", style=\"\"];";
+			header_written = true;
+		}
+		snprintf(buf, 128, " iq%d", *sti);
+		ret += buf;
+	}
+	if(header_written)
+		ret += ";\n";
+
+	// and arrows to mark initial states
+	for(sti = initial.begin(); sti != initial.end(); ++sti) {
+		snprintf(buf, 128, "\tiq%d -> q%d [ color = blue ];\n", *sti, *sti);
+		ret += buf;
+	}
 
 	// transitions
 	while(si != serialized.end()) {
@@ -117,28 +148,9 @@ string finite_automaton::generate_dotfile()
 		dst = ntohl(*si);
 		si++;
 		if(label != -1)
-			snprintf(buf, 128, "\tS%d -> S%d [ label = \"%d\" ];\n", src, dst, label);
+			snprintf(buf, 128, "\tq%d -> q%d [ label = \"%d\" ];\n", src, dst, label);
 		else
-			snprintf(buf, 128, "\tS%d -> S%d;\n", src, dst);
-		ret += buf;
-	}
-
-	// add non-visible states for arrows to initial states
-	header_written = false;
-	for(sti = initial.begin(); sti != initial.end(); ++sti) {
-		if(!header_written) {
-			ret += "\n\tnode [shape=plaintext, label=\"\", style=\"\"];";
-			header_written = true;
-		}
-		snprintf(buf, 128, " iS%d", *sti);
-		ret += buf;
-	}
-	if(header_written)
-		ret += "\n";
-
-	// and arrows to mark initial states
-	for(sti = initial.begin(); sti != initial.end(); ++sti) {
-		snprintf(buf, 128, "\tiS%d -> S%d [ color = blue ];\n", *sti, *sti);
+			snprintf(buf, 128, "\tq%d -> q%d;\n", src, dst);
 		ret += buf;
 	}
 

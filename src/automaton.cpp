@@ -42,14 +42,40 @@ string automaton2dotfile(int alphabet_size, int state_count, set<int> & initial,
 			ret += "\tnode [shape=doublecircle, style=\"\", color=black];";
 			header_written = true;
 		}
-		snprintf(buf, 128, " S%d", *sti);
+		snprintf(buf, 128, " q%d", *sti);
 		ret += buf;
 	}
 	if(header_written)
-		ret += "\n";
+		ret += ";\n";
 
 	// default
-	ret += "\tnode [shape=circle, style=\"\", color=black];\n";
+	ret += "\tnode [shape=circle, style=\"\", color=black]";
+	for(int s = 0; s < state_count; s++) {
+		if(final.find(s) == final.end()) {
+			snprintf(buf, 128, " q%d", s);
+			ret += buf;
+		}
+	}
+	ret += ";\n";
+
+	// add non-visible states for arrows to initial states
+	header_written = false;
+	for(sti = initial.begin(); sti != initial.end(); ++sti) {
+		if(!header_written) {
+			ret += "\tnode [shape=plaintext, label=\"\", style=\"\"];";
+			header_written = true;
+		}
+		snprintf(buf, 128, " iq%d", *sti);
+		ret += buf;
+	}
+	if(header_written)
+		ret += ";\n";
+
+	// and arrows to mark initial states
+	for(sti = initial.begin(); sti != initial.end(); ++sti) {
+		snprintf(buf, 128, "\tiq%d -> q%d [ color = blue ];\n", *sti, *sti);
+		ret += buf;
+	}
 
 	// transitions
 	multimap<pair<int, int>, int>::iterator ti, tj;
@@ -62,27 +88,8 @@ string automaton2dotfile(int alphabet_size, int state_count, set<int> & initial,
 				continue;
 		}
 
-		snprintf(buf, 64, "\tS%d -> S%d [ label = \"%d\" ];\n", ti->first.first, ti->first.second, ti->second);
+		snprintf(buf, 64, "\tq%d -> q%d [ label = \"%d\" ];\n", ti->first.first, ti->first.second, ti->second);
 		buf[63] = 0;
-		ret += buf;
-	}
-
-	// add non-visible states for arrows to initial states
-	header_written = false;
-	for(sti = initial.begin(); sti != initial.end(); ++sti) {
-		if(!header_written) {
-			ret += "\n\tnode [shape=plaintext, label=\"\", style=\"\"];";
-			header_written = true;
-		}
-		snprintf(buf, 128, " iS%d", *sti);
-		ret += buf;
-	}
-	if(header_written)
-		ret += "\n";
-
-	// and arrows to mark initial states
-	for(sti = initial.begin(); sti != initial.end(); ++sti) {
-		snprintf(buf, 128, "\tiS%d -> S%d [ color = blue ];\n", *sti, *sti);
 		ret += buf;
 	}
 
