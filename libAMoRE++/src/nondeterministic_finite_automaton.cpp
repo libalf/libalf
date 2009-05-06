@@ -341,7 +341,7 @@ bool nondeterministic_finite_automaton::contains(list<int> &word)
 {{{
 	if(nfa_p) {
 		std::set<int> initial_states;
-		for(unsigned int s = 0; s < nfa_p->highest_state; s++)
+		for(unsigned int s = 0; s <= nfa_p->highest_state; s++)
 			if(isinit(nfa_p->infin[s]))
 				initial_states.insert(s);
 		return accepts_suffix(initial_states, word.begin(), word.end());
