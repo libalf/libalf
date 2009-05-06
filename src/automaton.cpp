@@ -49,7 +49,7 @@ string automaton2dotfile(int alphabet_size, int state_count, set<int> & initial,
 		ret += ";\n";
 
 	// default
-	ret += "\tnode [shape=circle, style=\"\", color=black]";
+	ret += "\tnode [shape=circle, style=\"\", color=black];";
 	for(int s = 0; s < state_count; s++) {
 		if(final.find(s) == final.end()) {
 			snprintf(buf, 128, " q%d", s);
