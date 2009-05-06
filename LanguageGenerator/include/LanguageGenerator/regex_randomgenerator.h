@@ -30,9 +30,9 @@ class regex_randomgenerator {
 
 		// create a random regular expression
 		// the sum of all probablities may be != 1, but >= 0. the algorithm will normalize.
-		string generate(int num_op, int alphabet_size, float p_sigma[], float p_epsilon, float p_concat, float p_union, float p_star);
+		string generate(int alphabet_size, int num_op, float p_concat, float p_union, float p_star);
 		// this version expects normalized probablilities
-		string normalized_generate(int num_op, int & alphabet_size, float p_sigma[], float & p_epsilon, float & p_concat, float & p_union, float & p_star);
+		string normalized_generate(int & alphabet_size, int num_op, float & p_concat, float & p_union, float & p_star);
 };
 
 }; // end of namespace LanguageGenerator

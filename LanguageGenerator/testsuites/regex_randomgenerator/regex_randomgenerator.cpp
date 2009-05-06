@@ -49,16 +49,13 @@ int main(int argc, char**argv)
 	string regex;
 	regex_randomgenerator rrg;
 
-	float p_sigma[alphabet_size];
 	float peps, pcon, puni, pstar;
-	for(int i = 0; i < alphabet_size; i++)
-		p_sigma[i] = 5./alphabet_size;
 	peps = 2;
 	pcon = 50;
 	puni = 25;
 	pstar = 13;
 
-	regex = rrg.generate(num_op, alphabet_size, p_sigma, peps, pcon, puni, pstar);
+	regex = rrg.generate(alphabet_size, num_op, pcon, puni, pstar);
 
 	if(regex == "") {
 		cout << "empty regex\n";

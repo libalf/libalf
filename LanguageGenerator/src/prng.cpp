@@ -71,7 +71,9 @@ namespace prng {
 	float random_float()
 	// will return a random float [0,1)
 	{{{
-		return ((float)rand()) / ((float)RAND_MAX+1);
+		float r = rand();
+		r /= ((float)RAND_MAX)+1;
+		return r;
 	}}}
 
 	float random_float1()
