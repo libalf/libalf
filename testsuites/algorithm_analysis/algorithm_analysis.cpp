@@ -77,8 +77,6 @@ int main(int argc, char**argv)
 		for(method = 0; method <= 2; method++) {
 			for(model_size = min_msize; model_size <= max_msize; model_size += model_size_step) {
 				for(testcase_index = 0; testcase_index < num_testcases; ++testcase_index) {
-					log(LOGGER_INFO, "completed %5.1f%% [model %d/%d] (current alphabet size %d, method %d, model size %d)   \r",
-							(float)model_index / max_model_index * 100, model_index, max_model_index, alphabet_size, method, model_size);
 					// construct automaton according to method
 					finite_automaton * model;
 
@@ -143,6 +141,9 @@ int main(int argc, char**argv)
 					// }}}
 
 					int stat_size_mDFA = model->get_state_count();
+
+					log(LOGGER_INFO, "completed %5.1f%% [model %d/%d size %d] (current alphabet size %d, method %d, model size %d)   \r",
+							(float)model_index / max_model_index * 100, model_index, max_model_index, stat_size_mDFA , alphabet_size, method, model_size);
 
 					// learn model with different algorithms
 					learning_algorithm<bool> * alg;
