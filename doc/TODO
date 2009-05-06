@@ -4,13 +4,6 @@
 
 A)
 
-- stats mit: {NFA,DFA,RegEx} asize={2,3}
-	- learned by angluin, angluin_col, NL*
-	- mRFSA, mDFA. size(automaton)?
-	- membership qry. und equiv qry.?
-
-	output like gnuplot
-
 - check undo and increase_alphabet_size() in angluin
 
 - efficient L* algorithm (tree-like)
