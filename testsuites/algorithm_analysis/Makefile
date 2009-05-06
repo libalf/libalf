@@ -17,19 +17,19 @@ clean: nodata
 
 nodata:
 	-rm *.dot
-	-rm statistics stats_a2m0 stats_a2m1 statS_a2m2 stats_a3m0 stats_a3m1 statS_a3m2 stats_a4m0 stats_a4m1 statS_a4m2
+	-rm statistics stats_a2m0 stats_a2m1 stats_a2m2 stats_a3m0 stats_a3m1 stats_a3m2 stats_a4m0 stats_a4m1 stats_a4m2
 	-rm *.jpg
 
 plot:
 	gawk '/^[^ ]+ 2 0/ { print $0 }' statistics > stats_a2m0
 	gawk '/^[^ ]+ 2 1/ { print $0 }' statistics > stats_a2m1
-	gawk '/^[^ ]+ 2 2/ { print $0 }' statistics > statS_a2m2
+	gawk '/^[^ ]+ 2 2/ { print $0 }' statistics > stats_a2m2
 	gawk '/^[^ ]+ 3 0/ { print $0 }' statistics > stats_a3m0
 	gawk '/^[^ ]+ 3 1/ { print $0 }' statistics > stats_a3m1
-	gawk '/^[^ ]+ 3 2/ { print $0 }' statistics > statS_a3m2
+	gawk '/^[^ ]+ 3 2/ { print $0 }' statistics > stats_a3m2
 	gawk '/^[^ ]+ 4 0/ { print $0 }' statistics > stats_a4m0
 	gawk '/^[^ ]+ 4 1/ { print $0 }' statistics > stats_a4m1
-	gawk '/^[^ ]+ 4 2/ { print $0 }' statistics > statS_a4m2
+	gawk '/^[^ ]+ 4 2/ { print $0 }' statistics > stats_a4m2
 	gnuplot plot.conf
 
 run:
