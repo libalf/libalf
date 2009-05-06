@@ -74,8 +74,8 @@ int main(int argc, char**argv)
 	for(alphabet_size = min_asize; alphabet_size <= max_asize; ++alphabet_size) {
 		for(model_size = min_msize; model_size <= max_msize; ++model_size) {
 			for(testcase_index = 0; testcase_index < num_testcases; ++testcase_index) {
-				log(LOGGER_INFO, "completion %5.1f%%\r", (float)model_index / max_model_index * 100);
 				for(method = 0; method <= 2; method++) {
+					log(LOGGER_INFO, "completion %5.1f%%\r", (float)model_index / max_model_index * 100);
 					// construct automaton according to method
 					finite_automaton * model;
 
