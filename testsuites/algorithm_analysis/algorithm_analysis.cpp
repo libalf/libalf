@@ -37,15 +37,16 @@ using namespace LanguageGenerator;
 
 int main(int argc, char**argv)
 {
-	int num_testcases, min_msize, max_msize, min_asize, max_asize;
+	int num_testcases, min_msize, max_msize, min_asize, max_asize, model_size_step;
 
-	if(argc != 6) {
+	if(argc != 7) {
 		cout << "please give the following parameters:\n"
 			"\t1: number of testcase per construction method, alphabet size and model size\n"
 			"\t2: minimal alphabet size\n"
 			"\t3: maximal alphabet size\n"
 			"\t4: minimal model size\n"
-			"\t5: maximal model size\n";
+			"\t5: maximal model size\n"
+			"\t6: model size steps\n";
 		return 1;
 	}
 
@@ -54,6 +55,7 @@ int main(int argc, char**argv)
 	max_asize = atoi(argv[3]);
 	min_msize = atoi(argv[4]);
 	max_msize = atoi(argv[5]);
+	model_size_step = atoi(argv[6]);
 
 	DFArandomgenerator dfa_rg;
 	NFArandomgenerator nfa_rg;
@@ -69,13 +71,14 @@ int main(int argc, char**argv)
 	char logline[1024];
 	ofstream statfile;
 	statfile.open("statistics");
-	statfile << "# model_index alphabet_size stat_size_model stat_size_mDFA stat_size_RFSA  L*-membership L*-uniq_membership L*-equivalence  L*col-membership L*col-uniq_membership L*col-equivalence  NL*-membership NL*-uniq_membership NL*-equivalence\n";
+	statfile << "# model_index alphabet_size method model_size mDFA_size RFSA_size - L*-membership L*-uniq_membership L*-equivalence - L*col-membership L*col-uniq_membership L*col-equivalence - NL*-membership NL*-uniq_membership NL*-equivalence\n";
 
 	for(alphabet_size = min_asize; alphabet_size <= max_asize; ++alphabet_size) {
-		for(model_size = min_msize; model_size <= max_msize; ++model_size) {
-			for(testcase_index = 0; testcase_index < num_testcases; ++testcase_index) {
-				for(method = 0; method <= 2; method++) {
-					log(LOGGER_INFO, "completion %5.1f%%\r", (float)model_index / max_model_index * 100);
+		for(method = 0; method <= 2; method++) {
+			for(model_size = min_msize; model_size <= max_msize; model_size += model_size_step) {
+				for(testcase_index = 0; testcase_index < num_testcases; ++testcase_index) {
+					log(LOGGER_INFO, "completed %5.1f%% [model %d/%d] (current alphabet size %d, method %d, model size %d)   \r",
+							(float)model_index / max_model_index * 100, model_index, max_model_index, alphabet_size, method, model_size);
 					// construct automaton according to method
 					finite_automaton * model;
 
@@ -188,15 +191,15 @@ int main(int argc, char**argv)
 					}
 
 					// save stats:
-					//		model_index alphabet_size stat_size_model stat_size_mDFA stat_size_RFSA
+					//		model_index alphabet_size method model_size mDFA_size RFSA_size
 					// (L* stats)
-					//		membership uniq_membership equivalence
+					//		- membership uniq_membership equivalence
 					// (L*_col stats)
-					//		membership uniq_membership equivalence
+					//		- membership uniq_membership equivalence
 					// (NL* stats)
-					//		membership uniq_membership equivalence
-					snprintf(logline, 1024, "%d %d %d %d %d  %d %d %d  %d %d %d  %d %d %d\n",
-							model_index, alphabet_size, stat_size_model, stat_size_mDFA, stat_size_RFSA,
+					//		- membership uniq_membership equivalence
+					snprintf(logline, 1024, "%d %d %d %d %d %d - %d %d %d - %d %d %d - %d %d %d\n",
+							model_index, alphabet_size, method, stat_size_model, stat_size_mDFA, stat_size_RFSA,
 							stats[0].query_count.membership, stats[0].query_count.uniq_membership, stats[0].query_count.equivalence,
 							stats[1].query_count.membership, stats[1].query_count.uniq_membership, stats[1].query_count.equivalence,
 							stats[2].query_count.membership, stats[2].query_count.uniq_membership, stats[1].query_count.equivalence
@@ -208,8 +211,8 @@ int main(int argc, char**argv)
 					model_index++;
 				}
 			}
+			dfa_rg.discard_tables();
 		}
-		dfa_rg.discard_tables();
 	}
 
 	log(LOGGER_INFO, "done. thanks for your (non)attention :-)\n");
