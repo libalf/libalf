@@ -115,7 +115,7 @@ model_too_big:
 						// 2 == RegEx
 						std::string regex;
 						bool success;
-						regex = regex_rg.generate(alphabet_size, model_size, 50, 25, 13);
+						regex = regex_rg.generate(alphabet_size, model_size, 0.556, 0.278, 0.166);
 						model = new nondeterministic_finite_automaton(alphabet_size, regex.c_str(), success);
 						if(!success) {
 							cout << "failed to construct NFA from regex!\n";

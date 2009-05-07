@@ -49,8 +49,7 @@ int main(int argc, char**argv)
 	string regex;
 	regex_randomgenerator rrg;
 
-	float peps, pcon, puni, pstar;
-	peps = 2;
+	float pcon, puni, pstar;
 	pcon = 50;
 	puni = 25;
 	pstar = 13;
