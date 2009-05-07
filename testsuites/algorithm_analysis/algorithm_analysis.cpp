@@ -66,7 +66,7 @@ int main(int argc, char**argv)
 	int model_index = 0;
 	int max_model_index = num_testcases * (max_asize - min_asize + 1) * (max_msize - min_msize + 1) * 3 /* 3 different kinds of model generation */ - 1;
 
-	ostream_logger log(&cout, LOGGER_INFO);
+	ostream_logger log(&cout, LOGGER_DEBUG);
 	knowledgebase<bool> base;
 	char logline[1024];
 	ofstream statfile;
@@ -85,6 +85,8 @@ int main(int argc, char**argv)
 					std::set<int> f_initial, f_final;
 					multimap<pair<int,int>, int> f_transitions;
 
+model_too_big:
+
 					// {{{ construct model
 					if(method != 2) {
 						if(method == 0) {
@@ -94,6 +96,7 @@ int main(int argc, char**argv)
 								cout << "failed to generate random DFA!\n";
 								return 1;
 							}
+							dfa_rg.discard_tables(); // we need space
 						} else {
 							// 1 == NFA
 							if(!nfa_rg.generate(alphabet_size, model_size, 2, 0.5, 0.5,
@@ -110,7 +113,7 @@ int main(int argc, char**argv)
 						}
 					} else {
 						// 2 == RegEx
-						string regex;
+						std::string regex;
 						bool success;
 						regex = regex_rg.generate(alphabet_size, model_size, 50, 25, 13);
 						model = new nondeterministic_finite_automaton(alphabet_size, regex.c_str(), success);
@@ -142,6 +145,11 @@ int main(int argc, char**argv)
 
 					int stat_size_mDFA = model->get_state_count();
 
+					if(stat_size_mDFA > max_msize * 3) {
+						delete model;
+						goto model_too_big;
+					}
+
 					log(LOGGER_INFO, "completed %5.1f%% [model %d/%d size %d] (current alphabet size %d, method %d, model size %d)   \r",
 							(float)model_index / max_model_index * 100, model_index, max_model_index, stat_size_mDFA , alphabet_size, method, model_size);
 
@@ -152,7 +160,6 @@ int main(int argc, char**argv)
 					int stat_size_RFSA;
 
 					for(int learner = 0; learner <= 2; learner++) {
-						log(LOGGER_DEBUG, "model size %d, learner %s\n", model_size, learner == 0 ? "L*" : learner == 1 ? "L*_col" : "NL*");
 						base.clear();
 						base.set_statistics(&(stats[learner]));
 						switch (learner) {
@@ -176,7 +183,9 @@ int main(int argc, char**argv)
 
 							list<int> counterexample;
 							stats[learner].query_count.equivalence++;
+							log(LOGGER_DEBUG, "eq query. \r");
 							if(amore_alf_glue::automaton_equivalence_query(*model, *hypothesis, counterexample)) {
+							log(LOGGER_DEBUG, "completed \r");
 								equal = true;
 								if(learner == 2)
 									stat_size_RFSA = hypothesis->get_state_count();
@@ -212,7 +221,6 @@ int main(int argc, char**argv)
 					model_index++;
 				}
 			}
-			dfa_rg.discard_tables();
 		}
 	}
 
