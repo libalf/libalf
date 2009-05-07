@@ -28,7 +28,7 @@
 #include <amore++/deterministic_finite_automaton.h>
 #include <amore++/finite_automaton.h>
 
-#include "amore_alf_glue.h"
+#include "local_amore_alf_glue.h"
 
 using namespace std;
 using namespace libalf;
