@@ -1,6 +1,20 @@
 
 (priority ordered)
 
+* Serialize und Deserialize für Tuple-Automaten
+
+* (Human) Read / Write
+	[general]
+	is dfa=true
+	alphabet size=4
+	number of states=5
+	[initial states]
+	...
+	[final states]
+	...
+	[transitions]
+	q,l,q
+	...
 
 A)
 
