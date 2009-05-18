@@ -7,8 +7,8 @@ import java.util.LinkedList;
  * A {@link java.util.LinkedList} of words.
  * </p>
  * <p>
- * A <code>WordList</code> is returned by {@link Knowledgebase#getQueries()} and can be used
- * as any other {@link java.util.Collection}.
+ * A <code>WordList</code> is returned by {@link Knowledgebase#getQueries()} and
+ * can be used as any other {@link java.util.Collection}.
  * </p>
  * 
  * @author Daniel Neider (<a
