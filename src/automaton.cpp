@@ -21,6 +21,29 @@ namespace libalf {
 
 using namespace std;
 
+bool is_deterministic(int alphabet_size, int state_count, set<int> & initial, set<int> & final, multimap<pair<int, int>, int> & transitions)
+{{{
+	// check transitions for epsilon and double transitions
+	multimap<pair<int, int>, int>::iterator tri;
+
+	pair<int, int> former;
+	former.first = -1;
+	former.second = -1;
+	for(tri = transitions.begin(); tri != transitions.end(); ++tri) {
+		// two transitions with same (source,label) ?
+		if(former == tri->first)
+			return false;
+
+		// epsilon transition?
+		if(tri->first.second == -1)
+			return false;
+
+		former = tri->first;
+	}
+
+	return true;
+}}}
+
 string automaton2dotfile(int alphabet_size, int state_count, set<int> & initial, set<int> & final, multimap<pair<int, int>, int> & transitions)
 {{{
 	string ret;
@@ -99,6 +122,55 @@ string automaton2dotfile(int alphabet_size, int state_count, set<int> & initial,
 	return ret;
 }}}
 
+bool read_automaton(string input, bool is_dfa, int & alphabet_size, int & state_count, set<int> & initial, set<int> & final, multimap<pair<int, int>, int> & transitions)
+{
+	
+}
+
+string write_automaton(bool is_dfa, int & alphabet_size, int & state_count, set<int> & initial, set<int> & final, multimap<pair<int, int>, int> & transitions)
+{{{
+	string ret;
+	char buf[256];
+	set<int>::iterator si;
+	multimap<pair<int, int>, int>::iterator tri;
+	bool first_komma;
+
+	snprintf(buf, 256, "[general]\n"
+			   "\tis dfa = %s\n"
+			   "\talphabet size = %d\n"
+			   "\tnumber of states = %d\n"
+			   "[initial states]\n",
+			is_dfa ? "true" : "false", alphabet_size, state_count);
+	ret += buf;
+
+	first_komma = true;
+	for(si = initial.begin(); si != initial.end(); si++) {
+		snprintf(buf, 256, "%s%d", first_komma ? "\t" : ", ", *si);
+		first_komma = false;
+		ret += buf;
+	}
+
+	ret += "\n[final states]\n";
+
+	first_komma = true;
+	for(si = final.begin(); si != final.end(); si++) {
+		snprintf(buf, 256, "%s%d", first_komma ? "\t" : ", ", *si);
+		first_komma = false;
+		ret += buf;
+	}
+
+	ret += "\n[transitions]\n";
+
+	for(tri = transitions.begin(); tri != transitions.end(); tri++) {
+		snprintf(buf, 256, "\t%d, %d, %d\n", tri->first.first, tri->first.second, tri->second);
+		ret += buf;
+	}
+
+	ret += buf;
+
+	return ret;
+}}}
+
 basic_string<int32_t> serialize_automaton(int alphabet_size, int state_count, set<int> & initial, set<int> & final, multimap<pair<int, int>, int> & transitions)
 {{{
 	basic_string<int32_t> ret;
@@ -123,6 +195,94 @@ basic_string<int32_t> serialize_automaton(int alphabet_size, int state_count, se
 	ret[0] = htonl(ret.length() - 1);
 
 	return ret;
+}}}
+
+bool deserialize_automaton(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit,
+			int & alphabet_size, int & state_count, set<int> & initial, set<int> & final, multimap<pair<int, int>, int> & transitions)
+{{{
+	int size;
+	int count;
+	int s,q;
+
+	initial.clear();
+	final.clear();
+	transitions.clear();
+
+	if(limit == it)
+		goto deserialization_failed_fast;
+
+	size = ntohl(*it);
+
+	// alphabet size
+	it++; if(size <= 0 || limit == it) goto deserialization_failed_fast;
+	alphabet_size = ntohl(*it);
+
+	// state count
+	size--, it++; if(size <= 0 || limit == it) goto deserialization_failed_fast;
+	state_count = ntohl(*it);
+
+	// initial states
+	size--, it++; if(size <= 0 || limit == it) goto deserialization_failed_fast;
+	count = ntohl(*it);
+
+	for(s = 0; s < count; s++) {
+		size--, it++; if(size <= 0 || limit == it) goto deserialization_failed;
+		q = ntohl(*it);
+		if(q >= state_count)
+			goto deserialization_failed;
+		initial.insert(q);
+	}
+
+	// final states
+	size--, it++; if(size <= 0 || limit == it) goto deserialization_failed;
+	count = ntohl(*it);
+
+	for(s = 0; s < count; s++) {
+		size--, it++; if(size <= 0 || limit == it) goto deserialization_failed;
+		q = ntohl(*it);
+		if(q >= state_count)
+			goto deserialization_failed;
+		final.insert(q);
+	}
+
+	// transitions
+	size--, it++; if(size <= 0 || limit == it) goto deserialization_failed;
+	count = ntohl(*it);
+
+	for(s = 0; s < count; s++) {
+		int32_t src,label,dst;
+
+		size--, it++; if(size <= 0 || limit == it) goto deserialization_failed;
+		src = ntohl(*it);
+		size--, it++; if(size <= 0 || limit == it) goto deserialization_failed;
+		label = ntohl(*it);
+		size--, it++; if(size <= 0 || limit == it) goto deserialization_failed;
+		dst = ntohl(*it);
+
+		if( (label < -1) || (label >= alphabet_size) || (src < 0) || (src >= state_count) || (dst < 0) || (dst >= state_count) )
+			goto deserialization_failed;
+
+		pair<int, int> trid;
+		trid.first = src;
+		trid.second = label;
+		transitions.insert( pair<pair<int, int>, int>( trid, dst ) );
+	}
+
+	size--, it++;
+
+	if(size != 0)
+		goto deserialization_failed;
+
+	return true;
+
+deserialization_failed:
+	initial.clear();
+	final.clear();
+	transitions.clear();
+deserialization_failed_fast:
+	alphabet_size = 0;
+	state_count = 0;
+	return false;
 }}}
 
 }; // end of namespace libalf
