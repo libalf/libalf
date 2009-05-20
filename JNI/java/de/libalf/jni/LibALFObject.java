@@ -34,6 +34,8 @@ public abstract class LibALFObject {
 		System.loadLibrary("alf_jni");
 	}
 
+	public static final String JNI_BINDING_VERSION = "JNI binding version 0.9";
+
 	/**
 	 * Stores the reference of the C++ object.
 	 */
@@ -48,4 +50,14 @@ public abstract class LibALFObject {
 		return this.pointer;
 	}
 
+	/**
+	 * Returns the LibALF and JNI binding versions.
+	 * 
+	 * @return the LibALF and JNI binding versions.
+	 */
+	public static String getVersion() {
+		return getLibALFVersion() + " / " + JNI_BINDING_VERSION;
+	}
+
+	public static native String getLibALFVersion();
 }
