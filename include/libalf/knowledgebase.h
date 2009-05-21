@@ -199,7 +199,7 @@ class knowledgebase {
 
 					while(infix_start != infix_limit && n != NULL) {
 						n = n->find_child(*infix_start);
-						infix_start++;
+						++infix_start;
 					}
 
 					return n;
@@ -231,7 +231,7 @@ class knowledgebase {
 
 					while(infix_start != infix_limit && n != NULL) {
 						n = n->find_or_create_child(*infix_start);
-						infix_start++;
+						++infix_start;
 					}
 
 					return n;
