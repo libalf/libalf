@@ -148,11 +148,16 @@ class angluin_tree : public learning_algorithm<answer> {
 		{ return false; }
 		virtual basic_string<int32_t> serialize()
 		{
+			basic_string<int32_t> ret;
+			// FIXME
 			
+			return ret;
 		}
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 		{
+			// FIXME
 			
+			return false;
 		}
 		virtual void print(ostream &os)
 		{{{
@@ -160,20 +165,25 @@ class angluin_tree : public learning_algorithm<answer> {
 		}}}
 		virtual string tostring()
 		{
+			string s;
+			// FIXME
 			
+			return s;
 		}
 		virtual bool conjecture_ready()
 		{{{
 			return (pending.size() == 0 && is_closed() && is_consistent());
 		}}}
-		virtual void add_counterexample(list<int>)
+		virtual void add_counterexample(list<int> c)
 		{
-			
+			// NOTE: in opposite to angluin table, besides adding c and all its prefixes
+			//       we also add a distinguishing suffix.
 		}
 
 	protected:
-		void new_candidate(typename knowledgebase<answer>::node* word, bool is_state)
+		bool new_candidate(typename knowledgebase<answer>::node* word, bool is_state)
 		// create new candidate or make existing a state candidate etc.
+		// returns false if candidate was already known.
 		{{{
 			typename map<typename knowledgebase<answer>::node*, candidate*>::iterator ci;
 			ci = candidates.find(word);
@@ -188,6 +198,8 @@ class angluin_tree : public learning_algorithm<answer> {
 				if(is_state)
 					for(int sigma = 0; sigma < this->get_alphabet_size(); sigma++)
 						new_candidate(word->find_or_create_child(sigma), false);
+
+				return true;
 			} else {
 				// candidate already exists
 				if(is_state && !ci->second->is_state) {
@@ -197,6 +209,8 @@ class angluin_tree : public learning_algorithm<answer> {
 					for(int sigma = 0; sigma < this->get_alphabet_size(); sigma++)
 						new_candidate(word->find_or_create_child(sigma), false);
 				}
+
+				return false;
 			}
 		}}}
 
@@ -274,7 +288,7 @@ class angluin_tree : public learning_algorithm<answer> {
 			return transitions.empty();
 		}}}
 		bool close() // returns false if table was changed.
-		{
+		{{{
 			// for each non-state candidate check if there is a state-candidate at the same leaf.
 			typename map<typename knowledgebase<answer>::node*, candidate*>::iterator ci;
 
@@ -314,7 +328,7 @@ class angluin_tree : public learning_algorithm<answer> {
 			}
 
 			return false;
-		}
+		}}}
 
 		bool is_consistent()
 		{
