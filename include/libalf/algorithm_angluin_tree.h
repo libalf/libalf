@@ -61,8 +61,9 @@ class angluin_tree : public learning_algorithm<answer> {
 				list<candidate *> candidates; // candidates (pending, if this is not a leaf)
 				node *accepting, *rejecting;
 			public:
-				node()
+				node(list<int> & suffix)
 				{{{
+					this->suffix = suffix;
 					is_leaf = false;
 					accepting = NULL;
 					rejecting = NULL;
@@ -96,7 +97,8 @@ class angluin_tree : public learning_algorithm<answer> {
 	public:
 		angluin_tree()
 		{{{
-			tree = NULL;
+			list<int> epsilon;
+			tree = new node(epsilon);
 			this->set_alphabet_size(0);
 			this->set_knowledge_source(NULL);
 			this->set_logger(NULL);
@@ -116,13 +118,6 @@ class angluin_tree : public learning_algorithm<answer> {
 				delete tree;
 			for(ci = candidates.begin(); ci != candidates.end(); ++ci)
 				delete ci->second;
-		}}}
-
-		virtual void new_candidate(typename knowledgebase<answer>::node* word, bool is_state)
-		{{{
-			candidate * c = new candidate(word, tree, is_state);
-			tree->candidates.push_back(c);
-			candidates[word] = c;
 		}}}
 
 		virtual void increase_alphabet_size(int new_asize)
@@ -160,24 +155,51 @@ class angluin_tree : public learning_algorithm<answer> {
 			
 		}
 		virtual void print(ostream &os)
-		{ os << tostring(); }
+		{{{
+			os << tostring();
+		}}}
 		virtual string tostring()
 		{
 			
 		}
 		virtual bool conjecture_ready()
-		{
-			if(pending.size() > 0)
-				return false;
-			// check consistency and closedness
-			
-		}
+		{{{
+			return (pending.size() == 0 && is_closed() && is_consistent());
+		}}}
 		virtual void add_counterexample(list<int>)
 		{
 			
 		}
 
 	protected:
+		void new_candidate(typename knowledgebase<answer>::node* word, bool is_state)
+		// create new candidate or make existing a state candidate etc.
+		{{{
+			typename map<typename knowledgebase<answer>::node*, candidate*>::iterator ci;
+			ci = candidates.find(word);
+
+			if(ci == candidates.end()) {
+				// new candidate
+				candidate * c = new candidate(word, tree, is_state);
+				tree->candidates.push_back(c);
+				pending.push_back(c);
+				candidates[word] = c;
+				// add transitions
+				if(is_state)
+					for(int sigma = 0; sigma < this->get_alphabet_size(); sigma++)
+						new_candidate(word->find_or_create_child(sigma), false);
+			} else {
+				// candidate already exists
+				if(is_state && !ci->second->is_state) {
+					// make it a state.
+					ci->second->is_state = true;
+					// add transitions
+					for(int sigma = 0; sigma < this->get_alphabet_size(); sigma++)
+						new_candidate(word->find_or_create_child(sigma), false);
+				}
+			}
+		}}}
+
 		bool sift_pending()
 		{{{
 			bool new_required = false;
@@ -230,6 +252,28 @@ class angluin_tree : public learning_algorithm<answer> {
 		}}}
 
 		bool is_closed()
+		{{{
+			// for each non-state candidate check if there is a state-candidate at the same leaf.
+			typename map<typename knowledgebase<answer>::node*, candidate*>::iterator ci;
+
+			// create a set with all transition-candidates
+			set<candidate*> transitions;
+			for(ci = candidates.begin(); ci != candidates.end(); ++ci)
+				if(!ci->second->is_state)
+					transitions.insert(ci->second);
+
+			// for all state-candidates, remove transitions going into them.
+			for(ci = candidates.begin(); ci != candidates.end(); ++ci)
+				if(ci->second->is_state) {
+					typename list<candidate*>::iterator pi;
+					for(pi = ci->second->position->candidates.begin(); pi != ci->second->position->candidates.end(); ++pi)
+						transitions.erase(*pi);
+				}
+
+			// if there is a remainder, the table is not closed.
+			return transitions.empty();
+		}}}
+		bool close() // returns false if table was changed.
 		{
 			// for each non-state candidate check if there is a state-candidate at the same leaf.
 			typename map<typename knowledgebase<answer>::node*, candidate*>::iterator ci;
@@ -237,25 +281,39 @@ class angluin_tree : public learning_algorithm<answer> {
 			// create a set with all transition-candidates
 			set<candidate*> transitions;
 			for(ci = candidates.begin(); ci != candidates.end(); ++ci)
-				if(!(*ci)->is_state)
-					transitions.insert(*ci);
+				if(!ci->second->is_state)
+					transitions.insert(ci->second);
 
 			// for all state-candidates, remove transitions going into them.
 			for(ci = candidates.begin(); ci != candidates.end(); ++ci)
-				if((*ci)->is_state) {
+				if(ci->second->is_state) {
 					typename list<candidate*>::iterator pi;
-					for(pi = (*ci)->position->candidates.begin(); pi != (*ci)->position->candidates.end(); ++pi)
-						transitions.erase(*pi);
+					for(pi = ci->second->position->candidates.begin(); pi != ci->second->position->candidates.end(); ++pi)
+						if(!(*pi)->is_state)
+							transitions.erase(*pi);
 				}
 
 			// if there is a remainder, the table is not closed.
-			return transitions.empty();
-		}
-		bool close()
-		{
-			// for each non-state candidate check if there is a state-candidate at the same leaf.
-			// if not, make it a state-candidate.
-			
+			if(transitions.empty())
+				return true;
+
+			// close it: for each leaf pick a uniq transition and make it a state.
+			typename set<candidate*>::iterator tr;
+			while(!transitions.empty()) {
+				tr = transitions.begin();
+				transitions.erase(tr);
+
+				// make it a state
+				new_candidate((*tr)->word, true);
+
+				// and remove all other transitions to the new state
+				typename list<candidate*>::iterator pi;
+				for(pi = (*tr)->position->candidates.begin(); pi != (*tr)->position->candidates.end(); ++pi)
+					if(!(*pi)->is_state)
+						transitions.erase(*pi);
+			}
+
+			return false;
 		}
 
 		bool is_consistent()
@@ -263,7 +321,7 @@ class angluin_tree : public learning_algorithm<answer> {
 			// check if for all candidates at same leaf their transitions go to the same leaves.
 			
 		}
-		bool make_consistent()
+		bool make_consistent() // returns false if table was changed.
 		{
 			// check if for all candidates at same leaf their transitions go to the same leaves.
 			// if not, find splitting suffix and add it at the current leaf.
