@@ -9,8 +9,8 @@
  * see LICENSE file for licensing information.
  */
 
-#ifndef __libalf_algorithm_angluin_tree_h__
-# define __libalf_algorithm_angluin_tree_h__
+#ifndef __libalf_algorithm_kvtree_h__
+# define __libalf_algorithm_kvtree_h__
 
 #include <list>
 #include <vector>
@@ -30,8 +30,17 @@ namespace libalf {
 
 using namespace std;
 
+// KV_tree - algorithm as described in section 8.3 (Exact Learning of Finite Automata) of
+// "M.J. Kearns, U.V. Vazirani - An Introduction To Computational Learning Theory",
+// 1994, MIT Press, ISBN 978-0-262-11193-5
+
+// NOTES on algorithm: active online algorithm, thus using membership- and equivalence queries.
+// needs exactly n equivalence queries for a model of size n.
+// on the other hand, the amount of required membership queries is minimal.
+// intermediate hypothesis may differ vastly from original model.
+
 template <class answer>
-class angluin_tree : public learning_algorithm<answer> {
+class KVtree: public learning_algorithm<answer> {
 	/* in learning_algorithm: *my_logger, *my_knowledge, *norm, alphabet_size */
 	protected: // types
 		class node;
@@ -61,10 +70,9 @@ class angluin_tree : public learning_algorithm<answer> {
 				list<candidate *> candidates; // candidates (pending, if this is not a leaf)
 				node *accepting, *rejecting;
 			public:
-				node(list<int> & suffix)
+				node()
 				{{{
-					this->suffix = suffix;
-					is_leaf = false;
+					is_leaf = true;
 					accepting = NULL;
 					rejecting = NULL;
 				}}};
@@ -95,22 +103,14 @@ class angluin_tree : public learning_algorithm<answer> {
 		set<candidate*> final; // NOTE: also contains transitions going to final states. this is maintained in sift_pending().
 
 	public:
-		angluin_tree()
+		KVtree(knowledgebase<answer> *base, logger *log, int alphabet_size)
 		{{{
-			list<int> epsilon;
-			tree = new node(epsilon);
-			this->set_alphabet_size(0);
-			this->set_knowledge_source(NULL);
-			this->set_logger(NULL);
-		}}}
-		angluin_tree(knowledgebase<answer> *base, logger *log, int alphabet_size)
-		{{{
-			tree = NULL;
+			tree = new node();
 			this->set_alphabet_size(alphabet_size);
 			this->set_knowledge_source(base);
 			this->set_logger(log);
 		}}}
-		virtual ~angluin_tree()
+		virtual ~KVtree()
 		{{{
 			typename map<typename knowledgebase<answer>::node*, candidate*>::iterator ci;
 
@@ -129,8 +129,9 @@ class angluin_tree : public learning_algorithm<answer> {
 
 			// add new transitions for all states.
 			for(ci = candidates.begin(); ci != candidates.end(); ++ci)
-				for(int new_suffix = this->get_alphabet_size(); new_suffix < new_asize; ++new_suffix)
-					new_candidate(ci->second->word->find_or_create_child(new_suffix), false);
+				if(ci->second->is_state)
+					for(int new_suffix = this->get_alphabet_size(); new_suffix < new_asize; ++new_suffix)
+						new_candidate(ci->second->word->find_or_create_child(new_suffix), false);
 
 			this->set_alphabet_size(new_asize);
 		}}}
@@ -141,11 +142,13 @@ class angluin_tree : public learning_algorithm<answer> {
 		}
 		virtual bool sync_to_knowledgebase()
 		{{{
-			(*this->my_logger)(LOGGER_ERROR, "angluin_tree: sync-operation not supported but trying to sync!\n");
+			(*this->my_logger)(LOGGER_ERROR, "KVtree: sync-operation not supported but trying to sync!\n");
 			return false;
 		}}}
 		virtual bool supports_sync()
-		{ return false; }
+		{{{
+			return false;
+		}}}
 		virtual basic_string<int32_t> serialize()
 		{
 			basic_string<int32_t> ret;
@@ -171,18 +174,18 @@ class angluin_tree : public learning_algorithm<answer> {
 			return s;
 		}
 		virtual bool conjecture_ready()
-		{{{
-			return (pending.size() == 0 && is_closed() && is_consistent());
-		}}}
+		{
+			
+			return (pending.size() == 0);
+		}
 		virtual void add_counterexample(list<int> c)
 		{
-			// NOTE: in opposite to angluin table, besides adding c and all its prefixes
-			//       we also add a distinguishing suffix.
+			
 		}
 
 	protected:
 		bool new_candidate(typename knowledgebase<answer>::node* word, bool is_state)
-		// create new candidate or make existing a state candidate etc.
+		// create new candidate or make existing a state candidate.
 		// returns false if candidate was already known.
 		{{{
 			typename map<typename knowledgebase<answer>::node*, candidate*>::iterator ci;
@@ -192,7 +195,8 @@ class angluin_tree : public learning_algorithm<answer> {
 				// new candidate
 				candidate * c = new candidate(word, tree, is_state);
 				tree->candidates.push_back(c);
-				pending.push_back(c);
+				if(!tree->is_leaf)
+					pending.push_back(c);
 				candidates[word] = c;
 				// add transitions
 				if(is_state)
@@ -265,90 +269,10 @@ class angluin_tree : public learning_algorithm<answer> {
 			return new_required;
 		}}}
 
-		bool is_closed()
-		{{{
-			// for each non-state candidate check if there is a state-candidate at the same leaf.
-			typename map<typename knowledgebase<answer>::node*, candidate*>::iterator ci;
-
-			// create a set with all transition-candidates
-			set<candidate*> transitions;
-			for(ci = candidates.begin(); ci != candidates.end(); ++ci)
-				if(!ci->second->is_state)
-					transitions.insert(ci->second);
-
-			// for all state-candidates, remove transitions going into them.
-			for(ci = candidates.begin(); ci != candidates.end(); ++ci)
-				if(ci->second->is_state) {
-					typename list<candidate*>::iterator pi;
-					for(pi = ci->second->position->candidates.begin(); pi != ci->second->position->candidates.end(); ++pi)
-						transitions.erase(*pi);
-				}
-
-			// if there is a remainder, the table is not closed.
-			return transitions.empty();
-		}}}
-		bool close() // returns false if table was changed.
-		{{{
-			// for each non-state candidate check if there is a state-candidate at the same leaf.
-			typename map<typename knowledgebase<answer>::node*, candidate*>::iterator ci;
-
-			// create a set with all transition-candidates
-			set<candidate*> transitions;
-			for(ci = candidates.begin(); ci != candidates.end(); ++ci)
-				if(!ci->second->is_state)
-					transitions.insert(ci->second);
-
-			// for all state-candidates, remove transitions going into them.
-			for(ci = candidates.begin(); ci != candidates.end(); ++ci)
-				if(ci->second->is_state) {
-					typename list<candidate*>::iterator pi;
-					for(pi = ci->second->position->candidates.begin(); pi != ci->second->position->candidates.end(); ++pi)
-						if(!(*pi)->is_state)
-							transitions.erase(*pi);
-				}
-
-			// if there is a remainder, the table is not closed.
-			if(transitions.empty())
-				return true;
-
-			// close it: for each leaf pick a uniq transition and make it a state.
-			typename set<candidate*>::iterator tr;
-			while(!transitions.empty()) {
-				tr = transitions.begin();
-				transitions.erase(tr);
-
-				// make it a state
-				new_candidate((*tr)->word, true);
-
-				// and remove all other transitions to the new state
-				typename list<candidate*>::iterator pi;
-				for(pi = (*tr)->position->candidates.begin(); pi != (*tr)->position->candidates.end(); ++pi)
-					if(!(*pi)->is_state)
-						transitions.erase(*pi);
-			}
-
-			return false;
-		}}}
-
-		bool is_consistent()
-		{
-			// check if for all candidates at same leaf their transitions go to the same leaves.
-			
-		}
-		bool make_consistent() // returns false if table was changed.
-		{
-			// check if for all candidates at same leaf their transitions go to the same leaves.
-			// if not, find splitting suffix and add it at the current leaf.
-			
-		}
-
 		virtual bool complete()
 		{{{
 			if(sift_pending()) {
-				if(!close())
-					return complete();
-				if(!make_consistent())
-					return complete();
+				
 
 				return true;
 			} else {

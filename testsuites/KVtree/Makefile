@@ -18,7 +18,7 @@ clean: nodata
 nodata:
 	-rm *.dot
 	-rm *.jpg
-	-rm *.angluin
+	-rm *.KVtree
 	-rm testlog
 
 run:

@@ -16,7 +16,7 @@
 #include <algorithm>
 
 #include <libalf/alf.h>
-#include <libalf/algorithm_angluin_tree.h>
+#include <libalf/algorithm_KVtree.h>
 
 #include <amore++/nondeterministic_finite_automaton.h>
 
@@ -88,8 +88,8 @@ int main(int argc, char**argv)
 	// create oracle instance and teacher instance
 	knowledge.set_statistics(&stats);
 
-	// create angluin_simple_table and teach it the automaton
-	angluin_tree<ANSWERTYPE> ot(&knowledge, &log, alphabet_size);
+	// create instance and teach it the automaton
+	KVtree<ANSWERTYPE> ot(&knowledge, &log, alphabet_size);
 	finite_automaton * hypothesis = NULL;
 
 	for(iteration = 1; iteration <= 100; iteration++) {
@@ -136,13 +136,13 @@ int main(int argc, char**argv)
 			basic_string<int32_t> serialized;
 			basic_string<int32_t>::iterator it;
 
-			snprintf(filename, 128, "table%02d.text.angluin", iteration);
+			snprintf(filename, 128, "table%02d.text.KVtree", iteration);
 			file.open(filename); ot.print(file); file.close();
 
 			/*
 			serialized = ot.serialize();
 
-			snprintf(filename, 128, "table%02d.serialized.angluin", iteration);
+			snprintf(filename, 128, "table%02d.serialized.KVtree", iteration);
 			file.open(filename);
 
 			for(it = serialized.begin(); it != serialized.end(); it++) {
@@ -176,7 +176,7 @@ int main(int argc, char**argv)
 			break;
 		}
 
-		snprintf(filename, 128, "counterexample%02d.angluin", iteration);
+		snprintf(filename, 128, "counterexample%02d.KVtree", iteration);
 		file.open(filename);
 		print_word(file, counterexample);
 		ot.add_counterexample(counterexample);
