@@ -239,8 +239,6 @@ class angluin_table : public learning_algorithm<answer> {
 		{{{
 			typename table::iterator ti;
 			list<int>::iterator wi;
-			int new_asize;
-			bool asize_changed = false;
 
 			ti = search_tables(word);
 			if(ti != lower_table.end()) {
@@ -250,8 +248,10 @@ class angluin_table : public learning_algorithm<answer> {
 			}
 
 			// check for increase in alphabet size
+			int new_asize = this->get_alphabet_size();
+			bool asize_changed = false;
 			for(wi = word.begin(); wi != word.end(); wi++) {
-				if(*wi >= this->get_alphabet_size()) {
+				if(*wi >= this->new_asize) {
 					new_asize = *wi+1;
 					asize_changed = true;
 				}
@@ -1330,8 +1330,6 @@ class angluin_col_table : public angluin_simple_table<answer> {
 		{{{
 			typename vector< list<int> >::iterator ci;
 			list<int>::iterator wi;
-			int new_asize;
-			bool asize_changed = false;
 
 			ci = this->search_columns(word);
 			if(ci != this->column_names.end()) {
@@ -1341,8 +1339,10 @@ class angluin_col_table : public angluin_simple_table<answer> {
 			}
 
 			// check for increase in alphabet size
+			int new_asize = this->get_alphabet_size();
+			bool asize_changed = false;
 			for(wi = word.begin(); wi != word.end(); wi++) {
-				if(*wi >= this->get_alphabet_size()) {
+				if(*wi >= new_asize) {
 					new_asize = *wi+1;
 					asize_changed = true;
 				}
