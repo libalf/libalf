@@ -881,6 +881,10 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 				return false;
 			}
 		}}}
+		node* get_nodeptr(list<int> & word)
+		{{{
+			return root->find_or_create_child(word.begin(), word.end());
+		}}}
 
 		iterator begin()
 		// begin() always begins at root node (epsilon)!

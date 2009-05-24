@@ -102,13 +102,28 @@ class KVtree: public learning_algorithm<answer> {
 		map<typename knowledgebase<answer>::node*, candidate*> candidates; // ALL candidates
 		set<candidate*> final; // NOTE: also contains transitions going to final states. this is maintained in sift_pending().
 
+		// last hypothesis:
+		bool lh_valid;
+		int lh_alphabet_size;
+		int lh_state_count;
+		int lh_initial;
+		set<int> lh_final;
+		multimap<pair<int, int>, int> lh_transitions;
+
+
 	public:
 		KVtree(knowledgebase<answer> *base, logger *log, int alphabet_size)
 		{{{
-			tree = new node();
 			this->set_alphabet_size(alphabet_size);
 			this->set_knowledge_source(base);
 			this->set_logger(log);
+
+			lh_valid = false;
+
+			tree = new node();
+			list<int> epsilon;
+			base->add_query(epsilon, 0);
+			new_candidate(base->get_nodeptr(epsilon), true);
 		}}}
 		virtual ~KVtree()
 		{{{
@@ -137,9 +152,9 @@ class KVtree: public learning_algorithm<answer> {
 		}}}
 		virtual void get_memory_statistics(statistics & stats)
 		// table_size.words is an approximation!
-		{
-			
-		}
+		{{{
+			stats.table_size.bytes = sizeof(this) + tree->get_memory_usage() + candidates.size() * sizeof(candidate);
+		}}}
 		virtual bool sync_to_knowledgebase()
 		{{{
 			(*this->my_logger)(LOGGER_ERROR, "KVtree: sync-operation not supported but trying to sync!\n");
@@ -174,13 +189,38 @@ class KVtree: public learning_algorithm<answer> {
 			return s;
 		}
 		virtual bool conjecture_ready()
-		{
-			
+		{{{
 			return (pending.size() == 0);
-		}
-		virtual void add_counterexample(list<int> c)
+		}}}
+		virtual void add_counterexample(list<int> word)
 		{
+			if(!lh_valid) {
+				(*this->my_logger)(LOGGER_ERROR, "KVtree: trying to give counterexample but there is no old hypothesis! trying to ignore.\n");
+				return;
+			}
+			if(pending.size() != 0) {
+				(*this->my_logger)(LOGGER_ERROR, "KVtree: trying to give counterexample while I am sifting down an old one. trying to ignore.\n");
+				return;
+			}
+
+			// check for increase in alphabet size
+			list<int>::iterator wi;
+			bool asize_changed = false;
+			int new_asize = this->get_alphabet_size();
+			for(wi = word.begin(); wi != word.end(); wi++) {
+				if(*wi >= new_asize) {
+					new_asize = *wi+1;
+					asize_changed = true;
+				}
+			}
+			if(asize_changed) {
+				(*this->my_logger)(LOGGER_ALGORITHM, "KVtree: counterexample: implicit increase of alphabet_size from %d to %d.\n", this->get_alphabet_size(), new_asize);
+				increase_alphabet_size(new_asize);
+			}
+
+			// prepare sifting of counterexample
 			
+
 		}
 
 	protected:
@@ -220,10 +260,10 @@ class KVtree: public learning_algorithm<answer> {
 
 		bool sift_pending()
 		{{{
-			bool new_required = false;
 			if(pending.size() == 0)
 				return true;
 
+			bool new_required = false;
 			typename list<candidate*>::iterator pi;
 
 			for(pi = pending.begin(); pi != pending.end(); ++pi) {
@@ -270,15 +310,7 @@ class KVtree: public learning_algorithm<answer> {
 		}}}
 
 		virtual bool complete()
-		{{{
-			if(sift_pending()) {
-				
-
-				return true;
-			} else {
-				return false;
-			}
-		}}}
+		{ return sift_pending(); }
 
 		virtual bool derive_automaton(bool & is_dfa, int & alphabet_size, int & state_count, set<int> & initial, set<int> & final, multimap<pair<int, int>, int> & transitions)
 		{
