@@ -1,9 +1,8 @@
 
-(priority ordered)
+NOTES
+=====
 
-* Serialize und Deserialize für Tuple-Automaten
-
-* (Human) Read / Write
+* human-readable format for automata (->src/automata.cpp::read_automaton()/write_automaton())
 	[general]
 	is dfa=true
 	alphabet size=4
@@ -16,11 +15,20 @@
 	q,l,q
 	...
 
+
+
+
+TODO
+====
+
+
+(priority ordered)
+
 A)
 
-- check undo and increase_alphabet_size() in angluin
-
 - efficient L* algorithm (tree-like)
+
+- check undo and increase_alphabet_size() in angluin
 
 - RPNI algorithm
 
@@ -28,7 +36,7 @@ A)
 
 - create new network protocol (similar to JNI) to make switching between JNI and dispatcher easy
 
-- check network/deserialization code for bugs (or make dispatcher obsolete => CK: der darf nicht obsolete werden, da wir das Ganze ja evtl auch auf einem Server laufen lassen wollen)
+- check network/deserialization code for bugs
 
 - implement `extend normalizer' in dispatcher and normalizer (CK: What is that)
 
@@ -57,14 +65,6 @@ B)
 C)
 
 - in AMoRE++: _init and _fini are not working (linker stuff...)
-
-- check if template can be removed from learning_algorithm (CK: I think it must not be removed. For learning output automata you need more than only +,- (or 0,1))
-  (thus all alg. are of class learning_algorithm<bool>)
-  [ possibly not due to BL* ]
-
-- knowledgebase also without undo/timestamps, to reduce memory footprint (CK: you mean optionally with or without undo?!)
-
-- in learn_regex: check/fix '+' operator in regex on command-line
 
 - enable dispatcher to listen on multiple address/port combinations, IPv6 and unix domain sockets
 
