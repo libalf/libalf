@@ -11,6 +11,8 @@
 
 #include <set>
 #include <map>
+#include <list>
+#include <queue>
 #include <string>
 
 #include <arpa/inet.h>
@@ -20,29 +22,6 @@
 namespace libalf {
 
 using namespace std;
-
-bool is_deterministic(int alphabet_size, int state_count, set<int> & initial, set<int> & final, multimap<pair<int, int>, int> & transitions)
-{{{
-	// check transitions for epsilon and double transitions
-	multimap<pair<int, int>, int>::iterator tri;
-
-	pair<int, int> former;
-	former.first = -1;
-	former.second = -1;
-	for(tri = transitions.begin(); tri != transitions.end(); ++tri) {
-		// two transitions with same (source,label) ?
-		if(former == tri->first)
-			return false;
-
-		// epsilon transition?
-		if(tri->first.second == -1)
-			return false;
-
-		former = tri->first;
-	}
-
-	return true;
-}}}
 
 string automaton2dotfile(int alphabet_size, int state_count, set<int> & initial, set<int> & final, multimap<pair<int, int>, int> & transitions)
 {{{
@@ -122,6 +101,8 @@ string automaton2dotfile(int alphabet_size, int state_count, set<int> & initial,
 	return ret;
 }}}
 
+
+
 bool read_automaton(string input, bool is_dfa, int & alphabet_size, int & state_count, set<int> & initial, set<int> & final, multimap<pair<int, int>, int> & transitions)
 {
 	
@@ -170,6 +151,8 @@ string write_automaton(bool is_dfa, int & alphabet_size, int & state_count, set<
 
 	return ret;
 }}}
+
+
 
 basic_string<int32_t> serialize_automaton(int alphabet_size, int state_count, set<int> & initial, set<int> & final, multimap<pair<int, int>, int> & transitions)
 {{{
@@ -283,6 +266,110 @@ deserialization_failed_fast:
 	alphabet_size = 0;
 	state_count = 0;
 	return false;
+}}}
+
+
+
+bool automaton_is_deterministic(int alphabet_size, int state_count, set<int> & initial, set<int> & final, multimap<pair<int, int>, int> & transitions)
+{{{
+	// check transitions for epsilon and double transitions
+	multimap<pair<int, int>, int>::iterator tri;
+
+	if(initial.size() > 1)
+		return false;
+
+	pair<int, int> former;
+	former.first = -1;
+	former.second = -1;
+	for(tri = transitions.begin(); tri != transitions.end(); ++tri) {
+		// two transitions with same (source,label) ?
+		if(former == tri->first)
+			return false;
+
+		// epsilon transition?
+		if(tri->first.second == -1)
+			return false;
+
+		former = tri->first;
+	}
+
+	return true;
+}}}
+
+static bool intersection_empty(set<int> & set1, set<int> & set2)
+{{{
+	set<int>::iterator s1, s2;
+	for(s1 = set1.begin(), s2 = set2.begin(); s1 != set1.end() && s2 != set2.end(); /* nothing */) {
+		if(*s1 == *s2)
+			return false;
+		if(*s1 < *s2)
+			s1++;
+		else
+			s2++;
+	}
+
+	return true;
+}}}
+
+void epsilon_closure(set<int> & states, multimap<pair<int, int>, int> & transitions)
+{{{
+	set<int>::iterator sti;
+	multimap<pair<int, int>, int>::iterator tri;
+	queue<int> new_states;
+	int current;
+
+	for(sti = states.begin(); sti != states.end(); ++sti)
+		new_states.push(*sti);
+
+	while(!new_states.empty()) {
+		current = new_states.front();
+		new_states.pop();
+
+		for(tri = transitions.begin(); tri != transitions.end(); ++tri)
+			if(tri->first.first == current && tri->first.second == -1)
+				if(states.find(tri->second) == states.end()) {
+					states.insert(tri->second);
+					new_states.push(tri->second);
+				}
+	}
+}}}
+
+bool simulate_automaton(set<int> & current, int label,   set<int> & final, multimap<pair<int, int>, int> & transitions, bool check_epsilon_transitions)
+// changes <current> to states reached after run. returns true iff accepting state was reached.
+// this version is not very efficient! if you need something efficient, use libAMoRE++.
+{{{
+	set<int> new_states;
+
+	set<int>::iterator si;
+	multimap<pair<int, int>, int>::iterator tri;
+
+	if(check_epsilon_transitions)
+		epsilon_closure(current, transitions);
+
+	for(tri = transitions.begin(); tri != transitions.end(); ++tri)
+		if(tri->first.second == label && current.find(tri->first.first) != current.end())
+			new_states.insert(tri->second);
+
+	if(check_epsilon_transitions)
+		epsilon_closure(current, transitions);
+
+	// check if final state was reached.
+	return !intersection_empty(current, final);
+}}}
+
+bool simulate_automaton(set<int> & current, list<int>::iterator word_begin, list<int>::iterator word_end,   set<int> & final, multimap<pair<int, int>, int> & transitions)
+// changes <current> to states reached after run. returns true iff accepting state was reached.
+{{{
+	bool ret;
+
+	while(word_begin != word_end) {
+		epsilon_closure(current, transitions);
+		ret = simulate_automaton(current, *word_begin, final, transitions, false);
+	}
+
+	epsilon_closure(current, transitions);
+
+	return !intersection_empty(current, final);
 }}}
 
 }; // end of namespace libalf
