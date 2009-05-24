@@ -251,7 +251,7 @@ class angluin_table : public learning_algorithm<answer> {
 			int new_asize = this->get_alphabet_size();
 			bool asize_changed = false;
 			for(wi = word.begin(); wi != word.end(); wi++) {
-				if(*wi >= this->new_asize) {
+				if(*wi >= new_asize) {
 					new_asize = *wi+1;
 					asize_changed = true;
 				}
