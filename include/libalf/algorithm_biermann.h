@@ -34,6 +34,8 @@ namespace libalf {
 
 using namespace std;
 
+// basic biermann functions. do not use this directly, use those derived from it
+// (declared below or in other files)
 template <class answer>
 class basic_biermann : public learning_algorithm<answer> {
 	public:	// types
@@ -405,6 +407,7 @@ class basic_biermann : public learning_algorithm<answer> {
 
 // biermann using Dependency Directed Backtracking, as described in
 // "Arlindo L. Oliveira and João P.M. Silva - Efficient Algorithms for the Inference of Minimum Size DFAs"
+/*
 template <class answer>
 class DDB_biermann : public basic_biermann<answer> {
 	public:
@@ -428,6 +431,7 @@ class DDB_biermann : public basic_biermann<answer> {
 			return false;
 		}
 };
+*/
 
 }; // end namespace libalf
 

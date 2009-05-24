@@ -998,10 +998,10 @@ class angluin_table : public learning_algorithm<answer> {
 
 
 
+// this is the classical angluin learning algorithm, L*, implemented in a table-fashion:
+// prefix-closed rows and suffix-closed columns
 template <class answer>
 class angluin_simple_table : public angluin_table<answer, list< algorithm_angluin::simple_row<answer, vector<answer> > >, vector<answer> > {
-	// this is the classical angluin learning algorithm, L*, implemented in a table-fashion:
-	// prefix-closed rows and suffix-closed columns
 	public:
 		angluin_simple_table()
 		{{{
@@ -1305,13 +1305,13 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 
 
 
+// the col-table version handles counter-examples in a different way:
+// instead of adding counterexamples and their prefixes to the upper table,
+// counterexamples and their suffixes are added to the columns.
+// this way the table never can be __inconsistent__, so several
+// functions can be reduced in complexity.
 template <class answer>
 class angluin_col_table : public angluin_simple_table<answer> {
-	// the col-table version handles counter-examples in a different way:
-	// instead of adding counterexamples and their prefixes to the upper table,
-	// counterexamples and their suffixes are added to the columns.
-	// this way the table never can be __inconsistent__, so several
-	// functions can be reduced in complexity.
 	public:
 		angluin_col_table()
 		{{{
