@@ -26,7 +26,7 @@ TODO
 
 A)
 
-- efficient L* algorithm (tree-like)
+- KVtree algorithm
 
 - check undo and increase_alphabet_size() in angluin
 
