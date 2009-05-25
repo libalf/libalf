@@ -4,16 +4,16 @@ NOTES
 
 * human-readable format for automata (->src/automata.cpp::read_automaton()/write_automaton())
 	[general]
-	is dfa=true
-	alphabet size=4
-	number of states=5
+	is dfa=true;
+	alphabet size=4;
+	number of states=5;
 	[initial states]
-	...
+	1,2,3, ...;
 	[final states]
-	...
+	...;
 	[transitions]
-	q,l,q
-	...
+	q,l,q;
+	...;
 
 
 
