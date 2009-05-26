@@ -260,6 +260,8 @@ public class BasicAutomaton {
 	public String toString() {
 		String output = "LibALF automaton Java impementation\nNumber of States: "
 				+ numberOfStates + "\n";
+		output += "Alphabet size: " + alphabetSize + "\n";
+		output += "Automaton is deterministic: " + isDFA + "\n";
 		output += "Initial states: " + initialStates + "\n";
 		output += "Final states: " + finalStates + "\n";
 		output += "Transitions:" + transitions;
