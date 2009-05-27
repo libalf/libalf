@@ -56,6 +56,8 @@ B)
 
 - DeLeTe2
 
+- efficiency in L*, L* col and NL*: use knowledgebase pointers et al
+
 - check idea of assistants in knowledgebase (CK: Do you mean "filters" here?)
   [ problem: when algorithm works with pointers, either the non-normalized does not have
     a pointer or we need to add it each time something is requested. even for bottom... ]
