@@ -346,9 +346,12 @@ bool simulate_automaton(set<int> & current, int label,   set<int> & final, multi
 	if(check_epsilon_transitions)
 		epsilon_closure(current, transitions);
 
-	for(tri = transitions.begin(); tri != transitions.end(); ++tri)
-		if(tri->first.second == label && current.find(tri->first.first) != current.end())
+	for(si = current.begin(); si != current.end(); ++si) {
+		pair<int, int> sl(current, label);
+		tri = transitions.find(sl);
+		if(tri != transitions.end())
 			new_states.insert(tri->second);
+	}
 
 	if(check_epsilon_transitions)
 		epsilon_closure(current, transitions);
