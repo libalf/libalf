@@ -117,9 +117,9 @@ string write_automaton(bool is_dfa, int & alphabet_size, int & state_count, set<
 	bool first_komma;
 
 	snprintf(buf, 256, "[general]\n"
-			   "\tis dfa = %s\n"
-			   "\talphabet size = %d\n"
-			   "\tnumber of states = %d\n"
+			   "\tis dfa = %s;\n"
+			   "\talphabet size = %d;\n"
+			   "\tnumber of states = %d;\n"
 			   "[initial states]\n",
 			is_dfa ? "true" : "false", alphabet_size, state_count);
 	ret += buf;
@@ -130,6 +130,8 @@ string write_automaton(bool is_dfa, int & alphabet_size, int & state_count, set<
 		first_komma = false;
 		ret += buf;
 	}
+	if(first_komma)
+		ret += ";";
 
 	ret += "\n[final states]\n";
 
@@ -139,11 +141,13 @@ string write_automaton(bool is_dfa, int & alphabet_size, int & state_count, set<
 		first_komma = false;
 		ret += buf;
 	}
+	if(first_komma)
+		ret += ";";
 
 	ret += "\n[transitions]\n";
 
 	for(tri = transitions.begin(); tri != transitions.end(); tri++) {
-		snprintf(buf, 256, "\t%d, %d, %d\n", tri->first.first, tri->first.second, tri->second);
+		snprintf(buf, 256, "\t%d, %d, %d;\n", tri->first.first, tri->first.second, tri->second);
 		ret += buf;
 	}
 
@@ -347,7 +351,7 @@ bool simulate_automaton(set<int> & current, int label,   set<int> & final, multi
 		epsilon_closure(current, transitions);
 
 	for(si = current.begin(); si != current.end(); ++si) {
-		pair<int, int> sl(current, label);
+		pair<int, int> sl(*si, label);
 		tri = transitions.find(sl);
 		if(tri != transitions.end())
 			new_states.insert(tri->second);
