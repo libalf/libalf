@@ -50,7 +50,9 @@ class KVtree: public learning_algorithm<answer> {
 				node * current_position;
 			public:
 				candidate()
-				{ current_position = NULL };
+				{ current_position = NULL }
+				~candidate()
+				{ }
 		};
 		class transition_dst : public candidate {
 			public:
@@ -58,11 +60,14 @@ class KVtree: public learning_algorithm<answer> {
 				int label;
 			public:
 				transition_dst()
-				{ source = -1; label = -1; };
+				{ source = -1; label = -1; }
 		};
 		class counterexample : public candidate {
 			public:
-				list<int> word;
+				knowledgebase::node * word;
+			public:
+				counterexample()
+				{ word = NULL; }
 		};
 
 
@@ -71,7 +76,8 @@ class KVtree: public learning_algorithm<answer> {
 				knowledgebase::node * word;
 			public:
 				virtual int get_memory_usage() = 0;
-				virtual ~node() { };
+				virtual ~node()
+				{ };
 		};
 		class internal : public node {
 			public:
