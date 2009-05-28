@@ -54,11 +54,11 @@ class KVtree: public learning_algorithm<answer> {
 		};
 		class transition_dst : public candidate {
 			public:
-				leaf * src;
+				int source;
 				int label;
 			public:
 				transition_dst()
-				{ leaf = NULL; label = -1; };
+				{ source = -1; label = -1; };
 		};
 		class counterexample : public candidate {
 			public:
@@ -85,10 +85,12 @@ class KVtree: public learning_algorithm<answer> {
 		};
 		class leaf : public node {
 			public:
-				int state_index;
+				int state_id;
 				bool is_final;
 				list<transition_dst*> incoming;
 			public:
+				leaf()
+				{ state_id = -1; }
 				virtual ~leaf()
 				{ while(!incoming.empty()) { delete incoming.front(); incoming.pop_front(); } }
 				virtual int get_memory_usage()
@@ -96,6 +98,8 @@ class KVtree: public learning_algorithm<answer> {
 		};
 
 	protected: // data
+
+		bool initialized;
 
 		// tree, pending candidates and all leaf-nodes in tree
 		node * tree;
@@ -119,11 +123,12 @@ class KVtree: public learning_algorithm<answer> {
 			this->set_knowledge_source(base);
 			this->set_logger(log);
 
+			initialized = false;
+
+			tree = NULL;
 			current_state_count = 0;
 
 			lh_valid = false;
-
-			tree = NULL;
 		}}}
 		virtual ~KVtree()
 		{{{
