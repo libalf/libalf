@@ -5,6 +5,8 @@
  *
  * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
  *        <david-i2@piegdon.de>
+ *    and Daniel Neider,    i7 Informatik RWTH-Aachen
+ *        <neider@automata.rwth-aachen.de>
  *
  * see LICENSE file for licensing information.
  */
@@ -45,39 +47,53 @@ class KVtree: public learning_algorithm<answer> {
 	protected: // types
 		class node;
 
-		class candidate {
+		class transition {
 			public:
 				node * current_position;
+				knowledgebase::node * word;
+				leaf * src;
+				int label;
+				node * dst;
 			public:
 				candidate()
-				{ current_position = NULL }
+				{ current_position = NULL; word = NULL; src = NULL; dst = NULL; label = -2; }
 				~candidate()
 				{ }
-		};
-		class transition_dst : public candidate {
-			public:
-				int source;
-				int label;
-			public:
-				transition_dst()
-				{ source = -1; label = -1; }
-		};
-		class counterexample : public candidate {
-			public:
-				knowledgebase::node * word;
-			public:
-				counterexample()
-				{ word = NULL; }
 		};
 
 
 		class node {
 			public:
+				node * parent;
+				int depth; // (root node has depth 0)
+
 				knowledgebase::node * word;
 			public:
-				virtual int get_memory_usage() = 0;
+				node()
+				{ word = NULL; parent = NULL; depth = -1; }
 				virtual ~node()
 				{ };
+				node * greatest_common_parent(node* other)
+				{{{
+					node * me = this;
+
+					// align on same depth
+					while(me->depth != other->depth && me != NULL && other != NULL) {
+						if(me->depth < other->depth)
+							other = other->parent;
+						else
+							me = me->parent;
+					}
+					// find common parent
+					while(me != other) {
+						if(me->parent == NULL || other->parent == NULL)
+							return NULL;
+						me = me->parent;
+						other = other->parent;
+					}
+					return me;
+				}}}
+				virtual int get_memory_usage() = 0;
 		};
 		class internal : public node {
 			public:
@@ -87,39 +103,55 @@ class KVtree: public learning_algorithm<answer> {
 				virtual ~internal()
 				{ delete accepting; delete rejecting; }
 				virtual int get_memory_usage()
-				{ return sizeof(class internal) + accepting->get_memory_usage() + rejecting->get_memory_usage(); }
+				{{{
+					return sizeof(class internal)
+						+ accepting->get_memory_usage()
+						+ rejecting->get_memory_usage()
+						- (parent == NULL ? sizeof(class internal) : 0);
+				}}}
 		};
 		class leaf : public node {
 			public:
 				int state_id;
+				bool is_initial;
 				bool is_final;
-				list<transition_dst*> incoming;
+				vector<transition> outgoing;
+				list<transition*> incoming;
 			public:
 				leaf()
-				{ state_id = -1; }
+				{ state_id = -1; is_initial = false; is_final = false; }
 				virtual ~leaf()
-				{ while(!incoming.empty()) { delete incoming.front(); incoming.pop_front(); } }
+				{ }
 				virtual int get_memory_usage()
-				{ return sizeof(class leaf) + sizeof(transition_dst) * incoming.size(); }
+				{{{
+					return sizeof(class leaf)
+						+ sizeof(transition) * incoming.size();
+				}}}
+				leaf* simulate_run(list<int>::iterator word_begin, list<int>::iterator word_end)
+				{{{
+					if(word_begin == word_end)
+						return this;
+
+					list<int>::iterator label;
+
+					label = word_begin;
+					word_begin++;
+					return outgoing[label].simulate_run(word_begin, word_end);
+				}}}
 		};
 
 	protected: // data
 
-		bool initialized;
+		// 0: no initialization at all; 1: tree with only epsilon node; 2: normal tree
+		int initialized;
 
 		// tree, pending candidates and all leaf-nodes in tree
-		node * tree;
+		node tree;
 		list<candidate*> pending;
 		list<leaf*> leaves;
 		int current_state_count;
 
-		// last hypothesis:
-		bool lh_valid;
-		int lh_alphabet_size;
-		int lh_state_count;
-		int lh_initial;
-		set<int> lh_final;
-		multimap<pair<int, int>, int> lh_transitions;
+		bool oh_valid; // does an old hypothesis exist?
 
 
 	public:
@@ -131,17 +163,14 @@ class KVtree: public learning_algorithm<answer> {
 
 			initialized = false;
 
-			tree = NULL;
 			current_state_count = 0;
 
-			lh_valid = false;
+			oh_valid = false;
 		}}}
 		virtual ~KVtree()
 		{{{
 			list<candidate>::iterator pi;
 
-			if(tree)
-				delete tree;
 			for(pi = pending.begin(); pi != pending.end(); ++pi)
 				delete *pi;
 		}}}
@@ -155,14 +184,14 @@ class KVtree: public learning_algorithm<answer> {
 			list<leaf*>::iterator li;
 			for(li = leaves.begin; li != leaves.end(); ++li)
 				for(int new_suffix = this->get_alphabet_size(); new_suffix < new_asize; ++new_suffix)
-					new_candidate((*li)->word->find_or_create_child(new_suffix), false);
+					new_candidate((*li)->word->find_or_create_child(new_suffix), false, new_suffix);
 
 			this->set_alphabet_size(new_asize);
 		}}}
 		virtual void get_memory_statistics(statistics & stats)
 		// table_size.words is an approximation!
 		{{{
-			stats.table_size.bytes = sizeof(this) + tree->get_memory_usage() + pending.size() * sizeof(candidate);
+			stats.table_size.bytes = sizeof(this) + tree.get_memory_usage() + pending.size() * sizeof(candidate);
 		}}}
 		virtual bool sync_to_knowledgebase()
 		{{{
@@ -203,7 +232,7 @@ class KVtree: public learning_algorithm<answer> {
 		}}}
 		virtual void add_counterexample(list<int> word)
 		{
-			if(!lh_valid) {
+			if(!oh_valid) {
 				(*this->my_logger)(LOGGER_ERROR, "KVtree: trying to give counterexample but there is no old hypothesis! trying to ignore.\n");
 				return;
 			}
@@ -233,20 +262,48 @@ class KVtree: public learning_algorithm<answer> {
 		}
 
 	protected:
-		bool new_candidate(typename knowledgebase<answer>::node* word, bool is_state)
+		bool new_candidate(typename knowledgebase<answer>::node* word, bool is_state, bool label = -1)
 		// create new candidate or make existing a state candidate.
 		// returns false if candidate was already known.
 		{
+			candidate *c;
+
+			if(is_state) {
+				c = new counterexample;
+				c->src = 
+				c->label = label;
+				c->dst = 
+			} else {
+				c = new transition;
+				c->word = word;
+			}
+
+			c->current_position = &tree;
 			
 		}
 
 		bool sift_pending()
 		{
+			if(initialized == 0) {
+				// tree / discriminating node for epsilon already exists
+				// but has no children. first add pending epsilon
+				list<int> epsilon;
+				new_candidate(get_nodeptr(epsilon), true);
+				initialized = 1;
+				return true;
+			}
+
+			if(pending.empty())
+				return true;
+
 			
 		}
 
 		virtual bool complete()
-		{ return sift_pending(); }
+		{
+
+			return sift_pending();
+		}
 
 		virtual bool derive_automaton(bool & is_dfa, int & alphabet_size, int & state_count, set<int> & initial, set<int> & final, multimap<pair<int, int>, int> & transitions)
 		{
