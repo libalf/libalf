@@ -1,9 +1,12 @@
 # $Id$
 # LanguageGenerator testsuite Makefile
 
-.PHONY: all clean DFArandomgenerator regex_randomgenerator
+.PHONY: all clean DFAenumerator DFArandomgenerator regex_randomgenerator
 
-all: DFArandomgenerator regex_randomgenerator
+all: DFAenumerator DFArandomgenerator regex_randomgenerator
+
+DFAenumerator:
+	make -C DFAenumerator
 
 DFArandomgenerator:
 	make -C DFArandomgenerator
