@@ -55,7 +55,7 @@ bool basic_string_to_file(basic_string<int32_t> &str, const char* filename)
 	int fd;
 	basic_string<int32_t>::iterator si;
 
-	fd = open(filename, O_WRONLY | O_CREAT);
+	fd = open(filename, O_WRONLY | O_CREAT, 0644);
 
 	if(fd < 0)
 		return false;
