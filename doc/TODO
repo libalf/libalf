@@ -26,11 +26,14 @@ TODO
 
 A)
 
+
+- RPNI algorithm
+
+- DeLeTe2
+
 - KVtree algorithm
 
 - check undo and increase_alphabet_size() in angluin
-
-- RPNI algorithm
 
 - documentation (?)
 
@@ -53,8 +56,6 @@ B)
 - efficient Bierman implementation (using DDB instead of MiniSat)
 
 - BL* algorithm
-
-- DeLeTe2
 
 - efficiency in L*, L* col and NL*: use knowledgebase pointers et al
 
