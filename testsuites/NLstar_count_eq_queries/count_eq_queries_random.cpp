@@ -17,12 +17,11 @@
 
 #include <libalf/alf.h>
 #include <libalf/algorithm_NLstar.h>
-#include <libalf/basic_string.h>
 
 #include <amore++/nondeterministic_finite_automaton.h>
 #include <amore++/deterministic_finite_automaton.h>
 
-#include <LanguageGenerator/DFAenumerator.h>
+#include <LanguageGenerator/DFArandomgenerator.h>
 
 #include "amore_alf_glue.h"
 
@@ -98,40 +97,37 @@ int main(int argc, char**argv)
 
 	int num = 0;
 
-	int asize = 2;
+	int asize = 3;
+	int size = 6;
+	DFArandomgenerator drng;
 
-	for(int size = 5; size < 6; size++) {
-		cout << "==================================== SIZE " << size << "\n";
-		DFAenumerator denum(size, asize);
-		while (!denum.generation_completed()) {
-			denum.next(true); // (we also want to skip the initial automaton)
-			denum.derive(f_is_dfa, f_asize, f_state_count, f_initial, f_final, f_transitions);
-			finite_automaton *model = construct_amore_automaton(f_is_dfa, f_asize, f_state_count, f_initial, f_final, f_transitions);
-			model->minimize();
+	while(1) {
+		drng.generate(asize, size,  f_is_dfa, f_asize, f_state_count, f_initial, f_final, f_transitions);
+		finite_automaton *model = construct_amore_automaton(f_is_dfa, f_asize, f_state_count, f_initial, f_final, f_transitions);
+		model->minimize();
 
-			if(model->get_state_count() < size) {
-				cout << ".";
-				delete model;
-				continue;
-			}
-			cout << "+";
-
-			int eq_queries = learn_via_NLstar(asize, model);
-
-			if(eq_queries >  size) {
-				char filename[128];
-				ofstream file;
-				basic_string<int32_t> serialized = model->serialize();
-				snprintf(filename, 128, "hit-%02d.dot", num);
-				file.open(filename); file << model->generate_dotfile(); file.close();
-				snprintf(filename, 128, "hit-%02d.atm", num);
-				basic_string_to_file(serialized, filename);
-				log(LOGGER_WARN, "\nmatch found with asize %d, state count %d, eq queries %d. saved as %s.\n",
-						asize, size, eq_queries, filename);
-				num++;
-			}
+		if(model->get_state_count() < size) {
+			cout << ".";
 			delete model;
+			continue;
 		}
+		cout << "+";
+
+		int eq_queries = learn_via_NLstar(asize, model);
+
+		if(eq_queries >  size) {
+			char filename[128];
+			ofstream file;
+			snprintf(filename, 128, "hit-%02d.dot", num);
+			basic_string<int32_t> serialized = model->serialize();
+			file.open(filename); file << model->generate_dotfile(); file.close();
+			snprintf(filename, 128, "hit-%02d.atm", num);
+			basic_string_to_file(serialized, filename);
+			log(LOGGER_WARN, "\nmatch found with asize %d, state count %d, eq queries %d. saved as %s.\n",
+					asize, size, eq_queries, filename);
+			num++;
+		}
+		delete model;
 	}
 }}}
 

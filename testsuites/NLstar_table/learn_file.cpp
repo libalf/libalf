@@ -17,6 +17,7 @@
 
 #include <libalf/alf.h>
 #include <libalf/algorithm_NLstar.h>
+#include <libalf/basic_string.h>
 
 #include <amore++/nondeterministic_finite_automaton.h>
 
@@ -28,63 +29,6 @@
 using namespace std;
 using namespace libalf;
 using namespace amore;
-
-nondeterministic_finite_automaton * sample_automaton()
-{{{
-	nondeterministic_finite_automaton * nfa;
-
-	/*
-	int automaton[] = {
-		2, // alphabet size
-		3, // state count
-		1, // number of initial states
-		0,
-		1, // number of final states
-		0,
-		6, // number of transitions
-		0,0,0, 0,1,1, 1,0,0, 1,1,2, 2,0,0, 2,1,0
-	};
-	*/
-
-	// sample automaton from "angluin style learning of NFA"-paper:
-	// Fig. 11: (NFA)
-//	int automaton[] = { 2, 4, 1, 0, 4, 0,1,2,3, 7, 0,0,1, 0,1,1, 1,0,2, 1,1,2, 2,0,3, 2,1,3, 3,1,0 };
-
-	// Fig. 13: (NFA)
-//	int automaton[] = { 2, 6, 1, 0, 5, 0,1,2,3,4, 12, 0,1,1, 0,0,2, 1,1,1, 1,0,3, 2,0,2, 2,1,4, 3,0,5, 3,1,5, 4,1,4, 4,0,5, 5,0,5, 5,1,5 };
-
-	// Fig. 15: (NFA)
-//	int automaton[] = { 3, 7, 1, 0, 4, 0,1,4,5, 21, 0,0,1, 0,1,2, 0,2,3, 1,0,1, 1,1,4, 1,2,2, 2,0,5, 2,1,4, 2,2,4, 3,0,5, 3,1,3, 3,2,5, 4,0,1, 4,1,4, 4,2,4, 5,0,6, 5,1,3, 5,2,3, 6,0,5, 6,1,1, 6,2,2 };
-
-	// Fig. 16: (NFA)
-//	int automaton[] = { 2, 4, 1, 0, 2, 1,2, 6, 0,1,1, 1,0,2, 1,1,1, 2,1,3, 3,0,2, 3,1,2, };
-
-	// Fig. 18: (NFA)
-//	int automaton[] = { 2, 10, 1, 0, 5, 0,1,2,8,9, 12, 0,0,1, 0,1,2, 1,0,3, 1,1,7, 2,1,2, 3,0,4, 4,0,3, 4,1,5, 5,1,6, 6,1,9, 7,1,8, 8,1,9 };
-
-	// Fig. 24: (NFA)
-//	int automaton[] = { 2, 6, 1, 0, 2, 3,5, 6, 0,1,1, 1,0,2, 2,0,3, 3,0,5, 3,1,4, 4,0,5 };
-
-	// automaton that will have a huge hypothesis in between, a smaller final (NFA)
-//	int automaton[] = { 2, 4, 2,1,3, 1,2, 6, 0,0,1, 1,0,0, 1,1,0, 1,0,2, 3,1,3, 3,0,2 };
-
-	// automaton that has more eq-queries than states
-	int automaton[] = { 2, 5, 1, 0, 4, 0, 1, 3, 4, 10, 0,0,0, 0,1,1, 1,0,0, 1,1,2, 2,0,3, 2,1,4, 3,0,0, 3,1,3, 4,0,0, 4,1,0 };
-
-	basic_string<int32_t> serial;
-	basic_string<int32_t>::iterator si;
-
-	serial += htonl(sizeof(automaton)/sizeof(int));
-	for(unsigned int i = 0; i < sizeof(automaton)/sizeof(int); i++) {
-		serial += htonl(automaton[i]);
-	}
-
-	si = serial.begin();
-	nfa = new nondeterministic_finite_automaton;
-	nfa->deserialize(si, serial.end());
-
-	return nfa;
-}}}
 
 int main(int argc, char**argv)
 {
@@ -104,7 +48,26 @@ int main(int argc, char**argv)
 
 	int alphabet_size;
 
-	nfa = sample_automaton();
+	{{{ // get automaton from file
+		if(argc != 2) {
+			cout << "please give filename as sole parameter.\n";
+			return -1;
+		};
+		basic_string<int32_t> str;
+		basic_string<int32_t>::iterator si;
+		if(!file_to_basic_string(argv[1], str)) {
+			cout << "failed to load file \"" << argv[1] << "\".\n";
+			return -1;
+		}
+		nfa = new nondeterministic_finite_automaton;
+		si = str.begin();
+		if(!nfa->deserialize(si, str.end())) {
+			cout << "failed to deserialize automaton\n.";
+			return -1;
+		}
+		if(si != str.end())
+			cout << "garbage at end of file? trying to ignore.\n";
+	}}}
 
 	alphabet_size = nfa->get_alphabet_size();
 
