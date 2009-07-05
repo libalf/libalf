@@ -96,8 +96,8 @@ int main(int argc, char**argv)
 	multimap<pair<int,int>, int> f_transitions;
 	int num = 0;
 
-	int asize = 2;
-	for(int size = 2; size < 5; size++) {
+	int asize = 3;
+	for(int size = 5; size < 6; size++) {
 		cout << "==================================== SIZE " << size << "\n";
 		DFAenumerator denum(size, asize);
 		while (!denum.generation_completed()) {
@@ -109,7 +109,7 @@ int main(int argc, char**argv)
 			if(model->get_state_count() < size) {
 //				printf("skipped: %d<%d; ", model->get_state_count(), size);
 				cout << ".";
-				free(model);
+				delete model;
 				continue;
 			}
 //			cout << "\nmatch:\t\t";
@@ -122,11 +122,11 @@ int main(int argc, char**argv)
 				ofstream file;
 				snprintf(filename, 128, "hit-%02d.dot", num);
 				file.open(filename); file << model->generate_dotfile(); file.close();
-				log(LOGGER_INFO, "match found with asize %d, state count %d, eq queries %d. saved as %s.\n",
+				log(LOGGER_WARN, "\nmatch found with asize %d, state count %d, eq queries %d. saved as %s.\n",
 						asize, size, eq_queries, filename);
 				num++;
 			}
-			free(model);
+			delete model;
 		}
 	}
 }}}
