@@ -138,8 +138,10 @@ nondeterministic_finite_automaton::nondeterministic_finite_automaton(int alphabe
 
 nondeterministic_finite_automaton::~nondeterministic_finite_automaton()
 {{{
-	if(nfa_p)
+	if(nfa_p) {
 		freenfa(nfa_p);
+		free(nfa_p);
+	}
 }}}
 
 nondeterministic_finite_automaton * nondeterministic_finite_automaton::clone()
@@ -361,7 +363,9 @@ void nondeterministic_finite_automaton::minimize()
 	n = nfa2mnfa(nfa_p, d);
 
 	freedfa(d);
+	free(d);
 	freenfa(nfa_p);
+	free(nfa_p);
 
 	nfa_p = n;
 }}}
@@ -372,10 +376,17 @@ void nondeterministic_finite_automaton::lang_complement()
 
 	a = nfa2dfa(nfa_p);
 	b = compldfa(a);
+
 	freedfa(a);
+	free(a);
+
 	freenfa(nfa_p);
+	free(nfa_p);
+
 	nfa_p = dfa2nfa(b);
+
 	freedfa(b);
+	free(b);
 }}}
 
 nondeterministic_finite_automaton * nondeterministic_finite_automaton::lang_union(finite_automaton &other)
@@ -538,8 +549,10 @@ bool nondeterministic_finite_automaton::deserialize(basic_string<int32_t>::itera
 	it++;
 	if(size <= 0 || limit == it) goto nfaa_deserialization_failed;
 
-	if(nfa_p)
+	if(nfa_p) {
 		freenfa(nfa_p);
+		free(nfa_p);
+	}
 	nfa_p = newnfa();
 
 	// alphabet size
@@ -609,6 +622,7 @@ bool nondeterministic_finite_automaton::deserialize(basic_string<int32_t>::itera
 
 nfaa_deserialization_failed:
 	freenfa(nfa_p);
+	free(nfa_p);
 	nfa_p = NULL;
 	return false;
 }}}
@@ -630,8 +644,10 @@ nondeterministic_finite_automaton * nondeterministic_finite_automaton::nondeterm
 
 void nondeterministic_finite_automaton::set_nfa(nfa a)
 {{{
-	if(nfa_p)
+	if(nfa_p) {
 		freenfa(nfa_p);
+		free(nfa_p);
+	}
 	nfa_p = clonenfa(a);
 }}}
 

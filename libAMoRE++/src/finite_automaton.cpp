@@ -41,6 +41,8 @@ finite_automaton * construct_amore_automaton(bool is_dfa, int alphabet_size, int
 
 
 
+finite_automaton::~finite_automaton()
+{ };
 
 string finite_automaton::generate_dotfile()
 {{{

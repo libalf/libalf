@@ -66,8 +66,10 @@ deterministic_finite_automaton::deterministic_finite_automaton(dfa a)
 
 deterministic_finite_automaton::~deterministic_finite_automaton()
 {{{
-	if(dfa_p)
+	if(dfa_p) {
 		freedfa(dfa_p);
+		free(dfa_p);
+	}
 }}}
 
 deterministic_finite_automaton * deterministic_finite_automaton::clone()
@@ -249,6 +251,7 @@ void deterministic_finite_automaton::lang_complement()
 
 	a = compldfa(dfa_p);
 	freedfa(dfa_p);
+	free(dfa_p);
 	dfa_p = a;
 }}}
 
@@ -258,7 +261,7 @@ finite_automaton * deterministic_finite_automaton::lang_union(finite_automaton &
 	finite_automaton * n;
 	finite_automaton * ret;
 
-	n = this->nondeterminize();
+	n = this->nondeterminize();	// 1st (2)
 	ret = n->lang_union(other);
 	delete n;
 
@@ -299,7 +302,7 @@ deterministic_finite_automaton * deterministic_finite_automaton::lang_difference
 		o_d = dynamic_cast<deterministic_finite_automaton*>(other.determinize());
 	}
 
-	ret = new deterministic_finite_automaton(insecfa(dfa_p, o_d->dfa_p, true));
+	ret = new deterministic_finite_automaton(insecfa(dfa_p, o_d->dfa_p, true));	// XXX 2nd (2)
 
 	if(had_to_determinize)
 		delete o_d;
@@ -314,10 +317,10 @@ finite_automaton * deterministic_finite_automaton::lang_symmetric_difference(fin
 	finite_automaton * L2_without_L1;
 	finite_automaton * ret = NULL;
 
-	L1_without_L2 = lang_difference(other);
+	L1_without_L2 = lang_difference(other);			// XXX 2nd (1)
 	L2_without_L1 = other.lang_difference(*this);
 
-	ret = L1_without_L2->lang_union(*L2_without_L1);
+	ret = L1_without_L2->lang_union(*L2_without_L1);	// XXX 1st (1)
 
 	delete L1_without_L2;
 	delete L2_without_L1;
@@ -398,8 +401,10 @@ bool deterministic_finite_automaton::deserialize(basic_string<int32_t>::iterator
 	it++;
 	if(size <= 0 || limit == it) goto dfaa_deserialization_failed;
 
-	if(dfa_p)
+	if(dfa_p) {
 		freedfa(dfa_p);
+		free(dfa_p);
+	}
 	dfa_p = newdfa();
 
 	// alphabet size
@@ -467,6 +472,7 @@ bool deterministic_finite_automaton::deserialize(basic_string<int32_t>::iterator
 
 dfaa_deserialization_failed:
 	freedfa(dfa_p);
+	free(dfa_p);
 	dfa_p = NULL;
 	return false;
 }}}
@@ -509,8 +515,10 @@ bool deterministic_finite_automaton::construct(int alphabet_size, int state_coun
 		a->delta[ti->first.second + 1][ti->first.first] = ti->second;
 	a->minimal = FALSE;
 
-	if(dfa_p)
+	if(dfa_p) {
 		freedfa(dfa_p);
+		free(dfa_p);
+	}
 	dfa_p = a;
 
 	return true;
@@ -527,14 +535,16 @@ deterministic_finite_automaton * deterministic_finite_automaton::determinize()
 finite_automaton * deterministic_finite_automaton::nondeterminize()
 {{{
 	nondeterministic_finite_automaton *a;
-	a = new nondeterministic_finite_automaton(dfa2nfa(dfa_p));
+	a = new nondeterministic_finite_automaton(dfa2nfa(dfa_p));	// XXX 1st (3)
 	return a;
 }}}
 
 void deterministic_finite_automaton::set_dfa(dfa a)
 {{{
-	if(dfa_p)
+	if(dfa_p) {
 		freedfa(dfa_p);
+		free(dfa_p);
+	}
 	dfa_p = clonedfa(a);
 }}}
 

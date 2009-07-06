@@ -72,7 +72,7 @@ typedef std::set<transition, transition::comparator> transition_set;
 
 class finite_automaton {
 	public:
-		virtual ~finite_automaton() { };
+		virtual ~finite_automaton() = 0;
 
 		virtual finite_automaton * clone() = 0;
 
