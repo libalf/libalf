@@ -97,8 +97,15 @@ int main(int argc, char**argv)
 
 	int num = 0;
 
-	int asize = 3;
+	int asize = 2;
 	int size = 6;
+
+	int checked = 0;
+	int skipped = 0;
+	int found = 0;
+
+	int print_skipper = 0;
+
 	DFArandomgenerator drng;
 
 	while(1) {
@@ -107,27 +114,37 @@ int main(int argc, char**argv)
 		model->minimize();
 
 		if(model->get_state_count() < size) {
-			cout << ".";
-			delete model;
-			continue;
-		}
-		cout << "+";
+			skipped++;
+		} else {
+			checked++;
 
-		int eq_queries = learn_via_NLstar(asize, model);
+			int eq_queries = learn_via_NLstar(asize, model);
 
-		if(eq_queries >  size) {
-			char filename[128];
-			ofstream file;
-			snprintf(filename, 128, "hit-%02d.dot", num);
-			basic_string<int32_t> serialized = model->serialize();
-			file.open(filename); file << model->generate_dotfile(); file.close();
-			snprintf(filename, 128, "hit-%02d.atm", num);
-			basic_string_to_file(serialized, filename);
-			log(LOGGER_WARN, "\nmatch found with asize %d, state count %d, eq queries %d. saved as %s.\n",
-					asize, size, eq_queries, filename);
-			num++;
+			if(eq_queries >  size) {
+				found++;
+				char filename[128];
+				ofstream file;
+				snprintf(filename, 128, "hit-a%d-s%d-%02d.dot", asize, size, num);
+				basic_string<int32_t> serialized = model->serialize();
+				file.open(filename); file << model->generate_dotfile(); file.close();
+				snprintf(filename, 128, "hit-a%d-s%d-%02d.atm", asize, size, num);
+				basic_string_to_file(serialized, filename);
+				log(LOGGER_WARN, "\nmatch found with asize %d, state count %d, eq queries %d. saved as %s.\n",
+						asize, size, eq_queries, filename);
+				num++;
+			}
 		}
 		delete model;
+
+		if(checked > 0) {
+			print_skipper++;
+			print_skipper %= 10;
+			if(print_skipper == 0) {
+				printf("asize %d, states %d; %d, checked %d, found %d (%f%% of checked)\r",
+					asize, size,
+					skipped+checked, checked, found, ((double)found) / checked * 100);
+			}
+		}
 	}
 }}}
 
