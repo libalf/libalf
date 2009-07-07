@@ -97,8 +97,12 @@ int main(int argc, char**argv)
 
 	int num = 0;
 
-	int asize = 2;
-	int size = 6;
+	if(argc != 3) {
+		printf("give asize and state-count as parameter\n");
+		return -1;
+	}
+	int asize = atoi(argv[1]);
+	int size = atoi(argv[2]);
 
 	int checked = 0;
 	int skipped = 0;
@@ -140,7 +144,7 @@ int main(int argc, char**argv)
 			print_skipper++;
 			print_skipper %= 10;
 			if(print_skipper == 0) {
-				printf("asize %d, states %d; %d, checked %d, found %d (%f%% of checked)\r",
+				printf("asize %d, states %d; %d, checked %d, found %d (%f%% of checked)    \r",
 					asize, size,
 					skipped+checked, checked, found, ((double)found) / checked * 100);
 			}

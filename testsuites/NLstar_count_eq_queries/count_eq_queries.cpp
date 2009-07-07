@@ -140,7 +140,7 @@ int main(int argc, char**argv)
 				print_skipper++;
 				print_skipper %= 10;
 				if(print_skipper == 0) {
-					printf("asize %d, states %d; %d, checked %d, found %d (%f%% of checked)\r",
+					printf("asize %d, states %d; %d, checked %d, found %d (%f%% of checked)    \r",
 						asize, size,
 						skipped+checked, checked, found, ((double)found) / checked * 100);
 				}
