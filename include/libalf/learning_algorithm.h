@@ -45,7 +45,10 @@ class learning_algorithm {
 			ALG_ANGLUIN = 1,
 			ALG_BIERMANN = 2,
 			ALG_BIERMANN_ANGLUIN = 3,
-			ALG_NL_STAR = 4
+			ALG_NL_STAR = 4,
+			ALG_RPNI = 5,
+			ALG_DELETE2 = 6,
+			ALG_KVTREE = 7
 		};
 
 	public: // methods
