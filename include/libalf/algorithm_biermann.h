@@ -228,7 +228,7 @@ class basic_biermann : public learning_algorithm<answer> {
 		// stubs for counterexample will throw a warning to the logger
 		virtual void add_counterexample(list<int>)
 		{{{
-			(*this->my_logger)(LOGGER_ERROR, "algorithm_biermann does not support counter-examples, as it is an offline-algorithm. please add the counter-example directly to the knowledgebase and rerun the algorithm.\n");
+			(*this->my_logger)(LOGGER_ERROR, "biermann does not support counter-examples, as it is an offline-algorithm. please add the counter-example directly to the knowledgebase and rerun the algorithm.\n");
 		}}}
 
 	protected:

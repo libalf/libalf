@@ -32,8 +32,6 @@ namespace libalf {
 
 using namespace std;
 
-// basic biermann functions. do not use this directly, use those derived from it
-// (declared below or in other files)
 template <class answer>
 class RPNI : public learning_algorithm<answer> {
 	public:	// types
@@ -107,7 +105,7 @@ class RPNI : public learning_algorithm<answer> {
 		// stubs for counterexample will throw a warning to the logger
 		virtual void add_counterexample(list<int>)
 		{{{
-			(*this->my_logger)(LOGGER_ERROR, "algorithm_RPNI does not support counter-examples, as it is an offline-algorithm. please add the counter-example directly to the knowledgebase and rerun the algorithm.\n");
+			(*this->my_logger)(LOGGER_ERROR, "RPNI does not support counter-examples, as it is an offline-algorithm. please add the counter-example directly to the knowledgebase and rerun the algorithm.\n");
 		}}}
 
 	protected:
