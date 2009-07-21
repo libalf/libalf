@@ -18,6 +18,7 @@
 #include <string>
 #include <sstream>
 #include <arpa/inet.h>
+#include <queue>
 
 #include <libalf/answer.h>
 #include <libalf/alphabet.h>
@@ -885,6 +886,10 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 		{{{
 			return root->find_or_create_child(word.begin(), word.end());
 		}}}
+		node* get_rootptr()
+		{{{
+			return root;
+		}}}
 
 		iterator begin()
 		// begin() always begins at root node (epsilon)!
@@ -913,6 +918,74 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 			return it;
 		}}}
 
+};
+
+// classes to iterate over a full subtree, in different fashions:
+// PURE FORWARD ITERATOR
+
+// iterate in graded lex. order:
+// a < b  iff  |a| < |b| or |a|==|b| && (a <[LEX] b)
+template <class answer>
+class kIterator_lex_graded {
+	private:
+		queue<typename knowledgebase<answer>::node*> pending;
+	public:
+		kIterator_lex_graded(typename knowledgebase<answer>::node* root)
+		{ set_root(root); }
+		~kIterator_lex_graded()
+		{ };
+
+		void set_root(typename knowledgebase<answer>::node* root)
+		{{{
+			pending.clear();
+			pending.push(root);
+		}}}
+
+		kIterator_lex_graded & operator++()
+		{{{
+			typename vector<typename knowledgebase<answer>::node*>::iterator ci;
+			typename knowledgebase<answer>::node* n;
+
+			if(pending.empty()) {
+				return NULL;
+			} else {
+				n = pending.front();
+				pending.pop();
+				for(ci = n->children.begin(); ci != n->children.end(); ci++)
+					if(*ci)
+						pending.push(*ci);
+			}
+
+			return *this;
+		}}}
+		kIterator_lex_graded operator++(int foo)
+		{{{
+			kIterator_lex_graded tmp = (*this);
+			operator++;
+			return tmp;
+		}}}
+		typename knowledgebase<answer>::node & operator*()
+		{{{
+			return *(pending.front());
+		}}}
+		typename knowledgebase<answer>::node * operator->()
+		{{{
+			return pending.front();
+		}}}
+
+		bool end()
+		{ return pending.empty(); };
+
+		bool operator==(const kIterator_lex_graded & it)
+		{ return (*this == *it); }
+		bool operator!=(const kIterator_lex_graded & it)
+		{ return (*this != *it); }
+
+		kIterator_lex_graded & operator=(const kIterator_lex_graded & it)
+		{{{
+			pending = it.pending;
+			return *this;
+		}}}
 };
 
 }; // end of namespace libalf
