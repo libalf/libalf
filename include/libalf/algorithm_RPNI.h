@@ -5,7 +5,7 @@
  *
  * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
  *        <david-i2@piegdon.de>
- *    and Daniel Neider, i7 Informatik RWTH-Aachen
+ *    and Daniel Neider,    i7 Informatik RWTH-Aachen
  *        <neider@automata.rwth-aachen.de>
  *
  * see LICENSE file for licensing information.

@@ -25,28 +25,30 @@
 #include <libalf/alphabet.h>
 #include <libalf/statistics.h>
 
-// the knowledgebase holds membership information about a language.
-// to obtain information about a word w, use ::resolve_query().
-// if the requested information is not known, false will be returned.
-// if you wish it to be marked as to be acquired (status==NODE_REQUIRED),
-// use ::resolve_or_add_query().
+// the knowledgebase holds membership information about a language
+// (or samples for offline-algorithms). to obtain information about a
+// word w, use ::resolve_query(). if the requested information is not
+// known, false will be returned. if you wish it to be marked as to be
+// acquired (status==NODE_REQUIRED), use ::resolve_or_add_query().
 //
 // all membership information can be iterated via ::begin() .. ::end().
-// all queries via ::qbegin() .. ::qend().
-// the iterators resolve to a ::node. each node represents a word ::node::get_word().
+// all queries via ::qbegin() .. ::qend(). the iterators resolve to a
+// ::node. each node represents a word ::node::get_word().
 //
-// all nodes are contained in a single tree, with ::root representing epsilon.
-// thus, you can use ::node::parent() or ::node::find_child() to find all prefixes
-// of w or all words prefixed by w. if ::node::find_child() returns NULL, the concat
-// is not yet contained in the tree. using find_or_create_child() solves this
-// by adding a new node marked ::node::status==NODE_IGNORE and returning it.
-// for this task, you can also use ::add_knowledge().
+// all nodes are arranged in a single tree-like structure, with ::root
+// representing epsilon. you can use ::node::parent() or
+// ::node::find_child() to find all prefixes of w or all words prefixed
+// by w. if ::node::find_child() returns NULL, the concat is not yet
+// contained in the tree. using find_or_create_child() solves this by
+// adding a new node marked ::node::status==NODE_IGNORE and returning
+// it. for this task, you can also use ::add_knowledge().
 //
 // ::create_query_tree() creates a new knowledgebase containing only the
 // queries.
 //
-// ::merge_knowledgebase() merges membership information (no queries) from
-// another knowledgebase into this (e.g. an answered query tree created before)
+// ::merge_knowledgebase() merges membership information (no queries)
+// from another knowledgebase into this (e.g. an answered query tree
+// created before)
 
 namespace libalf {
 
@@ -63,10 +65,6 @@ class knowledgebase {
 					NODE_IGNORE = 0,
 					NODE_REQUIRED = 1,
 					NODE_ANSWERED = 2
-				};
-				enum order_e {
-					ORDER_LEX = 0,
-					ORDER_LEX_GRADED = 1
 				};
 			protected: // data
 				knowledgebase * base;
@@ -193,10 +191,12 @@ class knowledgebase {
 					  return parent;
 				}}}
 				int max_child_count()
+				// if this returns n, there _may_ exist suffixes [0..n)
 				{{{
 					return children.size();
 				}}}
 				node * find_child(int label)
+				// go to node defined by single-letter suffix
 				{{{
 					if(label >= 0 && label < (int)children.size())
 						return children[label];
@@ -204,6 +204,7 @@ class knowledgebase {
 						return NULL;
 				}}}
 				node * find_child(list<int>::iterator infix_start, list<int>::iterator infix_limit)
+				// go to node defined by arbitrarily long suffix
 				{{{
 					node * n = this;
 
@@ -248,6 +249,7 @@ class knowledgebase {
 				}}}
 
 				list<int> get_word()
+				// get word this node represents
 				{{{
 					list<int> w;
 					node * n = this;
@@ -274,6 +276,7 @@ class knowledgebase {
 					}
 				}}}
 				bool is_required()
+				// is this node marked as unknown and required?
 				{{{
 					return status == NODE_REQUIRED;
 				}}}
@@ -305,6 +308,7 @@ class knowledgebase {
 					  return ans;
 				}}}
 				bool no_subqueries(bool check_self = true)
+				// no queries with this node as prefix exist?
 				{{{
 					if(check_self && status == NODE_REQUIRED)
 						return false;
@@ -319,6 +323,7 @@ class knowledgebase {
 					return true;
 				}}}
 				bool different(node * other)
+				// different answer this and other?
 				{{{
 					if(is_answered() && other->is_answered()) {
 						return (
@@ -354,6 +359,7 @@ class knowledgebase {
 					return false;
 				}}}
 				bool is_lex_smaller(node * other)
+				// lexicographically compare this to other (true if this < other)
 				{{{
 					// FIXME: efficience
 					list<int> a,b;
@@ -362,6 +368,7 @@ class knowledgebase {
 					return libalf::is_lex_smaller(a,b);
 				}}}
 				bool is_graded_lex_smaller(node * other)
+				// graded lexicographically compare this to other (true if this < other)
 				{{{
 					// FIXME: efficience
 					list<int> a,b;
@@ -370,6 +377,7 @@ class knowledgebase {
 					return libalf::is_graded_lex_smaller(a,b);
 				}}}
 				int get_memory_usage()
+				// calculate memory consumption of this subtree
 				{{{
 					int ret;
 					typename vector<node*>::iterator ci;
@@ -419,19 +427,33 @@ class knowledgebase {
 
 		}; // end of knowledgebase::node
 
-
+		// for efficient containers like map and multimap, a comparator object is required.
 		class node_comparator {
 			public:
 				bool operator() (node * a, node * b)
 				{ return a < b; };
 		};
 
+		// definition of an equivalence relation over nodes in this knowledgebase.
+		// you can use knowledgebase::equivalence_relation2automaton to construct
+		// a modulo-automaton from this.
+		//
+		// NOTE: YOU have to take care that this is a true eq. relation, i.e.
+		// if you create and maintain it, you have to take care, that the following
+		// is fulfilled:
+		//	1) reflexivity:		a ~ a
+		//	2) symmetry:		a ~ b <=> b ~ a
+		//	3) transitivity:	a ~ b && b ~ c => a ~ c
+		// nothing (not even #1) is done automatically for you. but all of these
+		// rules are required to be fulfilled. otherwise, the functions given here
+		// may not work as expected.
 		class equivalence_relation : public multimap<node*, node*, node_comparator> {
 			public: // types
 				typedef typename multimap<node*, node*, node_comparator>::iterator iterator;
 				typedef pair<iterator, iterator> range;
 			public: // member functions
 				set<node*> get_equivalence_class(node * n)
+				// get all members of equivalence class
 				{{{
 					set<node*> ret;
 					range eq_class;
@@ -457,6 +479,7 @@ class knowledgebase {
 				}}}
 
 				node * representative_lex(node * n)
+				// get representative of nodes eq.class w.r.t. lexicographical order
 				{{{
 					range eq_class;
 					list<int> current_rep_word;
@@ -504,6 +527,7 @@ class knowledgebase {
 					return true;
 				}}}
 				set<node*> representatives_lex()
+				// get representatives of all equivalence classes w.r.t. lexicographical order
 				{{{
 					set<node*> ret;
 					iterator i;
@@ -520,6 +544,7 @@ class knowledgebase {
 				}}}
 
 				node * representative_graded_lex(node * n)
+				// get representative of nodes eq.class w.r.t. graded lexicographical order
 				{{{
 					range eq_class;
 					list<int> current_rep_word;
@@ -567,6 +592,7 @@ class knowledgebase {
 					return true;
 				}}}
 				set<node*> representatives_graded_lex()
+				// get representatives of all equivalence classes w.r.t. graded lexicographical order
 				{{{
 					set<node*> ret;
 					iterator i;
@@ -583,6 +609,7 @@ class knowledgebase {
 				}}}
 
 				node * representative_ptr(node * n)
+				// get representative of nodes eq.class w.r.t. ptr order (very efficient, but arbitrary)
 				{{{
 					range eq_class;
 					node * current_rep;
@@ -619,6 +646,7 @@ class knowledgebase {
 					return true;
 				}}}
 				set<node*> representatives_ptr()
+				// get representatives of all equivalence classes w.r.t. ptr order (very efficient, but arbitrary)
 				{{{
 					set<node*> ret;
 					iterator i;
@@ -635,8 +663,8 @@ class knowledgebase {
 				}}}
 		};
 
-		// typedef multimap<node*, node*, node_comparator> equivalence_relation;
-
+		// this class can be used to iterate over all nodes markes as known
+		// or all nodes marked as required
 		class iterator : std::iterator<std::forward_iterator_tag, node> {
 			private:
 				knowledgebase * base;
@@ -813,10 +841,12 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 		}}}
 
 		bool is_answered()
+		// no information is marked as required?
 		{{{
 			return (required.size() == 0);
 		}}}
 		bool is_empty()
+		// no information is contained?
 		{{{
 			return ( (required.size() == 0) && (answercount == 0) );
 		}}}
@@ -1225,10 +1255,12 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 			}
 		}}}
 		node* get_nodeptr(list<int> & word)
+		// get node* for a specific word
 		{{{
 			return root->find_or_create_child(word.begin(), word.end());
 		}}}
 		node* get_rootptr()
+		// get node* for epsilon
 		{{{
 			return root;
 		}}}
@@ -1246,6 +1278,7 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 		}}}
 
 		iterator qbegin()
+		// get begin-iterator for a query-iterator
 		{{{
 			if(required.empty()) {
 				return qend();
@@ -1263,7 +1296,10 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 		bool equivalence_relation2automaton(equivalence_relation &eq, bool ignoring_states_accept,
 			bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, set<int> &t_initial,
 			set<int> &t_final, multimap<pair<int, int>, int> &t_transitions)
-		{
+		// construct a modulo automaton given the tree-structure in this knowledgebase
+		// and the given equivalence relation. will return false if the equivalence relation
+		// is inconsistent, i.e. it merges states that are answered with different knowledge.
+		{{{
 			// get a set of all representatives
 			set<node*> representatives;
 			typename set<node*>::iterator si;
@@ -1344,11 +1380,11 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 			}
 
 			return true;
-		}
+		}}}
 
 };
 
-// classes to iterate over a full subtree, in different fashions:
+// classes to iterate over a full subtree, in graded lexicographical order:
 // PURE FORWARD ITERATOR
 
 // iterate in graded lex. order:
