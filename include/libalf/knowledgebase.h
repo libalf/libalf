@@ -427,13 +427,15 @@ class knowledgebase {
 		};
 
 		class equivalence_relation : public multimap<node*, node*, node_comparator> {
+			public: // types
+				typedef pair<typename multimap<node*, node*, node_comparator>::iterator, typename multimap<node*, node*, node_comparator>::iterator> range;
 			public: // member functions
 				set<node*> get_equivalence_class(node * n)
 				{{{
 					set<node*> ret;
-					pair<iterator, iterator> eq_class;
+					range eq_class;
 
-					eq_class = equal_range(n);
+					eq_class = this->equal_range(n);
 					while(eq_class.first != eq_class.second) {
 						ret.insert(eq_class.first->second);
 						eq_class.first++;
@@ -442,9 +444,9 @@ class knowledgebase {
 				}}}
 				bool are_equivalent(node * a, node * b)
 				{{{
-					pair<iterator, iterator> eq_class;
+					range eq_class;
 
-					eq_class = equal_range(a);
+					eq_class = this->equal_range(a);
 					while(eq_class.first != eq_class.second) {
 						if(eq_class.first->second == b)
 							return true;
@@ -455,11 +457,11 @@ class knowledgebase {
 
 				node * representative_lex(node * n)
 				{{{
-					pair<iterator, iterator> eq_class;
+					range eq_class;
 					list<int> current_rep_word;
 					node * current_rep;
 
-					eq_class = equal_range(n);
+					eq_class = this->equal_range(n);
 					if(eq_class.first == eq_class.second)
 						return NULL;
 
@@ -481,10 +483,10 @@ class knowledgebase {
 				}}}
 				bool is_representative_lex(node * n)
 				{{{
-					pair<iterator, iterator> eq_class;
+					range eq_class;
 					list<int> word;
 
-					eq_class = equal_range(n);
+					eq_class = this->equal_range(n);
 					if(eq_class.first == eq_class.second)
 						return false;
 
@@ -503,11 +505,11 @@ class knowledgebase {
 
 				node * representative_graded_lex(node * n)
 				{{{
-					pair<iterator, iterator> eq_class;
+					range eq_class;
 					list<int> current_rep_word;
 					node * current_rep;
 
-					eq_class = equal_range(n);
+					eq_class = this->equal_range(n);
 					if(eq_class.first == eq_class.second)
 						return NULL;
 
@@ -529,10 +531,10 @@ class knowledgebase {
 				}}}
 				bool is_representative_graded_lex(node * n)
 				{{{
-					pair<iterator, iterator> eq_class;
+					range eq_class;
 					list<int> word;
 
-					eq_class = equal_range(n);
+					eq_class = this->equal_range(n);
 					if(eq_class.first == eq_class.second)
 						return false;
 
@@ -551,10 +553,10 @@ class knowledgebase {
 
 				node * representative_ptr(node * n)
 				{{{
-					pair<iterator, iterator> eq_class;
+					range eq_class;
 					node * current_rep;
 
-					eq_class = equal_range(n);
+					eq_class = this->equal_range(n);
 					if(eq_class.first == eq_class.second)
 						return NULL;
 
@@ -571,9 +573,9 @@ class knowledgebase {
 				}}}
 				bool is_representative_ptr(node * n)
 				{{{
-					pair<iterator, iterator> eq_class;
+					range eq_class;
 
-					eq_class = equal_range(n);
+					eq_class = this->equal_range(n);
 					if(eq_class.first == eq_class.second)
 						return false;
 
@@ -1116,6 +1118,7 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 			set<int> &t_final, multimap<pair<int, int>, int> &t_transitions)
 		{
 			
+			return false;
 		}
 
 };

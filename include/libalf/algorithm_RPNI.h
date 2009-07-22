@@ -46,7 +46,7 @@ class RPNI : public learning_algorithm<answer> {
 				typedef pair<node*, node*> nodeppair;
 			public: // data
 				knowledgebase<answer> * base;
-				knowledgebase<answer>::equivalence_relation equivalences;
+				typename knowledgebase<answer>::equivalence_relation equivalences;
 			protected:
 				set<nodeppair> candidates;
 
@@ -58,17 +58,15 @@ class RPNI : public learning_algorithm<answer> {
 					// add all trivial equivalences
 					kIterator_lex_graded<answer> kit(base->get_rootptr());
 					while(!kit.end()) {
-						equivalences[&*kit] = &*kit;
+						equivalences.insert(pair<node*, node*>(&*kit, &*kit));
 						kit++;
 					}
 				}}}
-				equivalence_relation(equivalence_relation & copy_from)
-				{ *this = copy_from; }
 				~equivalence_relation()
 				{ }
 
 				bool add_if_possible(node * a, node * b)
-				{
+				{{{
 					bool ok;
 
 					ok = add(a, b);
@@ -76,12 +74,12 @@ class RPNI : public learning_algorithm<answer> {
 					if(ok) {
 						typename set<nodeppair>::iterator ci;
 						for(ci = candidates.begin(); ci != candidates.end(); ci++)
-							equivalences.insert(*ci);
+							equivalences.insert(pair<node*, node*>(ci->first, ci->second));
 					}
 
 					candidates.clear();
 					return ok;
-				}
+				}}}
 
 				set<node*> get_equivalence_class(node * n)
 				{{{
@@ -94,29 +92,29 @@ class RPNI : public learning_algorithm<answer> {
 				}}}
 			protected:
 				set<node*> get_equivalence_class_candidate(node * n)
-				{
+				{{{
 					set<node*> ret;
 					typename set<nodeppair>::iterator eqi;
 
-					for(eqi = equivalences.begin(); eqi != equivalences.end(); eqi++)
-						if(n == eqi->first)
-							ret.insert(eqi->second);
+					ret = equivalences.get_equivalence_class(n);
 					for(eqi = candidates.begin(); eqi != candidates.end(); eqi++)
 						if(n == eqi->first)
 							ret.insert(eqi->second);
 
 					return ret;
-				}
+				}}}
 				bool are_candidate_equivalent(node * a, node * b)
-				{
-					pair<node*, node*> p;
-					p.first = a;
-					p.second = b;
-
-					if(equivalences.find(p) != equivalences.end())
+				{{{
+					if(equivalences.are_equivalent(a,b)) {
 						return true;
-					return candidates.find(p) != candidates.end();
-				}
+					} else {
+						pair<node*, node*> p;
+						p.first = a;
+						p.second = b;
+
+						return candidates.find(p) != candidates.end();
+					}
+				}}}
 
 				bool add(node * a, node * b)
 				{
@@ -282,7 +280,7 @@ printf("\t+++\n");
 
 			t_is_dfa = true;
 
-			return bool;
+			return ok;
 		}}}
 		virtual void merge_states(equivalence_relation & eq)
 		{{{
