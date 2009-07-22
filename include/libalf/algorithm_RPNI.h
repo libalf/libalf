@@ -5,6 +5,8 @@
  *
  * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
  *        <david-i2@piegdon.de>
+ *    and Daniel Neider, i7 Informatik RWTH-Aachen
+ *        <neider@automata.rwth-aachen.de>
  *
  * see LICENSE file for licensing information.
  */
@@ -44,9 +46,9 @@ class RPNI : public learning_algorithm<answer> {
 				typedef pair<node*, node*> nodeppair;
 			public: // data
 				knowledgebase<answer> * base;
-				set<nodeppair> equivalences; // FIXME: use a multimap
+				knowledgebase<answer>::equivalence_relation equivalences;
 			protected:
-				set<nodeppair> candidates; // FIXME: use a multimap
+				set<nodeppair> candidates;
 
 			public: // member functions
 				equivalence_relation(knowledgebase<answer> * my_knowledge)
@@ -55,12 +57,8 @@ class RPNI : public learning_algorithm<answer> {
 
 					// add all trivial equivalences
 					kIterator_lex_graded<answer> kit(base->get_rootptr());
-
 					while(!kit.end()) {
-						nodeppair p;
-						p.first = &*kit;
-						p.second = &*kit;
-						equivalences.insert(p);
+						equivalences[&*kit] = &*kit;
 						kit++;
 					}
 				}}}
@@ -69,16 +67,8 @@ class RPNI : public learning_algorithm<answer> {
 				~equivalence_relation()
 				{ }
 
-				equivalence_relation operator=(equivalence_relation & copy_from)
-				{{{
-					base = copy_from->base;
-					equivalences = copy_from->equivalences;
-					candidates = copy_from->candidates;
-				}}}
-
 				bool add_if_possible(node * a, node * b)
-				{{{
-printf("\tADD %p,%p\n", a, b);
+				{
 					bool ok;
 
 					ok = add(a, b);
@@ -91,43 +81,20 @@ printf("\tADD %p,%p\n", a, b);
 
 					candidates.clear();
 					return ok;
-				}}}
+				}
 
 				set<node*> get_equivalence_class(node * n)
 				{{{
-					set<node*> ret;
-					typename set<nodeppair>::iterator eqi;
-
-					for(eqi = equivalences.begin(); eqi != equivalences.end(); eqi++)
-						if(n == eqi->first)
-							ret.insert(eqi->second);
-
-					return ret;
-				}}}
-
-				node * representative(node * n)
-				// return representative for the eq.class of this node
-				// (i.e. the smallest according to graded lex. order)
-				{
-					
-				}
-
-				bool is_representative(node * n)
-				{{{
-					return n == representative(n);
+					return equivalences.get_equivalence_class(n);
 				}}}
 
 				bool are_equivalent(node * a, node * b)
 				{{{
-					pair<node*, node*> p;
-					p.first = a;
-					p.second = b;
-
-					return equivalences.find(p) != equivalences.end();
+					return equivalences.are_equivalent(a,b);
 				}}}
 			protected:
 				set<node*> get_equivalence_class_candidate(node * n)
-				{{{
+				{
 					set<node*> ret;
 					typename set<nodeppair>::iterator eqi;
 
@@ -139,9 +106,9 @@ printf("\tADD %p,%p\n", a, b);
 							ret.insert(eqi->second);
 
 					return ret;
-				}}}
+				}
 				bool are_candidate_equivalent(node * a, node * b)
-				{{{
+				{
 					pair<node*, node*> p;
 					p.first = a;
 					p.second = b;
@@ -149,11 +116,11 @@ printf("\tADD %p,%p\n", a, b);
 					if(equivalences.find(p) != equivalences.end())
 						return true;
 					return candidates.find(p) != candidates.end();
-				}}}
+				}
 
 				bool add(node * a, node * b)
-				{{{
-printf("\tA-- %p,%p\n", a, b);
+				{
+printf("\tADD %p,%p\n", a, b);
 					if(!are_candidate_equivalent(a, b)) {
 						set<nodeppair> pending_equivalences;
 						typename set<nodeppair>::iterator pi;
@@ -167,13 +134,15 @@ printf("\tA-- %p,%p\n", a, b);
 
 						for(cai = ca.begin(); cai != ca.end(); cai++) {
 							for(cbi = cb.begin(); cbi != cb.end(); cbi++) {
-printf("\tA.. %p,%p", *cai, *cbi);
+printf("\t -> %p,%p\n", *cai, *cbi);
 								nodeppair p;
 
+								// FIXME: is this ok?
+								// alternative: if is_answered && answer==true, both have to be like this?
 								if((*cai)->is_answered() && (*cbi)->is_answered()) {
 									if((*cai)->get_answer() != (*cbi)->get_answer()) {
 										// consistency failure. the requested equivalence is not possible with this sample set.
-printf(" BAD!\n");
+printf("\t\tBAD!\n");
 										return false;
 									}
 								}
@@ -185,7 +154,6 @@ printf(" BAD!\n");
 								p.first = *cbi;
 								p.second = *cai;
 								candidates.insert(p);
-printf("\n");
 
 								for(int sigma = 0; sigma < p.first->max_child_count() && sigma < p.second->max_child_count(); sigma++) {
 									node *r, *s;
@@ -202,14 +170,17 @@ printf("\n");
 								}
 							}
 						}
-
+printf("\t{\n");
 						for(pi = pending_equivalences.begin(); pi != pending_equivalences.end(); pi++)
 							if(!add(pi->first, pi->second))
 								return false;
+printf("\t}\n");
+					} else {
+printf("\t+++\n");
 					}
 
 					return true;
-				}}}
+				}
 		};
 
 	protected: // data
@@ -299,18 +270,20 @@ printf("\n");
 		}}}
 		// derive an automaton from data structure
 		virtual bool derive_automaton(bool & t_is_dfa, int & t_alphabet_size, int & t_state_count, set<int> & t_initial, set<int> & t_final, multimap<pair<int, int>, int> & t_transitions)
-		{
+		{{{
+			bool ok;
 			equivalence_relation eq(this->my_knowledge);
 
 			merge_states(eq);
+			(*this->my_logger)(LOGGER_INFO, "RPNI: states merged. constructing automaton...\n");
+			ok = this->my_knowledge->equivalenceclass2automaton(eq.equivalences, false,
+					t_is_dfa, t_alphabet_size, t_state_count,
+					t_initial, t_final, t_transitions);
 
-			// now construct automaton from that
-			
-			
-			
+			t_is_dfa = true;
 
-			return true;
-		}
+			return bool;
+		}}}
 		virtual void merge_states(equivalence_relation & eq)
 		{{{
 			kIterator_lex_graded<answer> lgo(this->my_knowledge->get_rootptr());
@@ -339,6 +312,7 @@ printf("\n");
 					while(&*lgo != &*lgo2) {
 						// FIXME: implement is_smallest_of_equivalence_class()
 						//if(eq.is_smallest_of_equivalence_class(&*lgo2)) {
+							(*this->my_logger)(LOGGER_DEBUG, "RPNI: trying to merge (%p ,%p)\n", &*lgo, &*lgo2);
 							if(eq.add_if_possible(&*lgo, &*lgo2)) {
 printf("\t\t:)\n");
 								break;

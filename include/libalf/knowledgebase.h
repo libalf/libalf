@@ -548,6 +548,43 @@ class knowledgebase {
 
 					return true;
 				}}}
+
+				node * representative_ptr(node * n)
+				{{{
+					pair<iterator, iterator> eq_class;
+					node * current_rep;
+
+					eq_class = equal_range(n);
+					if(eq_class.first == eq_class.second)
+						return NULL;
+
+					current_rep = eq_class.first;
+					eq_class.first++;
+
+					while(eq_class.first != eq_class.second) {
+						if(*eq_class.first < current_rep)
+							current_rep = eq_class.first;
+						eq_class.first++;
+					}
+
+					return current_rep;
+				}}}
+				bool is_representative_ptr(node * n)
+				{{{
+					pair<iterator, iterator> eq_class;
+
+					eq_class = equal_range(n);
+					if(eq_class.first == eq_class.second)
+						return false;
+
+					while(eq_class.first != eq_class.second) {
+						if(*eq_class.first < n)
+							return false;
+						eq_class.first++;
+					}
+
+					return true;
+				}}}
 		};
 
 		// typedef multimap<node*, node*, node_comparator> equivalence_relation;
@@ -1074,8 +1111,9 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 			return it;
 		}}}
 
-		bool equivalenceclass2automaton(equivalence_relation & eq,
-				bool & t_is_dfa, int & t_alphabet_size, int & t_state_count, set<int> & t_initial, set<int> & t_final, multimap<pair<int, int>, int> & t_transitions)
+		bool equivalenceclass2automaton(equivalence_relation &eq, bool ignoring_states_accept,
+			bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, set<int> &t_initial,
+			set<int> &t_final, multimap<pair<int, int>, int> &t_transitions)
 		{
 			
 		}
