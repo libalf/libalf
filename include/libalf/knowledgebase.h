@@ -5,8 +5,6 @@
  *
  * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
  *        <david-i2@piegdon.de>
- *    and Daniel Neider, i7 Informatik RWTH-Aachen
- *        <neider@automata.rwth-aachen.de>
  *
  * see LICENSE file for licensing information.
  */
@@ -21,6 +19,7 @@
 #include <sstream>
 #include <arpa/inet.h>
 #include <queue>
+#include <map>
 
 #include <libalf/answer.h>
 #include <libalf/alphabet.h>
@@ -427,7 +426,131 @@ class knowledgebase {
 				{ return a < b; };
 		};
 
-//		typedef map<node*, node*, node_comparator> equivalence_class;
+		class equivalence_relation : public multimap<node*, node*, node_comparator> {
+			public: // member functions
+				set<node*> get_equivalence_class(node * n)
+				{{{
+					set<node*> ret;
+					pair<iterator, iterator> eq_class;
+
+					eq_class = equal_range(n);
+					while(eq_class.first != eq_class.second) {
+						ret.insert(eq_class.first->second);
+						eq_class.first++;
+					}
+					return ret;
+				}}}
+				bool are_equivalent(node * a, node * b)
+				{{{
+					pair<iterator, iterator> eq_class;
+
+					eq_class = equal_range(a);
+					while(eq_class.first != eq_class.second) {
+						if(eq_class.first->second == b)
+							return true;
+						eq_class.first++;
+					}
+					return false;
+				}}}
+
+				node * representative_lex(node * n)
+				{{{
+					pair<iterator, iterator> eq_class;
+					list<int> current_rep_word;
+					node * current_rep;
+
+					eq_class = equal_range(n);
+					if(eq_class.first == eq_class.second)
+						return NULL;
+
+					current_rep = eq_class.first;
+					current_rep_word = current_rep->get_word();
+					eq_class.first++;
+
+					while(eq_class.first != eq_class.second) {
+						list<int> w;
+						w = eq_class.first->get_word();
+						if(is_lex_smaller(w, current_rep_word)) {
+							current_rep = eq_class.first;
+							current_rep_word = w;
+						}
+						eq_class.first++;
+					}
+
+					return current_rep;
+				}}}
+				bool is_representative_lex(node * n)
+				{{{
+					pair<iterator, iterator> eq_class;
+					list<int> word;
+
+					eq_class = equal_range(n);
+					if(eq_class.first == eq_class.second)
+						return false;
+
+					word = n->get_word();
+
+					while(eq_class.first != eq_class.second) {
+						list<int> w;
+						w = eq_class.first->get_word();
+						if(is_lex_smaller(w, word))
+							return false;
+						eq_class.first++;
+					}
+
+					return true;
+				}}}
+
+				node * representative_graded_lex(node * n)
+				{{{
+					pair<iterator, iterator> eq_class;
+					list<int> current_rep_word;
+					node * current_rep;
+
+					eq_class = equal_range(n);
+					if(eq_class.first == eq_class.second)
+						return NULL;
+
+					current_rep = eq_class.first;
+					current_rep_word = current_rep->get_word();
+					eq_class.first++;
+
+					while(eq_class.first != eq_class.second) {
+						list<int> w;
+						w = eq_class.first->get_word();
+						if(is_graded_lex_smaller(w, current_rep_word)) {
+							current_rep = eq_class.first;
+							current_rep_word = w;
+						}
+						eq_class.first++;
+					}
+
+					return current_rep;
+				}}}
+				bool is_representative_graded_lex(node * n)
+				{{{
+					pair<iterator, iterator> eq_class;
+					list<int> word;
+
+					eq_class = equal_range(n);
+					if(eq_class.first == eq_class.second)
+						return false;
+
+					word = n->get_word();
+
+					while(eq_class.first != eq_class.second) {
+						list<int> w;
+						w = eq_class.first->get_word();
+						if(is_graded_lex_smaller(w, word))
+							return false;
+						eq_class.first++;
+					}
+
+					return true;
+				}}}
+		};
+
+		// typedef multimap<node*, node*, node_comparator> equivalence_relation;
 
 		class iterator : std::iterator<std::forward_iterator_tag, node> {
 			private:
@@ -951,13 +1074,11 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 			return it;
 		}}}
 
-/*
-		bool equivalenceclass2automaton(equivalence_class & eq,
+		bool equivalenceclass2automaton(equivalence_relation & eq,
 				bool & t_is_dfa, int & t_alphabet_size, int & t_state_count, set<int> & t_initial, set<int> & t_final, multimap<pair<int, int>, int> & t_transitions)
 		{
 			
 		}
-*/
 
 };
 
