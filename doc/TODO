@@ -31,6 +31,8 @@ A)
 
 - DeLeTe2
 
+- Antichain approach (by de Wulf, Raskin etc.) for checking inclusion (equivalence) of languages of two NFA (Stefan Schulz already implemented a JAVA version thereof, please contact him)
+
 - KVtree algorithm
 
 - check undo and increase_alphabet_size() in angluin
