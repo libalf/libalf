@@ -187,6 +187,10 @@ class knowledgebase {
 				{{{
 					  return parent;
 				}}}
+				int max_child_count()
+				{{{
+					return children.size();
+				}}}
 				node * find_child(int label)
 				{{{
 					if(label >= 0 && label < (int)children.size())
@@ -937,7 +941,8 @@ class kIterator_lex_graded {
 
 		void set_root(typename knowledgebase<answer>::node* root)
 		{{{
-			pending.clear();
+			while(!pending.empty())
+				pending.pop();
 			pending.push(root);
 		}}}
 
@@ -947,13 +952,16 @@ class kIterator_lex_graded {
 			typename knowledgebase<answer>::node* n;
 
 			if(pending.empty()) {
-				return NULL;
+				return *this;
 			} else {
 				n = pending.front();
 				pending.pop();
-				for(ci = n->children.begin(); ci != n->children.end(); ci++)
-					if(*ci)
-						pending.push(*ci);
+				for(int sigma = 0; sigma < n->max_child_count(); sigma++) {
+					typename knowledgebase<answer>::node * c;
+					c = n->find_child(sigma);
+					if(c)
+						pending.push(c);
+				}
 			}
 
 			return *this;
@@ -961,7 +969,7 @@ class kIterator_lex_graded {
 		kIterator_lex_graded operator++(int foo)
 		{{{
 			kIterator_lex_graded tmp = (*this);
-			operator++;
+			operator++();
 			return tmp;
 		}}}
 		typename knowledgebase<answer>::node & operator*()
