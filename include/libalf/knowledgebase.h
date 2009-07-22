@@ -5,6 +5,8 @@
  *
  * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
  *        <david-i2@piegdon.de>
+ *    and Daniel Neider, i7 Informatik RWTH-Aachen
+ *        <neider@automata.rwth-aachen.de>
  *
  * see LICENSE file for licensing information.
  */
@@ -62,6 +64,10 @@ class knowledgebase {
 					NODE_IGNORE = 0,
 					NODE_REQUIRED = 1,
 					NODE_ANSWERED = 2
+				};
+				enum order_e {
+					ORDER_LEX = 0,
+					ORDER_LEX_GRADED = 1
 				};
 			protected: // data
 				knowledgebase * base;
@@ -348,6 +354,22 @@ class knowledgebase {
 
 					return false;
 				}}}
+				bool is_lex_smaller(node * other)
+				{{{
+					// FIXME: efficience
+					list<int> a,b;
+					a = this->get_word();
+					b = other->get_word();
+					return is_lex_smaller(a,b);
+				}}}
+				bool is_graded_lex_smaller(node * other)
+				{{{
+					// FIXME: efficience
+					list<int> a,b;
+					a = this->get_word();
+					b = other->get_word();
+					return is_graded_lex_smaller(a,b);
+				}}}
 				int get_memory_usage()
 				{{{
 					int ret;
@@ -399,6 +421,13 @@ class knowledgebase {
 		}; // end of knowledgebase::node
 
 
+		class node_comparator {
+			public:
+				bool operator() (node * a, node * b)
+				{ return a < b; };
+		};
+
+//		typedef map<node*, node*, node_comparator> equivalence_class;
 
 		class iterator : std::iterator<std::forward_iterator_tag, node> {
 			private:
@@ -921,6 +950,14 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 			iterator it;
 			return it;
 		}}}
+
+/*
+		bool equivalenceclass2automaton(equivalence_class & eq,
+				bool & t_is_dfa, int & t_alphabet_size, int & t_state_count, set<int> & t_initial, set<int> & t_final, multimap<pair<int, int>, int> & t_transitions)
+		{
+			
+		}
+*/
 
 };
 

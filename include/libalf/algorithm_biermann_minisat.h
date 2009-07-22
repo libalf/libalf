@@ -32,6 +32,8 @@ using namespace libalf::MiniSat;
 // "M. Leucker, O. Grinchtein, N. Piterman - Inferring Network Invariants Automatically"
 template <class answer>
 class MiniSat_biermann : public basic_biermann<answer> {
+	public: // types
+		typedef typename knowledgebase<answer>::node node;
 	public:
 		MiniSat_biermann(knowledgebase<answer> * base, logger * log, int alphabet_size)
 		{{{
@@ -46,9 +48,9 @@ class MiniSat_biermann : public basic_biermann<answer> {
 		}}}
 
 	protected:
-		virtual bool csp2sat(Solver & solver, map<typename basic_biermann<answer>::knowledgebase_node_ptr, vector<Var>, typename basic_biermann<answer>::node_comparator > & vars)
+		virtual bool csp2sat(Solver & solver, map<node*, vector<Var>, typename knowledgebase<answer>::node_comparator > & vars)
 		{{{
-			typename set< typename basic_biermann<answer>::knowledgebase_node_ptr >::iterator si;
+			typename set< node* >::iterator si;
 			int clausecount = 0;
 
 			// create vars
@@ -195,7 +197,7 @@ class MiniSat_biermann : public basic_biermann<answer> {
 		virtual bool solve_constraints()
 		{{{
 			Solver solver;
-			map<typename basic_biermann<answer>::knowledgebase_node_ptr, vector<Var>, typename basic_biermann<answer>::node_comparator > vars;
+			map<node*, vector<Var>, typename knowledgebase<answer>::node_comparator > vars;
 
 			//solver.verbosity = 1;
 
@@ -230,7 +232,7 @@ class MiniSat_biermann : public basic_biermann<answer> {
 				printf("\n");
 				*/
 
-				typename map<typename basic_biermann<answer>::knowledgebase_node_ptr, vector<Var>, typename basic_biermann<answer>::node_comparator>::iterator vsi;
+				typename map<node*, vector<Var>, typename knowledgebase<answer>::node_comparator>::iterator vsi;
 				int vindex = 0;
 
 				for(vsi = vars.begin(); vsi != vars.end(); vsi++) {

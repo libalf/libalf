@@ -39,15 +39,10 @@ using namespace std;
 template <class answer>
 class basic_biermann : public learning_algorithm<answer> {
 	public:	// types
-		class node_comparator {
-			public:
-				bool operator() (typename knowledgebase<answer>::node * a, typename knowledgebase<answer>::node * b)
-				{ return a < b; };
-		};
-		typedef typename knowledgebase<answer>::node* knowledgebase_node_ptr;
+		typedef typename knowledgebase<answer>::node node;
 
 		// mapping is the final solution, a mapping from the LFDFAs states to the final mDFAs states
-		typedef map<knowledgebase_node_ptr, int, node_comparator> mapping;
+		typedef map<node*, int, typename knowledgebase<answer>::node_comparator> mapping;
 
 		class constraint {
 			// very reduced constraint: can only represent the following formulas:
@@ -55,7 +50,7 @@ class basic_biermann : public learning_algorithm<answer> {
 			// and
 			// l1 != l2 || l3 == l4
 			public:
-				knowledgebase_node_ptr l1, l2, l3, l4;
+				node *l1, *l2, *l3, *l4;
 				bool has_second;
 
 				pair<bool, bool> verify(mapping & solution)
@@ -131,7 +126,7 @@ class basic_biermann : public learning_algorithm<answer> {
 	protected: // data
 		int mdfa_size;
 		list<constraint> constraints;
-		set<knowledgebase_node_ptr> sources;
+		set<node*> sources;
 		mapping solution;
 
 
@@ -190,7 +185,7 @@ class basic_biermann : public learning_algorithm<answer> {
 
 		virtual void print(ostream &os)
 		{{{
-			typename set<knowledgebase_node_ptr>::iterator si;
+			typename set<node*>::iterator si;
 			typename list<constraint>::iterator ci;
 
 			os << "mapping sources {\n";
@@ -308,7 +303,7 @@ class basic_biermann : public learning_algorithm<answer> {
 			constraint constraint;
 			int ccount = 0;
 			typename knowledgebase<answer>::iterator ki1, ki2;
-			typename knowledgebase<answer>::node *suffix1, *suffix2;
+			node *suffix1, *suffix2;
 
 			sources.clear();
 			constraints.clear();
@@ -372,7 +367,7 @@ class basic_biermann : public learning_algorithm<answer> {
 
 		virtual bool solution2automaton(bool & t_is_dfa, int & t_alphabet_size, int & t_state_count, set<int> & t_initial, set<int> & t_final, multimap<pair<int, int>, int> & t_transitions)
 		{{{
-			typename set<knowledgebase_node_ptr>::iterator si;
+			typename set<node*>::iterator si;
 
 			// knowledgebase.begin() always starts at root node (epsilon)
 			t_initial.insert( solution[ this->my_knowledge->begin()->get_selfptr() ] );
@@ -386,7 +381,7 @@ class basic_biermann : public learning_algorithm<answer> {
 					pair<int, int> trid;
 					trid.first = solution[ (*si)->get_selfptr() ];
 					for(int s = 0; s < this->get_alphabet_size(); s++) {
-						knowledgebase_node_ptr child;
+						node* child;
 						child = (*si)->find_child(s);
 						if(child != NULL) {
 							trid.second = s;
