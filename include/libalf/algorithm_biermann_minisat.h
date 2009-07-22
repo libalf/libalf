@@ -29,7 +29,7 @@ using namespace std;
 using namespace libalf::MiniSat;
 
 // biermann using CSP2SAT + MiniSat, as described in
-// "M. Leucker, O. Grinchtein, N. Piterman - Inferring Network Invariants Automatically"
+//	* M. Leucker, O. Grinchtein, N. Piterman: "Inferring Network Invariants Automatically"
 template <class answer>
 class MiniSat_biermann : public basic_biermann<answer> {
 	public: // types

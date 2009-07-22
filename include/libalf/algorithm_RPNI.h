@@ -15,8 +15,8 @@
 /*
  * RPNI (regular positive, negative inference) is an offline learning algorithm,
  * described in e.g.
- *	* P. Graćıa and J. Oncina. Inferring regular languages in polynomial update time
- *	* D. Neider, Learning Automata for Streaming XML Documents
+ *	* P. Graćıa and J. Oncina: "Inferring regular languages in polynomial update time"
+ *	* D. Neider: "Learning Automata for Streaming XML Documents"
  */
 
 

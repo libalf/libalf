@@ -998,8 +998,8 @@ class angluin_table : public learning_algorithm<answer> {
 
 
 
-// this is the classical angluin learning algorithm, L*, implemented in a table-fashion:
-// prefix-closed rows and suffix-closed columns
+// this is the classical table-base angluin learning algorithm, L*,
+// implemented in a table-fashion: prefix-closed rows and suffix-closed columns
 template <class answer>
 class angluin_simple_table : public angluin_table<answer, list< algorithm_angluin::simple_row<answer, vector<answer> > >, vector<answer> > {
 	public:

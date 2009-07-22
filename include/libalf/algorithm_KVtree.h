@@ -33,8 +33,8 @@ namespace libalf {
 using namespace std;
 
 // KV_tree - algorithm as described in section 8.3 (Exact Learning of Finite Automata) of
-// "M.J. Kearns, U.V. Vazirani - An Introduction To Computational Learning Theory",
-// 1994, MIT Press, ISBN 978-0-262-11193-5
+//	* M.J. Kearns, U.V. Vazirani: "An Introduction To Computational Learning Theory",
+//	  1994, MIT Press, ISBN 978-0-262-11193-5
 
 // NOTES on algorithm: active online algorithm, thus using membership- and equivalence queries.
 // needs exactly n equivalence queries for a model of size n.

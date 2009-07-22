@@ -402,7 +402,7 @@ class basic_biermann : public learning_algorithm<answer> {
 
 
 // biermann using Dependency Directed Backtracking, as described in
-// "Arlindo L. Oliveira and João P.M. Silva - Efficient Algorithms for the Inference of Minimum Size DFAs"
+//	* Arlindo L. Oliveira and João P.M. Silva: "Efficient Algorithms for the Inference of Minimum Size DFAs"
 /*
 template <class answer>
 class DDB_biermann : public basic_biermann<answer> {
