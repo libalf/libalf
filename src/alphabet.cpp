@@ -140,7 +140,7 @@ bool deserialize_word(list<int32_t> &into, basic_string<int32_t>::iterator &it, 
 	return true;
 }}}
 
-bool is_lex_smaller(list<int> & a, list<int> & b)
+bool is_lex_smaller(list<int> &a, list<int> &b)
 {{{
 	list<int>::iterator w1i;
 	list<int>::iterator w2i;
@@ -152,7 +152,7 @@ bool is_lex_smaller(list<int> & a, list<int> & b)
 	return w1i == a.end() && w2i != b.end();
 }}}
 
-bool is_graded_lex_smaller(list<int> &a, list<int> & b)
+bool is_graded_lex_smaller(list<int> &a, list<int> &b)
 {{{
 	list<int>::iterator w1i;
 	list<int>::iterator w2i;

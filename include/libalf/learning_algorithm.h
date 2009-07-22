@@ -163,7 +163,7 @@ class learning_algorithm {
 				t_transitions.clear();
 
 				if(!derive_automaton(t_is_dfa, t_alphabet_size, t_state_count, t_initial, t_final, t_transitions)) {
-					(*my_logger)(LOGGER_ERROR, "learning_algorithm::advance(): derive from completed table failed! wrong kind of automaton passed or internal error.\n");
+					(*my_logger)(LOGGER_ERROR, "learning_algorithm::advance(): derive from completed data structure failed! possibly internal error.\n");
 					return false;
 				} else {
 					return true;

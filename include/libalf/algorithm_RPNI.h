@@ -270,7 +270,7 @@ class RPNI : public learning_algorithm<answer> {
 
 			merge_states(eq);
 			(*this->my_logger)(LOGGER_INFO, "RPNI: states merged. constructing automaton...\n");
-			ok = this->my_knowledge->equivalenceclass2automaton(eq.equivalences, false,
+			ok = this->my_knowledge->equivalence_relation2automaton(eq.equivalences, false,
 					t_is_dfa, t_alphabet_size, t_state_count,
 					t_initial, t_final, t_transitions);
 
@@ -309,8 +309,12 @@ class RPNI : public learning_algorithm<answer> {
 					lgo2.set_root(this->my_knowledge->get_rootptr());
 					while(&*lgo != &*lgo2) {
 						if(eq.is_representative_graded_lex(&*lgo2)) {
-							(*this->my_logger)(LOGGER_DEBUG, "RPNI: trying to merge (%p, %p)\n", &*lgo, &*lgo2);
+							list<int> w1, w2;
+							w1 = lgo->get_word();
+							w2 = lgo2->get_word();
+							(*this->my_logger)(LOGGER_DEBUG, "RPNI: trying to merge  %s  and  %s\n", word2string(w1).c_str(), word2string(w2).c_str());
 							if(eq.add_if_possible(&*lgo, &*lgo2)) {
+								(*this->my_logger)(LOGGER_DEBUG, "RPNI: merge successfull\n");
 #ifdef DEBUG_EQ_CLASSES
 								char filename[128];
 								ofstream file;
@@ -321,6 +325,8 @@ class RPNI : public learning_algorithm<answer> {
 								iteration++;
 #endif
 								break;
+							} else {
+								(*this->my_logger)(LOGGER_DEBUG, "RPNI: merge failed\n");
 							}
 
 						}

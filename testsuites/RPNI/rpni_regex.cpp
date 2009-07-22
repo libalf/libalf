@@ -23,6 +23,8 @@
 #include <amore++/deterministic_finite_automaton.h>
 #include <amore++/nondeterministic_finite_automaton.h>
 
+#include <LanguageGenerator/prng.h>
+
 #include "amore_alf_glue.h"
 
 using namespace std;
@@ -89,8 +91,6 @@ int main(int argc, char**argv)
 
 	alphabet_size = dfa->get_alphabet_size();
 
-	srand(time(NULL));
-
 	list<int> w;
 	if(add_epsilon)
 		knowledge.add_knowledge(w, dfa->contains(w));
@@ -99,8 +99,7 @@ int main(int argc, char**argv)
 	for(int i = 0; i < runs; i++) {
 		w.clear();
 		for(int j = 0; j < run_length; j++) {
-			unsigned long int r = rand();
-			r = (r * alphabet_size) / RAND_MAX;
+			int r = LanguageGenerator::prng::random_int(alphabet_size);
 			w.push_back(r);
 			knowledge.add_knowledge(w, dfa->contains(w));
 		}

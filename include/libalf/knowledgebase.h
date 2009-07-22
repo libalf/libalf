@@ -428,7 +428,8 @@ class knowledgebase {
 
 		class equivalence_relation : public multimap<node*, node*, node_comparator> {
 			public: // types
-				typedef pair<typename multimap<node*, node*, node_comparator>::iterator, typename multimap<node*, node*, node_comparator>::iterator> range;
+				typedef typename multimap<node*, node*, node_comparator>::iterator iterator;
+				typedef pair<iterator, iterator> range;
 			public: // member functions
 				set<node*> get_equivalence_class(node * n)
 				{{{
@@ -502,6 +503,21 @@ class knowledgebase {
 
 					return true;
 				}}}
+				set<node*> representatives_lex()
+				{{{
+					set<node*> ret;
+					iterator i;
+					node *done = NULL;
+
+					for(i = this->begin(); i != this->end(); i++) {
+						if(i->first != done) {
+							done = i->first;
+							ret.insert(representative_lex(i->first));
+						}
+					}
+
+					return ret;
+				}}}
 
 				node * representative_graded_lex(node * n)
 				{{{
@@ -550,6 +566,21 @@ class knowledgebase {
 
 					return true;
 				}}}
+				set<node*> representatives_graded_lex()
+				{{{
+					set<node*> ret;
+					iterator i;
+					node* done = NULL;
+
+					for(i = this->begin(); i != this->end(); i++) {
+						if(i->first != done) {
+							done = i->first;
+							ret.insert(representative_graded_lex(i->first));
+						}
+					}
+
+					return ret;
+				}}}
 
 				node * representative_ptr(node * n)
 				{{{
@@ -586,6 +617,21 @@ class knowledgebase {
 					}
 
 					return true;
+				}}}
+				set<node*> representatives_ptr()
+				{{{
+					set<node*> ret;
+					iterator i;
+					node* done = NULL;
+
+					for(i = this->begin(); i != this->end(); i++) {
+						if(i->first != done) {
+							done = i->first;
+							ret.insert(representative_ptr(i->first));
+						}
+					}
+
+					return ret;
 				}}}
 		};
 
@@ -1214,12 +1260,90 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 			return it;
 		}}}
 
-		bool equivalenceclass2automaton(equivalence_relation &eq, bool ignoring_states_accept,
+		bool equivalence_relation2automaton(equivalence_relation &eq, bool ignoring_states_accept,
 			bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, set<int> &t_initial,
 			set<int> &t_final, multimap<pair<int, int>, int> &t_transitions)
 		{
-			
-			return false;
+			// get a set of all representatives
+			set<node*> representatives;
+			typename set<node*>::iterator si;
+			map<node*, int> mapping;
+			int i;
+
+			// map representatives to state-IDs
+			representatives = eq.representatives_ptr();
+			for(i=0, si = representatives.begin(); si != representatives.end(); i++, si++)
+				mapping[*si] = i;
+
+			t_alphabet_size = -1; // will be adjusted on the fly
+			t_is_dfa = false;
+			t_state_count = representatives.size();
+			t_initial.clear();
+			t_initial.insert(mapping[get_rootptr()]);
+
+			// get final states and transitions
+			vector<extended_bool> acceptances;
+			extended_bool b;
+			b.value = extended_bool::EBOOL_UNKNOWN;
+			for(i = 0; i < t_state_count; i++)
+				acceptances.push_back(b);
+
+			typename equivalence_relation::iterator eqi;
+			node *n;
+			for(eqi = eq.begin(); eqi != eq.end(); eqi++) {
+				if(eqi->first != n) {
+					n = eqi->first;
+					int childcount = n->max_child_count();
+
+					if(t_alphabet_size < childcount)
+						t_alphabet_size = childcount;
+
+					pair<int, int> trid;
+					trid.first = mapping[eq.representative_ptr(n)];
+					for(i = 0; i < childcount; i++) {
+						// add transition if exists
+						node *c;
+						c = n->find_child(i);
+						if(c != NULL) {
+							trid.second = i;
+							t_transitions.insert( pair<pair<int, int>, int>(trid, mapping[eq.representative_ptr(c)]));
+						}
+					}
+					if(n->is_answered()) {
+						if(n->get_answer() == true) {
+							if(acceptances[trid.first].value == extended_bool::EBOOL_FALSE) {
+								list<int> word;
+								word = n->get_word();
+								printf("inconsistency in equivalence relation: %s\n", word2string(word).c_str());
+								return false;
+							}
+							acceptances[trid.first].value = extended_bool::EBOOL_TRUE;
+						} else {
+							if(n->get_answer() == false) {
+								if(acceptances[trid.first].value == extended_bool::EBOOL_TRUE) {
+									list<int> word;
+									word = n->get_word();
+									printf("inconsistency in equivalence relation: %s\n", word2string(word).c_str());
+									return false;
+								}
+								acceptances[trid.first].value = extended_bool::EBOOL_FALSE;
+							} else {
+								// well what can we do :)
+							}
+						}
+					}
+				}
+			}
+
+			for(i = 0; i < t_state_count; i++) {
+				if(acceptances[i].value == extended_bool::EBOOL_TRUE)
+					t_final.insert(i);
+				else
+					if(acceptances[i].value == extended_bool::EBOOL_UNKNOWN && ignoring_states_accept)
+						t_final.insert(i);
+			}
+
+			return true;
 		}
 
 };
