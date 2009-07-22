@@ -42,6 +42,7 @@ class basic_biermann : public learning_algorithm<answer> {
 		typedef typename knowledgebase<answer>::node node;
 
 		// mapping is the final solution, a mapping from the LFDFAs states to the final mDFAs states
+		// FIXME: migrate mapping to knowledgebase<answer>::equivalence_relation
 		typedef map<node*, int, typename knowledgebase<answer>::node_comparator> mapping;
 
 		class constraint {

@@ -47,11 +47,11 @@ bool deserialize_word(list<int32_t> &into, basic_string<int32_t>::iterator &it, 
 
 // lexicographical compare:
 // a < b iff a[i] == b[i] \forall i < j and a[j] < b[j]
-bool is_lex_smaller(list<int> & a, list<int> & b);
+bool is_lex_smaller(list<int> &a, list<int> &b);
 
 // graded lexicographical compare:
 // a < b iff |a|<|b| or ( |a|==|b| and lex. a < b )
-bool is_graded_lex_smaller(list<int> &a, list<int> & b);
+bool is_graded_lex_smaller(list<int> &a, list<int> &b);
 
 };
 

@@ -359,7 +359,7 @@ class knowledgebase {
 					list<int> a,b;
 					a = this->get_word();
 					b = other->get_word();
-					return is_lex_smaller(a,b);
+					return libalf::is_lex_smaller(a,b);
 				}}}
 				bool is_graded_lex_smaller(node * other)
 				{{{
@@ -367,7 +367,7 @@ class knowledgebase {
 					list<int> a,b;
 					a = this->get_word();
 					b = other->get_word();
-					return is_graded_lex_smaller(a,b);
+					return libalf::is_graded_lex_smaller(a,b);
 				}}}
 				int get_memory_usage()
 				{{{
@@ -465,15 +465,15 @@ class knowledgebase {
 					if(eq_class.first == eq_class.second)
 						return NULL;
 
-					current_rep = eq_class.first;
+					current_rep = eq_class.first->second;
 					current_rep_word = current_rep->get_word();
 					eq_class.first++;
 
 					while(eq_class.first != eq_class.second) {
 						list<int> w;
-						w = eq_class.first->get_word();
-						if(is_lex_smaller(w, current_rep_word)) {
-							current_rep = eq_class.first;
+						w = eq_class.first->second->get_word();
+						if(libalf::is_lex_smaller(w, current_rep_word)) {
+							current_rep = eq_class.first->second;
 							current_rep_word = w;
 						}
 						eq_class.first++;
@@ -494,8 +494,8 @@ class knowledgebase {
 
 					while(eq_class.first != eq_class.second) {
 						list<int> w;
-						w = eq_class.first->get_word();
-						if(is_lex_smaller(w, word))
+						w = eq_class.first->second->get_word();
+						if(libalf::is_lex_smaller(w, word))
 							return false;
 						eq_class.first++;
 					}
@@ -513,15 +513,15 @@ class knowledgebase {
 					if(eq_class.first == eq_class.second)
 						return NULL;
 
-					current_rep = eq_class.first;
+					current_rep = eq_class.first->second;
 					current_rep_word = current_rep->get_word();
 					eq_class.first++;
 
 					while(eq_class.first != eq_class.second) {
 						list<int> w;
-						w = eq_class.first->get_word();
-						if(is_graded_lex_smaller(w, current_rep_word)) {
-							current_rep = eq_class.first;
+						w = eq_class.first->second->get_word();
+						if(libalf::is_graded_lex_smaller(w, current_rep_word)) {
+							current_rep = eq_class.first->second;
 							current_rep_word = w;
 						}
 						eq_class.first++;
@@ -542,8 +542,8 @@ class knowledgebase {
 
 					while(eq_class.first != eq_class.second) {
 						list<int> w;
-						w = eq_class.first->get_word();
-						if(is_graded_lex_smaller(w, word))
+						w = eq_class.first->second->get_word();
+						if(libalf::is_graded_lex_smaller(w, word))
 							return false;
 						eq_class.first++;
 					}
@@ -560,12 +560,12 @@ class knowledgebase {
 					if(eq_class.first == eq_class.second)
 						return NULL;
 
-					current_rep = eq_class.first;
+					current_rep = eq_class.first->second;
 					eq_class.first++;
 
 					while(eq_class.first != eq_class.second) {
-						if(*eq_class.first < current_rep)
-							current_rep = eq_class.first;
+						if(eq_class.first->second < current_rep)
+							current_rep = eq_class.first->second;
 						eq_class.first++;
 					}
 
@@ -580,7 +580,7 @@ class knowledgebase {
 						return false;
 
 					while(eq_class.first != eq_class.second) {
-						if(*eq_class.first < n)
+						if(eq_class.first->second < n)
 							return false;
 						eq_class.first++;
 					}
@@ -869,6 +869,107 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 						buf[127] = 0;
 						ret += buf;
 					}
+				}
+			}
+
+			ret += "}\n";
+			return ret;
+		}}}
+		string generate_dotfile(equivalence_relation & eq)
+		{{{
+			string ret;
+
+			char buf[128];
+			iterator it;
+
+			list<int> word;
+			string wname;
+
+			ret = "digraph knowledgebase {\n"
+				"\trankdir=LR;\n"
+				"\tsize=8;\n";
+
+			// add all nodes
+			for(it = this->begin(); it != this->end(); it++) {
+				word = it->get_word();
+				wname = word2string(word);
+				snprintf(buf, 128, "\tnode [shape=\"%s\", style=\"filled\", color=\"%s\"]; \"%s [%d]\";\n",
+						// shape
+						it->is_answered() ? "ellipse" : "pentagon",
+						// color
+						it->is_answered() ? ( (it->get_answer() == true) ? "green" : (it->get_answer() == false ? "red" : "blue"))
+								  : (it->is_required() ? "darkorange" : "grey"),
+						// name
+						wname.c_str(), it->timestamp
+					);
+				buf[127] = 0;
+				ret += buf;
+			}
+			// and add all connections
+			for(it = this->begin(); it != this->end(); it++) {
+				typename vector<node *>::iterator ci;
+				string toname;
+
+				word = it->get_word();
+				wname = word2string(word);
+				for(ci = it->children.begin(); ci != it->children.end(); ci++) {
+					if(*ci) {
+						word = (*ci)->get_word();
+						toname = word2string(word);
+
+						snprintf(buf, 128, "\t\"%s [%d]\" -> \"%s [%d]\" [ label = \"%d\" ];\n",
+								wname.c_str(), it->timestamp,
+								toname.c_str(), (*ci)->timestamp,
+								(*ci)->label
+							);
+						buf[127] = 0;
+						ret += buf;
+					}
+				}
+			}
+
+			// and mark equivalence relations
+			set<node*> done;
+			typename equivalence_relation::iterator ni;
+			for(ni = eq.begin(); ni != eq.end(); ni++) {
+				if(done.find(ni->second) == done.end()) {
+					set<node*> eq_class;
+					typename set<node*>::iterator si;
+					list<node*> sorted_eq_class;
+
+					// sort equivalence class, then draw a line through the class
+					eq_class = eq.get_equivalence_class(ni->second);
+					int count;
+					for(si = eq_class.begin(), count = 0; si != eq_class.end(); si++, count++) {
+						done.insert(*si);
+						// sorted insert into sorted_eq_class: [FIXME: efficiency is non-existant]
+						typename list<node*>::iterator li;
+						for(li = sorted_eq_class.begin(); li != sorted_eq_class.end(); li++)
+							if( ! (*li)->is_graded_lex_smaller(*si) )
+								break;
+						sorted_eq_class.insert(li, *si);
+					}
+
+					if(count >= 2) {
+						typename list<node*>::iterator li1, li2;
+						li1 = sorted_eq_class.begin();
+						li2 = li1;
+						li2++;
+
+						while(li2 != sorted_eq_class.end()) {
+							list<int> w1, w2;
+							w1 = (*li1)->get_word();
+							w2 = (*li2)->get_word();
+							snprintf(buf, 128, "\t\"%s [%d]\" -> \"%s [%d]\" [ label=\"\", color=\"orange\", constraint=\"false\", dir=\"none\" ];\n",
+									word2string(w1).c_str(), (*li1)->timestamp,
+									word2string(w2).c_str(), (*li2)->timestamp);
+
+							ret += buf;
+							li1++;
+							li2++;
+						};
+					}
+				} else {
 				}
 			}
 

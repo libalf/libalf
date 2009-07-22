@@ -90,6 +90,11 @@ class RPNI : public learning_algorithm<answer> {
 				{{{
 					return equivalences.are_equivalent(a,b);
 				}}}
+
+				bool is_representative_graded_lex(node * n)
+				{{{
+					return equivalences.representative_graded_lex(n);
+				}}}
 			protected:
 				set<node*> get_equivalence_class_candidate(node * n)
 				{{{
@@ -117,8 +122,7 @@ class RPNI : public learning_algorithm<answer> {
 				}}}
 
 				bool add(node * a, node * b)
-				{
-printf("\tADD %p,%p\n", a, b);
+				{{{
 					if(!are_candidate_equivalent(a, b)) {
 						set<nodeppair> pending_equivalences;
 						typename set<nodeppair>::iterator pi;
@@ -132,15 +136,11 @@ printf("\tADD %p,%p\n", a, b);
 
 						for(cai = ca.begin(); cai != ca.end(); cai++) {
 							for(cbi = cb.begin(); cbi != cb.end(); cbi++) {
-printf("\t -> %p,%p\n", *cai, *cbi);
 								nodeppair p;
 
-								// FIXME: is this ok?
-								// alternative: if is_answered && answer==true, both have to be like this?
 								if((*cai)->is_answered() && (*cbi)->is_answered()) {
 									if((*cai)->get_answer() != (*cbi)->get_answer()) {
 										// consistency failure. the requested equivalence is not possible with this sample set.
-printf("\t\tBAD!\n");
 										return false;
 									}
 								}
@@ -168,17 +168,13 @@ printf("\t\tBAD!\n");
 								}
 							}
 						}
-printf("\t{\n");
 						for(pi = pending_equivalences.begin(); pi != pending_equivalences.end(); pi++)
 							if(!add(pi->first, pi->second))
 								return false;
-printf("\t}\n");
-					} else {
-printf("\t+++\n");
 					}
 
 					return true;
-				}
+				}}}
 		};
 
 	protected: // data
@@ -290,6 +286,10 @@ printf("\t+++\n");
 			lgo++;
 			lgo_index++;
 
+#ifdef DEBUG_EQ_CLASSES
+			int iteration = 0;
+#endif
+
 			while( ! lgo.end()) {
 
 				kIterator_lex_graded<answer> lgo2(this->my_knowledge->get_rootptr());
@@ -308,15 +308,22 @@ printf("\t+++\n");
 					// check for all smaller states, if one can be joined with this one
 					lgo2.set_root(this->my_knowledge->get_rootptr());
 					while(&*lgo != &*lgo2) {
-						// FIXME: implement is_smallest_of_equivalence_class()
-						//if(eq.is_smallest_of_equivalence_class(&*lgo2)) {
-							(*this->my_logger)(LOGGER_DEBUG, "RPNI: trying to merge (%p ,%p)\n", &*lgo, &*lgo2);
+						if(eq.is_representative_graded_lex(&*lgo2)) {
+							(*this->my_logger)(LOGGER_DEBUG, "RPNI: trying to merge (%p, %p)\n", &*lgo, &*lgo2);
 							if(eq.add_if_possible(&*lgo, &*lgo2)) {
-printf("\t\t:)\n");
+#ifdef DEBUG_EQ_CLASSES
+								char filename[128];
+								ofstream file;
+								snprintf(filename, 128, "eq-classes-%02d.dot", iteration);
+								file.open(filename);
+								file << this->my_knowledge->generate_dotfile(eq.equivalences);
+								file.close();
+								iteration++;
+#endif
 								break;
 							}
 
-						//}
+						}
 						lgo2++;
 					}
 				}
