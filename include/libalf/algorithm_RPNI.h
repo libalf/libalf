@@ -40,6 +40,7 @@ class RPNI : public learning_algorithm<answer> {
 			public: // data
 				knowledgebase<answer> * base;
 				set<pair<knowledgebase<answer>::node*, knowledgebase<answer>::node*> > equivalences;
+			protected:
 				set<pair<knowledgebase<answer>::node*, knowledgebase<answer>::node*> > candidates;
 
 			public: // member functions
@@ -77,17 +78,14 @@ class RPNI : public learning_algorithm<answer> {
 				{{{
 					base = copy_from->base;
 					equivalences = copy_from->equivalences;
+					candidates = copy_from->candidates;
 				}}}
 
 				bool add_if_possible(knowledgebase<answer>::node * a, knowledgebase<answer>::node * b)
 				{{{
-					pair<knowledgebase<answer>::node*, knowledgebase<answer>::node*> p;
+					bool ok;
 
-					p.first = a;
-					p.second = b;
-					candidates.insert(p);
-
-					bool ok = complete_and_check();
+					ok = add(a, b);
 
 					if(ok) {
 						set<pair<knowledgebase<answer>::node*, knowledgebase<answer>::node*> >::iterator ci;
@@ -102,7 +100,7 @@ class RPNI : public learning_algorithm<answer> {
 				set<knowledgebase<answer>::node*> get_equivalence_class(knowledgebase<answer>::node * n)
 				{{{
 					set<knowledgebase<answer>::node*> ret;
-					set<pair<knowledgebase<answer>::node*, knowledgebase<answer>::node*> >::iterator eqi;
+					set<PAIR<KNOWLEDGEBASE<ANSWER>::NODE*, KNOWLEDGEBASE<answer>::node*> >::iterator eqi;
 
 					for(eqi = equivalences.begin(); eqi != equivalences.end(); eqi++)
 						if(n == eqi->first)
@@ -119,11 +117,85 @@ class RPNI : public learning_algorithm<answer> {
 
 					return equivalences.find(p) != equivalences.end();
 				}}}
-			private:
-				bool complete_and_check()
-				{
-					
-				}
+			protected:
+				set<knowledgebase<answer>::node*> get_equivalence_class_candidate(knowledgebase<answer>::node * n)
+				{{{
+					set<knowledgebase<answer>::node*> ret;
+					set<pair<knowledgebase<answer>::node*, knowledgebase<answer>::node*> >::iterator eqi;
+
+					for(eqi = equivalences.begin(); eqi != equivalences.end(); eqi++)
+						if(n == eqi->first)
+							ret.insert(eqi->second);
+					for(eqi = candidates.begin(); eqi != candidates.end(); eqi++)
+						if(n == eqi->first)
+							ret.insert(eqi->second);
+
+					return ret;
+				}}}
+				bool are_candidate_equivalent(knowledgebase<answer>node * a, knowledgebase<answer>::node * b)
+				{{{
+					pair<knowledgebase<answer>::node*, knowledgebase<answer>::node*> p;
+					p.first = a;
+					p.second = b;
+
+					if(equivalences.find(p) != equivalences.end())
+						return true;
+					return candidates.find(p) != candidates.end();
+				}}}
+
+				bool add(knowledgebase<answer>::node * a, knowledgebase<answer>::node * b)
+				{{{
+					if(!are_candidate_equivalent(a, b)) {
+						set< pair<knowledgebase<answer>::node*, knowledgebase<answer>::node*> > pending_equivalences;
+						set< pair<knowledgebase<answer>::node*, knowledgebase<answer>::node*> >::iterator pi;
+
+
+						set<knowledgebase<answer>::node*> ca, cb;
+
+						ca = get_equivalence_class_candidate(a);
+						cb = get_equivalence_class_candidate(b);
+
+						set<knowledgebase<answer>::node*> cai, cbi;
+
+						for(cai = ca.begin(); cai != ca.end(); cai++) {
+							for(cbi = cb.begin(); cbi != cb.end(); cbi++) {
+								pair<knowledgebase<answer>::node*, knowledgebase<answer>::node*> p;
+
+								if((*cai)->is_answered() && (*cbi)->is_answered())
+									if((*cai)->get_answer() != (*cbi)->get_answer()) {
+										// consistency failure. the requested equivalence
+										// is not possible with this sample set.
+										return false;
+									}
+
+								p.first = *cai;
+								p.second = *cbi;
+								candidates.insert(p);
+
+								p.first = *cbi;
+								p.second = *cai;
+								candidates.insert(p);
+
+								for(int sigma = 0; sigma < base->get_alphabet_size(); sigma++) {
+									knowledgebase<answer>::node * r,s;
+									r = (*cai)->children[sigma];
+									s = (*cbi)->children[sigma];
+									if(r != NULL && s != NULL) {
+										pair<knowledgebase<answer>::node*, knowledgebase<answer>::node*> q;
+										q.first = r;
+										q.second = s;
+										pending_equivalences.insert(q);
+									}
+								}
+							}
+						}
+
+						for(pi = pending_equivalences.begin(); pi != pending_equivalences.end(); pi++)
+							if(!add(pi->first, pi->second))
+								return false;
+					}
+				}}}
+
 		};
 
 	protected: // data
@@ -209,16 +281,17 @@ class RPNI : public learning_algorithm<answer> {
 		// derive an automaton from data structure
 		virtual bool derive_automaton(bool & t_is_dfa, int & t_alphabet_size, int & t_state_count, set<int> & t_initial, set<int> & t_final, multimap<pair<int, int>, int> & t_transitions)
 		{
-			equivalence_relation eq_good(my_knowledge);
+			equivalence_relation eq(my_knowledge);
 
-			if(!merge_states(eq_good))
+			if(!merge_states(eq))
 				return false;
 
 			// now construct automaton from that
 			
 			
+			
 		}
-		virtual bool merge_states(equivalence_relation & eq_good)
+		virtual bool merge_states(equivalence_relation & eq)
 		{{{
 			kIterator_lex_graded lgo(my_knowledge->get_rootptr());
 			int lgo_index = 0;
@@ -233,7 +306,7 @@ class RPNI : public learning_algorithm<answer> {
 				// check that current state is not equivalent to some smaller
 				bool skip = false;
 				while(*lgo != *lgo2) {
-					if(eq_good.are_equivalent(*lgo, *lgo2)){
+					if(eq.are_equivalent(*lgo, *lgo2)){
 						skip = true;
 						break;
 					}
@@ -247,7 +320,7 @@ class RPNI : public learning_algorithm<answer> {
 						// FIXME: we should only do this once for each equivalence class,
 						// not for each node.
 
-						if(equivalences.add_if_possible(*lgo, *lgo2))
+						if(eq.add_if_possible(*lgo, *lgo2))
 							break;
 
 						lgo2++;
