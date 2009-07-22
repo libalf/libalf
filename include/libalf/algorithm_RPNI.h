@@ -21,6 +21,8 @@
 #ifndef __libalf_algorithm_rpni_h__
 # define __libalf_algorithm_rpni_h__
 
+#include <stdio.h>
+
 #include <string>
 #include <list>
 #include <map>
@@ -42,9 +44,9 @@ class RPNI : public learning_algorithm<answer> {
 				typedef pair<node*, node*> nodeppair;
 			public: // data
 				knowledgebase<answer> * base;
-				set<nodeppair> equivalences;
+				set<nodeppair> equivalences; // FIXME: use a multimap
 			protected:
-				set<nodeppair> candidates;
+				set<nodeppair> candidates; // FIXME: use a multimap
 
 			public: // member functions
 				equivalence_relation(knowledgebase<answer> * my_knowledge)
@@ -59,6 +61,7 @@ class RPNI : public learning_algorithm<answer> {
 						p.first = &*kit;
 						p.second = &*kit;
 						equivalences.insert(p);
+						kit++;
 					}
 				}}}
 				equivalence_relation(equivalence_relation & copy_from)
@@ -75,6 +78,7 @@ class RPNI : public learning_algorithm<answer> {
 
 				bool add_if_possible(node * a, node * b)
 				{{{
+printf("\tADD %p,%p\n", a, b);
 					bool ok;
 
 					ok = add(a, b);
@@ -99,6 +103,18 @@ class RPNI : public learning_algorithm<answer> {
 							ret.insert(eqi->second);
 
 					return ret;
+				}}}
+
+				node * representative(node * n)
+				// return representative for the eq.class of this node
+				// (i.e. the smallest according to graded lex. order)
+				{
+					
+				}
+
+				bool is_representative(node * n)
+				{{{
+					return n == representative(n);
 				}}}
 
 				bool are_equivalent(node * a, node * b)
@@ -136,12 +152,11 @@ class RPNI : public learning_algorithm<answer> {
 				}}}
 
 				bool add(node * a, node * b)
-				// FIXME: check if really all possible combinations are added and checked!
 				{{{
+printf("\tA-- %p,%p\n", a, b);
 					if(!are_candidate_equivalent(a, b)) {
 						set<nodeppair> pending_equivalences;
 						typename set<nodeppair>::iterator pi;
-
 
 						set<node*> ca, cb;
 
@@ -152,11 +167,16 @@ class RPNI : public learning_algorithm<answer> {
 
 						for(cai = ca.begin(); cai != ca.end(); cai++) {
 							for(cbi = cb.begin(); cbi != cb.end(); cbi++) {
+printf("\tA.. %p,%p", *cai, *cbi);
 								nodeppair p;
 
-								if((*cai)->is_answered() && (*cbi)->is_answered())
-									if((*cai)->get_answer() != (*cbi)->get_answer())
-										return false; // consistency failure. the requested equivalence is not possible with this sample set.
+								if((*cai)->is_answered() && (*cbi)->is_answered()) {
+									if((*cai)->get_answer() != (*cbi)->get_answer()) {
+										// consistency failure. the requested equivalence is not possible with this sample set.
+printf(" BAD!\n");
+										return false;
+									}
+								}
 
 								p.first = *cai;
 								p.second = *cbi;
@@ -165,16 +185,19 @@ class RPNI : public learning_algorithm<answer> {
 								p.first = *cbi;
 								p.second = *cai;
 								candidates.insert(p);
+printf("\n");
 
-								for(int sigma = 0; sigma < p.first->max_child_count(); sigma++) {
+								for(int sigma = 0; sigma < p.first->max_child_count() && sigma < p.second->max_child_count(); sigma++) {
 									node *r, *s;
 									r = (*cai)->find_child(sigma);
-									s = (*cbi)->find_child(sigma);
-									if(r != NULL && s != NULL) {
-										nodeppair q;
-										q.first = r;
-										q.second = s;
-										pending_equivalences.insert(q);
+									if(r != NULL) {
+										s = (*cbi)->find_child(sigma);
+										if(s != NULL) {
+											nodeppair q;
+											q.first = r;
+											q.second = s;
+											pending_equivalences.insert(q);
+										}
 									}
 								}
 							}
@@ -209,7 +232,7 @@ class RPNI : public learning_algorithm<answer> {
 		}}}
 
 		virtual void get_memory_statistics(statistics & stats)
-		{ /* FIXME: maybe keep some stats from last run? */ }
+		{ };
 
 		virtual bool sync_to_knowledgebase()
 		{{{
@@ -252,7 +275,6 @@ class RPNI : public learning_algorithm<answer> {
 		}}}
 		virtual string tostring()
 		{{{
-			// FIXME
 			string s;
 			return s;
 		}}}
@@ -315,12 +337,14 @@ class RPNI : public learning_algorithm<answer> {
 					// check for all smaller states, if one can be joined with this one
 					lgo2.set_root(this->my_knowledge->get_rootptr());
 					while(&*lgo != &*lgo2) {
-						// FIXME: we should only do this once for each equivalence class,
-						// not for each node.
+						// FIXME: implement is_smallest_of_equivalence_class()
+						//if(eq.is_smallest_of_equivalence_class(&*lgo2)) {
+							if(eq.add_if_possible(&*lgo, &*lgo2)) {
+printf("\t\t:)\n");
+								break;
+							}
 
-						if(eq.add_if_possible(&*lgo, &*lgo2))
-							break;
-
+						//}
 						lgo2++;
 					}
 				}
