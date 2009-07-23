@@ -90,7 +90,7 @@ string automaton2dotfile(int alphabet_size, int state_count, set<int> & initial,
 				continue;
 		}
 
-		snprintf(buf, 64, "\tq%d -> q%d [ label = \"%d\" ];\n", ti->first.first, ti->first.second, ti->second);
+		snprintf(buf, 64, "\tq%d -> q%d [ label = \"%d\" ];\n", ti->first.first, ti->second, ti->first.second);
 		buf[63] = 0;
 		ret += buf;
 	}
