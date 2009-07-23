@@ -81,16 +81,16 @@ string automaton2dotfile(int alphabet_size, int state_count, set<int> & initial,
 
 	// transitions
 	multimap<pair<int, int>, int>::iterator ti, tj;
+	int s=-1,l=-2,d=-1;
 	for(ti = transitions.begin(); ti != transitions.end(); ti++) {
 		// skip double entries
-		if(transitions.count(ti->first) > 2) {
-			tj = ti;
-			tj++;
-			if(ti->second == tj->second)
-				continue;
-		}
+		if(s == ti->first.first && l == ti->first.second && d == ti->second)
+			continue;
+		s = ti->first.first;
+		l = ti->first.second;
+		d = ti->second;
 
-		snprintf(buf, 64, "\tq%d -> q%d [ label = \"%d\" ];\n", ti->first.first, ti->second, ti->first.second);
+		snprintf(buf, 64, "\tq%d -> q%d [ label = \"%d\" ];\n", s,d,l);
 		buf[63] = 0;
 		ret += buf;
 	}

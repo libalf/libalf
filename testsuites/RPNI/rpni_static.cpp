@@ -46,22 +46,22 @@ int main(int argc, char**argv)
 		w.push_back(1);
 		knowledge.add_knowledge(w, false); // ab
 		w.push_back(1);
-		knowledge.add_knowledge(w, true); // abb
+		knowledge.add_knowledge(w, true); // abb (~ b)
 
 		w.pop_back();
 		w.pop_back();
 		w.pop_back();
 		w.push_back(1);
-		knowledge.add_knowledge(w, true); // b
+//		knowledge.add_knowledge(w, true); // b
 		w.push_back(0);
 		knowledge.add_knowledge(w, false); // ba
 		w.push_back(1);
-		knowledge.add_knowledge(w, true); // bab
+		knowledge.add_knowledge(w, true); // bab (~ b)
 		w.pop_back();
 		w.pop_back();
 		w.push_back(1);
 		w.push_back(0);
-		knowledge.add_knowledge(w, true); // bba
+		knowledge.add_knowledge(w, true); // bba (~ b)
 	};
 
 	cout << "\n";

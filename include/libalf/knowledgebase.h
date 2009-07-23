@@ -470,6 +470,15 @@ class knowledgebase {
 		// nothing (not even #1) is done automatically for you. but
 		// all of these rules are required to be fulfilled. otherwise,
 		// the functions given here may not work as expected.
+		//
+		// FIXME: define:
+		//	template <order>
+		//	class equivalence_class : public set<node*>;
+		//	here overload operator[] to give &representative
+		//
+		//	template <order>
+		//	class equivalence_relation : public set<equivalence_class<order> >;
+		//	here overlode operator[] to give &equivalence_class.
 		class equivalence_relation : public multimap<node*, node*, node_comparator> {
 			public: // types
 				typedef typename multimap<node*, node*, node_comparator>::iterator iterator;
@@ -1350,6 +1359,8 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 			t_state_count = representatives.size();
 			t_initial.clear();
 			t_initial.insert(mapping[get_rootptr()]);
+			t_final.clear();
+			t_transitions.clear();
 
 			// get final states and transitions
 			vector<extended_bool> acceptances;
@@ -1375,8 +1386,6 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 						node *c;
 						c = n->find_child(i);
 						if(c != NULL) {
-							if(i > 1)
-								printf("bad character %d!\n", i);
 							trid.second = i;
 							t_transitions.insert( pair<pair<int, int>, int>(trid, mapping[eq.representative_ptr(c)]));
 						}

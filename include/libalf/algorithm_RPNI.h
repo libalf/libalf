@@ -312,9 +312,9 @@ class RPNI : public learning_algorithm<answer> {
 							list<int> w1, w2;
 							w1 = lgo->get_word();
 							w2 = lgo2->get_word();
-							(*this->my_logger)(LOGGER_DEBUG, "RPNI: trying to merge  %s  and  %s\n", word2string(w1).c_str(), word2string(w2).c_str());
 							if(eq.add_if_possible(&*lgo, &*lgo2)) {
-								(*this->my_logger)(LOGGER_DEBUG, "RPNI: merge successfull\n");
+								(*this->my_logger)(LOGGER_DEBUG, "RPNI: merge ok:  ( %s , %s )\n",
+									word2string(w1).c_str(), word2string(w2).c_str());
 #ifdef RPNI_DEBUG_EQ_CLASSES
 								char filename[128];
 								ofstream file;
@@ -326,7 +326,8 @@ class RPNI : public learning_algorithm<answer> {
 #endif
 								break;
 							} else {
-								(*this->my_logger)(LOGGER_DEBUG, "RPNI: merge failed\n");
+								(*this->my_logger)(LOGGER_DEBUG, "RPNI: merge bad: ( %s , %s )\n",
+									word2string(w1).c_str(), word2string(w2).c_str());
 							}
 
 						}
@@ -337,6 +338,23 @@ class RPNI : public learning_algorithm<answer> {
 				lgo++;
 				lgo_index++;
 			}
+#ifdef RPNI_DEBUG_EQ_CLASSES
+			printf("\n");
+			set<typename knowledgebase<answer>::node*> representatives, eq_class;
+			typename set<typename knowledgebase<answer>::node*>::iterator ri, eqi;
+			representatives = eq.equivalences.representatives_graded_lex();
+			for(ri = representatives.begin(); ri != representatives.end(); ri++) {
+				list<int> word = (*ri)->get_word();
+				printf("\tclass [%s]: { ", word2string(word).c_str());
+				eq_class = eq.equivalences.get_equivalence_class(*ri);
+				for(eqi = eq_class.begin(); eqi != eq_class.end(); eqi++) {
+					word = (*eqi)->get_word();
+					printf("%s, ", word2string(word).c_str());
+				}
+				printf("};\n");
+			}
+			printf("\n");
+#endif
 		}}}
 
 };
