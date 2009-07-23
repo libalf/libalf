@@ -35,59 +35,34 @@ int main(int argc, char**argv)
 	int alphabet_size;
 
 	// create sample set in knowledgebase
-#if 0
-	{
-		// for now, just add some samples...
-		list<int> w;
-
-		alphabet_size = 2;
-
-		knowledge.add_knowledge(w, false);
-		w.push_back(0);
-		knowledge.add_knowledge(w, true);
-		w.push_back(0);
-		knowledge.add_knowledge(w, true);
-
-		w.pop_back();
-		w.pop_back();
-		w.push_back(1);
-		knowledge.add_knowledge(w, false);
-		w.push_back(0);
-		knowledge.add_knowledge(w, true);
-		w.push_back(0);
-		knowledge.add_knowledge(w, true);
-	}
-#else
 	{
 		list<int> w;
 
 		alphabet_size = 2;
 
+		knowledge.add_knowledge(w, false); // epsilon
 		w.push_back(0);
-		knowledge.add_knowledge(w, false);
+		knowledge.add_knowledge(w, false); // a
 		w.push_back(1);
-		knowledge.add_knowledge(w, true);
-
-		w.pop_back();
-		w.push_back(0);
-		knowledge.add_knowledge(w, false);
-		w.push_back(0);
-		knowledge.add_knowledge(w, true);
+		knowledge.add_knowledge(w, false); // ab
+		w.push_back(1);
+		knowledge.add_knowledge(w, true); // abb
 
 		w.pop_back();
 		w.pop_back();
 		w.pop_back();
 		w.push_back(1);
-		knowledge.add_knowledge(w, false);
-		w.push_back(1);
-		knowledge.add_knowledge(w, false);
-		w.push_back(1);
-		knowledge.add_knowledge(w, true);
+		knowledge.add_knowledge(w, true); // b
 		w.push_back(0);
+		knowledge.add_knowledge(w, false); // ba
 		w.push_back(1);
-		knowledge.add_knowledge(w, true);
+		knowledge.add_knowledge(w, true); // bab
+		w.pop_back();
+		w.pop_back();
+		w.push_back(1);
+		w.push_back(0);
+		knowledge.add_knowledge(w, true); // bba
 	};
-#endif
 
 	cout << "\n";
 	knowledge.print(cout);
@@ -102,7 +77,6 @@ int main(int argc, char**argv)
 	if(!rumps.advance(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
 		log(LOGGER_ERROR, "advance() returned false!\n");
 	} else {
-//		rumps.print(cout);
 		snprintf(filename, 128, "hypothesis.dot");
 		file.open(filename);
 

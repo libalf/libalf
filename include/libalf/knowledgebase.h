@@ -1375,6 +1375,8 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 						node *c;
 						c = n->find_child(i);
 						if(c != NULL) {
+							if(i > 1)
+								printf("bad character %d!\n", i);
 							trid.second = i;
 							t_transitions.insert( pair<pair<int, int>, int>(trid, mapping[eq.representative_ptr(c)]));
 						}
