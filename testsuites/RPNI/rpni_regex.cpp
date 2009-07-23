@@ -15,8 +15,6 @@
 #include <fstream>
 #include <algorithm>
 
-#include <stdlib.h> // for PRNG
-
 #include <libalf/alf.h>
 #include <libalf/algorithm_RPNI.h>
 
@@ -109,17 +107,17 @@ int main(int argc, char**argv)
 	knowledge.print(cout);
 	cout << "\n";
 
-	RPNI<bool> diebels(&knowledge, &log, alphabet_size);
+	RPNI<bool> rumps(&knowledge, &log, alphabet_size);
 	finite_automaton * hypothesis = NULL;
 	bool f_is_dfa;
 	int f_alphabet_size, f_state_count;
 	set<int> f_initial, f_final;
 	multimap<pair<int, int>, int> f_transitions;
 
-	if(!diebels.advance(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
+	if(!rumps.advance(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
 		log(LOGGER_ERROR, "advance() returned false!\n");
 	} else {
-//		diebels.print(cout);
+//		rumps.print(cout);
 		hypothesis = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
 
 		snprintf(filename, 128, "hypothesis.dot");

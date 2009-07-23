@@ -127,6 +127,7 @@ class DeLeTe2 : public learning_algorithm<answer> {
 		virtual bool derive_automaton(bool & t_is_dfa, int & t_alphabet_size, int & t_state_count, set<int> & t_initial, set<int> & t_final, multimap<pair<int, int>, int> & t_transitions)
 		{
 			
+			return false;
 		}
 
 };

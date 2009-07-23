@@ -159,12 +159,13 @@ bool is_graded_lex_smaller(list<int> &a, list<int> &b)
 	int cmp = 0;
 
 	for(w1i = a.begin(), w2i = b.begin(); w1i != a.end() && w2i != b.end(); w1i++, w2i++)
-		if(cmp == 0)
+		if(cmp == 0) {
 			if(*w1i < *w2i)
 				cmp = -1;
 			else
 				if(*w1i > *w2i)
 					cmp = 1;
+		}
 
 	if(w1i == a.end() && w2i == b.end())
 		return (cmp == -1);
