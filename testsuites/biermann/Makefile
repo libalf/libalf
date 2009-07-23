@@ -11,11 +11,12 @@ LDFLAGS+=-L../../src -L${PREFIX}/lib -lm -lalf -lAMoRE++ -llangen
 
 all: biermann_static biermann_regex
 
-clean:
+nodata:
+	-rm *.dot *.jpg
+
+clean: nodata
 	-rm *.o
-	-rm biermann_regex biermann_static
-	-rm *.dot
-	-rm *.jpg
+	-rm rpni_regex rpni_static
 
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;

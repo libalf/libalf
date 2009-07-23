@@ -68,11 +68,15 @@ class knowledgebase {
 				};
 			protected: // data
 				knowledgebase * base;
-				node * parent; // NULL for root-node
-				vector<node *> children; // NULL is a valid placeholder
-				// label is reduntant as this == parent->children[label]
-				// except for root, where label should be -1 == epsilon
+				node * parent;
+				// for root-node, parent is NULL.
+				vector<node *> children;
+				// NULL is a valid placeholder for
+				// non-existing sub-trees
 				int label;
+				// as this == parent->children[label], label
+				// is redundant. except for root, where label
+				// should be -1 == epsilon
 				unsigned int timestamp;
 				enum status_e status;
 				answer ans;
@@ -173,7 +177,8 @@ class knowledgebase {
 					timestamp = 0;
 				}}}
 				~node()
-				// reference in parent will stay ; all children will be deleted
+				// reference in parent will stay ; all
+				// children will be deleted
 				{{{
 					typename vector<node*>::iterator ci;
 					for(ci = children.begin(); ci != children.end(); ci++)
@@ -191,7 +196,8 @@ class knowledgebase {
 					  return parent;
 				}}}
 				int max_child_count()
-				// if this returns n, there _may_ exist suffixes [0..n)
+				// if this returns n, there _may_ exist
+				// suffixes [0..n)
 				{{{
 					return children.size();
 				}}}
@@ -204,7 +210,8 @@ class knowledgebase {
 						return NULL;
 				}}}
 				node * find_child(list<int>::iterator infix_start, list<int>::iterator infix_limit)
-				// go to node defined by arbitrarily long suffix
+				// go to node defined by arbitrarily long
+				// suffix
 				{{{
 					node * n = this;
 
@@ -263,8 +270,8 @@ class knowledgebase {
 					return w;
 				}}}
 				bool mark_required()
-				// returns true if node is now required,
-				// false if knowledge is already known.
+				// returns true if node is now required, false
+				// if knowledge is already known.
 				{{{
 					if(status == NODE_IGNORE) {
 						status = NODE_REQUIRED;
@@ -276,7 +283,8 @@ class knowledgebase {
 					}
 				}}}
 				bool is_required()
-				// is this node marked as unknown and required?
+				// is this node marked as unknown and
+				// required?
 				{{{
 					return status == NODE_REQUIRED;
 				}}}
@@ -285,7 +293,9 @@ class knowledgebase {
 					return status == NODE_ANSWERED;
 				}}}
 				bool set_answer(answer ans)
-				// return false in case of inconsistency (if this was already known and both knowledges differ)
+				// return false in case of inconsistency (if
+				// this was already known and both knowledges
+				// differ)
 				{{{
 					// check for inconsistencies
 					if(status == NODE_ANSWERED)
@@ -335,9 +345,11 @@ class knowledgebase {
 					}
 				}}}
 				bool recursive_different(node * other, int depth)
-				// two nodes are recursive different if there exists a word w
-				// of maximum length `depth' in Sigma* with this.w is different from other.w .
-				// to allow infinite long words, use depth = -1.
+				// two nodes are recursive different if there
+				// exists a word w of maximum length `depth'
+				// in Sigma* with this.w is different from
+				// other.w . to allow infinite long words, use
+				// depth = -1.
 				{{{
 					typename vector<node*>::iterator ci, oci;
 
@@ -359,7 +371,8 @@ class knowledgebase {
 					return false;
 				}}}
 				bool is_lex_smaller(node * other)
-				// lexicographically compare this to other (true if this < other)
+				// lexicographically compare this to other
+				// (true if this < other)
 				{{{
 					// FIXME: efficience
 					list<int> a,b;
@@ -368,7 +381,8 @@ class knowledgebase {
 					return libalf::is_lex_smaller(a,b);
 				}}}
 				bool is_graded_lex_smaller(node * other)
-				// graded lexicographically compare this to other (true if this < other)
+				// graded lexicographically compare this to
+				// other (true if this < other)
 				{{{
 					// FIXME: efficience
 					list<int> a,b;
@@ -377,7 +391,8 @@ class knowledgebase {
 					return libalf::is_graded_lex_smaller(a,b);
 				}}}
 				int get_memory_usage()
-				// calculate memory consumption of this subtree
+				// calculate memory consumption of this
+				// subtree
 				{{{
 					int ret;
 					typename vector<node*>::iterator ci;
@@ -391,7 +406,8 @@ class knowledgebase {
 				}}}
 
 				void ignore()
-				// set status to ignore (and thus delete answer)
+				// set status to ignore (and thus delete
+				// answer)
 				{{{
 					if(status == NODE_REQUIRED)
 						base->required.remove(this);
@@ -402,8 +418,9 @@ class knowledgebase {
 					timestamp = 0;
 				}}}
 				bool cleanup()
-				// remove all branches that consist only of ignores.
-				// returns true if tree is empty (no answers, no queries)
+				// remove all branches that consist only of
+				// ignores. returns true if tree is empty (no
+				// answers, no queries)
 				{{{
 					bool may_remove_self;
 
@@ -427,26 +444,32 @@ class knowledgebase {
 
 		}; // end of knowledgebase::node
 
-		// for efficient containers like map and multimap, a comparator object is required.
+		// for efficient node* containers like map and multimap, a
+		// comparator object is required.
 		class node_comparator {
 			public:
 				bool operator() (node * a, node * b)
 				{ return a < b; };
 		};
 
-		// definition of an equivalence relation over nodes in this knowledgebase.
-		// you can use knowledgebase::equivalence_relation2automaton to construct
+		// definition of an equivalence relation over nodes in this
+		// knowledgebase. you can use
+		// knowledgebase::equivalence_relation2automaton to construct
 		// a modulo-automaton from this.
 		//
-		// NOTE: YOU have to take care that this is a true eq. relation, i.e.
-		// if you create and maintain it, you have to take care, that the following
-		// is fulfilled:
+		// NOTE: YOU have to take care that this is a true eq.
+		// relation, i.e. if you create and maintain it, you have to
+		// take care, that the following is fulfilled:
+		//
 		//	1) reflexivity:		a ~ a
+		//
 		//	2) symmetry:		a ~ b <=> b ~ a
+		//
 		//	3) transitivity:	a ~ b && b ~ c => a ~ c
-		// nothing (not even #1) is done automatically for you. but all of these
-		// rules are required to be fulfilled. otherwise, the functions given here
-		// may not work as expected.
+		//
+		// nothing (not even #1) is done automatically for you. but
+		// all of these rules are required to be fulfilled. otherwise,
+		// the functions given here may not work as expected.
 		class equivalence_relation : public multimap<node*, node*, node_comparator> {
 			public: // types
 				typedef typename multimap<node*, node*, node_comparator>::iterator iterator;
@@ -479,7 +502,8 @@ class knowledgebase {
 				}}}
 
 				node * representative_lex(node * n)
-				// get representative of nodes eq.class w.r.t. lexicographical order
+				// get representative of nodes eq.class w.r.t.
+				// lexicographical order
 				{{{
 					range eq_class;
 					list<int> current_rep_word;
@@ -527,7 +551,8 @@ class knowledgebase {
 					return true;
 				}}}
 				set<node*> representatives_lex()
-				// get representatives of all equivalence classes w.r.t. lexicographical order
+				// get representatives of all eq.classes
+				// w.r.t. lexicographical order
 				{{{
 					set<node*> ret;
 					iterator i;
@@ -544,7 +569,8 @@ class knowledgebase {
 				}}}
 
 				node * representative_graded_lex(node * n)
-				// get representative of nodes eq.class w.r.t. graded lexicographical order
+				// get representative of nodes eq.class w.r.t.
+				// graded lexicographical order
 				{{{
 					range eq_class;
 					list<int> current_rep_word;
@@ -592,7 +618,8 @@ class knowledgebase {
 					return true;
 				}}}
 				set<node*> representatives_graded_lex()
-				// get representatives of all equivalence classes w.r.t. graded lexicographical order
+				// get representatives of all eq.classes
+				// w.r.t. graded lexicographical order
 				{{{
 					set<node*> ret;
 					iterator i;
@@ -609,7 +636,8 @@ class knowledgebase {
 				}}}
 
 				node * representative_ptr(node * n)
-				// get representative of nodes eq.class w.r.t. ptr order (very efficient, but arbitrary)
+				// get representative of nodes eq.class w.r.t.
+				// ptr order (very efficient, but arbitrary)
 				{{{
 					range eq_class;
 					node * current_rep;
@@ -646,7 +674,9 @@ class knowledgebase {
 					return true;
 				}}}
 				set<node*> representatives_ptr()
-				// get representatives of all equivalence classes w.r.t. ptr order (very efficient, but arbitrary)
+				// get representatives of all eq.classes
+				// w.r.t. ptr order (very efficient, but
+				// arbitrary)
 				{{{
 					set<node*> ret;
 					iterator i;
@@ -661,7 +691,7 @@ class knowledgebase {
 
 					return ret;
 				}}}
-		};
+		}; // end of knowledgebase::equivalence_relation
 
 		// this class can be used to iterate over all nodes markes as known
 		// or all nodes marked as required
@@ -1189,14 +1219,16 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 		 */
 
 		bool add_knowledge(list<int> & word, answer acceptance)
-		// will return false if knowledge for this word was already set and is != acceptance.
-		// in this case, the holder is in an inconsistent state and
-		// the knowledgebase will not change itself.
+		// will return false if knowledge for this word was
+		// already set and is != acceptance. in this case, the
+		// holder is in an inconsistent state and the
+		// knowledgebase will not change itself.
 		{{{
 			return root->find_or_create_child(word.begin(), word.end())->set_answer(acceptance);
 		}}}
 		int add_query(list<int> & word, int prefix_count = 0)
-		// returns the number of new required nodes (excluding those already known.
+		// returns the number of new required nodes (excluding
+		// those already known.
 		{{{
 			node * current;
 			list<int>::iterator wi;
@@ -1237,8 +1269,8 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 			}
 		}}}
 		bool resolve_or_add_query(list<int> & word, answer & acceptance)
-		// returns true if known.
-		// otherwise marks knowledge as to-be-acquired and returns false.
+		// returns true if known. otherwise marks knowledge as
+		// to-be-acquired and returns false.
 		{{{
 			node * current;
 
@@ -1296,9 +1328,11 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 		bool equivalence_relation2automaton(equivalence_relation &eq, bool ignoring_states_accept,
 			bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, set<int> &t_initial,
 			set<int> &t_final, multimap<pair<int, int>, int> &t_transitions)
-		// construct a modulo automaton given the tree-structure in this knowledgebase
-		// and the given equivalence relation. will return false if the equivalence relation
-		// is inconsistent, i.e. it merges states that are answered with different knowledge.
+		// construct a modulo automaton given the tree-structure
+		// in this knowledgebase and the equivalence relation.
+		// will return false if the equivalence relation is
+		// inconsistent, i.e. it merges states that are answered
+		// with different knowledge.
 		{{{
 			// get a set of all representatives
 			set<node*> representatives;
@@ -1382,7 +1416,7 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 			return true;
 		}}}
 
-};
+}; // end of knowledgebase
 
 // classes to iterate over a full subtree, in graded lexicographical order:
 // PURE FORWARD ITERATOR
@@ -1454,7 +1488,7 @@ class kIterator_lex_graded {
 			pending = it.pending;
 			return *this;
 		}}}
-};
+}; // end of kIterator_lex_graded
 
 }; // end of namespace libalf
 

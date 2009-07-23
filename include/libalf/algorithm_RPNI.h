@@ -175,7 +175,7 @@ class RPNI : public learning_algorithm<answer> {
 
 					return true;
 				}}}
-		};
+		}; // end of equivalence_relation
 
 	protected: // data
 
@@ -286,7 +286,7 @@ class RPNI : public learning_algorithm<answer> {
 			lgo++;
 			lgo_index++;
 
-#ifdef DEBUG_EQ_CLASSES
+#ifdef RPNI_DEBUG_EQ_CLASSES
 			int iteration = 0;
 #endif
 
@@ -315,7 +315,7 @@ class RPNI : public learning_algorithm<answer> {
 							(*this->my_logger)(LOGGER_DEBUG, "RPNI: trying to merge  %s  and  %s\n", word2string(w1).c_str(), word2string(w2).c_str());
 							if(eq.add_if_possible(&*lgo, &*lgo2)) {
 								(*this->my_logger)(LOGGER_DEBUG, "RPNI: merge successfull\n");
-#ifdef DEBUG_EQ_CLASSES
+#ifdef RPNI_DEBUG_EQ_CLASSES
 								char filename[128];
 								ofstream file;
 								snprintf(filename, 128, "eq-classes-%02d.dot", iteration);
