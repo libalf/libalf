@@ -24,26 +24,26 @@ TODO
 
 (priority ordered)
 
-A)
 
-
-- RPNI algorithm
+- check RPNI for correctness
 
 - DeLeTe2
 
-- Antichain approach (by de Wulf, Raskin etc.) for checking inclusion (equivalence) of languages of two NFA (Stefan Schulz already implemented a JAVA version thereof, please contact him)
+- Antichains for checking language inclusion and equivalence ( in libAMoRE++ or even upstream? )
 
 - KVtree algorithm
+
+- check efficiency in RPNI
+
+- check efficiency in knowledgebase equivalence relation
 
 - check undo and increase_alphabet_size() in angluin
 
 - documentation (?)
 
-- create new network protocol (similar to JNI) to make switching between JNI and dispatcher easy
+- create new network protocol (isomorph to JNI, to make switching between JNI and dispatcher easy)
 
 - check network/deserialization code for bugs
-
-- implement `extend normalizer' in dispatcher and normalizer (CK: What is that)
 
 - add (de)serialize to NL*
 
@@ -53,21 +53,11 @@ A)
 
 - check increase_alphabet_size() in NL*
 
-B)
-
 - efficient Bierman implementation (using DDB instead of MiniSat)
 
 - BL* algorithm
 
 - efficiency in L*, L* col and NL*: use knowledgebase pointers et al
-
-- check idea of assistants in knowledgebase (CK: Do you mean "filters" here?)
-  [ problem: when algorithm works with pointers, either the non-normalized does not have
-    a pointer or we need to add it each time something is requested. even for bottom... ]
-
-- CPU/MEM stats for biermann
-
-C)
 
 - in AMoRE++: _init and _fini are not working (linker stuff...)
 
