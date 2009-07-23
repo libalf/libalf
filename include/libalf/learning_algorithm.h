@@ -116,8 +116,8 @@ class learning_algorithm {
 		// an undo operation to inform the algorithm that some knowledge may be obsolete
 		// now. the algorithm should check all internal knowledge, remove obsolete and
 		// possibly go back in its state (delete rows/columns).
-		// please use knowledgebase->get_timestamp() for book-keeping and to check
-		// which changes to revert.
+		// if you are implementing a new algorithm, please use
+		// knowledgebase->get_timestamp() for book-keeping and to check which changes to revert.
 		// you may choose not to support undo operations. then supports_sync must return false.
 		virtual bool sync_to_knowledgebase() = 0;
 
@@ -142,17 +142,14 @@ class learning_algorithm {
 		// check if a hypothesis can be constructed without any further queries
 		virtual bool conjecture_ready() = 0;
 
-		// complete table and then derive automaton:
-		// if using a knowledgebase:
-		//	will resolve required knowledge from knowledgebase. if the knowledge was unknown
-		//	it will be marked as required and false will be returned.
-		//	knowledgebase needs to be updated by you, then.
+		// complete internal data structures and then derive automaton:
 		//
-		//	if all knowledge was found and an automaton is ready, it will be stored into
-		//	automaton and true will be returned.
+		// this will resolve required knowledge from knowledgebase. if the knowledge
+		// was unknown it will be marked as required and false will be returned.
+		// knowledgebase needs to be updated by you, then.
 		//
-		// please note that the type of automaton must match the required automaton-type of the used learning algorithm
-		// (e.g. angluin required a DFA)
+		// if all knowledge was found and an automaton is ready, it will be stored into
+		// automaton and true will be returned.
 		virtual bool advance(bool & t_is_dfa, int & t_alphabet_size, int & t_state_count, set<int> & t_initial, set<int> & t_final, multimap<pair<int, int>, int> & t_transitions)
 		{{{
 			if(complete()) {
@@ -175,8 +172,6 @@ class learning_algorithm {
 
 		// in case the hypothesis is wrong, use this function to give a counter-example
 		virtual void add_counterexample(list<int>) = 0;
-
-//		virtual void set_properties(map<int, string>) = 0;
 
 	protected:
 		// complete table in such a way that an automaton can be derived
