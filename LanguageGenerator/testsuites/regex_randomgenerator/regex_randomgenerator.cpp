@@ -11,6 +11,7 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
 
 #include <iostream>
 #include <fstream>
@@ -31,7 +32,7 @@ int main(int argc, char**argv)
 	int num_op;
 	bool show_mregex = false;
 
-	if(argc != 3 && argc != 4 || (argc == 4 && 0 != strcmp(argv[1], "-r")) ) {
+	if((argc != 3 && argc != 4) || (argc == 4 && 0 != strcmp(argv[1], "-r")) ) {
 		cout << "please give <alphabet size> and <operand count> as parameters,\n"
 			"possibly prefixed by -r to see the regex derived from the mDFA\n";
 		return 1;
