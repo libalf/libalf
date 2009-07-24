@@ -16,6 +16,7 @@
 #include <list>
 #include <vector>
 #include <string>
+#include <set>
 #include <sstream>
 #include <arpa/inet.h>
 #include <queue>
@@ -1370,7 +1371,7 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 				acceptances.push_back(b);
 
 			typename equivalence_relation::iterator eqi;
-			node *n;
+			node *n = NULL;
 			for(eqi = eq.begin(); eqi != eq.end(); eqi++) {
 				if(eqi->first != n) {
 					n = eqi->first;
