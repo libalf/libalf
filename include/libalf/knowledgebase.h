@@ -1358,7 +1358,7 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 			t_is_dfa = false;
 			t_state_count = representatives.size();
 			t_initial.clear();
-			t_initial.insert(mapping[get_rootptr()]);
+			t_initial.insert(mapping[eq.representative_ptr(get_rootptr())]);
 			t_final.clear();
 			t_transitions.clear();
 
