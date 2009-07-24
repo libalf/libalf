@@ -16,7 +16,7 @@ nodata:
 
 clean: nodata
 	-rm *.o
-	-rm rpni_regex rpni_static rpni_angluin_tester
+	-rm rpni_regex rpni_static rpni_file rpni_angluin_tester
 
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;

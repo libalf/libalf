@@ -124,6 +124,11 @@ class RPNI : public learning_algorithm<answer> {
 				bool add(node * a, node * b)
 				{{{
 					if(!are_candidate_equivalent(a, b)) {
+#ifdef RPNI_DEBUG_EQ_CLASSES
+						list<int> w1,w2;
+						w1 = a->get_word(); w2 = b->get_word();
+						printf("\t[ %s , %s ]", word2string(w1).c_str(), word2string(w2).c_str());
+#endif
 						set<nodeppair> pending_equivalences;
 						typename set<nodeppair>::iterator pi;
 
@@ -141,6 +146,9 @@ class RPNI : public learning_algorithm<answer> {
 								if((*cai)->is_answered() && (*cbi)->is_answered()) {
 									if((*cai)->get_answer() != (*cbi)->get_answer()) {
 										// consistency failure. the requested equivalence is not possible with this sample set.
+#ifdef RPNI_DEBUG_EQ_CLASSES
+										printf(" bad!\n");
+#endif
 										return false;
 									}
 								}
@@ -168,6 +176,9 @@ class RPNI : public learning_algorithm<answer> {
 								}
 							}
 						}
+#ifdef RPNI_DEBUG_EQ_CLASSES
+						printf("\n");
+#endif
 						for(pi = pending_equivalences.begin(); pi != pending_equivalences.end(); pi++)
 							if(!add(pi->first, pi->second))
 								return false;
@@ -312,6 +323,9 @@ class RPNI : public learning_algorithm<answer> {
 							list<int> w1, w2;
 							w1 = lgo->get_word();
 							w2 = lgo2->get_word();
+#ifdef RPNI_DEBUG_EQ_CLASSES
+							printf("\n\n");
+#endif
 							if(eq.add_if_possible(&*lgo, &*lgo2)) {
 								(*this->my_logger)(LOGGER_DEBUG, "RPNI: merge ok:  ( %s , %s )\n",
 									word2string(w1).c_str(), word2string(w2).c_str());
