@@ -3,7 +3,8 @@
 
 .PHONY: all test_java_dir clean install
 
-JAVA_INCLUDE ?= /usr/lib/jvm/java-6-sun-1.6.0.14/include
+JAVA_INCLUDE ?= ${JAVA_HOME}/include
+#JAVA_INCLUDE ?= /usr/lib/jvm/java-6-sun-1.6.0.14/include
 
 CPPFLAGS += -shared -fPIC -I${PREFIX}/include -I${JAVA_INCLUDE} -I${JAVA_INCLUDE}/linux/
 LDFLAGS += -L${PREFIX}/lib -lalf -llangen
@@ -16,8 +17,9 @@ libalf_jni.so: ${OBJECTS}
 	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} ${LDFLAGS} -o $@
 
 test_java_dir:
-	@echo -e "\ntesting if JAVA include directory (env JAVA_INCLUDE) is set correctly....\n"
+	@echo -e "\ntesting if JAVA include directory (env JAVA_INCLUDE) is set correctly...."
 	test -d ${JAVA_INCLUDE}
+	@echo
 
 clean:
 	-rm *.o libalf_jni.so
