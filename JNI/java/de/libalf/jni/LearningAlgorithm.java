@@ -201,6 +201,5 @@ public interface LearningAlgorithm {
 	 * 
 	 * @return a textual representation of the learning algorithm.
 	 */
-	@Override
 	public String toString();
 }
