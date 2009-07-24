@@ -98,21 +98,34 @@ bool check_validity(logger & log, finite_automaton * model)
 			ret = false;
 		} else {
 			list<int> cex;
-			if(!amore_alf_glue::automaton_equivalence_query(*mdfa, *res, cex)) {
-				// dump mdfa and res
+			if(!amore_alf_glue::automaton_equivalence_query(*mdfa, *res, cex))
+			{{{ // dump mdfa, res and knowledgebase
 				static int bad = 0;
 				ofstream file;
 				char filename[128];
+				basic_string<int32_t> serialized;
+
 				snprintf(filename, 128, "model-%02d-mdfa.dot", bad);
 				file.open(filename); file << mdfa->generate_dotfile(); file.close();
+
+				snprintf(filename, 128, "model-%02d-mdfa.bs", bad);
+				serialized = mdfa->serialize();
+				basic_string_to_file(serialized, filename);
 
 				snprintf(filename, 128, "model-%02d-rpni.dot", bad);
 				file.open(filename); file << res->generate_dotfile(); file.close();
 
+				snprintf(filename, 128, "model-%02d-base.bs", bad);
+				serialized = knowledge.serialize();
+				basic_string_to_file(serialized, filename);
+
+				snprintf(filename, 128, "model-%02d-base.txt", bad);
+				file.open(filename); file << knowledge.tostring(); file.close();
+
 				bad++;
 				log(LOGGER_ERROR, "rpni result differs from model! counterexample %s\n", word2string(cex).c_str());
 				ret = false;
-			}
+			}}}
 			delete res;
 		}
 	}

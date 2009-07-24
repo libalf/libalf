@@ -6,14 +6,13 @@
 PREFIX ?= /usr/local
 
 CPPFLAGS+=-I../../include -I${PREFIX}/include -Wall -ggdb3
-#CPPFLAGS+=-DRPNI_DEBUG_EQ_CLASSES
 
 LDFLAGS+=-L../../src -L${PREFIX}/lib -lm -lalf -lAMoRE++ -llangen
 
-all: rpni_static rpni_regex rpni_angluin_tester
+all: rpni_static rpni_regex rpni_file rpni_angluin_tester
 
 nodata:
-	-rm *.dot *.jpg
+	-rm *.dot *.jpg *.bs *.txt
 
 clean: nodata
 	-rm *.o
@@ -27,4 +26,7 @@ rpni_static: rpni_static.cpp
 rpni_regex: rpni_regex.cpp
 
 rpni_angluin_tester: rpni_angluin_tester.cpp
+
+rpni_file: CPPFLAGS+=-DRPNI_DEBUG_EQ_CLASSES
+rpni_file: rpni_file.cpp
 
