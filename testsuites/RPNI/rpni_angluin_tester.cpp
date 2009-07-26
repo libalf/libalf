@@ -86,15 +86,19 @@ bool check_validity(logger & log, finite_automaton * model)
 	std::set<int> f_initial, f_final;
 	multimap<pair<int,int>, int> f_transitions;
 
+	if(!rpni.conjecture_ready()) {
+		log(LOGGER_WARN, "RPNI says that no conjecture is ready! trying anyway...\n");
+	}
+
 	if(!rpni.advance(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
-		log(LOGGER_ERROR, "rpni failed to advance!\n");
+		log(LOGGER_ERROR, "RPNI failed to advance!\n");
 		ret = false;
 	} else {
 		// compare mdfa and result
 		finite_automaton * res;
 		res = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
 		if(res == NULL) {
-			log(LOGGER_ERROR, "construct of rpni failed!\n");
+			log(LOGGER_ERROR, "construct of RPNI failed!\n");
 			ret = false;
 		} else {
 			list<int> cex;
@@ -123,7 +127,7 @@ bool check_validity(logger & log, finite_automaton * model)
 				file.open(filename); file << knowledge.tostring(); file.close();
 
 				bad++;
-				log(LOGGER_ERROR, "rpni result differs from model! counterexample %s\n", word2string(cex).c_str());
+				log(LOGGER_ERROR, "RPNI result differs from model! counterexample %s\n", word2string(cex).c_str());
 				ret = false;
 			}}}
 			delete res;
@@ -165,22 +169,26 @@ int main(int argc, char**argv)
 		{ log(LOGGER_ERROR, "rg of DFA failed\n"); continue; }
 		model = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
 		if(!model) log(LOGGER_ERROR, "construct of rg DFA failed\n");
-		else { if(!check_validity(log, model)) log(LOGGER_ERROR,"random DFA: result different for angluin and rpni!\n"); delete model; }
+		else { if(!check_validity(log, model)) log(LOGGER_ERROR,"random DFA: result different for Angluin and RPNI!\n"); delete model; }
 
+		cout << "#\n";
 
 		if(!nfa_rg.generate(alphabet_size, model_size, 2, 0.5, 0.5, f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions))
 		{ log(LOGGER_ERROR, "rg of NFA failed\n"); continue; }
 		model = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
 		if(!model) log(LOGGER_ERROR, "construct of rg DFA failed\n");
-		else { if(!check_validity(log, model)) log(LOGGER_ERROR,"random NFA: result different for angluin and rpni!\n"); delete model; }
+		else { if(!check_validity(log, model)) log(LOGGER_ERROR,"random NFA: result different for Angluin and RPNI!\n"); delete model; }
 
+		cout << "#\n";
 
 		std::string regex;
 		bool success;
 		regex = regex_rg.generate(alphabet_size, model_size, 0.556, 0.278, 0.166);
 		model = new nondeterministic_finite_automaton(alphabet_size, regex.c_str(), success);
 		if(!success) log(LOGGER_ERROR, "construct of rg RegEx failed\n");
-		else { if(!check_validity(log, model)) log(LOGGER_ERROR,"random RegEx: result different for angluin and rpni!\n"); delete model; }
+		else { if(!check_validity(log, model)) log(LOGGER_ERROR,"random RegEx: result different for Angluin and RPNI!\n"); delete model; }
+
+		cout << "#\n";
 
 		printf("%6.2f%%\r", (float)i / (float)num_testcases * 100);
 		fflush(stdout);

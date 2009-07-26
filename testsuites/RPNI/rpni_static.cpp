@@ -74,6 +74,10 @@ int main(int argc, char**argv)
 	set<int> f_initial, f_final;
 	multimap<pair<int, int>, int> f_transitions;
 
+	if(!rumps.conjecture_ready()) {
+		log(LOGGER_WARN, "RPNI says that no conjecture is ready! trying anyway...\n");
+	}
+
 	if(!rumps.advance(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
 		log(LOGGER_ERROR, "advance() returned false!\n");
 	} else {
