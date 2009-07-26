@@ -34,60 +34,24 @@ int main(int argc, char**argv)
 
 	int alphabet_size;
 
-	// create sample set in knowledgebase
-#if 0
-	{
-		// for now, just add some samples...
-		list<int> w;
-
-		alphabet_size = 2;
-
-		knowledge.add_knowledge(w, false);
-		w.push_back(0);
-		knowledge.add_knowledge(w, true);
-		w.push_back(0);
-		knowledge.add_knowledge(w, true);
-
-		w.pop_back();
-		w.pop_back();
-		w.push_back(1);
-		knowledge.add_knowledge(w, false);
-		w.push_back(0);
-		knowledge.add_knowledge(w, true);
-		w.push_back(0);
-		knowledge.add_knowledge(w, true);
+	if(argc != 2) {
+		cout << "give filename of serialized knowledgebase as parameter.\n";
+		return -1;
 	}
-#else
-	{
-		list<int> w;
 
-		alphabet_size = 2;
-
-		w.push_back(0);
-		knowledge.add_knowledge(w, false);
-		w.push_back(1);
-		knowledge.add_knowledge(w, true);
-
-		w.pop_back();
-		w.push_back(0);
-		knowledge.add_knowledge(w, false);
-		w.push_back(0);
-		knowledge.add_knowledge(w, true);
-
-		w.pop_back();
-		w.pop_back();
-		w.pop_back();
-		w.push_back(1);
-		knowledge.add_knowledge(w, false);
-		w.push_back(1);
-		knowledge.add_knowledge(w, false);
-		w.push_back(1);
-		knowledge.add_knowledge(w, true);
-		w.push_back(0);
-		w.push_back(1);
-		knowledge.add_knowledge(w, true);
-	};
-#endif
+	basic_string<int32_t> serialized;
+	basic_string<int32_t>::iterator si;
+	if(!file_to_basic_string(argv[1], serialized)) {
+		log(LOGGER_ERROR, "failed to obtain basic_string from file \"%s\"!\n", argv[1]);
+		return -1;
+	}
+	si = serialized.begin();
+	if(!knowledge.deserialize(si, serialized.end())) {
+		log(LOGGER_ERROR, "failed to load knowledgebase from file \"%s\"!\n", argv[1]);
+		return -1;
+	}
+	if(si != serialized.end())
+		log(LOGGER_WARN, "garbage at end of file?\n");
 
 	cout << "\n";
 	knowledge.print(cout);
@@ -99,8 +63,8 @@ int main(int argc, char**argv)
 	set<int> f_initial, f_final;
 	multimap<pair<int, int>, int> f_transitions;
 
-	if(!rumps.conjecture_ready()) {
-		log(LOGGER_WARN, "RPNI says that no conjecture is ready! trying anyway...\n");
+	if(!rm.conjecture_ready()) {
+		log(LOGGER_WARN, "DeLeTe2 says that no conjecture is ready! trying anyway...\n");
 	}
 
 	if(!rm.advance(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
