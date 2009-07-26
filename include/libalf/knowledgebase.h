@@ -147,6 +147,9 @@ class knowledgebase {
 					it++, count--; if(it == limit) return false;
 					status = (enum node::status_e)ntohl(*it);
 
+					if(status == NODE_ANSWERED)
+						base->answercount++;
+
 					if(is_answered()) {
 						it++, count--; if(it == limit) return false;
 						ans = (int32_t)ntohl(*it);
