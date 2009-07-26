@@ -16,7 +16,7 @@
  * RPNI (regular positive, negative inference) is an offline learning algorithm,
  * described in e.g.
  *	* P. Graćıa and J. Oncina: "Inferring regular languages in polynomial update time"
- *	* D. Neider: "Learning Automata for Streaming XML Documents"
+ *	* D. Neider: "Learning Automata for Streaming XML Documents" [1]
  */
 
 
@@ -258,7 +258,28 @@ class RPNI : public learning_algorithm<answer> {
 		// conjecture is always ready if there is a non-empty knowledgebase
 		virtual bool conjecture_ready()
 		{{{
-			return ( (this->my_knowledge != NULL) && (this->my_knowledge->count_answers() > 0) );
+			// we're offline. just performe some tests and
+			// give a warning if they fail.
+
+			// according to [1], we generate a
+			// prefix-automaton from S+, but here we just
+			// work with the whole given tree. thus we throw
+			// a warning if there are non-accepting leafs
+
+			if((this->my_knowledge != NULL) && (this->my_knowledge->count_answers() > 0)) {
+				list<int> sample;
+				if(leaf_is_non_accepting(this->my_knowledge->get_rootptr(), sample)) {
+					string s;
+					s = word2string(sample);
+					(*this->my_logger)(LOGGER_WARN, "RPNI expects a sample-set consisting of pref(S+). "
+							"but this sampleset has a non-accepting leaf \"%s\". "
+							"you may try anyway, this is just a sidenote.\n", s.c_str());
+				}
+
+				return true;
+			} else {
+				return false;
+			}
 		}}}
 
 		// stubs for counterexample will throw a warning to the logger
@@ -268,9 +289,39 @@ class RPNI : public learning_algorithm<answer> {
 		}}}
 
 	protected:
+		bool leaf_is_non_accepting(typename knowledgebase<answer>::node* n, list<int> & sample, bool prefix_accepting = false)
+		// check if all leafs (i.e. states that have no suffixes that either accept or reject) accept
+		{{{
+			list<int> w;
+			if(n->is_answered())
+				if(n->get_answer() == true)
+					prefix_accepting = true;
+				else
+					if(n->get_answer() == false)
+						prefix_accepting = false;
+
+			int i;
+			bool has_children = false;
+			typename knowledgebase<answer>::node * c;
+
+			for(i = 0; i < n->max_child_count(); i++) {
+				c = n->find_child(i);
+				if(c) {
+					has_children = true;
+					if(leaf_is_non_accepting(c, sample, prefix_accepting))
+						return true;
+				}
+			}
+			if(!has_children && !prefix_accepting) {
+				sample = n->get_word();
+				return true;
+			}
+
+			return false;
+		}}}
+
 		virtual bool complete()
 		{{{
-			// we're offline.
 			return true;
 		}}}
 		// derive an automaton from data structure
