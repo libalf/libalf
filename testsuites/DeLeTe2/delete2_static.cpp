@@ -34,60 +34,39 @@ int main(int argc, char**argv)
 
 	int alphabet_size;
 
-	// create sample set in knowledgebase
-#if 0
 	{
-		// for now, just add some samples...
+		// sample-set example from page 285 of TSC 313 (2004),
+		// F. Denis, A. Lemay, A. Terlutte: "Learning regular languages using RFSAs" [1]
 		list<int> w;
 
 		alphabet_size = 2;
 
-		knowledge.add_knowledge(w, false);
+		knowledge.add_knowledge(w, true);	// .
 		w.push_back(0);
-		knowledge.add_knowledge(w, true);
+		knowledge.add_knowledge(w, false);	// .0.
 		w.push_back(0);
-		knowledge.add_knowledge(w, true);
-
+		knowledge.add_knowledge(w, true);	// .0.0.
+		w.push_back(1);
+		knowledge.add_knowledge(w, false);	// .0.0.1.
+	//
+//		w.push_back(1);
+//		knowledge.add_knowledge(w, true);	// .0.0.1.1.
+	//
 		w.pop_back();
 		w.pop_back();
 		w.push_back(1);
-		knowledge.add_knowledge(w, false);
+		knowledge.add_knowledge(w, false);	// .0.1.
 		w.push_back(0);
-		knowledge.add_knowledge(w, true);
-		w.push_back(0);
-		knowledge.add_knowledge(w, true);
-	}
-#else
-	{
-		list<int> w;
-
-		alphabet_size = 2;
-
-		w.push_back(0);
-		knowledge.add_knowledge(w, false);
+		knowledge.add_knowledge(w, true);	// .0.1.0.
+		w.clear();
 		w.push_back(1);
-		knowledge.add_knowledge(w, true);
-
-		w.pop_back();
+		knowledge.add_knowledge(w, false);	// .1.
 		w.push_back(0);
-		knowledge.add_knowledge(w, false);
-		w.push_back(0);
-		knowledge.add_knowledge(w, true);
-
-		w.pop_back();
-		w.pop_back();
+		knowledge.add_knowledge(w, true);	// .1.0.
 		w.pop_back();
 		w.push_back(1);
-		knowledge.add_knowledge(w, false);
-		w.push_back(1);
-		knowledge.add_knowledge(w, false);
-		w.push_back(1);
-		knowledge.add_knowledge(w, true);
-		w.push_back(0);
-		w.push_back(1);
-		knowledge.add_knowledge(w, true);
+		knowledge.add_knowledge(w, true);	// .1.1.
 	};
-#endif
 
 	cout << "\n";
 	knowledge.print(cout);

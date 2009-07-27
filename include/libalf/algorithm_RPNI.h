@@ -261,7 +261,7 @@ class RPNI : public learning_algorithm<answer> {
 				if(leaf_is_non_accepting(this->my_knowledge->get_rootptr(), sample)) {
 					string s;
 					s = word2string(sample);
-					(*this->my_logger)(LOGGER_WARN, "RPNI expects a sample-set consisting of pref(S+). "
+					(*this->my_logger)(LOGGER_INFO, "RPNI expects a sample-set consisting of pref(S+). "
 							"but this sampleset has a non-accepting leaf \"%s\". "
 							"you may try anyway, this is just a sidenote.\n", s.c_str());
 				}
