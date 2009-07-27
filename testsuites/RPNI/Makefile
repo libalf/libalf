@@ -21,6 +21,7 @@ clean: nodata
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;
 
+rpni_static: CPPFLAGS+=-DRPNI_DEBUG_EQ_CLASSES
 rpni_static: rpni_static.cpp
 
 rpni_regex: rpni_regex.cpp

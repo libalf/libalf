@@ -52,7 +52,7 @@ int main(int argc, char**argv)
 		w.pop_back();
 		w.pop_back();
 		w.push_back(1);
-//		knowledge.add_knowledge(w, true); // b
+		knowledge.add_knowledge(w, true); // b
 		w.push_back(0);
 		knowledge.add_knowledge(w, false); // ba
 		w.push_back(1);
