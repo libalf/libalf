@@ -108,6 +108,7 @@ static inline int irand(double& seed, int size) {
 // Time and Memory:
 
 
+#ifndef _WIN32
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #ifdef _MSC_VER
 
@@ -148,6 +149,7 @@ static inline int memReadStat(int field)
 static inline int64 memUsed() { return (int64)memReadStat(0) * (int64)getpagesize(); }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#endif
 #endif
 
 

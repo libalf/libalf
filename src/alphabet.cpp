@@ -14,7 +14,11 @@
 #include <ostream>
 #include <iterator>
 
+#ifdef _WIN32
+#include <winsock.h>
+#else
 #include <arpa/inet.h>
+#endif
 
 #include "libalf/alphabet.h"
 #include "libalf/alf.h"

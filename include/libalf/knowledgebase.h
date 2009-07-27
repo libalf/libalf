@@ -18,7 +18,11 @@
 #include <string>
 #include <set>
 #include <sstream>
+#ifdef _WIN32
+#include <winsock.h>
+#else
 #include <arpa/inet.h>
+#endif
 #include <queue>
 #include <map>
 

@@ -17,7 +17,11 @@
 #include <string>
 #include <ostream>
 
+#ifdef _WIN32
+#include <winsock.h>
+#else
 #include <arpa/inet.h>
+#endif
 
 #include <libalf/learning_algorithm.h>
 

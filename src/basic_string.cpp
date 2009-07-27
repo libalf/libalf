@@ -13,7 +13,11 @@
 #include <fstream>
 #include <string>
 
+#ifdef _WIN32
+#include <winsock.h>
+#else
 #include <arpa/inet.h>
+#endif
 
 #include <sys/types.h>
 #include <sys/stat.h>

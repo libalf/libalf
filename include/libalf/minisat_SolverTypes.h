@@ -33,6 +33,10 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #include "libalf/minisat_Global.h"
 #endif
 
+#ifdef _WIN32
+typedef unsigned int uint;
+#endif
+
 namespace libalf {
 	namespace MiniSat {
 

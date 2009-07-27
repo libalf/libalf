@@ -15,7 +15,11 @@
 #include <queue>
 #include <string>
 
+#ifdef _WIN32
+#include <winsock.h>
+#else
 #include <arpa/inet.h>
+#endif
 
 #include <libalf/alphabet.h>
 #include <libalf/normalizer.h>

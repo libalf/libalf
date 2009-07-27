@@ -12,7 +12,7 @@ VERSION=svn-r${SVNREVISION}${LOCALCHANGES}
 CPPFLAGS+=-Wall -I../include/ -I${PREFIX}/include -shared -fpic -ggdb3
 CPPFLAGS+=-D__cplusplus -DVERSION="\"${VERSION}\""
 # for ubuntu, try disabling stack-smashing due to linker failures:
-CPPFLAGS+=-fno-stack-protector
+#CPPFLAGS+=-fno-stack-protector
 LDFLAGS+=-shared -L${PREFIX}/lib
 
 SONAME=libalf
@@ -22,8 +22,11 @@ OBJECTS=alf.o alphabet.o answer.o automaton.o basic_string.o logger.o minisat_so
 all:	libalf.so
 
 libalf.so: ${OBJECTS}
-	g++ $(OBJECTS) $(LDFLAGS) -o $@
+	g++ $(OBJECTS) $(LDFLAGS) -o $@ 
 #	ld ${OBJECTS} ${LDFLAGS} -o $@
+
+libalf.a: ${OBJECTS}
+	ar rcs $@ $(OBJECTS)
 
 clean:
 	-rm *.o

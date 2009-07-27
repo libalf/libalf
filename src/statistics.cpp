@@ -9,7 +9,11 @@
  * see LICENSE file for licensing information.
  */
 
+#ifdef _WIN32
+#include <winsock.h>
+#else
 #include <arpa/inet.h>
+#endif
 
 #include <string>
 #include <iterator>
