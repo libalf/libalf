@@ -30,6 +30,7 @@ liblangen.a: ${OBJECTS}
 clean:
 	-rm *.o
 	-rm liblangen.so
+	-rm liblangen.a
 
 install: liblangen.so
 	echo installing liblangen library to ${PREFIX}/lib/
