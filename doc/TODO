@@ -27,15 +27,17 @@ TODO
 
 - check RPNI for correctness
 
-- DeLeTe2
+- check DeLeTe2 for correctness
 
 - Antichains for checking language inclusion and equivalence ( in libAMoRE++ or even upstream? )
 
 - KVtree algorithm
 
+- rewrite / check efficiency in knowledgebase equivalence relation
+
 - check efficiency in RPNI
 
-- check efficiency in knowledgebase equivalence relation
+- check efficiency in DeLeTe2
 
 - check undo and increase_alphabet_size() in angluin
 
