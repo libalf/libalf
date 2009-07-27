@@ -180,7 +180,10 @@ class DeLeTe2 : public learning_algorithm<answer> {
 
 		void generate_inclusion_relation(list<node*> & pref, set<nodeppair> & inclusions)
 		{{{
-			// NOTE: if (a,b) \in inclusions, a « b, i.e. there is no word w so that a.w \in S+ and b.w \in S-
+			// calculate language inclusion:
+			// a « b iff. there is no word w
+			// so that a.w is in S+ but b.w is in S-.
+
 			inclusions.clear();
 
 			// we will generate an inclusion relation by
@@ -188,6 +191,9 @@ class DeLeTe2 : public learning_algorithm<answer> {
 			// matrix. we start at the lover right corner
 			// and try each diagonal until we arrive at the
 			// higher left corner.
+			//
+			// pref MUST be sorted in ascending graded
+			// lexicographic order
 
 			typename list<node*>::iterator a, b, first, last;
 			first = pref.begin();
@@ -202,7 +208,7 @@ class DeLeTe2 : public learning_algorithm<answer> {
 						break;
 				} else {
 					// ROFL
-					// check if  a « b
+					// check if a « b
 					bool good = true;
 					if((*a)->is_answered() && (*b)->is_answered())
 						if((*a)->get_answer() == true && (*b)->get_answer() == false)

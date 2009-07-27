@@ -546,7 +546,7 @@ class knowledgebase {
 
 				node * representative_lex(node * n)
 				// get representative of nodes eq.class w.r.t.
-				// lexicographical order
+				// lexicographic order
 				{{{
 					range eq_class;
 					list<int> current_rep_word;
@@ -595,7 +595,7 @@ class knowledgebase {
 				}}}
 				set<node*> representatives_lex()
 				// get representatives of all eq.classes
-				// w.r.t. lexicographical order
+				// w.r.t. lexicographic order
 				{{{
 					set<node*> ret;
 					iterator i;
@@ -613,7 +613,7 @@ class knowledgebase {
 
 				node * representative_graded_lex(node * n)
 				// get representative of nodes eq.class w.r.t.
-				// graded lexicographical order
+				// graded lexicographic order
 				{{{
 					range eq_class;
 					list<int> current_rep_word;
@@ -662,7 +662,7 @@ class knowledgebase {
 				}}}
 				set<node*> representatives_graded_lex()
 				// get representatives of all eq.classes
-				// w.r.t. graded lexicographical order
+				// w.r.t. graded lexicographic order
 				{{{
 					set<node*> ret;
 					iterator i;
@@ -1463,7 +1463,7 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 
 }; // end of knowledgebase
 
-// classes to iterate over a full subtree, in graded lexicographical order:
+// classes to iterate over a full subtree, in graded lexicographic order:
 // PURE FORWARD ITERATOR
 
 // iterate in graded lex. order:
