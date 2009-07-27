@@ -258,7 +258,22 @@ class knowledgebase {
 
 					return n;
 				}}}
+				bool has_specific_suffix(answer specific_answer)
+				// check if a suffix exists with a specific
+				// answer
+				{{{
+					if(is_answered() && get_answer() == specific_answer)
+						return true;
 
+					typename vector<node*>::iterator ci;
+
+					for(ci = children.begin(); ci != children.end(); ci++)
+						if(*ci)
+							if((*ci)->has_specific_suffix(specific_answer))
+								return true;
+
+					return false;
+				}}}
 				list<int> get_word()
 				// get word this node represents
 				{{{
@@ -373,6 +388,21 @@ class knowledgebase {
 					}
 
 					return false;
+				}}}
+				bool is_prefix_of(node*other)
+				// check if this is a suffix of other
+				{{{
+					while(other != NULL) {
+						if(this == other)
+							return true;
+						other = other->parent;
+					}
+					return false;
+				}}}
+				bool is_suffix_of(node*other)
+				// check if this is a prefix of other
+				{{{
+					return other->is_prefix_of(this);
 				}}}
 				bool is_lex_smaller(node * other)
 				// lexicographically compare this to other
