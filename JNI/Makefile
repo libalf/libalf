@@ -1,7 +1,7 @@
 # $Id$
 # libalf JNI Makefile
 
-.PHONY: all test_java_dir clean install
+.PHONY: all test_java_dir clean install windows-deps
 
 # FOR WINDOWS:
 # - use MinGW (tested with MinGW-GCC 3.4)
@@ -19,7 +19,6 @@ ifeq (${SYS}, Windows)
   LDFLAGS = -static ${LDFLAGS} -dynamic
   LDFLAGS += -lgmpxx -lgmp -lwsock32
   LDFLAGS += -L../src -L../LanguageGenerator/src
-  DEPS = windows-deps
   TARGET=libalf_jni.dll
 else
   # assuming linux
@@ -37,10 +36,12 @@ OBJECTS = jni_knowledgebase.o jni_algorithm.o jni_algorithm_angluin.o jni_algori
 
 all:	test_java_dir libalf_jni.so
 
-libalf_jni.so: ${OBJECTS} ${DEPS}
+libalf_jni.so: ${OBJECTS}
 	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} ${LDFLAGS} -o $@
 
-libalf_jni.dll: ${OBJECTS} ${DEPS}
+libalf_jni.dll: ${OBJECTS}
+	make -C ../src libalf.a
+	make -C ../LanguageGenerator/src liblangen.a
 	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} ${LDFLAGS} -o $@
 
 test_java_dir:
@@ -55,6 +56,3 @@ clean:
 install: all
 	@echo -e "\n\nNO JNI INSTALLED. generic rule is missing."
 
-windows-deps:
-	make -C ../src libalf.a
-	make -C ../LanguageGenerator/src liblangen.a
