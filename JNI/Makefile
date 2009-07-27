@@ -18,7 +18,7 @@ ifeq (${OS}, Windows_NT)
   LDFLAGS += -lgmpxx -lgmp -lwsock32
   LDFLAGS += -L../src -L../LanguageGenerator/src
 
-  TARGET=libalf_jni.dll
+  TARGET=alf_jni.dll
 else
   # assuming linux
   #JAVA_INCLUDE ?= /usr/lib/jvm/java-6-sun-1.6.0.14/include
@@ -41,7 +41,7 @@ all:	test_java_dir ${TARGET}
 libalf_jni.so: ${OBJECTS}
 	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} ${LDFLAGS} -o $@
 
-libalf_jni.dll: ${OBJECTS}
+alf_jni.dll: ${OBJECTS}
 	make -C ../src libalf.a
 	make -C ../LanguageGenerator/src liblangen.a
 	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} ${LDFLAGS} -o $@ -Wl,--kill-at
@@ -54,7 +54,7 @@ test_java_dir:
 	@echo
 
 clean:
-	-rm *.o libalf_jni.so libalf_jni.dll
+	-rm *.o libalf_jni.so alf_jni.dll
 
 install: all
 	@echo -e "\n\nNO JNI INSTALLED. generic rule is missing."
