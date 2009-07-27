@@ -37,6 +37,8 @@ using namespace std;
 template <class answer>
 class DeLeTe2 : public learning_algorithm<answer> {
 	public:	// types
+		typedef typename knowledgebase<answer>::node node;
+		typedef pair<node*, node*> nodeppair;
 
 	protected: // data
 
@@ -139,7 +141,7 @@ class DeLeTe2 : public learning_algorithm<answer> {
 		}}}
 
 	protected:
-		bool leaf_is_non_accepting(typename knowledgebase<answer>::node* n, list<int> & sample, bool prefix_accepting = false)
+		bool leaf_is_non_accepting(node* n, list<int> & sample, bool prefix_accepting = false)
 		// check if all leafs (i.e. states that have no suffixes that either accept or reject) accept
 		{{{
 			list<int> w;
@@ -152,7 +154,7 @@ class DeLeTe2 : public learning_algorithm<answer> {
 
 			int i;
 			bool has_children = false;
-			typename knowledgebase<answer>::node * c;
+			node * c;
 
 			for(i = 0; i < n->max_child_count(); i++) {
 				c = n->find_child(i);
@@ -175,10 +177,113 @@ class DeLeTe2 : public learning_algorithm<answer> {
 			// we're offline.
 			return true;
 		}}}
+
+		void generate_inclusion_relation(list<node*> & pref, set<nodeppair> & inclusions)
+		{{{
+			// NOTE: if (a,b) \in inclusions, a « b, i.e. there is no word w so that a.w \in S+ and b.w \in S-
+			inclusions.clear();
+
+			// we will generate an inclusion relation by
+			// checking each field in the (Pref X Pref)
+			// matrix. we start at the lover right corner
+			// and try each diagonal until we arrive at the
+			// higher left corner.
+
+			typename list<node*>::iterator a, b, first, last;
+			first = pref.begin();
+			last = pref.end();
+			last--;
+			a = last;
+			b = last;
+			while(true) {
+				if(*a == *b) {
+					inclusions.insert(nodeppair(*a,*b));
+					if(*a == pref.front())
+						break;
+				} else {
+					// ROFL
+					// check if  a « b
+					bool good = true;
+					if((*a)->is_answered() && (*b)->is_answered())
+						if((*a)->get_answer() == true && (*b)->get_answer() == false)
+							good = false;
+
+					if(good) {
+						// check inclusion among suffixes
+						for(int i = 0; i < (*a)->max_child_count(); i++) {
+							nodeppair children;
+							children.first = (*a)->find_child(i);
+							children.second = (*b)->find_child(i);
+
+							// what if first && !second ?
+							if(children.first != NULL) {
+								if(children.second != NULL) {
+									if(inclusions.find(children) == inclusions.end()) {
+										good = false;
+										break;
+									}
+								} else {
+									// check if there is a v so that first.v is in S+
+									if(children.first->has_specific_suffix(true)) {
+										good = false;
+										break;
+									}
+								}
+							}
+						}
+						if(/* still */ good)
+							inclusions.insert(nodeppair(*a,*b));
+					}
+
+				}
+				// walk in diagonal up and right. if at
+				// edge of matrix, walk next diagonal.
+				if(a == last && b != first) {
+					a = b;
+					a--;
+					b = last;
+				} else {
+					if(b == first) {
+						b = a;
+						b--;
+						a = first;
+					} else {
+						a++;
+						b--;
+					}
+				}
+			}
+		}}}
+
 		// derive an automaton from data structure
 		virtual bool derive_automaton(bool & t_is_dfa, int & t_alphabet_size, int & t_state_count, set<int> & t_initial, set<int> & t_final, multimap<pair<int, int>, int> & t_transitions)
 		{
+			// generate a graded-lex ordered list of words in the knowledgebase (i.e. pref(S+) )
+			list<node*> pref;
+
+			kIterator_lex_graded<bool> klg(this->my_knowledge->get_rootptr());
+			while(!klg.end()) {
+				list<int> w = klg->get_word();
+				pref.push_back(&(*klg));
+				klg++;
+			}
+
+			// generate inclusion relation
+			set<nodeppair> inclusions;
+
+			generate_inclusion_relation(pref, inclusions);
+
+			typename set<nodeppair>::iterator si;
+			for(si = inclusions.begin(); si != inclusions.end(); si++) {
+				list<int> a,b;
+				a = si->first->get_word();
+				b = si->second->get_word();
+				(*this->my_logger)(LOGGER_DEBUG, "%s  «  %s\n", word2string(a).c_str(), word2string(b).c_str());
+			}
+
+			// run DeLeTe2 algorithm
 			
+
 			return false;
 		}
 
