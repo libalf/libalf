@@ -141,8 +141,6 @@ class RPNI : public learning_algorithm<answer> {
 
 						for(cai = ca.begin(); cai != ca.end(); cai++) {
 							for(cbi = cb.begin(); cbi != cb.end(); cbi++) {
-								nodeppair p;
-
 								if((*cai)->is_answered() && (*cbi)->is_answered()) {
 									if((*cai)->get_answer() != (*cbi)->get_answer()) {
 										// consistency failure. the requested equivalence is not possible with this sample set.
@@ -153,24 +151,16 @@ class RPNI : public learning_algorithm<answer> {
 									}
 								}
 
-								p.first = *cai;
-								p.second = *cbi;
-								candidates.insert(p);
+								candidates.insert(nodeppair(*cai, *cbi));
+								candidates.insert(nodeppair(*cbi, *cai));
 
-								p.first = *cbi;
-								p.second = *cai;
-								candidates.insert(p);
-
-								for(int sigma = 0; sigma < p.first->max_child_count() && sigma < p.second->max_child_count(); sigma++) {
+								for(int sigma = 0; sigma < (*cai)->max_child_count() && sigma < (*cbi)->max_child_count(); sigma++) {
 									node *r, *s;
 									r = (*cai)->find_child(sigma);
 									if(r != NULL) {
 										s = (*cbi)->find_child(sigma);
 										if(s != NULL) {
-											nodeppair q;
-											q.first = r;
-											q.second = s;
-											pending_equivalences.insert(q);
+											pending_equivalences.insert(nodeppair(r, s));
 										}
 									}
 								}

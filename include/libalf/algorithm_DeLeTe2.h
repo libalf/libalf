@@ -221,7 +221,6 @@ class DeLeTe2 : public learning_algorithm<answer> {
 							children.first = (*a)->find_child(i);
 							children.second = (*b)->find_child(i);
 
-							// what if first && !second ?
 							if(children.first != NULL) {
 								if(children.second != NULL) {
 									if(inclusions.find(children) == inclusions.end()) {
