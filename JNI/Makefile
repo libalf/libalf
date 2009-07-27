@@ -9,14 +9,11 @@
 # - set JAVA_INCLUDE (at the top of this file) to your JDK include path
 # - just run "make windows"
 
-SYS = $(shell uname)
+ifeq (${OS}, Windows_NT)
+  JAVA_INCLUDE ?= c:\Progra~1\Java\JDK16~1.0_1\include
+  CPPFLAGS += -I${JAVA_INCLUDE}/win32
 
-ifeq (${SYS}, Windows)
-  JAVA_INCLUDE ?= d:\Progra~1\Java\jdk1.6.0_14\include
-  CPPFLAGS += -I${JAVA_INCLUDE}/win32 -Wl,--kill-at
-#                                      ^ sonst klappt JNI-DLL nicht (http://www.mingw.org/wiki/JNI-MinGW-DLL)
-
-  LDFLAGS = -static ${LDFLAGS} -dynamic
+  LDFLAGS = -static -lalf -llangen -dynamic -L${PREFIX}/lib
   LDFLAGS += -lgmpxx -lgmp -lwsock32
   LDFLAGS += -L../src -L../LanguageGenerator/src
   TARGET=libalf_jni.dll
@@ -39,10 +36,11 @@ all:	test_java_dir libalf_jni.so
 libalf_jni.so: ${OBJECTS}
 	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} ${LDFLAGS} -o $@
 
-libalf_jni.dll: ${OBJECTS}
+alf_jni.dll: ${OBJECTS}
 	make -C ../src libalf.a
 	make -C ../LanguageGenerator/src liblangen.a
-	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} ${LDFLAGS} -o $@
+	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} ${LDFLAGS} -o $@ -Wl,--kill-at
+#	                                                         ^^^^^^^^^^^^^ sonst klappt JNI-DLL nicht (http://www.mingw.org/wiki/JNI-MinGW-DLL)
 
 test_java_dir:
 	@echo -e "\nSystem is ${SYS}\n"
