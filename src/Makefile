@@ -31,6 +31,7 @@ libalf.a: ${OBJECTS}
 clean:
 	-rm *.o
 	-rm libalf.so
+	-rm libalf.a
 
 install: libalf.so
 	echo installing libalf library to ${PREFIX}/lib/

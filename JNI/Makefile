@@ -11,18 +11,23 @@
 
 ifeq (${OS}, Windows_NT)
   JAVA_INCLUDE ?= c:\Progra~1\Java\JDK16~1.0_1\include
+
   CPPFLAGS += -I${JAVA_INCLUDE}/win32
 
   LDFLAGS = -static -lalf -llangen -dynamic -L${PREFIX}/lib
   LDFLAGS += -lgmpxx -lgmp -lwsock32
   LDFLAGS += -L../src -L../LanguageGenerator/src
+
   TARGET=libalf_jni.dll
 else
   # assuming linux
   #JAVA_INCLUDE ?= /usr/lib/jvm/java-6-sun-1.6.0.14/include
   JAVA_INCLUDE ?= ${JAVA_HOME}/include
+
   CPPFLAGS += -I${JAVA_INCLUDE}/linux
+
   LDFLAGS += -L${PREFIX}/lib -lalf -llangen
+
   TARGET=libalf_jni.so
 endif
 
@@ -31,25 +36,25 @@ CPPFLAGS += -shared -fPIC -I${PREFIX}/include -I${JAVA_INCLUDE}
 
 OBJECTS = jni_knowledgebase.o jni_algorithm.o jni_algorithm_angluin.o jni_algorithm_angluin_column.o jni_algorithm_biermann_minisat.o jni_algorithm_nlstar.o jni_algorithm_rpni.o jni_buffered_logger.o jni_tools.o jni_libalf_object.o jni_query_iterator.o jni_random_generator.o
 
-all:	test_java_dir libalf_jni.so
+all:	test_java_dir ${TARGET}
 
 libalf_jni.so: ${OBJECTS}
 	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} ${LDFLAGS} -o $@
 
-alf_jni.dll: ${OBJECTS}
+libalf_jni.dll: ${OBJECTS}
 	make -C ../src libalf.a
 	make -C ../LanguageGenerator/src liblangen.a
 	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} ${LDFLAGS} -o $@ -Wl,--kill-at
 #	                                                         ^^^^^^^^^^^^^ sonst klappt JNI-DLL nicht (http://www.mingw.org/wiki/JNI-MinGW-DLL)
 
 test_java_dir:
-	@echo -e "\nSystem is ${SYS}\n"
-	@echo -e "Testing if JAVA include directory (env JAVA_INCLUDE) is set correctly...."
+	@echo
+	@echo "Testing if JAVA include directory (env JAVA_INCLUDE) is set correctly...."
 	test -d ${JAVA_INCLUDE}
 	@echo
 
 clean:
-	-rm *.o libalf_jni.so
+	-rm *.o libalf_jni.so libalf_jni.dll
 
 install: all
 	@echo -e "\n\nNO JNI INSTALLED. generic rule is missing."
