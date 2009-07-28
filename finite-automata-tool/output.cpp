@@ -15,6 +15,20 @@
 
 bool write_output(finite_automaton *& automaton, output out, string sampletype)
 {
-
+	switch(out) {
+		case output_serial:
+			
+			break;
+		case output_dotfile:
+			
+			break;
+		case output_human_readable:
+			
+			break;
+		case output_sample:
+		case output_sample_text:
+			
+			break;
+	}
 }
 
