@@ -24,6 +24,7 @@ package de.libalf.jni;
  * 
  */
 public class AlgorithmRPNI extends JNIAlgorithm {
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Creates a new object implementing the RPNI algorithm.
@@ -52,6 +53,7 @@ public class AlgorithmRPNI extends JNIAlgorithm {
 	 *            the size of the used alphabet
 	 * @return a pointer to the memory location of the new C++ object.
 	 */
+	@Override
 	native long init(long knowledgebase_pointer, int alphabet_size);
 
 	/**
@@ -89,6 +91,7 @@ public class AlgorithmRPNI extends JNIAlgorithm {
 	 *            a pointer to a buffered_logger C++ object
 	 * @return a pointer to the memory location of the new C++ object.
 	 */
+	@Override
 	native long init(long knowledgebase_pointer, int alphabet_size,
 			long logger_pointer);
 }

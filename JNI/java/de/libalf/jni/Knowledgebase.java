@@ -1,5 +1,10 @@
 package de.libalf.jni;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
 /**
  * <p>
  * A knowledgebase manages the information used during the learning process. It
@@ -45,10 +50,12 @@ package de.libalf.jni;
  * @version 1.0
  */
 public class Knowledgebase extends LibALFObject {
-
-	private final int ACCEPTANCE_TRUE = 2;
-	private final int ACCEPTANCE_FALSE = 0;
-	private final int ACCEPTANCE_UNKNOWN = 1;
+	private static final long serialVersionUID = 1L;
+	
+	private static final int ACCEPTANCE_TRUE = 2;
+	private static final int ACCEPTANCE_FALSE = 0;
+	private static final int ACCEPTANCE_UNKNOWN = 1;
+	private transient long pointer;
 
 	/**
 	 * Indicates whether a word belongs to a formal language or not or whether
@@ -96,6 +103,11 @@ public class Knowledgebase extends LibALFObject {
 	 * @return a pointer to the memory location of the new C++ object.
 	 */
 	private native long init();
+	
+	@Override
+	public long getPointer() {
+		return pointer;
+	}
 
 	/**
 	 * Checks whether there are any unanswered questions, i.e. if there are any
@@ -449,17 +461,6 @@ public class Knowledgebase extends LibALFObject {
 	private native String generate_dotfile(long pointer);
 
 	/**
-	 * Serializes the data stored in the knowledgebase. This serialization can
-	 * be saved and the knowledgebase can be restored using the
-	 * {@link Knowledgebase#deserialize(int[])} method.
-	 * 
-	 * @return an int array that stores the serialization of the knowledgebase.
-	 */
-	public int[] serialize() {
-		return serialize(this.pointer);
-	}
-
-	/**
 	 * <p>
 	 * <em>JNI method call:</em> See {@link Knowledgebase#generate_dotfile()}.
 	 * </p>
@@ -469,18 +470,15 @@ public class Knowledgebase extends LibALFObject {
 	 * @return the result of the JNI call.
 	 */
 	private native int[] serialize(long pointer);
-
+	
 	/**
-	 * Restores the data of an a priori serialized knowledgebase. All data
-	 * contained in the knowledgebase is dropped before.
-	 * 
-	 * @param serialization
-	 *            a serialization of a knowledgebase
-	 * @return true, if the recovery was successful and false, otherwise.
+	 * @see Serializable
 	 */
-	public boolean deserialize(int[] serialization) {
-		return deserialize(serialization, this.pointer);
-	}
+	private void writeObject(ObjectOutputStream out) throws IOException
+    {
+		out.defaultWriteObject();
+		out.writeObject(serialize(this.pointer));
+    }
 
 	/**
 	 * <p>
@@ -494,6 +492,16 @@ public class Knowledgebase extends LibALFObject {
 	 * @return the result of the JNI call.
 	 */
 	private native boolean deserialize(int[] serialization, long pointer);
+	
+	/**
+	 * @see Serializable
+	 */
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		this.pointer = init();
+		int[] serialization = (int[]) in.readObject();
+		deserialize(serialization , this.pointer);
+	}
 
 	@Override
 	public String toString() {

@@ -1,5 +1,9 @@
 package de.libalf.jni;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 /**
  * <p>
  * A <code>BufferedLogger</code> logs events that occur during a learning
@@ -31,12 +35,21 @@ package de.libalf.jni;
 public class BufferedLogger extends LibALFObject {
 
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	/**
 	 * Mapping for the JNI call.
 	 */
-	private final int ERROR = 1;
-	private final int WARN = 2;
-	private final int INFO = 3;
-	private final int DEBUG = 4;
+	private static final int ERROR = 1;
+	private static final int WARN = 2;
+	private static final int INFO = 3;
+	private static final int DEBUG = 4;
+
+	private transient long pointer;
+
+	private String unread = "";
 
 	/**
 	 * Enumeration of all available logger levels.
@@ -76,7 +89,22 @@ public class BufferedLogger extends LibALFObject {
 		 * can be <b>very</b> verbose and thus CPU consuming. Still, some debug
 		 * messages may be left in a release version.
 		 */
-		LOGGER_DEBUG
+		LOGGER_DEBUG;
+
+		public int intValue() {
+			switch (this) {
+			case LOGGER_ERROR:
+				return ERROR;
+			case LOGGER_WARN:
+				return WARN;
+			case LOGGER_INFO:
+				return INFO;
+			case LOGGER_DEBUG:
+				return DEBUG;
+			default:
+				return ERROR;
+			}
+		}
 	}
 
 	/**
@@ -101,6 +129,11 @@ public class BufferedLogger extends LibALFObject {
 	 * @return a pointer to the memory location of the new C++ object.
 	 */
 	private native long init();
+	
+	@Override
+	public long getPointer() {
+		return this.pointer;
+	}
 
 	/**
 	 * Creates a new buffered logger. The logger has the given minimal log level
@@ -116,23 +149,7 @@ public class BufferedLogger extends LibALFObject {
 	 * 
 	 */
 	public BufferedLogger(LoggerLevel minimalLogLevel, boolean logAlgorithm) {
-		switch (minimalLogLevel) {
-		case LOGGER_ERROR:
-			this.pointer = init(ERROR, logAlgorithm);
-			break;
-		case LOGGER_WARN:
-			this.pointer = init(WARN, logAlgorithm);
-			break;
-		case LOGGER_INFO:
-			this.pointer = init(INFO, logAlgorithm);
-			break;
-		case LOGGER_DEBUG:
-			this.pointer = init(DEBUG, logAlgorithm);
-			break;
-		default:
-			this.pointer = init(ERROR, logAlgorithm);
-			break;
-		}
+		this.pointer = init(this.minimalLogLevel = minimalLogLevel.intValue(), this.logAlgorithm = logAlgorithm);
 	}
 
 	/**
@@ -158,7 +175,9 @@ public class BufferedLogger extends LibALFObject {
 	 * @return all messages logged since the last method call.
 	 */
 	public String receive_and_flush() {
-		return receive_and_flush(this.pointer);
+		String ret = unread + receive_and_flush(this.pointer);
+		unread = "";
+		return ret;
 	}
 
 	/**
@@ -171,4 +190,18 @@ public class BufferedLogger extends LibALFObject {
 	 * @return the result of the JNI call.
 	 */
 	private native String receive_and_flush(long pointer);
+
+	private Integer minimalLogLevel;
+	private Boolean logAlgorithm;
+
+	private void writeObject(ObjectOutputStream out) throws IOException {
+		unread = receive_and_flush();
+		out.defaultWriteObject();
+	}
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		this.pointer = minimalLogLevel == null || logAlgorithm == null ? init() : init(minimalLogLevel, logAlgorithm);
+		receive_and_flush();	// grab first message
+	}
 }

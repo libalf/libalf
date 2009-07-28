@@ -1,5 +1,7 @@
 package de.libalf.jni;
 
+import java.io.Serializable;
+
 import de.libalf.jni.Knowledgebase.Acceptance;
 
 /**
@@ -69,7 +71,7 @@ import de.libalf.jni.Knowledgebase.Acceptance;
  * @version 1.0
  * 
  */
-public interface LearningAlgorithm {
+public interface LearningAlgorithm extends Serializable {
 
 	/**
 	 * Sets the size of the alphabet to a new value.
@@ -166,27 +168,6 @@ public interface LearningAlgorithm {
 	 * @return the result of the check.
 	 */
 	public boolean supports_sync();
-
-	/**
-	 * Serializes the state of the learning algorithm. This serialization can be
-	 * saved and the learning algorithm can be restored using the
-	 * {@link LearningAlgorithm#deserialize(int[])} method.<br>
-	 * Be sure to also serialize the associated {@link Knowledgebase}.
-	 * 
-	 * @return an int array that stores the serialization of the learning
-	 *         algorithm.
-	 */
-	public int[] serialize();
-
-	/**
-	 * Restores the data of an a priori serialized learning algorithm. The
-	 * current state of the learning algorithms is discarded.
-	 * 
-	 * @param serialization
-	 *            a serialization of a learning algorithm
-	 * @return true, if the recovery was successful and false, otherwise.
-	 */
-	public boolean deserialize(int[] serialization);
 
 	/**
 	 * Sets the logger for this learning algorithm.

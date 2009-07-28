@@ -1,8 +1,10 @@
 package de.libalf.jni;
 
+@Deprecated
 public class QueryIterator extends LibALFObject {
 
 	private Knowledgebase base;
+	private long pointer;
 
 	public QueryIterator(Knowledgebase base) {
 		this.base = base;
@@ -10,6 +12,11 @@ public class QueryIterator extends LibALFObject {
 	}
 
 	private native long init(long knowledgebasePointer);
+	
+	@Override
+	public long getPointer() {
+		return this.pointer;
+	}
 
 	public int[] nextQuery() {
 		return nextQuery(this.pointer);

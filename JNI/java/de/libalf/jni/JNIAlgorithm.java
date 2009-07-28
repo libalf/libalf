@@ -1,5 +1,10 @@
 package de.libalf.jni;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
 /**
  * <p>
  * JNI implementation of the {@link LearningAlgorithm} interface. This class
@@ -32,9 +37,10 @@ package de.libalf.jni;
  */
 public abstract class JNIAlgorithm extends LibALFObject implements
 		LearningAlgorithm {
+	private static final long serialVersionUID = 1L;
 
 	/**
-	 * The knowledgebase from which the learning algorithm gets its data.
+	 * The knowledge base from which the learning algorithm gets its data.
 	 */
 	Knowledgebase knowledgebase;
 
@@ -42,6 +48,50 @@ public abstract class JNIAlgorithm extends LibALFObject implements
 	 * The logger to log events to.
 	 */
 	BufferedLogger logger;
+
+	protected transient long pointer;
+	
+	@Override
+	public long getPointer() {
+		return this.pointer;
+	}
+
+	/**
+	 * <p>
+	 * <em>JNI method call:</em>
+	 * </p>
+	 * Invokes the JNI interface to initialize a new C++
+	 * <code>angluin_simple_observationtable</code> object with the pointer to a
+	 * <code>knowledgebase</code> and the size of the alphabet. The pointer to
+	 * the new created C++ object is returned.
+	 * 
+	 * @param knowledgebase_pointer
+	 *            a pointer to a knowledgebase C++ object
+	 * @param alphabet_size
+	 *            the size of the used alphabet
+	 * @return a pointer to the memory location of the new C++ object.
+	 */
+	abstract long init(long knowledgebase_pointer, int alphabet_size);
+
+	/**
+	 * <p>
+	 * <em>JNI method call:</em>
+	 * </p>
+	 * Invokes the JNI interface to initialize a new C++
+	 * <code>angluin_simple_observationtable</code> object with the pointer to a
+	 * <code>knowledgebase</code>, the size of the alphabet and a pointer to a
+	 * <code>buffered_logger</code>. The pointer to the new created C++ object
+	 * is returned.
+	 * 
+	 * @param knowledgebase_pointer
+	 *            a pointer to a knowledgebase C++ object
+	 * @param alphabet_size
+	 *            the size of the used alphabet
+	 * @param logger_pointer
+	 *            a pointer to a buffered_logger C++ object
+	 * @return a pointer to the memory location of the new C++ object.
+	 */
+	abstract long init(long knowledgebase_pointer, int alphabet_size, long logger_pointer);
 
 	@Override
 	public Knowledgebase get_knowledge_source() {
@@ -220,14 +270,9 @@ public abstract class JNIAlgorithm extends LibALFObject implements
 	 */
 	private native boolean supports_sync(long pointer);
 
-	@Override
-	public int[] serialize() {
-		return serialize(this.pointer);
-	}
-
 	/**
 	 * <p>
-	 * <em>JNI method call:</em> See {@link JNIAlgorithm#serialize()}.
+	 * <em>JNI method call:</em> See {@link JNIAlgorithm#writeObject(ObjectOutputStream)}.
 	 * </p>
 	 * 
 	 * @param pointer
@@ -235,15 +280,20 @@ public abstract class JNIAlgorithm extends LibALFObject implements
 	 * @return the result of the JNI call.
 	 */
 	private native int[] serialize(long pointer);
-
-	@Override
-	public boolean deserialize(int[] serialization) {
-		return deserialize(serialization, this.pointer);
-	}
+	
+	/**
+	 * @see Serializable
+	 */
+	private void writeObject(ObjectOutputStream out) throws IOException
+    {
+		out.defaultWriteObject();
+		out.writeInt(get_alphabet_size());
+		out.writeObject(serialize(this.pointer));
+    }
 
 	/**
 	 * <p>
-	 * <em>JNI method call:</em> See {@link JNIAlgorithm#deserialize(int[])}.
+	 * <em>JNI method call:</em> See {@link JNIAlgorithm#readObject(ObjectInputStream)}.
 	 * </p>
 	 * 
 	 * @param serialization
@@ -253,6 +303,17 @@ public abstract class JNIAlgorithm extends LibALFObject implements
 	 * @return the result of the JNI call.
 	 */
 	private native boolean deserialize(int[] serialization, long pointer);
+	
+	/**
+	 * @see Serializable
+	 */
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		int alphabet_size = in.readInt();
+		this.pointer = init(knowledgebase.getPointer(), alphabet_size, logger.getPointer());
+		int[] serialization = (int[]) in.readObject();
+		deserialize(serialization , this.pointer);
+	}
 
 	@Override
 	public void set_logger(BufferedLogger logger) {
