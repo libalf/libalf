@@ -13,7 +13,7 @@ CPPFLAGS+=-Wall -I../include/ -I${PREFIX}/include -ggdb3
 CPPFLAGS+=-D__cplusplus -DVERSION="\"${VERSION}\""
 LDFLAGS+=-L${PREFIX}/lib -llangen -lalf -lAMoRE++
 
-OBJECTS=fat.o
+OBJECTS=fat.o input.o transformation.o output.o
 
 all: fat
 
