@@ -23,22 +23,30 @@ void usage()
 		"\n"
 		"allowed parameters:\n"
 		"\n"
-		"\t-g or --generate <nfa|dfa|regex>:<model-size>\n"
+		"\t-g or --generate <nfa|dfa|regex>:<int>\n"
 		"\t\t\tgenerate an automaton, either using a random\n"
 		"\t\t\tnfa, dfa or regex with given model-size\n"
+		"\n"
 		"\t-m or --minimize\n"
 		"\t\t\tminimize automaton\n"
+		"\n"
 		"\t-d or --determinize\n"
 		"\t\t\tdeterminize automaton\n"
+		"\n"
 		"\t-r or --rfsa\n"
 		"\t\t\tget minimal RFSA of automaton\n"
+		"\n"
 //		"\t-u or --universal\n"
 //		"\t\t\tget universal automaton\n"
+//		"\n"
 		"\t-D or --dotfile\n"
 		"\t\t\tgenerate dotfile of automaton or knowledgebase\n"
-		"\t-s or --sample <rpni|delete2|biermann|random>\n"
+		"\n"
+		"\t-s or --sample <rpni|delete2|biermann|random|depth>[:<int>]\n"
 		"\t\t\tgenerate sample-set (knowledgebase) from automaton,\n"
-		"\t\t\tw.r.t. some criterion\n"
+		"\t\t\tw.r.t. some criterion. <int> only is required for\n"
+		"\t\t\t random: number of samples\n"
+		"\t\t\t depth:  depth of prefix-accepting tree to generate\n"
 		"\n";
 }
 
@@ -54,6 +62,7 @@ int main(int argc, char**argv)
 //		{ "universal",       no_argument,            NULL, 'u' },	// universal automaton
 
 		{ "dotfile",         no_argument,            NULL, 'D' },	// generate dotfile
+		{ "text",            no_argument,            NULL, 't' },	// use text-output (tostring() for knowledgebase, write() for automata)
 
 		{ "sample",          required_argument,      NULL, 's' },	// create sample-set from automaton. parameter: rpni, delete2, biermann, random
 		{ 0,0,0,0 }

@@ -11,7 +11,7 @@ VERSION=svn-r${SVNREVISION}${LOCALCHANGES}
 
 CPPFLAGS+=-Wall -I../include/ -I${PREFIX}/include -ggdb3
 CPPFLAGS+=-D__cplusplus -DVERSION="\"${VERSION}\""
-LDFLAGS+=-L${PREFIX}/lib
+LDFLAGS+=-L${PREFIX}/lib -llangen -lalf -lAMoRE++
 
 OBJECTS=fat.o
 
