@@ -32,7 +32,7 @@ public class AlgorithmAngluinColumn extends JNIAlgorithm {
 	public AlgorithmAngluinColumn(Knowledgebase knowledgebase, int alphabet_size) {
 		this.knowledgebase = knowledgebase;
 		this.pointer = init(knowledgebase.getPointer(), alphabet_size);
-		System.err.println("Ohne logger");
+//		System.err.println("Ohne logger");
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class AlgorithmAngluinColumn extends JNIAlgorithm {
 		this.logger = logger;
 		this.pointer = init(knowledgebase.getPointer(), alphabet_size, logger
 				.getPointer());
-		System.err.println("Mit logger");
+//		System.err.println("Mit logger");
 	}
 
 	/**

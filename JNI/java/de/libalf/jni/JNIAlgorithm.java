@@ -310,7 +310,7 @@ public abstract class JNIAlgorithm extends LibALFObject implements
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 		in.defaultReadObject();
 		int alphabet_size = in.readInt();
-		this.pointer = init(knowledgebase.getPointer(), alphabet_size, logger.getPointer());
+		this.pointer = init(knowledgebase.getPointer(), alphabet_size, logger == null ? 0 : logger.getPointer());
 		int[] serialization = (int[]) in.readObject();
 		deserialize(serialization , this.pointer);
 	}

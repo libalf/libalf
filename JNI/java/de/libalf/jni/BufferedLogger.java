@@ -33,10 +33,6 @@ import java.io.ObjectOutputStream;
  * 
  */
 public class BufferedLogger extends LibALFObject {
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	
 	/**
@@ -200,8 +196,8 @@ public class BufferedLogger extends LibALFObject {
 	}
 
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
 		this.pointer = minimalLogLevel == null || logAlgorithm == null ? init() : init(minimalLogLevel, logAlgorithm);
 		receive_and_flush();	// grab first message
+		in.defaultReadObject();
 	}
 }

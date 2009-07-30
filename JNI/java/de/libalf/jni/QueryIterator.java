@@ -1,10 +1,10 @@
 package de.libalf.jni;
 
-@Deprecated
+@Deprecated	// because actually NOT serializable!
 public class QueryIterator extends LibALFObject {
 
 	private Knowledgebase base;
-	private long pointer;
+	private transient long pointer;
 
 	public QueryIterator(Knowledgebase base) {
 		this.base = base;
