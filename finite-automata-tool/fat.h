@@ -29,7 +29,7 @@ enum transformation {
 	trans_determinize,
 	trans_mdfa,
 	trans_rfsa,
-//	trans_universal
+	trans_universal
 };
 
 enum output {

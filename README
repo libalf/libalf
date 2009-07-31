@@ -12,14 +12,14 @@ DEPENCENCIES:
 	C++ interface currently reside in the subversion repository of
 	libalf. the C++ interface has been written during development of
 	libalf, but we're currently working on integrating it into the
-	original libAMoRE (upstream).
+	original libAMoRE (upstream).)
 
 	2) liblangen (LanguageGenerator) is a library for generating
 	(regular) languages in the form of automata or regular expressions.
 	it came to existence during the development of libalf and thus
-	has the same interfaces for automata. it is useful for e.g.
+	has the same interfaces for automata. it is useful e.g. for
 	generating random automata or regex with specific constraints,
-	so algorithms can automatically massively tested.
+	so algorithms can automatically massively be tested.
 
 	3) MiniSat v1.14 is fully integrated into libalf, as it is
 	required for the bierman algorithm.

@@ -146,12 +146,13 @@ class DeLeTe2 : public learning_algorithm<answer> {
 		// check if all leafs (i.e. states that have no suffixes that either accept or reject) accept
 		{{{
 			list<int> w;
-			if(n->is_answered())
+			if(n->is_answered()) {
 				if(n->get_answer() == true)
 					prefix_accepting = true;
 				else
 					if(n->get_answer() == false)
 						prefix_accepting = false;
+			}
 
 			int i;
 			bool has_children = false;

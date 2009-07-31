@@ -27,8 +27,6 @@ namespace LanguageGenerator {
 using namespace std;
 
 class NFArandomgenerator {
-	private:
-		
 	public:
 		NFArandomgenerator();
 

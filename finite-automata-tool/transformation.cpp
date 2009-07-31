@@ -15,25 +15,38 @@
 
 bool do_transformation(finite_automaton *& automaton, transformation trans)
 {
+	finite_automaton * tmp;
 	switch(trans) {
 		case trans_none:
-			break;
-		case trans_minimize:
-			
-			break;
-		case trans_determinize:
-			
-			break;
+cerr<<"T:none\n";
+			return true;
 		case trans_mdfa:
-			
-			break;
+cerr<<"T:mdfa\n";
+			tmp = automaton->determinize();
+			delete automaton;
+			automaton = tmp;
+			/* fall through */
+		case trans_minimize:
+cerr<<"T:min\n";
+			automaton->minimize();
+			return true;
+		case trans_determinize:
+cerr<<"T:det\n";
+			tmp = automaton->determinize();
+			delete automaton;
+			automaton = tmp;
+			return true;
 		case trans_rfsa:
-			
+cerr<<"T:rfsa\n";
+			// FIXME: apply NL*
+
 			break;
-//		case trans_universal:
-//			
-//			break;
+		case trans_universal:
+cerr<<"T:uni\n";
+			// FIXME: apply UL*
+			break;
 	}
 
+	return false;
 }
 

@@ -1,7 +1,7 @@
 # $Id$
 # fat Makefile
 
-.PHONY:
+.PHONY: all clean jpegs install uninstall
 
 PREFIX ?= /usr/local/
 
@@ -22,6 +22,10 @@ fat: $(OBJECTS)
 
 clean:
 	-rm fat *.o
+	-rm *.dot *.jpg
+
+jpegs:
+	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;
 
 install: fat
 	cp fat ${PREFIX}/bin/fat
