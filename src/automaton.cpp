@@ -134,7 +134,7 @@ string write_automaton(bool is_dfa, int & alphabet_size, int & state_count, set<
 		first_komma = false;
 		ret += buf;
 	}
-	if(first_komma)
+	if(!first_komma)
 		ret += ";";
 
 	ret += "\n[final states]\n";
@@ -145,7 +145,7 @@ string write_automaton(bool is_dfa, int & alphabet_size, int & state_count, set<
 		first_komma = false;
 		ret += buf;
 	}
-	if(first_komma)
+	if(!first_komma)
 		ret += ";";
 
 	ret += "\n[transitions]\n";

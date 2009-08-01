@@ -44,7 +44,7 @@ basic_string<int32_t> serialize_automaton(int alphabet_size, int state_count, se
 
 
 // check if given automaton is deterministic
-bool is_deterministic(int alphabet_size, int state_count, set<int> & initial, set<int> & final, multimap<pair<int, int>, int> & transitions);
+bool automaton_is_deterministic(int alphabet_size, int state_count, set<int> & initial, set<int> & final, multimap<pair<int, int>, int> & transitions);
 
 // close state-set under all epsilon-transitions (transition-label == -1)
 void epsilon_closure(set<int> & states, multimap<pair<int, int>, int> & transitions);

@@ -16,6 +16,7 @@
 #include "fat.h"
 
 #include <libalf/basic_string.h>
+#include <libalf/automaton.h>
 
 bool generate_samples_rpni(finite_automaton * automaton, knowledgebase<bool> & base)
 {
@@ -102,6 +103,14 @@ bool generate_samples(finite_automaton * automaton, knowledgebase<bool> & base, 
 bool write_output(finite_automaton *& automaton, output out, string sampletype)
 {{{
 	basic_string<int32_t> serial;
+	basic_string<int32_t>::iterator si;
+
+	bool f_is_dfa;
+	int f_alphabet_size;
+	int f_state_count;
+	std::set<int> f_initial;
+	std::set<int> f_final;
+	multimap<pair<int,int>, int> f_transitions;
 
 	switch(out) {
 		case output_serial:
@@ -115,9 +124,21 @@ bool write_output(finite_automaton *& automaton, output out, string sampletype)
 			cout << automaton->generate_dotfile();
 			return true;
 		case output_human_readable:
-//			cout << automaton.write();
-			
-			return false;
+			// nasty...
+			serial = automaton->serialize();
+			si = serial.begin();
+			if(!deserialize_automaton(si, serial.end(), f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
+				cerr << "failed to decompose automaton to human readable(1)\n";
+				return false;
+			}
+			if(si != serial.end()) {
+				cerr << "failed to decompose automaton to human readable(2)\n";
+				return false;
+			}
+			f_is_dfa = automaton_is_deterministic(f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
+			cout << write_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
+
+			return true;
 		case output_sample:
 		case output_sample_text:
 			knowledgebase<bool> base;
