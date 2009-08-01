@@ -18,7 +18,7 @@
 #include "amore_alf_glue.h"
 
 bool a2rfsa(finite_automaton *& automaton)
-{
+{{{
 	knowledgebase<bool> base;
 	NLstar_table<bool> tbl(&base, NULL, automaton->get_alphabet_size());
 	finite_automaton * hypothesis = NULL;
@@ -50,7 +50,7 @@ bool a2rfsa(finite_automaton *& automaton)
 	automaton = hypothesis;
 
 	return true;
-}
+}}}
 
 bool a2universal(finite_automaton *& automaton)
 {
@@ -91,7 +91,7 @@ bool a2universal(finite_automaton *& automaton)
 }
 
 bool do_transformation(finite_automaton *& automaton, transformation trans)
-{
+{{{
 	finite_automaton * tmp;
 	switch(trans) {
 		case trans_none:
@@ -116,5 +116,5 @@ bool do_transformation(finite_automaton *& automaton, transformation trans)
 	}
 
 	return false;
-}
+}}}
 
