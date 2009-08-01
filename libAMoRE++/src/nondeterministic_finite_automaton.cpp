@@ -169,6 +169,24 @@ bool nondeterministic_finite_automaton::is_empty()
 	return ret;
 }}}
 
+std::set<int> nondeterministic_finite_automaton::get_initial_states()
+{{{
+	std::set<int> ret;
+	for(unsigned int i = 0; i <= nfa_p->highest_state; i++)
+		if(isinit(nfa_p->infin[i]))
+			ret.insert(i);
+	return ret;
+}}}
+
+std::set<int> nondeterministic_finite_automaton::get_final_states()
+{{{
+	std::set<int> ret;
+	for(unsigned int i = 0; i <= nfa_p->highest_state; i++)
+		if(isfinal(nfa_p->infin[i]))
+			ret.insert(i);
+	return ret;
+}}}
+
 int nondeterministic_finite_automaton::get_alphabet_size()
 {{{
 	if(nfa_p)
@@ -177,22 +195,17 @@ int nondeterministic_finite_automaton::get_alphabet_size()
 		return 0;
 }}}
 
-list<int> nondeterministic_finite_automaton::get_sample_word(bool & is_empty)
+list<int> nondeterministic_finite_automaton::shortest_run(std::set<int> from, std::set<int> & to, bool &reachable)
 {{{
-	std::set<int> visited_states;
+	std::set<int>::iterator si;
 	list<automaton_run> run_fifo;
-	list<automaton_run>::iterator ri;
 	automaton_run current, next;
 	unsigned int s, l;
 
 	// put initial states into fifo
-	for(s = 0; s <= nfa_p->highest_state; s++) {
-		if(isinit(nfa_p->infin[s])) {
-			current.state = s;
-			// current.prefix is empty.
-			run_fifo.push_back(current);
-			visited_states.insert(s);
-		}
+	for(si = from.begin(); si != from.end(); si++) {
+		current.state = *si;
+		run_fifo.push_back(current);
 	}
 
 	while(!run_fifo.empty()) {
@@ -200,8 +213,8 @@ list<int> nondeterministic_finite_automaton::get_sample_word(bool & is_empty)
 		current = run_fifo.front();
 		run_fifo.pop_front();
 
-		if(isfinal(nfa_p->infin[current.state])) {
-			is_empty = false;
+		if(to.find(current.state) != to.end()) {
+			reachable = true;
 			return current.prefix;
 		}
 		// epsilon-close
@@ -209,10 +222,10 @@ list<int> nondeterministic_finite_automaton::get_sample_word(bool & is_empty)
 			next.prefix = current.prefix;
 			for(s = 0; s <= nfa_p->highest_state; s++) {
 				if(testcon((nfa_p->delta), 0, current.state, s)) {
-					if(visited_states.find(s) == visited_states.end()) {
+					if(from.find(s) == from.end()) {
 						next.state = s;
 						run_fifo.push_front(next);
-						visited_states.insert(s);
+						from.insert(s);
 					}
 				}
 			}
@@ -220,23 +233,53 @@ list<int> nondeterministic_finite_automaton::get_sample_word(bool & is_empty)
 
 		// advance to new states
 		for(s = 0; s <= nfa_p->highest_state; s++) { // dst state
-			if(visited_states.find(s) == visited_states.end()) {
+			if(from.find(s) == from.end()) {
 				for(l = 0; l < nfa_p->alphabet_size; l++) { // label
 					if(testcon((nfa_p->delta), l+1, current.state, s)) {
 						next.prefix = current.prefix;
 						next.prefix.push_back(l);
 						next.state = s;
 						run_fifo.push_back(next);
-						visited_states.insert(s);
+						from.insert(s);
 					}
 				}
 			}
 		}
 	}
 	list<int> ret;
-	is_empty = true;
+	reachable = false;
 	return ret; // empty word
 }}}
+
+bool nondeterministic_finite_automaton::is_reachable(std::set<int> &from, std::set<int> &to)
+{{{
+	bool reachable;
+	shortest_run(from, to, reachable);
+	return reachable;
+}}}
+
+list<int> nondeterministic_finite_automaton::get_sample_word(bool & is_empty)
+{{{
+	unsigned int s;
+	list<int> ret;
+	std::set<int> initial_states, final_states;
+	bool reachable;
+
+	// get initial and final states
+	for(s = 0; s <= nfa_p->highest_state; s++) {
+		if(isinit(nfa_p->infin[s]))
+			initial_states.insert(s);
+		if(isfinal(nfa_p->infin[s]))
+			final_states.insert(s);
+	}
+
+
+	ret = shortest_run(initial_states, final_states, reachable);
+	is_empty = !reachable;
+
+	return ret;
+}}}
+
 
 bool nondeterministic_finite_automaton::operator==(finite_automaton &other)
 {{{

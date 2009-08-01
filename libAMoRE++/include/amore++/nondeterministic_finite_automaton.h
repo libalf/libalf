@@ -82,6 +82,10 @@ class nondeterministic_finite_automaton : public finite_automaton {
 
 		virtual int get_state_count();
 		virtual int get_alphabet_size();
+		virtual std::set<int> get_initial_states();
+		virtual std::set<int> get_final_states();
+		virtual list<int> shortest_run(std::set<int> from, std::set<int> &to, bool &reachable);
+		virtual bool is_reachable(std::set<int> &from, std::set<int> &to);
 		virtual list<int> get_sample_word(bool & is_empty);
 		virtual bool is_empty();
 		virtual bool operator==(finite_automaton &other);

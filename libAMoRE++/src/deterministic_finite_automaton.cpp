@@ -97,6 +97,22 @@ bool deterministic_finite_automaton::is_empty()
 	return ret;
 }}}
 
+std::set<int> deterministic_finite_automaton::get_initial_states()
+{{{
+	std::set<int> ret;
+	ret.insert(dfa_p->init);
+	return ret;
+}}}
+
+std::set<int> deterministic_finite_automaton::get_final_states()
+{{{
+	std::set<int> ret;
+	for(unsigned int i = 0; i <= dfa_p->highest_state; i++)
+		if(dfa_p->final[i])
+			ret.insert(i);
+	return ret;
+}}}
+
 int deterministic_finite_automaton::get_alphabet_size()
 {{{
 	if(dfa_p)
@@ -105,27 +121,29 @@ int deterministic_finite_automaton::get_alphabet_size()
 		return 0;
 }}}
 
-list<int> deterministic_finite_automaton::get_sample_word(bool & is_empty)
+list<int> deterministic_finite_automaton::shortest_run(std::set<int> from, std::set<int> &to, bool &reachable)
 {{{
-	std::set<int> visited_states;
-	queue<automaton_run> state_fifo;
+	std::set<int>::iterator si;
+	queue<automaton_run> run_fifo;
 	automaton_run current;
 
-	current.state = dfa_p->init;
+	// put initial states into fifo
+	for(si = from.begin(); si != from.end(); si++) {
+		current.state = *si;
+		run_fifo.push(current);
+	}
 
-	state_fifo.push(current);
-
-	while(!state_fifo.empty()) {
-		current = state_fifo.front();
-		state_fifo.pop();
+	while(!run_fifo.empty()) {
+		current = run_fifo.front();
+		run_fifo.pop();
 
 		// if state was visited before, skip it
-		if(visited_states.find(current.state) == visited_states.end()) {
-			visited_states.insert(current.state);
+		if(from.find(current.state) == from.end()) {
+			from.insert(current.state);
 
 			// if state is final, return its prefix
-			if(dfa_p->final[current.state] == TRUE) {
-				is_empty = false;
+			if(to.find(current.state) != to.end()) {
+				reachable = true;
 				return current.prefix;
 			}
 
@@ -135,15 +153,37 @@ list<int> deterministic_finite_automaton::get_sample_word(bool & is_empty)
 				// add possible successor with its prefix to fifo
 				current.prefix.push_back(i);
 				current.state = dfa_p->delta[i+1][st];
-				state_fifo.push(current);
+				run_fifo.push(current);
 				current.prefix.pop_back();
 			}
 		}
 	}
 
-	is_empty = true;
+	reachable = false;
 	list<int> empty;
 	return empty;
+}}}
+
+bool deterministic_finite_automaton::is_reachable(std::set<int> &from, std::set<int> &to)
+{{{
+	bool reachable;
+	shortest_run(from, to, reachable);
+	return reachable;
+}}}
+
+list<int> deterministic_finite_automaton::get_sample_word(bool & is_empty)
+{{{
+	std::set<int> initial_states, final_states;
+	list<int> ret;
+	bool reachable;
+
+	initial_states = get_initial_states();
+	final_states = get_final_states();
+
+	ret = shortest_run(initial_states, final_states, reachable);
+	is_empty = !reachable;
+
+	return ret;
 }}}
 
 bool deterministic_finite_automaton::operator==(finite_automaton &other)

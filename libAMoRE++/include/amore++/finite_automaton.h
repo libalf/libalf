@@ -80,6 +80,16 @@ class finite_automaton {
 		virtual int get_state_count() = 0;
 		virtual int get_alphabet_size() = 0;
 
+		virtual std::set<int> get_initial_states() = 0;
+		virtual std::set<int> get_final_states() = 0;
+
+		// get shortest run from a state in <from> to a state in <to>
+		// reachable = false if state is not reachable.
+		virtual list<int> shortest_run(set<int> from, set<int> &to, bool &reachable) = 0;
+
+		// are states <to> reachable from states <from> ?
+		virtual bool is_reachable(set<int> &from, set<int> &to) = 0;
+
 		// get a random sample word from this automaton
 		virtual list<int> get_sample_word(bool & is_empty) = 0;
 
@@ -141,21 +151,12 @@ class finite_automaton {
 		virtual basic_string<int32_t> serialize() = 0;
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit) = 0;
 
-		// parse/generate human readable automaton format
-		// FIXME
-		//virtual bool read_automaton(string input);
-		//virtual string write_automaton();
-
 		// construct a new automaton with states 0..state_count-1
 		//
 		// states are named 0 .. state_count-1,
 		// transition attributes are 0 .. alphabet_size-1,
 		// an epsilon transition is denoted as -1
 		virtual bool construct(int alphabet_size, int state_count, std::set<int> &initial, std::set<int> &final, multimap<pair<int,int>, int> &transitions);
-
-		// create decomposed format from this automaton
-		// FIXME
-		//virtual bool decompose(int alphabet_size, int state_count, std::set<int> &initial, std::set<int> &final, multimap<pair<int,int>, int> &transitions);
 
 		virtual string generate_dotfile();
 };
