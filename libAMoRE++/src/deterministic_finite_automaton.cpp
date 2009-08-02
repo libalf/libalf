@@ -432,6 +432,7 @@ bool deterministic_finite_automaton::deserialize(basic_string<int32_t>::iterator
 {{{
 	int size;
 	int s, count;
+	bool sink_required = false;
 
 	if(it == limit)
 		goto dfaa_deserialization_failed;
@@ -482,6 +483,14 @@ bool deterministic_finite_automaton::deserialize(basic_string<int32_t>::iterator
 	}
 
 	// transitions
+	//
+	// currently, delta[n] = 0. thus all undefined transitions would lead to
+	// state 0. we don't want this, thus we reset the value here and add a
+	// sink later on, if required.
+	for(unsigned int s = 0; s <= dfa_p->highest_state; s++)
+		for(unsigned int i = 1; i <= dfa_p->alphabet_size; i++)
+			dfa_p->delta[i][s] = dfa_p->highest_state+1;
+
 	size--, it++; if(size <= 0 || limit == it) goto dfaa_deserialization_failed;
 	count = ntohl(*it);
 	for(s = 0; s < count; s++) {
@@ -501,6 +510,31 @@ bool deterministic_finite_automaton::deserialize(basic_string<int32_t>::iterator
 
 		// transition function: delta[sigma][source] = destination
 		dfa_p->delta[label+1][src] = dst;
+	}
+
+	for(unsigned int s = 0; s <= dfa_p->highest_state && !sink_required; s++)
+		for(unsigned int i = 1; i <= dfa_p->alphabet_size && !sink_required; i++)
+			if(dfa_p->delta[i][s] > dfa_p->highest_state)
+				sink_required = true;
+	if(sink_required) {
+//		printf("AMoRE++ deterministic_finite_automaton::deserialize adding implicit sink\n");
+
+		ddelta tmp;
+		tmp = dfa_p->delta;
+
+		// add one state
+		dfa_p->highest_state++;
+		// create new ddelta
+		dfa_p->delta = newddelta(dfa_p->alphabet_size, dfa_p->highest_state);
+		for(unsigned int s = 0; s < dfa_p->highest_state; s++)
+			for(unsigned int i = 1; i <= dfa_p->alphabet_size; i++)
+				dfa_p->delta[i][s] = tmp[i][s];
+		for(unsigned int i = 1; i <= dfa_p->alphabet_size; i++)
+			dfa_p->delta[i][dfa_p->highest_state] = dfa_p->highest_state;
+		// remove old ddelta
+		for(unsigned int i = 1; i <= dfa_p->alphabet_size; i++)
+			dispose(tmp[i]);
+		dispose(tmp);
 	}
 
 	size--, it++;
@@ -551,8 +585,40 @@ bool deterministic_finite_automaton::construct(int alphabet_size, int state_coun
 	for(std::set<int>::iterator i = final.begin(); i != final.end(); i++)
 		setfinal((a->final[*i]), 1);
 	a->delta = newddelta(a->alphabet_size, a->highest_state); // transition function: delta[sigma][source] = destination
+	// currently, delta[n] = 0. thus all undefined transitions would lead to
+	// state 0. we don't want this, thus we reset the value here and add a
+	// sink later on, if required.
+	bool sink_required = false;
+	for(unsigned int s = 0; s <= a->highest_state; s++)
+		for(unsigned int i = 1; i <= a->alphabet_size; i++)
+			a->delta[i][s] = a->highest_state+1;
 	for(ti = transitions.begin(); ti != transitions.end(); ti++)
 		a->delta[ti->first.second + 1][ti->first.first] = ti->second;
+	for(unsigned int s = 0; s <= a->highest_state && !sink_required; s++)
+		for(unsigned int i = 1; i <= a->alphabet_size && !sink_required; i++)
+			if(a->delta[i][s] > a->highest_state)
+				sink_required = true;
+	if(sink_required) {
+//		printf("AMoRE++ deterministic_finite_automaton::construct adding implicit sink\n");
+
+		ddelta tmp;
+		tmp = a->delta;
+
+		// add one state
+		a->highest_state++;
+		// create new ddelta
+		a->delta = newddelta(a->alphabet_size, a->highest_state);
+		for(unsigned int s = 0; s <= a->highest_state; s++)
+			for(unsigned int i = 1; i <= a->alphabet_size; i++)
+				a->delta[i][s] = tmp[i][s];
+		for(unsigned int i = 1; i <= a->alphabet_size; i++)
+			a->delta[i][a->highest_state] = a->highest_state;
+		// remove old ddelta
+		for(unsigned int i = 1; i <= a->alphabet_size; i++)
+			dispose(tmp[i]);
+		dispose(tmp);
+	}
+
 	a->minimal = FALSE;
 
 	if(dfa_p) {
