@@ -20,18 +20,21 @@
 
 bool generate_samples_rpni(finite_automaton * automaton, knowledgebase<bool> & base)
 {
+	do_transformation(automaton, trans_mdfa);
 	
 	return false;
 }
 
 bool generate_samples_delete2(finite_automaton * automaton, knowledgebase<bool> & base)
 {
+	do_transformation(automaton, trans_rfsa);
 	
 	return false;
 }
 
 bool generate_samples_biermann(finite_automaton * automaton, knowledgebase<bool> & base)
 {
+	do_transformation(automaton, trans_mdfa);
 	
 	return false;
 }

@@ -119,6 +119,10 @@ bool check_validity(logger & log, finite_automaton * model)
 				snprintf(filename, 128, "model-%02d-rpni.dot", bad);
 				file.open(filename); file << res->generate_dotfile(); file.close();
 
+				snprintf(filename, 128, "model-%02d-rpni.bs", bad);
+				serialized = res->serialize();
+				basic_string_to_file(serialized, filename);
+
 				snprintf(filename, 128, "model-%02d-base.bs", bad);
 				serialized = knowledge.serialize();
 				basic_string_to_file(serialized, filename);

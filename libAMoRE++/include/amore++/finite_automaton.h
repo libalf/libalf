@@ -149,6 +149,7 @@ class finite_automaton {
 		//		destination state id
 		// </serialized automaton>
 		virtual basic_string<int32_t> serialize() = 0;
+		// NOTE: for a DETERMINISTIC finite automaton, if a transition is not defined, it will lead to state 0!
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit) = 0;
 
 		// construct a new automaton with states 0..state_count-1
@@ -156,6 +157,7 @@ class finite_automaton {
 		// states are named 0 .. state_count-1,
 		// transition attributes are 0 .. alphabet_size-1,
 		// an epsilon transition is denoted as -1
+		// NOTE: for a DETERMINISTIC finite automaton, if a transition is not defined, it will lead to state 0!
 		virtual bool construct(int alphabet_size, int state_count, std::set<int> &initial, std::set<int> &final, multimap<pair<int,int>, int> &transitions);
 
 		virtual string generate_dotfile();
@@ -163,6 +165,7 @@ class finite_automaton {
 
 
 
+// NOTE: for a DETERMINISTIC finite automaton, if a transition is not defined, it will lead to state 0!
 finite_automaton * construct_amore_automaton(bool is_dfa, int alphabet_size, int state_count, std::set<int> &initial, std::set<int> &final, multimap<pair<int,int>, int> &transitions);
 
 

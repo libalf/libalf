@@ -18,7 +18,7 @@
 void usage()
 {{{
 	cerr << "Finite Automata Tool\n"
-		"Version "VERSION "\n"
+		"libalf Version "VERSION "\n"
 		"\n"
 		"allowed parameters:\n"
 		"\n"
