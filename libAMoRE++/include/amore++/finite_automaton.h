@@ -83,6 +83,11 @@ class finite_automaton {
 		virtual std::set<int> get_initial_states() = 0;
 		virtual std::set<int> get_final_states() = 0;
 
+		// these can be used to create prefix- and postfix-languages for states
+		// (e.g. residual languages)
+//		virtual std::set<int> set_initial_states() = 0;
+//		virtual std::set<int> set_final_states() = 0;
+
 		// get shortest run from a state in <from> to a state in <to>
 		// reachable = false if state is not reachable.
 		virtual list<int> shortest_run(set<int> from, set<int> &to, bool &reachable) = 0;
@@ -106,8 +111,12 @@ class finite_automaton {
 		// test if this and other are disjoint
 		virtual bool lang_disjoint_to(finite_automaton &other) = 0;
 
+		// calculate single-label transition or multiple-label run for a set of starting states
+		virtual std::set<int> transition(std::set<int> from, int label) = 0;
+		virtual std::set<int> run(std::set<int> from, list<int>::iterator word, list<int>::iterator word_limit);
+
 		// test if word is contained in language of this
-		virtual bool contains(list<int>&) = 0;
+		virtual bool contains(list<int> & word);
 
 		// UNARY OPERATIONS
 		virtual void minimize() = 0;

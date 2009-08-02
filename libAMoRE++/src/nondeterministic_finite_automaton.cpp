@@ -347,49 +347,36 @@ void nondeterministic_finite_automaton::epsilon_closure(std::set<int> & states)
 	};
 }}}
 
-bool nondeterministic_finite_automaton::accepts_suffix(std::set<int> &starting_states, list<int>::iterator suffix_begin, list<int>::iterator suffix_end)
+std::set<int> nondeterministic_finite_automaton::transition(std::set<int> from, int label)
 {{{
-	std::set<int>::iterator sti;
+	std::set<int> ret;
+	std::set<int>::iterator si;
 
-	this->epsilon_closure(starting_states);
+	this->epsilon_closure(from);
 
-	// not accepting if there are no states
-	if(starting_states.empty())
-		return false;
+	for(si = from.begin(); si != from.end(); si++)
+		for(unsigned int s = 0; s <= nfa_p->highest_state; s++)
+			if(testcon(nfa_p->delta, label+1, *si, s))
+				ret.insert(s);
 
-	if(suffix_begin == suffix_end) {
-		// check existence of at least one accepting state
-		for(sti = starting_states.begin(); sti != starting_states.end(); sti++)
-			if(isfinal(nfa_p->infin[*sti]))
-				return true;
-
-		return false;
-	} else {
-		std::set<int> next_states;
-
-		unsigned int l = *suffix_begin;
-		if(l >= nfa_p->alphabet_size)
-			return false;
-
-		// calculate successor states
-		for(sti = starting_states.begin(); sti != starting_states.end(); sti++)
-			for(unsigned int d = 0; d <= nfa_p->highest_state; d++)
-				if(testcon((nfa_p->delta), l+1, *sti, d))
-					next_states.insert(d);
-
-		suffix_begin++;
-		return accepts_suffix(next_states, suffix_begin, suffix_end);
-	}
+	this->epsilon_closure(ret);
+	return ret;
 }}}
 
 bool nondeterministic_finite_automaton::contains(list<int> &word)
 {{{
 	if(nfa_p) {
-		std::set<int> initial_states;
-		for(unsigned int s = 0; s <= nfa_p->highest_state; s++)
-			if(isinit(nfa_p->infin[s]))
-				initial_states.insert(s);
-		return accepts_suffix(initial_states, word.begin(), word.end());
+		std::set<int> states;
+		std::set<int>::iterator si;
+
+		states = get_initial_states();
+
+		states = run(states, word.begin(), word.end());
+
+		for(si = states.begin(); si != states.end(); si++)
+			if(isfinal(nfa_p->infin[*si]))
+				return true;
+		return false;
 	} else {
 		return false;
 	}

@@ -258,23 +258,31 @@ bool deterministic_finite_automaton::lang_disjoint_to(finite_automaton &other)
 	return ret;
 }}}
 
-bool deterministic_finite_automaton::accepts_suffix(int initial_state, list<int>::iterator suffix_begin, list<int>::iterator suffix_end)
+std::set<int> deterministic_finite_automaton::transition(std::set<int> from, int label)
 {{{
-	if(suffix_begin == suffix_end) {
-		return (TRUE == dfa_p->final[initial_state]);
-	} else {
-		unsigned int l = (*suffix_begin);
-		if(l >= dfa_p->alphabet_size)
-			return false;
-		suffix_begin++;
-		return accepts_suffix(dfa_p->delta[l+1][initial_state], suffix_begin, suffix_end);
-	}
+	std::set<int> ret;
+	std::set<int>::iterator si;
+
+	for(si = from.begin(); si != from.end(); si++)
+		ret.insert(dfa_p->delta[label+1][*si]);
+
+	return ret;
 }}}
 
 bool deterministic_finite_automaton::contains(list<int> &word)
 {{{
 	if(dfa_p) {
-		return accepts_suffix(dfa_p->init, word.begin(), word.end());
+		std::set<int> states;
+		std::set<int>::iterator si;
+
+		states = get_initial_states();
+
+		states = run(states, word.begin(), word.end());
+
+		for(si = states.begin(); si != states.end(); si++)
+			if(TRUE == dfa_p->final[*si])
+				return true;
+		return false;
 	} else {
 		return false;
 	}

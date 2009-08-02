@@ -68,6 +68,7 @@ class deterministic_finite_automaton : public finite_automaton {
 		virtual bool operator==(finite_automaton &other);
 		virtual bool lang_subset_of(finite_automaton &other);
 		virtual bool lang_disjoint_to(finite_automaton &other);
+		virtual std::set<int> transition(std::set<int> from, int label);
 		virtual bool contains(list<int> &word);
 		virtual void minimize();
 		virtual void lang_complement();
@@ -89,9 +90,6 @@ class deterministic_finite_automaton : public finite_automaton {
 	// new
 		virtual void set_dfa(dfa a);
 		virtual dfa get_dfa();
-
-	protected:
-		virtual bool accepts_suffix(int initial_state, list<int>::iterator suffix_begin, list<int>::iterator suffix_end);
 };
 
 }; // end namespace amore

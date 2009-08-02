@@ -44,6 +44,31 @@ finite_automaton * construct_amore_automaton(bool is_dfa, int alphabet_size, int
 finite_automaton::~finite_automaton()
 { };
 
+
+std::set<int> finite_automaton::run(std::set<int> from, list<int>::iterator word, list<int>::iterator word_limit)
+{{{
+	while(word != word_limit) {
+		from = this->transition(from, *word);
+		word++;
+	}
+	return from;
+}}}
+
+bool finite_automaton::contains(list<int> & word)
+{{{
+	std::set<int> states, final_states;
+	std::set<int>::iterator si;
+
+	states = this->get_initial_states();
+	states = this->run(states, word.begin(), word.end());
+
+	final_states = this->get_final_states();
+	for(si = states.begin(); si != states.end(); si++)
+		if(final_states.find(*si) != final_states.end())
+			return true;
+	return false;
+}}}
+
 string finite_automaton::generate_dotfile()
 {{{
 	basic_string<int32_t> serialized;
