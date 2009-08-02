@@ -82,10 +82,8 @@ class deterministic_finite_automaton : public finite_automaton {
 		virtual deterministic_finite_automaton * determinize();
 
 		virtual basic_string<int32_t> serialize();
-		// NOTE: for a DETERMINISTIC finite automaton, if a transition is not defined, it will lead to state 0!
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
 
-		// NOTE: for a DETERMINISTIC finite automaton, if a transition is not defined, it will lead to state 0!
 		virtual bool construct(int alphabet_size, int state_count, std::set<int> &initial, std::set<int> &final, multimap<pair<int,int>, int> &transitions);
 
 	// new
