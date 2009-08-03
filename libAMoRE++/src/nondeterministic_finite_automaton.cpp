@@ -187,6 +187,23 @@ std::set<int> nondeterministic_finite_automaton::get_final_states()
 	return ret;
 }}}
 
+void nondeterministic_finite_automaton::set_initial_states(std::set<int> &states)
+{
+	for(unsigned int s = 0; s <= nfa_p->highest_state; s++)
+		if(states.find(s) != states.end())
+			setinit(nfa_p->infin[s]);
+		else
+			rminit(nfa_p->infin[s]);
+}
+void nondeterministic_finite_automaton::set_final_states(std::set<int> &states)
+{
+	for(unsigned int s = 0; s <= nfa_p->highest_state; s++)
+		if(states.find(s) != states.end())
+			setfinalT(nfa_p->infin[s]);
+		else
+			setfinalF(nfa_p->infin[s]);
+}
+
 int nondeterministic_finite_automaton::get_alphabet_size()
 {{{
 	if(nfa_p)

@@ -85,8 +85,11 @@ class finite_automaton {
 
 		// these can be used to create prefix- and postfix-languages for states
 		// (e.g. residual languages)
-//		virtual std::set<int> set_initial_states() = 0;
-//		virtual std::set<int> set_final_states() = 0;
+		// note that setting new initial/final states will remove the attribute from former
+		// states. in case of setting multiple initial states for a DFA, the last one
+		// will be the only initial states (all others will NOT be initial).
+		virtual void set_initial_states(std::set<int> &states) = 0;
+		virtual void set_final_states(std::set<int> &states) = 0;
 
 		// get shortest run from a state in <from> to a state in <to>
 		// reachable = false if state is not reachable.
