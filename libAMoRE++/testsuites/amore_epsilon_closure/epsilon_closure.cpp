@@ -33,20 +33,20 @@ int main()
 {
 	int automaton[] = {
 		26, // length of upcoming data
-		3, // alphabet size
-		5, // state count
+		2, // alphabet size
+		6, // state count
 		2, // number of initial states
 		0,
 		1,
 		1, // number of final states
 		4,
 		6, // number of transitions
-		0,1,3,
+		0,0,5,
 		1,-1,2,
-		2,0,2,
-		2,2,4,
-		3,1,3,
-		3,1,2
+		2,1,3,
+		3,-1,4,
+		3,1,4,
+		5,0,3
 	};
 	nondeterministic_finite_automaton *nfa;
 	basic_string<int32_t> serial;

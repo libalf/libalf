@@ -76,7 +76,7 @@ void test_dfa()
 	if(!(dfa2 == dfa3))
 		cout << "DFA@2 != DFA#3\n";
 
-	if(is_deterministic(f_alphabet_size, f_state_count, f_initial, f_final, f_transitions))
+	if(automaton_is_deterministic(f_alphabet_size, f_state_count, f_initial, f_final, f_transitions))
 		cout << "(is deterministic)\n";
 	else
 		cout << "(is NOT deterministic)\n";
@@ -128,7 +128,7 @@ void test_nfa()
 	if(!(nfa2 == nfa3))
 		cout << "NFA@2 != NFA#3\n";
 
-	if(is_deterministic(f_alphabet_size, f_state_count, f_initial, f_final, f_transitions))
+	if(automaton_is_deterministic(f_alphabet_size, f_state_count, f_initial, f_final, f_transitions))
 		cout << "(is deterministic)\n";
 	else
 		cout << "(is NOT deterministic)\n";
