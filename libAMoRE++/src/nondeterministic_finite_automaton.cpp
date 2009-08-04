@@ -225,15 +225,25 @@ list<int> nondeterministic_finite_automaton::shortest_run(std::set<int> from, st
 		run_fifo.push_back(current);
 	}
 
+	from.clear();
+
 	while(!run_fifo.empty()) {
-		// check final
 		current = run_fifo.front();
 		run_fifo.pop_front();
 
+		// skip visited states
+		if(from.find(current.state) != from.end())
+			continue;
+
+		// mark state as visited
+		from.insert(current.state);
+
+		// if final, we got the shortest run
 		if(to.find(current.state) != to.end()) {
 			reachable = true;
 			return current.prefix;
 		}
+
 		// epsilon-close
 		if(nfa_p->is_eps == TRUE) {
 			next.prefix = current.prefix;
@@ -242,7 +252,6 @@ list<int> nondeterministic_finite_automaton::shortest_run(std::set<int> from, st
 					if(from.find(s) == from.end()) {
 						next.state = s;
 						run_fifo.push_front(next);
-						from.insert(s);
 					}
 				}
 			}
@@ -257,7 +266,6 @@ list<int> nondeterministic_finite_automaton::shortest_run(std::set<int> from, st
 						next.prefix.push_back(l);
 						next.state = s;
 						run_fifo.push_back(next);
-						from.insert(s);
 					}
 				}
 			}
@@ -289,7 +297,6 @@ list<int> nondeterministic_finite_automaton::get_sample_word(bool & is_empty)
 		if(isfinal(nfa_p->infin[s]))
 			final_states.insert(s);
 	}
-
 
 	ret = shortest_run(initial_states, final_states, reachable);
 	is_empty = !reachable;
