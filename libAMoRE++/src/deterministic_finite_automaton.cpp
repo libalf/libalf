@@ -114,19 +114,19 @@ std::set<int> deterministic_finite_automaton::get_final_states()
 }}}
 
 void deterministic_finite_automaton::set_initial_states(std::set<int> &states)
-{
+{{{
 	std::set<int>::iterator si;
 	for(si = states.begin(); si != states.end(); si++)
 		dfa_p->init = *si;
-}
+}}}
 void deterministic_finite_automaton::set_final_states(std::set<int> &states)
-{
+{{{
 	for(unsigned int s = 0; s <= dfa_p->highest_state; s++)
 		if(states.find(s) != states.end())
 			dfa_p->final[s] = TRUE;
 		else
 			dfa_p->final[s] = FALSE;
-}
+}}}
 
 int deterministic_finite_automaton::get_alphabet_size()
 {{{
@@ -147,6 +147,7 @@ list<int> deterministic_finite_automaton::shortest_run(std::set<int> from, std::
 		current.state = *si;
 		run_fifo.push(current);
 	}
+	from.clear();
 
 	while(!run_fifo.empty()) {
 		current = run_fifo.front();
