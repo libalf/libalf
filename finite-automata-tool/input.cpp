@@ -15,7 +15,10 @@
 #include <unistd.h>
 
 #include <libalf/basic_string.h>
+#include <libalf/automaton.h>
+
 #include <amore++/nondeterministic_finite_automaton.h>
+
 #include <LanguageGenerator/DFArandomgenerator.h>
 #include <LanguageGenerator/NFArandomgenerator.h>
 #include <LanguageGenerator/regex_randomgenerator.h>
@@ -33,6 +36,9 @@ bool get_input(finite_automaton *& automaton, input in, string gentype)
 	size_t pos;
 	int modelsize;
 
+	string input_string;
+	int i;
+
 	bool f_is_dfa;
 	int f_alphabet_size;
 	int f_state_count;
@@ -42,8 +48,10 @@ bool get_input(finite_automaton *& automaton, input in, string gentype)
 
 	switch(in) {
 		case input_serial:
-			if(!fd_to_basic_string(STDIN_FILENO, str))
+			if(!fd_to_basic_string(STDIN_FILENO, str)) {
+				cerr << "input of serialized automaton failed\n";
 				return false;
+			}
 
 			automaton = new nondeterministic_finite_automaton;
 
@@ -52,8 +60,25 @@ bool get_input(finite_automaton *& automaton, input in, string gentype)
 				return false;
 			return si == str.end();
 		case input_human_readable:
-			
-			break;
+			// get input
+			while(!cin.eof())
+				if( (i = cin.get()) >= 0 )
+					input_string += (char)i;
+
+			// transform input to automaton
+			if(!read_automaton(input_string, f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
+				cerr << "input of human-readable automaton failed\n";
+				return false;
+			}
+
+			automaton = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
+
+			if(!automaton) {
+				cerr << "construct of human-readable automaton failed\n";
+				return false;
+			}
+
+			return true;
 		case input_generate:
 			pos = gentype.find_first_of(':');
 			if(pos != string::npos) {

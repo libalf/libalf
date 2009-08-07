@@ -28,8 +28,7 @@ enum transformation {
 	trans_minimize,
 	trans_determinize,
 	trans_mdfa,
-	trans_rfsa,
-	trans_universal
+	trans_rfsa
 };
 
 enum output {

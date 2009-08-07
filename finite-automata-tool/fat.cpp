@@ -42,9 +42,6 @@ void usage()
 		"\t-r or --rfsa\n"
 		"\t\t\tget minimal RFSA of automaton\n"
 		"\n"
-//		"\t-u or --universal\n"
-//		"\t\t\tget universal automaton\n"
-//		"\n"
 		"Output options:\n"
 		"\n"
 		"\t-D or --dotfile\n"
@@ -76,7 +73,6 @@ int main(int argc, char**argv)
 		{ "minimize",               no_argument,            NULL, 'm' },	// minimize finite automaton
 		{ "determinize",            no_argument,            NULL, 'd' },	// determinize automaton
 		{ "rfsa",                   no_argument,            NULL, 'r' },	// get canonical RFSA of this automaton
-//		{ "universal",              no_argument,            NULL, 'u' },	// universal automaton
 
 		{ "dotfile",                no_argument,            NULL, 'D' },	// generate dotfile
 		{ "human_readable_output",  no_argument,            NULL, 'H' },	// use text-output (tostring() for knowledgebase, write() for automata)
