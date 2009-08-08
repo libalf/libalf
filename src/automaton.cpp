@@ -155,10 +155,7 @@ static string parser_split_line(string & blob)
 				white = false;
 				break;
 			default:
-				if(isupper(tmp[i]))
-					ret.push_back(tmp[i] - 'A' + 'a');
-				else
-					ret.push_back(tmp[i]);
+				ret.push_back(tolower(tmp[i]));
 				front = false;
 				white = false;
 				break;

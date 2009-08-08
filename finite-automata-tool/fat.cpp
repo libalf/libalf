@@ -59,6 +59,13 @@ void usage()
 		"\n";
 }}}
 
+void tolower(string & str)
+{{{
+	size_t s;
+	for(s = 0; s < str.size(); s++)
+		str[s] = tolower(str[s]);
+}}}
+
 int main(int argc, char**argv)
 {
 
@@ -109,6 +116,7 @@ int main(int argc, char**argv)
 					in = input_generate;
 				}
 				gentype = optarg;
+				tolower(gentype);
 
 				break;
 			case 'm':
@@ -182,6 +190,7 @@ int main(int argc, char**argv)
 					out = output_sample;
 				}
 				sampletype = optarg;
+				tolower(sampletype);
 
 				break;
 			case 'T':
