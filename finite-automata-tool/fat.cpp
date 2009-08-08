@@ -20,42 +20,40 @@ void usage()
 	cerr << "Finite Automata Tool\n"
 		"libalf Version "VERSION "\n"
 		"\n"
-		"allowed parameters:\n"
+		"All input and output is done via stdin/stdout.\n"
+		"Allowed parameters:\n"
 		"\n"
-		"Input options: (default is to read serialized automaton from STDIN)\n"
-		"\n"
+		"Input options:\n"
+		"\tdefault:\n"
+		"\t\t\tread serialized automaton\n"
 		"\t-h or --human_readable_input\n"
-		"\t\t\tread human readable automaton from STDIN\n"
-		"\n"
+		"\t\t\tread human readable automaton\n"
 		"\t-g or --generate <nfa|dfa|regex>:<int>:<int>\n"
 		"\t\t\tgenerate an automaton, either using a random\n"
 		"\t\t\tnfa, dfa or regex with given alphabet-size : model-size\n"
 		"\n"
-		"Transformation options:\n"
-		"\n"
+		"Transformation options (not changing the language):\n"
+		"\tdefault:\n"
+		"\t\t\tno transformation\n"
 		"\t-m or --minimize\n"
 		"\t\t\tminimize automaton\n"
-		"\n"
 		"\t-d or --determinize\n"
 		"\t\t\tdeterminize automaton\n"
-		"\n"
 		"\t-r or --rfsa\n"
 		"\t\t\tget minimal RFSA of automaton\n"
 		"\n"
 		"Output options:\n"
-		"\n"
+		"\tdefault:\n"
+		"\t\t\twrite serialized automaton\n"
 		"\t-D or --dotfile\n"
 		"\t\t\tgenerate dotfile of automaton or knowledgebase\n"
-		"\n"
 		"\t-H or --human_readable_output\n"
 		"\t\t\tgenerate dotfile of automaton or knowledgebase\n"
-		"\n"
 		"\t-S or --sample <rpni|delete2|biermann|random|depth>[:<int>]\n"
 		"\t\t\tgenerate sample-set (knowledgebase) from automaton,\n"
 		"\t\t\tw.r.t. some criterion. <int> only is required for\n"
 		"\t\t\t random: number of samples\n"
 		"\t\t\t depth:  depth of prefix-accepting tree to generate\n"
-		"\n"
 		"\t-T or --text_sample <rpni|delete2|biermann|random|depth>[:<int>]\n"
 		"\t\t\tgenerate sample-set and output it in textform\n"
 		"\n";
@@ -67,6 +65,8 @@ int main(int argc, char**argv)
 	const struct option server_long_options[] = {
 		// { const char *name , int has_arg , int *flag, int val }
 		// has_arg \in { required_argument, optional_argument, no_argument };
+		{ "help",                   no_argument,            NULL, '?' },	// help
+
 		{ "human_readable_input",   no_argument,            NULL, 'h' },	// read human-readable automaton from stdin
 		{ "generate",               required_argument,      NULL, 'g' },	// generate a random finite automaton. parameter: {nfa, dfa, regex}:{model-size}
 
@@ -80,12 +80,6 @@ int main(int argc, char**argv)
 		{ "text_sample",            required_argument,      NULL, 'T' },	// create text-version of sample-set
 		{ 0,0,0,0 }
 	};
-
-	if(argc < 2) {
-		cerr << "missing parameters.\n\n";
-		usage();
-		return -1;
-	}
 
 	string gentype, sampletype;
 
@@ -201,6 +195,8 @@ int main(int argc, char**argv)
 
 				break;
 			case '?':
+				usage();
+				return 0;
 			default:
 				cerr << "bad argument.\n\n";
 				usage();
