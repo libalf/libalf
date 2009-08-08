@@ -250,6 +250,10 @@ bool read_automaton(string input, bool & is_dfa, int & alphabet_size, int & stat
 		section_transitions
 	} current_section = section_none;
 
+	initial.clear();
+	final.clear();
+	transitions.clear();
+
 	// split lines
 	string line, single, token;
 	while(1) {
