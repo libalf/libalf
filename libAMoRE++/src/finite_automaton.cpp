@@ -182,7 +182,7 @@ string finite_automaton::generate_dotfile()
 	}
 
 	// end
-	ret += "}\n";
+	ret += "};\n";
 
 	return ret;
 }}}

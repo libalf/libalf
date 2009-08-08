@@ -25,10 +25,10 @@ string automaton2dotfile(int alphabet_size, int state_count, set<int> & initial,
 
 
 // parse human readable description of automaton
-bool read_automaton(string input, bool is_dfa, int & alphabet_size, int & state_count, set<int> & initial, set<int> & final, multimap<pair<int, int>, int> & transitions);
+bool read_automaton(string input, bool & is_dfa, int & alphabet_size, int & state_count, set<int> & initial, set<int> & final, multimap<pair<int, int>, int> & transitions);
 
 // create human readable description of automaton
-string write_automaton(bool is_dfa, int & alphabet_size, int & state_count, set<int> & initial, set<int> & final, multimap<pair<int, int>, int> & transitions);
+string write_automaton(bool is_dfa, int alphabet_size, int state_count, set<int> & initial, set<int> & final, multimap<pair<int, int>, int> & transitions);
 
 
 // parse machine-readable description of automaton
@@ -49,6 +49,7 @@ bool automaton_is_deterministic(int alphabet_size, int state_count, set<int> & i
 // close state-set under all epsilon-transitions (transition-label == -1)
 void epsilon_closure(set<int> & states, multimap<pair<int, int>, int> & transitions);
 
+/*
 // simulate a single transition on automaton.
 // changes <current> to states reached after run. returns true iff accepting state was reached.
 // this version is not very efficient! if you need something efficient, use libAMoRE++.
@@ -58,6 +59,7 @@ bool simulate_automaton(set<int> & current, int label,   set<int> & final, multi
 // changes <current> to states reached after run. returns true iff accepting state was reached.
 // this version is not very efficient! if you need something efficient, use libAMoRE++.
 bool simulate_automaton(set<int> & current, list<int>::iterator word_begin, list<int>::iterator word_end,   set<int> & final, multimap<pair<int, int>, int> & transitions);
+*/
 
 
 }; // end namespace libalf
