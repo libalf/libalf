@@ -45,17 +45,17 @@ void usage()
 		"Output options:\n"
 		"\tdefault:\n"
 		"\t\t\twrite serialized automaton\n"
-		"\t-D or --dotfile\n"
-		"\t\t\tgenerate dotfile of automaton or knowledgebase\n"
 		"\t-H or --human_readable_output\n"
-		"\t\t\tgenerate dotfile of automaton or knowledgebase\n"
+		"\t\t\tgenerate human readable version of automaton\n"
+		"\t-D or --dotfile\n"
+		"\t\t\tgenerate dotfile of automaton\n"
 		"\t-S or --sample <rpni|delete2|biermann|random|depth>[:<int>]\n"
 		"\t\t\tgenerate sample-set (knowledgebase) from automaton,\n"
 		"\t\t\tw.r.t. some criterion. <int> only is required for\n"
 		"\t\t\t random: number of samples\n"
 		"\t\t\t depth:  depth of prefix-accepting tree to generate\n"
 		"\t-T or --text_sample <rpni|delete2|biermann|random|depth>[:<int>]\n"
-		"\t\t\tgenerate sample-set and output it in textform\n"
+		"\t\t\tgenerate sample-set as above and output it in textform\n"
 		"\n";
 }}}
 
@@ -74,8 +74,8 @@ int main(int argc, char**argv)
 		{ "determinize",            no_argument,            NULL, 'd' },	// determinize automaton
 		{ "rfsa",                   no_argument,            NULL, 'r' },	// get canonical RFSA of this automaton
 
-		{ "dotfile",                no_argument,            NULL, 'D' },	// generate dotfile
 		{ "human_readable_output",  no_argument,            NULL, 'H' },	// use text-output (tostring() for knowledgebase, write() for automata)
+		{ "dotfile",                no_argument,            NULL, 'D' },	// generate dotfile
 		{ "sample",                 required_argument,      NULL, 'S' },	// create sample-set from automaton. parameter: rpni, delete2, biermann, random
 		{ "text_sample",            required_argument,      NULL, 'T' },	// create text-version of sample-set
 		{ 0,0,0,0 }
@@ -88,7 +88,7 @@ int main(int argc, char**argv)
 	enum output out = output_serial;
 
 	int c;
-	while(0 <= (c = getopt_long(argc, argv, "hg:mdrDHS:T", server_long_options, NULL)))
+	while(0 <= (c = getopt_long(argc, argv, "hg:mdrHDS:T?", server_long_options, NULL)))
 	{{{ // parse command line
 		switch (c) {
 			case 'h':
@@ -153,16 +153,6 @@ int main(int argc, char**argv)
 				}
 
 				break;
-			case 'D':
-				if(out != output_serial) {
-					cerr << "invalid output constellation.\n\n";
-					usage();
-					return -1;
-				} else {
-					out = output_dotfile;
-				}
-
-				break;
 			case 'H':
 				if(out != output_serial) {
 					cerr << "invalid output constellation.\n\n";
@@ -170,6 +160,16 @@ int main(int argc, char**argv)
 					return -1;
 				} else {
 					out = output_human_readable;
+				}
+
+				break;
+			case 'D':
+				if(out != output_serial) {
+					cerr << "invalid output constellation.\n\n";
+					usage();
+					return -1;
+				} else {
+					out = output_dotfile;
 				}
 
 				break;
