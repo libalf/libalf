@@ -146,7 +146,6 @@ bool write_output(finite_automaton *& automaton, output out, string sampletype)
 		case output_sample_text:
 			knowledgebase<bool> base;
 
-			// FIXME: generate knowledgebase from automaton
 			if(!generate_samples(automaton, base, sampletype)) {
 				cerr << "failed to generate samples\n";
 				return false;

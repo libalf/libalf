@@ -202,6 +202,9 @@ int main(int argc, char**argv)
 					out = output_sample_text;
 				}
 
+				sampletype = optarg;
+				tolower(sampletype);
+
 				break;
 			case '?':
 				usage();
