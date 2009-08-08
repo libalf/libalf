@@ -595,18 +595,19 @@ bool nondeterministic_finite_automaton::deserialize(basic_string<int32_t>::itera
 	int size;
 	int s, count;
 
-	if(it == limit)
-		goto nfaa_deserialization_failed;
-
-	// string length (excluding length field)
-	size = ntohl(*it);
-	it++;
-	if(size <= 0 || limit == it) goto nfaa_deserialization_failed;
-
 	if(nfa_p) {
 		freenfa(nfa_p);
 		free(nfa_p);
 	}
+
+	if(it == limit)
+		goto nfaa_deserialization_failed_fast;
+
+	// string length (excluding length field)
+	size = ntohl(*it);
+	it++;
+	if(size <= 0 || limit == it) goto nfaa_deserialization_failed_fast;
+
 	nfa_p = newnfa();
 
 	// alphabet size
@@ -677,6 +678,7 @@ bool nondeterministic_finite_automaton::deserialize(basic_string<int32_t>::itera
 nfaa_deserialization_failed:
 	freenfa(nfa_p);
 	free(nfa_p);
+nfaa_deserialization_failed_fast:
 	nfa_p = NULL;
 	return false;
 }}}

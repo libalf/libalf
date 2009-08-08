@@ -13,17 +13,19 @@
 
 #include <getopt.h>
 
+#include <libalf/alf.h>
+
 #include "fat.h"
 
 void usage()
 {{{
 	cerr << "Finite Automata Tool\n"
-		"libalf Version "VERSION "\n"
 		"\n"
-		"All input and output is done via stdin/stdout.\n"
-		"Allowed parameters:\n"
+		"FAT Version "VERSION "\n"
+	     << libalf_version()
+	     << "\n"
 		"\n"
-		"Input options:\n"
+		"Input options (via stdin):\n"
 		"\tdefault:\n"
 		"\t\t\tread serialized automaton\n"
 		"\t-h or --human_readable_input\n"
@@ -42,7 +44,7 @@ void usage()
 		"\t-r or --rfsa\n"
 		"\t\t\tget minimal RFSA of automaton\n"
 		"\n"
-		"Output options:\n"
+		"Output options (via stdout):\n"
 		"\tdefault:\n"
 		"\t\t\twrite serialized automaton\n"
 		"\t-H or --human_readable_output\n"
