@@ -97,7 +97,7 @@ int main(int argc, char**argv)
 	enum output out = output_serial;
 
 	int c;
-	while(0 <= (c = getopt_long(argc, argv, "hg:mdrHDS:T?", server_long_options, NULL)))
+	while(0 <= (c = getopt_long(argc, argv, "hg:mdrHDS:T:?", server_long_options, NULL)))
 	{{{ // parse command line
 		switch (c) {
 			case 'h':
@@ -203,7 +203,6 @@ int main(int argc, char**argv)
 				} else {
 					out = output_sample_text;
 				}
-
 				sampletype = optarg;
 				tolower(sampletype);
 

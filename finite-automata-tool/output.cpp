@@ -28,31 +28,130 @@ bool generate_samples_rpni(finite_automaton * automaton, knowledgebase<bool> & b
 bool generate_samples_delete2(finite_automaton * automaton, knowledgebase<bool> & base)
 {
 	list<int> word;
+	set<list<int> > SP, spk;
 	set<list<int> > sample_set;
+
+	set<int> initial, final;
+	initial = automaton->get_initial_states();
+	final = automaton->get_final_states();
 
 	do_transformation(automaton, trans_rfsa);
 
 	// get SP(A) and K(A)
-	for(int i = 0; i < automaton->get_state_count(); i++) {
+	for(unsigned int i = 0; i < automaton->get_state_count(); i++) {
 		bool reachable;
 		set<int> s;
 		s.insert(i);
-		word = automaton->shortest_run(automaton->get_initial_states(), s, reachable);
+		word = automaton->shortest_run(initial, s, reachable);
 		if(reachable) {
 			// SP(A):
+			SP.insert(word);
+			spk.insert(word);
 			sample_set.insert(word);
+			cerr << "SP  " << word2string(word) << "\n";
 			// K(A):
-			for(int sigma = 0; sigma < automaton->get_alphabet_size(); sigma++) {
+			bool is_empty_residual = true;
+			for(unsigned int sigma = 0; sigma < automaton->get_alphabet_size(); sigma++) {
 				word.push_back(sigma);
 				s.clear();
-				s = automaton->run(automaton->get_initial_states(), word.begin(), word.end());
-				if(!s.empty())
-					sample_set.insert(word);
+				s = automaton->run(initial, word.begin(), word.end());
+				if(!s.empty()) {
+					is_empty_residual = false;
+					spk.insert(word);
+					cerr << "\tK " << word2string(word) << "\n";
+				}
 				word.pop_back();
+			}
+			// we don't want negative sinks.
+			if(is_empty_residual && final.find(i) == final.end()) {
+				SP.erase(word);
+				spk.erase(word);
+				cerr << "SP  " << word2string(word) << " is negative sink. skipping.\n";
 			}
 		}
 	}
 
+	sample_set = spk;
+
+	// get discriminating suffixes for all tuples (v,w) v \in SP, w \in SP \cup K
+	set<list<int> >::iterator spi, spki;
+	for(spi = SP.begin(); spi != SP.end(); ++spi) {
+		set<int> sp_states;
+		list<int> sp_word = *spi;
+		sp_states = automaton->run(initial, sp_word.begin(), sp_word.end());
+
+		for(spki = spk.begin(); spki != spk.end(); ++spki) {
+			set<int> spk_states;
+			list<int> spk_word;
+			spk_word = *spki;
+			spk_states = automaton->run(initial, spk_word.begin(), spk_word.end());
+			if(sp_states != spk_states) {
+				cerr << "discrimination " << word2string(sp_word) << " != " << word2string(spk_word) << " via suffix ";
+				// different residual languages. find discriminating word.
+				list<int> discriminator;
+				bool dis_found = false;
+				set<int> sp_reachable, spk_reachable;
+				set<int>::iterator si;
+				while(discriminator.size() <= automaton->get_state_count()) {
+					//cerr << "dis " << word2string(discriminator) << " ?\n";
+					sp_reachable.clear();
+					spk_reachable.clear();
+					bool sp_accepts = false, spk_accepts = false;
+					sp_reachable = automaton->run(sp_states, discriminator.begin(), discriminator.end());
+					spk_reachable = automaton->run(spk_states, discriminator.begin(), discriminator.end());
+
+					// check if one contains accepting, the other not.
+					for(si = sp_reachable.begin(); si != sp_reachable.end(); si++) {
+						if(final.find(*si) != final.end()) {
+							sp_accepts = true;
+							break;
+						}
+					}
+					for(si = spk_reachable.begin(); si != spk_reachable.end(); si++) {
+						if(final.find(*si) != final.end()) {
+							spk_accepts = true;
+							break;
+						}
+					}
+					if(sp_accepts != spk_accepts) {
+						// check if both suffixes are not in a sink.
+						// FIXME
+						
+						list<int> * cc;
+						cc = concat(sp_word, discriminator);
+						sample_set.insert(*cc);
+						free(cc);
+						cc = concat(spk_word, discriminator);
+						sample_set.insert(*cc);
+						free(cc);
+
+						cerr << word2string(discriminator) << "\n";
+						dis_found = true;
+
+						break;
+					}
+
+					// try next suffix
+					inc_graded_lex(discriminator, automaton->get_alphabet_size());
+				}
+				if(!dis_found) {
+					cerr << "no good discriminator found!\n";
+					cerr << "\t" << word2string(sp_word) << " has states ";
+					for(si = sp_reachable.begin(); si != sp_reachable.end(); si++)
+						cerr << *si << ", ";
+					cerr << "\n\t" << word2string(spk_word) << " has states ";
+					for(si = spk_reachable.begin(); si != spk_reachable.end(); si++)
+						cerr << *si << ", ";
+					cerr << "\n";
+				}
+			} else {
+				cerr << "discrimination " << word2string(sp_word) << " ~~ " << word2string(spk_word) << "\n";
+			}
+		}
+	}
+
+	// close the set so that all words are in pref(s+)
+	// FIXME
 	
 
 	// create knowledge in sample-set
@@ -60,15 +159,12 @@ bool generate_samples_delete2(finite_automaton * automaton, knowledgebase<bool> 
 	set<list<int> >::iterator swi;
 	for(swi = sample_set.begin(); swi != sample_set.end(); ++swi) {
 		word = *swi;
-		do {
-			bool foo;
-			if(base.resolve_query(word, foo))
-				break;
-			base.add_knowledge(word, automaton->contains(word));
-		} until word.empty();
+		base.add_knowledge(word, automaton->contains(word));
 	}
 
-	return false;
+	cerr << "\n---\n\n";
+
+	return true;
 }
 
 bool generate_samples_biermann(finite_automaton * automaton, knowledgebase<bool> & base)
@@ -199,7 +295,8 @@ bool write_output(finite_automaton *& automaton, output out, string sampletype)
 				}
 			} else {
 				if(out == output_sample_text) {
-					cout << base.generate_dotfile();
+					//cout << base.generate_dotfile();
+					cout << base.tostring();
 				}
 			}
 
