@@ -230,7 +230,7 @@ int main(int argc, char**argv)
 		return -1;
 	}
 
-	finite_automaton * automaton;
+	finite_automaton * automaton = NULL;
 	knowledgebase<bool> knowledge;
 
 	if(!get_input(automaton, in, gentype)) {
@@ -246,7 +246,10 @@ int main(int argc, char**argv)
 	if(!write_output(automaton, out, sampletype)) {
 		cerr << "output failed\n";
 		return -4;
-	};
+	}
+
+	if(automaton)
+		delete automaton;
 
 	return 0;
 };

@@ -18,14 +18,14 @@
 #include <libalf/basic_string.h>
 #include <libalf/automaton.h>
 
-bool generate_samples_rpni(finite_automaton * automaton, knowledgebase<bool> & base)
+bool generate_samples_rpni(finite_automaton *& automaton, knowledgebase<bool> & base)
 {
 	do_transformation(automaton, trans_mdfa);
 	
 	return false;
 }
 
-bool generate_samples_delete2(finite_automaton * automaton, knowledgebase<bool> & base)
+bool generate_samples_delete2(finite_automaton *& automaton, knowledgebase<bool> & base)
 {
 	list<int> word;
 	set<list<int> > SP, spk;
@@ -38,7 +38,7 @@ bool generate_samples_delete2(finite_automaton * automaton, knowledgebase<bool> 
 	do_transformation(automaton, trans_rfsa);
 
 	// get SP(A) and K(A)
-	for(unsigned int i = 0; i < automaton->get_state_count(); i++) {
+	for(unsigned int i = 0; i < automaton->get_state_count(); i++) {{{
 		bool reachable;
 		set<int> s;
 		s.insert(i);
@@ -69,85 +69,58 @@ bool generate_samples_delete2(finite_automaton * automaton, knowledgebase<bool> 
 				cerr << "SP  " << word2string(word) << " is negative sink. skipping.\n";
 			}
 		}
-	}
+	}}}
 
 	sample_set = spk;
 
 	// get discriminating suffixes for all tuples (v,w) v \in SP, w \in SP \cup K
-	set<list<int> >::iterator spi, spki;
-	for(spi = SP.begin(); spi != SP.end(); ++spi) {
-		set<int> sp_states;
+	for(set<list<int> >::iterator spi = SP.begin(); spi != SP.end(); ++spi) {
 		list<int> sp_word = *spi;
+		set<int> sp_states;
+		finite_automaton *sp_residual;
+
 		sp_states = automaton->run(initial, sp_word.begin(), sp_word.end());
+		sp_residual = automaton->clone();
+		sp_residual->set_initial_states(sp_states);
 
-		for(spki = spk.begin(); spki != spk.end(); ++spki) {
-			set<int> spk_states;
+		for(set<list<int> >::iterator spki = spk.begin(); spki != spk.end(); ++spki) {
 			list<int> spk_word;
+			set<int> spk_states;
+			finite_automaton *spk_residual;
+
 			spk_word = *spki;
-			spk_states = automaton->run(initial, spk_word.begin(), spk_word.end());
+			spk_states = automaton->run(initial, spk_word.begin(), spk_word.end()); // XXX
+			cerr << "discriminate " << word2string(sp_word) << " and " << word2string(spk_word) << "\n";
+
+			spk_residual = automaton->clone();
+			spk_residual->set_initial_states(spk_states);
+
 			if(sp_states != spk_states) {
-				cerr << "discrimination " << word2string(sp_word) << " != " << word2string(spk_word) << " via suffix ";
-				// different residual languages. find discriminating word.
+				finite_automaton * difference;
+				difference = spk_residual->lang_symmetric_difference(*sp_residual);
+
 				list<int> discriminator;
-				bool dis_found = false;
-				set<int> sp_reachable, spk_reachable;
-				set<int>::iterator si;
-				while(discriminator.size() <= automaton->get_state_count()) {
-					//cerr << "dis " << word2string(discriminator) << " ?\n";
-					sp_reachable.clear();
-					spk_reachable.clear();
-					bool sp_accepts = false, spk_accepts = false;
-					sp_reachable = automaton->run(sp_states, discriminator.begin(), discriminator.end());
-					spk_reachable = automaton->run(spk_states, discriminator.begin(), discriminator.end());
+				bool empty;
+				discriminator = difference->get_sample_word(empty);
+				if(empty) {
+					cerr << "unable to discriminate " << word2string(sp_word) << " and " << word2string(spk_word) << "\n";
+				} else {
+					list<int> * cc;
 
-					// check if one contains accepting, the other not.
-					for(si = sp_reachable.begin(); si != sp_reachable.end(); si++) {
-						if(final.find(*si) != final.end()) {
-							sp_accepts = true;
-							break;
-						}
-					}
-					for(si = spk_reachable.begin(); si != spk_reachable.end(); si++) {
-						if(final.find(*si) != final.end()) {
-							spk_accepts = true;
-							break;
-						}
-					}
-					if(sp_accepts != spk_accepts) {
-						// check if both suffixes are not in a sink.
-						// FIXME
-						
-						list<int> * cc;
-						cc = concat(sp_word, discriminator);
-						sample_set.insert(*cc);
-						free(cc);
-						cc = concat(spk_word, discriminator);
-						sample_set.insert(*cc);
-						free(cc);
+					cc = concat(sp_word, discriminator);
+					sample_set.insert(*cc);
+					delete cc;
 
-						cerr << word2string(discriminator) << "\n";
-						dis_found = true;
-
-						break;
-					}
-
-					// try next suffix
-					inc_graded_lex(discriminator, automaton->get_alphabet_size());
+					cc = concat(spk_word, discriminator);
+					sample_set.insert(*cc);
+					delete cc;
 				}
-				if(!dis_found) {
-					cerr << "no good discriminator found!\n";
-					cerr << "\t" << word2string(sp_word) << " has states ";
-					for(si = sp_reachable.begin(); si != sp_reachable.end(); si++)
-						cerr << *si << ", ";
-					cerr << "\n\t" << word2string(spk_word) << " has states ";
-					for(si = spk_reachable.begin(); si != spk_reachable.end(); si++)
-						cerr << *si << ", ";
-					cerr << "\n";
-				}
-			} else {
-				cerr << "discrimination " << word2string(sp_word) << " ~~ " << word2string(spk_word) << "\n";
+
+				delete difference;
 			}
+			delete spk_residual; // XXX
 		}
+		delete sp_residual;
 	}
 
 	// close the set so that all words are in pref(s+)
@@ -167,26 +140,26 @@ bool generate_samples_delete2(finite_automaton * automaton, knowledgebase<bool> 
 	return true;
 }
 
-bool generate_samples_biermann(finite_automaton * automaton, knowledgebase<bool> & base)
+bool generate_samples_biermann(finite_automaton *& automaton, knowledgebase<bool> & base)
 {
 	do_transformation(automaton, trans_mdfa);
 	
 	return false;
 }
 
-bool generate_samples_random(finite_automaton * automaton, knowledgebase<bool> & base, int count)
+bool generate_samples_random(finite_automaton *& automaton, knowledgebase<bool> & base, int count)
 {
 	
 	return false;
 }
 
-bool generate_samples_depth(finite_automaton * automaton, knowledgebase<bool> & base, int depth)
+bool generate_samples_depth(finite_automaton *& automaton, knowledgebase<bool> & base, int depth)
 {
 	
 	return false;
 }
 
-bool generate_samples(finite_automaton * automaton, knowledgebase<bool> & base, string sampletype)
+bool generate_samples(finite_automaton *& automaton, knowledgebase<bool> & base, string sampletype)
 {{{
 	size_t pos;
 	string st;
