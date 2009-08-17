@@ -80,7 +80,7 @@ deterministic_finite_automaton * deterministic_finite_automaton::clone()
 		return new deterministic_finite_automaton();
 }}}
 
-int deterministic_finite_automaton::get_state_count()
+unsigned int deterministic_finite_automaton::get_state_count()
 {{{
 	if(dfa_p)
 		return dfa_p->highest_state + 1;
@@ -128,7 +128,7 @@ void deterministic_finite_automaton::set_final_states(std::set<int> &states)
 			dfa_p->final[s] = FALSE;
 }}}
 
-int deterministic_finite_automaton::get_alphabet_size()
+unsigned int deterministic_finite_automaton::get_alphabet_size()
 {{{
 	if(dfa_p)
 		return dfa_p->alphabet_size;

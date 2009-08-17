@@ -77,8 +77,8 @@ class finite_automaton {
 		virtual finite_automaton * clone() = 0;
 
 		// LANGUAGE/AUTOMATON OPERATIONS
-		virtual int get_state_count() = 0;
-		virtual int get_alphabet_size() = 0;
+		virtual unsigned int get_state_count() = 0;
+		virtual unsigned int get_alphabet_size() = 0;
 
 		virtual std::set<int> get_initial_states() = 0;
 		virtual std::set<int> get_final_states() = 0;

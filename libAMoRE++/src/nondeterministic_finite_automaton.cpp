@@ -152,7 +152,7 @@ nondeterministic_finite_automaton * nondeterministic_finite_automaton::clone()
 		return new nondeterministic_finite_automaton();
 }}}
 
-int nondeterministic_finite_automaton::get_state_count()
+unsigned int nondeterministic_finite_automaton::get_state_count()
 {{{
 	if(nfa_p)
 		return nfa_p->highest_state + 1;
@@ -204,7 +204,7 @@ void nondeterministic_finite_automaton::set_final_states(std::set<int> &states)
 			setfinalF(nfa_p->infin[s]);
 }}}
 
-int nondeterministic_finite_automaton::get_alphabet_size()
+unsigned int nondeterministic_finite_automaton::get_alphabet_size()
 {{{
 	if(nfa_p)
 		return nfa_p->alphabet_size;

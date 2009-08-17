@@ -57,8 +57,8 @@ class deterministic_finite_automaton : public finite_automaton {
 
 		virtual deterministic_finite_automaton * clone();
 
-		virtual int get_state_count();
-		virtual int get_alphabet_size();
+		virtual unsigned int get_state_count();
+		virtual unsigned int get_alphabet_size();
 		virtual std::set<int> get_initial_states();
 		virtual std::set<int> get_final_states();
 		virtual void set_initial_states(std::set<int> &states);
