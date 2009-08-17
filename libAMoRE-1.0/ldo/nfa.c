@@ -35,26 +35,31 @@ nfa newnfa()
 nfa clonenfa(nfa p)
 {
 	nfa dest = newnfa();
-	int i, j;
+	int state, letter;
+	int k;
 
 	dest->alphabet_size = p->alphabet_size;
 	dest->highest_state = p->highest_state;
 	dest->infin = newfinal(dest->highest_state);
-	for (i = 0; i <= dest->highest_state; i++) {
-		dest->infin[i] = p->infin[i];
+	for (state = 0; state <= dest->highest_state; state++) {
+		dest->infin[state] = p->infin[state];
 	}
 	if(p->is_eps) {
 		dest->is_eps = TRUE;
 		dest->delta = newendelta(dest->alphabet_size, dest->highest_state);
-		for (j = 0; j <= dest->alphabet_size; j++)
-			for (i = 0; i <= dest->highest_state; i++)
-				dest->delta[j][i] = p->delta[j][i];
+		for (letter = 0; letter <= dest->alphabet_size; letter++)
+			for (state = 0; state <= dest->highest_state; state++)
+//former:			dest->delta[letter][state] = p->delta[letter][state];
+				for(k = 0; k <= lastdelta(p->highest_state); k++)
+					dest->delta[letter][state][k] = p->delta[letter][state][k];
 	} else {
 		dest->is_eps = FALSE;
 		dest->delta = newndelta(dest->alphabet_size, dest->highest_state);
-		for (j = 1; j <= dest->alphabet_size; j++)
-			for (i = 0; i <= dest->highest_state; i++)
-				dest->delta[j][i] = p->delta[j][i];
+		for (letter = 1; letter <= dest->alphabet_size; letter++)
+			for (state = 0; state <= dest->highest_state; state++)
+//former:			dest->delta[letter][state] = p->delta[letter][state];
+				for(k = 0; k <= lastdelta(p->highest_state); k++)
+					dest->delta[letter][state][k] = p->delta[letter][state][k];
 	}
 	return dest;
 }
