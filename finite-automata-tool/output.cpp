@@ -27,8 +27,47 @@ bool generate_samples_rpni(finite_automaton * automaton, knowledgebase<bool> & b
 
 bool generate_samples_delete2(finite_automaton * automaton, knowledgebase<bool> & base)
 {
+	list<int> word;
+	set<list<int> > sample_set;
+
 	do_transformation(automaton, trans_rfsa);
+
+	// get SP(A) and K(A)
+	for(int i = 0; i < automaton->get_state_count(); i++) {
+		bool reachable;
+		set<int> s;
+		s.insert(i);
+		word = automaton->shortest_run(automaton->get_initial_states(), s, reachable);
+		if(reachable) {
+			// SP(A):
+			sample_set.insert(word);
+			// K(A):
+			for(int sigma = 0; sigma < automaton->get_alphabet_size(); sigma++) {
+				word.push_back(sigma);
+				s.clear();
+				s = automaton->run(automaton->get_initial_states(), word.begin(), word.end());
+				if(!s.empty())
+					sample_set.insert(word);
+				word.pop_back();
+			}
+		}
+	}
+
 	
+
+	// create knowledge in sample-set
+	base.clear();
+	set<list<int> >::iterator swi;
+	for(swi = sample_set.begin(); swi != sample_set.end(); ++swi) {
+		word = *swi;
+		do {
+			bool foo;
+			if(base.resolve_query(word, foo))
+				break;
+			base.add_knowledge(word, automaton->contains(word));
+		} until word.empty();
+	}
+
 	return false;
 }
 
