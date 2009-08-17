@@ -177,5 +177,49 @@ bool is_graded_lex_smaller(list<int> &a, list<int> &b)
 		return (w1i == a.end());
 }}}
 
+void inc_graded_lex(list<int> &word, int alphabet_size)
+{{{
+	list<int>::iterator wi;
+	wi = word.end();
+	wi--;
+
+	while(wi != word.end()) {
+		(*wi)++;
+		if(*wi >= alphabet_size)
+			*wi = 0;
+		else
+			break;
+		wi--;
+	}
+	if(wi == word.end()) {
+		int s = word.size() + 1;
+		word.clear();
+		for(int i = 0; i < s; i++)
+			word.push_back(0);
+	}
+}}}
+
+void dec_graded_lex(list<int> &word, int alphabet_size)
+{{{
+	list<int>::iterator wi;
+	wi = word.end();
+	wi--;
+
+	while(wi != word.end()) {
+		(*wi)--;
+		if(*wi < 0)
+			*wi = alphabet_size - 1;
+		else
+			break;
+		wi--;
+	}
+	if(wi == word.end()) {
+		int s = word.size() - 1;
+		word.clear();
+		for(int i = 0; i < s; i++)
+			word.push_back(alphabet_size - 1);
+	}
+}}}
+
 }
 

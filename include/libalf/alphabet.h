@@ -53,6 +53,10 @@ bool is_lex_smaller(list<int> &a, list<int> &b);
 // a < b iff |a|<|b| or ( |a|==|b| and lex. a < b )
 bool is_graded_lex_smaller(list<int> &a, list<int> &b);
 
+// get next bigger/smaller word w.r.t. graded lexicographic order
+void inc_graded_lex(list<int> &word, int alphabet_size);
+void dec_graded_lex(list<int> &word, int alphabet_size);
+
 };
 
 #endif
