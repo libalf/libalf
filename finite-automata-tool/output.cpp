@@ -18,6 +18,39 @@
 #include <libalf/basic_string.h>
 #include <libalf/automaton.h>
 
+// for knowledgebase:
+bool leaf_is_non_accepting(knowledgebase<bool>::node* n, list<int> & sample, bool prefix_accepting = false)
+// check if all leafs (i.e. states that have no suffixes that either accept or reject) accept
+{{{
+	list<int> w;
+	if(n->is_answered()) {
+		if(n->get_answer() == true)
+			prefix_accepting = true;
+		else
+			if(n->get_answer() == false)
+				prefix_accepting = false;
+	}
+
+	int i;
+	bool has_children = false;
+	knowledgebase<bool>::node * c;
+
+	for(i = 0; i < n->max_child_count(); i++) {
+		c = n->find_child(i);
+		if(c) {
+			has_children = true;
+			if(leaf_is_non_accepting(c, sample, prefix_accepting))
+				return true;
+		}
+	}
+	if(!has_children && !prefix_accepting) {
+		sample = n->get_word();
+		return true;
+	}
+
+	return false;
+}}}
+
 bool generate_samples_rpni(finite_automaton *& automaton, knowledgebase<bool> & base)
 {
 	do_transformation(automaton, trans_mdfa);
@@ -125,16 +158,40 @@ bool generate_samples_delete2(finite_automaton *& automaton, knowledgebase<bool>
 		delete sp_residual;
 	}}}
 
-	// close the set so that all words are in pref(s+)
-	// FIXME
-	
-
 	// create knowledge in sample-set
 	base.clear();
 	set<list<int> >::iterator swi;
 	for(swi = sample_set.begin(); swi != sample_set.end(); ++swi) {
 		word = *swi;
 		base.add_knowledge(word, automaton->contains(word));
+	}
+
+	// close the set so that all words are in pref(s+)
+	// this is really inefficient. so what? :)
+	while(leaf_is_non_accepting(base.get_rootptr(), word)) {
+		// close w.r.t. word:
+		//
+		// get residual language and find an accepting word
+		set<int> residual_states;
+		finite_automaton * residual_language;
+
+		residual_states = automaton->run(initial, word.begin(), word.end());
+		residual_language = automaton->clone();
+		residual_language->set_initial_states(residual_states);
+
+		list<int> suffix;
+		bool empty;
+		suffix = residual_language->get_sample_word(empty);
+		if(empty) {
+			cerr << "residual language of " << word2string(word) << " is empty!\naborting.\n";
+			break;
+		}
+
+		list<int> * cc;
+		cc = concat(word, suffix);
+		base.add_knowledge(*cc, automaton->contains(*cc));
+		cerr << "closing via " << word2string(*cc) << "\n";
+		delete cc;
 	}
 
 	cerr << "\n---\n\n";
