@@ -475,10 +475,14 @@ bool deterministic_finite_automaton::deserialize(basic_string<int32_t>::iterator
 
 	// alphabet size
 	dfa_p->alphabet_size = ntohl(*it);
+	if(dfa_p->alphabet_size < 1)
+		return false;
 
 	// state count
 	size--, it++; if(size <= 0 || limit == it) goto dfaa_deserialization_failed;
 	dfa_p->highest_state = ntohl(*it) - 1;
+	if(dfa_p->highest_state < 0)
+		return false;
 
 	// allocate data structures
 	dfa_p->final = newfinal(dfa_p->highest_state);

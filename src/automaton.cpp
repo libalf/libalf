@@ -451,14 +451,20 @@ bool deserialize_automaton(basic_string<int32_t>::iterator &it, basic_string<int
 	// alphabet size
 	it++; if(size <= 0 || limit == it) goto deserialization_failed_fast;
 	alphabet_size = ntohl(*it);
+	if(alphabet_size < 1)
+		return false;
 
 	// state count
 	size--, it++; if(size <= 0 || limit == it) goto deserialization_failed_fast;
 	state_count = ntohl(*it);
+	if(state_count < 1)
+		return false;
 
 	// initial states
 	size--, it++; if(size <= 0 || limit == it) goto deserialization_failed_fast;
 	count = ntohl(*it);
+	if(count < 0)
+		return false;
 
 	for(s = 0; s < count; s++) {
 		size--, it++; if(size <= 0 || limit == it) goto deserialization_failed;
@@ -471,6 +477,8 @@ bool deserialize_automaton(basic_string<int32_t>::iterator &it, basic_string<int
 	// final states
 	size--, it++; if(size <= 0 || limit == it) goto deserialization_failed;
 	count = ntohl(*it);
+	if(count < 0)
+		return false;
 
 	for(s = 0; s < count; s++) {
 		size--, it++; if(size <= 0 || limit == it) goto deserialization_failed;
@@ -483,6 +491,8 @@ bool deserialize_automaton(basic_string<int32_t>::iterator &it, basic_string<int
 	// transitions
 	size--, it++; if(size <= 0 || limit == it) goto deserialization_failed;
 	count = ntohl(*it);
+	if(count < 0)
+		return false;
 
 	for(s = 0; s < count; s++) {
 		int32_t src,label,dst;

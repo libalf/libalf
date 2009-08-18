@@ -612,10 +612,14 @@ bool nondeterministic_finite_automaton::deserialize(basic_string<int32_t>::itera
 
 	// alphabet size
 	nfa_p->alphabet_size = ntohl(*it);
+	if(nfa_p->alphabet_size < 1)
+		return false;
 
 	// state count
 	size--, it++; if(size <= 0 || limit == it) goto nfaa_deserialization_failed;
 	nfa_p->highest_state = ntohl(*it) - 1;
+	if(nfa_p->highest_state < 0)
+		return false;
 
 	// allocate data structures
 	nfa_p->infin = newfinal(nfa_p->highest_state);
@@ -627,6 +631,8 @@ bool nondeterministic_finite_automaton::deserialize(basic_string<int32_t>::itera
 	// initial states
 	size--, it++; if(size <= 0 || limit == it) goto nfaa_deserialization_failed;
 	count = ntohl(*it);
+	if(count < 0)
+		return false;
 
 	for(s = 0; s < count; s++) {
 		size--, it++; if(size <= 0 || limit == it) goto nfaa_deserialization_failed;
@@ -638,6 +644,8 @@ bool nondeterministic_finite_automaton::deserialize(basic_string<int32_t>::itera
 	// final states
 	size--, it++; if(size <= 0 || limit == it) goto nfaa_deserialization_failed;
 	count = ntohl(*it);
+	if(count < 0)
+		return false;
 
 	for(s = 0; s < count; s++) {
 		size--, it++; if(size <= 0 || limit == it) goto nfaa_deserialization_failed;
@@ -649,6 +657,8 @@ bool nondeterministic_finite_automaton::deserialize(basic_string<int32_t>::itera
 	// transitions
 	size--, it++; if(size <= 0 || limit == it) goto nfaa_deserialization_failed;
 	count = ntohl(*it);
+	if(count < 0)
+		return false;
 	for(s = 0; s < count; s++) {
 		int32_t src, label, dst;
 
