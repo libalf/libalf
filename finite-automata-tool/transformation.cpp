@@ -18,6 +18,8 @@
 
 #include "amore_alf_glue.h"
 
+//#define SANITY_CHECK_TRANSFORMATION
+
 bool a2rfsa(finite_automaton *& automaton)
 {{{
 	knowledgebase<bool> base;
@@ -56,26 +58,57 @@ bool a2rfsa(finite_automaton *& automaton)
 bool do_transformation(finite_automaton *& automaton, transformation trans)
 {{{
 	finite_automaton * tmp;
+
+#ifdef SANITY_CHECK_TRANSFORMATION
+	finite_automaton * cl;
+	if(automaton)
+		cl = automaton->clone();
+#endif
+
 	switch(trans) {
 		case trans_none:
-			return true;
+			break;
 		case trans_mdfa:
 			tmp = automaton->determinize();
 			delete automaton;
 			automaton = tmp;
-			/* fall through */
+			automaton->minimize();
+			break;
 		case trans_minimize:
 			automaton->minimize();
-			return true;
+			break;
 		case trans_determinize:
 			tmp = automaton->determinize();
 			delete automaton;
 			automaton = tmp;
-			return true;
+			break;
 		case trans_rfsa:
-			return a2rfsa(automaton);
+			if(!a2rfsa(automaton))
+				return false;
+			break;
+		default:
+			return false;
 	}
 
-	return false;
+#ifdef SANITY_CHECK_TRANSFORMATION
+	if(automaton) {
+		finite_automaton * difference;
+		list<int> w;
+		bool empty;
+
+		difference = automaton->lang_symmetric_difference(*cl);
+		w = difference->get_sample_word(empty);
+		if(!empty) {
+			cerr << "transformation-error! mismatching word " << word2string(w) << "\n";
+		} else {
+			cerr << "transformation ok.\n";
+		}
+
+		delete difference;
+		delete cl;
+	}
+#endif
+
+	return true;;
 }}}
 

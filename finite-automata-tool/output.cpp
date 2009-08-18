@@ -31,11 +31,11 @@ bool generate_samples_delete2(finite_automaton *& automaton, knowledgebase<bool>
 	set<list<int> > SP, spk;
 	set<list<int> > sample_set;
 
+	do_transformation(automaton, trans_rfsa);
+
 	set<int> initial, final;
 	initial = automaton->get_initial_states();
 	final = automaton->get_final_states();
-
-	do_transformation(automaton, trans_rfsa);
 
 	// get SP(A) and K(A)
 	for(unsigned int i = 0; i < automaton->get_state_count(); i++) {{{
@@ -68,6 +68,8 @@ bool generate_samples_delete2(finite_automaton *& automaton, knowledgebase<bool>
 				spk.erase(word);
 				cerr << "SP  " << word2string(word) << " is negative sink. skipping.\n";
 			}
+		} else {
+			cerr << "not reachable: " << i << "\n";
 		}
 	}}}
 
@@ -239,11 +241,11 @@ bool write_output(finite_automaton *& automaton, output out, string sampletype)
 			serial = automaton->serialize();
 			si = serial.begin();
 			if(!deserialize_automaton(si, serial.end(), f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
-				cerr << "failed to decompose automaton to human readable(1)\n";
+				cerr << "failed to decompose automaton to human readable (garbage inside)\n";
 				return false;
 			}
 			if(si != serial.end()) {
-				cerr << "failed to decompose automaton to human readable(2)\n";
+				cerr << "failed to decompose automaton to human readable (garbage behind)\n";
 				return false;
 			}
 			f_is_dfa = automaton_is_deterministic(f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
@@ -267,10 +269,8 @@ bool write_output(finite_automaton *& automaton, output out, string sampletype)
 					return false;
 				}
 			} else {
-				if(out == output_sample_text) {
-					//cout << base.generate_dotfile();
+				if(out == output_sample_text)
 					cout << base.tostring();
-				}
 			}
 
 			return true;
