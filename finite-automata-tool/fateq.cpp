@@ -114,6 +114,18 @@ int main(int argc, char**argv)
 
 	// input
 
+	if(firstfile == "") {
+		cerr << "please give name of first automaton\n";
+		usage();
+		return -1;
+	}
+
+	if(secondfile == "") {
+		cerr << "please give name of second automaton\n";
+		usage();
+		return -1;
+	}
+
 	if(human_readable_input)
 	{{{
 		string in;
@@ -128,9 +140,8 @@ int main(int argc, char**argv)
 
 		ifstream f1(firstfile.c_str());
 		while(!f1.eof())
-			if( (i = f1.get()) >= 0 ) {
+			if( (i = f1.get()) >= 0 )
 				in += (char)i;
-			}
 		f1.close();
 		if(!read_automaton(in, f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
 			cerr << "failed to read first automaton\n";
@@ -207,6 +218,7 @@ int main(int argc, char**argv)
 	// output
 
 	if(empty) {
+		cerr << "eq\n";
 		delete difference;
 		return 0;
 	}
@@ -244,6 +256,8 @@ int main(int argc, char**argv)
 	}}}
 
 	delete difference;
+
+	cerr << "neq\n";
 
 	return 1;
 };
