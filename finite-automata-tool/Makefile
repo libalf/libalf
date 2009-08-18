@@ -30,7 +30,7 @@ clean:
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;
 
-install: fat
+install: all
 	cp fat ${PREFIX}/bin/fat
 	cp fateq ${PREFIX}/bin/fateq
 
