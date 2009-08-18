@@ -218,7 +218,15 @@ class basic_biermann : public learning_algorithm<answer> {
 		// conjecture is always ready if there is a non-empty knowledgebase
 		virtual bool conjecture_ready()
 		{{{
-			return ( (this->my_knowledge != NULL) && (this->my_knowledge->count_answers() > 0) );
+			if((this->my_knowledge != NULL) && (this->my_knowledge->count_answers() > 0)) {
+				if(this->get_alphabet_size() != this->my_knowledge->get_alphabet_size())
+					(*this->my_logger)(LOGGER_WARN, "RPNI: differing alphabet size between this (%d) and knowledgebase (%d)!\n",
+							this->get_alphabet_size(), this->my_knowledge->get_alphabet_size());
+
+				return true;
+			} else {
+				return false;
+			};
 		}}}
 
 		// stubs for counterexample will throw a warning to the logger
@@ -236,6 +244,9 @@ class basic_biermann : public learning_algorithm<answer> {
 		// derive an automaton from data structure
 		virtual bool derive_automaton(bool & t_is_dfa, int & t_alphabet_size, int & t_state_count, set<int> & t_initial, set<int> & t_final, multimap<pair<int, int>, int> & t_transitions)
 		{{{
+			if(this->get_alphabet_size() != this->my_knowledge->get_alphabet_size())
+				(*this->my_logger)(LOGGER_WARN, "RPNI: differing alphabet size between this (%d) and knowledgebase (%d)!\n",
+						this->get_alphabet_size(), this->my_knowledge->get_alphabet_size());
 			mapping old_solution;
 			int old_size;
 

@@ -129,6 +129,10 @@ class DeLeTe2 : public learning_algorithm<answer> {
 							"you may try anyway, this is just a sidenote.\n", s.c_str());
 				}
 
+				if(this->get_alphabet_size() != this->my_knowledge->get_alphabet_size())
+					(*this->my_logger)(LOGGER_WARN, "DeLeTe2: differing alphabet size between this (%d) and knowledgebase (%d)!\n",
+							this->get_alphabet_size(), this->my_knowledge->get_alphabet_size());
+
 				return true;
 			} else {
 				return false;
@@ -278,6 +282,9 @@ class DeLeTe2 : public learning_algorithm<answer> {
 		// derive an automaton from data structure
 		virtual bool derive_automaton(bool & t_is_dfa, int & t_alphabet_size, int & t_state_count, set<int> & t_initial, set<int> & t_final, multimap<pair<int, int>, int> & t_transitions)
 		{{{
+			if(this->get_alphabet_size() != this->my_knowledge->get_alphabet_size())
+				(*this->my_logger)(LOGGER_WARN, "DeLeTe2: differing alphabet size between this (%d) and knowledgebase (%d)!\n",
+						this->get_alphabet_size(), this->my_knowledge->get_alphabet_size());
 			// generate a graded-lex ordered list of words in the knowledgebase (i.e. pref(S+) )
 			list<node*> pref;
 

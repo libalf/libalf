@@ -249,6 +249,9 @@ class knowledgebase {
 						base->nodecount++;
 					}
 
+					if(label >= base->alphabet_size)
+						base->alphabet_size = label+1;
+
 					return children[label];
 				}}}
 				node * find_or_create_child(list<int>::iterator infix_start, list<int>::iterator infix_limit)
@@ -844,6 +847,8 @@ class knowledgebase {
 		int answercount;
 		// count_queries is required.size().
 
+		int alphabet_size;
+
 		unsigned int timestamp;
 
 		statistics * stat;
@@ -873,6 +878,7 @@ class knowledgebase {
 				delete root;
 
 			timestamp = 1;
+			alphabet_size = 0;
 
 			required.clear();
 
@@ -946,6 +952,10 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 			return required.size();
 		}}}
 
+		int get_alphabet_size()
+		{{{
+			return alphabet_size;
+		}}}
 
 		void print(ostream &os)
 		{{{
