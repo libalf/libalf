@@ -76,7 +76,7 @@ bool generate_samples_delete2(finite_automaton *& automaton, knowledgebase<bool>
 	sample_set = spk;
 
 	// get discriminating suffixes for all tuples (v,w) v \in SP, w \in SP \cup K
-	for(set<list<int> >::iterator spi = SP.begin(); spi != SP.end(); ++spi) {
+	for(set<list<int> >::iterator spi = SP.begin(); spi != SP.end(); ++spi) {{{
 		list<int> sp_word = *spi;
 		set<int> sp_states;
 		finite_automaton *sp_residual;
@@ -123,7 +123,7 @@ bool generate_samples_delete2(finite_automaton *& automaton, knowledgebase<bool>
 			delete spk_residual; // XXX
 		}
 		delete sp_residual;
-	}
+	}}}
 
 	// close the set so that all words are in pref(s+)
 	// FIXME

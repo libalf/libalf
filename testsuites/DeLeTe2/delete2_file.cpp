@@ -19,6 +19,7 @@
 
 #include <libalf/algorithm_DeLeTe2.h>
 #include <libalf/automaton.h>
+#include <libalf/alphabet.h>
 
 using namespace std;
 using namespace libalf;
@@ -30,7 +31,6 @@ int main(int argc, char**argv)
 	knowledgebase<bool> knowledge;
 
 	ofstream file;
-	char filename[128];
 
 	int alphabet_size;
 
@@ -57,6 +57,8 @@ int main(int argc, char**argv)
 	knowledge.print(cout);
 	cout << "\n";
 
+	alphabet_size = knowledge.get_alphabet_size();
+
 	DeLeTe2<bool> rm(&knowledge, &log, alphabet_size);
 	bool f_is_dfa;
 	int f_alphabet_size, f_state_count;
@@ -71,13 +73,20 @@ int main(int argc, char**argv)
 		log(LOGGER_ERROR, "advance() returned false!\n");
 	} else {
 //		rm.print(cout);
-		snprintf(filename, 128, "hypothesis.dot");
-		file.open(filename);
+		basic_string<int32_t> serial;
+		serial = serialize_automaton(f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
+		basic_string_to_file(serial, "hypothesis");
 
+		file.open("hypothesis.dot");
 		file << automaton2dotfile(f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
-
 		file.close();
 		printf("\n\nhypothesis saved.\n\n");
+
+		basic_string<int32_t>::iterator si;
+		si = serial.begin();
+		if(!deserialize_automaton(si, serial.end(), f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
+			printf("deser failed!\n");
+		}
 	}
 
 	return 0;
