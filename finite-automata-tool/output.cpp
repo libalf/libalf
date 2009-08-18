@@ -59,7 +59,7 @@ bool generate_samples_rpni(finite_automaton *& automaton, knowledgebase<bool> & 
 }
 
 bool generate_samples_delete2(finite_automaton *& automaton, knowledgebase<bool> & base)
-{
+{{{
 	list<int> word;
 	set<list<int> > SP, spk;
 	set<list<int> > sample_set;
@@ -198,7 +198,7 @@ bool generate_samples_delete2(finite_automaton *& automaton, knowledgebase<bool>
 	cerr << "\n---\n\n";
 
 	return true;
-}
+}}}
 
 bool generate_samples_biermann(finite_automaton *& automaton, knowledgebase<bool> & base)
 {
@@ -207,17 +207,23 @@ bool generate_samples_biermann(finite_automaton *& automaton, knowledgebase<bool
 	return false;
 }
 
-bool generate_samples_random(finite_automaton *& automaton, knowledgebase<bool> & base, int count)
+bool generate_samples_random(finite_automaton *& automaton, knowledgebase<bool> & base, unsigned int count)
 {
 	
 	return false;
 }
 
-bool generate_samples_depth(finite_automaton *& automaton, knowledgebase<bool> & base, int depth)
-{
-	
-	return false;
-}
+bool generate_samples_depth(finite_automaton *& automaton, knowledgebase<bool> & base, unsigned int depth)
+{{{
+	list<int> word;
+
+	while(word.size() <= depth) {
+		base.add_knowledge(word, automaton->contains(word));
+		inc_graded_lex(word, automaton->get_alphabet_size());
+	}
+
+	return true;
+}}}
 
 bool generate_samples(finite_automaton *& automaton, knowledgebase<bool> & base, string sampletype)
 {{{
