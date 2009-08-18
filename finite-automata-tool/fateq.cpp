@@ -245,6 +245,6 @@ int main(int argc, char**argv)
 
 	delete difference;
 
-	return 0;
+	return 1;
 };
 
