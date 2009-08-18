@@ -454,6 +454,7 @@ std::basic_string<int32_t> deterministic_finite_automaton::serialize()
 
 bool deterministic_finite_automaton::deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 {{{
+printf("#1\n");
 	int size;
 	int s, count;
 	bool sink_required = false;
@@ -473,11 +474,13 @@ bool deterministic_finite_automaton::deserialize(basic_string<int32_t>::iterator
 
 	dfa_p = newdfa();
 
+printf("#2\n");
 	// alphabet size
 	dfa_p->alphabet_size = ntohl(*it);
 	if(dfa_p->alphabet_size < 1)
 		return false;
 
+printf("#3\n");
 	// state count
 	size--, it++; if(size <= 0 || limit == it) goto dfaa_deserialization_failed;
 	dfa_p->highest_state = ntohl(*it) - 1;
@@ -538,6 +541,9 @@ bool deterministic_finite_automaton::deserialize(basic_string<int32_t>::iterator
 			goto dfaa_deserialization_failed;
 
 		// transition function: delta[sigma][source] = destination
+		if(dfa_p->delta[label+1][src] != dfa_p->highest_state+1)
+			if(dfa_p->delta[label+1][src] != (unsigned int)dst)
+				return false; // nondeterministic transitions!
 		dfa_p->delta[label+1][src] = dst;
 	}
 
