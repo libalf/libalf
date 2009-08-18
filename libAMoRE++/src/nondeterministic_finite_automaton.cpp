@@ -611,15 +611,17 @@ bool nondeterministic_finite_automaton::deserialize(basic_string<int32_t>::itera
 	nfa_p = newnfa();
 
 	// alphabet size
-	nfa_p->alphabet_size = ntohl(*it);
-	if(nfa_p->alphabet_size < 1)
+	s = ntohl(*it);
+	if(s < 1)
 		return false;
+	nfa_p->alphabet_size = s;
 
 	// state count
 	size--, it++; if(size <= 0 || limit == it) goto nfaa_deserialization_failed;
-	nfa_p->highest_state = ntohl(*it) - 1;
-	if(nfa_p->highest_state < 0)
+	s = ntohl(*it);
+	if(s < 1)
 		return false;
+	nfa_p->highest_state = s - 1;
 
 	// allocate data structures
 	nfa_p->infin = newfinal(nfa_p->highest_state);
