@@ -399,8 +399,6 @@ string write_automaton(bool is_dfa, int alphabet_size, int state_count, set<int>
 		ret += buf;
 	}
 
-	ret += buf;
-
 	return ret;
 }}}
 
