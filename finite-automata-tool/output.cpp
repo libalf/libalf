@@ -64,7 +64,7 @@ bool generate_samples_delete2(finite_automaton *& automaton, knowledgebase<bool>
 	set<list<int> > SP, spk;
 	set<list<int> > sample_set;
 
-	do_transformation(automaton, trans_rfsa);
+	do_transformation(automaton, trans_mdfa);
 
 	set<int> initial, final;
 	initial = automaton->get_initial_states();
@@ -168,7 +168,7 @@ bool generate_samples_delete2(finite_automaton *& automaton, knowledgebase<bool>
 
 	// close the set so that all words are in pref(s+)
 	// this is really inefficient. so what? :)
-	while(leaf_is_non_accepting(base.get_rootptr(), word)) {
+	while(leaf_is_non_accepting(base.get_rootptr(), word)) {{{
 		// close w.r.t. word:
 		//
 		// get residual language and find an accepting word
@@ -187,12 +187,13 @@ bool generate_samples_delete2(finite_automaton *& automaton, knowledgebase<bool>
 			break;
 		}
 
+		cerr << "closing via " << word2string(word) << " + " << word2string(suffix) << "\n";
+
 		list<int> * cc;
 		cc = concat(word, suffix);
 		base.add_knowledge(*cc, automaton->contains(*cc));
-		cerr << "closing via " << word2string(*cc) << "\n";
 		delete cc;
-	}
+	}}}
 
 	cerr << "\n---\n\n";
 

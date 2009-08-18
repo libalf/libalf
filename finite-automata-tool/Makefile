@@ -15,13 +15,16 @@ LDFLAGS+=-L${PREFIX}/lib -llangen -lalf -lAMoRE++
 
 OBJECTS=fat.o input.o transformation.o output.o
 
-all: fat
+all: fat fateq
 
 fat: $(OBJECTS)
 	g++ $(OBJECTS) $(LDFLAGS) -o $@
 
+fateq: fateq.o
+	g++ fateq.o ${LDFLAGS} -o $@
+
 clean:
-	-rm fat *.o
+	-rm fat fateq *.o
 	-rm *.dot *.jpg
 
 jpegs:
@@ -29,7 +32,9 @@ jpegs:
 
 install: fat
 	cp fat ${PREFIX}/bin/fat
+	cp fateq ${PREFIX}/bin/fateq
 
 uninstall:
 	rm ${PREFIX}/bin/fat
+	rm ${PREFIX}/bin/fateq
 
