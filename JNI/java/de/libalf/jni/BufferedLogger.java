@@ -3,6 +3,7 @@ package de.libalf.jni;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 /**
  * <p>
@@ -32,8 +33,8 @@ import java.io.ObjectOutputStream;
  * @version 1.0
  * 
  */
-public class BufferedLogger extends LibALFObject {
-	private static final long serialVersionUID = 1L;
+public class BufferedLogger extends LibALFObject implements Serializable {
+	private static final long serialVersionUID = 2L;
 	
 	/**
 	 * Mapping for the JNI call.
@@ -42,8 +43,6 @@ public class BufferedLogger extends LibALFObject {
 	private static final int WARN = 2;
 	private static final int INFO = 3;
 	private static final int DEBUG = 4;
-
-	private transient long pointer;
 
 	private String unread = "";
 
@@ -171,8 +170,8 @@ public class BufferedLogger extends LibALFObject {
 	 * @return all messages logged since the last method call.
 	 */
 	public String receive_and_flush() {
-		String ret = unread + receive_and_flush(this.pointer);
-		unread = "";
+		String ret = this.unread + receive_and_flush(this.pointer);
+		this.unread = "";
 		return ret;
 	}
 
@@ -191,12 +190,12 @@ public class BufferedLogger extends LibALFObject {
 	private Boolean logAlgorithm;
 
 	private void writeObject(ObjectOutputStream out) throws IOException {
-		unread = receive_and_flush();
+		this.unread = receive_and_flush();
 		out.defaultWriteObject();
 	}
 
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		this.pointer = minimalLogLevel == null || logAlgorithm == null ? init() : init(minimalLogLevel, logAlgorithm);
+		this.pointer = this.minimalLogLevel == null || this.logAlgorithm == null ? init() : init(this.minimalLogLevel, this.logAlgorithm);
 		receive_and_flush();	// grab first message
 		in.defaultReadObject();
 	}

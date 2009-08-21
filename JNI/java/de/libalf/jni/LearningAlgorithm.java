@@ -170,6 +170,27 @@ public interface LearningAlgorithm extends Serializable {
 	public boolean supports_sync();
 
 	/**
+	 * Serializes the state of the learning algorithm. This serialization can be
+	 * saved and the learning algorithm can be restored using the
+	 * {@link LearningAlgorithm#deserialize(int[])} method.<br>
+	 * Be sure to also serialize the associated {@link Knowledgebase}.
+	 * 
+	 * @return an int array that stores the serialization of the learning
+	 *         algorithm.
+	 */
+	public int[] serialize();
+
+	/**
+	 * Restores the data of an a priori serialized learning algorithm. The
+	 * current state of the learning algorithms is discarded.
+	 * 
+	 * @param serialization
+	 *            a serialization of a learning algorithm
+	 * @return true, if the recovery was successful and false, otherwise.
+	 */
+	public boolean deserialize(int[] serialization);
+
+	/**
 	 * Sets the logger for this learning algorithm.
 	 * 
 	 * @param logger

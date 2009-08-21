@@ -1,5 +1,10 @@
 package de.libalf.jni;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
 /**
  * <p>
  * Angluin's L* learning algorithm for regular languages where counter-examples are
@@ -18,7 +23,7 @@ package de.libalf.jni;
  * 
  */
 public class AlgorithmAngluinColumn extends JNIAlgorithm {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
 	/**
 	 * Creates a new object implementing Angluin's learning algorithm with counter-
@@ -32,7 +37,6 @@ public class AlgorithmAngluinColumn extends JNIAlgorithm {
 	public AlgorithmAngluinColumn(Knowledgebase knowledgebase, int alphabet_size) {
 		this.knowledgebase = knowledgebase;
 		this.pointer = init(knowledgebase.getPointer(), alphabet_size);
-//		System.err.println("Ohne logger");
 	}
 
 	/**
@@ -50,7 +54,6 @@ public class AlgorithmAngluinColumn extends JNIAlgorithm {
 	 *            the size of the used alphabet
 	 * @return a pointer to the memory location of the new C++ object.
 	 */
-	@Override
 	native long init(long knowledgebase_pointer, int alphabet_size);
 
 	/**
@@ -69,7 +72,6 @@ public class AlgorithmAngluinColumn extends JNIAlgorithm {
 		this.logger = logger;
 		this.pointer = init(knowledgebase.getPointer(), alphabet_size, logger
 				.getPointer());
-//		System.err.println("Mit logger");
 	}
 
 	/**
@@ -90,7 +92,26 @@ public class AlgorithmAngluinColumn extends JNIAlgorithm {
 	 *            a pointer to a buffered_logger C++ object
 	 * @return a pointer to the memory location of the new C++ object.
 	 */
-	@Override
 	native long init(long knowledgebase_pointer, int alphabet_size,
 			long logger_pointer);
+
+	/**
+	 * @see Serializable
+	 */
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		int alphabet_size = in.readInt();
+		this.pointer = init(this.knowledgebase.getPointer(), alphabet_size, this.logger == null ? 0 : this.logger.getPointer());
+		int[] serialization = (int[]) in.readObject();
+		deserialize(serialization);
+	}
+
+	/**
+	 * @see Serializable
+	 */
+	private void writeObject(ObjectOutputStream out) throws IOException {
+		out.defaultWriteObject();
+		out.writeInt(get_alphabet_size());
+		out.writeObject(serialize());
+    }
 }

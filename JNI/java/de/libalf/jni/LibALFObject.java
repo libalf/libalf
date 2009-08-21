@@ -1,7 +1,5 @@
 package de.libalf.jni;
 
-import java.io.Serializable;
-
 /**
  * <p>
  * Root of all classes representing LibALF C++ objects.
@@ -27,8 +25,7 @@ import java.io.Serializable;
  *         University
  * @version 1.0
  */
-public abstract class LibALFObject implements Serializable {
-	private static final long serialVersionUID = 1L;
+public abstract class LibALFObject {
 
 	/**
 	 * Load the JNI library.
@@ -40,11 +37,18 @@ public abstract class LibALFObject implements Serializable {
 	public static final String JNI_BINDING_VERSION = "JNI binding version 0.9";
 
 	/**
+	 * Stores the reference of the C++ object.
+	 */
+	transient long pointer;
+
+	/**
 	 * Returns the pointer to the C++ object.
 	 * 
 	 * @return the pointer to the C++ object.
 	 */
-	abstract public long getPointer();
+	public long getPointer() {
+		return this.pointer;
+	}
 
 	/**
 	 * Returns the LibALF and JNI binding versions.
