@@ -20,34 +20,35 @@ namespace libalf {
 using namespace std;
 
 class statistics {
-	public:
+	public: // data
 		struct {
-			int bytes;
-			int members;
-			int words;
-			int upper_table;
-			int lower_table;
-			int columns;
-		} table_size;
+			int bytes;	// bytes of algorithms data structure
+			int members;	// number of membership data
+			int words;	// number of words in table
+			int upper_table;// size of upper table (if appropriate)
+			int lower_table;// size of lower table (if appropriate)
+			int columns;	// columns (if appropriate)
+		} memory;
 
 		struct {
 			int membership;
 			int uniq_membership;
 			int equivalence;
-		} query_count;
+		} queries;
 
-		// rechenzeit
-		// ...
+		struct {
+			int cpu_sec;
+			int cpu_usec;
+			int sys_sec;
+			int sys_usec;
+		} time;
 
-		// speicherverbrauch
-		// ...
 
-
+	public: // methods
 		statistics();
 		void reset();
 		basic_string<int32_t> serialize();
 		bool deserialize(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator limit);
-
 };
 
 }; // end namespace libalf

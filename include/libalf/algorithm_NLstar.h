@@ -253,19 +253,19 @@ deserialization_failed:
 			typename columnlist::iterator ci;
 			typename table::iterator ti;
 
-			stats.table_size.bytes = sizeof(this);
+			stats.memory.bytes = sizeof(this);
 			for(ci = column_names.begin(); ci != column_names.end(); ci++)
-				stats.table_size.bytes += sizeof(list<int>) + sizeof(int) * (ci->size());
+				stats.memory.bytes += sizeof(list<int>) + sizeof(int) * (ci->size());
 			for(ti = upper_table.begin(); ti != upper_table.end(); ti++)
-				stats.table_size.bytes += ti->memory_usage();
+				stats.memory.bytes += ti->memory_usage();
 			for(ti = lower_table.begin(); ti != lower_table.end(); ti++)
-				stats.table_size.bytes += ti->memory_usage();
+				stats.memory.bytes += ti->memory_usage();
 			// members
-			stats.table_size.columns = column_names.size();
-			stats.table_size.upper_table = upper_table.size();
-			stats.table_size.lower_table = lower_table.size();
-			stats.table_size.members = stats.table_size.columns * (stats.table_size.upper_table + stats.table_size.lower_table);
-			stats.table_size.words = stats.table_size.members;
+			stats.memory.columns = column_names.size();
+			stats.memory.upper_table = upper_table.size();
+			stats.memory.lower_table = lower_table.size();
+			stats.memory.members = stats.memory.columns * (stats.memory.upper_table + stats.memory.lower_table);
+			stats.memory.words = stats.memory.members;
 		}}}
 
 		virtual bool sync_to_knowledgebase()

@@ -1025,27 +1025,27 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 			typename angluin_table<answer, list< algorithm_angluin::simple_row<answer, vector<answer> > >, vector<answer> >::columnlist::iterator ci;
 			typename list< algorithm_angluin::simple_row<answer, vector<answer> > >::iterator ti;
 
-			stats.table_size.columns = this->column_names.size();
-			stats.table_size.upper_table = this->upper_table.size();
-			stats.table_size.lower_table = this->lower_table.size();
+			stats.memory.columns = this->column_names.size();
+			stats.memory.upper_table = this->upper_table.size();
+			stats.memory.lower_table = this->lower_table.size();
 
-			stats.table_size.members = stats.table_size.columns * ( stats.table_size.upper_table + stats.table_size.lower_table );
-			stats.table_size.words = stats.table_size.members;
+			stats.memory.members = stats.memory.columns * ( stats.memory.upper_table + stats.memory.lower_table );
+			stats.memory.words = stats.memory.members;
 
 			// approx. memory usage:
-			stats.table_size.bytes = sizeof(this);
+			stats.memory.bytes = sizeof(this);
 			// columns
-			stats.table_size.bytes += sizeof(vector<int>);
+			stats.memory.bytes += sizeof(vector<int>);
 			for(ci = this->column_names.begin(); ci != this->column_names.end(); ci++)
-				stats.table_size.bytes += sizeof(int) * ci->size() + sizeof(list<int>);
+				stats.memory.bytes += sizeof(int) * ci->size() + sizeof(list<int>);
 			// upper table bare rows
 			for(ti = this->upper_table.begin(); ti != this->upper_table.end(); ti++)
-				stats.table_size.bytes += sizeof(algorithm_angluin::simple_row<answer, vector<answer> >) + sizeof(int) * ti->index.size();
+				stats.memory.bytes += sizeof(algorithm_angluin::simple_row<answer, vector<answer> >) + sizeof(int) * ti->index.size();
 			// lower table bare rows
 			for(ti = this->lower_table.begin(); ti != this->lower_table.end(); ti++)
-				stats.table_size.bytes += sizeof(algorithm_angluin::simple_row<answer, vector<answer> >) + sizeof(int) * ti->index.size();
+				stats.memory.bytes += sizeof(algorithm_angluin::simple_row<answer, vector<answer> >) + sizeof(int) * ti->index.size();
 			// table fields
-			stats.table_size.bytes += sizeof(answer) * stats.table_size.members;
+			stats.memory.bytes += sizeof(answer) * stats.memory.members;
 		}}}
 
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)

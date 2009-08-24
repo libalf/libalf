@@ -195,7 +195,7 @@ class KVtree: public learning_algorithm<answer> {
 		virtual void get_memory_statistics(statistics & stats)
 		// table_size.words is an approximation!
 		{{{
-			stats.table_size.bytes = sizeof(this) + tree.get_memory_usage() + pending.size() * sizeof(candidate);
+			stats.memory.bytes = sizeof(this) + tree.get_memory_usage() + pending.size() * sizeof(candidate);
 		}}}
 		virtual bool sync_to_knowledgebase()
 		{{{
