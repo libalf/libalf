@@ -1,0 +1,164 @@
+vim: tw=80 fo+=a
+
+
+
+as of 2009-08-24, this is the current protocol for the dispatcher. for now, this
+protocol is a WORK-IN-PROGRESS until marked otherwise.
+
+================================================================================
+
+GENERAL PROTOCOL LAYOUT
+
+the protocol is based on int32_t in network byte order. if not marked different,
+any field is an int32_t and any size- or count-field gives the size or count of
+int32_t's.
+
+================================================================================
+
+ESTABLISHING A CONNECTION TO THE SERVER
+
+a client may establish a connection to the dispatcher via a socket to a
+tcp-port. the default port is 24940 ( 'al', hex 0x61 0x6c ). the port may be
+changed in the server via its command-line options.
+
+after connection, the server sends its capabilities (as if requested via the
+CAPA command) and goes into interactive mode.
+
+================================================================================
+
+INTERACTIVE MODE
+
+in interactive mode, the server waits for a command from the client. it then
+executes the command and sends the reply immediately. after that, it again goes
+into interactive mode.
+
+================================================================================
+
+DATA TYPES
+
+int32_t
+
+all fields are, if not marked otherwise, of int32_t (in network-byte order),
+i.e. a singed integer of 32 bits.
+
+bool
+
+a bool is a int32_t interpreted in the following way: if 0, it is false.
+otherwise it is true.
+
+acceptance
+
+an acceptance is an int32_t interpreted in the following way: false = 0, unknown
+= 1, true = 2
+
+object-id
+
+an object-id is an int32_t. any valid object will have an object-id >= 0. a
+negative object-id represents an invalid object or means "no object" or "error".
+
+char
+
+a char is a byte, i.e. it is 8 bits wide.
+
+character-string
+
+a character-string is a length field (int32_t) giving the number of chars,
+followed by the announced number of chars. the string is NOT \0-delimited!
+
+================================================================================
+
+CLIENT COMMANDS
+
+a client command consists of the folliwing:
+
+	enum client_command_id,
+	number of parameters,
+then for each parameter:
+	size of this parameter,
+	data[];
+
+
+
+
+	enum client_command_ids {
+		CLCMD_REQ_CAPA = 0,
+		CLCMD_REQ_VERSION = 1,
+
+		CLCMD_DISCONNECT = 10,
+		CLCMD_STARTTLS = 11,
+		CLCMD_AUTH = 12,
+
+		CLCMD_CREATE_OBJECT = 20,
+		CLCMD_DELETE_OBJECT = 21,
+		CLCMD_GET_OBJECTTYPE = 22,
+		CLCMD_OBJECT_COMMAND = 23,
+	};
+
+	enum object_types {
+		OBJ_LOGGER = 0,
+		OBJ_STATISTIC = 1
+		OBJ_KNOWLEDGEBASE = 10,
+		OBJ_ALGORITHM = 20,
+		OBJ_NORMALIZER = 21,
+	};
+
+	enum logger_command {
+		LOGGER_SET_LOGLEVEL = 0,
+		LOGGER_LOG_KNOWLEDGEBASE = 10,
+		LOGGER_LOG_TABLE = 11,
+		LOGGER_RECEIVE_AND_FLUSH = 20,
+	};
+
+	enum statistics_command {
+		STAT_GET = 0,
+		STAT_SET = 1,
+	};
+
+	enum knowledgebase_command {
+		serialize,
+		deserialize,
+		associate statistic object,
+		remove statistic object,
+		is answered?,
+		is empty?,
+		serialize,
+		deserialize,
+		count queries,
+		count answers,
+		get queries,
+		resolve query,
+		resolve or add query,
+		add knowledge,
+		clear,
+		clear queries,
+		undo,
+		get memory usage,
+		generate dotfile,
+		to string,
+	};
+
+	enum algorithm_command {
+		serialize,
+		deserialize,
+		associate logger,
+		remove logger,
+		get statistics,
+		get alphabet size,
+		increase alphabet size,
+		set knowledge source,
+		get knowledge source,
+		conjecture ready?
+		advance,
+		add counterexample,
+		supports sync?,
+		sync to knowledgebase,
+	};
+
+	enum normalizer_command {
+		serialize,
+		deserialize,
+		deserialize extension,
+		get type,
+		normalize a word (PNF/SNF),
+	};
+
