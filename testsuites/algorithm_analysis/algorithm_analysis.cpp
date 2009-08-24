@@ -172,7 +172,7 @@ model_too_big:
 						int iteration = 0;
 						while(!equal) {
 							while(! alg->advance(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions) )
-								stats[learner].query_count.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*model, base);
+								stats[learner].queries.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*model, base);
 
 							hypothesis = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
 							if(!hypothesis) {
@@ -181,8 +181,8 @@ model_too_big:
 							}
 
 							list<int> counterexample;
-							stats[learner].query_count.equivalence++;
-							stats[learner].query_count.membership = base.count_resolved_queries();
+							stats[learner].queries.equivalence++;
+							stats[learner].queries.membership = base.count_resolved_queries();
 							log(LOGGER_DEBUG, "eq query. \r");
 							if(amore_alf_glue::automaton_equivalence_query(*model, *hypothesis, counterexample)) {
 							log(LOGGER_DEBUG, "completed \r");
@@ -210,9 +210,9 @@ model_too_big:
 					//		- membership uniq_membership equivalence
 					snprintf(logline, 1024, "%d %d %d %d %d %d - %d %d %d - %d %d %d - %d %d %d\n",
 							model_index, alphabet_size, method, stat_size_model, stat_size_mDFA, stat_size_RFSA,
-							stats[0].query_count.membership, stats[0].query_count.uniq_membership, stats[0].query_count.equivalence,
-							stats[1].query_count.membership, stats[1].query_count.uniq_membership, stats[1].query_count.equivalence,
-							stats[2].query_count.membership, stats[2].query_count.uniq_membership, stats[1].query_count.equivalence
+							stats[0].queries.membership, stats[0].queries.uniq_membership, stats[0].queries.equivalence,
+							stats[1].queries.membership, stats[1].queries.uniq_membership, stats[1].queries.equivalence,
+							stats[2].queries.membership, stats[2].queries.uniq_membership, stats[1].queries.equivalence
 							);
 
 					statfile << logline;

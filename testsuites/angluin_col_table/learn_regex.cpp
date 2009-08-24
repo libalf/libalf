@@ -110,7 +110,7 @@ int main(int argc, char**argv)
 			file.open(filename); file << query->generate_dotfile(); file.close();
 
 			// answer queries
-			stats.query_count.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*nfa, *query);
+			stats.queries.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*nfa, *query);
 
 			snprintf(filename, 128, "knowledgebase%02d%c-r.dot", iteration, c);
 			file.open(filename); file << query->generate_dotfile(); file.close();
@@ -165,7 +165,7 @@ int main(int argc, char**argv)
 		// if this test is ok, all worked well
 
 		list<int> counterexample;
-		stats.query_count.equivalence++;
+		stats.queries.equivalence++;
 		if(amore_alf_glue::automaton_equivalence_query(*nfa, *hypothesis, counterexample)) {
 			// equivalent
 			cout << "success.\n";
@@ -187,19 +187,19 @@ int main(int argc, char**argv)
 	file.close();
 
 	ot.get_memory_statistics(stats);
-	stats.query_count.membership = knowledge.count_resolved_queries();
+	stats.queries.membership = knowledge.count_resolved_queries();
 
 	delete nfa;
 
-	cout << "\nrequired membership queries: " << stats.query_count.membership << "\n";
-	cout << "required uniq membership queries: " << stats.query_count.uniq_membership << "\n";
-	cout << "required equivalence queries: " << stats.query_count.equivalence << "\n";
-	cout << "sizes: bytes: " << stats.table_size.bytes
-	     << ", members: " << stats.table_size.members
-	     << ", words: " << stats.table_size.words << "\n";
-	cout << "upper table rows: " << stats.table_size.upper_table
-	     << ", lower table rows: " << stats.table_size.lower_table
-	     << ", columns: " << stats.table_size.columns << "\n";
+	cout << "\nrequired membership queries: " << stats.queries.membership << "\n";
+	cout << "required uniq membership queries: " << stats.queries.uniq_membership << "\n";
+	cout << "required equivalence queries: " << stats.queries.equivalence << "\n";
+	cout << "sizes: bytes: " << stats.memory.bytes
+	     << ", members: " << stats.memory.members
+	     << ", words: " << stats.memory.words << "\n";
+	cout << "upper table rows: " << stats.memory.upper_table
+	     << ", lower table rows: " << stats.memory.lower_table
+	     << ", columns: " << stats.memory.columns << "\n";
 	cout << "minimal state count: " << hypothesis->get_state_count() << "\n";
 
 	delete hypothesis;

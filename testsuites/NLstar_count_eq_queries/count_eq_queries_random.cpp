@@ -54,7 +54,7 @@ int learn_via_NLstar(int asize, finite_automaton * model)
 		multimap<pair<int, int>, int> f_transitions;
 
 		while( ! ot.advance(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions) )
-			stats.query_count.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*model, knowledge);
+			stats.queries.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*model, knowledge);
 
 		if(hypothesis)
 			delete hypothesis;
@@ -65,7 +65,7 @@ int learn_via_NLstar(int asize, finite_automaton * model)
 		}
 
 		list<int> counterexample;
-		stats.query_count.equivalence++;
+		stats.queries.equivalence++;
 		if(amore_alf_glue::automaton_equivalence_query(*model, *hypothesis, counterexample)) {
 			// equivalent
 			success = true;
@@ -80,7 +80,7 @@ int learn_via_NLstar(int asize, finite_automaton * model)
 
 	if(success) {
 //		cout << "success.\n";
-		return stats.query_count.equivalence;
+		return stats.queries.equivalence;
 	} else {
 		cout << "failed!\n";
 		return -1;

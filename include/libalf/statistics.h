@@ -20,27 +20,27 @@ namespace libalf {
 using namespace std;
 
 class statistics {
-	public: // data
+	public: // data									// changed by:
 		struct {
-			int bytes;	// bytes of algorithms data structure
-			int members;	// number of membership data
-			int words;	// number of words in table
-			int upper_table;// size of upper table (if appropriate)
-			int lower_table;// size of lower table (if appropriate)
-			int columns;	// columns (if appropriate)
-		} memory;
-
-		struct {
-			int membership;
-			int uniq_membership;
-			int equivalence;
+			int membership;							// knowledgebase
+			int uniq_membership;						// reserved for user while resolving a query
+			int equivalence;						// knowledgebase
 		} queries;
 
 		struct {
-			int cpu_sec;
-			int cpu_usec;
-			int sys_sec;
-			int sys_usec;
+			int bytes;	// bytes of algorithms data structure		// algorithm
+			int members;	// number of membership data			// algorithm
+			int words;	// number of words in table			// algorithm
+			int upper_table;// size of upper table (if appropriate)		// algorithm
+			int lower_table;// size of lower table (if appropriate)		// algorithm
+			int columns;	// columns (if appropriate)			// algorithm
+		} memory;
+
+		struct {
+			int cpu_sec;							// algorithm
+			int cpu_usec;							// algorithm
+			int sys_sec;							// algorithm
+			int sys_usec;							// algorithm
 		} time;
 
 
