@@ -28,7 +28,6 @@
 
 #include <libalf/answer.h>
 #include <libalf/alphabet.h>
-#include <libalf/statistics.h>
 
 // the knowledgebase holds membership information about a language
 // (or samples for offline-algorithms). to obtain information about a
@@ -843,27 +842,20 @@ class knowledgebase {
 		// list of all nodes that are required
 		list<node *> required;
 
-		int nodecount;
-		int answercount;
+		int nodecount; // number of nodes in tree
+		int answercount; // number of answers stored in this knowledgebase
 		// count_queries is required.size().
+		int resolved_queries; // number of queries that have been resolved from this knowledgebase
 
 		int alphabet_size;
 
 		unsigned int timestamp;
 
-		statistics * stat;
 	public: // methods
 		knowledgebase()
 		{{{
 			root = NULL;
 			clear();
-			stat = NULL;
-		}}}
-		knowledgebase(statistics * stat)
-		{{{
-			root = NULL;
-			clear();
-			this->stat = stat;
 		}}}
 
 		~knowledgebase()
@@ -886,6 +878,7 @@ class knowledgebase {
 
 			nodecount = 1;
 			answercount = 0;
+			resolved_queries = 0;
 		}}}
 
 		void clear_queries()
@@ -950,6 +943,10 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 		int count_queries()
 		{{{
 			return required.size();
+		}}}
+		int count_resolved_queries()
+		{{{
+			return resolved_queries;
 		}}}
 
 		int get_alphabet_size()
@@ -1140,22 +1137,16 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 			return ret;
 		}}}
 
-		void set_statistics(statistics * stat)
-		{{{
-			this->stat = stat;
-		}}}
-		void unset_statistics()
-		{{{
-			this->stat = NULL;
-		}}}
-
 
 		basic_string<int32_t> serialize()
 		{{{
 			basic_string<int32_t> ret;
 
 			ret += 0; // sizeof, will be filled in later
+
+			ret += htonl(resolved_queries);
 			root->serialize_subtree(ret);
+
 			ret[0] += htonl(ret.size() - 1);
 
 			return ret;
@@ -1172,9 +1163,15 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 			size = ntohl(*it);
 			it++; if(it == limit) goto deserialization_failed;
 
-// network byte order... try not to mess with negative numbers...
-//			if(ntohl(*it) != -1)
-//				goto deserialization_failed;
+			resolved_queries = ntohl(*it);
+			if(resolved_queries < 0) { printf("$1\n"); goto deserialization_failed; };
+			it++; size--; if(it == limit) { printf("#2\n"); goto deserialization_failed; };
+
+			// label of root-node should be -1
+			if((int32_t)(ntohl(*it)) != -1) {
+				printf("invalid root-label\n");
+				goto deserialization_failed;
+			}
 
 			if(!root->deserialize_subtree(it, limit, size))
 				goto deserialization_failed;
@@ -1227,7 +1224,7 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 			knowledgebase * query_tree;
 			iterator qi;
 
-			query_tree = new knowledgebase(NULL);
+			query_tree = new knowledgebase();
 
 			for(qi = this->qbegin(); qi != this->qend(); ++qi) {
 				list<int> qw;
@@ -1318,8 +1315,7 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 
 			if(current != NULL && current->is_answered()) {
 				acceptance = current->get_answer();
-				if(stat)
-					stat->query_count.membership++;
+				resolved_queries++;
 				return true;
 			} else {
 				return false;
@@ -1335,8 +1331,7 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 
 			if(current->is_answered()) {
 				acceptance = current->get_answer();
-				if(stat)
-					stat->query_count.membership++;
+				resolved_queries++;
 				return true;
 			} else {
 				current->mark_required();

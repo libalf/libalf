@@ -45,7 +45,7 @@ int main(int argc, char**argv)
 	bool success = false;
 
 	int alphabet_size;
-	int hypothesis_state_count = 0;
+	unsigned int hypothesis_state_count = 0;
 
 	bool regex_ok;
 	if(argc == 3) {
@@ -84,9 +84,6 @@ int main(int argc, char**argv)
 		delete dfa;
 	}}}
 
-
-	// create oracle instance and teacher instance
-	knowledge.set_statistics(&stats);
 
 	// create angluin_simple_table and teach it the automaton
 	angluin_simple_table<ANSWERTYPE> ot(&knowledge, &log, alphabet_size);
@@ -190,6 +187,7 @@ int main(int argc, char**argv)
 	file.close();
 
 	ot.get_memory_statistics(stats);
+	stats.query_count.membership = knowledge.count_resolved_queries();
 
 	delete nfa;
 

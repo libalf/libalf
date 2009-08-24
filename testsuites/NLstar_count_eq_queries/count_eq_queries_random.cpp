@@ -39,7 +39,6 @@ int learn_via_NLstar(int asize, finite_automaton * model)
 {{{
 	statistics stats;
 	knowledgebase<ANSWERTYPE> knowledge;
-	knowledge.set_statistics(&stats);
 
 	int iteration;
 	bool success = false;
@@ -102,7 +101,7 @@ int main(int argc, char**argv)
 		return -1;
 	}
 	int asize = atoi(argv[1]);
-	int size = atoi(argv[2]);
+	unsigned int size = atoi(argv[2]);
 
 	int checked = 0;
 	int skipped = 0;
@@ -122,7 +121,7 @@ int main(int argc, char**argv)
 		} else {
 			checked++;
 
-			int eq_queries = learn_via_NLstar(asize, model);
+			unsigned int eq_queries = learn_via_NLstar(asize, model);
 
 			if(eq_queries >  size) {
 				found++;

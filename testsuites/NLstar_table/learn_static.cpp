@@ -120,9 +120,6 @@ int main(int argc, char**argv)
 	}}}
 
 
-	// create oracle instance and teacher instance
-	knowledge.set_statistics(&stats);
-
 	// create NLstar table and teach it the automaton
 	NLstar_table<ANSWERTYPE> ot(&knowledge, &log, alphabet_size);
 	finite_automaton * hypothesis = NULL;
@@ -218,6 +215,7 @@ int main(int argc, char**argv)
 	file.close();
 
 	ot.get_memory_statistics(stats);
+	stats.query_count.membership = knowledge.count_resolved_queries();
 
 	cout << "required membership queries: " << stats.query_count.membership << "\n";
 	cout << "required uniq membership queries: " << stats.query_count.uniq_membership << "\n";

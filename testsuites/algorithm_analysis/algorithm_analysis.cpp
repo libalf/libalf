@@ -161,7 +161,6 @@ model_too_big:
 
 					for(int learner = 0; learner <= 2; learner++) {
 						base.clear();
-						base.set_statistics(&(stats[learner]));
 						switch (learner) {
 							case 0: alg = new angluin_simple_table<bool>(&base, &log, alphabet_size); break;
 							case 1: alg = new angluin_col_table<bool>(&base, &log, alphabet_size); break;
@@ -183,6 +182,7 @@ model_too_big:
 
 							list<int> counterexample;
 							stats[learner].query_count.equivalence++;
+							stats[learner].query_count.membership = base.count_resolved_queries();
 							log(LOGGER_DEBUG, "eq query. \r");
 							if(amore_alf_glue::automaton_equivalence_query(*model, *hypothesis, counterexample)) {
 							log(LOGGER_DEBUG, "completed \r");

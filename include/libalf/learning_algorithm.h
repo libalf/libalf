@@ -19,6 +19,7 @@
 #include <string>
 
 #include <libalf/logger.h>
+#include <libalf/statistics.h>
 #include <libalf/knowledgebase.h>
 #include <libalf/normalizer.h>
 

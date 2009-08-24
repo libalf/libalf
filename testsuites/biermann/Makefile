@@ -16,7 +16,7 @@ nodata:
 
 clean: nodata
 	-rm *.o
-	-rm rpni_regex rpni_static
+	-rm biermann_regex biermann_static
 
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;

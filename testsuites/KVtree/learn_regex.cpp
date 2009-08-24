@@ -85,9 +85,6 @@ int main(int argc, char**argv)
 	}}}
 
 
-	// create oracle instance and teacher instance
-	knowledge.set_statistics(&stats);
-
 	// create instance and teach it the automaton
 	KVtree<ANSWERTYPE> ot(&knowledge, &log, alphabet_size);
 	finite_automaton * hypothesis = NULL;
@@ -189,6 +186,7 @@ int main(int argc, char**argv)
 	file << knowledge.generate_dotfile();
 	file.close();
 
+	stats.query_count.membership = knowledge.count_resolved_queries();
 	ot.get_memory_statistics(stats);
 
 	delete nfa;
