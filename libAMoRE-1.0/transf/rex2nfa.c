@@ -509,7 +509,7 @@ nfa rex2nfa(regex re)
 	/* third step: the connections
 	 * call compff with an epsilon string in prerex
 	 */
-	ffprerex = prerexlen - 1;
+	ffprerex = prerexlen;
 	ffrex = rexlen - 1;
 	prerex[ffprerex] = epsch;
 	compff(ffprerex, result->delta);
