@@ -11,13 +11,15 @@ TODO
 (priority ordered)
 
 
+- Antichains for checking language inclusion and equivalence ( in libAMoRE++ or even upstream? )
+
+- create new network protocol (isomorph to JNI, to make switching between JNI and dispatcher easy)
+
+- KVtree algorithm
+
 - check RPNI for correctness
 
 - check DeLeTe2 for correctness
-
-- Antichains for checking language inclusion and equivalence ( in libAMoRE++ or even upstream? )
-
-- KVtree algorithm
 
 - rewrite / check efficiency in knowledgebase equivalence relation
 
@@ -28,8 +30,6 @@ TODO
 - check undo and increase_alphabet_size() in angluin
 
 - documentation (?)
-
-- create new network protocol (isomorph to JNI, to make switching between JNI and dispatcher easy)
 
 - check network/deserialization code for bugs
 
