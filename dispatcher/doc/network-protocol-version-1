@@ -67,105 +67,206 @@ followed by the announced number of chars. the string is NOT \0-delimited!
 
 ================================================================================
 
+PROTOCOL CONSTANTS
+
+enum client_command {
+	CLCMD_REQ_CAPA = 0,
+	CLCMD_REQ_VERSION = 1,
+
+	CLCMD_DISCONNECT = 10,
+	CLCMD_STARTTLS = 11,
+	CLCMD_AUTH = 12,
+
+	CLCMD_CREATE_OBJECT = 20,
+	CLCMD_DELETE_OBJECT = 21,
+	CLCMD_GET_OBJECTTYPE = 22,
+	CLCMD_OBJECT_COMMAND = 23,
+
+	// reserved for extensions: >= 1000
+};
+
+enum object_type {
+	OBJ_LOGGER = 0,
+	OBJ_KNOWLEDGEBASE = 10,
+	OBJ_ALGORITHM = 20,
+	OBJ_NORMALIZER = 21,
+};
+
+enum logger_command {
+	LOGGER_SET_LOGLEVEL = 0,
+	LOGGER_LOG_KNOWLEDGEBASE = 10,
+	LOGGER_LOG_TABLE = 11,
+	LOGGER_RECEIVE_AND_FLUSH = 20,
+};
+
+enum knowledgebase_command {
+	KNOWLEDGEBASE_SERIALIZE = 0,
+	KNOWLEDGEBASE_DESERIALIZE = 1,
+	KNOWLEDGEBASE_TO_DOTFILE = 2,
+	KNOWLEDGEBASE_TO_STRING = 3,
+
+	KNOWLEDGEBASE_IS_ANSWERED = 10,
+	KNOWLEDGEBASE_IS_EMPTY = 11,
+	KNOWLEDGEBASE_COUNT_QUERIES = 12,
+	KNOWLEDGEBASE_COUNT_ANSWERS = 13,
+	KNOWLEDGEBASE_COUNT_RESOLVED_QUERIES = 14,
+	KNOWLEDGEBASE_GET_MEMORY_USAGE = 15,
+
+	KNOWLEDGEBASE_GET_QUERIES = 20,
+	KNOWLEDGEBASE_RESOLVE_QUERY = 21,
+	KNOWLEDGEBASE_RESOLVE_OR_ADD_QUERY = 22,
+	KNOWLEDGEBASE_ADD_KNOWLEDGE = 23,
+
+	KNOWLEDGEBASE_CLEAR = 30,
+	KNOWLEDGEBASE_CLEAR_QUERIES = 31,
+
+	KNOWLEDGEBASE_UNDO = 40,
+};
+
+enum algorithm_command {
+	ALGORITHM_SERIALIZE = 0,
+	ALGORITHM_DESERIALIZE = 1,
+	ALGORITHM_TO_STRING = 2,
+	ALGORITHM_ASSOCIATE_LOGGER = 3,
+	ALGORITHM_REMOVE_LOGGER = 4,
+	ALGORITHM_SET_KNOWLEDGE_SOURCE = 5,
+	ALGORITHM_GET_KNOWLEDGE_SOURCE = 6,
+
+	ALGORITHM_GET_MEMORY_STATISTICS = 12,
+	ALGORITHM_GET_TIMING_STATISTICS = 13,
+	ALGORITHM_ENABLE_TIMING = 14,
+	ALGORITHM_DISABLE_TIMING = 15,
+	ALGORITHM_RESET_TIMING = 16,
+
+	ALGORITHM_GET_ALPHABET_SIZE = 20,
+	ALGORITHM_INCREASE_ALPHABET_SIZE = 21,
+
+	ALGORITHM_CONJECTURE_READY = 30,
+	ALGORITHM_ADVANCE = 31,
+	ALGORITHM_ADD_COUNTEREXAMPLE = 32,
+
+	ALGORITHM_SUPPORTS_SYNC = 40,
+	ALGORITHM_SYNC_TO_KNOWLEDGEBASE = 41,
+};
+
+enum normalizer_command {
+	NORMALIZER_SERIALIZE = 0,
+	NORMALIZER_DESERIALIZE = 1,
+	NORMALIZER_DESERIALIZE_EXTENSION = 2,
+
+	NORMALIZER_GET_TYPE = 10,
+
+	NORMALIZER_NORMALIZE_A_WORD_PNF = 20,
+	NORMALIZER_NORMALIZE_A_WORD_SNF = 21,
+};
+
+
+================================================================================
+
 CLIENT COMMANDS
 
-a client command consists of the folliwing:
-
-	enum client_command_id,
-	number of parameters,
+a client command consists of the following:
+	enum client_command,
 then for each parameter:
-	size of this parameter,
-	data[];
+	parameter
+
+if a parameter is marked with ``[]'', it is of variable size. the size has to be
+submitted by the command itself somehow. (see e.g. CLCMD_OBJECT_COMMAND).
+otherwise the size of a parameter is exactly one int32_t.
 
 
+the following commands exist:
 
 
-	enum client_command {
-		CLCMD_REQ_CAPA = 0,
-		CLCMD_REQ_VERSION = 1,
+request capabilities (CLCMD_REQ_CAPA)
+no parameters.
+server returns:
+	string
 
-		CLCMD_DISCONNECT = 10,
-		CLCMD_STARTTLS = 11,
-		CLCMD_AUTH = 12,
 
-		CLCMD_CREATE_OBJECT = 20,
-		CLCMD_DELETE_OBJECT = 21,
-		CLCMD_GET_OBJECTTYPE = 22,
-		CLCMD_OBJECT_COMMAND = 23,
-	};
+request server/library version string (CLCMD_REQ_VERSION)
+no parameters.
+server returns:
+	string
 
-	enum object_types {
-		OBJ_LOGGER = 0,
-		OBJ_KNOWLEDGEBASE = 10,
-		OBJ_ALGORITHM = 20,
-		OBJ_NORMALIZER = 21,
-	};
 
-	enum logger_command {
-		LOGGER_SET_LOGLEVEL = 0,
-		LOGGER_LOG_KNOWLEDGEBASE = 10,
-		LOGGER_LOG_TABLE = 11,
-		LOGGER_RECEIVE_AND_FLUSH = 20,
-	};
+disconnect from server (CLCMD_DISCONNECT)
+no parameters.
+server returns:
+	nothing. closes connection.
 
-	enum knowledgebase_command {
-		KNOWLEDGEBASE_SERIALIZE = 0,
-		KNOWLEDGEBASE_DESERIALIZE = 1,
-		KNOWLEDGEBASE_TO_DOTFILE = 2,
-		KNOWLEDGEBASE_TO_STRING = 3,
 
-		KNOWLEDGEBASE_IS_ANSWERED = 10,
-		KNOWLEDGEBASE_IS_EMPTY = 11,
-		KNOWLEDGEBASE_COUNT_QUERIES = 12,
-		KNOWLEDGEBASE_COUNT_ANSWERS = 13,
-		KNOWLEDGEBASE_COUNT_RESOLVED_QUERIES = 14,
-		KNOWLEDGEBASE_GET_MEMORY_USAGE = 15,
+enable TLS/SSL (CLCMD_STARTTLS)
+parameters:
+	FIXME
+server returns:
+	FIXME
 
-		KNOWLEDGEBASE_GET_QUERIES = 20,
-		KNOWLEDGEBASE_RESOLVE_QUERY = 21,
-		KNOWLEDGEBASE_RESOLVE_OR_ADD_QUERY = 22,
-		KNOWLEDGEBASE_ADD_KNOWLEDGE = 23,
 
-		KNOWLEDGEBASE_CLEAR = 30,
-		KNOWLEDGEBASE_CLEAR_QUERIES = 31,
+authenticate connection (CLCMD_AUTH)
+parameters:
+	FIXME
+server returns:
+	FIXME
 
-		KNOWLEDGEBASE_UNDO = 40,
-	};
 
-	enum algorithm_command {
-		ALGORITHM_SERIALIZE = 0,
-		ALGORITHM_DESERIALIZE = 1,
-		ALGORITHM_TO_STRING = 2,
-		ALGORITHM_ASSOCIATE_LOGGER = 3,
-		ALGORITHM_REMOVE_LOGGER = 4,
-		ALGORITHM_SET_KNOWLEDGE_SOURCE = 5,
-		ALGORITHM_GET_KNOWLEDGE_SOURCE = 6,
+create object (CLCMD_CREATE_OBJECT)
+parameters:
+	enum object_type
+server returns:
+	object-id (-1 if command failed. check server log for error message)
 
-		ALGORITHM_GET_MEMORY_STATISTICS = 12,
-		ALGORITHM_GET_TIMING_STATISTICS = 13,
-		ALGORITHM_ENABLE_TIMING = 14,
-		ALGORITHM_DISABLE_TIMING = 15,
-		ALGORITHM_RESET_TIMING = 16,
 
-		ALGORITHM_GET_ALPHABET_SIZE = 20,
-		ALGORITHM_INCREASE_ALPHABET_SIZE = 21,
+delete object (CLCMD_DELETE_OBJECT)
+parameters:
+	object-id
+server returns:
+	bool (success-flag)
 
-		ALGORITHM_CONJECTURE_READY = 30,
-		ALGORITHM_ADVANCE = 31,
-		ALGORITHM_ADD_COUNTEREXAMPLE = 32,
 
-		ALGORITHM_SUPPORTS_SYNC = 40,
-		ALGORITHM_SYNC_TO_KNOWLEDGEBASE = 41,
-	};
+get object type (CLCMD_GET_OBJECTTYPE)
+parameters:
+	object-id
+server returns:
+	enum object_type
 
-	enum normalizer_command {
-		NORMALIZER_SERIALIZE = 0,
-		NORMALIZER_DESERIALIZE = 1,
-		NORMALIZER_DESERIALIZE_EXTENSION = 2,
 
-		NORMALIZER_GET_TYPE = 10,
+object command (CLCMD_OBJECT_COMMAND)
+parameters:
+	object-id,
+	command-id (depending on object-type one of
+		enum logger_command,
+		enum knowledgebase_command,
+		enum algorithm_command,
+		enum normalizer_command )
+	size of additional parameters,
+	additional parameters[]
+server returns:
+	see specific command
 
-		NORMALIZER_NORMALIZE_A_WORD_PNF = 20,
-		NORMALIZER_NORMALIZE_A_WORD_SNF = 21,
-	};
+================================================================================
+
+LOGGER COMMANDS
+
+...
+
+================================================================================
+
+KNOWLEDGEBASE COMMANDS
+
+...
+
+================================================================================
+
+ALGORITHM COMMANDS
+
+...
+
+================================================================================
+
+NORMALIZER COMMANDS
+
+...
+
+================================================================================
 
