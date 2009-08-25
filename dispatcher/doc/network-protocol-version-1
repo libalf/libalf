@@ -96,7 +96,6 @@ then for each parameter:
 
 	enum object_types {
 		OBJ_LOGGER = 0,
-		OBJ_STATISTIC = 1
 		OBJ_KNOWLEDGEBASE = 10,
 		OBJ_ALGORITHM = 20,
 		OBJ_NORMALIZER = 21,
@@ -109,55 +108,64 @@ then for each parameter:
 		LOGGER_RECEIVE_AND_FLUSH = 20,
 	};
 
-	enum statistics_command {
-		STAT_GET = 0,
-		STAT_SET = 1,
-	};
-
 	enum knowledgebase_command {
-		serialize,
-		deserialize,
-		is answered?,
-		is empty?,
-		serialize,
-		deserialize,
-		count queries,
-		count answers,
-		count resolved queries,
-		get queries,
-		resolve query,
-		resolve or add query,
-		add knowledge,
-		clear,
-		clear queries,
-		undo,
-		get memory usage,
-		generate dotfile,
-		to string,
+		KNOWLEDGEBASE_SERIALIZE = 0,
+		KNOWLEDGEBASE_DESERIALIZE = 1,
+		KNOWLEDGEBASE_TO_DOTFILE = 2,
+		KNOWLEDGEBASE_TO_STRING = 3,
+
+		KNOWLEDGEBASE_IS_ANSWERED = 10,
+		KNOWLEDGEBASE_IS_EMPTY = 11,
+		KNOWLEDGEBASE_COUNT_QUERIES = 12,
+		KNOWLEDGEBASE_COUNT_ANSWERS = 13,
+		KNOWLEDGEBASE_COUNT_RESOLVED_QUERIES = 14,
+		KNOWLEDGEBASE_GET_MEMORY_USAGE = 15,
+
+		KNOWLEDGEBASE_GET_QUERIES = 20,
+		KNOWLEDGEBASE_RESOLVE_QUERY = 21,
+		KNOWLEDGEBASE_RESOLVE_OR_ADD_QUERY = 22,
+		KNOWLEDGEBASE_ADD_KNOWLEDGE = 23,
+
+		KNOWLEDGEBASE_CLEAR = 30,
+		KNOWLEDGEBASE_CLEAR_QUERIES = 31,
+
+		KNOWLEDGEBASE_UNDO = 40,
 	};
 
 	enum algorithm_command {
-		serialize,
-		deserialize,
-		associate logger,
-		remove logger,
-		get statistics,
-		get alphabet size,
-		increase alphabet size,
-		set knowledge source,
-		get knowledge source,
-		conjecture ready?
-		advance,
-		add counterexample,
-		supports sync?,
-		sync to knowledgebase,
+		ALGORITHM_SERIALIZE = 0,
+		ALGORITHM_DESERIALIZE = 1,
+		ALGORITHM_TO_STRING = 2,
+		ALGORITHM_ASSOCIATE_LOGGER = 3,
+		ALGORITHM_REMOVE_LOGGER = 4,
+		ALGORITHM_SET_KNOWLEDGE_SOURCE = 5,
+		ALGORITHM_GET_KNOWLEDGE_SOURCE = 6,
+
+		ALGORITHM_GET_MEMORY_STATISTICS = 12,
+		ALGORITHM_GET_TIMING_STATISTICS = 13,
+		ALGORITHM_ENABLE_TIMING = 14,
+		ALGORITHM_DISABLE_TIMING = 15,
+		ALGORITHM_RESET_TIMING = 16,
+
+		ALGORITHM_GET_ALPHABET_SIZE = 20,
+		ALGORITHM_INCREASE_ALPHABET_SIZE = 21,
+
+		ALGORITHM_CONJECTURE_READY = 30,
+		ALGORITHM_ADVANCE = 31,
+		ALGORITHM_ADD_COUNTEREXAMPLE = 32,
+
+		ALGORITHM_SUPPORTS_SYNC = 40,
+		ALGORITHM_SYNC_TO_KNOWLEDGEBASE = 41,
 	};
 
 	enum normalizer_command {
-		serialize,
-		deserialize,
-		deserialize extension,
-		get type,
-		normalize a word (PNF/SNF),
+		NORMALIZER_SERIALIZE = 0,
+		NORMALIZER_DESERIALIZE = 1,
+		NORMALIZER_DESERIALIZE_EXTENSION = 2,
+
+		NORMALIZER_GET_TYPE = 10,
+
+		NORMALIZER_NORMALIZE_A_WORD_PNF = 20,
+		NORMALIZER_NORMALIZE_A_WORD_SNF = 21,
 	};
 
