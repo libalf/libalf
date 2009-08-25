@@ -217,20 +217,25 @@ class learning_algorithm {
 		// derive an automaton from data structure
 		virtual bool derive_automaton(bool & is_dfa, int & alphabet_size, int & state_count, set<int> & initial, set<int> & final, multimap<pair<int, int>, int> & transitions) = 0;
 
+#ifdef _WIN32
+# define USAGE_SPECIFIER RUSAGE_SELF
+#else
+# define USAGE_SPECIFIER RUSAGE_THREAD
+#endif
 		virtual void start_timing()
 		{{{
 			if(do_timing && !in_timing) {
 				struct rusage ru;
 
-				in_timing = true;
+				if(0 != getrusage(USAGE_SPECIFIER, &ru))
+					return;
 
-				getrusage(RUSAGE_THREAD, &ru);
+				in_timing = true;
 
 				start_utime = ru.ru_utime;
 				start_stime = ru.ru_stime;
 			}
 		}}}
-
 		virtual void stop_timing()
 		{{{
 			if(do_timing && in_timing) {
@@ -239,7 +244,8 @@ class learning_algorithm {
 
 				in_timing = false;
 
-				getrusage(RUSAGE_THREAD, &ru);
+				if(0 != getrusage(USAGE_SPECIFIER, &ru))
+					return;
 
 				timersub(&(ru.ru_utime), &start_utime, &tmp);
 				current_stats.user_sec += tmp.tv_sec;
