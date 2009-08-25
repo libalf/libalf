@@ -60,8 +60,14 @@ class DeLeTe2 : public learning_algorithm<answer> {
 			this->set_alphabet_size(new_asize);
 		}}}
 
-		virtual void get_memory_statistics(statistics & stats)
-		{ };
+		virtual memory_statistics get_memory_statistics()
+		{{{
+			memory_statistics ret;
+			// FIXME: maybe keep some stats from last run?
+			
+
+			return ret;
+		}}}
 
 		virtual bool sync_to_knowledgebase()
 		{{{

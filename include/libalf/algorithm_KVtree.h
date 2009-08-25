@@ -192,10 +192,11 @@ class KVtree: public learning_algorithm<answer> {
 
 			this->set_alphabet_size(new_asize);
 		}}}
-		virtual void get_memory_statistics(statistics & stats)
-		// table_size.words is an approximation!
+		virtual memory_statistics get_memory_statistics()
 		{{{
-			stats.memory.bytes = sizeof(this) + tree.get_memory_usage() + pending.size() * sizeof(candidate);
+			memory_statistics ret;
+			ret.bytes = sizeof(this) + tree.get_memory_usage() + pending.size() * sizeof(candidate);
+			return ret;
 		}}}
 		virtual bool sync_to_knowledgebase()
 		{{{

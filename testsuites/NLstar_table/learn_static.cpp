@@ -214,7 +214,7 @@ int main(int argc, char**argv)
 	file << knowledge.generate_dotfile();
 	file.close();
 
-	ot.get_memory_statistics(stats);
+	stats.memory = ot.get_memory_statistics();
 	stats.queries.membership = knowledge.count_resolved_queries();
 
 	cout << "required membership queries: " << stats.queries.membership << "\n";

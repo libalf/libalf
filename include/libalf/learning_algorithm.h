@@ -122,9 +122,7 @@ class learning_algorithm {
 			norm = NULL;
 		}}}
 
-		virtual void get_memory_statistics(statistics & stats) = 0;
-// FIXME: refactor to:
-//		virtual memory_statistics get_memory_statistics() = 0;
+		virtual memory_statistics get_memory_statistics() = 0;
 
 		virtual timing_statistics get_timing_statistics()
 		{{{

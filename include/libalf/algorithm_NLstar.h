@@ -247,25 +247,27 @@ deserialization_failed:
 			}
 		}}}
 
-		virtual void get_memory_statistics(statistics & stats)
+		virtual memory_statistics get_memory_statistics()
 		{{{
+			memory_statistics ret;
 			// get memory footprint:
 			typename columnlist::iterator ci;
 			typename table::iterator ti;
 
-			stats.memory.bytes = sizeof(this);
+			ret.bytes = sizeof(this);
 			for(ci = column_names.begin(); ci != column_names.end(); ci++)
-				stats.memory.bytes += sizeof(list<int>) + sizeof(int) * (ci->size());
+				ret.bytes += sizeof(list<int>) + sizeof(int) * (ci->size());
 			for(ti = upper_table.begin(); ti != upper_table.end(); ti++)
-				stats.memory.bytes += ti->memory_usage();
+				ret.bytes += ti->memory_usage();
 			for(ti = lower_table.begin(); ti != lower_table.end(); ti++)
-				stats.memory.bytes += ti->memory_usage();
+				ret.bytes += ti->memory_usage();
 			// members
-			stats.memory.columns = column_names.size();
-			stats.memory.upper_table = upper_table.size();
-			stats.memory.lower_table = lower_table.size();
-			stats.memory.members = stats.memory.columns * (stats.memory.upper_table + stats.memory.lower_table);
-			stats.memory.words = stats.memory.members;
+			ret.columns = column_names.size();
+			ret.upper_table = upper_table.size();
+			ret.lower_table = lower_table.size();
+			ret.members = ret.columns * (ret.upper_table + ret.lower_table);
+			ret.words = ret.members;
+			return ret;
 		}}}
 
 		virtual bool sync_to_knowledgebase()

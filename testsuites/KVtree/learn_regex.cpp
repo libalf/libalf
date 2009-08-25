@@ -187,7 +187,7 @@ int main(int argc, char**argv)
 	file.close();
 
 	stats.queries.membership = knowledge.count_resolved_queries();
-	ot.get_memory_statistics(stats);
+	stats.memory = ot.get_memory_statistics();
 
 	delete nfa;
 
