@@ -24,112 +24,214 @@ namespace libalf {
 
 using namespace std;
 
-statistics::statistics()
+
+query_statistics::query_statistics()
 {{{
 	reset();
 }}}
+void query_statistics::reset()
+{{{
+	membership = 0;
+	uniq_membership = 0;
+	equivalence = 0;
+}}}
+basic_string<int32_t> query_statistics::serialize()
+{{{
+	basic_string<int32_t> ret;
+
+	ret += htonl(3);
+	ret += htonl(membership);
+	ret += htonl(uniq_membership);
+	ret += htonl(equivalence);
+
+	return ret;
+}}}
+bool query_statistics::deserialize(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator limit)
+{{{
+	int size;
+
+	if(it == limit) goto deserialization_failed;
+
+	// data size
+	size = ntohl(*it);
+	if(size != 3) goto deserialization_failed;
+
+	// membership
+	it++; if(limit == it) goto deserialization_failed;
+	membership = ntohl(*it);
+	// uniq_membership
+	it++; if(limit == it) goto deserialization_failed;
+	uniq_membership = ntohl(*it);
+	// equivalence
+	it++; if(limit == it) goto deserialization_failed;
+	equivalence = ntohl(*it);
+
+	return true;
+
+deserialization_failed:
+	reset();
+	return false;
+}}}
+
+
+memory_statistics::memory_statistics()
+{{{
+	reset();
+}}}
+void memory_statistics::reset()
+{{{
+	bytes = 0;
+	members = 0;
+	words = 0;
+	upper_table = 0;
+	lower_table = 0;
+	columns = 0;
+}}}
+basic_string<int32_t> memory_statistics::serialize()
+{{{
+	basic_string<int32_t> ret;
+
+	ret += htonl(6);
+	ret += htonl(bytes);
+	ret += htonl(members);
+	ret += htonl(words);
+	ret += htonl(upper_table);
+	ret += htonl(lower_table);
+	ret += htonl(columns);
+
+	return ret;
+}}}
+bool memory_statistics::deserialize(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator limit)
+{{{
+	int size;
+
+	if(it == limit) goto deserialization_failed;
+
+	// data size
+	size = ntohl(*it);
+	if(size != 6) goto deserialization_failed;
+
+	// bytes
+	it++; if(limit == it) goto deserialization_failed;
+	bytes = ntohl(*it);
+	// members
+	it++; if(limit == it) goto deserialization_failed;
+	members = ntohl(*it);
+	// words
+	it++; if(limit == it) goto deserialization_failed;
+	words = ntohl(*it);
+	// upper_table
+	it++; if(limit == it) goto deserialization_failed;
+	upper_table = ntohl(*it);
+	// lower_table
+	it++; if(limit == it) goto deserialization_failed;
+	lower_table = ntohl(*it);
+	// columns
+	it++; if(limit == it) goto deserialization_failed;
+	columns = ntohl(*it);
+
+	return true;
+
+deserialization_failed:
+	reset();
+	return false;
+}}}
+
+
+timing_statistics::timing_statistics()
+{{{
+	reset();
+}}}
+void timing_statistics::reset()
+{{{
+	user_sec = 0;
+	user_usec = 0;
+	sys_sec = 0;
+	sys_usec = 0;
+}}}
+basic_string<int32_t> timing_statistics::serialize()
+{{{
+	basic_string<int32_t> ret;
+
+	ret += htonl(4);
+	ret += htonl(user_sec);
+	ret += htonl(user_usec);
+	ret += htonl(sys_sec);
+	ret += htonl(sys_usec);
+
+	return ret;
+}}}
+bool timing_statistics::deserialize(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator limit)
+{{{
+	int size;
+
+	if(it == limit) goto deserialization_failed;
+
+	// data size
+	size = ntohl(*it);
+	if(size != 4) goto deserialization_failed;
+
+	// user_sec
+	it++; if(limit == it) goto deserialization_failed;
+	user_sec = ntohl(*it);
+	// user_usec
+	it++; if(limit == it) goto deserialization_failed;
+	user_usec = ntohl(*it);
+	// sys_sec
+	it++; if(limit == it) goto deserialization_failed;
+	sys_sec = ntohl(*it);
+	// sys_usec
+	it++; if(limit == it) goto deserialization_failed;
+	sys_usec = ntohl(*it);
+
+	return true;
+
+deserialization_failed:
+	reset();
+	return false;
+}}}
+
 
 void statistics::reset()
 {{{
-	memory.bytes = 0;
-	memory.members = 0;
-	memory.words = 0;
-	memory.upper_table = 0;
-	memory.lower_table = 0;
-	memory.columns = 0;
-
-	queries.membership = 0;
-	queries.uniq_membership = 0;
-	queries.equivalence = 0;
-
-	time.cpu_sec = 0;
-	time.cpu_usec = 0;
-	time.sys_sec = 0;
-	time.sys_usec = 0;
+	queries.reset();
+	memory.reset();
+	time.reset();
 }}}
-
 basic_string<int32_t> statistics::serialize()
 {{{
 	basic_string<int32_t> ret;
 
 	ret += 0; // length field, filled in later.
 
-	ret += htonl(memory.bytes);
-	ret += htonl(memory.members);
-	ret += htonl(memory.words);
-	ret += htonl(memory.upper_table);
-	ret += htonl(memory.lower_table);
-	ret += htonl(memory.columns);
-
-	ret += htonl(queries.membership);
-	ret += htonl(queries.uniq_membership);
-	ret += htonl(queries.equivalence);
-
-	ret += htonl(time.cpu_sec);
-	ret += htonl(time.cpu_usec);
-	ret += htonl(time.sys_sec);
-	ret += htonl(time.sys_usec);
+	ret += queries.serialize();
+	ret += memory.serialize();
+	ret += time.serialize();
 
 	ret[0] = htonl( ret.length() - 1 );
 	return ret;
 }}}
-
 bool statistics::deserialize(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator limit)
 {{{
 	int size;
+	basic_string<int32_t>::iterator end;
 
 	if(it == limit)
 		goto deserialization_failed;
 
 	// data size
 	size = ntohl(*it);
+	it++;
+	end = it;
+	end += size;
 
-	// memory.bytes
-	it++; if(size <= 0 || limit == it) goto deserialization_failed;
-	memory.bytes = ntohl(*it);
-	// memory.members
-	it++; size--; if(size <= 0 || limit == it) goto deserialization_failed;
-	memory.members = ntohl(*it);
-	// memory.words
-	it++; size--; if(size <= 0 || limit == it) goto deserialization_failed;
-	memory.words = ntohl(*it);
-	// memory.upper_table
-	it++; size--; if(size <= 0 || limit == it) goto deserialization_failed;
-	memory.upper_table = ntohl(*it);
-	// memory.lower_table
-	it++; size--; if(size <= 0 || limit == it) goto deserialization_failed;
-	memory.lower_table = ntohl(*it);
-	// memory.columns
-	it++; size--; if(size <= 0 || limit == it) goto deserialization_failed;
-	memory.columns = ntohl(*it);
+	if(!queries.deserialize(it, limit)) goto deserialization_failed;
+	if(!memory.deserialize(it, limit)) goto deserialization_failed;
+	if(!time.deserialize(it, limit)) goto deserialization_failed;
 
-	// queries.membership
-	it++; size--; if(size <= 0 || limit == it) goto deserialization_failed;
-	queries.membership = ntohl(*it);
-	// queries.uniq_membership
-	it++; size--; if(size <= 0 || limit == it) goto deserialization_failed;
-	queries.uniq_membership = ntohl(*it);
-	// queries.equivalence
-	it++; size--; if(size <= 0 || limit == it) goto deserialization_failed;
-	queries.equivalence = ntohl(*it);
+	if(it != end) goto deserialization_failed;
 
-	// time.cpu_sec
-	it++; size--; if(size <= 0 || limit == it) goto deserialization_failed;
-	time.cpu_sec = ntohl(*it);
-	// time.cpu_usec
-	it++; size--; if(size <= 0 || limit == it) goto deserialization_failed;
-	time.cpu_usec = ntohl(*it);
-	// time.sys_sec
-	it++; size--; if(size <= 0 || limit == it) goto deserialization_failed;
-	time.sys_sec = ntohl(*it);
-	// time.sys_usec
-	it++; size--; if(size <= 0 || limit == it) goto deserialization_failed;
-	time.sys_usec = ntohl(*it);
-
-	it++; size--;
-
-	if(size == 0)
-		return true;
+	return true;
 
 deserialization_failed:
 	reset();

@@ -19,33 +19,53 @@ namespace libalf {
 
 using namespace std;
 
+class query_statistics {
+	public:
+		int32_t membership;
+		int32_t uniq_membership;
+		int32_t equivalence;
+	public:
+		query_statistics();
+		void reset();
+		basic_string<int32_t> serialize();
+		bool deserialize(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator limit);
+};
+
+class memory_statistics {
+	public:
+		int32_t bytes;	// bytes of algorithms data structure
+		int32_t members;	// number of membership data
+		int32_t words;	// number of words in table
+		int32_t upper_table;// size of upper table (if appropriate)
+		int32_t lower_table;// size of lower table (if appropriate)
+		int32_t columns;	// columns (if appropriate)
+	public:
+		memory_statistics();
+		void reset();
+		basic_string<int32_t> serialize();
+		bool deserialize(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator limit);
+};
+
+class timing_statistics {
+	public:
+		int32_t user_sec;
+		int32_t user_usec;
+		int32_t sys_sec;
+		int32_t sys_usec;
+	public:
+		timing_statistics();
+		void reset();
+		basic_string<int32_t> serialize();
+		bool deserialize(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator limit);
+};
+
 class statistics {
-	public: // data									// changed by:
-		struct {
-			int membership;							// reserved for user, e.g. from knowledgebase::count_resolved_queries()
-			int uniq_membership;						// reserved for user while resolving a query
-			int equivalence;						// reserved for user
-		} queries;
-
-		struct {
-			int bytes;	// bytes of algorithms data structure		// algorithm
-			int members;	// number of membership data			// algorithm
-			int words;	// number of words in table			// algorithm
-			int upper_table;// size of upper table (if appropriate)		// algorithm
-			int lower_table;// size of lower table (if appropriate)		// algorithm
-			int columns;	// columns (if appropriate)			// algorithm
-		} memory;
-
-		struct {
-			int cpu_sec;							// algorithm
-			int cpu_usec;							// algorithm
-			int sys_sec;							// algorithm
-			int sys_usec;							// algorithm
-		} time;
-
+	public: // data
+		query_statistics queries;
+		memory_statistics memory;
+		timing_statistics time;
 
 	public: // methods
-		statistics();
 		void reset();
 		basic_string<int32_t> serialize();
 		bool deserialize(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator limit);
