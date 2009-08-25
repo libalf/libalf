@@ -22,9 +22,9 @@ using namespace std;
 class statistics {
 	public: // data									// changed by:
 		struct {
-			int membership;							// knowledgebase
+			int membership;							// reserved for user, e.g. from knowledgebase::count_resolved_queries()
 			int uniq_membership;						// reserved for user while resolving a query
-			int equivalence;						// knowledgebase
+			int equivalence;						// reserved for user
 		} queries;
 
 		struct {
