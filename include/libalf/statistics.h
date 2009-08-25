@@ -20,11 +20,11 @@ namespace libalf {
 using namespace std;
 
 class query_statistics {
-	public:
+	public:	// data
 		int32_t membership;
 		int32_t uniq_membership;
 		int32_t equivalence;
-	public:
+	public:	// methods
 		query_statistics();
 		void reset();
 		basic_string<int32_t> serialize();
@@ -32,14 +32,14 @@ class query_statistics {
 };
 
 class memory_statistics {
-	public:
-		int32_t bytes;	// bytes of algorithms data structure
+	public:	// data
+		int32_t bytes;		// bytes of algorithms data structure
 		int32_t members;	// number of membership data
-		int32_t words;	// number of words in table
-		int32_t upper_table;// size of upper table (if appropriate)
-		int32_t lower_table;// size of lower table (if appropriate)
+		int32_t words;		// number of words in table
+		int32_t upper_table;	// size of upper table (if appropriate)
+		int32_t lower_table;	// size of lower table (if appropriate)
 		int32_t columns;	// columns (if appropriate)
-	public:
+	public:	// methods
 		memory_statistics();
 		void reset();
 		basic_string<int32_t> serialize();
@@ -47,12 +47,12 @@ class memory_statistics {
 };
 
 class timing_statistics {
-	public:
+	public:	// data
 		int32_t user_sec;
 		int32_t user_usec;
 		int32_t sys_sec;
 		int32_t sys_usec;
-	public:
+	public: // methods
 		timing_statistics();
 		void reset();
 		basic_string<int32_t> serialize();
