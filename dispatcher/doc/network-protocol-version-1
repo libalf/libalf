@@ -48,8 +48,8 @@ otherwise it is true.
 
 acceptance
 
-an acceptance is an int32_t interpreted in the following way: false = 0, unknown
-= 1, true = 2
+an acceptance is an int32_t interpreted in the following way:
+false = 0, unknown = 1, true = 2
 
 object-id
 
@@ -80,7 +80,7 @@ then for each parameter:
 
 
 
-	enum client_command_ids {
+	enum client_command {
 		CLCMD_REQ_CAPA = 0,
 		CLCMD_REQ_VERSION = 1,
 
