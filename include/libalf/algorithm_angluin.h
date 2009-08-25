@@ -542,7 +542,7 @@ class angluin_table : public learning_algorithm<answer> {
 						delete w;
 
 						if(*ai != a) {
-							printf("ERROR: undo: acceptances differ between revisions\n");
+							(*this->my_logger)(LOGGER_WARN, "angluin_table: undo: acceptances differ between revisions!\n");
 							*ai = a;
 						}
 					} else {

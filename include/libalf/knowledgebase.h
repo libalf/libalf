@@ -892,7 +892,7 @@ class knowledgebase {
 		bool undo(unsigned int count)
 		{{{
 			iterator it;
-printf("undo %d with current timestamp %d\n", count, timestamp);
+//			printf("undo %d with current timestamp %d\n", count, timestamp);
 			for(it = this->begin(); it != this->end(); it++)
 				if(it->timestamp >= (timestamp - (int)count))
 					it->ignore();
@@ -1164,14 +1164,12 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 			it++; if(it == limit) goto deserialization_failed;
 
 			resolved_queries = ntohl(*it);
-			if(resolved_queries < 0) { printf("$1\n"); goto deserialization_failed; };
-			it++; size--; if(it == limit) { printf("#2\n"); goto deserialization_failed; };
+			if(resolved_queries < 0) goto deserialization_failed;
+			it++; size--; if(it == limit) goto deserialization_failed;
 
 			// label of root-node should be -1
-			if((int32_t)(ntohl(*it)) != -1) {
-				printf("invalid root-label\n");
+			if((int32_t)(ntohl(*it)) != -1)
 				goto deserialization_failed;
-			}
 
 			if(!root->deserialize_subtree(it, limit, size))
 				goto deserialization_failed;
@@ -1438,7 +1436,7 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 							if(acceptances[trid.first].value == extended_bool::EBOOL_FALSE) {
 								list<int> word;
 								word = n->get_word();
-								printf("inconsistency in equivalence relation: %s\n", word2string(word).c_str());
+//								printf("inconsistency in equivalence relation: %s\n", word2string(word).c_str());
 								return false;
 							}
 							acceptances[trid.first].value = extended_bool::EBOOL_TRUE;
@@ -1447,7 +1445,7 @@ printf("undo %d with current timestamp %d\n", count, timestamp);
 								if(acceptances[trid.first].value == extended_bool::EBOOL_TRUE) {
 									list<int> word;
 									word = n->get_word();
-									printf("inconsistency in equivalence relation: %s\n", word2string(word).c_str());
+//									printf("inconsistency in equivalence relation: %s\n", word2string(word).c_str());
 									return false;
 								}
 								acceptances[trid.first].value = extended_bool::EBOOL_FALSE;
