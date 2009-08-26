@@ -13,7 +13,9 @@
 # define __libalf_learning_algorithm_h__
 
 #include <sys/time.h>
-#include <sys/resource.h>
+#ifndef _WIN32
+# include <sys/resource.h>
+#endif
 
 #include <list>
 #include <set>
