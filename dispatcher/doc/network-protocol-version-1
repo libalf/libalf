@@ -93,10 +93,10 @@ enum object_type {
 };
 
 enum logger_command {
-	LOGGER_SET_LOGLEVEL = 0,
-	LOGGER_LOG_KNOWLEDGEBASE = 10,
-	LOGGER_LOG_TABLE = 11,
-	LOGGER_RECEIVE_AND_FLUSH = 20,
+	LOGGER_RECEIVE_AND_FLUSH = 0,
+	LOGGER_SET_MIN_LOGLEVEL = 1,
+	LOGGER_LOG_ALGORITHM = 2,
+	LOGGER_NOT_LOG_ALGORITHM = 3,
 };
 
 enum knowledgebase_command {
@@ -181,13 +181,14 @@ the following commands exist:
 request capabilities (CLCMD_REQ_CAPA)
 no parameters.
 server returns:
-	string
+	character-string ( space-separated list of capabilities,
+			   e.g. "tls auth langen" )
 
 
 request server/library version string (CLCMD_REQ_VERSION)
 no parameters.
 server returns:
-	string
+	character-string
 
 
 disconnect from server (CLCMD_DISCONNECT)

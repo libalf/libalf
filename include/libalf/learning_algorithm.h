@@ -215,32 +215,45 @@ class learning_algorithm {
 		// derive an automaton from data structure
 		virtual bool derive_automaton(bool & is_dfa, int & alphabet_size, int & state_count, set<int> & initial, set<int> & final, multimap<pair<int, int>, int> & transitions) = 0;
 
-#ifdef _WIN32
-# define USAGE_SPECIFIER RUSAGE_SELF
-#else
+// FIXME: is _LINUX defined on linux?
+#ifdef _LINUX
 # define USAGE_SPECIFIER RUSAGE_THREAD
+#else
+# define USAGE_SPECIFIER RUSAGE_SELF
 #endif
 		virtual void start_timing()
 		{{{
 			if(do_timing && !in_timing) {
+#ifdef _WIN32
+				if(0 != gettimeofday(&start_utime, NULL))
+					return;
+
+#else
 				struct rusage ru;
 
 				if(0 != getrusage(USAGE_SPECIFIER, &ru))
 					return;
 
-				in_timing = true;
-
 				start_utime = ru.ru_utime;
 				start_stime = ru.ru_stime;
+#endif
+				in_timing = true;
 			}
 		}}}
 		virtual void stop_timing()
 		{{{
 			if(do_timing && in_timing) {
+				in_timing = false;
+#ifdef _WIN32
+				struct timeval tmp1, tmp2;
+				if(0 != gettimeofday(&tmp1, NULL))
+					return;
+				timersub(&tmp1, &start_utime, &tmp2);
+				current_stats.user_sec += tmp2.tv_sec;
+				current_stats.user_usec += tmp2.tv_usec;
+#else
 				struct rusage ru;
 				struct timeval tmp;
-
-				in_timing = false;
 
 				if(0 != getrusage(USAGE_SPECIFIER, &ru))
 					return;
@@ -252,6 +265,7 @@ class learning_algorithm {
 				timersub(&(ru.ru_stime), &start_stime, &tmp);
 				current_stats.sys_sec += tmp.tv_sec;
 				current_stats.sys_usec += tmp.tv_usec;
+#endif
 			}
 		}}}
 };
