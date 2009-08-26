@@ -1,6 +1,8 @@
 vim: tw=80 fo+=a
 
 
+PROTOCOL VERSION 1
+
 
 as of 2009-08-24, this is the current protocol for the dispatcher. for now, this
 protocol is a WORK-IN-PROGRESS until marked otherwise.
