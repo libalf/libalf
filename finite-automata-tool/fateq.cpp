@@ -27,7 +27,8 @@ using namespace libalf;
 
 void usage()
 {{{
-	cerr << "Finite Automata Tool: equivalence tester for automata\n"
+	cerr << "\n"
+		"Finite Automata Tool: equivalence tester for automata\n"
 		"\n"
 		"FAT Version "VERSION "\n"
 		"\n"
@@ -42,6 +43,7 @@ void usage()
 		"\n"
 		"Output options (via stdout):\n"
 		"\tdefault:\n"
+		"\t\t\toutput serial of discriminating word\n"
 		"\t-H or --human_readable_output\n"
 		"\t\t\tgenerate human readable version of automaton\n"
 		"\t\t\twrite discriminating word to stdout\n"

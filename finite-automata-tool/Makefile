@@ -7,21 +7,21 @@ PREFIX ?= /usr/local/
 
 LOCALCHANGES = $(shell test "`svn status | wc -c`" != "0" && echo "-LocalChanges")
 SVNREVISION = $(shell LC_ALL=POSIX svn info | awk '/^Revision:/ {print $$2}')
-VERSION=svn-r${SVNREVISION}${LOCALCHANGES}
+VERSION ?= svn-r${SVNREVISION}${LOCALCHANGES}
 
 CPPFLAGS+=-Wall -I../include/ -I${PREFIX}/include -ggdb3
 CPPFLAGS+=-D__cplusplus -DVERSION="\"${VERSION}\""
-LDFLAGS+=-L${PREFIX}/lib -llangen -lalf -lAMoRE++
+LDFLAGS+=-L${PREFIX}/lib
 
 OBJECTS=fat.o input.o transformation.o output.o
 
 all: fat fateq
 
 fat: $(OBJECTS)
-	g++ $(OBJECTS) $(LDFLAGS) -o $@
+	g++ $(OBJECTS) ${LDFLAGS} -llangen -lalf -lAMoRE++ -o $@
 
 fateq: fateq.o
-	g++ fateq.o ${LDFLAGS} -o $@
+	g++ fateq.o ${LDFLAGS} -lalf -lAMoRE++ -o $@
 
 clean: nodata
 	-rm -f fat fateq *.o
