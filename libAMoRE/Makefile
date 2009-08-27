@@ -2,17 +2,24 @@
 #  2008, 2009 David R. Piegdon <david-i2@piegdon.de>
 ############################################################################
 
-LIBDIR?=/usr/lib
-DOCDIR?=/usr/share/doc
-HEADER_INSTALLDIR?=/usr/include
-#-ggdb3
-CFLAGS+= -DDEBUG -DJAVAEXCEPT -DLIBAMORE -DUNIX -DLINUX -DBIT32
-CFLAGS+= -Wall
-CFLAGS+= -Iinclude
-CFLAGS+= -fno-stack-protector
-CFLAGS+= -ggdb3 -fpic
+PREFIX ?= /usr/local
 
-LDFLAGS+= -ggdb3 -fpic -shared
+LIBDIR ?= ${PREFIX}/lib
+DOCDIR ?= ${PREFIX}/share/doc
+HEADERDIR ?= ${PREFIX}/include
+
+LOCALCHANGES = $(shell test "`svn status | wc -c`" != "0" && echo "-LocalChanges")
+SVNREVISION = $(shell LC_ALL=POSIX svn info | awk '/^Revision:/ {print $$2}')
+VERSION ?= svn-r${SVNREVISION}${LOCALCHANGES}
+
+CFLAGS += -DDEBUG -DJAVAEXCEPT -DLIBAMORE -DUNIX -DLINUX -DBIT32
+CFLAGS += -DVERSION="\"${VERSION}\""
+CFLAGS += -Wall -Iinclude -fpic
+CFLAGS += -fno-stack-protector
+CFLAGS += -ggdb3
+
+LDFLAGS += -fpic -shared
+LDFLAGS += -ggdb3
 
 # data objects
 LdoOBJ = nfa.o dfa.o regexp.o sfexp.o mon.o language.o rexFromString.o
@@ -63,13 +70,14 @@ install-docs: docs/html/index.html
 
 uninstall:
 	rm -f $(LIBDIR)/libAMoRE.a
-	rm -f $(HEADER_INSTALLDIR)/amore/*.h
+	rm -f $(HEADERDIR)/amore/*.h
 
 exportHeaders:
-	install -d $(HEADER_INSTALLDIR)/amore
-	cp include/amore/* $(HEADER_INSTALLDIR)/amore
-	chmod 644 ${HEADER_INSTALLDIR}/amore/*
+	install -d $(HEADERDIR)/amore
+	cp include/amore/* $(HEADERDIR)/amore
+	chmod 644 ${HEADERDIR}/amore/*
 
 clean:
 	-rm -f *~ */*~ $(OBJ) libAMoRE.a libAMoRE.so
 	-rm -Rf docs/html docs/latex 
+
