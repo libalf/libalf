@@ -14,12 +14,13 @@
 
 #include <libalf/alphabet.h>
 #include <libalf/answer.h>
+#include <libalf/automaton.h>
 #include <libalf/basic_string.h>
+#include <libalf/knowledgebase.h>
 #include <libalf/learning_algorithm.h>
 #include <libalf/logger.h>
 #include <libalf/normalizer.h>
 #include <libalf/statistics.h>
-#include <libalf/knowledgebase.h>
 
 namespace libalf {
 

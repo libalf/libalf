@@ -16,10 +16,9 @@
 
 #include <getopt.h>
 
-#include <amore++/nondeterministic_finite_automaton.h>
-#include <libalf/alphabet.h>
-#include <libalf/automaton.h>
-#include <libalf/basic_string.h>
+#include <libalf/alf.h>
+#include <amore++/amore.h>
+#include <amore/global.h>
 
 using namespace std;
 using namespace amore;
@@ -31,7 +30,10 @@ void usage()
 		"Finite Automata Tool: equivalence tester for automata\n"
 		"\n"
 		"FAT Version "VERSION "\n"
-		"\n"
+	     << libalf::libalf_version() << "\n"
+	     << libamore_version() << "\n"
+	     << amore::libamorepp_version() << "\n"
+	     << "\n"
 		"Input options (via stdin):\n"
 		"\t-1 or --first\n"
 		"\t\t\tfilename of first automaton\n"

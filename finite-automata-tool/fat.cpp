@@ -14,6 +14,9 @@
 #include <getopt.h>
 
 #include <libalf/alf.h>
+#include <liblangen/langen.h>
+#include <amore/global.h>
+#include <amore++/amore.h>
 
 #include "fat.h"
 
@@ -22,9 +25,11 @@ void usage()
 	cerr << "Finite Automata Tool\n"
 		"\n"
 		"FAT Version "VERSION "\n"
-	     << libalf_version()
+	     << libalf::libalf_version() << "\n"
+	     << libamore_version() << "\n"
+	     << liblangen::liblangen_version() << "\n"
+	     << amore::libamorepp_version() << "\n"
 	     << "\n"
-		"\n"
 		"Input options (via stdin):\n"
 		"\tdefault:\n"
 		"\t\t\tread serialized automaton\n"
