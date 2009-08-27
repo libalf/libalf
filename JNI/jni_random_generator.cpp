@@ -22,12 +22,12 @@
 
 #include <jni.h>
 
-#include <LanguageGenerator/DFArandomgenerator.h>
+#include <liblangen/dfa_randomgenerator.h>
 
 using namespace std;
-using namespace LanguageGenerator;
+using namespace liblangen;
 
-static DFArandomgenerator RAgen;
+static dfa_randomgenerator RAgen;
 
 JNIEXPORT jobject JNICALL Java_de_libalf_jni_RandomGenerator_createRandomDFA_1private (JNIEnv *env, jclass cl, jint numberOfStates, jint alphabetSize) {
 	/*

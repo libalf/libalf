@@ -16,7 +16,7 @@ ifeq (${OS}, Windows_NT)
 
   LDFLAGS = -static -lalf -llangen -dynamic -L${PREFIX}/lib
   LDFLAGS += -lgmpxx -lgmp -lwsock32
-  LDFLAGS += -L../src -L../LanguageGenerator/src
+  LDFLAGS += -L../src -L../liblangen/src
 
   TARGET=alf_jni.dll
 else
@@ -31,7 +31,7 @@ else
   TARGET=libalf_jni.so
 endif
 
-CPPFLAGS += -I../include -I../LanguageGenerator/include
+CPPFLAGS += -I../include -I../liblangen/include
 CPPFLAGS += -shared -fPIC -I${PREFIX}/include -I${JAVA_INCLUDE}
 
 OBJECTS = jni_knowledgebase.o jni_algorithm.o jni_algorithm_angluin.o jni_algorithm_angluin_column.o jni_algorithm_biermann_minisat.o jni_algorithm_nlstar.o jni_algorithm_rpni.o jni_buffered_logger.o jni_tools.o jni_libalf_object.o jni_query_iterator.o jni_random_generator.o
@@ -43,7 +43,7 @@ libalf_jni.so: ${OBJECTS}
 
 alf_jni.dll: ${OBJECTS}
 	make -C ../src libalf.a
-	make -C ../LanguageGenerator/src liblangen.a
+	make -C ../liblangen/src liblangen.a
 	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} ${LDFLAGS} -o $@ -Wl,--kill-at
 #	                                                         ^^^^^^^^^^^^^ sonst klappt JNI-DLL nicht (http://www.mingw.org/wiki/JNI-MinGW-DLL)
 
