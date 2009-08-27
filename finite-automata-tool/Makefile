@@ -23,9 +23,11 @@ fat: $(OBJECTS)
 fateq: fateq.o
 	g++ fateq.o ${LDFLAGS} -o $@
 
-clean:
-	-rm fat fateq *.o
-	-rm *.dot *.jpg
+clean: nodata
+	-rm -f fat fateq *.o
+
+nodata:
+	-rm -f *.dot *.jpg
 
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;
