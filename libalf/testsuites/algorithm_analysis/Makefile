@@ -12,13 +12,10 @@ LDFLAGS+=-L../../src -L${PREFIX}/lib -lalf -lAMoRE++ -llangen
 all: algorithm_analysis
 
 clean: nodata
-	-rm *.o
-	-rm algorithm_analysis
+	-rm -f *.o algorithm_analysis
 
 nodata:
-	-rm *.dot
-	-rm statistics stats_a2m0 stats_a2m1 stats_a2m2 stats_a3m0 stats_a3m1 stats_a3m2 stats_a4m0 stats_a4m1 stats_a4m2
-	-rm *.jpg
+	-rm -f *.dot *.jpg statistics stats_a2m0 stats_a2m1 stats_a2m2 stats_a3m0 stats_a3m1 stats_a3m2 stats_a4m0 stats_a4m1 stats_a4m2
 
 plot:
 	gawk '/^[^ ]+ 2 0/ { print $0 }' statistics > stats_a2m0

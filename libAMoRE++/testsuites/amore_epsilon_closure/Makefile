@@ -12,12 +12,10 @@ LDFLAGS+=-L../../src -L${PREFIX}/lib -lAMoRE++
 all: epsilon_closure
 
 clean: nodata
-	-rm *.o
-	-rm epsilon_closure
+	-rm -f *.o epsilon_closure
 
 nodata:
-	-rm *.dot
-	-rm *.jpg
+	-rm -f *.dot *.jpg
 
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;

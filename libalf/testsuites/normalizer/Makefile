@@ -12,8 +12,7 @@ LDFLAGS+=-L../../src -L${PREFIX}/lib -lalf
 all: normalizer
 
 clean:
-	-rm *.o
-	-rm normalizer
+	-rm -f *.o normalizer
 
 normalizer: normalizer.cpp
 

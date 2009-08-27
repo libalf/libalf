@@ -12,14 +12,10 @@ LDFLAGS+=-L../../src -L${PREFIX}/lib -lAMoRE++
 all: amore_serialization
 
 clean: nodata
-	-rm *.o
-	-rm amore_serialization
+	-rm -f *.o amore_serialization
 
 nodata:
-	-rm *.dot
-	-rm *.jpg
-	-rm *.angluin
-	-rm testlog
+	-rm -f *.dot *.jpg
 
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;

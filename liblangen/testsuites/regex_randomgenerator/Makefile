@@ -12,12 +12,10 @@ LDFLAGS+=-L../../src -L${PREFIX}/lib -llangen -lAMoRE++
 all: regex_randomgenerator
 
 clean: nodata
-	-rm *.o
-	-rm regex_randomgenerator
+	-rm -f *.o regex_randomgenerator
 
 nodata:
-	-rm *.dot
-	-rm *.jpg
+	-rm -f *.dot *.jpg
 
 run:
 	LD_LIBRARY_PATH=../../src ./regex_randomgenerator

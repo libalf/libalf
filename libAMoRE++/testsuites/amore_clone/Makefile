@@ -12,14 +12,10 @@ LDFLAGS+=-L../../src -L${PREFIX}/lib -lAMoRE++
 all: amore_clone
 
 clean: nodata
-	-rm *.o
-	-rm amore_clone
+	-rm -f *.o amore_clone
 
 nodata:
-	-rm *.dot
-	-rm *.jpg
-	-rm *.angluin
-	-rm testlog
+	-rm -f *.dot *.jpg testlog
 
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;

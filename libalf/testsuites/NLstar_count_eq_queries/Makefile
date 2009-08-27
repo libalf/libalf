@@ -12,14 +12,10 @@ LDFLAGS+=-L../../src -L${PREFIX}/lib -lalf -lAMoRE++ -llangen
 all: count_eq_queries count_eq_queries_random
 
 clean: nodata
-	-rm *.o
-	-rm count_eq_queries
-	-rm count_eq_queries_random
+	-rm -f *.o count_eq_queries count_eq_queries_random
 
 nodata:
-	-rm *.dot
-	-rm *.jpg
-	-rm *.atm
+	-rm -f *.dot *.jpg *.atm
 
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;

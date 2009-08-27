@@ -28,9 +28,7 @@ liblangen.a: ${OBJECTS}
 	ar rcs $@ $(OBJECTS)
 
 clean:
-	-rm *.o
-	-rm liblangen.so
-	-rm liblangen.a
+	-rm -f *.o liblangen.so liblangen.a
 
 install: liblangen.so
 	echo installing liblangen library to ${PREFIX}/lib/

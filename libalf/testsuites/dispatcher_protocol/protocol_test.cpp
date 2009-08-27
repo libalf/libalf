@@ -9,6 +9,8 @@
 #include <netdb.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <unistd.h>
+#include <stdlib.h>
 
 using namespace std;
 

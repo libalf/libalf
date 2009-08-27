@@ -12,12 +12,10 @@ LDFLAGS+=-L../../src -L${PREFIX}/lib -llangen -lalf
 all: dfa_enumerator
 
 clean: nodata
-	-rm *.o
-	-rm dfa_enumerator
+	-rm -f *.o dfa_enumerator
 
 nodata:
-	-rm *.dot
-	-rm *.jpg
+	-rm -f *.dot *.jpg
 
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;

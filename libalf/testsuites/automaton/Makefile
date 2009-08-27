@@ -12,12 +12,10 @@ LDFLAGS+=-L../../src -L${PREFIX}/lib -lalf -lAMoRE++ -llangen
 all: automaton
 
 clean: nodata
-	-rm *.o
-	-rm automaton
+	-rm -f *.o automaton
 
 nodata:
-	-rm *.dot
-	-rm *.jpg
+	-rm -f *.dot *.jpg
 
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;

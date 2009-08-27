@@ -26,8 +26,7 @@ libAMoRE++.so: ${OBJECTS}
 #	ld ${OBJECTS} ${LDFLAGS} -o $@
 
 clean:
-	-rm *.o
-	-rm libAMoRE++.so
+	-rm -f *.o libAMoRE++.so
 
 install: libAMoRE++.so
 	echo installing libAMoRE++ to ${PREFIX}/lib/

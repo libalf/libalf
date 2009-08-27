@@ -29,9 +29,7 @@ libalf.a: ${OBJECTS}
 	ar rcs $@ $(OBJECTS)
 
 clean:
-	-rm *.o
-	-rm libalf.so
-	-rm libalf.a
+	-rm -f *.o libalf.so libalf.a
 
 install: libalf.so
 	echo installing libalf library to ${PREFIX}/lib/

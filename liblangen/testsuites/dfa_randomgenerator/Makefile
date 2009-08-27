@@ -12,12 +12,10 @@ LDFLAGS+=-L../../src -L${PREFIX}/lib -llangen -lAMoRE++
 all: dfa_randomgenerator performance_tester
 
 clean: nodata
-	-rm *.o
-	-rm dfa_randomgenerator performance_tester
+	-rm -f *.o dfa_randomgenerator performance_tester
 
 nodata:
-	-rm *.dot
-	-rm *.jpg
+	-rm -f *.dot *.jpg
 
 run:
 	LD_LIBRARY_PATH=../../src ./dfa_randomgenerator

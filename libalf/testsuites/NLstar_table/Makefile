@@ -12,14 +12,10 @@ LDFLAGS+=-L../../src -L${PREFIX}/lib -lalf -lAMoRE++
 all: learn_regex learn_static learn_file
 
 clean: nodata
-	-rm *.o
-	-rm learn_regex learn_static learn_file
+	-rm -f *.o learn_regex learn_static learn_file
 
 nodata:
-	-rm *.dot
-	-rm *.jpg
-	-rm *.NLstar
-	-rm testlog
+	-rm -f *.dot *.jpg *.NLstar testlog
 
 run:
 	LD_LIBRARY_PATH=../../src ./learn_regex
