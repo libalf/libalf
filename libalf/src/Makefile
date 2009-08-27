@@ -22,7 +22,7 @@ OBJECTS=alf.o alphabet.o answer.o automaton.o basic_string.o logger.o minisat_so
 all:	libalf.so
 
 libalf.so: ${OBJECTS}
-	g++ $(OBJECTS) -Xlinker -soname=libalf $(LDFLAGS) -o $@ 
+	g++ $(OBJECTS) $(LDFLAGS) -o $@ 
 
 libalf.a: ${OBJECTS}
 	ar rcs $@ $(OBJECTS)

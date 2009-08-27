@@ -47,5 +47,5 @@ glue
 
 the preferred order of installation is (of course):
 
-libAMoRE, libAMoRE++, liblangen, libalf, finite-automata-tools
+libAMoRE, libAMoRE++, liblangen, libalf, finite-automata-tool
 

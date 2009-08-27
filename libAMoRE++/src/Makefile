@@ -22,7 +22,7 @@ OBJECTS=generic.o finite_automaton.o nondeterministic_finite_automaton.o determi
 all:	libAMoRE++.so
 
 libAMoRE++.so: ${OBJECTS}
-	g++ $(OBJECTS) -Xlinker -soname=libAMoRE++ $(LDFLAGS) -o $@
+	g++ $(OBJECTS) $(LDFLAGS) -o $@
 
 clean:
 	-rm -f *.o libAMoRE++.so
