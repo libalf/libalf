@@ -27,3 +27,14 @@ void _fini()
 	freebuf();
 }
 
+namespace amore {
+
+static const char* libamorepp_version_string = "libAMoRE++ version " VERSION;
+
+const char* libamorepp_version()
+{{{
+	return libamorepp_version_string;
+}}}
+
+}; // end of namespace amore
+

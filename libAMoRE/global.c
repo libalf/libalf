@@ -20,6 +20,13 @@
 #include <amore/global.h>
 #include <amore/buffer.h>
 
+static const char* libamore_version_string = "libAMoRE version " VERSION;
+
+const char* libamore_version()
+{{{
+	return libamore_version_string;
+}}}
+
 void OUT_OF_MEM()
 {
 	buffree();

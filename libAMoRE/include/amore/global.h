@@ -34,12 +34,16 @@ extern jmp_buf _jmp;
 
 void OUT_OF_MEM();
 
+
+/** get version string of libAMoRE
+ */
+const char* libamore_version();
+
 /* ------------------------------------------------- extern variables */
 
 #include <amore/ext.h>
 
 /* ------------------------------------  some funcs for basic typedefs */
-
 
 /** allocates a new array_of_int of mkrfin
  */
