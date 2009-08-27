@@ -165,8 +165,8 @@ monoid dfa2mon(dfa indfa)
 	}			/* end while */
 /* store the results in arrays */
 	mon->mno = nextno;
-	mon->gensucc = newarray1(nextno);
-	mon->no2trans = newarray1(nextno);
+	mon->gensucc = newarray_of_int1(nextno);
+	mon->no2trans = newarray_of_int1(nextno);
 	mon->no2length = newar(nextno);
 	mon->lastletter = newar(nextno);
 /* identity */

@@ -61,8 +61,8 @@ boole equiv(dfa dfa1, dfa dfa2)
 	stateno2 = dfa2->highest_state + 1;
 	if(stateno1 != stateno2)
 		return (FALSE);
-	bijection = newarray(stateno1 + 1);
-	stack = newarray(stateno1 + 1);
+	bijection = newarray_of_int(stateno1 + 1);
+	stack = newarray_of_int(stateno1 + 1);
 	mark1 = newb_array(stateno1 + 1);
 	mark2 = newb_array(stateno1 + 1);
 	mark1[dfa1->init] = TRUE;
@@ -124,7 +124,7 @@ boole inclusion(dfa dfa1, dfa dfa2, boole inclusion)
 	posint last;		/* last pair in list */
 	posint actuel;		/* abbreviation  for pair(q1,q2) */
 	posint max = 1 + (dfa1->highest_state + 1) * (dfa2->highest_state + 1);	/* endmarker */
-	mark = newarray(max);
+	mark = newarray_of_int(max);
 	actuel = 1 + q1 + (q2 * (dfa1->highest_state + 1));
 	last = actuel;
 	mark[last] = max;	/* mark (q1,q2) */

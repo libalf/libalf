@@ -25,14 +25,53 @@ most notable changes:
 	* rename of some fields in nfauto and dfauto
 	  (highest_state and alphabet_size)
 
-	* initial fixes to make the source compile (some extern declaration
-	  problems)
-
 	* AMoRE-1.0 cluttered the namespace:
-	  it had a `struct set' in nfa2mnfa_types.h. this has been renamed to
-	  not conflict with C++'s set-template.
+	  it had the following types, makros or functions defined:
+
+	  struct set;
+		was renamed to struct ptset_s
+		(include/amore/nfa2mnfa_types.h)
+
+	  string;
+		STILL EXISTS!
+		(include/amore/typedefs.h>
+	  newstring;
+		STILL EXISTS!
+		(include/amore/ext.h>
+
+	  newarray1;
+		renamed to newarray_of_int1
+		(global.c and include/amore/global.h)
+
+
+	  arrayofstring;
+		was renamed to array_of_c_string
+		(include/amore/typedefs.h>
+	  newarrayofstring;
+		was renamed to newarray_of_c_string
+		(include/amore/ext.h)
+
+	  array;
+		STILL EXISTS!
+		(include/amore/typedefs.h>
+	  newarray;
+		was renamed to newarray_of_int
+		(include/amore/ext.h>
+
+	  arrayofarray;
+		was renamed to array_of_int_array
+		(include/amore/typedefs.h>
+	  newarrayofarray;
+		was renamed to newarray_of_int_array
+		(include/amore/ext.h>
+
 
 	* remove of required external symbols
+
+	* initial fixes to make the source compile (some extern declaration
+	  problems: itoc, dummy, ... in include/amore/ext.h)
+
+	* `` extern "C" '' markers for all headers
 
 	* indentation / code formatting
 
@@ -47,5 +86,5 @@ most notable things NOT changed:
 	  pointer (which is reasonable), free it.
 
 	* AMoRE-1.0 still clutterst the namespace:
-	  it typedefs `char*' to `string'. this will be removed soon enough.
+	  see above that are marked as ``STILL EXISTS''
 

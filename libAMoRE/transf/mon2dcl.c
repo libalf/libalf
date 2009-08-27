@@ -55,8 +55,8 @@ static array sufarray, prearray;
 
 /* only for computation of regular dclasses */
 static posint maximage, maxkernel;	/* maximal number of stored images (kernels) */
-static arrayofarray imagearray;	/* two-dimensional arrays , second dimension */
-static arrayofarray kernelarray;	/* only up to maximage  (maxkernel) */
+static array_of_int_array imagearray;	/* two-dimensional arrays , second dimension */
+static array_of_int_array kernelarray;	/* only up to maximage  (maxkernel) */
 static posint imnumber, kernumber;	/* actual number of stored images (kernels)
 					 * set in searchimage/ searchkernel  */
 static posint goodkernel;	/* number of kernels that represent r-classes
@@ -79,21 +79,21 @@ posint Q, K;			/* maximal size of images and kernels */
 
 static void initstatic()
 {
-	suffix = newarray(stamon->mno + 1);
-	prefix = newarray(stamon->mno + 1);
-	h_class = newarray(stamon->mno + 1);
-	hstack = newarray(stamon->mno + 1);
+	suffix = newarray_of_int(stamon->mno + 1);
+	prefix = newarray_of_int(stamon->mno + 1);
+	h_class = newarray_of_int(stamon->mno + 1);
+	hstack = newarray_of_int(stamon->mno + 1);
 	r_class = h_class;	/* different names in computation of regular and irregular d_classes */
 	l_class = hstack;
-	kernelarray = newarrayofarray(stamon->mno);
-	imagearray = newarrayofarray(stamon->mno);
+	kernelarray = newarray_of_int_array(stamon->mno);
+	imagearray = newarray_of_int_array(stamon->mno);
 	mark = newb_array(stamon->mno);
-	no2rang = newarray(stamon->mno);
+	no2rang = newarray_of_int(stamon->mno);
 	isindclass = newb_array(stamon->mno);
 	Q = stamon->highest_state + 1;
 	K = 2 * Q;
-	countimage = newarray(Q);
-	countkernel = newarray(Q);
+	countimage = newarray_of_int(Q);
+	countkernel = newarray_of_int(Q);
 	stamon->ds = newdstruct();
 	letterlength = (stamon->alphabet_size <= ALPHSIZE) ? 1 : (1 + strlen(pi2a(stamon->alphabet_size)));
 	maximage = 0;
@@ -155,7 +155,7 @@ posint element;
 			countimage[a[j]] = 1;
 		/* countimage[j]!=0 iff state j is an image */
 		if(maximage == imnumber)
-			imagearray[maximage++] = newarray(Q);
+			imagearray[maximage++] = newarray_of_int(Q);
 		for (j = 0; j < Q; j++)
 			if(countimage[j]) {
 				imagearray[imnumber][rang++] = j;
@@ -194,7 +194,7 @@ posint element;
  */
 		if(no2rang[element] == currentrang) {
 			if(maxkernel == kernumber)
-				kernelarray[maxkernel++] = newarray(K);
+				kernelarray[maxkernel++] = newarray_of_int(K);
 			for (j = 0; j < Q; j++) {
 				image = a[j];
 				if(countimage[image])
@@ -924,11 +924,11 @@ void mon2dcl(monoid mon)
 	/* compute all irregular dclasses */
 	help = stamon->mno - regcount;
 	if(help) {		/* help = number of irregular elements */
-		rlqueue = newarray(help);
-		harray = newarray(help);
-		prearray = newarray(help);
+		rlqueue = newarray_of_int(help);
+		harray = newarray_of_int(help);
+		prearray = newarray_of_int(help);
 		sufarray = prearray;
-		pred = newarray(help);
+		pred = newarray_of_int(help);
 		for (element = 0; element < stamon->mno;)
 			mark[element++] = FALSE;
 		/*    element is an irregular element <=> !isindclass[element] */

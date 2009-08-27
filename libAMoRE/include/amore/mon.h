@@ -67,7 +67,7 @@ struct d_struct {
     /** height of d-class partial order */
 	posint height;
     /** partialorder */
-	arrayofarray partial;
+	array_of_int_array partial;
     /** number of succ */
 	array numberofsucc;
 };
@@ -105,12 +105,12 @@ struct mono {
      */
 	array let2gen;
     /** transf_ of elements(0 to mno-1, 0 to highest_state) */
-	arrayofarray no2trans;
+	array_of_int_array no2trans;
     /** gensucc[i][0]= predecessor of i
      *
      *  gensucc[i][gen]=i*gen (0 to mno-1,0gno)
      */
-	arrayofarray gensucc;
+	array_of_int_array gensucc;
     /** last letter of a shortest
      *  representation of a element (0 to mno-1)
      */

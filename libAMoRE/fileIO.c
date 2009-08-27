@@ -691,10 +691,10 @@ static boole rdinsf(register starfexp csf, posint mno)
 	csf->vlength = newar(mno);
 	csf->w0length = newar(mno);
 	csf->w1length = newar(mno);
-	csf->u = newarray1(mno);
-	csf->v = newarray1(mno);
-	csf->w0 = newarray1(mno);
-	csf->w1 = newarray1(mno);
+	csf->u = newarray_of_int1(mno);
+	csf->v = newarray_of_int1(mno);
+	csf->w0 = newarray_of_int1(mno);
+	csf->w1 = newarray_of_int1(mno);
 	csf->computed = newbarray(mno);
 
 	/* "STARFREE EXPRESSION: LENGTH OF U\n" */
@@ -1197,8 +1197,8 @@ static boole rdinmon(register monoid cmon)
 
 	cmon->generator = newar(cmon->gno + 1);
 	cmon->let2gen = newar(cmon->alphabet_size + 1);
-	cmon->gensucc = newarray1(cmon->mno);
-	cmon->no2trans = newarray1(cmon->mno);
+	cmon->gensucc = newarray_of_int1(cmon->mno);
+	cmon->no2trans = newarray_of_int1(cmon->mno);
 	for (i = 0; i < cmon->mno;) {
 		cmon->gensucc[i] = newar(cmon->gno);
 		cmon->no2trans[i++] = newar(cmon->highest_state);

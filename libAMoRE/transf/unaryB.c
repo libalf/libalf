@@ -152,7 +152,7 @@ dfa minL(dfa indfa)
 	 * old2new[q] = 0 iff q is a final state in indfa
 	 * old2new[q] = k iff q is the kth nonfinal state in indfa
 	 */
-	old2new = newarray(indfa->highest_state + 1);
+	old2new = newarray_of_int(indfa->highest_state + 1);
 	for (i = 0; i <= indfa->highest_state; i++)
 		if(!indfa->final[i])
 			old2new[i] = ++count;

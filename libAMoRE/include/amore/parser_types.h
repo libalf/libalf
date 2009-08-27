@@ -82,9 +82,9 @@ struct str_grammar {
 	char startsymbol;
 	RULE *rules;
 	IdGroup *fident_list;
-	arrayofstring ident_list;
-	arrayofstring operator_list;
-	arrayofstring prefix_list;
+	array_of_c_string ident_list;
+	array_of_c_string operator_list;
+	array_of_c_string prefix_list;
 	posint maxid;
 	posint maxidlen;
 	posint maxop;
@@ -197,13 +197,13 @@ struct str_parse_input {
 	string id_list;
 	posint maxid;
   /** Stringarray with the rules of the grammar */
-	arrayofstring rules;
+	array_of_c_string rules;
   /** Number of rules in the grammar */
 	posint maxrule;
   /** Startsymbol of the grammar */
 	char startsymbol;
   /** Precedence relation */
-	arrayofarray precedence;
+	array_of_int_array precedence;
   /** Input, that shall be parsed */
 	strstack buf;
   /** Mapping {operators}->|{operators}| */
@@ -239,7 +239,7 @@ typedef struct str_express *EXPRESS;
 #define newbuf_array(N) ((array) newbuf(N, sizeof(posint)))
 
 /*! undocumented */
-#define newbuf_strar(N) ((arrayofstring) newbuf(N, sizeof(string)))
+#define newbuf_strar(N) ((array_of_c_string) newbuf(N, sizeof(string)))
 
 /*! undocumented */
 #define newbuf_string(N) ((string) newbuf(N, sizeof(char)))

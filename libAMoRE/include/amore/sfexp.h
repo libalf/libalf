@@ -35,13 +35,13 @@ struct sexp {
     /**  indexed 0 to mno-1 */
 	array w1length;
     /** length of u[x] :   2*ulength[x]   element,generator */
-	arrayofarray u;
+	array_of_int_array u;
     /** length of v[x] :   2*vlength[x]   generator,element */
-	arrayofarray v;
+	array_of_int_array v;
     /** length of w0[x] :   3*w0length[x]  generator,element,generator */
-	arrayofarray w0;
+	array_of_int_array w0;
     /** length of w1[x] :   1*w1length[x]     */
-	arrayofarray w1;
+	array_of_int_array w1;
     /** 0 to mno-1 */
 	b_array computed;
 };

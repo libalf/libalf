@@ -60,9 +60,9 @@ static void S_to_i()
 	array old, new, change;
 	array s_to_i;
 	posint number, oldnumber;	/* size of S^{i+1} , S^i */
-	s_to_i = newarray(stamon->mno);
-	old = newarray(stamon->mno);
-	new = newarray(stamon->mno + 1);
+	s_to_i = newarray_of_int(stamon->mno);
+	old = newarray_of_int(stamon->mno);
+	new = newarray_of_int(stamon->mno + 1);
 	for (s = 1, pos = 0; s < stamon->mno; s++, pos++) {
 		new[pos] = s;
 		s_to_i[s] = 1;
@@ -286,9 +286,9 @@ monoid mon;
 	b_array image;		/* mark elements in the image */
 	array help;		/* contains the elements of the image */
 	posint i, j, rang;
-	arrayofarray a = mon->no2trans;	/* abbreviation */
+	array_of_int_array a = mon->no2trans;	/* abbreviation */
 	image = newb_array(mon->highest_state + 1);
-	help = newarray(mon->highest_state + 1);
+	help = newarray_of_int(mon->highest_state + 1);
 	for (i = 0; i < mon->mno; i++) {	/* for all m in M .. */
 		rang = 0;
 		group = TRUE;
@@ -378,7 +378,7 @@ static void idemcompute()
 	idemcount = 0;
 	begin = (stamon->mequals) ? 0 : 1;
 	testidem = newb_array(stamon->mno);
-	idem = newarray(stamon->mno);
+	idem = newarray_of_int(stamon->mno);
 	for (elem = begin; elem < stamon->mno; elem++)
 		if(idempotent(elem, stamon)) {
 			testidem[elem] = TRUE;
@@ -518,7 +518,7 @@ void proptest(language lan, monoid mon)
 		if(!(lan->definite || lan->revdefinite)) {
 			/* get free memory for eSetest */
 			eSemark = newb_array(stamon->mno);
-			eSeplace = newarray(stamon->mno);	/* free memory for eSetest */
+			eSeplace = newarray_of_int(stamon->mno);	/* free memory for eSetest */
 			for (i = 0; i < idemcount; i++)
 				if(!halfzero[i]) {	/* e is a halfzero => eSe = e */
 					test = eSetest(idem[i]);
@@ -576,8 +576,8 @@ boole testdd1(monoid mon)
 	/* compute idempotent elements */
 	idemcompute();
 	/* computation of the faktor-power of each element */
-	mnopower = newarray(stamon->mno);
-	help = newarray(stamon->mno);
+	mnopower = newarray_of_int(stamon->mno);
+	help = newarray_of_int(stamon->mno);
 	/* help[i]=i^1  mnopower[i]=i^0 */
 	for (i = 0; i < stamon->mno; i++) {
 		help[i] = i;

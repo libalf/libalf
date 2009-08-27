@@ -81,7 +81,7 @@ static term help_term;
 
 /* The following variables are used for finding a minimal    */
 /* solution in calculate_minimal_set.                        */
-static arrayofarray T;
+static array_of_int_array T;
     /* T is used for storing the variables of the boolean    */
     /* sums in a matrix. T[i][j](==k) is the (j+1)-th        */
     /* variable of the i-th term. It is k<REST since only    */
@@ -184,8 +184,8 @@ ptset i_gr, f_gr;		/* Testelem(i,i_gr) iff grid i considered   */
 	GITTER = G;
 	NECESSARY = N;
 	REST = R;
-	term_array = newarray(REST);
-	start = newarray(REST + 1);
+	term_array = newarray_of_int(REST);
+	start = newarray_of_int(REST + 1);
 	new_term(help_term);
 	actcomplemented = GITTER;
 	/* Calculate list of boolean sums. */
@@ -575,7 +575,7 @@ static void append_term()
 	new_termlist(last->next);	/* New last element. */
 	last->next->bef = last;
 	last = last->next;
-	last->info = newarray(nv);
+	last->info = newarray_of_int(nv);
 	/* Now copy information. */
 	for (count = 0; count < nv; count++)
 		last->info[count] = term_array[count];
@@ -595,7 +595,7 @@ static void init_termlist()
 	number = 1;
 	new_termlist(first);
 	last = first;
-	first->info = newarray(nv);
+	first->info = newarray_of_int(nv);
 	/* Now copy information. */
 	first->nv = nv;
 	for (count = 0; count < nv; count++)
@@ -635,8 +635,8 @@ termlist run;
 static void copy_list()
 {
 	posint count;
-	T = newarrayofarray(number + 1);
-	NV = newarray(number + 1);
+	T = newarray_of_int_array(number + 1);
+	NV = newarray_of_int(number + 1);
 	run = first;
 	/* Now copy information. */
 	for (count = 1; count <= number; count++, run = run->next) {
@@ -665,10 +665,10 @@ static ptset calculate_minimal_set()
 {
 	posint variable, i;
 	ptset current_best;	/* Used for storing the best solution so far. */
-	lock = newarray(REST);
-	startlevel = newarray(REST);
-	nextlevel = newarray(number + 2);
-	collection = newarray(number + 2);
+	lock = newarray_of_int(REST);
+	startlevel = newarray_of_int(REST);
+	nextlevel = newarray_of_int(number + 2);
+	collection = newarray_of_int(number + 2);
 	novar = 0;
 	actlevel = 1;
 	/* start with all terms without complemented variable */
@@ -1080,7 +1080,7 @@ nfa f;
 	result->highest_state = j + NECESSARY - 1;
 	result->delta = newndelta(result->alphabet_size, result->highest_state);
 	result->infin = newfinal(result->highest_state);
-	old2new = newarray(REST);
+	old2new = newarray_of_int(REST);
 	i = 0;
 	k = NECESSARY;
 	while(j != 0) {

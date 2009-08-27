@@ -140,7 +140,7 @@ void mon2rel(monoid mon)
 	boole new;
 	posint i, gen, zero;
 	posint countrel = 0;	/* count number of relations in list relfirst */
-	arrayofarray succ = mon->gensucc;
+	array_of_int_array succ = mon->gensucc;
 	reltree relfirst, rellast;	/* first and last relation in list of relations */
 	reltree rel;
 	stamon = mon;

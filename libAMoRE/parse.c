@@ -32,10 +32,10 @@
  * static boole isprefix()
  * static GRAMMAR read_grammar()
  * static GRAMMAR init_grammar()
- * static arrayofstring get_list()
- * static arrayofstring init_ident_list() 
- * static arrayofstring init_prefix_list()
- * static arrayofstring init_operator_list()
+ * static array_of_c_string get_list()
+ * static array_of_c_string init_ident_list() 
+ * static array_of_c_string init_prefix_list()
+ * static array_of_c_string init_operator_list()
  * static arrayofb_array init_isinrule()
  * static posint skip_blanks()
  * static posint next_symbol()
@@ -148,7 +148,7 @@ string *arg2;
 
 static boole isoperator(symb, operator_list, maxop)
 char symb;
-arrayofstring operator_list;
+array_of_c_string operator_list;
 posint maxop;
 {
 	string key = newstring(2);
@@ -164,7 +164,7 @@ posint maxop;
 
 static boole isidentifier(s, ident_list, maxid)
 string s;
-arrayofstring ident_list;
+array_of_c_string ident_list;
 posint maxid;
 {
 	return (boole) (bsearch(&s, ident_list, maxid, sizeof(string), stringcomp) != NULL);
@@ -176,7 +176,7 @@ posint maxid;
 
 static boole isprefix(s, prefix_list, maxpref)
 string s;
-arrayofstring prefix_list;
+array_of_c_string prefix_list;
 posint maxpref;
 {
 	if(prefix_list == NULL)
@@ -191,7 +191,7 @@ posint maxpref;
  * in the array!!), startsym is the startsymbol of the grammar 
  */
 
-static GRAMMAR read_grammar(posint n, char startsym, arrayofstring strar)
+static GRAMMAR read_grammar(posint n, char startsym, array_of_c_string strar)
 {
 	posint i = 0, sc = 0, j, k, l, sl;
 	string r, s, t;
@@ -241,7 +241,7 @@ static GRAMMAR read_grammar(posint n, char startsym, arrayofstring strar)
 
 /** Initializes the grammar 
  */
-static GRAMMAR init_grammar(arrayofstring rules, char startsymbol, posint maxrule)
+static GRAMMAR init_grammar(array_of_c_string rules, char startsymbol, posint maxrule)
 {
 	GRAMMAR outgrammar;
 
@@ -255,13 +255,13 @@ static GRAMMAR init_grammar(arrayofstring rules, char startsymbol, posint maxrul
 /* A space separates the substrings in the textline */
 /* Upon termination, maxlen contains the length of the largest substring in s */
 
-static arrayofstring get_list(s, count, maxlen)
+static array_of_c_string get_list(s, count, maxlen)
 string s;
 posint *count;
 posint *maxlen;
 {
 	posint i = 0, hcount = 0, max = 0, chcount, j;
-	arrayofstring outstrar;
+	array_of_c_string outstrar;
 
 	do {			/* Compute the number of substrings in s */
 		while(s[i] == spacech)
@@ -277,7 +277,7 @@ posint *maxlen;
 		return NULL;	/* No substring found */
 
 	(*count) = hcount;
-	outstrar = newarrayofstring(hcount);	/* Get memory for string-array */
+	outstrar = newarray_of_c_string(hcount);	/* Get memory for string-array */
 	i = 0;
 	hcount = 0;
 	do {
@@ -308,12 +308,12 @@ posint *maxlen;
 /* The funtion uses get_list to divide a single textline into substrings */
 /* The array of substrings is sorted by qsort */
 
-static arrayofstring init_ident_list(id_list, maxid, maxidlen)
+static array_of_c_string init_ident_list(id_list, maxid, maxidlen)
 string id_list;
 posint *maxid;
 posint *maxidlen;
 {
-	arrayofstring outlist = get_list(id_list, maxid, maxidlen);
+	array_of_c_string outlist = get_list(id_list, maxid, maxidlen);
 
 	qsort(outlist, (*maxid), sizeof(string), stringcomp);
 
@@ -324,21 +324,21 @@ posint *maxidlen;
 /* The number of found prefixes is returned in maxpref */
 /* The list of prefixes is sorted using qsort */
 
-static arrayofstring init_prefix_list(ident_list, maxid, maxpref)
-arrayofstring ident_list;
+static array_of_c_string init_prefix_list(ident_list, maxid, maxpref)
+array_of_c_string ident_list;
 posint maxid;
 posint *maxpref;
 {
 	posint i, j, k, l, sl, count = 0;
 	string s;
-	arrayofstring outlist;
+	array_of_c_string outlist;
 
 	for (i = 0; i < maxid; ++i)	/* Count the number of (real) prefixes */
 		if(strlen(ident_list[i]) > (size_t) 1)
 			count += ((int) strlen(ident_list[i]) - 1);
 	if(count == 0)
 		return NULL;	/* No real prefix */
-	outlist = newarrayofstring(count);
+	outlist = newarray_of_c_string(count);
 	l = 0;
 	for (i = 0; i < maxid; ++i) {
 		s = ident_list[i];	/* Get the i-th entry in the ident_list */
@@ -362,12 +362,12 @@ posint *maxpref;
 /* The funtion uses get_list to divide a single textline into substrings */
 /* The array of substrings is sorted by qsort */
 
-static arrayofstring init_operator_list(op_list, maxop)
+static array_of_c_string init_operator_list(op_list, maxop)
 string op_list;
 posint *maxop;
 {
 	posint dummy;		/* Only used to avoid a warning from the compiler */
-	arrayofstring outlist = get_list(op_list, maxop, &dummy);
+	array_of_c_string outlist = get_list(op_list, maxop, &dummy);
 
 	qsort(outlist, (*maxop), sizeof(string), stringcomp);
 

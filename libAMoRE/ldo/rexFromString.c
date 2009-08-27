@@ -181,7 +181,7 @@ static PARSE_INPUT init_parseinp(int maxlet, char *s)
 	PARSE_INPUT parse_parms = newbuf_parse_input();
 	/* expanded regular expression ? */
 	/* EXPRESS RexInPostfix; */
-	arrayofarray precedence;
+	array_of_int_array precedence;
 	strstack str = newbuf_strstack();
 
 	/* disabled - be */
@@ -210,7 +210,7 @@ static PARSE_INPUT init_parseinp(int maxlet, char *s)
 	parse_parms->startsymbol = 'E';
 
 
-	precedence = (arrayofarray) newbuf(11, sizeof(array));
+	precedence = (array_of_int_array) newbuf(11, sizeof(array));
 
 	for (i = 0; i < 11; ++i) {
 		precedence[i] = (array) newbuf(11, sizeof(posint));

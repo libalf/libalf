@@ -30,7 +30,7 @@ nfa delsta(nfa inputnfa)
 
 	reach1 = newb_array(inputnfa->highest_state + 1);
 	reach2 = newb_array(inputnfa->highest_state + 1);
-	stack = newarray(inputnfa->highest_state + 1);
+	stack = newarray_of_int(inputnfa->highest_state + 1);
 	/* init stack with initial states */
 	for (state1 = 0; state1 <= inputnfa->highest_state; state1++)
 		if(isinit(infin[state1])) {

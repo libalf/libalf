@@ -133,8 +133,8 @@ nfa nfa2mnfa(nfa na, dfa minda)
 	nbs = (SPALTEN + 1) / SIZEOFBYTE + 1;
 	V = (ZEILEN < SPALTEN);
 	total = 0;
-	rowweight = newarray(ZEILEN + 1);
-	colweight = newarray(SPALTEN + 1);
+	rowweight = newarray_of_int(ZEILEN + 1);
+	colweight = newarray_of_int(SPALTEN + 1);
 	for (i = 0; i <= ZEILEN; i++) {
 		for (j = 0; j <= SPALTEN; j++)
 			if(testelem(i, tra[j])) {
@@ -429,7 +429,7 @@ posint dastates, nastates;	/* Number of states - 1 of given   */
 
 	if(dastates == nastates)
 		return dfa2nfa(da);	/* Nothing to do. */
-	old2new = newarray(dastates + 1);
+	old2new = newarray_of_int(dastates + 1);
 	i = j = 0;
 	while(i <= dastates) {
 		while(testelem(i, compact_states->grset))
@@ -594,7 +594,7 @@ static void calculate_grids_r()
 	if(rowsink != ZEILEN + 1)
 		Z--;
 	REST = 0;		/* No non-essential grid so far. */
-	new2old = newarray(Z + 1);
+	new2old = newarray_of_int(Z + 1);
 	nbm = (Z + 1) / SIZEOFBYTE + 1;
 	j = 0;
 	for (i = 0; i <= Z; i++) {
@@ -711,7 +711,7 @@ static void calculate_grids_c()
 	if(colsink != SPALTEN + 1)
 		S--;
 	REST = 0;		/* No non-essential grid so far. */
-	new2old = newarray(S + 1);
+	new2old = newarray_of_int(S + 1);
 	nbm = (S + 1) / SIZEOFBYTE + 1;
 	j = 0;
 	for (i = 0; i <= S; i++) {

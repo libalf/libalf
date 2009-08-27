@@ -39,8 +39,8 @@ static array melem2rang;	/* rang of an element */
 static array melem2dno;		/* dclass of an element */
 static array melem2rno;		/* rclass of an element */
 static array melem2lno;		/* lclass of an element */
-static arrayofarray r2r;	/* used to test: not n in mM  */
-static arrayofarray l2l;	/* used to test: not n in Mm  */
+static array_of_int_array r2r;	/* used to test: not n in mM  */
+static array_of_int_array l2l;	/* used to test: not n in Mm  */
 static arrayofb_array d2d;	/* used to test: not n in MmM */
 
 static array queue;		/* mark,queue used to compute transitive closure */
@@ -58,19 +58,19 @@ static void initmemory()
 /* get memory */
 {
 	posint j, k;
-	melem2rang = newarray(stamon->mno);
-	melem2dno = newarray(stamon->mno);
-	melem2rno = newarray(stamon->mno);
-	melem2lno = newarray(stamon->mno);
-	r2r = newarrayofarray(stamon->ds->rno);
+	melem2rang = newarray_of_int(stamon->mno);
+	melem2dno = newarray_of_int(stamon->mno);
+	melem2rno = newarray_of_int(stamon->mno);
+	melem2lno = newarray_of_int(stamon->mno);
+	r2r = newarray_of_int_array(stamon->ds->rno);
 	for (j = 0; j < stamon->ds->rno; j++) {
-		r2r[j] = newarray(stamon->gno);
+		r2r[j] = newarray_of_int(stamon->gno);
 		for (k = 0; k < stamon->gno; k++)
 			r2r[j][k] = stamon->mno;
 	}
-	l2l = newarrayofarray(stamon->ds->lno);
+	l2l = newarray_of_int_array(stamon->ds->lno);
 	for (j = 0; j < stamon->ds->lno; j++) {
-		l2l[j] = newarray(stamon->gno);
+		l2l[j] = newarray_of_int(stamon->gno);
 		for (k = 0; k < stamon->gno; k++)
 			l2l[j][k] = stamon->mno;
 	}
@@ -78,17 +78,17 @@ static void initmemory()
 	for (j = 0; j < stamon->ds->dno; j++)
 		d2d[j] = newb_array(stamon->ds->dno);
 	j = ((stamon->ds->rno) > (stamon->ds->lno)) ? stamon->ds->rno : stamon->ds->lno;
-	queue = newarray(j);
+	queue = newarray_of_int(j);
 	mark = newb_array(j);
-	stak = newarray(stamon->mno);
+	stak = newarray_of_int(stamon->mno);
 	high = 0;
-	result = newarray(3 * stamon->mno);
+	result = newarray_of_int(3 * stamon->mno);
 	/* resident memory */
 	stastarf = newsfexp();
-	stastarf->u = newarray1(stamon->mno);
-	stastarf->v = newarray1(stamon->mno);
-	stastarf->w0 = newarray1(stamon->mno);
-	stastarf->w1 = newarray1(stamon->mno);
+	stastarf->u = newarray_of_int1(stamon->mno);
+	stastarf->v = newarray_of_int1(stamon->mno);
+	stastarf->w0 = newarray_of_int1(stamon->mno);
+	stastarf->w1 = newarray_of_int1(stamon->mno);
 	stastarf->ulength = newar(stamon->mno);
 	stastarf->vlength = newar(stamon->mno);
 	stastarf->w0length = newar(stamon->mno);
@@ -197,7 +197,7 @@ static boole testc2c(no1, no2, c2c)
  *
  */
 posint no1, no2;
-arrayofarray c2c;
+array_of_int_array c2c;
 {
 	posint gno, run, counter, help, test;
 	boole found = FALSE;

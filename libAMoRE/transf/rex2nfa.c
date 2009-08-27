@@ -372,8 +372,8 @@ nfa rex2nfa(regex re)
 	rex = newstring(re->erexl);
 	/* war :  rex = re->exprex;  */
 
-	posch = newarray(re->erexl);
-	poslt = newarray(re->erexl);	/* oma */
+	posch = newarray_of_int(re->erexl);
+	poslt = newarray_of_int(re->erexl);	/* oma */
 	alphabet_size = re->alphabet_size;
 
 	/* known values of the result */
@@ -492,9 +492,9 @@ nfa rex2nfa(regex re)
 	prerex = newstring(prerexlen + 1);
 	prerex[prerexlen] = '\0';
 	/*  deleted by oma : prerex[re->rexl] = '\0';  */
-	rposch = newarray(prerexlen + 1);
-	rposlt = newarray(prerexlen + 1);	/* oma */
-	skipval = newarray(prerexlen + 1);
+	rposch = newarray_of_int(prerexlen + 1);
+	rposlt = newarray_of_int(prerexlen + 1);	/* oma */
+	skipval = newarray_of_int(prerexlen + 1);
 	lastprerex = rexlen;	/* oma, 11.01.96 */
 	lastrex = lastprerex - 1;
 	setfinal(result->infin[0], complast(result->infin));

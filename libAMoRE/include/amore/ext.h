@@ -74,7 +74,7 @@ extern char dummy[PILEN];
 /** <b>(array)newbuf((posint)(A),(posint)sizeof(posint))
  *  @memo allocates new {@link array array} of posint via newbuf
  */
-#define newarray(A)		(array)newbuf((posint)(A),(posint)sizeof(posint))
+#define newarray_of_int(A)	(array)newbuf((posint)(A),(posint)sizeof(posint))
 /** <b>(mrkfin)newbuf((posint)(A),(posint)sizeof(boolx))
  *  @memo allocates new {@link mrkfin mrkfin} via newbuf
  */
@@ -83,10 +83,10 @@ extern char dummy[PILEN];
  *  @memo allocates new {@link b_array b_array} via newbuf
  */
 #define newb_array(A)		(b_array)newbuf((posint)(A),(posint)sizeof(boole))
-/** <b>(arrayofarray)newbuf((posint)(A),(posint)sizeof(array))
- *  @memo allocates new {@link arrayofarray arrayofarray} via newbuf
+/** <b>(array_of_int_array)newbuf((posint)(A),(posint)sizeof(array))
+ *  @memo allocates new {@link array_of_int_array array_of_int_array} via newbuf
  */
-#define newarrayofarray(A)	(arrayofarray)newbuf((posint)(A),(posint)sizeof(array))
+#define newarray_of_int_array(A)	(array_of_int_array)newbuf((posint)(A),(posint)sizeof(array))
 /** <b>(arrayofb_array)newbuf((posint)(A),(posint)sizeof(b_array))
  *  @memo allocates new {@link arrayofb_array arrayofb_array} via newbuf
  */
@@ -95,29 +95,12 @@ extern char dummy[PILEN];
  *  @memo allocates new {@link string string} via newbuf
  */
 #define newstring(A)		(string)newbuf((posint)(A),(posint)sizeof(char))
-/** <b>(arrayofstring)newbuf((posint)(A),(posint)sizeof(string))
- *  @memo allocates {@link new arrayofstring arrayofstring} via newbuf
+/** <b>(array_of_c_string)newbuf((posint)(A),(posint)sizeof(string))
+ *  @memo allocates {@link new array_of_c_string array_of_c_string} via newbuf
  */
-#define newarrayofstring(A)	(arrayofstring)newbuf((posint)(A),(posint)sizeof(string))
+#define newarray_of_c_string(A)	(array_of_c_string)newbuf((posint)(A),(posint)sizeof(string))
 
-/** FIXME (ext.h */
 #define newdlist() (d_list)newbuf((posint)1,(posint)sizeof(struct dlist))
-
-
-#ifdef DOS
-#define  cbreak()		/* Lu-Go 29.11.91 */
-#define  crmode()
-#define  echo()			/* Lu-Go 29.11.91 */
-#define  endwin()
-#define  gtyx(A,B,C)  getyx(&B,&C)
-#define  initscr()  clear()
-#define  nocbreak()		/* Lu-Go 29.11.91 */
-#define  nocrmode()
-#define  noecho()
-#define  nonl()
-#define  refresh()
-#define  sleep(A)
-#endif
 
 #ifdef UNIX
 #define gtyx(A,B,C)  getyx(A,B,C)

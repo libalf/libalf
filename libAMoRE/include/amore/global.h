@@ -53,9 +53,9 @@ array newar(posint a);
  */
 boole *newbarray(posint a);
 
-/** allocates a new arrayofarray
+/** allocates a new array_of_int_array
  */
-arrayofarray newarray1(posint a);
+array_of_int_array newarray_of_int1(posint a);
 
 
 /* ----------------------- other global func */

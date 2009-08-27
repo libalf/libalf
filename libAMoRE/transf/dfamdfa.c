@@ -33,11 +33,11 @@ typedef struct w {
 	struct w *next;
 } *wlist;
 
-typedef arrayofarray *arrayofarrayofarray;
+typedef array_of_int_array *array_of_int_arrayofarray;
 
 /*******************************  abbreviations ****************************************/
 #define newwlist() (wlist)newbuf((posint)1,(posint)sizeof(struct w))
-#define newarrayofarrayofarray(A) (arrayofarrayofarray)newbuf((posint)A,(posint)sizeof(arrayofarray))
+#define newarray_of_int_arrayofarray(A) (array_of_int_arrayofarray)newbuf((posint)A,(posint)sizeof(array_of_int_array))
 
 /************  static variables ******************/
 
@@ -56,11 +56,11 @@ static array startblock;	/* 0 .. highest_state -> block */
 static array nextinblock;	/* 0 .. highest_state -> block */
 static array previnblock;	/* 0 .. highest_state -> block */
 
-static arrayofarrayofarray inverse;	/* inverse of delta  0 .. alphabet_size,0 .. highest_state, 0 .. sizeofinverse */
+static array_of_int_arrayofarray inverse;	/* inverse of delta  0 .. alphabet_size,0 .. highest_state, 0 .. sizeofinverse */
 				      /* state1 in array inverse[letter][state2] iff 
 				       * d[letter][state1]=state2 
 				       */
-static arrayofarray sizeofinverse;	/* 0 .. alphabet_size, 0 .. highest_state */
+static array_of_int_array sizeofinverse;	/* 0 .. alphabet_size, 0 .. highest_state */
 
 static array sizeofintersection;	/* 0 .. highest_state -> size of intersection block and inverse */
 static array startintersection;	/* 0 .. highest_state -> start of intersection */
@@ -91,7 +91,7 @@ static void delstates()
 	array stack;
 	mark = newb_array(stadfa->highest_state + 1);
 	mark[stadfa->init] = TRUE;
-	stack = newarray(stadfa->highest_state + 1);
+	stack = newarray_of_int(stadfa->highest_state + 1);
 	stack[0] = stadfa->init;
 	high = 1;
 	next = 0;
@@ -111,7 +111,7 @@ static void delstates()
 	 */
 
 	if(!(high == (stadfa->highest_state + 1))) {
-		map = newarray(stadfa->highest_state + 1);	/* map : old - ->new */
+		map = newarray_of_int(stadfa->highest_state + 1);	/* map : old - ->new */
 		for (state = 0; state < high; state++)
 			map[stack[state]] = state;
 		high--;		/* high is highest state */
@@ -151,15 +151,15 @@ static boole initstatic()
 	posint numberofletters = stadfa->alphabet_size + 1;	/* abbreviation */
 
 	/* init blocks O(|Q|) */
-	last = newarray(2);
+	last = newarray_of_int(2);
 	if(with)
 		inblock = newar(numberofstates);
 	else
-		inblock = newarray(numberofstates);
-	blocksize = newarray(numberofstates);
-	startblock = newarray(numberofstates);
-	nextinblock = newarray(numberofstates);
-	previnblock = newarray(numberofstates);
+		inblock = newarray_of_int(numberofstates);
+	blocksize = newarray_of_int(numberofstates);
+	startblock = newarray_of_int(numberofstates);
+	nextinblock = newarray_of_int(numberofstates);
+	previnblock = newarray_of_int(numberofstates);
 	for (state = 0; state < numberofstates; state++) {
 		bno = (stadfa->final[state]) ? 0 : 1;	/* block 0 final states */
 		inblock[state] = bno;
@@ -178,18 +178,18 @@ static boole initstatic()
 	}
 	/* init inverse  O(|A||Q|) */
 
-	inverse = newarrayofarrayofarray(numberofletters);
+	inverse = newarray_of_int_arrayofarray(numberofletters);
 	for (letter = 1; letter <= stadfa->alphabet_size; letter++)
-		inverse[letter] = newarrayofarray(numberofstates);
-	sizeofinverse = newarrayofarray(numberofletters);
+		inverse[letter] = newarray_of_int_array(numberofstates);
+	sizeofinverse = newarray_of_int_array(numberofletters);
 	for (letter = 1; letter <= stadfa->alphabet_size; letter++)
-		sizeofinverse[letter] = newarray(numberofstates);
+		sizeofinverse[letter] = newarray_of_int(numberofstates);
 	for (letter = 1; letter <= stadfa->alphabet_size; letter++)
 		for (state = 0; state <= stadfa->highest_state; state++)
 			sizeofinverse[letter][d[letter][state]]++;
 	for (letter = 1; letter <= stadfa->alphabet_size; letter++)
 		for (state = 0; state <= stadfa->highest_state; state++) {
-			inverse[letter][state] = newarray(sizeofinverse[letter][state]);
+			inverse[letter][state] = newarray_of_int(sizeofinverse[letter][state]);
 			sizeofinverse[letter][state] = 0;
 		}
 	for (letter = 1; letter <= stadfa->alphabet_size; letter++)
@@ -200,9 +200,9 @@ static boole initstatic()
 
 	/* init intersection O(1) */
 
-	sizeofintersection = newarray(numberofstates);
-	startintersection = newarray(numberofstates);
-	nextintersection = newarray(numberofstates);
+	sizeofintersection = newarray_of_int(numberofstates);
+	startintersection = newarray_of_int(numberofstates);
+	nextintersection = newarray_of_int(numberofstates);
 
 /* init waiting  O(|A|) */
 
@@ -226,7 +226,7 @@ static boole initstatic()
 
 /* init jlist O(1) */
 
-	jlist = newarray(numberofstates);
+	jlist = newarray_of_int(numberofstates);
 
 	return (FALSE);
 }

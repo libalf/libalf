@@ -66,10 +66,10 @@ boole *newbarray(posint a)
 	return hlp;
 }				/* newbarray */
 
-arrayofarray newarray1(posint a)
+array_of_int_array newarray_of_int1(posint a)
 {
-	arrayofarray hlp;
-	hlp = (arrayofarray) calloc(a, sizeof(array));
+	array_of_int_array hlp;
+	hlp = (array_of_int_array) calloc(a, sizeof(array));
 	if(hlp == NULL) {
 #ifdef DEBUG
 		perror("newarray 1");
@@ -77,7 +77,7 @@ arrayofarray newarray1(posint a)
 		OUT_OF_MEM();
 	}
 	return hlp;
-}				/* newarray1 */
+}				/* newarray_of_int1 */
 
 
 char *pi2a(posint pi)

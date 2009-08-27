@@ -755,7 +755,7 @@ static dfa boole_dfa(dfa_list, expr)
 	b_t_elem b_head = newb_t_elem();
 	b_t_elem b_root = newb_t_elem();
 	dfa *h_da = dfa_list->da;
-	array t = newarray(dfa_list->no);
+	array t = newarray_of_int(dfa_list->no);
 	posint i, no,
 	       max_no = 0,
 	       n = dfa_list->no,
@@ -765,10 +765,10 @@ static dfa boole_dfa(dfa_list, expr)
 	b_array b_stack = newb_array(n);
 	dfa outdfa = newdfa();
 	b_head->rson = b_root;
-	b_root->tupel = newarray(n);
+	b_root->tupel = newarray_of_int(n);
 	first->tupel = b_root->tupel;
 	b_root->no = 0;
-	first->delta_s = newarray(alphabet_size + 1);
+	first->delta_s = newarray_of_int(alphabet_size + 1);
 	for (i = 0; i != n; ++i)
 	{
 		b_root->tupel[i] =  h_da[i]->init;
@@ -783,8 +783,8 @@ static dfa boole_dfa(dfa_list, expr)
 			if (no > max_no)
 			{ last = (last->next = neww_elem());
 				last->tupel = t;
-				last->delta_s = newarray(alphabet_size + 1);
-				t = newarray(n);
+				last->delta_s = newarray_of_int(alphabet_size + 1);
+				t = newarray_of_int(n);
 				max_no++;
 			}
 		}

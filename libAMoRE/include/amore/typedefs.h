@@ -29,12 +29,12 @@ typedef char boole;
 typedef char boolx;
 /** string */
 typedef char *string;
-/** arrayofstring */
-typedef string *arrayofstring;
+/** array_of_c_string */
+typedef string *array_of_c_string;
 /** array */
 typedef posint *array;
-/** arrayofarray */
-typedef array *arrayofarray;
+/** array_of_int_array */
+typedef array *array_of_int_array;
 /**  b_array */
 typedef boole *b_array;
 /** arrayofb_array */
