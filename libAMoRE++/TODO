@@ -1,0 +1,13 @@
+
+NOTES
+=====
+
+TODO
+====
+
+- Antichains for checking language inclusion and equivalence ( in libAMoRE++ or even upstream? )
+
+- check network/deserialization code for bugs
+
+- _init and _fini are not working (linker stuff...)
+

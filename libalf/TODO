@@ -1,0 +1,47 @@
+
+NOTES
+=====
+
+
+
+TODO
+====
+
+
+(priority ordered)
+
+
+- network protocol: define new network protocol
+	(isomorph to JNI, to make switching between JNI and dispatcher easy)
+
+- KVtree: implement
+
+- RPNI: check for correctness
+
+- DeLeTe2: check for correctness
+
+- knowledgebase: rewrite / check efficiency of equivalence relation
+
+- RPNI: check efficiency
+
+- DeLeTe2: check efficiency
+
+- angluin: check undo and increase_alphabet_size()
+
+- documentation
+
+- network code: check network/deserialization code for bugs
+
+- NL*: add (de)serialize, normalizer and undo
+
+- NL*: check increase_alphabet_size()
+
+- Bierman: efficient implementation (using DDB instead of MiniSat)
+
+- BL*: implement
+
+- L*,L*col,NL*: use knowledgebase pointers instead of list<int> words.
+
+- dispatcher: listen on multiple address/port combinations, IPv6 and unix domain sockets
+
+
