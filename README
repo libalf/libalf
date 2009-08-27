@@ -1,0 +1,47 @@
+libalf subversion repository
+
+
+this repository contains the following:
+
+libAMoRE
+	_local_branch_ of libAMoRE-1.0, a C library to handle finite
+	automata et al
+
+	dependencies: none
+
+libAMoRE++
+	a locally developed C++ interface to libAMoRE with some extra
+	functionality
+
+	dependencies: libAMoRE
+	
+
+libalf
+	main C++ library of this project, implementation of algorithms,
+	JNI, network protocol et al.
+
+	dependencies: none
+		(requires liblangen for some of its testcases)
+
+liblangen
+	locally developed C++ library, implementing algorithms to randomly
+	derive NFAs, DFAs and regular expressions.
+
+	dependencies: libgmp, libgmpxx
+
+finite-automata-tool
+	command-line tool to create and transform finite automata in
+	different formats
+
+	dependencies: libAMoRE, libAMoRE++, libalf,
+		liblangen, libgmp, libgmpxx
+
+glue
+	glue between different libraries
+
+
+
+the preferred order of installation is (of course):
+
+libAMoRE, libAMoRE++, liblangen, libalf, finite-automata,tools
+
