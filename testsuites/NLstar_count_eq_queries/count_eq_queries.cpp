@@ -22,7 +22,7 @@
 #include <amore++/nondeterministic_finite_automaton.h>
 #include <amore++/deterministic_finite_automaton.h>
 
-#include <LanguageGenerator/DFAenumerator.h>
+#include <liblangen/dfa_enumerator.h>
 
 #include "amore_alf_glue.h"
 
@@ -32,7 +32,7 @@
 using namespace std;
 using namespace libalf;
 using namespace amore;
-using namespace LanguageGenerator;
+using namespace liblangen;
 
 ostream_logger log(&cout, LOGGER_DEBUG);
 
@@ -105,7 +105,7 @@ int main(int argc, char**argv)
 		int found = 0;
 		int num = 0;
 		cout << "===== SIZE " << size << "\n";
-		DFAenumerator denum(size, asize);
+		dfa_enumerator denum(size, asize);
 		while (!denum.generation_completed()) {
 			denum.next(true); // (we also want to skip the initial automaton)
 			denum.derive(f_is_dfa, f_asize, f_state_count, f_initial, f_final, f_transitions);

@@ -20,9 +20,9 @@
 #include <libalf/algorithm_NLstar.h>
 #include <libalf/knowledgebase.h>
 
-#include <LanguageGenerator/DFArandomgenerator.h>
-#include <LanguageGenerator/NFArandomgenerator.h>
-#include <LanguageGenerator/regex_randomgenerator.h>
+#include <liblangen/dfa_randomgenerator.h>
+#include <liblangen/nfa_randomgenerator.h>
+#include <liblangen/regex_randomgenerator.h>
 
 #include <amore++/nondeterministic_finite_automaton.h>
 #include <amore++/deterministic_finite_automaton.h>
@@ -33,7 +33,7 @@
 using namespace std;
 using namespace libalf;
 using namespace amore;
-using namespace LanguageGenerator;
+using namespace liblangen;
 
 int main(int argc, char**argv)
 {
@@ -57,8 +57,8 @@ int main(int argc, char**argv)
 	max_msize = atoi(argv[5]);
 	model_size_step = atoi(argv[6]);
 
-	DFArandomgenerator dfa_rg;
-	NFArandomgenerator nfa_rg;
+	dfa_randomgenerator dfa_rg;
+	nfa_randomgenerator nfa_rg;
 	regex_randomgenerator regex_rg;
 
 	int method, model_size, alphabet_size, testcase_index;

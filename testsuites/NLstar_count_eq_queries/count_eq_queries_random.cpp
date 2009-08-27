@@ -21,7 +21,7 @@
 #include <amore++/nondeterministic_finite_automaton.h>
 #include <amore++/deterministic_finite_automaton.h>
 
-#include <LanguageGenerator/DFArandomgenerator.h>
+#include <liblangen/dfa_randomgenerator.h>
 
 #include "amore_alf_glue.h"
 
@@ -31,7 +31,7 @@
 using namespace std;
 using namespace libalf;
 using namespace amore;
-using namespace LanguageGenerator;
+using namespace liblangen;
 
 ostream_logger log(&cout, LOGGER_DEBUG);
 
@@ -109,7 +109,7 @@ int main(int argc, char**argv)
 
 	int print_skipper = 0;
 
-	DFArandomgenerator drng;
+	dfa_randomgenerator drng;
 
 	while(1) {
 		drng.generate(asize, size,  f_is_dfa, f_asize, f_state_count, f_initial, f_final, f_transitions);

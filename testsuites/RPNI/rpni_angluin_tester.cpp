@@ -20,9 +20,9 @@
 #include <libalf/algorithm_RPNI.h>
 #include <libalf/knowledgebase.h>
 
-#include <LanguageGenerator/DFArandomgenerator.h>
-#include <LanguageGenerator/NFArandomgenerator.h>
-#include <LanguageGenerator/regex_randomgenerator.h>
+#include <liblangen/dfa_randomgenerator.h>
+#include <liblangen/nfa_randomgenerator.h>
+#include <liblangen/regex_randomgenerator.h>
 
 #include <amore++/nondeterministic_finite_automaton.h>
 #include <amore++/deterministic_finite_automaton.h>
@@ -33,7 +33,7 @@
 using namespace std;
 using namespace libalf;
 using namespace amore;
-using namespace LanguageGenerator;
+using namespace liblangen;
 
 finite_automaton * angluin_learn_model(logger & log, finite_automaton * model, knowledgebase<bool> & knowledge)
 {{{
@@ -156,8 +156,8 @@ int main(int argc, char**argv)
 	alphabet_size = atoi(argv[2]);
 	model_size = atoi(argv[3]);
 
-	DFArandomgenerator dfa_rg;
-	NFArandomgenerator nfa_rg;
+	dfa_randomgenerator dfa_rg;
+	nfa_randomgenerator nfa_rg;
 	regex_randomgenerator regex_rg;
 
 	for(int i = 0; i < num_testcases; i++) {

@@ -21,8 +21,8 @@
 #include <amore++/deterministic_finite_automaton.h>
 #include <amore++/nondeterministic_finite_automaton.h>
 
-#include <LanguageGenerator/DFArandomgenerator.h>
-#include <LanguageGenerator/NFArandomgenerator.h>
+#include <liblangen/dfa_randomgenerator.h>
+#include <liblangen/nfa_randomgenerator.h>
 
 //#define ANSWERTYPE extended_bool
 #define ANSWERTYPE bool
@@ -30,7 +30,7 @@
 using namespace std;
 using namespace libalf;
 using namespace amore;
-using namespace LanguageGenerator;
+using namespace liblangen;
 
 void test_dfa()
 {{{
@@ -45,7 +45,7 @@ void test_dfa()
 	deterministic_finite_automaton dfa1, dfa2, dfa3;
 
 	// generate random DFA
-	DFArandomgenerator dfa_rg;
+	dfa_randomgenerator dfa_rg;
 	dfa_rg.generate(4, 7, f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
 
 	cout << "-------\n" << write_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)
@@ -97,7 +97,7 @@ void test_nfa()
 	nondeterministic_finite_automaton nfa1, nfa2, nfa3;
 
 	// generate random NFA
-	NFArandomgenerator nfa_rg;
+	nfa_randomgenerator nfa_rg;
 	nfa_rg.generate(4, 7, 3, 0.3, 0.3, f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
 
 	cout << "-------\n" << write_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)
