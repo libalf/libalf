@@ -9,13 +9,13 @@ original copyright see COPYING and README-old.
 
 
 this once was libAMoRE-1.0. it was heavily changed during development of
-libalf. several bugs were removed and things renamed. this is NOT an
-official release of libAMoRE but a local branch of libalf!
+libalf. several bugs were removed and things renamed. this is NOT an official
+release of libAMoRE but a local branch for libalf!
 
 
 most notable changes:
 
-	* create a shared library
+	* link to a shared library
 
 	* fixed a bug in rex2nfa (off-by-one in ffprerex)
 
@@ -27,6 +27,12 @@ most notable changes:
 
 	* initial fixes to make the source compile (some extern declaration
 	  problems)
+
+	* AMoRE-1.0 cluttered the namespace:
+	  it had a `struct set' in nfa2mnfa_types.h. this has been renamed to
+	  not conflict with C++'s set-template.
+
+	* remove of required external symbols
 
 	* indentation / code formatting
 
@@ -40,4 +46,6 @@ most notable things NOT changed:
 	  an nfauto, you have to freenfa() it and then, if you're working with a
 	  pointer (which is reasonable), free it.
 
+	* AMoRE-1.0 still clutterst the namespace:
+	  it typedefs `char*' to `string'. this will be removed soon enough.
 

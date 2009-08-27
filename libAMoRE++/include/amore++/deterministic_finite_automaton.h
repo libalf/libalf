@@ -59,10 +59,10 @@ class deterministic_finite_automaton : public finite_automaton {
 
 		virtual unsigned int get_state_count();
 		virtual unsigned int get_alphabet_size();
-		virtual std::set<int> get_initial_states();
-		virtual std::set<int> get_final_states();
-		virtual void set_initial_states(std::set<int> &states);
-		virtual void set_final_states(std::set<int> &states);
+		virtual set<int> get_initial_states();
+		virtual set<int> get_final_states();
+		virtual void set_initial_states(set<int> &states);
+		virtual void set_final_states(set<int> &states);
 		virtual list<int> shortest_run(set<int> from, set<int> &to, bool &reachable);
 		virtual bool is_reachable(set<int> &from, set<int> &to);
 		virtual list<int> get_sample_word(bool & is_empty);
@@ -70,7 +70,7 @@ class deterministic_finite_automaton : public finite_automaton {
 		virtual bool operator==(finite_automaton &other);
 		virtual bool lang_subset_of(finite_automaton &other);
 		virtual bool lang_disjoint_to(finite_automaton &other);
-		virtual std::set<int> transition(std::set<int> from, int label);
+		virtual set<int> transition(set<int> from, int label);
 		virtual bool contains(list<int> &word);
 		virtual void minimize();
 		virtual void lang_complement();
@@ -87,7 +87,7 @@ class deterministic_finite_automaton : public finite_automaton {
 		virtual basic_string<int32_t> serialize();
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
 
-		virtual bool construct(int alphabet_size, int state_count, std::set<int> &initial, std::set<int> &final, multimap<pair<int,int>, int> &transitions);
+		virtual bool construct(int alphabet_size, int state_count, set<int> &initial, set<int> &final, multimap<pair<int,int>, int> &transitions);
 
 	// new
 		virtual void set_dfa(dfa a);

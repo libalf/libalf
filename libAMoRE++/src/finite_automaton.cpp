@@ -24,7 +24,7 @@ namespace amore {
 using namespace std;
 
 
-finite_automaton * construct_amore_automaton(bool is_dfa, int alphabet_size, int state_count, std::set<int> &initial, std::set<int> &final, multimap<pair<int,int>, int> &transitions)
+finite_automaton * construct_amore_automaton(bool is_dfa, int alphabet_size, int state_count, set<int> &initial, set<int> &final, multimap<pair<int,int>, int> &transitions)
 {{{
 	finite_automaton * ret;
 	if(is_dfa)
@@ -45,7 +45,7 @@ finite_automaton::~finite_automaton()
 { };
 
 
-std::set<int> finite_automaton::run(std::set<int> from, list<int>::iterator word, list<int>::iterator word_limit)
+set<int> finite_automaton::run(set<int> from, list<int>::iterator word, list<int>::iterator word_limit)
 {{{
 	while(word != word_limit) {
 		from = this->transition(from, *word);
@@ -56,8 +56,8 @@ std::set<int> finite_automaton::run(std::set<int> from, list<int>::iterator word
 
 bool finite_automaton::contains(list<int> & word)
 {{{
-	std::set<int> states, final_states;
-	std::set<int>::iterator si;
+	set<int> states, final_states;
+	set<int>::iterator si;
 
 	states = this->get_initial_states();
 	states = this->run(states, word.begin(), word.end());
@@ -75,8 +75,8 @@ string finite_automaton::generate_dotfile()
 	basic_string<int32_t>::iterator si;
 	int n;
 
-	std::set<int32_t> initial, final;
-	std::set<int32_t>::iterator sti;
+	set<int32_t> initial, final;
+	set<int32_t>::iterator sti;
 
 	int state_count;
 	bool header_written;
@@ -190,10 +190,10 @@ string finite_automaton::generate_dotfile()
 // inefficient (as it only wraps another interface), but it works for all automata implementations
 // that implement serialize and deserialize. implementations may provide their own, more performant
 // implementation of construct().
-bool finite_automaton::construct(int alphabet_size, int state_count, std::set<int> &initial, std::set<int> &final, multimap<pair<int, int>, int> &transitions)
+bool finite_automaton::construct(int alphabet_size, int state_count, set<int> &initial, set<int> &final, multimap<pair<int, int>, int> &transitions)
 {{{
 	basic_string<int32_t> ser;
-	std::set<int>::iterator sit;
+	set<int>::iterator sit;
 	multimap<pair<int, int>, int>::iterator tit;
 
 	// serialize that data and call deserialize :)

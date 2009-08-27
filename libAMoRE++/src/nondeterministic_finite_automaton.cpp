@@ -39,7 +39,6 @@
 
 // attention: stupid amore headers typedef string to be char*
 // thus we have to use "std::string"...
-// nfa2mnfa.h defines some 'set', so we have to use "std::set"
 
 namespace amore {
 
@@ -169,25 +168,25 @@ bool nondeterministic_finite_automaton::is_empty()
 	return ret;
 }}}
 
-std::set<int> nondeterministic_finite_automaton::get_initial_states()
+set<int> nondeterministic_finite_automaton::get_initial_states()
 {{{
-	std::set<int> ret;
+	set<int> ret;
 	for(unsigned int i = 0; i <= nfa_p->highest_state; i++)
 		if(isinit(nfa_p->infin[i]))
 			ret.insert(i);
 	return ret;
 }}}
 
-std::set<int> nondeterministic_finite_automaton::get_final_states()
+set<int> nondeterministic_finite_automaton::get_final_states()
 {{{
-	std::set<int> ret;
+	set<int> ret;
 	for(unsigned int i = 0; i <= nfa_p->highest_state; i++)
 		if(isfinal(nfa_p->infin[i]))
 			ret.insert(i);
 	return ret;
 }}}
 
-void nondeterministic_finite_automaton::set_initial_states(std::set<int> &states)
+void nondeterministic_finite_automaton::set_initial_states(set<int> &states)
 {{{
 	for(unsigned int s = 0; s <= nfa_p->highest_state; s++)
 		if(states.find(s) != states.end())
@@ -195,7 +194,7 @@ void nondeterministic_finite_automaton::set_initial_states(std::set<int> &states
 		else
 			rminit(nfa_p->infin[s]);
 }}}
-void nondeterministic_finite_automaton::set_final_states(std::set<int> &states)
+void nondeterministic_finite_automaton::set_final_states(set<int> &states)
 {{{
 	for(unsigned int s = 0; s <= nfa_p->highest_state; s++)
 		if(states.find(s) != states.end())
@@ -212,9 +211,9 @@ unsigned int nondeterministic_finite_automaton::get_alphabet_size()
 		return 0;
 }}}
 
-list<int> nondeterministic_finite_automaton::shortest_run(std::set<int> from, std::set<int> & to, bool &reachable)
+list<int> nondeterministic_finite_automaton::shortest_run(set<int> from, set<int> & to, bool &reachable)
 {{{
-	std::set<int>::iterator si;
+	set<int>::iterator si;
 	list<automaton_run> run_fifo;
 	automaton_run current, next;
 	unsigned int s, l;
@@ -276,7 +275,7 @@ list<int> nondeterministic_finite_automaton::shortest_run(std::set<int> from, st
 	return ret; // empty word
 }}}
 
-bool nondeterministic_finite_automaton::is_reachable(std::set<int> &from, std::set<int> &to)
+bool nondeterministic_finite_automaton::is_reachable(set<int> &from, set<int> &to)
 {{{
 	bool reachable;
 	shortest_run(from, to, reachable);
@@ -287,7 +286,7 @@ list<int> nondeterministic_finite_automaton::get_sample_word(bool & is_empty)
 {{{
 	unsigned int s;
 	list<int> ret;
-	std::set<int> initial_states, final_states;
+	set<int> initial_states, final_states;
 	bool reachable;
 
 	// get initial and final states
@@ -344,13 +343,13 @@ bool nondeterministic_finite_automaton::lang_disjoint_to(finite_automaton &other
 	return ret;
 }}}
 
-void nondeterministic_finite_automaton::epsilon_closure(std::set<int> & states)
+void nondeterministic_finite_automaton::epsilon_closure(set<int> & states)
 {{{
 	if(nfa_p->is_eps == FALSE)
 		return;
 
 	queue<int> new_states;
-	std::set<int>::iterator sti;
+	set<int>::iterator sti;
 
 	int current;
 
@@ -371,10 +370,10 @@ void nondeterministic_finite_automaton::epsilon_closure(std::set<int> & states)
 	};
 }}}
 
-std::set<int> nondeterministic_finite_automaton::transition(std::set<int> from, int label)
+set<int> nondeterministic_finite_automaton::transition(set<int> from, int label)
 {{{
-	std::set<int> ret;
-	std::set<int>::iterator si;
+	set<int> ret;
+	set<int>::iterator si;
 
 	this->epsilon_closure(from);
 
@@ -390,8 +389,8 @@ std::set<int> nondeterministic_finite_automaton::transition(std::set<int> from, 
 bool nondeterministic_finite_automaton::contains(list<int> &word)
 {{{
 	if(nfa_p) {
-		std::set<int> states;
-		std::set<int>::iterator si;
+		set<int> states;
+		set<int>::iterator si;
 
 		states = get_initial_states();
 

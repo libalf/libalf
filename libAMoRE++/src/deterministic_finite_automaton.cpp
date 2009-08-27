@@ -39,7 +39,6 @@
 
 // attention: stupid amore headers typedef string to be char*
 // thus we have to use "std::string"...
-// nfa2mnfa.h defines some 'set', so we have to use "std::set"
 
 namespace amore {
 
@@ -97,29 +96,29 @@ bool deterministic_finite_automaton::is_empty()
 	return ret;
 }}}
 
-std::set<int> deterministic_finite_automaton::get_initial_states()
+set<int> deterministic_finite_automaton::get_initial_states()
 {{{
-	std::set<int> ret;
+	set<int> ret;
 	ret.insert(dfa_p->init);
 	return ret;
 }}}
 
-std::set<int> deterministic_finite_automaton::get_final_states()
+set<int> deterministic_finite_automaton::get_final_states()
 {{{
-	std::set<int> ret;
+	set<int> ret;
 	for(unsigned int i = 0; i <= dfa_p->highest_state; i++)
 		if(dfa_p->final[i])
 			ret.insert(i);
 	return ret;
 }}}
 
-void deterministic_finite_automaton::set_initial_states(std::set<int> &states)
+void deterministic_finite_automaton::set_initial_states(set<int> &states)
 {{{
-	std::set<int>::iterator si;
+	set<int>::iterator si;
 	for(si = states.begin(); si != states.end(); si++)
 		dfa_p->init = *si;
 }}}
-void deterministic_finite_automaton::set_final_states(std::set<int> &states)
+void deterministic_finite_automaton::set_final_states(set<int> &states)
 {{{
 	for(unsigned int s = 0; s <= dfa_p->highest_state; s++)
 		if(states.find(s) != states.end())
@@ -136,9 +135,9 @@ unsigned int deterministic_finite_automaton::get_alphabet_size()
 		return 0;
 }}}
 
-list<int> deterministic_finite_automaton::shortest_run(std::set<int> from, std::set<int> &to, bool &reachable)
+list<int> deterministic_finite_automaton::shortest_run(set<int> from, set<int> &to, bool &reachable)
 {{{
-	std::set<int>::iterator si;
+	set<int>::iterator si;
 	queue<automaton_run> run_fifo;
 	automaton_run current;
 
@@ -180,7 +179,7 @@ list<int> deterministic_finite_automaton::shortest_run(std::set<int> from, std::
 	return empty;
 }}}
 
-bool deterministic_finite_automaton::is_reachable(std::set<int> &from, std::set<int> &to)
+bool deterministic_finite_automaton::is_reachable(set<int> &from, set<int> &to)
 {{{
 	bool reachable;
 	shortest_run(from, to, reachable);
@@ -189,7 +188,7 @@ bool deterministic_finite_automaton::is_reachable(std::set<int> &from, std::set<
 
 list<int> deterministic_finite_automaton::get_sample_word(bool & is_empty)
 {{{
-	std::set<int> initial_states, final_states;
+	set<int> initial_states, final_states;
 	list<int> ret;
 	bool reachable;
 
@@ -274,10 +273,10 @@ bool deterministic_finite_automaton::lang_disjoint_to(finite_automaton &other)
 	return ret;
 }}}
 
-std::set<int> deterministic_finite_automaton::transition(std::set<int> from, int label)
+set<int> deterministic_finite_automaton::transition(set<int> from, int label)
 {{{
-	std::set<int> ret;
-	std::set<int>::iterator si;
+	set<int> ret;
+	set<int>::iterator si;
 
 	for(si = from.begin(); si != from.end(); si++)
 		ret.insert(dfa_p->delta[label+1][*si]);
@@ -288,8 +287,8 @@ std::set<int> deterministic_finite_automaton::transition(std::set<int> from, int
 bool deterministic_finite_automaton::contains(list<int> &word)
 {{{
 	if(dfa_p) {
-		std::set<int> states;
-		std::set<int>::iterator si;
+		set<int> states;
+		set<int>::iterator si;
 
 		states = get_initial_states();
 
@@ -586,10 +585,10 @@ dfaa_deserialization_failed_fast:
 	return false;
 }}}
 
-bool deterministic_finite_automaton::construct(int alphabet_size, int state_count, std::set<int> &initial, std::set<int> &final, multimap<pair<int, int>, int> &transitions)
+bool deterministic_finite_automaton::construct(int alphabet_size, int state_count, set<int> &initial, set<int> &final, multimap<pair<int, int>, int> &transitions)
 {{{
 	dfa a;
-	std::set<int>::iterator si;
+	set<int>::iterator si;
 	multimap<pair<int, int>, int>::iterator ti,tj;
 
 	// DO SOME SANITY CHECKS
@@ -617,7 +616,7 @@ bool deterministic_finite_automaton::construct(int alphabet_size, int state_coun
 	a->init = *si; // initial states
 	a->alphabet_size = alphabet_size; // alphabet size
 	a->final = newfinal(a->highest_state); // final states
-	for(std::set<int>::iterator i = final.begin(); i != final.end(); i++)
+	for(set<int>::iterator i = final.begin(); i != final.end(); i++)
 		setfinal((a->final[*i]), 1);
 	a->delta = newddelta(a->alphabet_size, a->highest_state); // transition function: delta[sigma][source] = destination
 	// currently, delta[n] = 0. thus all undefined transitions would lead to

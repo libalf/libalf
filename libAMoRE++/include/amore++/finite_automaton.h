@@ -68,7 +68,7 @@ class transition {
 inline bool deterministic_transitions(const transition & t1, const transition & t2)
 { return (t1.source != t2.source) || (t1.label != t2.label) || (t1.destination == t2.destination); }
 
-typedef std::set<transition, transition::comparator> transition_set;
+typedef set<transition, transition::comparator> transition_set;
 
 class finite_automaton {
 	public:
@@ -80,16 +80,16 @@ class finite_automaton {
 		virtual unsigned int get_state_count() = 0;
 		virtual unsigned int get_alphabet_size() = 0;
 
-		virtual std::set<int> get_initial_states() = 0;
-		virtual std::set<int> get_final_states() = 0;
+		virtual set<int> get_initial_states() = 0;
+		virtual set<int> get_final_states() = 0;
 
 		// these can be used to create prefix- and postfix-languages for states
 		// (e.g. residual languages)
 		// note that setting new initial/final states will remove the attribute from former
 		// states. in case of setting multiple initial states for a DFA, the last one
 		// will be the only initial states (all others will NOT be initial).
-		virtual void set_initial_states(std::set<int> &states) = 0;
-		virtual void set_final_states(std::set<int> &states) = 0;
+		virtual void set_initial_states(set<int> &states) = 0;
+		virtual void set_final_states(set<int> &states) = 0;
 
 		// get shortest run from a state in <from> to a state in <to>
 		// reachable = false if state is not reachable.
@@ -115,8 +115,8 @@ class finite_automaton {
 		virtual bool lang_disjoint_to(finite_automaton &other) = 0;
 
 		// calculate single-label transition or multiple-label run for a set of starting states
-		virtual std::set<int> transition(std::set<int> from, int label) = 0;
-		virtual std::set<int> run(std::set<int> from, list<int>::iterator word, list<int>::iterator word_limit);
+		virtual set<int> transition(set<int> from, int label) = 0;
+		virtual set<int> run(set<int> from, list<int>::iterator word, list<int>::iterator word_limit);
 
 		// test if word is contained in language of this
 		virtual bool contains(list<int> & word);
@@ -168,14 +168,14 @@ class finite_automaton {
 		// states are named 0 .. state_count-1,
 		// transition attributes are 0 .. alphabet_size-1,
 		// an epsilon transition is denoted as -1
-		virtual bool construct(int alphabet_size, int state_count, std::set<int> &initial, std::set<int> &final, multimap<pair<int,int>, int> &transitions);
+		virtual bool construct(int alphabet_size, int state_count, set<int> &initial, set<int> &final, multimap<pair<int,int>, int> &transitions);
 
 		virtual string generate_dotfile();
 };
 
 
 
-finite_automaton * construct_amore_automaton(bool is_dfa, int alphabet_size, int state_count, std::set<int> &initial, std::set<int> &final, multimap<pair<int,int>, int> &transitions);
+finite_automaton * construct_amore_automaton(bool is_dfa, int alphabet_size, int state_count, set<int> &initial, set<int> &final, multimap<pair<int,int>, int> &transitions);
 
 
 

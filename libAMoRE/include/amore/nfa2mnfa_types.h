@@ -2,6 +2,7 @@
  *  \brief ...
  *  Copyright (c) ?    - 2000 Lehrstuhl fuer Informatik VII, RWTH Aachen
  *  Copyright (c) 2000 - 2002 Burak Emir
+ *                2008, 2009 David R. Piegdon <david-i2@piegdon.de>
  *  This file is part of the libAMoRE library.
  *
  *  libAMoRE is  free software; you can redistribute it and/or
@@ -31,7 +32,7 @@ extern "C" {
 /* Memory for delta of fundamental table. */
 #define newgsarray(A)      (ptset*)newbuf((posint)(A),sizeof(ptset));
 /* Memory for array of ptset's. */
-#define newpattern(A,B)    { (A) = (ptset)newbuf(1,sizeof(struct set)); \
+#define newpattern(A,B)    { (A) = (ptset)newbuf(1,sizeof(struct ptset_s)); \
                            (A)->grset = (char *)newbuf(B,sizeof(char)); }
 #define new_termlist(A)     { A = (termlist) newbuf(1,sizeof(struct tl));}
 #define new_term(A)         { A = (term) newbuf(1,sizeof(struct te)); \
@@ -45,7 +46,7 @@ extern "C" {
 #define add(A,B)	     { ai = A / SIZEOFBYTE; am = 0x1 << (A % SIZEOFBYTE); \
                                      if (!((B)[ai] & am)) (B)[ai] += am; }
 #define sub(A,B)	     { ai = A / SIZEOFBYTE; am = 0x1 << (A % SIZEOFBYTE); \
-           			     if ((B)[ai] & am) (B)[ai] -= am; }
+				     if ((B)[ai] & am) (B)[ai] -= am; }
 #define testelem(A,B)        ((B)[A / SIZEOFBYTE] & (0x1 << (A % SIZEOFBYTE)))
 
 /* Typedefs. */
@@ -54,7 +55,7 @@ extern "C" {
 typedef char *bitmap;
 
 /* The number of elements of set grset is ngrset.  */
-typedef struct set {
+typedef struct ptset_s {
 	bitmap grset;
 	posint ngrset;
 } *ptset;
