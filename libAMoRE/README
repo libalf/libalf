@@ -1,5 +1,21 @@
 AMoRE - Automata, Monoid, and Regular Expressions
 
+
+
+
+NOTE:
+
+this once was libAMoRE-1.0. it was heavily changed during development of
+libalf. several bugs were removed and things renamed. this is NOT an
+official release of libAMoRE but a local branch of libalf!
+
+
+
+
+
+OLD README BELOW:
+
+
 library part ( libAMoRE )
 -------------------------
 libAMoRE contains the core data type definitions and algorithms.
