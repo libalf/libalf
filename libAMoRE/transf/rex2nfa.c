@@ -1,6 +1,7 @@
 /*
  *  Copyright (c) ?    - 2000 Lehrstuhl fuer Informatik VII, RWTH Aachen
  *  Copyright (c) 2000 - 2002 Burak Emir
+ *                2008, 2009 David R. Piegdon <david-i2@piegdon.de>
  *  This file is part of the libAMoRE library.
  *
  *  libAMoRE is  free software; you can redistribute it and/or
@@ -10,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with the GNU C Library; if not, write to the Free
  *  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
- *  02111-1307 USA.  
+ *  02111-1307 USA.
  */
 
 /* rexnfa.c 3.21 (KIEL) 12.96 */

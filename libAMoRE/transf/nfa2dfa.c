@@ -1,6 +1,7 @@
 /*
  *  Copyright (c) ?    - 2000 Lehrstuhl fuer Informatik VII, RWTH Aachen
  *  Copyright (c) 2000 - 2002 Burak Emir
+ *                2008, 2009 David R. Piegdon <david-i2@piegdon.de>
  *  This file is part of the libAMoRE library.
  *
  *  libAMoRE is  free software; you can redistribute it and/or
@@ -10,7 +11,7 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with the GNU C Library; if not, write to the Free
  *  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
- *  02111-1307 USA.  
+ *  02111-1307 USA.
  */
 
 /* nfa2dfa.c
@@ -115,9 +116,9 @@ static treenode pop()
 static boolx cmp(treenode a, treenode b)
 {
 
-/* compares the dfa-states of a and b 
+/* compares the dfa-states of a and b
  * RETURN: EQUAL iff a->dfastate == b->dfastate
- * 	   SMALL iff a->dfastate < b->dfastate
+ *	   SMALL iff a->dfastate < b->dfastate
  *         GREAT iff a->dfastate > b->dfastate
  */
 	posint i;
@@ -301,7 +302,7 @@ static posint compnewstates(nfa na)
 				newdstate(nxtq);
 			} else {	/* nxtq loeschen */
 				for (ai = 0; ai < nb; nxtq->dfastate[ai++] = 0);
-				for (k = 1; k <= na->alphabet_size; nxtq->delta[k++] = (int) NULL);
+				for (k = 1; k <= na->alphabet_size; nxtq->delta[k++] = 0);
 				nxtq->final = FALSE;
 			}
 			actq->delta[l] = knownelem->number;
@@ -311,7 +312,7 @@ static posint compnewstates(nfa na)
 }				/* compnewstates */
 
 /* copies the information of baltree to the dfa da
- *  RETURN: nothing 
+ *  RETURN: nothing
  */
 
 static void cpinfo(dfa da)

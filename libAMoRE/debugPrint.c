@@ -120,7 +120,7 @@ static void printConnectedStates(ndelta delta, int max, int from, int letter)
 void debugPrintNfa(nfa n)
 {
 	int i, j;
-	printf("<nfa at %d >", (int) n);
+	printf("<nfa at %p >", n);
 	printf("\nqno:  %d", n->highest_state);
 	printf("  alphabet_size:     %d", n->alphabet_size);
 	printf("  minimal: %s", n->minimal ? t : f);
@@ -160,7 +160,7 @@ void debugPrintNfa(nfa n)
 void debugPrintDfa(dfa d)
 {
 	int i, j;
-	printf("<dfa at %d >", (int) d);
+	printf("<dfa at %p >", d);
 	printf("\nqno:     %d", d->highest_state);
 	printf("     alphabet_size:     %d", d->alphabet_size);
 	printf("\nminimal: %s", d->minimal ? t : f);
@@ -184,7 +184,7 @@ void debugPrintDfa(dfa d)
 
 void debugPrintRegExp(regex r)
 {
-	printf("<regexp at %d >", (int) r);
+	printf("<regexp at %p >", r);
 	printf("generalized ? %s", (r->grex ? t : f));
 	printf("     alphabet_size:     %d", r->alphabet_size);
 	printf("\nas String (infix) \"%s\"", r->rex);
@@ -193,7 +193,7 @@ void debugPrintRegExp(regex r)
 
 void debugPrintMonoid(monoid m)
 {
-	printf("<monoid at %d >", (int) m);
+	printf("<monoid at %p >", m);
 	printf("highest_state (nstates):   %3d  alphabet_size (nletters):    %3d", m->highest_state, m->alphabet_size);
 	printf("mno (nelements): %3d  gno (ngenereators) %3d", m->mno, m->gno);
 }
