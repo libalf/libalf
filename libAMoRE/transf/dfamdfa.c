@@ -50,23 +50,23 @@ static arrayofb_array inwaiting;	/* 0 .. numberofblocks , 0 ..alphabet_size */
 static posint sizeofwaiting;	/* size of list waiting */
 
 static posint numberofblocks;	/* number of blocks -1 */
-static array blocksize;		/* 0 .. highest_state */
-static array inblock;		/* 0 .. highest_state */
-static array startblock;	/* 0 .. highest_state -> block */
-static array nextinblock;	/* 0 .. highest_state -> block */
-static array previnblock;	/* 0 .. highest_state -> block */
+static array_of_int blocksize;		/* 0 .. highest_state */
+static array_of_int inblock;		/* 0 .. highest_state */
+static array_of_int startblock;	/* 0 .. highest_state -> block */
+static array_of_int nextinblock;	/* 0 .. highest_state -> block */
+static array_of_int previnblock;	/* 0 .. highest_state -> block */
 
 static array_of_int_arrayofarray inverse;	/* inverse of delta  0 .. alphabet_size,0 .. highest_state, 0 .. sizeofinverse */
-				      /* state1 in array inverse[letter][state2] iff 
+				      /* state1 in array_of_int inverse[letter][state2] iff 
 				       * d[letter][state1]=state2 
 				       */
 static array_of_int_array sizeofinverse;	/* 0 .. alphabet_size, 0 .. highest_state */
 
-static array sizeofintersection;	/* 0 .. highest_state -> size of intersection block and inverse */
-static array startintersection;	/* 0 .. highest_state -> start of intersection */
-static array nextintersection;	/* 0 .. highest_state -> next in intersection */
+static array_of_int sizeofintersection;	/* 0 .. highest_state -> size of intersection block and inverse */
+static array_of_int startintersection;	/* 0 .. highest_state -> start of intersection */
+static array_of_int nextintersection;	/* 0 .. highest_state -> next in intersection */
 
-static array jlist;		/* 0 .. highest_state */
+static array_of_int jlist;		/* 0 .. highest_state */
 static posint sizeofjlist;
 
 static boole with;		/* return map: old state -> new state 
@@ -83,12 +83,12 @@ static void delstates()
 {
 	mrkfin ffinal;
 	ddelta fdelta;
-	array map;
+	array_of_int map;
 	b_array mark;		/* mark reachable states */
 	posint state, letter, state2;
 	/* variables for stack */
 	posint high, next;
-	array stack;
+	array_of_int stack;
 	mark = newb_array(stadfa->highest_state + 1);
 	mark[stadfa->init] = TRUE;
 	stack = newarray_of_int(stadfa->highest_state + 1);
@@ -146,7 +146,7 @@ static boole initstatic()
 /* TRUE iff dfa has only final states or only nonfinal states */
 {
 	posint bno, letter, state, state2;
-	array last;
+	array_of_int last;
 	posint numberofstates = stadfa->highest_state + 1;	/* abbreviation */
 	posint numberofletters = stadfa->alphabet_size + 1;	/* abbreviation */
 
@@ -450,7 +450,7 @@ dfa dfamdfa(dfa indfa, boole free)
 /* this function does not seem to be called anywhere ... Burak
 dfa dfammdfa(indfa,transformation)
 dfa indfa;
-array *transformation;
+array_of_int *transformation;
 {
  stadfa=indfa;
  with=TRUE;

@@ -50,7 +50,7 @@ static boole grid_is_covered();
 /***************************************************************************/
 /* The following variables are used for calculating the      */
 /* boolean sums.                                             */
-static array term_array;
+static array_of_int term_array;
     /* Term_array is used for storing the uncomplemented     */
     /* variables of the current term.                        */
 static posint actcomplemented;
@@ -88,23 +88,23 @@ static array_of_int_array T;
     /* the uncomplemented variables are stored in T. The     */
     /* complemented variable is indirectly stored in start.  */
     /* T[i][0] first variable                                */
-static array NV;
+static array_of_int NV;
     /* NV[i] is the number of uncomplemented variables of    */
     /* the i-th boolean sum.                                 */
-static array start;
+static array_of_int start;
     /* The first term with complement of i is start[i]. The  */
     /* terms 1 to start[0]-1 are the only ones without a     */
     /* complemented variable. To find the end start[REST] is */
     /* set equal to number+1.                                */
-static array nextlevel;
+static array_of_int nextlevel;
     /* Nextlevel[i] is the i-th term a variable has to be    */
     /* taken from.                                           */
-static array startlevel;
+static array_of_int startlevel;
     /* If startlevel[i]==0 then the variable i is not part   */
     /* of the partial solution. If startlevel[i]==k>0 then   */
     /* the variable i is part of the partial solution and    */
     /* has first been taken from the (nextlevel[i])-th term. */
-static array lock;
+static array_of_int lock;
     /* If lock[i]!=0, then the  variable represented by i    */
     /* must not be used when trying to find a new minimal    */
     /* solution. The variable has been locked by sum lock[i] */
@@ -119,7 +119,7 @@ static posint actlevel;
 static posint novar;
     /* novar is the number of variables in the partial       */
     /* solution.                                             */
-static array collection;
+static array_of_int collection;
     /* When trying to find a solution, collection is used    */
     /* for storing the current pattern of the variables of   */
     /* the boolean sums. Thus, collection[i] represents the  */
@@ -537,7 +537,7 @@ static void correct_list()
 /* This function returns TRUE iff array1 is a subset of array2.            */
 /***************************************************************************/
 static boole compare_term(array1, array2, NV1, NV2)
-array array1, array2;
+array_of_int array1, array2;
 posint NV1, NV2;		/* Number of variables in arrays. */
 {
 	posint count1, count2, diff;
@@ -629,7 +629,7 @@ termlist run;
 /* copy_list                                                               */
 /***************************************************************************/
 /* This procedure is used for copying the terms in the list of terms into  */
-/* the matrix T and the array NV. This eases the calculation of a minimal  */
+/* the matrix T and the array_of_int NV. This eases the calculation of a minimal  */
 /* solution.                                                               */
 /***************************************************************************/
 static void copy_list()
@@ -643,7 +643,7 @@ static void copy_list()
 		NV[count] = run->nv;
 		T[count] = run->info;
 	}
-	/* The array start has to be altered. */
+	/* The array_of_int start has to be altered. */
 	if(actcomplemented == GITTER)
 		start[0] = number + 1;
 	/* There are no terms with a         */
@@ -756,7 +756,7 @@ static ptset calculate_minimal_set()
 /* find_next_partial_solution                                              */
 /***************************************************************************/
 /* Find_next_partial_solution tries to add a variable from the current     */
-/* term to the partial solution stored in the array startlevel.            */
+/* term to the partial solution stored in the array_of_int startlevel.            */
 /***************************************************************************/
 /*  Note by oma:  This procedure (or any one else) has a problem, which occurs 
     for example when treating the language
@@ -998,7 +998,7 @@ static void go_back()
 /***************************************************************************/
 /* clear_level                                                             */
 /***************************************************************************/
-/* clear_level clears the partial solution stored in the array startlevel  */
+/* clear_level clears the partial solution stored in the array_of_int startlevel  */
 /* by eliminating the variable taken from the nextlevel[actlevel]-th term. */
 /* Furthermore lock, collection and maxlevel are accustomed.               */
 /***************************************************************************/
@@ -1050,7 +1050,7 @@ posint var;
 	startlevel[var] = maxlevel;
 	/* maxlevel is the number of the term the variable has been taken from.  */
 	/* The terms with the complement of the variable var  have to be looked  */
-	/* at. This is done by adding them to the array nextlevel.               */
+	/* at. This is done by adding them to the array_of_int nextlevel.               */
 	for (i = start[var]; i < start[var + 1]; i++, maxlevel++)
 		nextlevel[maxlevel] = i;
 }
@@ -1068,7 +1068,7 @@ gridlist fI;
 nfa f;
 {
 	posint i, j, k, l, m;
-	array old2new;		/* Array of number of non-essential grids */
+	array_of_int old2new;		/* Array of number of non-essential grids */
 	/* to number of grid in the solution.     */
 	gridlist start;
 	nfa result;

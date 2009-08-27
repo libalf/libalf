@@ -30,11 +30,11 @@ struct rexstruct {
     /** size of alphabet */
 	posint alphabet_size;
     /** reg. expr. in infix, with abbreviations */
-	string rex;
+	char* rex;
     /** reg. expr. in postfix, abbreviations expanded */
-	string exprex;
+	char* exprex;
     /** abbreviations in infix */
-	string abbr[NABBR];
+	char* abbr[NABBR];
     /** length of abbr */
 	posint abbl[NABBR];
     /** number of used abbr */
@@ -57,7 +57,7 @@ typedef struct rexstruct *regex;
 regex newrex();
 /** allocates a string
  */
-string newrexstr(posint strl);
+char* newrexstr(posint strl);
 /** frees the memory used by the regular expression rx. */
 
 void freerex(regex rx);

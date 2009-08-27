@@ -37,9 +37,6 @@
 # include <amore/nfa2rex.h>
 # include <amore/nfa2mnfa.h>
 
-// attention: stupid amore headers typedef string to be char*
-// thus we have to use "std::string"...
-
 namespace amore {
 
 using namespace std;
@@ -723,11 +720,11 @@ nfa nondeterministic_finite_automaton::get_nfa()
 	return nfa_p;
 }}}
 
-std::string nondeterministic_finite_automaton::to_regex()
+string nondeterministic_finite_automaton::to_regex()
 {{{
 	regex r = nfa2rex(nfa_p);
 
-	std::string s;
+	string s;
 
 	char *p = r->rex;
 	while(*p != 0) {

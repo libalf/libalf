@@ -31,7 +31,7 @@
  *       static t_elem new_node0()
  *       static t_elem new_node1()
  *       static t_elem new_node2()
- *       static string cutstr()
+ *       static char* cutstr()
  *    static void optimize_tree()
  *    static void mark_tree()
  *    static void reorder_tree()
@@ -91,14 +91,14 @@
 
 
 typedef struct bin_tree_element
-{ array tupel;
+{ array_of_int tupel;
 	posint no;
 	struct bin_tree_element *lson, *rson;
 } *b_t_elem;
 
 typedef struct waiting_element
-{ array tupel;
-	array delta_s;
+{ array_of_int tupel;
+	array_of_int delta_s;
 	struct waiting_element *next;
 } *w_elem;
 
@@ -124,7 +124,7 @@ posint S;
 
 /* Create tree element without sons */
 static t_elem new_node0(s)
-	string s;
+	char* s;
 {
 	t_elem hlp = newt_elem();
 	hlp->op = ((strlen(s) == (size_t) 1) && (! is_letter(s[0]))) ? s[0] : regch;
@@ -139,7 +139,7 @@ static t_elem new_node1(son, z)
 	t_elem son;
 {
 	t_elem hlp = newt_elem();
-	hlp->expr = newstring(2);
+	hlp->expr = newarray_of_char(2);
 	hlp->expr[0] = z;
 	hlp->op = (z == complch) ? boolech : z;
 	hlp->sons_no = 1;
@@ -157,7 +157,7 @@ static t_elem new_node2(lson, rson, z)
 	t_elem lson, rson;
 {
 	t_elem hlp = newt_elem();
-	hlp->expr = newstring(2);
+	hlp->expr = newarray_of_char(2);
 	hlp->expr[0] = z;
 	hlp->op = (z == concatch) ? z : boolech;
 	hlp->sons_no = 2;
@@ -172,11 +172,11 @@ static t_elem new_node2(lson, rson, z)
 
 /* Cut string from f to l out of s*/
 
-static string cutstr(s, first, last)
-	string s;
+static char* cutstr(s, first, last)
+	char* s;
 	posint first, last;
 {
-	string hlp = newstring(last - first + 2);
+	char* hlp = newarray_of_char(last - first + 2);
 	posint count = first,
 	       count1=0;
 
@@ -195,7 +195,7 @@ static t_elem postfix2tree(re)
 {
 	posint p,sp = 0;
 	posint n=(re->erexl/2)+1;
-	string s = re->exprex;
+	char* s = re->exprex;
 	t_elem lson, rson;
 	stack st;
 
@@ -451,7 +451,7 @@ static void reorder_node(node)
 {
 	t_elem v = node->son[0],
 	       father = node->father;
-	string s;
+	char* s;
 	t_elem *son;
 	posint son_count = 0,
 	       s_count = 0,
@@ -478,7 +478,7 @@ static void reorder_node(node)
 		}
 	}
 	son = newt_ar(son_count);
-	s = newstring(s_count);
+	s = newarray_of_char(s_count);
 	son_count = (s_count = 0);
 
 	v = node->son[0];
@@ -711,7 +711,7 @@ static dfa conc_dfa(dfa_list)
 /* Find and insert element in binary tree */
 static posint insert_elt(root, elem, n, max_no)
 	b_t_elem root;
-	array elem;
+	array_of_int elem;
 	posint n, max_no;
 {
 	b_t_elem help, v = root;
@@ -748,14 +748,14 @@ static posint insert_elt(root, elem, n, max_no)
 
 static dfa boole_dfa(dfa_list, expr)
 	d_array dfa_list;
-	string expr;
+	char* expr;
 {
 	w_elem current = neww_elem(),
 	       first = current, last = current;
 	b_t_elem b_head = newb_t_elem();
 	b_t_elem b_root = newb_t_elem();
 	dfa *h_da = dfa_list->da;
-	array t = newarray_of_int(dfa_list->no);
+	array_of_int t = newarray_of_int(dfa_list->no);
 	posint i, no,
 	       max_no = 0,
 	       n = dfa_list->no,

@@ -39,11 +39,11 @@
  * static arrayofb_array init_isinrule()
  * static posint skip_blanks()
  * static posint next_symbol()
- * static string getident()
+ * static char* getident()
  * static posint get_type()
  * static REDUCE_RESULT reduce()
  * static void shift()
- * static string getmessage()
+ * static char* getmessage()
  * static void red_err() 
  * static void prec_diag()
  * static void stack_err()
@@ -103,7 +103,7 @@ static symbol_stack new_symbol_stack(char op, posint p, posint l)
 	return outstack;
 }
 
-static sentence_stack new_sentence_stack(char op, string s, posint p, posint l)
+static sentence_stack new_sentence_stack(char op, char* s, posint p, posint l)
 {
 	sentence_stack outstack = (sentence_stack) newbuf(1, sizeof(struct str_sentence_stack));
 
@@ -135,8 +135,8 @@ static t_elem new_node(posint n)
 /* Compares two strings using strcmp */
 
 static int stringcomp(arg1, arg2)
-string *arg1;
-string *arg2;
+char* *arg1;
+char* *arg2;
 {
 	return strcmp(*arg1, *arg2);
 }
@@ -151,10 +151,10 @@ char symb;
 array_of_c_string operator_list;
 posint maxop;
 {
-	string key = newstring(2);
+	char* key = newarray_of_char(2);
 	key[0] = symb;
 
-	return (boole) (bsearch(&key, operator_list, maxop, sizeof(string), stringcomp) != NULL);
+	return (boole) (bsearch(&key, operator_list, maxop, sizeof(char*), stringcomp) != NULL);
 }
 
 
@@ -163,11 +163,11 @@ posint maxop;
  */
 
 static boole isidentifier(s, ident_list, maxid)
-string s;
+char* s;
 array_of_c_string ident_list;
 posint maxid;
 {
-	return (boole) (bsearch(&s, ident_list, maxid, sizeof(string), stringcomp) != NULL);
+	return (boole) (bsearch(&s, ident_list, maxid, sizeof(char*), stringcomp) != NULL);
 }
 
 /** Returns TRUE iff s is an entry in prefix_list 
@@ -175,14 +175,14 @@ posint maxid;
  */
 
 static boole isprefix(s, prefix_list, maxpref)
-string s;
+char* s;
 array_of_c_string prefix_list;
 posint maxpref;
 {
 	if(prefix_list == NULL)
 		return FALSE;
 	else
-		return (boole) (bsearch(&s, prefix_list, maxpref, sizeof(string), stringcomp) != NULL);
+		return (boole) (bsearch(&s, prefix_list, maxpref, sizeof(char*), stringcomp) != NULL);
 }
 
 
@@ -194,7 +194,7 @@ posint maxpref;
 static GRAMMAR read_grammar(posint n, char startsym, array_of_c_string strar)
 {
 	posint i = 0, sc = 0, j, k, l, sl;
-	string r, s, t;
+	char *r, *s, *t;
 	GRAMMAR outgrammar = new_grammar(n);
 
 	if(n <= 0)
@@ -208,7 +208,7 @@ static GRAMMAR read_grammar(posint n, char startsym, array_of_c_string strar)
 		/* Look for -> */
 		if(j == (sl - 2))
 			return NULL;	/* No right side for rule */
-		t = newstring(j + 1);
+		t = newarray_of_char(j + 1);
 		for (k = 0; k < j; ++k)
 			t[k] = s[k];	/* t is left side of a rule */
 		j += 2;
@@ -219,7 +219,7 @@ static GRAMMAR read_grammar(posint n, char startsym, array_of_c_string strar)
 			if((j - k) == 0)
 				return NULL;	/* No right side for rule */
 
-			r = newstring(j - k + 1);	/* Right side found */
+			r = newarray_of_char(j - k + 1);	/* Right side found */
 			l = 0;
 			while(k < j) {
 				r[l] = s[k];
@@ -256,7 +256,7 @@ static GRAMMAR init_grammar(array_of_c_string rules, char startsymbol, posint ma
 /* Upon termination, maxlen contains the length of the largest substring in s */
 
 static array_of_c_string get_list(s, count, maxlen)
-string s;
+char* s;
 posint *count;
 posint *maxlen;
 {
@@ -290,7 +290,7 @@ posint *maxlen;
 			max = (max <= (i - chcount)) ? (i - chcount) : max;
 			/* Compute the maximal length of a */
 			/* substring in s */
-			outstrar[hcount] = newstring(i - chcount + 1);
+			outstrar[hcount] = newarray_of_char(i - chcount + 1);
 			/* Get sufficient memory for */
 			/* the substring */
 			for (j = chcount; j < i; ++j)
@@ -309,13 +309,13 @@ posint *maxlen;
 /* The array of substrings is sorted by qsort */
 
 static array_of_c_string init_ident_list(id_list, maxid, maxidlen)
-string id_list;
+char* id_list;
 posint *maxid;
 posint *maxidlen;
 {
 	array_of_c_string outlist = get_list(id_list, maxid, maxidlen);
 
-	qsort(outlist, (*maxid), sizeof(string), stringcomp);
+	qsort(outlist, (*maxid), sizeof(char*), stringcomp);
 
 	return outlist;
 }
@@ -330,7 +330,7 @@ posint maxid;
 posint *maxpref;
 {
 	posint i, j, k, l, sl, count = 0;
-	string s;
+	char* s;
 	array_of_c_string outlist;
 
 	for (i = 0; i < maxid; ++i)	/* Count the number of (real) prefixes */
@@ -345,14 +345,14 @@ posint *maxpref;
 		sl = strlen(s);
 		if(sl > 1)	/* If there exists a real prefix */
 			for (j = 0; j < (sl - 1); ++j) {	/* Put all real prefixes into the outlist */
-				outlist[l] = newstring(j + 2);
+				outlist[l] = newarray_of_char(j + 2);
 				for (k = 0; k <= j; ++k)
 					outlist[l][k] = s[k];
 				++l;
 			}
 	}
 	(*maxpref) = count;
-	qsort(outlist, count, sizeof(string), stringcomp);
+	qsort(outlist, count, sizeof(char*), stringcomp);
 
 	return outlist;
 }
@@ -363,13 +363,13 @@ posint *maxpref;
 /* The array of substrings is sorted by qsort */
 
 static array_of_c_string init_operator_list(op_list, maxop)
-string op_list;
+char* op_list;
 posint *maxop;
 {
 	posint dummy;		/* Only used to avoid a warning from the compiler */
 	array_of_c_string outlist = get_list(op_list, maxop, &dummy);
 
-	qsort(outlist, (*maxop), sizeof(string), stringcomp);
+	qsort(outlist, (*maxop), sizeof(char*), stringcomp);
 
 	return outlist;
 }
@@ -381,10 +381,10 @@ posint *maxop;
 
 static arrayofb_array init_isinrule(gr, index)
 GRAMMAR gr;
-array index;
+array_of_int index;
 {
 	posint i, j;
-	string rightside;
+	char *rightside;
 	arrayofb_array outfield = new_bfield(gr->maxop, gr->ruleno);
 
 	for (i = 0; i < gr->ruleno; ++i) {
@@ -446,13 +446,13 @@ posint *lno;
 
 /* Reads an identifier from the text buffer */
 
-static string getident(line, pos, lno, gr)
+static char* getident(line, pos, lno, gr)
 strstack *line;
 posint *pos;
 posint *lno;
 GRAMMAR gr;
 {
-	string s = newstring(gr->maxidlen + 2);
+	char* s = newarray_of_char(gr->maxidlen + 2);
 	/* Allocate maximal space for */
 	/* an identifier + 1 for the error- */
 	strstack maxl, hl = (*line);	/* flag identch */
@@ -514,7 +514,7 @@ GRAMMAR gr;
 	posint p = pos;
 	tbuf_elem outtbufelem = *elem;
 	char type;
-	string ident;
+	char* ident;
 
 	p = skip_blanks(p, &l, lno);	/* Don't care about spaces */
 
@@ -522,7 +522,7 @@ GRAMMAR gr;
 	outtbufelem->line = (*lno);
 	if(isoperator(l->info[p], gr->operator_list, gr->maxop)) {	/* An operator was found */
 		/* (all operators have a length of one) */
-		outtbufelem->symbols = newstring(2);
+		outtbufelem->symbols = newarray_of_char(2);
 		if(((l->info[p] == leftbrch) || (l->info[p] == complch)) &&
 		   ((lasttype == identch) || (lasttype == rightbrch) || (lasttype == plusch) || (lasttype == starch)))
 			type = concatch;	/* A few rules to avoid typing many .'s */
@@ -538,7 +538,7 @@ GRAMMAR gr;
 		/* (It's not a trick, it's a SONY) */
 		if((lasttype == identch) || (lasttype == rightbrch) || (lasttype == plusch) || (lasttype == starch)) {	/* Fill in missing '.' */
 			outtbufelem->type = concatch;
-			outtbufelem->symbols = newstring(2);
+			outtbufelem->symbols = newarray_of_char(2);
 			outtbufelem->symbols[0] = concatch;
 			/* No advancing to the next symbol here !! */
 		} else {
@@ -574,10 +574,10 @@ static REDUCE_RESULT reduce(top_symbol, top_sentence, gr, index, precedence)
 symbol_stack *top_symbol;
 sentence_stack *top_sentence;
 GRAMMAR gr;
-array index;
-array *precedence;
+array_of_int index;
+array_of_int *precedence;
 {
-	string handle, rightside;
+	char *handle, *rightside;
 	symbol_stack new_top, rightmost, sy_elem = (*top_symbol)->prev;
 	sentence_stack s_elem, up, down;
 	char pretype = sy_elem->op;
@@ -593,7 +593,7 @@ array *precedence;
 		pretype = sy_elem->op;
 		preindex = index[(int) pretype];
 	}
-	handle = newstring(lenhandle + 1);	/* Copy the handle in the string */
+	handle = newarray_of_char(lenhandle + 1);	/* Copy the handle in the string */
 	/* 'handle' */
 	new_top = sy_elem;
 	for (sy_elem = sy_elem->next, i = 0; sy_elem != (*top_symbol); sy_elem = sy_elem->next, ++i)
@@ -701,7 +701,7 @@ tbuf_elem elem;
 symbol_stack *top_symbol;
 sentence_stack *top_sentence;
 {
-	string s = newstring(strlen(elem->symbols) + (size_t) 1);
+	char* s = newarray_of_char(strlen(elem->symbols) + (size_t) 1);
 	posint i;
 
 	for (i = 0; i < strlen(elem->symbols); ++i)
@@ -719,13 +719,13 @@ sentence_stack *top_sentence;
 
 
 /* Build an errormessage of the form 'message in line lno at position pos' */
-static string getmessage(message, symbol, pos, lno)
-string message;
+static char* getmessage(message, symbol, pos, lno)
+char* message;
 char symbol;
 posint pos;
 posint lno;
 {
-	string poss, lins, outmess, symbs;
+	char *poss, *lins, *outmess, *symbs;
 	posint errmsglen, j;
 
 	poss = pi2s(pos);
@@ -740,7 +740,7 @@ posint lno;
 			errmsglen += (1 + strlen(symbs));
 		}
 	}
-	outmess = newstring(errmsglen + 1);
+	outmess = newarray_of_char(errmsglen + 1);
 	strcpy(outmess, message);
 	j = strlen(message);
 	if(symbol != spacech) {
@@ -772,7 +772,7 @@ PARSE_RESULT inres;
 REDUCE_RESULT inred_res;
 sentence_stack top_sentence;
 {
-	string outmessage;
+	char* outmessage;
 	char errorsymbol;
 	sentence_stack s_elem = inred_res->s_elem;
 
@@ -801,7 +801,7 @@ symbol_stack topsymbol;
 tbuf_elem elem;
 posint prec;
 {
-	string errormessage;
+	char* errormessage;
 
 	switch (prec) {
 	case UNBALBR:
@@ -849,7 +849,7 @@ sentence_stack top_sentence;
 /* if outbuf->tree == NULL, outbuf->message is an errormessage */
 /* and outbuf->error_pos is the position of the detected error in inbuf */
 
-static PARSE_RESULT parse(strstack inbuf, GRAMMAR gr, array index, array * precedence)
+static PARSE_RESULT parse(strstack inbuf, GRAMMAR gr, array_of_int index, array_of_int * precedence)
 {
 
 	PARSE_RESULT outres = newbuf_parse_result();
@@ -868,7 +868,7 @@ static PARSE_RESULT parse(strstack inbuf, GRAMMAR gr, array index, array * prece
 		return outres;
 	}
 	newbuf_part(endline);
-	endline->info = newstring(2);
+	endline->info = newarray_of_char(2);
 	endline->info[0] = endch;	/* Build textline as an endoftext-flag */
 	endline->lastpos = 1;
 

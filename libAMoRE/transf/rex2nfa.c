@@ -39,7 +39,7 @@
  *  contains the postfix-notation ( prefix- , resp.) of the 
  *  expression, where every letter in replaced by the dummy 'a'.   
  */
-static string rex, prerex;
+static char* rex, *prerex;
 /* postfix (ab.) and prefix (.ab) form of input string (a.b) */
 
 /** state to which compfirst connects */
@@ -369,7 +369,7 @@ nfa rex2nfa(regex re)
 
 	/* init static vars */
 	/* Aenderungen von oma   :  11.01.96  */
-	rex = newstring(re->erexl);
+	rex = newarray_of_char(re->erexl);
 	/* war :  rex = re->exprex;  */
 
 	posch = newarray_of_int(re->erexl);
@@ -489,7 +489,7 @@ nfa rex2nfa(regex re)
 	/* the prefixnotation will temprarily become  longer than the postfix
 	   notation because intermediate symbols are introduced (and deleted or
 	   skipped afterwards). */
-	prerex = newstring(prerexlen + 1);
+	prerex = newarray_of_char(prerexlen + 1);
 	prerex[prerexlen] = '\0';
 	/*  deleted by oma : prerex[re->rexl] = '\0';  */
 	rposch = newarray_of_int(prerexlen + 1);

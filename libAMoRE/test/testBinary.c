@@ -53,7 +53,7 @@ boole equiv(dfa dfa1, dfa dfa2)
 {
 	posint letter, stateno1, stateno2, state1, state2;
 	b_array mark1, mark2;	/* mark the state with a preimage or image in bijection */
-	array bijection, stack;
+	array_of_int bijection, stack;
 	posint height = 1;	/* number of states in stack and first free place */
 	boole equal = TRUE;
 	/* search for a valid bijection from the states of dfa1 to the states of dfa2 */
@@ -114,7 +114,7 @@ boole equiv(dfa dfa1, dfa dfa2)
 boole inclusion(dfa dfa1, dfa dfa2, boole inclusion)
 {
 	boole result = TRUE;
-	array mark;		/* mark reachable pairs in the crossprodukt 
+	array_of_int mark;		/* mark reachable pairs in the crossprodukt 
 				 * mark[i] is the index of the next pair
 				 */
 	posint letter, test;

@@ -32,13 +32,13 @@ struct dclass {
 	posint rno, lno;
     /** #elements in a h-class */
 	posint hsize;
-    /** array of prefixes(suffixes)
+    /** array_of_int of prefixes(suffixes)
      * of representatives of
      * each r(l)-class (0 to r(l)no-1)
      */
-	array lrep, rrep;
+	array_of_int lrep, rrep;
     /** one full h-class (0 to hsize-1) */
-	array hclass;
+	array_of_int hclass;
     /** true iff regular d-class */
 	boole regular;
     /** rang of d-class */
@@ -51,7 +51,7 @@ struct dclass {
 /** pointer to a D-class */
 typedef struct dclass *d_class;
 
-/** array of D-classes */
+/** array_of_int of D-classes */
 typedef d_class *darray;
 
 /** D-class decomposition */
@@ -69,7 +69,7 @@ struct d_struct {
     /** partialorder */
 	array_of_int_array partial;
     /** number of succ */
-	array numberofsucc;
+	array_of_int numberofsucc;
 };
 
 /** pointer to a D-class decomposition */
@@ -78,8 +78,8 @@ typedef struct d_struct *dstruct;
 /** relation */
 struct r_struct {
 	posint rno; /**<no of relations*/
-	array lside;/**< leftside(number of a monoidelement) (0 .. rno-1) */
-	array rside;/**< rightside(number of a generator)    (0 .. rno-1) */
+	array_of_int lside;/**< leftside(number of a monoidelement) (0 .. rno-1) */
+	array_of_int rside;/**< rightside(number of a generator)    (0 .. rno-1) */
 
 };
 /** pointer to a relation */
@@ -98,12 +98,12 @@ struct mono {
     /** #generators */
 	posint gno;
     /** list of generators (0 to gno)*/
-	array generator;
+	array_of_int generator;
     /** let2gen[i]=j iff
      * j is the least letter with the
      * transformation of generator i
      */
-	array let2gen;
+	array_of_int let2gen;
     /** transf_ of elements(0 to mno-1, 0 to highest_state) */
 	array_of_int_array no2trans;
     /** gensucc[i][0]= predecessor of i
@@ -114,9 +114,9 @@ struct mono {
     /** last letter of a shortest
      *  representation of a element (0 to mno-1)
      */
-	array lastletter;
+	array_of_int lastletter;
     /** length of the representation (0 to mno-1) */
-	array no2length;
+	array_of_int no2length;
     /** number of the zero if one exists
      *
      *  stamon->mno if no zero exists
@@ -136,9 +136,9 @@ struct mono {
      * of a representative with
      * lastletter and gensucc[0]
      */
-	array word;
+	array_of_int word;
     /** free space for display of repr. */
-	string repr;
+	char* repr;
 };
 /** pointer to a monoid
  *  @ingroup LDO_DECL

@@ -165,7 +165,7 @@ char *prword1(char **word, boole copy, posint * length, posint no, monoid mon, b
 		while(mon->repr[l] != '\0')
 			l++;
 		*length = ++l;
-		(*word) = newstring(l);
+		(*word) = newarray_of_char(l);
 		for (l = 0; l < (*length); l++)
 			(*word)[l] = mon->repr[l];
 	}
@@ -237,7 +237,7 @@ dfa indfa;
 	mon->word = newar(mon->no2length[mon->mno - 1]);
 	gen = mon->no2length[mon->mno - 1] + 1;	/* number of letters of longest element +1 */
 	gen *= (mon->alphabet_size <= 27) ? 1 : strlen(pi2a(mon->alphabet_size)) + 1;
-	mon->repr = (string) calloc(gen, sizeof(char));
+	mon->repr = (char*) calloc(gen, sizeof(char));
 	for (state = 0; state < gen;)
 		mon->repr[state++] = '\0';
 }

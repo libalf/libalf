@@ -27,13 +27,13 @@ extern "C" {
  */
 struct sexp {
     /**  indexed 0 to mno-1 */
-	array ulength;
+	array_of_int ulength;
     /**  indexed 0 to mno-1 */
-	array vlength;
+	array_of_int vlength;
     /**  indexed 0 to mno-1 */
-	array w0length;
+	array_of_int w0length;
     /**  indexed 0 to mno-1 */
-	array w1length;
+	array_of_int w1length;
     /** length of u[x] :   2*ulength[x]   element,generator */
 	array_of_int_array u;
     /** length of v[x] :   2*vlength[x]   generator,element */
@@ -58,7 +58,7 @@ starfexp newsfexp();
 
 
 /** frees the memory used by the starfree regular expression sf.
- *  flag == TRUE iff memory for the array's has been allocated
+ *  flag == TRUE iff memory for the array_of_int's has been allocated
  *  mno is the number of monoid elements
  */
 void freesf(starfexp sf, boole flag, posint mno);

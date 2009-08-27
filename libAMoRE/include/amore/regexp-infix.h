@@ -30,7 +30,7 @@ extern "C" {
  * @param dc TRUE iff concatch should be displayed
  * @param reslen length of the result (out-parameter)
  */
-string infix(regex re, boole dc, posint * reslen);
+char* infix(regex re, boole dc, posint * reslen);
 
 #ifdef __cplusplus
 } // extern "C"

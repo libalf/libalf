@@ -23,7 +23,7 @@ nfa delsta(nfa inputnfa)
 	mrkfin infin = inputnfa->infin;	/* abbreviation */
 	nfa result;		/* Automaton to be returned.       */
 	b_array reach1, reach2;	/* mark reachable and productive states */
-	array stack;
+	array_of_int stack;
 	posint height = 0;	/* height of stack */
 	posint state1, state2, s1, s2, letter;
 	posint count = 0;	/* count reachable and productive states */

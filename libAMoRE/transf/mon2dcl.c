@@ -47,10 +47,10 @@ typedef struct dlist {
 #define newdlist() (d_list)newbuf((posint)1,(posint)sizeof(struct dlist))
 
 /* only for computation of irregular dclasses */
-static array harray;
-static array pred;
-static array rlqueue;
-static array sufarray, prearray;
+static array_of_int harray;
+static array_of_int pred;
+static array_of_int rlqueue;
+static array_of_int sufarray, prearray;
 
 
 /* only for computation of regular dclasses */
@@ -65,16 +65,16 @@ static posint goodkernel;	/* number of kernels that represent r-classes
 static monoid stamon;		/* actual monoid */
 static d_list dfirst, dlast;	/* first,last dclass in a list of dclasses */
 static posint currentrang;	/* rang of actual dclass */
-static array countimage, countkernel;	/* for computation of image and kernel */
+static array_of_int countimage, countkernel;	/* for computation of image and kernel */
 static b_array mark;		/* mark elements, used in computation of regular 
 				 * and irregular dclasses in different ways */
 static b_array isindclass;	/* elements whose dclass is computed */
 static posint regcount, irregcount;	/* count (ir)regular elements */
 static posint dcounter, rcounter, lcounter;	/* count number of computed d(r,l)classes */
-static array no2rang;
+static array_of_int no2rang;
 
 static int letterlength;
-static array suffix, prefix, h_class, r_class, l_class, hstack;	/* see comments in r_h_reg_class */
+static array_of_int suffix, prefix, h_class, r_class, l_class, hstack;	/* see comments in r_h_reg_class */
 posint Q, K;			/* maximal size of images and kernels */
 
 static void initstatic()
@@ -109,7 +109,7 @@ static void initstatic()
 boole idempotent(posint element, monoid mon)
 {
 	posint i;
-	array a = mon->no2trans[element];	/* abbreviation */
+	array_of_int a = mon->no2trans[element];	/* abbreviation */
 	for (i = 0; i <= mon->highest_state; i++)
 		if(a[i] != a[a[i]])
 			return (FALSE);
@@ -126,7 +126,7 @@ static void cpt_rang(element)
 posint element;
 {
 	posint rang = 0, j;
-	array a = stamon->no2trans[element];
+	array_of_int a = stamon->no2trans[element];
 	for (j = 0; j < Q; j++)
 		countimage[a[j]] = 1;
 	for (j = 0; j < Q; j++)
@@ -149,7 +149,7 @@ static void cpt_image(element)
 posint element;
 {
 	posint rang = 0, j;
-	array a = stamon->no2trans[element];
+	array_of_int a = stamon->no2trans[element];
 	if((!no2rang[element]) || (no2rang[element] == currentrang)) {
 		for (j = 0; j < Q; j++)
 			countimage[a[j]] = 1;
@@ -176,7 +176,7 @@ static void cpt_kernel(element)
 posint element;
 {
 	posint rang = 0, j, start = 0, image;
-	array a = stamon->no2trans[element];
+	array_of_int a = stamon->no2trans[element];
 	if((!no2rang[element]) || (no2rang[element] == currentrang)) {
 		for (j = 0; j < Q; j++)
 			if(countimage[a[j]])
@@ -190,7 +190,7 @@ posint element;
 /* compute kernel
  * the sets of a kernel are separated by the number Q
  * the sets of a kernel are ordered with respect to the least element in a set
- * the representation of a kernel requires at most an array of length K
+ * the representation of a kernel requires at most an array_of_int of length K
  */
 		if(no2rang[element] == currentrang) {
 			if(maxkernel == kernumber)
@@ -231,7 +231,7 @@ posint element;
 {
 	posint i, j;
 	posint kernellength = Q + currentrang - 1;	/* Q states and currentrang-1 seperators */
-	array a, b;
+	array_of_int a, b;
 	cpt_kernel(element);
 	if(no2rang[element] != currentrang)
 		return (FALSE);
@@ -256,7 +256,7 @@ posint element;
 static boole transversales(element)
 posint element;
 {
-	array a, b, c;
+	array_of_int a, b, c;
 	boole notfound, transversale, good = FALSE;
 	posint i, j, k, begin;
 	a = imagearray[imnumber];
@@ -318,7 +318,7 @@ static short int searchimage(element)
 posint element;
 {
 	posint i, j;
-	array a, b;
+	array_of_int a, b;
 	/* posint begin; */
 	cpt_image(element);
 	if(no2rang[element] != currentrang)
@@ -359,7 +359,7 @@ static short int imcompare(element)
 posint element;
 {
 	posint i, j;
-	array a, b;
+	array_of_int a, b;
 	cpt_image(element);
 	if(no2rang[element] != currentrang)
 		return (0);

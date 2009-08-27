@@ -35,20 +35,20 @@
 static monoid stamon;
 static starfexp stastarf;
 
-static array melem2rang;	/* rang of an element */
-static array melem2dno;		/* dclass of an element */
-static array melem2rno;		/* rclass of an element */
-static array melem2lno;		/* lclass of an element */
+static array_of_int melem2rang;	/* rang of an element */
+static array_of_int melem2dno;		/* dclass of an element */
+static array_of_int melem2rno;		/* rclass of an element */
+static array_of_int melem2lno;		/* lclass of an element */
 static array_of_int_array r2r;	/* used to test: not n in mM  */
 static array_of_int_array l2l;	/* used to test: not n in Mm  */
 static arrayofb_array d2d;	/* used to test: not n in MmM */
 
-static array queue;		/* mark,queue used to compute transitive closure */
+static array_of_int queue;		/* mark,queue used to compute transitive closure */
 static b_array mark;		/* of relations r2r and l2l */
-static array result;
+static array_of_int result;
 
 /*  variables to avoid direct recursion in inversphi */
-static array stak;		/* stack to manage the recursion */
+static array_of_int stak;		/* stack to manage the recursion */
 static posint high;		/* number of elements on stak */
 
 /******************************************************************/

@@ -55,7 +55,7 @@ static posint rowsink, colsink;
     /* ZEILEN+1 if b has no empty state. Colsink is the      */
     /* number of the empty state of c or SPALTEN+1 if c has  */
     /* no empty state.                                       */
-static array rowweight, colweight;
+static array_of_int rowweight, colweight;
     /* Rowweight[i]=number of 1's in row i of the RAM;       */
     /* colweight[i]=number of 1's in column i of the RAM.    */
 static cover grids;
@@ -425,7 +425,7 @@ posint dastates, nastates;	/* Number of states - 1 of given   */
 {
 	posint i, j, k, l, m;
 	nfa na;
-	array old2new;
+	array_of_int old2new;
 
 	if(dastates == nastates)
 		return dfa2nfa(da);	/* Nothing to do. */
@@ -583,7 +583,7 @@ static void calculate_necessary_grids()
 static void calculate_grids_r()
 {
 	posint i, j, k, n, m, Z, nbm;
-	array new2old;		/* New2old assigns to all rows of the       */
+	array_of_int new2old;		/* New2old assigns to all rows of the       */
 	/* "smaller" RAM the corresponding row of   */
 	/* the original RAM.                        */
 	ptset pattern;		/* Pattern of rows. */
@@ -700,7 +700,7 @@ static void calculate_grids_r()
 static void calculate_grids_c()
 {
 	posint i, j, k, n, m, S, nbm;
-	array new2old;		/* New2old assigns to all columns of the    */
+	array_of_int new2old;		/* New2old assigns to all columns of the    */
 	/* "smaller" RAM the corresponding column   */
 	/* of the original RAM.                     */
 	ptset pattern;		/* Pattern of columns. */
@@ -814,7 +814,7 @@ static void calculate_grids_c()
 /***************************************************************************/
 static void add_to_list(pattern, cols)
 ptset pattern;			/* Pattern is a ptset used for storing the    */
-array cols;			/* numbers of the columns resp. rows of a     */
+array_of_int cols;			/* numbers of the columns resp. rows of a     */
 	       /* grid over the RAM without the columns resp. */
 	       /* rows that contain a 1 standing alone in    */
 	       /* both its row and its column and without    */

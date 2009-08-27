@@ -28,7 +28,7 @@ extern "C" {
  */
 struct tree_element {
 	char op;		/*< Operand */
-	string expr;
+	char* expr;
 	int sons_no;		/*< Number of sons                      */
 	struct tree_element **son;	/*< Pointerarray to sons                */
 	struct tree_element *father;	/*< Pointer to father                   */
@@ -49,8 +49,8 @@ typedef struct tree_element *t_elem;
  *  @ingroup PARSER
  */
 struct str_rule {
-	string leftside;
-	string rightside;
+	char* leftside;
+	char* rightside;
 };
 
 /** pointer to a rule
@@ -62,7 +62,7 @@ typedef struct str_rule *RULE;
  *  @ingroup PARSER
  */
 struct str_idgroups {
-	string FirstSyms;	/*< First symbols of the identifier(-group) */
+	char* FirstSyms;	/*< First symbols of the identifier(-group) */
 	boole FollByNum;	/*< TRUE iff identifier of the group consist of
 				   FirstSyms+ number */
 	char TypeSymbol;	/*< Symbol representing the (group of) identifier(s)
@@ -116,7 +116,7 @@ typedef struct part *strstack;
  */
 struct str_parse_result {
 	t_elem tree;		/* Root of syntax-tree regular exp. */
-	string error_message;	/* Error message iff tree == NULL */
+	char* error_message;	/* Error message iff tree == NULL */
 	posint error_pos;	/* Position of error */
 	posint error_line;	/* Line in which error ocurred */
 };
@@ -129,7 +129,7 @@ typedef struct str_parse_result *PARSE_RESULT;
  */
 struct str_tbuf_elem {
 	char type;
-	string symbols;
+	char* symbols;
 	posint position;
 	posint line;
 	t_elem node;
@@ -159,7 +159,7 @@ typedef struct str_symbol_stack *symbol_stack;
  */
 struct str_sentence_stack {
 	char op;
-	string symbols;
+	char* symbols;
 	posint position;
 	posint line;
 	struct str_sentence_stack *prev;
@@ -175,7 +175,7 @@ typedef struct str_sentence_stack *sentence_stack;
  *  @ingroup PARSER
  */
 struct str_reduce_result {
-	string rule;
+	char* rule;
 	posint synchr;
 	sentence_stack s_elem;
 	posint errorpos;
@@ -190,11 +190,11 @@ typedef struct str_reduce_result *REDUCE_RESULT;
  */
 struct str_parse_input {
   /** List of operators */
-	string op_list;
+	char* op_list;
   /** List of identifiers */
 	IdGroup *fid_list;
   /** List of identifiers */
-	string id_list;
+	char* id_list;
 	posint maxid;
   /** Stringarray with the rules of the grammar */
 	array_of_c_string rules;
@@ -207,7 +207,7 @@ struct str_parse_input {
   /** Input, that shall be parsed */
 	strstack buf;
   /** Mapping {operators}->|{operators}| */
-	array index;
+	array_of_int index;
 };
 
 /** pointer to str_parse_input
@@ -219,7 +219,7 @@ typedef struct str_parse_input *PARSE_INPUT;
  *  @ingroup PARSER
  */
 struct str_express {
-	string expr;
+	char* expr;
 	posint length;
 };
 
@@ -236,13 +236,13 @@ typedef struct str_express *EXPRESS;
 #define newbuf_parse_input() ((PARSE_INPUT) newbuf(1, sizeof(struct str_parse_input)))
 
 /*! undocumented */
-#define newbuf_array(N) ((array) newbuf(N, sizeof(posint)))
+#define newbuf_array(N) ((array_of_int) newbuf(N, sizeof(posint)))
 
 /*! undocumented */
-#define newbuf_strar(N) ((array_of_c_string) newbuf(N, sizeof(string)))
+#define newbuf_strar(N) ((array_of_c_string) newbuf(N, sizeof(char*)))
 
 /*! undocumented */
-#define newbuf_string(N) ((string) newbuf(N, sizeof(char)))
+#define newbuf_string(N) ((char*) newbuf(N, sizeof(char)))
 
 /*! undocumented */
 #define newbuf_tbuf_elem() ((tbuf_elem) newbuf(1, sizeof(struct str_tbuf_elem)))

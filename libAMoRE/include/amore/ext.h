@@ -71,10 +71,10 @@ extern char dummy[PILEN];
 
 /* memory management with the buffer */
 
-/** <b>(array)newbuf((posint)(A),(posint)sizeof(posint))
- *  @memo allocates new {@link array array} of posint via newbuf
+/** <b>(array_of_int)newbuf((posint)(A),(posint)sizeof(posint))
+ *  @memo allocates new {@link array_of_int array_of_int} of posint via newbuf
  */
-#define newarray_of_int(A)	(array)newbuf((posint)(A),(posint)sizeof(posint))
+#define newarray_of_int(A)	(array_of_int)newbuf((posint)(A),(posint)sizeof(posint))
 /** <b>(mrkfin)newbuf((posint)(A),(posint)sizeof(boolx))
  *  @memo allocates new {@link mrkfin mrkfin} via newbuf
  */
@@ -83,22 +83,22 @@ extern char dummy[PILEN];
  *  @memo allocates new {@link b_array b_array} via newbuf
  */
 #define newb_array(A)		(b_array)newbuf((posint)(A),(posint)sizeof(boole))
-/** <b>(array_of_int_array)newbuf((posint)(A),(posint)sizeof(array))
+/** <b>(array_of_int_array)newbuf((posint)(A),(posint)sizeof(array_of_int))
  *  @memo allocates new {@link array_of_int_array array_of_int_array} via newbuf
  */
-#define newarray_of_int_array(A)	(array_of_int_array)newbuf((posint)(A),(posint)sizeof(array))
+#define newarray_of_int_array(A)	(array_of_int_array)newbuf((posint)(A),(posint)sizeof(array_of_int))
 /** <b>(arrayofb_array)newbuf((posint)(A),(posint)sizeof(b_array))
  *  @memo allocates new {@link arrayofb_array arrayofb_array} via newbuf
  */
 #define newarrayofb_array(A)	(arrayofb_array)newbuf((posint)(A),(posint)sizeof(b_array))
-/** <b>(string)newbuf((posint)(A),(posint)sizeof(char))
- *  @memo allocates new {@link string string} via newbuf
+/** <b>(char*)newbuf((posint)(A),(posint)sizeof(char))
+ *  @memo allocates new {@link char* string} via newbuf
  */
-#define newstring(A)		(string)newbuf((posint)(A),(posint)sizeof(char))
-/** <b>(array_of_c_string)newbuf((posint)(A),(posint)sizeof(string))
+#define newarray_of_char(A)		(char*)newbuf((posint)(A),(posint)sizeof(char))
+/** <b>(array_of_c_string)newbuf((posint)(A),(posint)sizeof(char*))
  *  @memo allocates {@link new array_of_c_string array_of_c_string} via newbuf
  */
-#define newarray_of_c_string(A)	(array_of_c_string)newbuf((posint)(A),(posint)sizeof(string))
+#define newarray_of_c_string(A)	(array_of_c_string)newbuf((posint)(A),(posint)sizeof(char*))
 
 #define newdlist() (d_list)newbuf((posint)1,(posint)sizeof(struct dlist))
 

@@ -131,7 +131,7 @@ dfa minL(dfa indfa)
 	register dfa outdfa;
 	posint i, s;
 	posint count = 0, dead;
-	array old2new;
+	array_of_int old2new;
 	outdfa = newdfa();
 	if(indfa->final[indfa->init]) {	/* MIN(L)={epsilon} */
 		outdfa->highest_state = 1;

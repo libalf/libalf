@@ -41,15 +41,15 @@ void OUT_OF_MEM();
 /* ------------------------------------  some funcs for basic typedefs */
 
 
-/** allocates a new array of mkrfin
+/** allocates a new array_of_int of mkrfin
  */
 mrkfin newfinal(posint a);
 
-/** allocates a new array
+/** allocates a new array_of_int
  */
-array newar(posint a);
+array_of_int newar(posint a);
 
-/** allocates a new array of boole
+/** allocates a new array_of_int of boole
  */
 boole *newbarray(posint a);
 
@@ -65,7 +65,7 @@ char *pi2a(posint pi);
 
 /** Converts a posint n to a string
  */
-string pi2s(posint n);
+char* pi2s(posint n);
 
 /* -----------------------------------------------------  some macros */
 # define FALSE	(0)

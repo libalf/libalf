@@ -32,10 +32,10 @@ regex newrex()
 	return hlp;
 }				/* newrex */
 
-string newrexstr(posint strl)
+char* newrexstr(posint strl)
 {
-	string hlp;
-	hlp = (string) calloc(strl + 1, sizeof(char));
+	char* hlp;
+	hlp = (char*) calloc(strl + 1, sizeof(char));
 	if(hlp == NULL) {
 #ifdef DEBUG
 		perror("newrexstr 1");

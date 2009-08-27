@@ -179,7 +179,7 @@ static char *bx2a(boolx bxval)
 	/* NOTREACHED */
 }				/* bx2a */
 
-static void writestr(register string str, register posint strl)
+static void writestr(register char* str, register posint strl)
 {
 	char ch;
 	while(strl > LINELEN) {

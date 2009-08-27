@@ -21,7 +21,7 @@
 
 
 typedef struct {
-	string s;
+	char* s;
 	posint l;
 } edgelbl;
 
@@ -29,8 +29,8 @@ static edgelbl **area;
 static posint qst, highest_state;
 
 /* create, copy, concat */
-#define CCC(R,L,A,B) {R=(string)newbuf(L,sizeof(char));R=strcpy(R,A);R=strcat(R,B);}
-#define CCS(R,L,A,B,F) {R=(string)newbuf(L,sizeof(char));R=strcpy(R,A);F=strcat(R,B);}
+#define CCC(R,L,A,B) {R=(char*)newbuf(L,sizeof(char));R=strcpy(R,A);R=strcat(R,B);}
+#define CCS(R,L,A,B,F) {R=(char*)newbuf(L,sizeof(char));R=strcpy(R,A);F=strcat(R,B);}
 
 #define test(A)  (strcmp((A),streps))
 
@@ -81,7 +81,7 @@ static void init(nfa na)
 				}
 			area[i][j].l = l;
 			if(l) {
-				area[i][j].s = (string) newbuf(l + 1, sizeof(char));
+				area[i][j].s = (char*) newbuf(l + 1, sizeof(char));
 				area[i][j].s = strcpy(area[i][j].s, ent);
 			}
 		}
@@ -153,7 +153,7 @@ static void destroyloops()
 static boole deletenode()
 {
 	posint i, j, l1, l2, l3, w1, w2, w3, delnod;
-	string str;
+	char* str;
 	delnod = qst++;
 	for (i = qst; i <= highest_state; i++)
 		if(area[i][delnod].l) {	/* re1 != "" */
@@ -206,7 +206,7 @@ static boole deletenode()
 						break;
 					case 21:	/* re1 != @, re2 == @; re3 == "" */
 						area[i][j].l = l1;
-						str = (string) newbuf(l1 + 1, sizeof(char));
+						str = (char*) newbuf(l1 + 1, sizeof(char));
 						area[i][j].s = strcpy(str, area[i][delnod].s);
 						break;
 					case 17:	/* re1 == @, re2 != @; re3 else */
@@ -217,7 +217,7 @@ static boole deletenode()
 						break;
 					case 15:	/* re1 == @, re2 != @; re3 == "" */
 						area[i][j].l = l2;
-						str = (string) newbuf(l2 + 1, sizeof(char));
+						str = (char*) newbuf(l2 + 1, sizeof(char));
 						area[i][j].s = strcpy(str, area[delnod][j].s);
 						break;
 					case 14:	/* re1, re2 == @; re3 else */
@@ -229,7 +229,7 @@ static boole deletenode()
 						break;
 					case 12:	/* re1, re2 == @; re3 == "" */
 						area[i][j].l = 1;
-						str = (string) newbuf(2, sizeof(char));
+						str = (char*) newbuf(2, sizeof(char));
 						area[i][j].s = strcpy(str, streps);
 						break;
 					}

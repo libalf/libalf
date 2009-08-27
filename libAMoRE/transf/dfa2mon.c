@@ -24,8 +24,8 @@
 typedef struct m1 {
 	posint number;		/* number */
 	posint lastletter;	/* last letter of shortest representative */
-	array transf;		/* transformation */
-	array gensucc;		/* gensucc[0] number of predecessor 
+	array_of_int transf;		/* transformation */
+	array_of_int gensucc;		/* gensucc[0] number of predecessor 
 				 * gensucc[i] result of mult. with the i-th
 				 * generator to the right */
 	struct m1 *rsucc, *lsucc;	/* right and left son in the tree structure */
@@ -41,10 +41,10 @@ static melement searchtrans(atrans)
  /*  return pointer to melement where transition atrans is found
   *  if number of this element is nextno then this element is new
   */
-array atrans;
+array_of_int atrans;
 {
 	register posint j;
-	register array btrans;
+	register array_of_int btrans;
 	melement run = root;
 	for (;;) {
 		btrans = run->transf;	/* abbreviation */
@@ -75,8 +75,8 @@ array atrans;
 monoid dfa2mon(dfa indfa)
 {
 	register posint state;
-	register array map;	/* used to compute a transformation */
-	register array dd, tr;	/* abbreviation */
+	register array_of_int map;	/* used to compute a transformation */
+	register array_of_int dd, tr;	/* abbreviation */
 	monoid mon;
 	posint gen;
 	melement actuel, last, intree;
@@ -185,7 +185,7 @@ monoid dfa2mon(dfa indfa)
 	mon->word = newar(mon->no2length[mon->mno - 1]);
 	gen = mon->no2length[mon->mno - 1] + 1;	/* number of letters of longest element +1 */
 	gen *= (mon->alphabet_size <= 27) ? 1 : strlen(pi2a(mon->alphabet_size)) + 1;
-	mon->repr = (string) calloc(gen, sizeof(char));
+	mon->repr = (char*) calloc(gen, sizeof(char));
 	for (state = 0; state < gen;)
 		mon->repr[state++] = '\0';
 	freebuf();

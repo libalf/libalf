@@ -81,7 +81,7 @@ EXPRESS *AbbsInPostfix;
  * If this mapping is changed, the precedence table must be changed too 
  */
 
-static void init_index(array index)
+static void init_index(array_of_int index)
 {
 	index[unionch] = 0;
 	index[minusch] = 1;
@@ -100,11 +100,11 @@ static void init_index(array index)
 /** populates identifier line.
  *  returning "a0 a1 ... a10 ... a100 ..."
  */
-static string init_idline_alphanum(int maxlet)
+static char* init_idline_alphanum(int maxlet)
 {
-	string IdLine;		/*< identifier line */
+	char* IdLine;		/*< identifier line */
 	posint LetLen, i;
-	string LetNum;		/*< letter-number   */
+	char* LetNum;		/*< letter-number   */
 	posint IdLineSize;
 			 /** size of the identifier line */
 	posint IdListP;		/*< position in IdLine */
@@ -145,9 +145,9 @@ static string init_idline_alphanum(int maxlet)
 /** populates identifier line.
  *  letters are simply @,a,b,c,d ... 
  */
-static string init_idline_alphabet(maxlet)
+static char* init_idline_alphabet(maxlet)
 {
-	string IdLine;		/*< identifier line */
+	char* IdLine;		/*< identifier line */
 	posint IdLineSize;
 			 /** size of the identifier line */
 	posint IdListP;		/*< position in IdLine */
@@ -177,7 +177,7 @@ static string init_idline_alphabet(maxlet)
 static PARSE_INPUT init_parseinp(int maxlet, char *s)
 {
 	posint i, j;
-	string IdLine;		/*< identifier line */
+	char* IdLine;		/*< identifier line */
 	PARSE_INPUT parse_parms = newbuf_parse_input();
 	/* expanded regular expression ? */
 	/* EXPRESS RexInPostfix; */
@@ -210,10 +210,10 @@ static PARSE_INPUT init_parseinp(int maxlet, char *s)
 	parse_parms->startsymbol = 'E';
 
 
-	precedence = (array_of_int_array) newbuf(11, sizeof(array));
+	precedence = (array_of_int_array) newbuf(11, sizeof(array_of_int));
 
 	for (i = 0; i < 11; ++i) {
-		precedence[i] = (array) newbuf(11, sizeof(posint));
+		precedence[i] = (array_of_int) newbuf(11, sizeof(posint));
 		for (j = 0; j < 11; ++j)
 			precedence[i][j] = prec[i][j];
 	}
@@ -235,7 +235,7 @@ static PARSE_INPUT init_parseinp(int maxlet, char *s)
 /******************************************************************/
 static EXPRESS tree2string(t_elem Root)
 {
-	string OutString;
+	char* OutString;
 	t_elem Node = Root;
 	posint Count = 0, Length = 0;
 	char FirstLet;

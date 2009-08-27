@@ -26,43 +26,41 @@ most notable changes:
 	  (highest_state and alphabet_size)
 
 	* AMoRE-1.0 cluttered the namespace:
-	  it had the following types, makros or functions defined:
+	  it had the following types, macros or functions defined:
 
-	  struct set;
-		was renamed to struct ptset_s
+	  struct set
+		renamed to struct ptset_s
 		(include/amore/nfa2mnfa_types.h)
 
-	  string;
-		STILL EXISTS!
+	  macro string
+		resolved to char*
 		(include/amore/typedefs.h>
-	  newstring;
-		STILL EXISTS!
+	  macro newstring
+		renamed to newarray_of_char
 		(include/amore/ext.h>
 
-	  newarray1;
+	  macro arrayofstring
+		renamed to array_of_c_string
+		(include/amore/typedefs.h>
+	  macro newarrayofstring
+		renamed to newarray_of_c_string
+		(include/amore/ext.h)
+
+	  macro array
+		renamed to array_of_int
+		(include/amore/typedefs.h>
+	  macro newarray
+		renamed to newarray_of_int
+		(include/amore/ext.h>
+	  function newarray1
 		renamed to newarray_of_int1
 		(global.c and include/amore/global.h)
 
-
-	  arrayofstring;
-		was renamed to array_of_c_string
+	  macro arrayofarray
+		renamed to array_of_int_array
 		(include/amore/typedefs.h>
-	  newarrayofstring;
-		was renamed to newarray_of_c_string
-		(include/amore/ext.h)
-
-	  array;
-		STILL EXISTS!
-		(include/amore/typedefs.h>
-	  newarray;
-		was renamed to newarray_of_int
-		(include/amore/ext.h>
-
-	  arrayofarray;
-		was renamed to array_of_int_array
-		(include/amore/typedefs.h>
-	  newarrayofarray;
-		was renamed to newarray_of_int_array
+	  macro newarrayofarray
+		renamed to newarray_of_int_array
 		(include/amore/ext.h>
 
 
@@ -84,7 +82,4 @@ most notable things NOT changed:
 	  do not know if this behaviour is expected internally. so to get rid of
 	  an nfauto, you have to freenfa() it and then, if you're working with a
 	  pointer (which is reasonable), free it.
-
-	* AMoRE-1.0 still clutterst the namespace:
-	  see above that are marked as ``STILL EXISTS''
 

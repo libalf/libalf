@@ -31,7 +31,7 @@ extern "C" {
 #define newmdelta(A)       (ptset**)newbuf((posint)(A),sizeof(ptset*));
 /* Memory for delta of fundamental table. */
 #define newgsarray(A)      (ptset*)newbuf((posint)(A),sizeof(ptset));
-/* Memory for array of ptset's. */
+/* Memory for array_of_int of ptset's. */
 #define newpattern(A,B)    { (A) = (ptset)newbuf(1,sizeof(struct ptset_s)); \
                            (A)->grset = (char *)newbuf(B,sizeof(char)); }
 #define new_termlist(A)     { A = (termlist) newbuf(1,sizeof(struct tl));}
@@ -101,15 +101,15 @@ typedef struct te {
 
 
 /* Termlists are used for defining lists of terms. Each
- * element has a component named info which is an array.
- * This array is used for storing the numbers of the
+ * element has a component named info which is an array_of_int.
+ * This array_of_int is used for storing the numbers of the
  * variables of the term. The component named nv is a posint
  * used for storing the number of the variables. A termlist
  * also has a pointer each to the termlist before and after
  * it.
  */
 typedef struct tl {
-	array info;
+	array_of_int info;
 	posint nv;
 	struct tl *next;
 	struct tl *bef;

@@ -58,10 +58,6 @@ namespace amore {
  *	char itoc[28] = "@abcdefghijklmnopqrstuvwxyz";
  * or alike, as libAMoRE requires these symbols.
  * (watch out for linker errors with missing symbols like these)
-
-
- * attention: stupid amore headers typedef string to be char*
- * thus we have to use "std::string"...
  */
 
 using namespace std;
@@ -114,7 +110,7 @@ class nondeterministic_finite_automaton : public finite_automaton {
 	// new
 		virtual void set_nfa(nfa a);
 		virtual nfa get_nfa();
-		virtual std::string to_regex();
+		virtual string to_regex();
 };
 
 

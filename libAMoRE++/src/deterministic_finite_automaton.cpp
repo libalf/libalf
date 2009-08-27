@@ -37,9 +37,6 @@
 # include <amore/rex2nfa.h>
 # include <amore/nfa2mnfa.h>
 
-// attention: stupid amore headers typedef string to be char*
-// thus we have to use "std::string"...
-
 namespace amore {
 
 using namespace std;

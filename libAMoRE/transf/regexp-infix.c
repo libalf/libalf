@@ -24,7 +24,7 @@
 #define CONC	1
 #define UNIO	0
 
-static string estr;		/* infix expression */
+static char* estr;		/* infix expression */
 static regex currex;		/* reg. expr. which is transformed */
 static posint ini, outi;	/* index for in- and output */
 static boole doconcat;
@@ -122,7 +122,7 @@ boolx flag;
 
 /******************************************************************/
 /******************************************************************/
-string infix(re, dc, reslen)
+char* infix(re, dc, reslen)
 regex re;			/* input is re->exprex */
 boole dc;			/* TRUE iff concatch should be displayed */
 posint *reslen;
@@ -131,7 +131,7 @@ posint *reslen;
  */
 {
 	posint count = 0;
-	register string result;
+	register char* result;
 	doconcat = dc;
 	/* compute the max. number of brackets and spaces */
 	for (ini = 0; ini < re->erexl;)
@@ -149,7 +149,7 @@ posint *reslen;
 			break;	/* two spaces */
 		default:;
 		}
-	estr = (string) newbuf(re->erexl + 2 * count, sizeof(char));
+	estr = (char*) newbuf(re->erexl + 2 * count, sizeof(char));
 
 	/* initialize the static vars and start the recursiv procedure */
 	ini = re->erexl - 1;

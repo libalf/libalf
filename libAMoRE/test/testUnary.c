@@ -38,16 +38,16 @@
 /******************************************************************/
 static monoid stamon;
 /* arrays used in eSetest */
-static array eSeplace;
+static array_of_int eSeplace;
 static b_array eSemark;
 /* variables used in idemcompute */
 static b_array testidem;
-static array idem;
+static array_of_int idem;
 static posint idemcount;
 /* variables used in minlocaltest */
 static posint maxrank;		/* least n such that S^n == S^{n+1} */
-static array sort;
-static array startrank;
+static array_of_int sort;
+static array_of_int startrank;
 /******************************************************************/
 /******************************************************************/
 
@@ -57,8 +57,8 @@ static void S_to_i()
  */
 {
 	posint s, pos, element, gen;
-	array old, new, change;
-	array s_to_i;
+	array_of_int old, new, change;
+	array_of_int s_to_i;
 	posint number, oldnumber;	/* size of S^{i+1} , S^i */
 	s_to_i = newarray_of_int(stamon->mno);
 	old = newarray_of_int(stamon->mno);
@@ -284,7 +284,7 @@ monoid mon;
 {
 	boole group;
 	b_array image;		/* mark elements in the image */
-	array help;		/* contains the elements of the image */
+	array_of_int help;		/* contains the elements of the image */
 	posint i, j, rang;
 	array_of_int_array a = mon->no2trans;	/* abbreviation */
 	image = newb_array(mon->highest_state + 1);
@@ -369,7 +369,7 @@ static void idemcompute()
 /* O(|M|*|Q|)
  * computes all idempotent elements of the syntactic semigroup
  * results in idemcount  number of idempotent elements
- *            idem       array which contains all idempotents
+ *            idem       array_of_int which contains all idempotents
  *            testidem   testidem[i] <=> i is idempotent
  */
 {
@@ -566,7 +566,7 @@ boole testdd1(monoid mon)
 	posint i, j;
 	posint k, l, id1, id2;
 	posint help1, help2, help3, help4, help5, help6, help7, help8, help9, help10, help11;
-	array mnopower, help;
+	array_of_int mnopower, help;
 	posint faktor;
 	stamon = mon;
 	if(stamon->mno == 1)

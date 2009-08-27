@@ -54,7 +54,7 @@ static posint revlex(rel1, rel2)
 reltree rel1, rel2;
 {
 	posint pre1, pre2;
-	array last;		/* abbreviation */
+	array_of_int last;		/* abbreviation */
 	if(rel1->gen < rel2->gen)
 		return (2);
 	else if(rel1->gen > rel2->gen)

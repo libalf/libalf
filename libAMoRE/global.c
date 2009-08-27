@@ -40,10 +40,10 @@ mrkfin newfinal(posint a)
 	return hlp;
 }				/* newfinal */
 
-array newar(posint a)
+array_of_int newar(posint a)
 {
-	array hlp;
-	hlp = (array) calloc(a, sizeof(posint));
+	array_of_int hlp;
+	hlp = (array_of_int) calloc(a, sizeof(posint));
 	if(hlp == NULL) {
 #ifdef DEBUG
 		perror("newar 1");
@@ -69,7 +69,7 @@ boole *newbarray(posint a)
 array_of_int_array newarray_of_int1(posint a)
 {
 	array_of_int_array hlp;
-	hlp = (array_of_int_array) calloc(a, sizeof(array));
+	hlp = (array_of_int_array) calloc(a, sizeof(array_of_int));
 	if(hlp == NULL) {
 #ifdef DEBUG
 		perror("newarray 1");
@@ -89,11 +89,11 @@ char *pi2a(posint pi)
 
 /** converts a positive integer to its string representation.
  */
-string pi2s(posint n)
+char* pi2s(posint n)
 {
 	posint i = n;
 	posint count = 1;
-	string outstring;
+	char* outstring;
 
 	/* count digits */
 	while(i > 9) {
@@ -101,7 +101,7 @@ string pi2s(posint n)
 		i /= 10;
 	};
 
-	outstring = ((string) newbuf(count + 1, sizeof(char)));
+	outstring = ((char*) newbuf(count + 1, sizeof(char)));
 	i = n;
 	while(count > 0) {
 		outstring[count - 1] = (char) ('0' + (i % 10));

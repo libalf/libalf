@@ -38,10 +38,6 @@ namespace amore {
  *	char itoc[28] = "@abcdefghijklmnopqrstuvwxyz";
  * or alike, as libAMoRE requires these symbols.
  * (watch out for linker errors with missing symbols like these)
-
-
- * attention: stupid amore headers typedef string to be char*
- * thus we have to use "std::string"...
  */
 
 using namespace std;
