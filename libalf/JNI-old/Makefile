@@ -39,7 +39,7 @@ OBJECTS = jni_knowledgebase.o jni_algorithm.o jni_algorithm_angluin.o jni_algori
 all:	test_java_dir ${TARGET}
 
 libalf_jni.so: ${OBJECTS}
-	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} ${LDFLAGS} -o $@
+	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} -Xlinker -soname=libalf_jni ${LDFLAGS} -o $@
 
 alf_jni.dll: ${OBJECTS}
 	make -C ../src libalf.a

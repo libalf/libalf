@@ -42,7 +42,7 @@ libAMoRE.a: $(OBJ)
 	ar rs $@ $?
 
 libAMoRE.so: $(OBJ)
-	gcc ${LDFLAGS} -o $@ $?
+	gcc -Xlinker -soname=libAMoRE ${LDFLAGS} -o $@ $?
 
 docs/html/index.html:
 	$(MAKE) doc
