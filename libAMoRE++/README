@@ -1,0 +1,26 @@
+vim: tw=80 fo+=a
+
+
+libAMoRE++
+
+
+2008, 2009 by David R. Piegdon <david-i2@piegdon.de>
+
+
+libAMoRE++ is a C++ interface to libAMoRE, implementing several extensions
+and additional functionality. most notably:
+
+	* evaluating runs on automata
+	* creating residual language automata
+	* parsing and dumping automata to binary data
+	  (libalf provides a human-readable converter)
+	* efficient implementation of emtpyness-check
+	* calculating a sample-word of a language (if not empty)
+
+planned features:
+
+	* antichain algorithm for efficient checking of
+	  language inclusion and language universality
+	  (see "M. De Wulf, L. Doyen, J.-F. Raskin -
+	   Antichains: A New Algorithm for Checking Universality of Finite Automata"
+

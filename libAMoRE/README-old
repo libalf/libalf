@@ -1,0 +1,47 @@
+AMoRE - Automata, Monoid, and Regular Expressions
+
+
+library part ( libAMoRE )
+-------------------------
+libAMoRE contains the core data type definitions and algorithms.
+
+To build it, simply type 'make'. This will build a static library 
+libAMoRE.a ( I can add a dynamic library target if anybody is interested. ) 
+which can be linked with -lAMoRE
+
+To build the documentation, type 'make doc' (you need the 'doxygen' program).
+
+To export the headers, type 'make exportHeaders'
+
+'make install'     will install the library in $LIBDIR/amore
+                   (default LIBDIR is /usr/lib)
+'make install-docs'will install the docs (default /usr/share/doc/libAMoRE)
+                   (default DOCDIR is /usr/share/doc)
+'make uninstall'   will undo the effects of the latter two
+
+
+Remember you can tell 'make' to use other settings, e.g.
+
+make LIBDIR=/home/jdoe/libs DOCDIR=/home/jdoe/docs   \
+       HEADER_INSTALLDIR=/home/jdoe/headers
+
+
+'make clean' removes objects and backup~ files, not the installed files.
+
+libtest.c is used for quick and dirty tests. 'make libtest' builds it.
+Take a look for little examples of how the library can be used. You will
+quickly be able to build your own automata.
+
+
+about the source code
+---------------------
+
+The code used to be platform independent for a long time, however the
+other parts of AMoRE made major restructuring necessary. The resulting code
+is known to run on i386 machines and on Linux. Hints about the behaviour
+on other OS'es are appreciated. Later versions will make use of automake, 
+autoconf, to allow standard targets etc.
+
+Enjoy using libAMoRE.
+
+Burak Emir ( buraq@aegee.org )

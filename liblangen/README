@@ -1,14 +1,22 @@
+vim: tw=80 fo+=a
+
+
+liblangen (LANguageGENerator)
+
+
+2008, 2009 by David R. Piegdon <david-i2@piegdon.de>
+
 
 liblangen is a C++ library for generating (regular) languages by means
 of finite automata or regular expressions. currently it consists of
 
-	1) a equally distributed DFA generator
-
-planned are:
+	1) an equally distributed DFA generator
 
 	2) a RegEx generator
 
 	3) a NFA generator
+
+	4) an enumerator for DFAs
 
 DEPENCENCIES:
 

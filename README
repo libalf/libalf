@@ -21,7 +21,8 @@ libalf
 	JNI, network protocol et al.
 
 	dependencies: none
-		(requires liblangen for some of its testcases)
+		(requires liblangen and libAMoRE++ for some of its
+		 testcases)
 
 liblangen
 	locally developed C++ library, implementing algorithms to randomly

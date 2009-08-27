@@ -1,27 +1,43 @@
+vim: tw=80 fo+=a
+
+
+libalf : Automata Learning Factory
+
+
+2008, 2009 by David R. Piegdon <david-i2@piegdon.de>,
+              Daniel Neider <neider@automata.rwth-aachen.de>,
+              Stefan Schulz <stefan.schulz@rwth-aachen.de>,
+              Carsten Kern <kern@cs.rwth-aachen.de>
+
+
+libalf is a C++ library that implements several learning algorithms for finite
+automata. it includes a Java Native Interface (JNI) and a server for running
+learning applications over IP on a remote server (dispatcher). both may be used
+from java interchangable via the generic interface ``jalf''
+
 
 DEPENCENCIES:
 
-	libalf is a stand-alone C++ library, no external libraries except
-	c++ standard lib and STL are required.
 
-	however, the following libraries may be of help for developing
-	applications or are required for some of the testcases:
+libalf is a stand-alone C++ library, no external libraries except c++ standard
+lib and STL are required.
 
-	1) libAMoRE-1.0 / libAMoRE++ : C/C++ automata library for working
-	with finite automata. (both AMoRE-1.0 with some patches and the
-	C++ interface currently reside in the subversion repository of
-	libalf. the C++ interface has been written during development of
-	libalf, but we're currently working on integrating it into the
-	original libAMoRE (upstream).)
+however, the following libraries may be of help for developing applications or
+are required for some of the testcases:
 
-	2) liblangen (LANguageGENerator) is a library for generating
-	(regular) languages in the form of automata or regular expressions.
-	it came to existence during the development of libalf and thus
-	has the same interfaces for automata. it is useful e.g. for
-	generating random automata or regex with specific constraints,
-	so algorithms can automatically massively be tested.
+1) libAMoRE-1.0 / libAMoRE++ : C/C++ automata library for working with finite
+automata. (both AMoRE-1.0 with some patches and the C++ interface currently
+reside in the subversion repository of libalf. the C++ interface has been
+written during development of libalf, but we're currently working on integrating
+it into the original libAMoRE (upstream).)
 
-	3) MiniSat v1.14 is fully integrated into libalf, as it is
-	required for the bierman algorithm.
+2) liblangen (LANguageGENerator) is a library for generating (regular) languages
+in the form of automata or regular expressions. it came to existence during the
+development of libalf and thus has the same interfaces for automata. it is
+useful e.g. for generating random automata or regex with specific constraints,
+so algorithms can automatically massively be tested.
+
+3) MiniSat v1.14 is fully integrated into libalf, as it is required for the
+bierman algorithm.
 	
 
