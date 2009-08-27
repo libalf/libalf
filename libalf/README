@@ -14,7 +14,7 @@ DEPENCENCIES:
 	libalf, but we're currently working on integrating it into the
 	original libAMoRE (upstream).)
 
-	2) liblangen (LanguageGenerator) is a library for generating
+	2) liblangen (LANguageGENerator) is a library for generating
 	(regular) languages in the form of automata or regular expressions.
 	it came to existence during the development of libalf and thus
 	has the same interfaces for automata. it is useful e.g. for
