@@ -1,8 +1,8 @@
 /* $Id$
  * vim: fdm=marker
  *
- * LanguageGenerator
- * DFArandomgenerator: testsuite for DFA random generator.
+ * liblangen (LANguageGENerator)
+ * regex random generator: testsuite for regex random generator.
  *
  * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
  *        <david-i2@piegdon.de>
@@ -20,9 +20,9 @@
 #include <amore++/deterministic_finite_automaton.h>
 #include <amore++/finite_automaton.h>
 
-#include <LanguageGenerator/regex_randomgenerator.h>
+#include <liblangen/regex_randomgenerator.h>
 
-using namespace LanguageGenerator;
+using namespace liblangen;
 using namespace amore;
 using namespace std;
 
