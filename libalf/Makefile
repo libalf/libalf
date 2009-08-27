@@ -6,16 +6,16 @@
 PREFIX ?= /usr/local/
 
 all:
-	make -C src all
-#	make -C dispatcher all
+	+make -C src all
+#	+make -C dispatcher all
 
 testsuites: install
 	make -C testsuites
 
 clean:
-	make -C src clean
-	make -C dispatcher clean
-	make -C testsuites clean
+	+make -C src clean
+	+make -C dispatcher clean
+	+make -C testsuites clean
 
 install:
 	make -C include install
