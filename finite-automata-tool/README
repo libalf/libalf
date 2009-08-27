@@ -1,0 +1,11 @@
+vim: tw=80 fo+=a
+
+
+Finite Automata Tools
+
+
+2008, 2009 by David R. Piegdon <david-i2@piegdon.de>
+
+
+command-line tool to create, transform and compare automata
+
