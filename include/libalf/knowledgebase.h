@@ -1233,6 +1233,17 @@ class knowledgebase {
 
 			return query_tree;
 		}}}
+		list<list<int> > get_queries()
+		// get list of all queries (in correct order so that deserialize_query_acceptances() may be used)
+		{{{
+			iterator ki;
+			list<list<int> > ret;
+
+			for(ki = this->qbegin(); ki != this->qend(); ++ki)
+				ret.push_back(ki->get_word());
+
+			return ret;
+		}}}
 		bool merge_knowledgebase(knowledgebase & other_tree)
 		// only merges answered information, no queries!
 		// returns false if knowledge of the trees is inconsistent.
