@@ -1,8 +1,8 @@
 /* $Id$
  * vim: fdm=marker
  *
- * LanguageGenerator
- * DFArandomgenerator: equally distributedly generates random DFAs.
+ * liblangen (LANguageGENerator)
+ * dfa_randomgenerator: equally distributedly generates random DFAs.
  * original idea of algorithm is described in
  * "Jean-Marc Champarnaud and Thomas Paranthoen - Random Generation of DFAs"
  *
@@ -19,22 +19,22 @@
 
 #include <gmpxx.h>
 
-#include <LanguageGenerator/DFArandomgenerator.h>
-#include <LanguageGenerator/prng.h>
+#include <liblangen/dfa_randomgenerator.h>
+#include <liblangen/prng.h>
 
 
-namespace LanguageGenerator {
+namespace liblangen {
 
 using namespace std;
-using namespace LanguageGenerator::prng;
+using namespace liblangen::prng;
 
-DFArandomgenerator::table::table(int m)
+dfa_randomgenerator::table::table(int m)
 { this->m = m; }
 
-int DFArandomgenerator::table::get_m()
+int dfa_randomgenerator::table::get_m()
 { return m; }
 
-mpz_class & DFArandomgenerator::table::getElement(mpz_class t, mpz_class p)
+mpz_class & dfa_randomgenerator::table::getElement(mpz_class t, mpz_class p)
 {{{
 	static mpz_class zero;
 	map<mpz_class, mpz_class>::iterator field;
@@ -60,17 +60,17 @@ mpz_class & DFArandomgenerator::table::getElement(mpz_class t, mpz_class p)
 
 
 
-DFArandomgenerator::DFArandomgenerator()
+dfa_randomgenerator::dfa_randomgenerator()
 {{{
 	seed_prng();
 }}}
 
-DFArandomgenerator::~DFArandomgenerator()
+dfa_randomgenerator::~dfa_randomgenerator()
 {{{
 	discard_tables();
 }}}
 
-mpz_class & DFArandomgenerator::elementOfC(int m, mpz_class t, mpz_class p)
+mpz_class & dfa_randomgenerator::elementOfC(int m, mpz_class t, mpz_class p)
 // (where m is alphabet size)
 {{{
 	if(m < 2) {
@@ -89,7 +89,7 @@ mpz_class & DFArandomgenerator::elementOfC(int m, mpz_class t, mpz_class p)
 	return tables[m-1]->getElement(t,p);
 }}}
 
-list<int> DFArandomgenerator::randomElementOfK(int m, mpz_class t, mpz_class p)
+list<int> dfa_randomgenerator::randomElementOfK(int m, mpz_class t, mpz_class p)
 {{{
 	list<int> ret;
 
@@ -129,7 +129,7 @@ list<int> DFArandomgenerator::randomElementOfK(int m, mpz_class t, mpz_class p)
 	}
 }}}
 
-void DFArandomgenerator::discard_tables()
+void dfa_randomgenerator::discard_tables()
 {{{
 	while(!tables.empty()) {
 		table * t = tables.back();
@@ -139,7 +139,7 @@ void DFArandomgenerator::discard_tables()
 	}
 }}}
 
-bool DFArandomgenerator::generate(int alphabet_size, int state_count, bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, std::set<int> &t_initial, std::set<int> &t_final, multimap<pair<int,int>, int> &t_transitions)
+bool dfa_randomgenerator::generate(int alphabet_size, int state_count, bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, std::set<int> &t_initial, std::set<int> &t_final, multimap<pair<int,int>, int> &t_transitions)
 {{{
 	t_initial.clear();
 	t_final.clear();
@@ -232,5 +232,5 @@ bool DFArandomgenerator::generate(int alphabet_size, int state_count, bool &t_is
 }}}
 
 
-}; // end of namespace LanguageGenerator
+}; // end of namespace liblangen
 

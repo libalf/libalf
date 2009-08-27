@@ -1,8 +1,8 @@
 /* $Id$
  * vim: fdm=marker
  *
- * LanguageGenerator
- * DFAenumerator: enumerate over all accessible n-state automata with specific alphabet size
+ * liblangen (LANguageGENerator)
+ * dfa_enumerator: enumerate over all accessible n-state automata with specific alphabet size
  *
  * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
  *        <david-i2@piegdon.de>
@@ -12,13 +12,13 @@
 
 #include <iostream>
 
-#include <LanguageGenerator/DFAenumerator.h>
+#include <liblangen/dfa_enumerator.h>
 
-namespace LanguageGenerator {
+namespace liblangen {
 
 using namespace std;
 
-DFAenumerator::DFAenumerator(int state_count, int alphabet_size)
+dfa_enumerator::dfa_enumerator(int state_count, int alphabet_size)
 {{{
 	transition tr;
 	int state;
@@ -27,7 +27,7 @@ DFAenumerator::DFAenumerator(int state_count, int alphabet_size)
 	completed = false;
 
 	if(state_count < 2) {
-		cout << "DFAenumerator :: automaton_enumerator with state_count < 2 does not make any sense!\n";
+		cout << "dfa_enumerator :: automaton_enumerator with state_count < 2 does not make any sense!\n";
 		state_count = 2;
 	}
 
@@ -55,7 +55,7 @@ DFAenumerator::DFAenumerator(int state_count, int alphabet_size)
 	}
 }}}
 
-bool DFAenumerator::next(bool exact_state_count)
+bool dfa_enumerator::next(bool exact_state_count)
 {{{
 	int i;
 	bool aborted = false;
@@ -125,7 +125,7 @@ check_reachable:
 	return true;
 }}}
 
-bool DFAenumerator::derive(bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, std::set<int> &t_initial, std::set<int> &t_final, multimap<pair<int,int>, int> &t_transitions)
+bool dfa_enumerator::derive(bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, std::set<int> &t_initial, std::set<int> &t_final, multimap<pair<int,int>, int> &t_transitions)
 {{{
 	unsigned int i;
 
@@ -153,5 +153,5 @@ bool DFAenumerator::derive(bool &t_is_dfa, int &t_alphabet_size, int &t_state_co
 	return true;
 }}}
 
-}; // end of namespace LanguageGenerator
+}; // end of namespace liblangen
 

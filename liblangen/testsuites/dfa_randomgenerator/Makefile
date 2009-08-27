@@ -1,5 +1,5 @@
 # $Id$
-# DFArandomgenerator testsuite Makefile
+# dfa_randomgenerator testsuite Makefile
 
 .PHONY: all clean run performance_test nodata jpegs
 
@@ -9,18 +9,18 @@ CPPFLAGS+=-I../../include -I${PREFIX}/include -Wall -ggdb3
 
 LDFLAGS+=-L../../src -L${PREFIX}/lib -llangen -lAMoRE++
 
-all: DFArandomgenerator performance_tester
+all: dfa_randomgenerator performance_tester
 
 clean: nodata
 	-rm *.o
-	-rm DFArandomgenerator performance_tester
+	-rm dfa_randomgenerator performance_tester
 
 nodata:
 	-rm *.dot
 	-rm *.jpg
 
 run:
-	LD_LIBRARY_PATH=../../src ./DFArandomgenerator
+	LD_LIBRARY_PATH=../../src ./dfa_randomgenerator
 
 performance_test: performance_tester
 	LD_LIBRARY_PATH=../../src ./performance_tester

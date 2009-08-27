@@ -1,5 +1,5 @@
 # $Id$
-# LanguageGenerator Makefile
+# liblangen (LANguageGENerator) Makefile
 
 .PHONY: all testsuites clean install uninstall
 

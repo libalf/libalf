@@ -1,8 +1,8 @@
 /* $Id$
  * vim: fdm=marker
  *
- * LanguageGenerator
- * NFArandomgenerator: random generator for NFA
+ * liblangen (LANguageGENerator)
+ * nfa_randomgenerator: random generator for NFA
  * original idea of algorithm is described in section 4.2 of
  * "F. Denis, A. Lemay and A. Terlutte - Learning regular languages using RFSAs"
  *
@@ -12,21 +12,21 @@
  * see LICENSE file for licensing information.
  */
 
-#include <LanguageGenerator/NFArandomgenerator.h>
-#include <LanguageGenerator/prng.h>
+#include <liblangen/nfa_randomgenerator.h>
+#include <liblangen/prng.h>
 
 
-namespace LanguageGenerator {
+namespace liblangen {
 
 using namespace std;
-using namespace LanguageGenerator::prng;
+using namespace liblangen::prng;
 
-NFArandomgenerator::NFArandomgenerator()
+nfa_randomgenerator::nfa_randomgenerator()
 {{{
 	seed_prng();
 }}}
 
-bool NFArandomgenerator::generate(int alphabet_size, int state_count, int transitions_p_state, float p_initial, float p_final,
+bool nfa_randomgenerator::generate(int alphabet_size, int state_count, int transitions_p_state, float p_initial, float p_final,
 	      bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, std::set<int> &t_initial, std::set<int> &t_final, multimap<pair<int,int>, int> &t_transitions)
 {
 	float x;
@@ -62,5 +62,5 @@ bool NFArandomgenerator::generate(int alphabet_size, int state_count, int transi
 	return true;
 }
 
-}; // end of namespace LanguageGenerator
+}; // end of namespace liblangen
 

@@ -1,5 +1,5 @@
-# $Id: Makefile 583 2009-05-05 19:24:10Z davidpiegdon $
-# DFArandomgenerator testsuite Makefile
+# $Id$
+# nfa_randomgenerator testsuite Makefile
 
 .PHONY: all clean run nodata jpegs
 
@@ -7,17 +7,20 @@ PREFIX ?= /usr/local
 
 CPPFLAGS+=-I../../include -I${PREFIX}/include -Wall -ggdb3
 
-LDFLAGS+=-L../../src -L${PREFIX}/lib -llangen -lalf
+LDFLAGS+=-L../../src -L${PREFIX}/lib -llangen -lAMoRE++
 
-all: DFAenumerator
+all: nfa_randomgenerator
 
 clean: nodata
 	-rm *.o
-	-rm DFAenumerator
+	-rm nfa_randomgenerator
 
 nodata:
 	-rm *.dot
 	-rm *.jpg
+
+run:
+	LD_LIBRARY_PATH=../../src ./nfa_randomgenerator
 
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;

@@ -1,7 +1,7 @@
 /* $Id$
  * vim: fdm=marker
  *
- * LanguageGenerator
+ * liblangen (LANguageGENerator)
  * performance_tester: speed tests for DFA random generator.
  *
  * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
@@ -14,9 +14,9 @@
 #include <time.h>
 #include <sys/time.h>
 
-#include <LanguageGenerator/DFArandomgenerator.h>
+#include <liblangen/dfa_randomgenerator.h>
 
-using namespace LanguageGenerator;
+using namespace liblangen;
 using namespace std;
 
 long double exact_time()
@@ -32,7 +32,7 @@ long double exact_time()
 long double generate(int alphabet_size, int state_count, int count)
 {{{
 	long double time;
-	DFArandomgenerator rag;
+	dfa_randomgenerator rag;
 
 	time = exact_time();
 	while(count > 0) {

@@ -1,7 +1,7 @@
 /* $Id$
  * vim: fdm=marker
  *
- * LanguageGenerator
+ * liblangen (LANguageGENerator)
  * RegEx Random Generator, similar to the one described in section 4.3 of
  * [1] "F. Denis, A. Lemay and A. Terlutte - Learning regular languages using RFSAs"
  *
@@ -11,12 +11,12 @@
  * see LICENSE file for licensing information.
  */
 
-#include <LanguageGenerator/regex_randomgenerator.h>
-#include <LanguageGenerator/prng.h>
+#include <liblangen/regex_randomgenerator.h>
+#include <liblangen/prng.h>
 
 #include <stdio.h>
 
-namespace LanguageGenerator {
+namespace liblangen {
 
 using namespace std;
 using namespace prng;
@@ -84,5 +84,5 @@ string regex_randomgenerator::generate(int alphabet_size, int num_op, float p_co
 	return normalized_generate(alphabet_size, num_op, p_concat_norm, p_union_norm, p_star_norm);
 }}}
 
-}; // end of namespace LanguageGenerator
+}; // end of namespace liblangen
 

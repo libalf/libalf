@@ -12,7 +12,7 @@ all:
 install-all-deps: install
 	make -C libAMoRE-1.0 install
 	make -C libAMoRE++ install
-	make -C LanguageGenerator install
+	make -C liblangen install
 	make -C JNI install
 
 testsuites: install
@@ -21,7 +21,7 @@ testsuites: install
 clean-all-deps: clean
 	make -C libAMoRE-1.0 clean
 	make -C libAMoRE++ clean
-	make -C LanguageGenerator clean
+	make -C liblangen clean
 	make -C JNI clean
 
 clean:

@@ -1,8 +1,8 @@
 /* $Id$
  * vim: fdm=marker
  *
- * LanguageGenerator
- * DFAenumerator: testsuite for DFA enumerator.
+ * liblangen (LANguageGENerator)
+ * dfa_enumerator: testsuite for DFA enumerator.
  *
  * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
  *        <david-i2@piegdon.de>
@@ -15,10 +15,10 @@
 #include <iostream>
 #include <fstream>
 
-#include <LanguageGenerator/DFAenumerator.h>
+#include <liblangen/dfa_enumerator.h>
 #include <libalf/automaton.h>
 
-using namespace LanguageGenerator;
+using namespace liblangen;
 using namespace libalf;
 using namespace std;
 
@@ -35,7 +35,7 @@ int main(int argc, char**argv)
 	alphabet_size = atoi(argv[1]);
 	state_count = atoi(argv[2]);
 
-	DFAenumerator denum(state_count, alphabet_size);
+	dfa_enumerator denum(state_count, alphabet_size);
 
 	// generate random automaton and store it
 	bool f_is_dfa;

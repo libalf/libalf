@@ -1,8 +1,8 @@
 /* $Id$
  * vim: fdm=marker
  *
- * LanguageGenerator
- * NFArandomgenerator: testsuite for NFA random generator.
+ * liblangen (LANguageGENerator)
+ * nfa_randomgenerator: testsuite for NFA random generator.
  *
  * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
  *        <david-i2@piegdon.de>
@@ -15,16 +15,16 @@
 #include <iostream>
 #include <fstream>
 
-#include <LanguageGenerator/NFArandomgenerator.h>
+#include <liblangen/nfa_randomgenerator.h>
 #include <amore++/finite_automaton.h>
 
-using namespace LanguageGenerator;
+using namespace liblangen;
 using namespace amore;
 using namespace std;
 
 int main(int argc, char**argv)
 {
-	NFArandomgenerator rag;
+	nfa_randomgenerator rag;
 
 	int alphabet_size, state_count, tr_per_state;
 

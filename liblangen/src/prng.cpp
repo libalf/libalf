@@ -1,7 +1,7 @@
 /* $Id$
  * vim: fdm=marker
  *
- * LanguageGenerator
+ * liblangen (LANguageGENerator)
  * Pseudo Random Number Generator:
  * functions for generation of random numbers of different kind.
  *
@@ -23,7 +23,7 @@
 static bool seeded = false;
 static gmp_randstate_t grstate;
 
-namespace LanguageGenerator {
+namespace liblangen {
 namespace prng {
 
 	bool seed_prng()
@@ -88,5 +88,5 @@ namespace prng {
 	}}}
 
 }; // end of namespace prng;
-}; // end of namespace LanguageGenerator;
+}; // end of namespace liblangen;
 

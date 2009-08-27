@@ -1,5 +1,5 @@
 # $Id$
-# LanguageGenerator Makefile
+# liblangen (LANguageGENerator) Makefile
 
 .PHONY: all clean install uninstall
 
@@ -17,7 +17,7 @@ LDFLAGS+=-shared -L${PREFIX}/lib -lgmpxx -lgmp
 
 SONAME=liblangen
 
-OBJECTS=DFAenumerator.o DFArandomgenerator.o NFArandomgenerator.o prng.o regex_randomgenerator.o
+OBJECTS=dfa_enumerator.o dfa_randomgenerator.o nfa_randomgenerator.o prng.o regex_randomgenerator.o
 
 all:	liblangen.so
 

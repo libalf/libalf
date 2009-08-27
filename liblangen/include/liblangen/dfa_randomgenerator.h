@@ -1,8 +1,8 @@
 /* $Id$
  * vim: fdm=marker
  *
- * LanguageGenerator
- * DFArandomgenerator: equally distributedly generates random DFAs.
+ * liblangen (LANguageGENerator)
+ * dfa_randomgenerator: equally distributedly generates random DFAs.
  * original idea of algorithm is described in
  * "Jean-Marc Champarnaud and Thomas Paranthoen - Random Generation of DFAs"
  *
@@ -19,14 +19,14 @@
 
 #include <gmpxx.h> // GNU Multiple Precision Arithmetic Library, C++ interface
 
-#ifndef __LanguageGenerator_DFArandomgenerator_h__
-# define __LanguageGenerator_DFArandomgenerator_h__
+#ifndef __liblangen_dfa_randomgenerator_h__
+# define __liblangen_dfa_randomgenerator_h__
 
-namespace LanguageGenerator {
+namespace liblangen {
 
 using namespace std;
 
-class DFArandomgenerator {
+class dfa_randomgenerator {
 	private:
 		class table {
 			private:
@@ -49,8 +49,8 @@ class DFArandomgenerator {
 		list<int> randomElementOfK(int m, mpz_class t, mpz_class p);
 
 	public:
-		DFArandomgenerator();
-		~DFArandomgenerator();
+		dfa_randomgenerator();
+		~dfa_randomgenerator();
 
 		// discard all tables currently in memory.
 		void discard_tables();
@@ -61,7 +61,7 @@ class DFArandomgenerator {
 
 };
 
-}; // end of namespace LanguageGenerator
+}; // end of namespace liblangen
 
 #endif
 

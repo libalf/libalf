@@ -1,7 +1,7 @@
 /* $Id$
  * vim: fdm=marker
  *
- * LanguageGenerator
+ * liblangen (LANguageGENerator)
  * Pseudo Random Number Generator:
  * functions for generation of random numbers of different kind.
  *
@@ -18,10 +18,10 @@
 
 #include <gmpxx.h> // GNU Multiple Precision Arithmetic Library, C++ interface
 
-#ifndef __LanguageGenerator_prng_h__
-# define __LanguageGenerator_prng_h__
+#ifndef __liblangen_prng_h__
+# define __liblangen_prng_h__
 
-namespace LanguageGenerator {
+namespace liblangen {
 namespace prng {
 
 	bool seed_prng();
@@ -39,7 +39,7 @@ namespace prng {
 	void random_mpz_class(mpz_class & into, mpz_class & limit);
 
 }; // end of namespace prng
-}; // end of namespace LanguageGenerator
+}; // end of namespace liblangen
 
 #endif
 
