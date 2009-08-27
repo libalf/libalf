@@ -19,13 +19,13 @@
 
 #include <amore++/nondeterministic_finite_automaton.h>
 
-#include <LanguageGenerator/DFArandomgenerator.h>
-#include <LanguageGenerator/NFArandomgenerator.h>
-#include <LanguageGenerator/regex_randomgenerator.h>
+#include <liblangen/dfa_randomgenerator.h>
+#include <liblangen/nfa_randomgenerator.h>
+#include <liblangen/regex_randomgenerator.h>
 
 #include "fat.h"
 
-using namespace LanguageGenerator;
+using namespace liblangen;
 
 bool get_input(finite_automaton *& automaton, input in, string gentype)
 {
@@ -119,7 +119,7 @@ bool get_input(finite_automaton *& automaton, input in, string gentype)
 				}
 			} else {
 				if(type == "dfa") {
-					DFArandomgenerator dfarg;
+					dfa_randomgenerator dfarg;
 					if(!dfarg.generate(f_alphabet_size, modelsize,
 						f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
 						cerr << "failed to generate DFA\n";
@@ -127,7 +127,7 @@ bool get_input(finite_automaton *& automaton, input in, string gentype)
 					}
 				} else {
 					if(type == "nfa") {
-						NFArandomgenerator nfarg;
+						nfa_randomgenerator nfarg;
 						if(!nfarg.generate(f_alphabet_size, modelsize, 2, 0.5, 0.5,
 							f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
 							cerr << "failed to generate NFA\n";

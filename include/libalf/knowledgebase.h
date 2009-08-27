@@ -1182,7 +1182,7 @@ class knowledgebase {
 			return false;
 		}}}
 		bool deserialize_query_acceptances(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
-		// please see create_query_tree() for the expected order
+		// please see create_query_tree() or get_queries() for the expected order
 		{{{
 			int size;
 			iterator ki;
@@ -1217,7 +1217,7 @@ class knowledgebase {
 
 		knowledgebase * create_query_tree()
 		// the timestamp in the resulting query tree represents
-		// the order we expect in deserialize_query_acceptances()
+		// the (ascending) order we expect in deserialize_query_acceptances()
 		{{{
 			knowledgebase * query_tree;
 			iterator qi;
@@ -1265,21 +1265,6 @@ class knowledgebase {
 			timestamp++;
 			return true;
 		}}}
-
-		/*
-		 * TODO: assistant / filter
-		 *
-		 * template <class answer> class assistant {
-		 *	public:
-		 *		bool resolve_query(list<int> word, knowledgebase & base, answer & result)
-		 * }
-		 *
-		 * internal: list<assistant*>
-		 *
-		 * add_assistant(assistant*)
-		 * remove_assistant(assistant*)
-		 * clear_assistants()
-		 */
 
 		bool add_knowledge(list<int> & word, answer acceptance)
 		// will return false if knowledge for this word was

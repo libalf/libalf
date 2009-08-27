@@ -1,5 +1,5 @@
 # $Id$
-# LanguageGenerator testsuite Makefile
+# liblangen (LANguageGENerator) testsuite Makefile
 
 .PHONY: all clean dfa_enumerator dfa_randomgenerator nfa_randomgenerator regex_randomgenerator
 
