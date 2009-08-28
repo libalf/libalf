@@ -10,7 +10,7 @@ HEADERDIR ?= ${PREFIX}/include
 
 LOCALCHANGES = $(shell test "`svn status | wc -c`" != "0" && echo "-LocalChanges")
 SVNREVISION = $(shell LC_ALL=POSIX svn info | awk '/^Revision:/ {print $$2}')
-VERSION ?= svn-r${SVNREVISION}${LOCALCHANGES}
+VERSION ?= libalf-svn-r${SVNREVISION}${LOCALCHANGES}
 
 CFLAGS += -DDEBUG -DJAVAEXCEPT -DLIBAMORE -DUNIX -DLINUX -DBIT32
 CFLAGS += -DVERSION="\"${VERSION}\""

@@ -29,7 +29,7 @@ void usage()
 	cerr << "\n"
 		"Finite Automata Tool: equivalence tester for automata\n"
 		"\n"
-		"FAT Version "VERSION "\n"
+		"FAT version "VERSION "\n"
 	     << libalf::libalf_version() << "\n"
 	     << amore::libamorepp_version() << "\n"
 	     << libamore_version() << "\n"
