@@ -46,13 +46,13 @@ void usage()
 		"Output options (via stdout):\n"
 		"\tdefault:\n"
 		"\t\t\toutput serial of discriminating word\n"
-		"\t-H or --human_readable_output\n"
-		"\t\t\tgenerate human readable version of automaton\n"
-		"\t\t\twrite discriminating word to stdout\n"
 		"\t-d or --discriminator\n"
 		"\t\t\twrite discriminating word to stdout (default)\n"
 		"\t-D or --difference\n"
 		"\t\t\twrite difference automaton to stdout\n"
+		"\t-H or --human_readable_output\n"
+		"\t\t\twrite human readable version of difference automaton\n"
+		"\t\t\tor discriminating word to stdout\n"
 		"\n";
 }}}
 
