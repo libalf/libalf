@@ -762,34 +762,32 @@ class knowledgebase {
 				iterator(const iterator & other)
 				{{{
 					base = other.base;
-
 					current = other.current;
-
 					queries_only = other.queries_only;
 					qi = other.qi;
 				}}}
+
 				iterator(bool queries_only, typename list<node*>::iterator currentquery, node * current, knowledgebase * base)
 				{{{
 					this->base = base;
 					this->current = current;
 					this->queries_only = queries_only;
-					this->qi = qi;
+					this->qi = currentquery;
 				}}}
 
 				iterator & operator++()
+				// only valid if queries have not been changed since creation of iterator
 				{{{
 					if(queries_only) {
-						// FIXME: we really dont want to search this each time.
-						// but how?!
-						qi = find(base->required.begin(), base->required.end(), current);
 						if(qi != base->required.end()) {
 							qi++;
 							if(qi != base->required.end())
 								current = *qi;
 							else
 								current = NULL;
-						} else
-							current = base->required.front();
+						} else {
+							// nothing
+						}
 					} else {
 						current = current->get_next(NULL);
 					}
@@ -813,9 +811,7 @@ class knowledgebase {
 				iterator & operator=(const iterator & it)
 				{{{
 					base = it.base;
-
 					current = it.current;
-
 					queries_only = it.queries_only;
 					qi = it.qi;
 

@@ -63,9 +63,6 @@ most notable changes:
 		renamed to newarray_of_int_array
 		(include/amore/ext.h>
 
-
-	* remove of required external symbols
-
 	* initial fixes to make the source compile (some extern declaration
 	  problems: itoc, dummy, ... in include/amore/ext.h)
 
