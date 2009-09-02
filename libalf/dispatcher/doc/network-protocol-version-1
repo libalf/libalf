@@ -150,26 +150,30 @@ enum algorithm_command {
 	ALGORITHM_SERIALIZE = 0,
 	ALGORITHM_DESERIALIZE = 1,
 	ALGORITHM_TO_STRING = 2,
-	ALGORITHM_ASSOCIATE_LOGGER = 3,
-	ALGORITHM_REMOVE_LOGGER = 4,
-	ALGORITHM_SET_KNOWLEDGE_SOURCE = 5,
-	ALGORITHM_GET_KNOWLEDGE_SOURCE = 6,
 
-	ALGORITHM_GET_MEMORY_STATISTICS = 12,
-	ALGORITHM_GET_TIMING_STATISTICS = 13,
-	ALGORITHM_ENABLE_TIMING = 14,
-	ALGORITHM_DISABLE_TIMING = 15,
-	ALGORITHM_RESET_TIMING = 16,
+	ALGORITHM_ASSOCIATE_LOGGER = 10,
+	ALGORITHM_REMOVE_LOGGER = 11,
+	ALGORITHM_SET_KNOWLEDGE_SOURCE = 12,
+	ALGORITHM_GET_KNOWLEDGE_SOURCE = 13,
+	ALGORITHM_SET_NORMALIZER=14,
+	ALGORITHM_GET_NORMALIZER=15,
+	ALGORITHM_UNSET_NORMALIZER=16,
 
-	ALGORITHM_GET_ALPHABET_SIZE = 20,
-	ALGORITHM_INCREASE_ALPHABET_SIZE = 21,
+	ALGORITHM_GET_MEMORY_STATISTICS = 20,
+	ALGORITHM_GET_TIMING_STATISTICS = 21,
+	ALGORITHM_ENABLE_TIMING = 22,
+	ALGORITHM_DISABLE_TIMING = 23,
+	ALGORITHM_RESET_TIMING = 24,
 
-	ALGORITHM_CONJECTURE_READY = 30,
-	ALGORITHM_ADVANCE = 31,
-	ALGORITHM_ADD_COUNTEREXAMPLE = 32,
+	ALGORITHM_GET_ALPHABET_SIZE = 30,
+	ALGORITHM_INCREASE_ALPHABET_SIZE = 31,
 
-	ALGORITHM_SUPPORTS_SYNC = 40,
-	ALGORITHM_SYNC_TO_KNOWLEDGEBASE = 41,
+	ALGORITHM_CONJECTURE_READY = 40,
+	ALGORITHM_ADVANCE = 41,
+	ALGORITHM_ADD_COUNTEREXAMPLE = 42,
+
+	ALGORITHM_SUPPORTS_SYNC = 50,
+	ALGORITHM_SYNC_TO_KNOWLEDGEBASE = 51,
 };
 
 enum normalizer_command {
@@ -272,7 +276,23 @@ server returns:
 
 LOGGER COMMANDS
 
-...
+receive and flush all data in logger (LOGGER_RECEIVE_AND_FLUSH)
+parameters: none.
+server returns:
+	string (logger content)
+
+set minimal log-level (LOGGER_SET_MIN_LOGLEVEL)
+parameters: 1
+	log-level (1 = error, 2 = warn, 3 = info,  4 = debug)
+server returns: nothing.
+
+enable logging of algorithm  (LOGGER_LOG_ALGORITHM)
+parameters: none.
+server returns: nothing.
+
+disable logging of algorithm (LOGGER_NOT_LOG_ALGORITHM)
+parameters: none.
+server returns: nothing.
 
 ================================================================================
 
@@ -296,7 +316,49 @@ ALGORITHM COMMANDS
 
 NORMALIZER COMMANDS
 
-...
+serialize normalizer (NORMALIZER_SERIALIZE)
+parameters: none
+server returns:
+	size,
+	serialized data[]
+
+deserialize normalizer (NORMALIZER_DESERIALIZE)
+parameters: 2
+	size,
+	serialized data[]
+server returns:
+	bool
+
+deserialize normalizer extension (NORMALIZER_DESERIALIZE_EXTENSION)
+parameters: 2
+	size,
+	serialized data[]
+server returns:
+	bool
+
+get type of normalizer (NORMALIZER_GET_TYPE)
+parameters: none.
+server returns:
+	type (see enum normalizer::normalizer_type
+              in include/libalf/normalizer.h)
+
+calculate prefix-normal form of a word (NORMALIZER_NORMALIZE_A_WORD_PNF)
+parameters: 2
+	size of word,
+	word[]
+server returns:
+	bool (true if word was normalized to bottom)
+	size of word,
+	word[]
+
+calculate suffix-normal form of a word (NORMALIZER_NORMALIZE_A_WORD_SNF)
+parameters: 2
+	size of word,
+	word[]
+server returns:
+	bool (true if word was normalized to bottom)
+	size of word,
+	word[]
 
 ================================================================================
 
