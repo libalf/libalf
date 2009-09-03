@@ -9,8 +9,8 @@
  * see LICENSE file for licensing information.
  */
 
-#ifndef __amore_alf_automaton_holder_h__
-# define __amore_alf_automaton_holder_h__
+#ifndef __amore_alf_glue_h__
+# define __amore_alf_glue_h__
 
 // this is the glue between libAMoRE(++) and libalf,
 // it gives everything to teach algorithms from automata (teacher and oracle)
@@ -61,5 +61,5 @@ inline int automaton_answer_knowledgebase(finite_automaton & automaton, knowledg
 
 }; // end of namespace amore_alf_glue
 
-#endif
+#endif // __amore_alf_glue_h__
 

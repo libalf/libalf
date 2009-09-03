@@ -39,5 +39,5 @@ so algorithms can automatically massively be tested.
 
 3) MiniSat v1.14 is fully integrated into libalf, as it is required for the
 bierman algorithm.
-	
+
 
