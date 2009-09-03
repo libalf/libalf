@@ -270,7 +270,7 @@ parameters:
 	size of additional parameters,
 	additional parameters[]
 server returns:
-	see specific command
+	-- see specific command --
 
 ================================================================================
 
@@ -279,7 +279,7 @@ LOGGER COMMANDS
 receive and flush all data in logger (LOGGER_RECEIVE_AND_FLUSH)
 parameters: none.
 server returns:
-	string (logger content)
+	character-string (logger content)
 
 set minimal log-level (LOGGER_SET_MIN_LOGLEVEL)
 parameters: 1
@@ -298,19 +298,189 @@ server returns: nothing.
 
 KNOWLEDGEBASE COMMANDS
 
-...
+serialize knowledgebase (KNOWLEDGEBASE_SERIALIZE)
+parameters: none
+server returns:
+	size,
+	serialized data[]
+
+deserialize knowledgebase (KNOWLEDGEBASE_DESERIALIZE)
+parameters: 2
+	size,
+	serialized data[]
+server returns:
+	bool
+
+create dotfile (KNOWLEDGEBASE_TO_DOTFILE)
+parameters: none.
+server returns:
+	character-string
+
+create text-version (KNOWLEDGEBASE_TO_STRING)
+parameters: none.
+server returns:
+	character-string
+
+check if all queries are answered (KNOWLEDGEBASE_IS_ANSWERED)
+parameters: none.
+server returns:
+	bool
+
+check if no knowledge exists (KNOWLEDGEBASE_IS_EMPTY)
+parameters: none.
+server returns:
+	bool
+
+count queries (KNOWLEDGEBASE_COUNT_QUERIES)
+parameters: none
+server returns:
+	query-count
+
+count answers (KNOWLEDGEBASE_COUNT_ANSWERS)
+parameters: none
+server returns:
+	answer-count
+
+count resolved queries (KNOWLEDGEBASE_COUNT_RESOLVED_QUERIES)
+parameters: none.
+server returns:
+	count of resolved queries
+
+resolve query (KNOWLEDGEBASE_RESOLVE_QUERY)
+parameters: 2
+	size of word
+	word[]
+server returns:
+	bool (false if acceptance is unknown)
+	acceptance (undefined if acceptance is unknown)
+
+resolve or add query (KNOWLEDGEBASE_RESOLVE_OR_ADD_QUERY)
+parameters: 2
+	size of word
+	word[]
+server returns:
+	bool (false if acceptance is unknown. then, word is marked as required)
+	acceptance (undefined if acceptance is unknown)
+
+add knowledgebase (KNOWLEDGEBASE_ADD_KNOWLEDGE)
+parameters: 3
+	size of word
+	word[]
+	acceptance
+server returns:
+	bool (false if word was answered differently before)
+
+create query tree (KNOWLEDGEBASE_GET_QUERY_TREE)
+parameters: none.
+server returns:
+	object-id of newly created knowledgebase object
+
+merge other knowledgebase into this (KNOWLEDGEBASE_MERGE_TREE)
+parameters: 1
+	object-id of other knowledgebase_command
+server returns:
+	bool (false if object was not of type knowledgebase)
+	bool (false if the two bases are inconsistent)
+
+get beginning-iterator (KNOWLEDGEBASE_BEGIN)
+parameters: none.
+server returns:
+	object-id of newly created knowledgebase iterator object
+
+get end-iterator (KNOWLEDGEBASE_END)
+parameters: none.
+server returns:
+	object-id of newly created knowledgebase iterator object
+
+get query-beginning-iterator (KNOWLEDGEBASE_QBEGIN)
+parameters: none.
+server returns:
+	object-id of newly created knowledgebase iterator object
+
+get query-end-iterator (KNOWLEDGEBASE_QEND)
+parameters: none.
+server returns:
+	object-id of newly created knowledgebase iterator object
+
+clear knowledgebase (KNOWLEDGEBASE_CLEAR)
+parameters: none.
+server returns: nothing.
+
+clear queries (KNOWLEDGEBASE_CLEAR_QUERIES)
+parameters: none.
+server returns: nothing.
 
 ================================================================================
 
 KNOWLEDGEBASE ITERATOR COMMAND
 
-...
+assign other iterator to this one (KITERATOR_ASSIGN)
+parameters: 1
+	object-id of other knowledgebase-iterator
+server returns:
+	bool (false if object was not of type knowledgebase-iterator)
+
+compare to other iterator (KITERATOR_COMPARE)
+parameters: 1
+	object-id of other knowledgebase-iterator
+server returns:
+	bool (false if object was not of type knowledgebase-iterator)
+	bool (false if the two iterators are referencing different words
+
+interator++ (KITERATOR_NEXT)
+parameters: none.
+server returns: nothing.
+
+get referenced word (KITERATOR_GET_WORD)
+parameters: none.
+server returns:
+	size of word
+	word[]
+
+check if referenced word is answered (KITERATOR_IS_ANSWERED)
+parameters: none.
+server returns:
+	bool (false if not answered)
+
+get answer to referenced word (KITERATOR_IS_ANSWERED)
+parameters: none.
+server returns:
+	bool (false if not answered)
+	acceptance (undefined if not answered)
+
+set answer to referenced word (KITERATOR_ANSWER)
+parameters: 1
+	acceptance
+server returns:
+	bool (false if node was answered differently before)
 
 ================================================================================
 
 ALGORITHM COMMANDS
 
+serialize algorithm (ALGORITHM_SERIALIZE)
+parameters: none
+server returns:
+	size,
+	serialized data[]
+
+deserialize normalizer (ALGORITHM_DESERIALIZE)
+parameters: 2
+	size,
+	serialized data[]
+server returns:
+	bool
+
+create text-version (ALGORITHM_TO_STRING)
+parameters: none.
+server returns:
+	character-string
+
+
+
 ...
+
+
 
 ================================================================================
 
