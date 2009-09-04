@@ -128,7 +128,7 @@ void print_time()
 	now = time(NULL);
 	now_brk = localtime(&now);
 
-	strftime(timestr, 64, "[%F %H:%M] ", now_brk);
+	strftime(timestr, 64, "[%F %T] ", now_brk);
 	timestr[63] = 0;
 
 	cout << timestr;
