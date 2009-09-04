@@ -10,7 +10,8 @@ import de.libalf.Logger;
 
 /**
  * <p>
- * Angluin's L* learning algorithm for regular languages. See
+ * Angluin's L* learning algorithm for regular languages where counter-examples
+ * are added to the columns. See
  * <ul>
  * <li>
  * <em>D. Angluin - Learning regular sets from queries and counterexamples</em></li>
@@ -24,11 +25,12 @@ import de.libalf.Logger;
  * @version 1.0
  * 
  */
-public class JNIAlgorithmAngluin extends JNILearningAlgorithm {
+public class JNIAlgorithmAngluinColumn extends JNILearningAlgorithm {
 	private static final long serialVersionUID = 2L;
 
 	/**
-	 * Creates a new object implementing Angluin's learning algorithm.
+	 * Creates a new object implementing Angluin's learning algorithm with
+	 * counter- examples added to the columns.
 	 * 
 	 * @param knowledgebase
 	 *            the source of information for the algorithm.
@@ -36,7 +38,8 @@ public class JNIAlgorithmAngluin extends JNILearningAlgorithm {
 	 *            the size of the used alphabet
 	 */
 	// TODO: class cast policy
-	public JNIAlgorithmAngluin(Knowledgebase knowledgebase, int alphabet_size) {
+	public JNIAlgorithmAngluinColumn(Knowledgebase knowledgebase,
+			int alphabet_size) {
 		this.knowledgebase = (JNIKnowledgebase) knowledgebase;
 		this.pointer = init(this.knowledgebase.getPointer(), alphabet_size);
 	}
@@ -46,7 +49,7 @@ public class JNIAlgorithmAngluin extends JNILearningAlgorithm {
 	 * <em>JNI method call:</em>
 	 * </p>
 	 * Invokes the JNI interface to initialize a new C++
-	 * <code>angluin_simple_observationtable</code> object with the pointer to a
+	 * <code>angluin_col_table</code> object with the pointer to a
 	 * <code>knowledgebase</code> and the size of the alphabet. The pointer to
 	 * the new created C++ object is returned.
 	 * 
@@ -69,8 +72,8 @@ public class JNIAlgorithmAngluin extends JNILearningAlgorithm {
 	 *            a logger
 	 */
 	// TODO: class cast policy
-	public JNIAlgorithmAngluin(Knowledgebase knowledgebase, int alphabet_size,
-			Logger logger) {
+	public JNIAlgorithmAngluinColumn(Knowledgebase knowledgebase,
+			int alphabet_size, Logger logger) {
 		this.knowledgebase = (JNIKnowledgebase) knowledgebase;
 		this.logger = (JNIBufferedLogger) logger;
 		this.pointer = init(this.knowledgebase.getPointer(), alphabet_size,
@@ -82,7 +85,7 @@ public class JNIAlgorithmAngluin extends JNILearningAlgorithm {
 	 * <em>JNI method call:</em>
 	 * </p>
 	 * Invokes the JNI interface to initialize a new C++
-	 * <code>angluin_simple_observationtable</code> object with the pointer to a
+	 * <code>angluin_col_table</code> object with the pointer to a
 	 * <code>knowledgebase</code>, the size of the alphabet and a pointer to a
 	 * <code>buffered_logger</code>. The pointer to the new created C++ object
 	 * is returned.

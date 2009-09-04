@@ -61,7 +61,7 @@ jobject create_transition(JNIEnv* env, int source, int label, int destination) {
 	 *Create new Java LibALFTransition object
 	 */
 	// Find class
-	jclass jcls = env->FindClass("de/libalf/jni/BasicTransition");
+	jclass jcls = env->FindClass("de/libalf/BasicTransition");
 	if(jcls == NULL) {
 		cout << "Could not find Java Class 'BasicTransition'!\nReturning NULL\n";
 		return NULL;
@@ -86,9 +86,9 @@ jobject convertAutomaton(JNIEnv* env, bool is_dfa, int alphabet_size, int state_
 	 *Create new Java LibALFAutomaton object
 	 */
 	// Find class
-	jclass jcls = env->FindClass("de/libalf/jni/BasicAutomaton");
+	jclass jcls = env->FindClass("de/libalf/BasicAutomaton");
 	if(jcls == NULL) {
-		cout << "Could not find Java Class 'BaiscAutomaton'!\nReturning NULL\n";
+		cout << "Could not find Java Class 'BasicAutomaton'!\nReturning NULL\n";
 		return NULL;
 	}
 	// Find constructor
@@ -139,9 +139,9 @@ jobject convertAutomaton(JNIEnv* env, bool is_dfa, int alphabet_size, int state_
 	 * Finally, process the transitions
 	 */
 	// Find the add transition method
-	jmid = env->GetMethodID(jcls, "addTransition", "(Lde/libalf/jni/BasicTransition;)V");
+	jmid = env->GetMethodID(jcls, "addTransition", "(Lde/libalf/BasicTransition;)V");
 	if(jmid == 0) {
-		cout << "Could not find addTransition of 'BasicFAutomaton'!\nReturning NULL\n";
+		cout << "Could not find addTransition of 'BasicAutomaton'!\nReturning NULL\n";
 		return NULL;
 	}
 	// Process all transitions
