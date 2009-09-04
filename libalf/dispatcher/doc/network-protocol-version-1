@@ -70,7 +70,7 @@ followed by the announced number of chars. the string is NOT \0-delimited!
 
 ================================================================================
 
-PROTOCOL CONSTANTS
+PROTOCOL CONSTANTS (see dispatcher/include/protocol.h)
 
 enum client_command {
 	CLCMD_REQ_CAPA = 0,
@@ -228,7 +228,8 @@ disconnect from server (CLCMD_DISCONNECT)
 no parameters.
 server returns:
 	bool (true if the server liked you)
-	nothing. closes connection.
+
+	server then disconnects
 
 
 enable TLS/SSL (CLCMD_STARTTLS)
@@ -236,6 +237,7 @@ parameters:
 	FIXME
 server returns:
 	bool (just because i can)
+only if above was true:
 	FIXME
 
 
@@ -244,6 +246,7 @@ parameters:
 	FIXME
 server returns:
 	bool (just because i can)
+only if above was true:
 	FIXME
 
 
@@ -252,8 +255,8 @@ parameters:
 	enum object_type
 server returns:
 	bool (false if object_type was invalid)
-	object-id (-1 if command failed. check server log for error message,
-		undefined if object_type was invalid)
+only if above was true:
+	object-id (-1 if command failed. check server log for error message)
 
 
 delete object (CLCMD_DELETE_OBJECT)
@@ -268,7 +271,8 @@ parameters:
 	object-id
 server returns:
 	bool (false if object does not exist)
-	enum object_type (undefined if object does not exist)
+only if above was true:
+	enum object_type
 
 
 object command (CLCMD_OBJECT_COMMAND)
@@ -283,7 +287,8 @@ parameters:
 	additional parameters[]
 server returns:
 	bool (false if command was invalid)
-	data[] -- see specific command, not existing if command was invalid --
+only if above was true:
+	data[] -- see specific command --
 
 
 say hello to carsten (CLCMD_HELLO_CARSTEN)
@@ -291,6 +296,7 @@ parameters: 1
 	int (how often)
 server returns:
 	bool (true if he's there)
+only if above was true:
 	int (how often he said thanks)
 
 ================================================================================
