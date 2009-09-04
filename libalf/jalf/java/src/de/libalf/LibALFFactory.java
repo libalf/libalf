@@ -14,7 +14,7 @@ package de.libalf;
 public interface LibALFFactory {
 
 	public static enum Algorithm {
-		ANGLUIN, ANGLUIN_COLUMN;
+		ANGLUIN, ANGLUIN_COLUMN, NL_STAR, RPNI, BIERMANN_MINISAT;
 	}
 
 	/**

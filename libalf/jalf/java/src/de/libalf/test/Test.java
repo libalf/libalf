@@ -102,7 +102,7 @@ public class Test {
 		LibALFFactory factory = new JNIFactory();
 		Knowledgebase base = factory.createKnowledgebase();
 		LearningAlgorithm alg = factory.createLearningAlgorithm(
-				Algorithm.ANGLUIN_COLUMN, new Object[] { base, 2 });
+				Algorithm.ANGLUIN, new Object[] { base, 2 });
 
 		Automaton learned = null;
 		do {

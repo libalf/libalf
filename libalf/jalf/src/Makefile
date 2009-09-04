@@ -23,6 +23,7 @@ ifeq (${OS}, Windows_NT)
   LDFLAGS += -L../../src
 
   TARGET=jalf.dll
+  
 else
   # assuming linux
   #JAVA_INCLUDE ?= /usr/lib/jvm/java-6-sun-1.6.0.14/include
@@ -38,7 +39,7 @@ endif
 CPPFLAGS += -I../include -I../../include
 CPPFLAGS += -shared -fPIC -I${PREFIX}/include -I${JAVA_INCLUDE}
 
-OBJECTS = jni_tools.o jni_object.o jni_knowledgebase.o jni_buffered_logger.o jni_learning_algorithm.o jni_algorithm_angluin.o jni_algorithm_angluin_column.o
+OBJECTS = jni_tools.o jni_object.o jni_knowledgebase.o jni_buffered_logger.o jni_learning_algorithm.o jni_algorithm_angluin.o jni_algorithm_angluin_column.o jni_algorithm_nlstar.o jni_algorithm_rpni.o jni_algorithm_biermann_minisat.o
 
 all:	${TARGET}
 
