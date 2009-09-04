@@ -11,6 +11,7 @@
 
 #ifdef _WIN32
 #include <winsock.h>
+#include <stdint.h>
 #else
 #include <arpa/inet.h>
 #endif

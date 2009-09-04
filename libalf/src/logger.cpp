@@ -14,6 +14,10 @@
 
 #include <stdarg.h>
 
+#ifdef _WIN32
+#include <stdio.h>
+#endif
+
 #include "libalf/logger.h"
 #include "libalf/logger_terminalcolors.h"
 

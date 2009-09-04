@@ -14,8 +14,9 @@ ifeq (${OS}, Windows_NT)
 
   CPPFLAGS += -I${JAVA_INCLUDE}/win32
 
-  LDFLAGS = -static -lalf -llangen -dynamic -L${PREFIX}/lib
-  LDFLAGS += -lgmpxx -lgmp -lwsock32
+  LDFLAGS = -static -lalf -dynamic -L${PREFIX}/lib
+#  LDFLAGS += -llangen -lgmpxx -lgmp
+  LDFLAGS += -lws2_32
   LDFLAGS += -L../src -L../../liblangen/src
 
   TARGET=alf_jni.dll
@@ -34,16 +35,16 @@ endif
 CPPFLAGS += -I../include -I../../liblangen/include
 CPPFLAGS += -shared -fPIC -I${PREFIX}/include -I${JAVA_INCLUDE}
 
-OBJECTS = jni_knowledgebase.o jni_algorithm.o jni_algorithm_angluin.o jni_algorithm_angluin_column.o jni_algorithm_biermann_minisat.o jni_algorithm_nlstar.o jni_algorithm_rpni.o jni_buffered_logger.o jni_tools.o jni_libalf_object.o jni_query_iterator.o jni_random_generator.o
+OBJECTS = jni_knowledgebase.o jni_algorithm.o jni_algorithm_angluin.o jni_algorithm_angluin_column.o jni_algorithm_biermann_minisat.o jni_algorithm_nlstar.o jni_algorithm_rpni.o jni_buffered_logger.o jni_tools.o jni_libalf_object.o jni_query_iterator.o
 
-all:	test_java_dir ${TARGET}
+all:	${TARGET}
 
-libalf_jni.so: ${OBJECTS}
+libalf_jni.so: test_java_dir ${OBJECTS}
 	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} -Xlinker -soname=libalf_jni ${LDFLAGS} -o $@
 
 alf_jni.dll: ${OBJECTS}
 	make -C ../src libalf.a
-	make -C ../../liblangen/src liblangen.a
+#	make -C ../../liblangen/src liblangen.a
 	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} ${LDFLAGS} -o $@ -Wl,--kill-at
 #	                                                         ^^^^^^^^^^^^^ sonst klappt JNI-DLL nicht (http://www.mingw.org/wiki/JNI-MinGW-DLL)
 

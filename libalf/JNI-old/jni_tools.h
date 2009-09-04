@@ -14,6 +14,10 @@
 #include <string>
 #include <list>
 
+#ifdef _WIN32
+# include <stdint.h>
+#endif
+
 #include <jni.h>
 
 using namespace std;

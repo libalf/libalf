@@ -9,10 +9,7 @@
  * see LICENSE file for licensing information.
  */
 
-#include <set>
-#include <map>
-#include <string>
-#include <list>
+#include "jni_tools.h"
 #include <iostream>
 
 #include <jni.h>

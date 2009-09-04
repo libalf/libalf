@@ -16,6 +16,10 @@
 #include <list>
 #include <string>
 
+#ifdef _WIN32
+# include <stdint.h>
+#endif
+
 namespace libalf {
 
 using namespace std;

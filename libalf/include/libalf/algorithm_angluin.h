@@ -22,6 +22,7 @@
 
 #ifdef _WIN32
 #include <winsock.h>
+#include <stdio.h>
 #else
 #include <arpa/inet.h>
 #endif
