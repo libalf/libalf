@@ -109,7 +109,7 @@ char * dispatcher_version()
 					"(c) 2008/2009 by David R. Piegdon, Carsten Kern and Stefan Rieger\n"
 					"    http://i2.informatik.rwth-aachen.de/\n",
 					VERSION,
-					libalf_version(),
+					libalf::libalf_version(),
 					DISPATCHER_PROTOCOL_VERSION);
 		version[1023] = 0;
 		done = true;

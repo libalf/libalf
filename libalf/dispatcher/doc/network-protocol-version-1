@@ -214,7 +214,7 @@ no parameters.
 server returns:
 	bool (true)
 	character-string ( space-separated list of capabilities,
-			   e.g. "tls auth langen" )
+			   e.g. "protocol-version-1 tls auth langen" )
 
 
 request server/library version string (CLCMD_REQ_VERSION)

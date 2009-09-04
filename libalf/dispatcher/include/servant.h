@@ -15,14 +15,11 @@
 #include <vector>
 
 #include "serversocket.h"
-#include "session.h"
 
 class servant {
 	private:
 		serversocket * client;
-		buffered_logger logger;
 		bool capa_sent;
-		vector<session*> sessions;
 
 	public:
 		servant();
@@ -34,7 +31,6 @@ class servant {
 	private:
 		bool send_capabilities();
 		bool send_version();
-		bool new_session();
 
 };
 

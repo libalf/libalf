@@ -45,13 +45,13 @@ servant::~servant()
 }}}
 
 bool servant::serve()
-{{{
+{
 	if(client == NULL)
 		return false;
 
 	if(!capa_sent) {
 		if(!send_capabilities()) {
-			cout << "client " << getpid() << " sending of initial CAPA failed. disconnecting.\n";
+			cout << "client " << getpid() << ": sending of initial CAPA failed. disconnecting.\n";
 			return false;
 		}
 		capa_sent = true;
@@ -59,7 +59,7 @@ bool servant::serve()
 
 	// get command field from next command
 	int32_t cmd;
-	int32_t session_id;
+	int32_t tmp;
 
 	if(!client->stream_receive_int(cmd)) {
 		cout << "socket to client " << getpid() << " failed. disconnecting.\n";
@@ -70,132 +70,81 @@ bool servant::serve()
 	cout << "client " << getpid() << " command " << cmd << ".\n";
 
 	switch(cmd) {
-		default:
-		case CM_DISCONNECT:
-			if(!client->stream_send_int(SM_ACK_DISCONNECT))
-				cout << "socket to client " << getpid() << " failed when trying to send SM_ACK_DISCONNET. disconnecting anyway ;)\n";
-			else
-				cout << "client " << getpid() << " said CM_DISCONNECT. disconnecting.\n";
-			return false;
-		case CM_REQ_CAPA:
+		case CLCMD_REQ_CAPA:
 			if(!send_capabilities()) {
-				cout << "socket to client " << getpid() << " failed when trying to send CAPA. disconnecting.\n";
+				cout << "client "<< getpid() << ": failed to send requested CAPA. disconnecting.\n";
 				return false;
 			}
 			return true;
-		case CM_REQ_VERSION:
+
+		case CLCMD_REQ_VERSION:
 			if(!send_version()) {
-				cout << "socket to client " << getpid() << " failed when trying to send version. disconnecting.\n";
+				cout << "client "<<getpid()<<": failed to send requested version. disconnecting.\n";
 				return false;
 			}
 			return true;
-		case CM_REQ_SESSION:
-			if(!new_session()) {
-				cout << "INTERNAL ERROR: new_session() failed (client " << getpid() << ". disconnecting.\n";
-				return false;
+
+		case CLCMD_DISCONNECT:
+			if(!client->stream_send_int(1)) {
+				cout << "client "<<getpid()<<": failed to ACK disconnect. disconnecting anyway ;)\n";
+			} else {
+				cout << "client "<<getpid()<<": valid disconnect. bye bye.\n";
 			}
-			return true;
-		case CM_STARTTLS: // not implemented.
-			cout << "received invalid command " << cmd << " from " << getpid() << " client. disconnecting.\n";
 			return false;
-		case CM_SES_SET_MODALITIES:
-		case CM_SES_REQ_STATUS:
-		case CM_SES_SET_STATUS:
-		case CM_SES_REQ_KNOWLEDGE:
-		case CM_SES_SET_KNOWLEDGE:
-		case CM_SES_CONJECTURE:
-		case CM_SES_ADVANCE:
-		case CM_SES_ANSWER_QUERIES:
-		case CM_SES_GIVE_COUNTEREXAMPLES:
-		case CM_SES_REQ_ALPHABET_SIZE:
-		case CM_SES_SET_ALPHABET_SIZE:
-		case CM_SES_INC_ALPHABET_SIZE:
-		case CM_SES_REQ_STATS:
-		case CM_SES_SET_STATS:
-		case CM_SES_REQ_LOG:
-		case CM_SES_UNDO:
-		case CM_SES_LOG_TABLE:
-		case CM_SES_NORMALIZE_WORD:
-		case CM_SES_LOG_KNOWLEDGE_DOTFILE:
-			if(!client->stream_receive_int(session_id)) {
-				cout << "client " << getpid() << ": failed to receive session id in session-related command. disconnecting.\n";
+
+		case CLCMD_CREATE_OBJECT:
+			
+
+		case CLCMD_DELETE_OBJECT:
+			
+
+		case CLCMD_GET_OBJECTTYPE:
+			
+
+		case CLCMD_OBJECT_COMMAND:
+			
+
+		case CLCMD_HELLO_CARSTEN:
+			if(!client->stream_receive_int(tmp)) {
+				cout << "client "<<getpid()<<": hello carsten, but not how often? bad client! BAD! disconnecting.\n";
 				return false;
 			}
-			session_id = ntohl(session_id);
-			if(session_id < 0 || session_id > (int)sessions.size()) {
-				cout << "client " << getpid() << ": received invalid session id " << session_id << ". disconnecting.\n";
+			cout << "client "<<getpid()<<" said "<< ntohl(tmp) <<" times hello to carsten. how nice of him!\n";
+			if(!client->stream_send_int(1)) {
+				cout << "client "<<getpid()<<": but he's not listening :( disconnecting\n";
 				return false;
 			}
-
-			session * ses = sessions[session_id];
-
-			switch(cmd) {
-				case CM_SES_SET_MODALITIES:
-					return ses->set_modalities(client);
-				case CM_SES_REQ_STATUS:
-					return ses->answer_status(client);
-				case CM_SES_SET_STATUS:
-					return ses->set_status(client);
-				case CM_SES_REQ_KNOWLEDGE:
-					return ses->answer_knowledge(client);
-				case CM_SES_SET_KNOWLEDGE:
-					return ses->set_knowledge(client);
-				case CM_SES_CONJECTURE:
-					return ses->answer_conjecture(client);
-				case CM_SES_ADVANCE:
-					return ses->advance(client);
-				case CM_SES_ANSWER_QUERIES:
-					return ses->get_query_answer(client);
-				case CM_SES_GIVE_COUNTEREXAMPLES:
-					return ses->get_counterexamples(client);
-				case CM_SES_REQ_ALPHABET_SIZE:
-					return ses->answer_alphabet_size(client);
-				case CM_SES_SET_ALPHABET_SIZE:
-					return ses->set_alphabet_size(client);
-				case CM_SES_INC_ALPHABET_SIZE:
-					return ses->increase_alphabet_size(client);
-				case CM_SES_REQ_STATS:
-					return ses->answer_stats(client);
-				case CM_SES_SET_STATS:
-					return ses->set_stats(client);
-				case CM_SES_REQ_LOG:
-					return ses->answer_log_request(client);
-				case CM_SES_LOG_TABLE:
-					return ses->log_table(client);
-				case CM_SES_NORMALIZE_WORD:
-					return ses->normalize_word(client);
-				case CM_SES_UNDO:
-					return ses->undo(client);
-				case CM_SES_LOG_KNOWLEDGE_DOTFILE:
-					return ses->log_knowledgebase(client);
-				default:
-					cout << "ATTENTION: unimplemented session command " << cmd << " from client " << getpid() << "!\n";
-					return false;
+			if(!client->stream_send_int(tmp)) {
+				cout << "client "<<getpid()<<": but i cannot answer as often :( disconnecting\n";
+				return false;
 			}
+			return true;
+
+		case CLCMD_STARTTLS:
+		case CLCMD_AUTH:
+		default:
+			cout << "client " << getpid() << " sent invalid command " << cmd << ". disconnecting.\n";
+			return false;
 	}
 
 	// should never be reached.
 	cout << "INTERNAL ERROR: reached invalid code (client " << getpid() << ")\n";
 
 	return false;
-}}}
+}
 
 bool servant::send_capabilities()
 {{{
-	// prepare CAPAs
-	basic_string<int32_t> capa;
+	char capa[] = "protocol-version-1";
 
-	capa += htonl(SM_ACK_CAPA);
-	capa += htonl(DISPATCHER_PROTOCOL_VERSION);
-	// no upcoming CAPA fields. we are capable of nothing.
-	capa += htonl(0);
-
-	return client->stream_send_blob(capa);
+	if(!client->stream_send_int(htonl(strlen(capa))))
+		return false;
+	return client->stream_send(capa, strlen(capa));
 }}}
 
 bool servant::send_version()
 {{{
-	if(!client->stream_send_int(htonl(SM_ACK_VERSION)))
+	if(!client->stream_send_int(htonl(1)))
 		return false;
 
 	char * version;
@@ -207,31 +156,5 @@ bool servant::send_version()
 	if(!client->stream_send_int(htonl(verlen)))
 		return false;
 	return client->stream_send(version, verlen);
-}}}
-
-bool servant::new_session()
-{{{
-	int32_t s;
-	enum learning_algorithm<extended_bool>::algorithm algorithm;
-	int alphabet_size;
-
-	if(!client->stream_receive_int(s))
-		return false;
-	algorithm = (learning_algorithm<extended_bool>::algorithm) ntohl(s);
-
-	if(!client->stream_receive_int(s))
-		return false;
-	alphabet_size = ntohl(s);
-
-	int snum = sessions.size();
-
-	sessions.push_back(new session(algorithm, alphabet_size));
-
-	if(!client->stream_send_int(htonl(SM_ACK_SESSION)))
-		return false;
-	if(!client->stream_send_int(htonl(snum)))
-		return false;
-
-	return true;
 }}}
 
