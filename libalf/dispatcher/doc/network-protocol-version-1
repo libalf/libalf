@@ -60,7 +60,8 @@ negative object-id represents an invalid object or means "no object" or "error".
 
 char
 
-a char is a byte, i.e. it is 8 bits wide.
+a char is an ascii-byte, i.e. it is 8 bits wide. it is used to represent
+standard, human readable text.
 
 character-string
 
