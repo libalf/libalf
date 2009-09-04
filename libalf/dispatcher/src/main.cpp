@@ -106,7 +106,7 @@ char * dispatcher_version()
 		snprintf(version, 1023, "ALF dispatcher version %s\n"
 					"%s\n"
 					"dispatcher protocol version %d\n"
-					"(c) 2008/2009 by David R. Piegdon, Carsten Kern and Stefan Rieger\n"
+					"(c) 2008/2009 by David R. Piegdon, Stefan Schulz, Daniel Neider, Carsten Kern and Stefan Rieger\n"
 					"    http://i2.informatik.rwth-aachen.de/\n",
 					VERSION,
 					libalf::libalf_version(),

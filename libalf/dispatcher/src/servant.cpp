@@ -26,15 +26,10 @@
 using namespace std;
 using namespace libalf;
 
-servant::servant()
-{{{
-	client = NULL;
-	capa_sent = false;
-}}}
-
 servant::servant(serversocket *connection)
 {{{
 	client = connection;
+	capa = "protocol-version-1";
 	capa_sent = false;
 }}}
 
@@ -59,15 +54,16 @@ bool servant::serve()
 
 	// get command field from next command
 	int32_t cmd;
-	int32_t tmp;
 
 	if(!client->stream_receive_int(cmd)) {
+		print_time();
 		cout << "socket to client " << getpid() << " failed. disconnecting.\n";
 		return false;
 	}
 	cmd = ntohl(cmd);
 
-	cout << "client " << getpid() << " command " << cmd << ".\n";
+	print_time();
+	cout << "client " << getpid() << ": command " << cmd << ".\n";
 
 	switch(cmd) {
 		case CLCMD_REQ_CAPA:
@@ -78,7 +74,7 @@ bool servant::serve()
 			return true;
 
 		case CLCMD_REQ_VERSION:
-			if(!send_version()) {
+			if(!reply_version()) {
 				cout << "client "<<getpid()<<": failed to send requested version. disconnecting.\n";
 				return false;
 			}
@@ -105,19 +101,10 @@ bool servant::serve()
 			
 
 		case CLCMD_HELLO_CARSTEN:
-			if(!client->stream_receive_int(tmp)) {
-				cout << "client "<<getpid()<<": hello carsten, but not how often? bad client! BAD! disconnecting.\n";
+			if(!reply_hello_carsten()) {
+				cout << "client "<<getpid()<<": tried hello carsten, but failed. disconnecting.\n";
 				return false;
-			}
-			cout << "client "<<getpid()<<" said "<< ntohl(tmp) <<" times hello to carsten. how nice of him!\n";
-			if(!client->stream_send_int(1)) {
-				cout << "client "<<getpid()<<": but he's not listening :( disconnecting\n";
-				return false;
-			}
-			if(!client->stream_send_int(tmp)) {
-				cout << "client "<<getpid()<<": but i cannot answer as often :( disconnecting\n";
-				return false;
-			}
+			};
 			return true;
 
 		case CLCMD_STARTTLS:
@@ -128,21 +115,22 @@ bool servant::serve()
 	}
 
 	// should never be reached.
-	cout << "INTERNAL ERROR: reached invalid code (client " << getpid() << ")\n";
+	print_time();
+	cout << "INTERNAL ERROR: reached invalid code (client " << getpid() << "). disconnecting this client.\n";
 
 	return false;
 }
 
 bool servant::send_capabilities()
 {{{
-	char capa[] = "protocol-version-1";
-
-	if(!client->stream_send_int(htonl(strlen(capa))))
+	if(!client->stream_send_int(htonl(1)))
 		return false;
-	return client->stream_send(capa, strlen(capa));
+	if(!client->stream_send_int(htonl(strlen(capa.c_str()))))
+		return false;
+	return client->stream_send(capa.c_str(), strlen(capa.c_str()));
 }}}
 
-bool servant::send_version()
+bool servant::reply_version()
 {{{
 	if(!client->stream_send_int(htonl(1)))
 		return false;
@@ -156,5 +144,22 @@ bool servant::send_version()
 	if(!client->stream_send_int(htonl(verlen)))
 		return false;
 	return client->stream_send(version, verlen);
+}}}
+
+bool servant::reply_hello_carsten()
+{{{
+	int32_t count;
+
+	if(!client->stream_receive_int(count))
+		return false;
+
+	cout << "client "<<getpid()<<" said "<< ntohl(count) <<" times hello to carsten. how nice of him!\n";
+
+	if(!client->stream_send_int(1))
+		return false;
+	if(!client->stream_send_int(count))
+		return false;
+
+	return true;
 }}}
 
