@@ -249,13 +249,14 @@ delete object (CLCMD_DELETE_OBJECT)
 parameters:
 	object-id
 server returns:
-	bool (success-flag)
+	bool (false if object does not exist)
 
 
 get object type (CLCMD_GET_OBJECTTYPE)
 parameters:
 	object-id
 server returns:
+	bool (false if object does not exist)
 	enum object_type
 
 
@@ -270,6 +271,7 @@ parameters:
 	size of additional parameters,
 	additional parameters[]
 server returns:
+	bool (false if command was invalid)
 	-- see specific command --
 
 ================================================================================
