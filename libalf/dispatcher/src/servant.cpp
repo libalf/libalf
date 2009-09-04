@@ -13,9 +13,6 @@
 #include <unistd.h>
 #include <string.h>
 
-#include <iostream>
-#include <string>
-
 #include <libalf/alf.h>
 
 #include "main.h"
@@ -31,6 +28,7 @@ servant::servant(serversocket *connection)
 	client = connection;
 	capa = "protocol-version-1";
 	capa_sent = false;
+	pid = getpid();
 }}}
 
 servant::~servant()
@@ -46,7 +44,7 @@ bool servant::serve()
 
 	if(!capa_sent) {
 		if(!send_capabilities()) {
-			cout << "client " << getpid() << ": sending of initial CAPA failed. disconnecting.\n";
+			log("client %d: sending of initial CAPA failed. disconnecting.\n", pid);
 			return false;
 		}
 		capa_sent = true;
@@ -56,35 +54,33 @@ bool servant::serve()
 	int32_t cmd;
 
 	if(!client->stream_receive_int(cmd)) {
-		print_time();
-		cout << "socket to client " << getpid() << " failed. disconnecting.\n";
+		log("socket to client %d failed. disconnecting.\n", pid);
 		return false;
 	}
 	cmd = ntohl(cmd);
 
-	print_time();
-	cout << "client " << getpid() << ": command " << cmd << ".\n";
+	log("client %d: comand %d.\n", pid, cmd);
 
 	switch(cmd) {
 		case CLCMD_REQ_CAPA:
 			if(!send_capabilities()) {
-				cout << "client "<< getpid() << ": failed to send requested CAPA. disconnecting.\n";
+				log("client %d: failed to send requested CAPA. disconnecting.\n", pid);
 				return false;
 			}
 			return true;
 
 		case CLCMD_REQ_VERSION:
 			if(!reply_version()) {
-				cout << "client "<<getpid()<<": failed to send requested version. disconnecting.\n";
+				log("client %d: failed to send requested version. disconnecting.\n", pid);
 				return false;
 			}
 			return true;
 
 		case CLCMD_DISCONNECT:
 			if(!client->stream_send_int(1)) {
-				cout << "client "<<getpid()<<": failed to ACK disconnect. disconnecting anyway ;)\n";
+				log("client %d: failed to ACK disconnect. disconnecting anyway ;)\n", pid);
 			} else {
-				cout << "client "<<getpid()<<": valid disconnect. bye bye.\n";
+				log("client %d: valid disconnect. bye bye.\n", pid);
 			}
 			return false;
 
@@ -102,7 +98,7 @@ bool servant::serve()
 
 		case CLCMD_HELLO_CARSTEN:
 			if(!reply_hello_carsten()) {
-				cout << "client "<<getpid()<<": tried hello carsten, but failed. disconnecting.\n";
+				log("client %d: tried hello carsten, but failed. disconnecting.\n", pid);
 				return false;
 			};
 			return true;
@@ -110,13 +106,12 @@ bool servant::serve()
 		case CLCMD_STARTTLS:
 		case CLCMD_AUTH:
 		default:
-			cout << "client " << getpid() << " sent invalid command " << cmd << ". disconnecting.\n";
+			log("client %d: sent invalid command %d. disconnecting.\n", pid, cmd);
 			return false;
 	}
 
 	// should never be reached.
-	print_time();
-	cout << "INTERNAL ERROR: reached invalid code (client " << getpid() << "). disconnecting this client.\n";
+	log("INTERNAL ERROR: reached invalid code (client %d). disconnecting this client.\n", pid);
 
 	return false;
 }
@@ -153,7 +148,7 @@ bool servant::reply_hello_carsten()
 	if(!client->stream_receive_int(count))
 		return false;
 
-	cout << "client "<<getpid()<<" said "<< ntohl(count) <<" times hello to carsten. how nice of him!\n";
+	log("client %d: said %d times hello to carsten. how nice of him!\n", pid, ntohl(count));
 
 	if(!client->stream_send_int(1))
 		return false;

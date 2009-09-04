@@ -21,6 +21,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/select.h>
+#include <stdarg.h>
 
 #include <libalf/alf.h>
 
@@ -134,9 +135,20 @@ void print_time()
 	cout << timestr;
 }}}
 
+void log(const char * format, ...)
+{{{
+	va_list ap;
+
+	print_time();
+
+	va_start(ap, format);
+	vprintf(format, ap);
+	va_end(ap);
+}}}
+
 int main(int argc, char**argv)
 {{{
-	cout << dispatcher_version() << "\n"; 
+	cout << dispatcher_version() << "\n";
 
 	// parse command-line
 	if( ! parse_commandline(argc, argv) ) {
@@ -162,8 +174,7 @@ int main(int argc, char**argv)
 		return -2;
 	}
 
-	print_time();
-	cout << "dispatcher now waiting for clients.\n";
+	log("dispatcher now waiting for clients.\n");
 
 	fd_set fds;
 	timeval t;
@@ -177,12 +188,11 @@ int main(int argc, char**argv)
 			serversocket *cl = master->accept();
 
 			if( ! cl) {
-				cout << "ASSERT: master->accept() returned NULL. ignoring.\n";
+				log("ASSERT: master->accept() returned NULL. ignoring.\n");
 			} else {
 				int pid = fork();
-				print_time();
 				if(pid < 0) {
-					cout << "failed to fork. aborting.\n";
+					log("failed to fork. aborting.\n");
 					return -3;
 				}
 				if(pid == 0) {
@@ -195,10 +205,10 @@ int main(int argc, char**argv)
 					while(sv.serve());
 
 					// end child.
-					cout << "child pid " << getpid() << " terminating.\n";
+					log("child pid %d terminating.\n", pid);
 					return 0;
 				} else {
-					cout << "child forked, pid " << pid << ".\n";
+					log("child forked, pid %d.\n", pid);
 					// parent
 					// get rid of client socket
 					delete cl;

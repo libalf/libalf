@@ -45,6 +45,7 @@ class servant {
 		serversocket * client;
 		bool capa_sent;
 		vector<object> objects;
+		unsigned int pid;
 
 	public:
 		servant(serversocket *connection);

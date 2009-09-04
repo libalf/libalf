@@ -15,6 +15,7 @@
 char * dispatcher_version();
 
 void print_time();
+void log(const char * format, ...);
 
 #endif // __libalf_session_h__
 
