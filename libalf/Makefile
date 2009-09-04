@@ -7,7 +7,7 @@ PREFIX ?= /usr/local/
 
 all:
 	+make -C src all
-#	+make -C dispatcher all
+	+make -C dispatcher all
 
 testsuites: install
 	make -C testsuites
@@ -20,10 +20,10 @@ clean:
 install:
 	make -C include install
 	make -C src install
-#	make -C dispatcher install
+	make -C dispatcher install
 
 uninstall:
 	make -C include uninstall
 	make -C src uninstall
-#	make -C dispatcher uninstall
+	make -C dispatcher uninstall
 

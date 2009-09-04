@@ -23,11 +23,11 @@ dispatcher: ${OBJECTS}
 	g++ ${OBJECTS} ${LDFLAGS} -o dispatcher
 
 clean:
-	-rm *.o
-	-rm dispatcher
+	-rm -f dispatcher *.o
 
 install: dispatcher
 	cp dispatcher ${PREFIX}/bin/
+	chmod 755 ${PREFIX}/bin/dispatcher
 
 uninstall:
 
