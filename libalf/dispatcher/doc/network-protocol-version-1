@@ -211,6 +211,7 @@ the following commands exist:
 request capabilities (CLCMD_REQ_CAPA)
 no parameters.
 server returns:
+	bool (true)
 	character-string ( space-separated list of capabilities,
 			   e.g. "tls auth langen" )
 
@@ -218,12 +219,14 @@ server returns:
 request server/library version string (CLCMD_REQ_VERSION)
 no parameters.
 server returns:
+	bool (true)
 	character-string
 
 
 disconnect from server (CLCMD_DISCONNECT)
 no parameters.
 server returns:
+	bool (true if the server liked you)
 	nothing. closes connection.
 
 
@@ -231,6 +234,7 @@ enable TLS/SSL (CLCMD_STARTTLS)
 parameters:
 	FIXME
 server returns:
+	bool (just because i can)
 	FIXME
 
 
@@ -238,6 +242,7 @@ authenticate connection (CLCMD_AUTH)
 parameters:
 	FIXME
 server returns:
+	bool (just because i can)
 	FIXME
 
 
@@ -245,7 +250,9 @@ create object (CLCMD_CREATE_OBJECT)
 parameters:
 	enum object_type
 server returns:
-	object-id (-1 if command failed. check server log for error message)
+	bool (false if object_type was invalid)
+	object-id (-1 if command failed. check server log for error message,
+		undefined if object_type was invalid)
 
 
 delete object (CLCMD_DELETE_OBJECT)
@@ -260,7 +267,7 @@ parameters:
 	object-id
 server returns:
 	bool (false if object does not exist)
-	enum object_type
+	enum object_type (undefined if object does not exist)
 
 
 object command (CLCMD_OBJECT_COMMAND)
@@ -275,12 +282,14 @@ parameters:
 	additional parameters[]
 server returns:
 	bool (false if command was invalid)
-	-- see specific command --
+	data[] -- see specific command, not existing if command was invalid --
+
 
 say hello to carsten (CLCMD_HELLO_CARSTEN)
 parameters: 1
 	int (how often)
 server returns:
+	bool (true if he's there)
 	int (how often he said thanks)
 
 ================================================================================
