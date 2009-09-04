@@ -11,7 +11,6 @@
 
 #include <sys/types.h>
 #include <unistd.h>
-#include <string.h>
 
 #include <libalf/alf.h>
 
@@ -37,13 +36,15 @@ servant::~servant()
 		delete client;
 }}}
 
+
+
 bool servant::serve()
-{
+{{{
 	if(client == NULL)
 		return false;
 
 	if(!capa_sent) {
-		if(!send_capabilities()) {
+		if(!reply_capabilities()) {
 			log("client %d: sending of initial CAPA failed. disconnecting.\n", pid);
 			return false;
 		}
@@ -59,11 +60,15 @@ bool servant::serve()
 	}
 	cmd = ntohl(cmd);
 
-	log("client %d: comand %d.\n", pid, cmd);
+#ifdef READABLE
+	log("client %d: command %d (%s).\n", pid, cmd, cmd2string(cmd));
+#else
+	log("client %d: command %d.\n", pid, cmd);
+#endif
 
 	switch(cmd) {
 		case CLCMD_REQ_CAPA:
-			if(!send_capabilities()) {
+			if(!reply_capabilities()) {
 				log("client %d: failed to send requested CAPA. disconnecting.\n", pid);
 				return false;
 			}
@@ -85,16 +90,32 @@ bool servant::serve()
 			return false;
 
 		case CLCMD_CREATE_OBJECT:
-			
+			if(!reply_create_object()) {
+				log("client %d: create object command failed. disconnecting.\n", pid);
+				return false;
+			}
+			return true;
 
 		case CLCMD_DELETE_OBJECT:
-			
+			if(!reply_delete_object()) {
+				log("client %d: delete object command failed. disconnecting.\n", pid);
+				return false;
+			}
+			return true;
 
 		case CLCMD_GET_OBJECTTYPE:
-			
+			if(!reply_get_objecttype()) {
+				log("client %d: get objecttype command failed. disconnecting.\n", pid);
+				return false;
+			}
+			return true;
 
 		case CLCMD_OBJECT_COMMAND:
-			
+			if(!reply_object_command()) {
+				log("client %d: object command failed. disconnecting.\n", pid);
+				return false;
+			}
+			return true;
 
 		case CLCMD_HELLO_CARSTEN:
 			if(!reply_hello_carsten()) {
@@ -114,32 +135,43 @@ bool servant::serve()
 	log("INTERNAL ERROR: reached invalid code (client %d). disconnecting this client.\n", pid);
 
 	return false;
-}
+}}}
 
-bool servant::send_capabilities()
+
+
+bool servant::reply_capabilities()
 {{{
 	if(!client->stream_send_int(htonl(1)))
 		return false;
-	if(!client->stream_send_int(htonl(strlen(capa.c_str()))))
-		return false;
-	return client->stream_send(capa.c_str(), strlen(capa.c_str()));
+	return client->stream_send_string(capa.c_str());
 }}}
 
 bool servant::reply_version()
 {{{
 	if(!client->stream_send_int(htonl(1)))
 		return false;
-
-	char * version;
-	int verlen;
-
-	version = dispatcher_version();
-	verlen = strlen(version);
-
-	if(!client->stream_send_int(htonl(verlen)))
-		return false;
-	return client->stream_send(version, verlen);
+	return client->stream_send_string(dispatcher_version());
 }}}
+
+bool servant::reply_create_object()
+{
+	
+}
+
+bool servant::reply_delete_object()
+{
+	
+}
+
+bool servant::reply_get_objecttype()
+{
+	
+}
+
+bool servant::reply_object_command()
+{
+	
+}
 
 bool servant::reply_hello_carsten()
 {{{

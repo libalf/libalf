@@ -34,6 +34,32 @@ enum client_command {
 	// reserved for extensions: >= 1000
 };
 
+inline const char* cmd2string(int cmd)
+{{{
+	if(cmd == 0)
+		return "CLCMD_REQ_CAPA";
+	if(cmd == 1)
+		return "CLCMD_REQ_VERSION";
+	if(cmd == 10)
+		return "CLCMD_DISCONNECT";
+	if(cmd == 11)
+		return "CLCMD_STARTTLS";
+	if(cmd == 12)
+		return "CLCMD_AUTH";
+	if(cmd == 20)
+		return "CLCMD_CREATE_OBJECT";
+	if(cmd == 21)
+		return "CLCMD_DELETE_OBJECT";
+	if(cmd == 22)
+		return "CLCMD_GET_OBJECTTYPE";
+	if(cmd == 23)
+		return "CLCMD_OBJECT_COMMAND";
+	if(cmd == 99)
+		return "CLCMD_HELLO_CARSTEN";
+
+	return "invalid";
+}}}
+
 enum object_type {
 	OBJ_LOGGER = 0,
 	OBJ_KNOWLEDGEBASE = 10,

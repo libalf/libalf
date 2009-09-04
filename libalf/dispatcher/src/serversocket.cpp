@@ -17,6 +17,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <string.h>
 
 #include "serversocket.h"
 
@@ -86,6 +87,13 @@ bool serversocket::stream_receive_int(int32_t & ret)
 bool serversocket::stream_send_int(int32_t val)
 {{{
 	return stream_send(&val, sizeof(int32_t));
+}}}
+
+bool serversocket::stream_send_string(const char * str)
+{{{
+	if(!stream_send_int(ntohl(strlen(str))))
+		return false;
+	return stream_send(str, strlen(str));
 }}}
 
 bool serversocket::stream_send_blob(basic_string<int32_t> & blob)

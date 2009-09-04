@@ -38,6 +38,7 @@ class serversocket {
 
 		bool stream_receive_int(int32_t & ret);
 		bool stream_send_int(int32_t val);
+		bool stream_send_string(const char * str);
 		bool stream_send_blob(basic_string<int32_t> & blob);
 };
 

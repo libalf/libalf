@@ -54,7 +54,11 @@ class servant {
 		bool serve();
 
 	private:
-		bool send_capabilities();
+		bool reply_create_object();
+		bool reply_delete_object();
+		bool reply_get_objecttype();
+		bool reply_object_command();
+		bool reply_capabilities();
 		bool reply_version();
 		bool reply_hello_carsten();
 

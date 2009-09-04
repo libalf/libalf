@@ -108,7 +108,7 @@ char * dispatcher_version()
 					"%s\n"
 					"dispatcher protocol version %d\n"
 					"(c) 2008/2009 by David R. Piegdon, Stefan Schulz, Daniel Neider, Carsten Kern and Stefan Rieger\n"
-					"    http://i2.informatik.rwth-aachen.de/\n",
+					"    http://www-i2.cs.rwth-aachen.de/\n",
 					VERSION,
 					libalf::libalf_version(),
 					DISPATCHER_PROTOCOL_VERSION);
@@ -174,7 +174,7 @@ int main(int argc, char**argv)
 		return -2;
 	}
 
-	log("dispatcher now waiting for clients.\n");
+	log("dispatcher now listening on port %d.\n", listen_port);
 
 	fd_set fds;
 	timeval t;
@@ -205,10 +205,10 @@ int main(int argc, char**argv)
 					while(sv.serve());
 
 					// end child.
-					log("child pid %d terminating.\n", pid);
+					log("client %d: terminating.\n", getpid());
 					return 0;
 				} else {
-					log("child forked, pid %d.\n", pid);
+					log("new client, pid %d.\n", pid);
 					// parent
 					// get rid of client socket
 					delete cl;
