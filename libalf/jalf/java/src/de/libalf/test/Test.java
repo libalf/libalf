@@ -1,7 +1,5 @@
 package de.libalf.test;
 
-import java.util.LinkedList;
-
 import de.libalf.Knowledgebase;
 import de.libalf.LibALFFactory;
 import de.libalf.jni.JNIFactory;
