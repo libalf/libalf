@@ -1,6 +1,8 @@
 
 
-NOTE: (obsolete) protocol version 0
+NOTE: this procotol version is obsolete
+
+PROTOCOL VERSION 0
 
 
 PROTOCOL LAYOUT
@@ -70,7 +72,7 @@ SESSION-RELATED COMMANDS:
 
 	set modalities
 		client sends
-			CM_SES_SET_MODALITIES	
+			CM_SES_SET_MODALITIES
 			session id
 			count
 			{
