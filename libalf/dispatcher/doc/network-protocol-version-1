@@ -113,10 +113,11 @@ enum knowledgebase_command {
 
 	KNOWLEDGEBASE_IS_ANSWERED = 10,
 	KNOWLEDGEBASE_IS_EMPTY = 11,
-	KNOWLEDGEBASE_COUNT_QUERIES = 12,
-	KNOWLEDGEBASE_COUNT_ANSWERS = 13,
-	KNOWLEDGEBASE_COUNT_RESOLVED_QUERIES = 14,
-	KNOWLEDGEBASE_GET_MEMORY_USAGE = 15,
+	KNOWLEDGEBASE_GET_ALPHABET_SIZE = 12,
+	KNOWLEDGEBASE_COUNT_QUERIES = 13,
+	KNOWLEDGEBASE_COUNT_ANSWERS = 14,
+	KNOWLEDGEBASE_COUNT_RESOLVED_QUERIES = 15,
+	KNOWLEDGEBASE_GET_MEMORY_USAGE = 16,
 
 	KNOWLEDGEBASE_RESOLVE_QUERY = 20,
 	KNOWLEDGEBASE_RESOLVE_OR_ADD_QUERY = 21,
@@ -301,14 +302,17 @@ parameters: none.
 server returns:
 	character-string (logger content)
 
+
 set minimal log-level (LOGGER_SET_MIN_LOGLEVEL)
 parameters: 1
 	log-level (1 = error, 2 = warn, 3 = info,  4 = debug)
 server returns: nothing.
 
+
 enable logging of algorithm  (LOGGER_LOG_ALGORITHM)
 parameters: none.
 server returns: nothing.
+
 
 disable logging of algorithm (LOGGER_NOT_LOG_ALGORITHM)
 parameters: none.
@@ -324,6 +328,7 @@ server returns:
 	size,
 	serialized data[]
 
+
 deserialize knowledgebase (KNOWLEDGEBASE_DESERIALIZE)
 parameters: 2
 	size,
@@ -331,40 +336,54 @@ parameters: 2
 server returns:
 	bool
 
+
 create dotfile (KNOWLEDGEBASE_TO_DOTFILE)
 parameters: none.
 server returns:
 	character-string
+
 
 create text-version (KNOWLEDGEBASE_TO_STRING)
 parameters: none.
 server returns:
 	character-string
 
+
 check if all queries are answered (KNOWLEDGEBASE_IS_ANSWERED)
 parameters: none.
 server returns:
 	bool
+
 
 check if no knowledge exists (KNOWLEDGEBASE_IS_EMPTY)
 parameters: none.
 server returns:
 	bool
 
+
+get alphabet size of knowledgebase (KNOWLEDGEBASE_GET_ALPHABET_SIZE)
+parameters: none.
+server returns:
+	alphabet-size
+
+
 count queries (KNOWLEDGEBASE_COUNT_QUERIES)
 parameters: none
 server returns:
 	query-count
+
 
 count answers (KNOWLEDGEBASE_COUNT_ANSWERS)
 parameters: none
 server returns:
 	answer-count
 
+
 count resolved queries (KNOWLEDGEBASE_COUNT_RESOLVED_QUERIES)
 parameters: none.
 server returns:
 	count of resolved queries
+
 
 resolve query (KNOWLEDGEBASE_RESOLVE_QUERY)
 parameters: 2
@@ -374,6 +393,7 @@ server returns:
 	bool (false if acceptance is unknown)
 	acceptance (undefined if acceptance is unknown)
 
+
 resolve or add query (KNOWLEDGEBASE_RESOLVE_OR_ADD_QUERY)
 parameters: 2
 	size of word
@@ -382,7 +402,8 @@ server returns:
 	bool (false if acceptance is unknown. then, word is marked as required)
 	acceptance (undefined if acceptance is unknown)
 
-add knowledgebase (KNOWLEDGEBASE_ADD_KNOWLEDGE)
+
+add knowledge (KNOWLEDGEBASE_ADD_KNOWLEDGE)
 parameters: 3
 	size of word
 	word[]
@@ -390,10 +411,12 @@ parameters: 3
 server returns:
 	bool (false if word was answered differently before)
 
+
 create query tree (KNOWLEDGEBASE_GET_QUERY_TREE)
 parameters: none.
 server returns:
 	object-id of newly created knowledgebase object
+
 
 merge other knowledgebase into this (KNOWLEDGEBASE_MERGE_TREE)
 parameters: 1
@@ -402,29 +425,35 @@ server returns:
 	bool (false if object was not of type knowledgebase)
 	bool (false if the two bases are inconsistent)
 
+
 get beginning-iterator (KNOWLEDGEBASE_BEGIN)
 parameters: none.
 server returns:
 	object-id of newly created knowledgebase iterator object
+
 
 get end-iterator (KNOWLEDGEBASE_END)
 parameters: none.
 server returns:
 	object-id of newly created knowledgebase iterator object
 
+
 get query-beginning-iterator (KNOWLEDGEBASE_QBEGIN)
 parameters: none.
 server returns:
 	object-id of newly created knowledgebase iterator object
+
 
 get query-end-iterator (KNOWLEDGEBASE_QEND)
 parameters: none.
 server returns:
 	object-id of newly created knowledgebase iterator object
 
+
 clear knowledgebase (KNOWLEDGEBASE_CLEAR)
 parameters: none.
 server returns: nothing.
+
 
 clear queries (KNOWLEDGEBASE_CLEAR_QUERIES)
 parameters: none.
@@ -440,6 +469,7 @@ parameters: 1
 server returns:
 	bool (false if object was not of type knowledgebase-iterator)
 
+
 compare to other iterator (KITERATOR_COMPARE)
 parameters: 1
 	object-id of other knowledgebase-iterator
@@ -447,9 +477,11 @@ server returns:
 	bool (false if object was not of type knowledgebase-iterator)
 	bool (false if the two iterators are referencing different words
 
+
 interator++ (KITERATOR_NEXT)
 parameters: none.
 server returns: nothing.
+
 
 get referenced word (KITERATOR_GET_WORD)
 parameters: none.
@@ -457,16 +489,19 @@ server returns:
 	size of word
 	word[]
 
+
 check if referenced word is answered (KITERATOR_IS_ANSWERED)
 parameters: none.
 server returns:
 	bool (false if not answered)
+
 
 get answer to referenced word (KITERATOR_IS_ANSWERED)
 parameters: none.
 server returns:
 	bool (false if not answered)
 	acceptance (undefined if not answered)
+
 
 set answer to referenced word (KITERATOR_ANSWER)
 parameters: 1
@@ -484,6 +519,7 @@ server returns:
 	size,
 	serialized data[]
 
+
 deserialize normalizer (ALGORITHM_DESERIALIZE)
 parameters: 2
 	size,
@@ -491,16 +527,158 @@ parameters: 2
 server returns:
 	bool
 
+
 create text-version (ALGORITHM_TO_STRING)
 parameters: none.
 server returns:
 	character-string
 
 
+associate logger with algorithm (ALGORITHM_ASSOCIATE_LOGGER)
+parameters: 1
+	object-id (of logger)
+server returns:
+	bool (false if object does not exist or is no logger)
 
-...
+
+remove logger from algorithm (ALGORITHM_REMOVE_LOGGER)
+parameters: none.
+server returns: nothing.
 
 
+associate knowledgebase with algorithm (ALGORITHM_SET_KNOWLEDGE_SOURCE)
+parameters: 1
+	object-id (of knowledgebase)
+server returns:
+	bool (false if object does not exist or is no knowledgebase)
+
+
+get knowledgebase from algorithm (ALGORITHM_GET_KNOWLEDGE_SOURCE)
+parameters: none.
+server returns:
+	object-id (of knowledgebase)
+
+
+associate normalizer with algorithm (ALGORITHM_SET_NORMALIZER)
+parameters: 1
+	object-id (of normalizer)
+server returns:
+	bool (false if object does not exist or is no normalizer)
+
+
+get knowledgebase from algorithm (ALGORITHM_GET_NORMALIZER)
+parameters: none.
+server returns:
+	object-id (of normalizer)
+
+
+remove normalizer from algorithm (ALGORITHM_UNSET_NORMALIZER)
+parameters: none.
+server returns: nothing.
+
+
+get memory statistics (ALGORITHM_GET_MEMORY_STATISTICS)
+parameters: none.
+server returns:
+	serialized memory stats (first int is size-1)
+
+	serialized memory stats is:
+		6 (size)
+		bytes
+		members
+		words
+		upper_table
+		lower_table
+		columns
+
+
+get timing statistics (ALGORITHM_GET_TIMING_STATISTICS)
+parameters: none.
+server returns:
+	serialized timing stats[] (first int is size-1)
+
+	serialized timint stats is:
+		4 (size)
+		user_sec
+		user_usec
+		sys_sec
+		sys_usec
+
+
+enable timing (ALGORITHM_ENABLE_TIMING)
+parameters: none.
+server returns: nothing.
+
+
+disable diming (ALGORITHM_DISABLE_TIMING)
+parameters: none.
+server returns: nothing.
+
+
+reset timing information (ALGORITHM_RESET_TIMING)
+parameters: none.
+server returns: nothing.
+
+
+get alphabet size of algorithm (ALGORITHM_GET_ALPHABET_SIZE)
+parameters: none.
+server returns:
+	alphabet-size
+
+
+increase alphabet size (ALGORITHM_INCREASE_ALPHABET_SIZE)
+parameters: 1
+	new alphabet size
+server returns: nothing.
+
+
+check if conjecture is ready (ALGORITHM_CONJECTURE_READY)
+parameters: none.
+server returns:
+	bool (false if not)
+
+
+advance algorithm (ALGORITHM_ADVANCE)
+parameters: none.
+server returns:
+	bool (true if hypothesis is ready, false if queries need to be answered)
+	-- the following only, if hypothesis is ready: --
+	serialized automaton[] (first int is size-1)
+
+	serialized automaton is:
+		size of upcoming data (whole size - 1)
+		alphabet size
+		state count
+		number of initial states
+		initial states[]
+		number of final states
+		final states[]
+		number of transitions
+		transitions[]
+
+	where a single transition consists of:
+		source-state
+		label
+		destination-state
+
+
+add counterexample (ALGORITHM_ADD_COUNTEREXAMPLE)
+parameters: 2
+	size of word
+	word[]
+server returns: nothing.
+
+
+check if algorithm supports sync (ALGORITHM_SUPPORTS_SYNC)
+parameters: none.
+server returns:
+	bool (false if algorithm does not support sync)
+
+
+sync algorithm to knowledgebase (ALGORITHM_SYNC_TO_KNOWLEDGEBASE)
+parameters: none.
+server returns:
+	bool (false if failed)
 
 ================================================================================
 
@@ -512,12 +690,14 @@ server returns:
 	size,
 	serialized data[]
 
+
 deserialize normalizer (NORMALIZER_DESERIALIZE)
 parameters: 2
 	size,
 	serialized data[]
 server returns:
 	bool
+
 
 deserialize normalizer extension (NORMALIZER_DESERIALIZE_EXTENSION)
 parameters: 2
@@ -526,11 +706,13 @@ parameters: 2
 server returns:
 	bool
 
+
 get type of normalizer (NORMALIZER_GET_TYPE)
 parameters: none.
 server returns:
 	type (see enum normalizer::normalizer_type
               in include/libalf/normalizer.h)
+
 
 calculate prefix-normal form of a word (NORMALIZER_NORMALIZE_A_WORD_PNF)
 parameters: 2
@@ -540,6 +722,7 @@ server returns:
 	bool (true if word was normalized to bottom)
 	size of word,
 	word[]
+
 
 calculate suffix-normal form of a word (NORMALIZER_NORMALIZE_A_WORD_SNF)
 parameters: 2
