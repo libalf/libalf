@@ -85,6 +85,8 @@ enum client_command {
 	CLCMD_GET_OBJECTTYPE = 22,
 	CLCMD_OBJECT_COMMAND = 23,
 
+	CLCMD_HELLO_CARSTEN = 99,
+
 	// reserved for extensions: >= 1000
 };
 
@@ -274,6 +276,12 @@ parameters:
 server returns:
 	bool (false if command was invalid)
 	-- see specific command --
+
+say hello to carsten (CLCMD_HELLO_CARSTEN)
+parameters: 1
+	int (how often)
+server returns:
+	int (how often he said thanks)
 
 ================================================================================
 
