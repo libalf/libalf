@@ -21,7 +21,7 @@ import java.util.LinkedList;
  * </p>
  * <p>
  * If the learning algorithm is able to ask <em>membership queries</em> - like
- * Angluin's algorithm (see {@link AlgorithmAngluin}) -, the algorithm add the
+ * Angluin's algorithm (see {@link JNIAlgorithmAngluin}) -, the algorithm add the
  * words to the knowledgebase and marks them as {@link Acceptance#UNKNOWN}. Such
  * unknown words can then be retrieved via the
  * {@link Knowledgebase#getQueries()} -method. A query can be answered by

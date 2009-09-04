@@ -1,7 +1,9 @@
 package de.libalf.test;
 
 import de.libalf.Knowledgebase;
+import de.libalf.LearningAlgorithm;
 import de.libalf.LibALFFactory;
+import de.libalf.LibALFFactory.Algorithm;
 import de.libalf.jni.JNIFactory;
 
 public class Test {
@@ -24,19 +26,11 @@ public class Test {
 		LibALFFactory factory = new JNIFactory();
 
 		Knowledgebase base = factory.createKnowledgebase();
-		System.out.println(base);
+		LearningAlgorithm alg = factory.createLearningAlgorithm(
+				Algorithm.ANGLUIN, new Object[] { base, 2 });
 		
-		base.add_knowledge(new int[] { 0, 1, 2 }, true);
-		base.resolve_or_add_query(new int[] { 1, 1 });
-		System.out.println(base);
-
-		int[] serialization = base.serialize();
-		base.clear();
-		
-		System.out.println(base);
-		
-		base.deserialize(serialization);
-		System.out.println(base);
+		alg.advance();
+		System.out.println(alg);
 	}
 
 }

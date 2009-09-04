@@ -13,6 +13,10 @@ package de.libalf;
  */
 public interface LibALFFactory {
 
+	public static enum Algorithm {
+		ANGLUIN, ANGLUIN_COLUMN;
+	}
+
 	/**
 	 * Creates a new <code>Knowledgebase</code>.
 	 * 
@@ -20,12 +24,8 @@ public interface LibALFFactory {
 	 */
 	public abstract Knowledgebase createKnowledgebase();
 
-	/**
-	 * Creates a new <code>LearningAlgorithm</code>.
-	 * 
-	 * @return a new <code>LearningAlgorithm</code>.
-	 */
-	public abstract LearningAlgorithm createLearningAlgorithm();
+
+	public abstract LearningAlgorithm createLearningAlgorithm(Algorithm algorithm, Object[] parameter);
 
 	/**
 	 * Creates a new <code>Logger</code>.

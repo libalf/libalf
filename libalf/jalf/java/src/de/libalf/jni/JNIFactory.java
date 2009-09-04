@@ -13,9 +13,15 @@ public class JNIFactory implements LibALFFactory {
 	}
 
 	@Override
-	public LearningAlgorithm createLearningAlgorithm() {
-		// TODO Auto-generated method stub
-		return null;
+	public LearningAlgorithm createLearningAlgorithm(Algorithm algorithm,
+			Object[] parameter) {
+		switch (algorithm) {
+		case ANGLUIN:
+			return new JNIAlgorithmAngluin((JNIKnowledgebase) parameter[0],
+					(Integer) parameter[1]);
+		default:
+			return null;
+		}
 	}
 
 	@Override

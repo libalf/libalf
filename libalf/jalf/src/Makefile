@@ -38,7 +38,7 @@ endif
 CPPFLAGS += -I../include -I../../include
 CPPFLAGS += -shared -fPIC -I${PREFIX}/include -I${JAVA_INCLUDE}
 
-OBJECTS = jni_tools.o jni_object.o jni_knowledgebase.o jni_buffered_logger.o
+OBJECTS = jni_tools.o jni_object.o jni_knowledgebase.o jni_buffered_logger.o jni_learning_algorithm.o jni_algorithm_angluin.o
 
 all:	${TARGET}
 
