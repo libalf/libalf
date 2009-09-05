@@ -15,7 +15,7 @@ CPPFLAGS+=-D__cplusplus -DVERSION="\"${VERSION}\"" -DREADABLE
 CPPFLAGS+=-fno-stack-protector
 LDFLAGS+=-lalf -L${PREFIX}/lib -L../../src
 
-OBJECTS=main.o servant.o serversocket.o
+OBJECTS=main.o object.o servant.o serversocket.o
 
 all:	dispatcher
 
