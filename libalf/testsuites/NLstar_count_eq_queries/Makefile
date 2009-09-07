@@ -9,10 +9,10 @@ CPPFLAGS+=-I../../include -I${PREFIX}/include -Wall -ggdb3
 
 LDFLAGS+=-L../../src -L${PREFIX}/lib -lalf -lAMoRE++ -llangen
 
-all: count_eq_queries count_eq_queries_random
+all: count_eq_queries count_eq_queries_random count_eq_queries_file
 
 clean: nodata
-	-rm -f *.o count_eq_queries count_eq_queries_random
+	-rm -f *.o count_eq_queries count_eq_queries_random count_eq_queries_file
 
 nodata:
 	-rm -f *.dot *.jpg *.atm
@@ -23,4 +23,6 @@ jpegs:
 count_eq_queries: count_eq_queries.cpp
 
 count_eq_queries_random: count_eq_queries_random.cpp
+
+count_eq_queries_file: count_eq_queries_file.cpp
 
