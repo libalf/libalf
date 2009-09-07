@@ -143,15 +143,18 @@ int main(int argc, char**argv)
 	stats.memory = ot.get_memory_statistics();
 	stats.queries.membership = knowledge.count_resolved_queries();
 
+	int ret = 0;
+
 	if(stats.queries.equivalence > mindfa_statecount) {
 		log(LOGGER_WARN, "mDFA size %d but %d eq queries for %s!\n", mindfa_statecount, stats.queries.equivalence, argv[1]);
+		ret = 1;
 	}
 
 	delete hypothesis;
 	delete nfa;
 
 	if(success)
-		return 0;
+		return ret;
 	else
 		return 2;
 }
