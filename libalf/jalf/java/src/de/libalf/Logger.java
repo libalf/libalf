@@ -10,7 +10,6 @@ package de.libalf;
  * <li>{@link LoggerLevel#LOGGER_INFO}</li>
  * <li>{@link LoggerLevel#LOGGER_DEBUG}</li>
  * </ol>
- * 
  * If the logger level of an event is less than the logger's
  * <code>minimalLogLevel</code>, the event is discarded. Only events with logger
  * level greater and equal to the minimal logger level are in fact logged.
@@ -21,7 +20,6 @@ package de.libalf;
  *         rwth-aachen.de</a>), Chair of Computer Science 7, RWTH Aachen
  *         University
  * @version 1.0
- * 
  */
 public interface Logger {
 
@@ -33,7 +31,6 @@ public interface Logger {
 	 *         rwth-aachen.de</a>), Chair of Computer Science 7, RWTH Aachen
 	 *         University
 	 * @version 1.0
-	 * 
 	 */
 	public static enum LoggerLevel {
 
@@ -69,7 +66,7 @@ public interface Logger {
 	/**
 	 * The logger's default log level.
 	 */
-	public static LoggerLevel DEFAULT_LOGGER_LEVEL = LoggerLevel.LOGGER_DEBUG;
+	public static final LoggerLevel DEFAULT_LOGGER_LEVEL = LoggerLevel.LOGGER_DEBUG;
 
 	/**
 	 * Flushes the logger and receives all messages logged since the last method

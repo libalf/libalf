@@ -177,7 +177,6 @@ parameters:
 		enum knowledgebase_command,
 		enum algorithm_command,
 		enum normalizer_command )
-	size of additional parameters,
 	additional parameters[]
 server returns:
 	bool (false if command was invalid)
@@ -360,6 +359,13 @@ server returns: nothing.
 clear queries (KNOWLEDGEBASE_CLEAR_QUERIES)
 parameters: none.
 server returns: nothing.
+
+
+undo (KNOWLEDGEBASE_UNDO)
+parameters: 1.
+	count (int FIXME)
+server returns:
+	bool (FIXME)
 
 ================================================================================
 
