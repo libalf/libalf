@@ -115,7 +115,9 @@ enum DispatcherConstants implements Sendable {
 	NORMALIZER_GET_TYPE(10),
 
 	NORMALIZER_NORMALIZE_A_WORD_PNF(20),
-	NORMALIZER_NORMALIZE_A_WORD_SNF(21), ;
+	NORMALIZER_NORMALIZE_A_WORD_SNF(21),
+
+	;
 
 	static final int DISPATCHER_PROTOCOL_VERSION = 1;
 
@@ -126,7 +128,7 @@ enum DispatcherConstants implements Sendable {
 	private DispatcherConstants(int id) {
 		this.id = id;
 	}
-	
+
 	@Override
 	public int getInt() {
 		return this.id;

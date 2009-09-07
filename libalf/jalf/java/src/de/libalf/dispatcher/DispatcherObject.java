@@ -54,9 +54,10 @@ public abstract class DispatcherObject implements Sendable {
 		return this.id;
 	}
 
-	@Override
-	protected void finalize() throws Throwable {
-		this.factory.dispatchDeleteObject(this);
-		super.finalize();
-	}
+	// FIXME
+	//@Override
+	//protected void finalize() throws Throwable {
+	//	this.factory.dispatchDeleteObject(this);
+	//	super.finalize();
+	//}
 }
