@@ -1,0 +1,18 @@
+Last change: 07.09.2009
+
+
+* Tests, ob die Portierung fehlerfrei war.
+
+* Was passiert, wenn z.B. ein Dispatcher-Objekt an ein JNI-Objekt als Parameter uebergeben wird? -> Exception?
+
+* Einfuegen iner LibALFException (fuer Dispatcher, Factory und bei Casts).
+
+* Parameteruebergabe bei den Factories.
+
+* JNIFactory an mehrere Parameter anpassen.
+
+* JavaDoc anpassen.
+
+* Neues jlangen-Projekt anlegen.
+
+* Implementierung Normalizer?
