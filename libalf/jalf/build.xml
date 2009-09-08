@@ -5,12 +5,12 @@
     <property name="classes.dir" value="java/bin/"/>
     <property name="doc.dir" value="java/doc/"/>
     <property name="dist.dir" value="."/>
-    <property name="jar.name" value="jalf"/>
+    <property name="jar.name" value="jalf.jar"/>
 
     <target name="clean" description="Delete all generated files">
         <delete dir="${classes.dir}" failonerror="false"/>
         <delete dir="${doc.dir}" failonerror="false"/>
-        <delete dir="${dist.dir}" failonerror="false"/>
+        <delete file="${dist.dir}/${jar.name}" failonerror="false"/>
     </target>
 
     <target name="compile" description="Compiles jalf">
@@ -19,8 +19,14 @@
     </target>
 
     <target name="jar" description="JARs jalf (class files only)" depends="compile">
-        <mkdir dir="${dist.dir}"/>
-        <jar destfile="${dist.dir}/${jar.name}.jar" basedir="${classes.dir}"/>
+        <jar destfile="${dist.dir}/${jar.name}" basedir="${classes.dir}"/>
+    </target>
+
+    <target name="jarall" description="JARs jalf (source and class files)" depends="compile">
+        <jar destfile="${dist.dir}/${jar.name}">
+            <fileset dir="${classes.dir}"/>
+            <fileset dir="${src.dir}"/>
+        </jar>
     </target>
 
     <target name="doc" description="Generates JavaDoc">
