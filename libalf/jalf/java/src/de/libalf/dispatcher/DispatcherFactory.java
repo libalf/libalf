@@ -217,63 +217,66 @@ public class DispatcherFactory implements LibALFFactory {
 
 	synchronized boolean dispatchObjectCommandAlgorithmConjectureReady(DispatcherLearningAlgorithm obj) {
 		// TODO Auto-generated method stub
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_);
+		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_CONJECTURE_READY);
 		return false;
 	}
 
 	synchronized boolean dispatchObjectCommandAlgorithmDeserialize(DispatcherLearningAlgorithm obj, int[] serialization) {
 		// TODO Auto-generated method stub
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_);
+		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_DESERIALIZE, serialization);
 		return false;
 	}
 
 	synchronized int dispatchObjectCommandAlgorithmGetAlphabetSize(DispatcherLearningAlgorithm obj) {
 		// TODO Auto-generated method stub
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_);
+		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_GET_ALPHABET_SIZE);
 		return 0;
 	}
 
 	synchronized Knowledgebase dispatchObjectCommandAlgorithmGetKnowledgeSource(DispatcherLearningAlgorithm obj) {
 		// TODO Auto-generated method stub
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_);
+		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_GET_KNOWLEDGE_SOURCE);
 		return null;
 	}
 
 	synchronized void dispatchObjectCommandAlgorithmIncreaseAlphabetSize(DispatcherLearningAlgorithm obj, int new_size) {
 		// TODO Auto-generated method stub
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_);
+		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_INCREASE_ALPHABET_SIZE, new_size);
 	}
 
 	synchronized int[] dispatchObjectCommandAlgorithmSerialize(DispatcherLearningAlgorithm obj) {
 		// TODO Auto-generated method stub
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_);
+		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_SERIALIZE);
 		return null;
 	}
 
 	synchronized void dispatchObjectCommandAlgorithmSetAlphabetSize(DispatcherLearningAlgorithm obj, int alphabet_size) {
 		// TODO Auto-generated method stub
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_);
+//		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_);
 	}
 
 	synchronized void dispatchObjectCommandAlgorithmSetKnowledgeSource(DispatcherLearningAlgorithm obj, Knowledgebase base) {
 		// TODO Auto-generated method stub
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_);
+		if (base instanceof DispatcherKnowledgebase) {
+			DispatcherKnowledgebase kb = (DispatcherKnowledgebase) base;
+			dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_SET_KNOWLEDGE_SOURCE,  kb.id);
+		}
 	}
 
 	synchronized void dispatchObjectCommandAlgorithmSetLogger(DispatcherLearningAlgorithm obj, Logger logger) {
 		// TODO Auto-generated method stub
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_);
+//		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_);
 	}
 
 	synchronized boolean dispatchObjectCommandAlgorithmSupportsSync(DispatcherLearningAlgorithm obj) {
 		// TODO Auto-generated method stub
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_);
+		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_SUPPORTS_SYNC);
 		return false;
 	}
 
 	synchronized boolean dispatchObjectCommandAlgorithmSyncToKnowledgebase(DispatcherLearningAlgorithm obj) {
 		// TODO Auto-generated method stub
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_);
+		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_SYNC_TO_KNOWLEDGEBASE);
 		return false;
 	}
 
