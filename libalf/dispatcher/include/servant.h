@@ -9,43 +9,32 @@
  * see LICENSE file for licensing information.
  */
 
-#ifndef __libalf_servant_h__
-# define __libalf_servant_h__
+#ifndef __libalf_dispatcher_servant_h__
+# define __libalf_dispatcher_servant_h__
+
+#include <sys/types.h>
+#include <unistd.h>
 
 #include <vector>
 
-#include <libalf/logger.h>
-#include <libalf/knowledgebase.h>
-#include <libalf/answer.h>
-#include <libalf/learning_algorithm.h>
-#include <libalf/learning_algorithm.h>
-#include <libalf/normalizer.h>
-
+#include "main.h"
 #include "serversocket.h"
 #include "protocol.h"
+#include "client_object.h"
 
 using namespace std;
-using namespace libalf;
 
-struct object {
-	enum object_type type;
-
-	union {
-		logger * o_logger;
-		knowledgebase<extended_bool> * o_knowledgebase;
-		knowledgebase<extended_bool>::iterator * o_kiterator;
-		learning_algorithm<extended_bool> * o_algorithm;
-		normalizer * o_normalizer;
-	};
-};
+class client_object;
 
 class servant {
 	private:
 		string capa;
-		serversocket * client;
 		bool capa_sent;
-		vector<object> objects;
+		vector<client_object *> objects;
 		unsigned int pid;
+
+	public: // required by client_objects
+		serversocket * client;
 
 	public:
 		servant(serversocket *connection);
@@ -64,5 +53,5 @@ class servant {
 
 };
 
-#endif // __libalf_servant_h__
+#endif // __libalf_dispatcher_servant_h__
 

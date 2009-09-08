@@ -147,8 +147,10 @@ only if above was true:
 create object (CLCMD_CREATE_OBJECT)
 parameters:
 	enum object_type
+	size of data (always, even if size is 0)
+	data[] (depending on object_type, see CREATING AN OBJECT)
 server returns:
-	bool (false if object_type was invalid)
+	bool (false if object_type or data was invalid)
 only if above was true:
 	object-id (-1 if command failed. check server log for error message)
 
@@ -160,7 +162,7 @@ server returns:
 	bool (false if object does not exist)
 
 
-get object type (CLCMD_GET_OBJECTTYPE)
+get object_type (CLCMD_GET_OBJECTTYPE)
 parameters:
 	object-id
 server returns:
@@ -172,11 +174,13 @@ only if above was true:
 object command (CLCMD_OBJECT_COMMAND)
 parameters:
 	object-id,
-	command-id (depending on object-type one of
+	command-id (depending on object_type one of
 		enum logger_command,
 		enum knowledgebase_command,
+		enum knowledgebase_iterator_command,
 		enum algorithm_command,
 		enum normalizer_command )
+	size of additional parameters (NOT count!),
 	additional parameters[]
 server returns:
 	bool (false if command was invalid)
@@ -191,6 +195,41 @@ server returns:
 	bool (true if he's there)
 only if above was true:
 	int (how often he said thanks)
+
+================================================================================
+
+CREATING AN OBJECT
+
+depengin on object_type, the following data is expected:
+
+OBJ_LOGGER:
+
+parameter size (not count): 0
+parameters: none.
+
+OBJ_KNOWLEDGEBASE:
+
+parameter size (not count): 0
+parameters: none.
+
+OBJ_KNOWLEDGEBASE_ITERATOR:
+
+parameter size (not count): 0
+parameters: none.
+
+OBJ_ALGORITHM:
+
+parameter size (not count): 1
+parameters:
+	enum libalf::learning_algorithm::algorithm
+			(see libalf/include/libalf/learning_algorithm.h)
+
+OBJ_NORMALIZER:
+
+parameter size (not count): 1
+parameters:
+	enum libalf::normalizer::type
+			(see libalf/include/libalf/normalizer.h)
 
 ================================================================================
 

@@ -10,8 +10,8 @@
  * see LICENSE file for licensing information.
  */
 
-#ifndef __libalf_serversocket_h__
-# define __libalf_serversocket_h__
+#ifndef __libalf_dispatcher_serversocket_h__
+# define __libalf_dispatcher_serversocket_h__
 
 #include <string>
 
@@ -37,10 +37,12 @@ class serversocket {
 		int stream_receive(void *msg, int length);
 
 		bool stream_receive_int(int32_t & ret);
+		bool stream_receive_blob(basic_string<int32_t> & blob, int length);
+
 		bool stream_send_int(int32_t val);
 		bool stream_send_string(const char * str);
 		bool stream_send_blob(basic_string<int32_t> & blob);
 };
 
-#endif // __libalf_serversocket_h__
+#endif // __libalf_dispatcher_serversocket_h__
 

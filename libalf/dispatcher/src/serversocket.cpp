@@ -84,6 +84,25 @@ bool serversocket::stream_receive_int(int32_t & ret)
 	return true;
 }}}
 
+bool serversocket::stream_receive_blob(basic_string<int32_t> & blob, int length)
+{{{
+	blob.clear();
+
+	if(length < 0)
+		return false;
+
+	while(length > 0) {
+		int i;
+		if(!stream_receive_int(i)) {
+			return false;
+		}
+		blob.push_back(i);
+		length--;
+	}
+
+	return true;
+}}}
+
 bool serversocket::stream_send_int(int32_t val)
 {{{
 	return stream_send(&val, sizeof(int32_t));

@@ -9,13 +9,21 @@
  * see LICENSE file for licensing information.
  */
 
-#ifndef __libalf_dispatcher_main_h__
-# define __libalf_dispatcher_main_h__
+#include "co_logger.h"
 
-char * dispatcher_version();
+co_logger::co_logger()
+{
+	
+};
 
-void print_time();
-void log(const char * format, ...);
+co_logger::~co_logger()
+{
+	
+};
 
-#endif // __libalf_dispatcher_main_h__
+bool co_logger::handle_command(int command, basic_string<int32_t> & command_data)
+{
+	
+	return false;
+};
 

@@ -9,8 +9,8 @@
  * see LICENSE file for licensing information.
  */
 
-#ifndef __libalf_protocol_h__
-# define __libalf_protocol_h__
+#ifndef __libalf_dispatcher_protocol_h__
+# define __libalf_dispatcher_protocol_h__
 
 #define DISPATCHER_PROTOCOL_VERSION 1
 
@@ -61,6 +61,7 @@ inline const char* cmd2string(int cmd)
 }}}
 
 enum object_type {
+	OBJ_NONE = -1,
 	OBJ_LOGGER = 0,
 	OBJ_KNOWLEDGEBASE = 10,
 	OBJ_KNOWLEDGEBASE_ITERATOR = 11,
@@ -161,6 +162,6 @@ enum normalizer_command {
 	NORMALIZER_NORMALIZE_A_WORD_SNF = 21,
 };
 
-#endif // __libalf_protocol_h__
+#endif // __libalf_dispatcher_protocol_h__
 
 
