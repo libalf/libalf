@@ -294,7 +294,7 @@ class DeLeTe2 : public learning_algorithm<answer> {
 			// generate a graded-lex ordered list of words in the knowledgebase (i.e. pref(S+) )
 			list<node*> pref;
 
-			kIterator_lex_graded<bool> klg(this->my_knowledge->get_rootptr());
+			kIterator_lex_graded<answer> klg(this->my_knowledge->get_rootptr());
 			while(!klg.end()) {
 				list<int> w = klg->get_word();
 				pref.push_back(&(*klg));

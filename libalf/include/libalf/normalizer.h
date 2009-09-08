@@ -23,7 +23,8 @@ class normalizer {
 	public:
 		enum type {
 			NORMALIZER_NONE = 0,
-			NORMALIZER_MSC = 1
+			NORMALIZER_MSC = 1,
+			NORMALIZER_LAST_INVALID = 2,
 		};
 
 		virtual ~normalizer() { };

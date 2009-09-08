@@ -800,6 +800,8 @@ class knowledgebase {
 					return tmp;
 				}}}
 
+				bool is_valid()
+				{ return current != NULL; }
 				node & operator*()
 				{{{
 					return *current;

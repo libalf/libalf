@@ -67,12 +67,14 @@ class learning_algorithm {
 		enum algorithm {
 			ALG_NONE = 0,
 			ALG_ANGLUIN = 1,
-			ALG_BIERMANN = 2,
-			ALG_BIERMANN_ANGLUIN = 3,
-			ALG_NL_STAR = 4,
-			ALG_RPNI = 5,
-			ALG_DELETE2 = 6,
-			ALG_KVTREE = 7
+			ALG_ANGLUIN_COLUMN = 2,
+			ALG_KVTREE = 3,
+			ALG_BIERMANN = 4,
+			ALG_BIERMANN_ANGLUIN = 5,
+			ALG_NL_STAR = 6,
+			ALG_RPNI = 7,
+			ALG_DELETE2 = 8,
+			ALG_LAST_INVALID = 9
 		};
 
 	public: // methods
