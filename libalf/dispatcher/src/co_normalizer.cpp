@@ -19,19 +19,20 @@
 using namespace libalf;
 
 co_normalizer::co_normalizer(enum libalf::normalizer::type type)
-{
+{{{
 	switch(type) {
 		default:
-			log("client %d: somehow bad request reached co_normalizer constructor. killing client.\n", getpid());
+			log("client %d: somehow bad request reached co_normalizer constructor (bad type of normalizer: %d). killing client.\n", getpid(), (int)type);
 			exit(-1);
+
 		case normalizer::NORMALIZER_MSC:
 			o = new normalizer_msc;
 			break;
 	}
-};
+}}};
 
 co_normalizer::~co_normalizer()
-{
+{{{
 	set<int>::iterator si;
 
 	for(si = referring_learning_algorithms.begin(); si != referring_learning_algorithms.end(); si++)
@@ -40,7 +41,7 @@ co_normalizer::~co_normalizer()
 	if(o) {
 		delete o;
 	}
-};
+}}};
 
 bool co_normalizer::handle_command(int command, basic_string<int32_t> & command_data)
 {
@@ -49,12 +50,12 @@ bool co_normalizer::handle_command(int command, basic_string<int32_t> & command_
 };
 
 void co_normalizer::ref_learning_algorithm(int oid)
-{
+{{{
 	referring_learning_algorithms.insert(oid);
-};
+}}};
 
 void co_normalizer::deref_learning_algorithm(int oid)
-{
+{{{
 	referring_learning_algorithms.erase(oid);
-};
+}}};
 

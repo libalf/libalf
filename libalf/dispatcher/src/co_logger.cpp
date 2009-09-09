@@ -12,12 +12,12 @@
 #include "co_logger.h"
 
 co_logger::co_logger()
-{
+{{{
 	o = new buffered_logger;
-};
+}}};
 
 co_logger::~co_logger()
-{
+{{{
 	set<int>::iterator si;
 
 	for(si = referring_learning_algorithms.begin(); si != referring_learning_algorithms.end(); si++)
@@ -26,7 +26,7 @@ co_logger::~co_logger()
 	if(o) {
 		delete o;
 	}
-};
+}}};
 
 bool co_logger::handle_command(int command, basic_string<int32_t> & command_data)
 {
@@ -35,12 +35,12 @@ bool co_logger::handle_command(int command, basic_string<int32_t> & command_data
 };
 
 void co_logger::ref_learning_algorithm(int oid)
-{
+{{{
 	referring_learning_algorithms.insert(oid);
-};
+}}};
 
 void co_logger::deref_learning_algorithm(int oid)
-{
+{{{
 	referring_learning_algorithms.erase(oid);
-};
+}}};
 

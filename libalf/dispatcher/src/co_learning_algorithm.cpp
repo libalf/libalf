@@ -27,14 +27,14 @@ using namespace std;
 using namespace libalf;
 
 co_learning_algorithm::co_learning_algorithm(enum libalf::learning_algorithm<extended_bool>::algorithm alg, int alphabet_size)
-{
+{{{
 	referenced_knowledgebase = -1;
 	referenced_logger = -1;
 	referenced_normalizer = -1;
 
 	switch(alg) {
 		default:
-			log("client %d: somehow bad request reached co_learning_algorithm constructor. killing client.\n", getpid());
+			log("client %d: somehow bad request reached co_learning_algorithm constructor (bad type of learning algorithm: %d). killing client.\n", getpid(), (int)alg);
 			exit(-1);
 
 		case learning_algorithm<extended_bool>::ALG_ANGLUIN:
@@ -62,10 +62,10 @@ co_learning_algorithm::co_learning_algorithm(enum libalf::learning_algorithm<ext
 			o = new DeLeTe2<extended_bool>(NULL, NULL, alphabet_size);
 			break;
 	}
-};
+}}};
 
 co_learning_algorithm::~co_learning_algorithm()
-{
+{{{
 	if(referenced_knowledgebase != -1)
 		this->sv->objects[referenced_knowledgebase]->deref_learning_algorithm(this->id);
 	if(referenced_logger != -1)
@@ -76,7 +76,7 @@ co_learning_algorithm::~co_learning_algorithm()
 	if(o) {
 		delete o;
 	}
-};
+}}};
 
 bool co_learning_algorithm::handle_command(int command, basic_string<int32_t> & command_data)
 {
@@ -85,38 +85,38 @@ bool co_learning_algorithm::handle_command(int command, basic_string<int32_t> & 
 };
 
 void co_learning_algorithm::ref_knowledgebase(int oid)
-{
+{{{
 	referenced_knowledgebase = oid;
-};
+}}};
 
 void co_learning_algorithm::deref_knowledgebase(int oid)
-{
+{{{
 	referenced_knowledgebase = -1;
 	if(o)
 		o->set_knowledge_source(NULL);
-};
+}}};
 
 void co_learning_algorithm::ref_logger(int oid)
-{
+{{{
 	referenced_logger = oid;
-};
+}}};
 
 void co_learning_algorithm::deref_logger(int oid)
-{
+{{{
 	referenced_logger = -1;
 	if(o)
 		o->set_logger(NULL);
-};
+}}};
 
 void co_learning_algorithm::ref_normalizer(int oid)
-{
+{{{
 	referenced_normalizer = oid;
-};
+}}};
 
 void co_learning_algorithm::deref_normalizer(int oid)
-{
+{{{
 	referenced_normalizer = -1;
 	if(o)
 		o->unset_normalizer();
-};
+}}};
 
