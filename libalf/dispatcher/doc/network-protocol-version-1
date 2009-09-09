@@ -83,7 +83,17 @@ followed by the announced number of chars. the string is NOT \0-delimited!
 PROTOCOL CONSTANTS
 
 
-see dispatcher/include/protocol.h
+see
+
+libalf/dispatcher/include/protocol.h
+
+and
+
+libalf/include/learning_algorithm.h (enum learning_algorithm::algorithm)
+
+and
+
+libalf/include/normalizer.h (enum normalizer::type)
 
 ================================================================================
 
@@ -235,6 +245,7 @@ parameters:
 ================================================================================
 
 DELETING AN OBJECT
+
 
 NOTE that if you delete an object that is referenced by another object, or that
 is referring to another object, the reference is resolved and the object is
