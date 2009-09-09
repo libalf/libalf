@@ -4,10 +4,11 @@ import de.libalf.BasicAutomaton;
 import de.libalf.Knowledgebase;
 import de.libalf.LearningAlgorithm;
 import de.libalf.Logger;
+import de.libalf.LibALFFactory.Algorithm;
 
 public class DispatcherLearningAlgorithm extends DispatcherObject implements LearningAlgorithm {
-	public DispatcherLearningAlgorithm(DispatcherFactory factory) throws DispatcherException {
-		super(factory, DispatcherConstants.OBJ_ALGORITHM);
+	public DispatcherLearningAlgorithm(DispatcherFactory factory, Algorithm algorithm, Object[] args) throws DispatcherException {
+		super(factory, DispatcherConstants.OBJ_LEARNING_ALGORITHM);
 	}
 
 	@Override

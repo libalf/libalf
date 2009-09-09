@@ -20,8 +20,9 @@ public class DispatcherFactory implements LibALFFactory {
 			//this.io = new DispatcherSocket(Runtime.getRuntime().exec(new String[]{"nc",host, port+""}));
 
 			// get init stuff
-			if (this.io.readInt() != 0)	// TODO
-				throw new DispatcherProtocolException("Connection init failed");
+			int code = this.io.readInt();
+			if (code != 0)
+				throw new DispatcherProtocolException("Connection failed: " + DispatcherConstants.getErrorString(code));
 			String capa = this.io.readString(); // TODO
 			System.out.println(capa);
 		} catch (IOException e) {
@@ -43,13 +44,17 @@ public class DispatcherFactory implements LibALFFactory {
 		return this.io.readString();
 	}
 
+	synchronized int dispatchDisconnect() {
+		return this.io.writeCommand(DispatcherConstants.CLCMD_DISCONNECT);
+	}
+
 	synchronized int dispatchCreateObject(DispatcherConstants objType, int[] data) {
 		this.io.writeCommandThrowing(DispatcherConstants.CLCMD_CREATE_OBJECT, objType, data);
 		return this.io.readInt();
 	}
 
 	synchronized void dispatchDeleteObject(DispatcherObject obj) {
-		this.io.writeCommand(DispatcherConstants.CLCMD_DELETE_OBJECT, obj);
+		this.io.writeCommandThrowing(DispatcherConstants.CLCMD_DELETE_OBJECT, obj); // TODO
 	}
 
 	synchronized void dispatchHelloCarsten(int i) throws DispatcherIOException {
@@ -58,74 +63,51 @@ public class DispatcherFactory implements LibALFFactory {
 			throw DispatcherConstants.CLCMD_HELLO_CARSTEN.getException();
 	}
 
-	private void dispatchObjectCommandThrowing(DispatcherObject obj, DispatcherConstants objCmd, Object... args) {
-		Object[] newArgs = new Object[args.length + 3];
-		newArgs[0] = obj;
-		newArgs[1] = objCmd;
-		newArgs[2] = this.io.getSize(args);
-		System.arraycopy(args, 0, newArgs, 3, args.length);
-
-		try {
-			this.io.writeCommandThrowing(DispatcherConstants.CLCMD_OBJECT_COMMAND, newArgs);
-		} catch (DispatcherProtocolException e) {
-			throw objCmd.getException(e);
-		}
-	}
-
-	private boolean dispatchObjectCommand(DispatcherObject obj, DispatcherConstants objCmd, Object... args) {
-		try {
-			dispatchObjectCommandThrowing(obj, objCmd, args);
-		} catch (DispatcherProtocolException e) {
-			return false;
-		}
-		return true;
-	}
-
 	synchronized String dispatchObjectCommandLoggerReceiveAndFlush(DispatcherObject obj) {
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.LOGGER_RECEIVE_AND_FLUSH);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LOGGER_RECEIVE_AND_FLUSH);
 		return this.io.readString();
 	}
 
 	synchronized boolean dispatchObjectCommandKnowledgebaseAddKnowledge(DispatcherKnowledgebase obj, int[] word, boolean acceptance) {
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_ADD_KNOWLEDGE, word, acceptance);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_ADD_KNOWLEDGE, word, acceptance);
 		return this.io.readBool();
 	}
 
 	synchronized void dispatchObjectCommandKnowledgebaseClear(DispatcherKnowledgebase obj) {
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_CLEAR);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_CLEAR);
 	}
 
 	synchronized void dispatchObjectCommandKnowledgebaseClearQueries(DispatcherKnowledgebase obj) {
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_CLEAR_QUERIES);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_CLEAR_QUERIES);
 	}
 
 	synchronized int dispatchObjectCommandKnowledgebaseCountAnswers(DispatcherKnowledgebase obj) {
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_COUNT_ANSWERS);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_COUNT_ANSWERS);
 		return this.io.readInt();
 	}
 
 	synchronized int dispatchObjectCommandKnowledgebaseCountQueries(DispatcherKnowledgebase obj) {
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_COUNT_QUERIES);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_COUNT_QUERIES);
 		return this.io.readInt();
 	}
 
 	synchronized boolean dispatchObjectCommandKnowledgebaseDeserialize(DispatcherKnowledgebase obj, int[] serialization) {
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_DESERIALIZE, serialization);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_DESERIALIZE, serialization);
 		return this.io.readBool();
 	}
 
 	synchronized String dispatchObjectCommandKnowledgebaseGenerateDotfile(DispatcherKnowledgebase obj) {
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_TO_DOTFILE);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_TO_DOTFILE);
 		return this.io.readString();
 	}
 
 	private DispatcherKnowledgebaseIterator dispatchObjectCommandKnowledgebaseBegin(DispatcherKnowledgebase obj) {
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_BEGIN);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_BEGIN);
 		return new DispatcherKnowledgebaseIterator(this, this.io.readInt());
 	}
 
 	private DispatcherKnowledgebaseIterator dispatchObjectCommandKnowledgebaseEnd(DispatcherKnowledgebase obj) {
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_END);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_END);
 		return new DispatcherKnowledgebaseIterator(this, this.io.readInt());
 	}
 
@@ -143,17 +125,17 @@ public class DispatcherFactory implements LibALFFactory {
 	}
 
 	synchronized int dispatchObjectCommandKnowledgebaseGetMemoryUsage(DispatcherKnowledgebase obj) {
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_GET_MEMORY_USAGE);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_GET_MEMORY_USAGE);
 		return this.io.readInt();
 	}
 
 	private DispatcherKnowledgebaseIterator dispatchObjectCommandKnowledgebaseQBegin(DispatcherKnowledgebase obj) {
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_QBEGIN);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_QBEGIN);
 		return new DispatcherKnowledgebaseIterator(this, this.io.readInt());
 	}
 
 	private DispatcherKnowledgebaseIterator dispatchObjectCommandKnowledgebaseQEnd(DispatcherKnowledgebase obj) {
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_QEND);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_QEND);
 		return new DispatcherKnowledgebaseIterator(this, this.io.readInt());
 	}
 
@@ -162,54 +144,55 @@ public class DispatcherFactory implements LibALFFactory {
 	}
 
 	synchronized boolean dispatchObjectCommandKnowledgebaseIsAnswered(DispatcherKnowledgebase obj) {
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_IS_ANSWERED);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_IS_ANSWERED);
 		return this.io.readBool();
 	}
 
 	synchronized boolean dispatchObjectCommandKnowledgebaseIsEmpty(DispatcherKnowledgebase obj) {
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_IS_EMPTY);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_IS_EMPTY);
 		return this.io.readBool();
 	}
 
 	synchronized Acceptance dispatchObjectCommandKnowledgebaseResolveOrAddQuery(DispatcherKnowledgebase obj, int[] word) {
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_RESOLVE_OR_ADD_QUERY, word);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_RESOLVE_OR_ADD_QUERY, word);
 		return this.io.readAcceptance();
 	}
 
 	synchronized Acceptance dispatchObjectCommandKnowledgebaseResolveQuery(DispatcherKnowledgebase obj, int[] word) {
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_RESOLVE_QUERY, word);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_RESOLVE_QUERY, word);
 		return this.io.readAcceptance();
 	}
 
 	synchronized int[] dispatchObjectCommandKnowledgebaseSerialize(DispatcherKnowledgebase obj) {
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_SERIALIZE);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_SERIALIZE);
 		return this.io.readInts();
 	}
 
 	synchronized boolean dispatchObjectCommandKnowledgebaseUndo(DispatcherKnowledgebase obj, int count) {
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_UNDO, count);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_UNDO, count);
 		return this.io.readBool();
 	}
 
 	synchronized boolean dispatchObjectCommandKIteratorCompare(DispatcherKnowledgebaseIterator obj1, DispatcherKnowledgebaseIterator obj2) {
-		dispatchObjectCommandThrowing(obj1, DispatcherConstants.KITERATOR_COMPARE, obj2);
+		this.io.writeObjectCommandThrowing(obj1, DispatcherConstants.KITERATOR_COMPARE, obj2);
 		return this.io.readBool();
 	}
 
 	synchronized void dispatchObjectCommandKIteratorNext(DispatcherKnowledgebaseIterator obj) {
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.KITERATOR_NEXT);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KITERATOR_NEXT);
 	}
 
 	synchronized int[] dispatchObjectCommandKIteratorGetWord(DispatcherKnowledgebaseIterator obj) {
-		return dispatchObjectCommand(obj, DispatcherConstants.KITERATOR_GET_WORD) ? this.io.readInts() : null;
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KITERATOR_GET_WORD);
+		return this.io.readInts();
 	}
 
 	synchronized void dispatchObjectCommandAlgorithmAddCounterexample(DispatcherLearningAlgorithm obj, int[] counterexample) {
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_ADD_COUNTEREXAMPLE, counterexample);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_ADD_COUNTEREXAMPLE, counterexample);
 	}
 
 	synchronized BasicAutomaton dispatchObjectCommandAlgorithmAdvance(DispatcherLearningAlgorithm obj) {
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_ADVANCE);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_ADVANCE);
 		if (!this.io.readBool())
 			return null;
 
@@ -219,66 +202,66 @@ public class DispatcherFactory implements LibALFFactory {
 
 	synchronized boolean dispatchObjectCommandAlgorithmConjectureReady(DispatcherLearningAlgorithm obj) {
 		// TODO Auto-generated method stub
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_CONJECTURE_READY);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_CONJECTURE_READY);
 		return false;
 	}
 
 	synchronized boolean dispatchObjectCommandAlgorithmDeserialize(DispatcherLearningAlgorithm obj, int[] serialization) {
 		// TODO Auto-generated method stub
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_DESERIALIZE, serialization);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_DESERIALIZE, serialization);
 		return false;
 	}
 
 	synchronized int dispatchObjectCommandAlgorithmGetAlphabetSize(DispatcherLearningAlgorithm obj) {
 		// TODO Auto-generated method stub
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_GET_ALPHABET_SIZE);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_GET_ALPHABET_SIZE);
 		return 0;
 	}
 
 	synchronized Knowledgebase dispatchObjectCommandAlgorithmGetKnowledgeSource(DispatcherLearningAlgorithm obj) {
 		// TODO Auto-generated method stub
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_GET_KNOWLEDGE_SOURCE);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_GET_KNOWLEDGE_SOURCE);
 		return null;
 	}
 
 	synchronized void dispatchObjectCommandAlgorithmIncreaseAlphabetSize(DispatcherLearningAlgorithm obj, int new_size) {
 		// TODO Auto-generated method stub
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_INCREASE_ALPHABET_SIZE, new_size);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_INCREASE_ALPHABET_SIZE, new_size);
 	}
 
 	synchronized int[] dispatchObjectCommandAlgorithmSerialize(DispatcherLearningAlgorithm obj) {
 		// TODO Auto-generated method stub
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_SERIALIZE);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_SERIALIZE);
 		return null;
 	}
 
 	synchronized void dispatchObjectCommandAlgorithmSetAlphabetSize(DispatcherLearningAlgorithm obj, int alphabet_size) {
-		// TODO Auto-generated method stub
-//		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_);
+	// TODO Auto-generated method stub
+	//		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_);
 	}
 
 	synchronized void dispatchObjectCommandAlgorithmSetKnowledgeSource(DispatcherLearningAlgorithm obj, Knowledgebase base) {
 		// TODO Auto-generated method stub
 		if (base instanceof DispatcherKnowledgebase) {
 			DispatcherKnowledgebase kb = (DispatcherKnowledgebase) base;
-			dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_SET_KNOWLEDGE_SOURCE,  kb.id);
+			this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_SET_KNOWLEDGE_SOURCE, kb.id);
 		}
 	}
 
 	synchronized void dispatchObjectCommandAlgorithmSetLogger(DispatcherLearningAlgorithm obj, Logger logger) {
-		// TODO Auto-generated method stub
-//		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_);
+	// TODO Auto-generated method stub
+	//		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_);
 	}
 
 	synchronized boolean dispatchObjectCommandAlgorithmSupportsSync(DispatcherLearningAlgorithm obj) {
 		// TODO Auto-generated method stub
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_SUPPORTS_SYNC);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_SUPPORTS_SYNC);
 		return false;
 	}
 
 	synchronized boolean dispatchObjectCommandAlgorithmSyncToKnowledgebase(DispatcherLearningAlgorithm obj) {
 		// TODO Auto-generated method stub
-		dispatchObjectCommandThrowing(obj, DispatcherConstants.ALGORITHM_SYNC_TO_KNOWLEDGEBASE);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_SYNC_TO_KNOWLEDGEBASE);
 		return false;
 	}
 
@@ -301,6 +284,6 @@ public class DispatcherFactory implements LibALFFactory {
 
 	@Override
 	public DispatcherLearningAlgorithm createLearningAlgorithm(Algorithm algorithm, Object[] args) {
-		return new DispatcherLearningAlgorithm(this); // FIXME: algo, args
+		return new DispatcherLearningAlgorithm(this, algorithm, args); // FIXME: algo, args
 	}
 }
