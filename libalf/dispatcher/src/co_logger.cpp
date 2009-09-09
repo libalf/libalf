@@ -36,16 +36,21 @@ bool co_logger::handle_command(int command, basic_string<int32_t> & command_data
 		case LOGGER_RECEIVE_AND_FLUSH:
 			if(command_data.size() != 0)
 				return this->sv->client->stream_send_int(ERR_BAD_PARAMETER_COUNT);
+
 			s = o->receive_and_flush();
-			if(!this->sv->client->stream_send_int(ERR_SUCCESS))
+
+			if(!this->sv->client->stream_send_int(htonl(ERR_SUCCESS))) {
+				delete s;
 				return false;
+			}
+
 			if(!this->sv->client->stream_send_string(s->c_str())) {
 				delete s;
 				return false;
-			} else {
-				delete s;
-				return true;
 			}
+
+			delete s;
+			return true;
 		default:
 			return this->sv->client->stream_send_int(ERR_BAD_COMMAND);
 	}
