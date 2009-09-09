@@ -30,11 +30,12 @@ class servant {
 	private:
 		string capa;
 		bool capa_sent;
-		vector<client_object *> objects;
 		unsigned int pid;
 
 	public: // required by client_objects
 		serversocket * client;
+		vector<client_object *> objects;
+		unsigned int get_free_id();
 
 	public:
 		servant(serversocket *connection);

@@ -13,6 +13,8 @@
 #include <unistd.h>
 
 #include <libalf/alf.h>
+#include <libalf/learning_algorithm.h>
+#include <libalf/normalizer.h>
 
 #include "main.h"
 #include "servant.h"
@@ -20,7 +22,7 @@
 #include "protocol.h"
 
 #include "client_object.h"
-#include "co_algorithm.h"
+#include "co_learning_algorithm.h"
 #include "co_knowledgebase.h"
 #include "co_knowledgebase_iterator.h"
 #include "co_logger.h"
@@ -41,6 +43,22 @@ servant::~servant()
 {{{
 	if(client)
 		delete client;
+}}}
+
+unsigned int servant::get_free_id()
+{{{
+	unsigned int new_id;
+
+	// try to find free slot
+	for(new_id = 0; new_id < objects.size(); new_id++)
+		if(objects[new_id] == NULL)
+			break;
+
+	// or create a new one
+	if(new_id == objects.size())
+		objects.push_back((client_object *) NULL);
+
+	return new_id;
 }}}
 
 
@@ -164,7 +182,7 @@ bool servant::reply_version()
 
 bool servant::reply_create_object()
 {{{
-	int t;
+	int t, u;
 	enum object_type type;
 	int size;
 	basic_string<int32_t> data;
@@ -181,13 +199,7 @@ bool servant::reply_create_object()
 		return false;
 
 	// find free object-id
-	unsigned int new_id;
-
-	for(new_id = 0; new_id < objects.size(); new_id++)
-		if(objects[new_id] == NULL)
-			break;
-	if(new_id == objects.size())
-		objects.push_back((client_object *) NULL);
+	unsigned int new_id = get_free_id();
 
 	switch(type) {
 		case OBJ_LOGGER:
@@ -211,21 +223,24 @@ bool servant::reply_create_object()
 			objects[new_id] = new co_knowledgebase_iterator;
 
 			break;
-		case OBJ_ALGORITHM:
-			if(data.size() != 1)
+		case OBJ_LEARNING_ALGORITHM:
+			if(data.size() != 2)
 				goto bad_data;
-			t = ntohl(data[0]);
-			if(t < 1 || t > 7)
+			t = ntohl(data[0]); // algorithm type
+			u = ntohl(data[1]); // alphabet_size
+			if(t <= learning_algorithm<extended_bool>::ALG_NONE || t >= learning_algorithm<extended_bool>::ALG_LAST_INVALID)
+				goto bad_data;
+			if(u <= 1)
 				goto bad_data;
 
-			objects[new_id] = new co_algorithm( (enum libalf::learning_algorithm<extended_bool>::algorithm) t);
+			objects[new_id] = new co_learning_algorithm( (enum libalf::learning_algorithm<extended_bool>::algorithm) t, u);
 
 			break;
 		case OBJ_NORMALIZER:
 			if(data.size() != 1)
 				goto bad_data;
-			t = ntohl(data[0]);
-			if(t < 1 || t > 1)
+			t = ntohl(data[0]); // normalizer type
+			if(t <= normalizer::NORMALIZER_NONE || t >= normalizer::NORMALIZER_LAST_INVALID)
 				goto bad_data;
 
 			objects[new_id] = new co_normalizer( (enum libalf::normalizer::type) t);
@@ -234,6 +249,9 @@ bool servant::reply_create_object()
 		default:
 			return client->stream_send_int(htonl(0));
 	}
+
+	objects[new_id]->set_servant(this);
+	objects[new_id]->set_id(new_id);
 
 	if(!client->stream_send_int(1))
 		return false;
@@ -244,7 +262,6 @@ bad_data:
 }}}
 
 bool servant::reply_delete_object()
-// FIXME: what if an object is referenced by another object?
 {{{
 	int id;
 

@@ -18,20 +18,32 @@
 
 using namespace libalf;
 
-class co_algorithm : public client_object {
+class co_learning_algorithm : public client_object {
 	private:
 		learning_algorithm<extended_bool> * o;
 
+		int referenced_knowledgebase;
+		int referenced_logger;
+		int referenced_normalizer;
 	public:
 		// alg MUST be valid.
-		co_algorithm(enum libalf::learning_algorithm<extended_bool>::algorithm alg);
+		co_learning_algorithm(enum libalf::learning_algorithm<extended_bool>::algorithm alg, int alphabet_size);
 
-		virtual ~co_algorithm();
+		virtual ~co_learning_algorithm();
 
 		virtual enum object_type get_type()
-		{ return OBJ_ALGORITHM; };
+		{ return OBJ_LEARNING_ALGORITHM; };
 
 		virtual bool handle_command(int command, basic_string<int32_t> & command_data);
+
+		virtual void ref_knowledgebase(int oid);
+		virtual void deref_knowledgebase(int oid);
+
+		virtual void ref_logger(int oid);
+		virtual void deref_logger(int oid);
+
+		virtual void ref_normalizer(int oid);
+		virtual void deref_normalizer(int oid);
 };
 
 #endif // __libalf_dispatcher_co_algorithm_h__

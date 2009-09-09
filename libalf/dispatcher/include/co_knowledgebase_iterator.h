@@ -23,6 +23,7 @@ class co_knowledgebase_iterator : public client_object {
 	private:
 		knowledgebase<extended_bool>::iterator * o;
 
+		int referenced_knowledgebase;
 	public:
 		co_knowledgebase_iterator();
 
@@ -32,6 +33,12 @@ class co_knowledgebase_iterator : public client_object {
 		{ return OBJ_KNOWLEDGEBASE_ITERATOR; };
 
 		virtual bool handle_command(int command, basic_string<int32_t> & command_data);
+
+		virtual void ref_knowledgebase(int oid);
+		virtual void deref_knowledgebase(int oid);
+
+		void invalidate();
+		bool is_valid();
 };
 
 #endif // __libalf_dispatcher_co_knowledgebase_iterator_h__

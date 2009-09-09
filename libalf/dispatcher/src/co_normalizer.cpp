@@ -9,21 +9,52 @@
  * see LICENSE file for licensing information.
  */
 
+#include <stdlib.h>
+
+#include <libalf/normalizer.h>
+#include <libalf/normalizer_msc.h>
+
 #include "co_normalizer.h"
+
+using namespace libalf;
 
 co_normalizer::co_normalizer(enum libalf::normalizer::type type)
 {
-	
+	switch(type) {
+		default:
+			log("client %d: somehow bad request reached co_normalizer constructor. killing client.\n", getpid());
+			exit(-1);
+		case normalizer::NORMALIZER_MSC:
+			o = new normalizer_msc;
+			break;
+	}
 };
 
 co_normalizer::~co_normalizer()
 {
-	
+	set<int>::iterator si;
+
+	for(si = referring_learning_algorithms.begin(); si != referring_learning_algorithms.end(); si++)
+		this->sv->objects[*si]->deref_normalizer(this->id);
+
+	if(o) {
+		delete o;
+	}
 };
 
 bool co_normalizer::handle_command(int command, basic_string<int32_t> & command_data)
 {
 	
 	return false;
+};
+
+void co_normalizer::ref_learning_algorithm(int oid)
+{
+	referring_learning_algorithms.insert(oid);
+};
+
+void co_normalizer::deref_learning_algorithm(int oid)
+{
+	referring_learning_algorithms.erase(oid);
 };
 

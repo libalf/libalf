@@ -12,6 +12,8 @@
 #ifndef __libalf_dispatcher_co_logger_h__
 # define __libalf_dispatcher_co_logger_h__
 
+#include <set>
+
 #include <libalf/logger.h>
 
 #include "client_object.h"
@@ -22,6 +24,7 @@ class co_logger : public client_object {
 	private:
 		buffered_logger * o;
 
+		set<int> referring_learning_algorithms;
 	public:
 		co_logger();
 
@@ -31,6 +34,9 @@ class co_logger : public client_object {
 		{ return OBJ_LOGGER; };
 
 		virtual bool handle_command(int command, basic_string<int32_t> & command_data);
+
+		virtual void ref_learning_algorithm(int oid);
+		virtual void deref_learning_algorithm(int oid);
 };
 
 #endif // __libalf_dispatcher_co_logger_h__
