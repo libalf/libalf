@@ -48,6 +48,11 @@ all fields are, if not marked otherwise, of int32_t (in network-byte order),
 i.e. a singed integer of 32 bits.
 
 
+errno
+
+error code, as in enum command_error_code in protocol.h. 0 if success.
+
+
 bool
 
 a bool is a int32_t interpreted in the following way: if 0, it is false.
@@ -116,7 +121,8 @@ the following commands exist:
 request capabilities (CLCMD_REQ_CAPA)
 no parameters.
 server returns:
-	bool (true)
+	errno
+only if above was ERR_SUCCESS:
 	character-string ( space-separated list of capabilities,
 			   e.g. "protocol-version-1 tls auth langen" )
 
@@ -124,24 +130,23 @@ server returns:
 request server/library version string (CLCMD_REQ_VERSION)
 no parameters.
 server returns:
-	bool (true)
+	errno (always ERR_SUCCESS)
 	character-string
 
 
 disconnect from server (CLCMD_DISCONNECT)
 no parameters.
 server returns:
-	bool (true if the server liked you)
-
-	server then disconnects
+	errno (0 if server liked you)
+server then disconnects
 
 
 enable TLS/SSL (CLCMD_STARTTLS)
 parameters:
 	FIXME
 server returns:
-	bool (just because i can)
-only if above was true:
+	errno
+only if above was ERR_SUCCESS:
 	FIXME
 
 
@@ -149,8 +154,8 @@ authenticate connection (CLCMD_AUTH)
 parameters:
 	FIXME
 server returns:
-	bool (just because i can)
-only if above was true:
+	errno
+only if above was ERR_SUCCESS:
 	FIXME
 
 
@@ -160,25 +165,25 @@ parameters:
 	size of data (always, even if size is 0)
 	data[] (depending on object_type, see CREATING AN OBJECT)
 server returns:
-	bool (false if object_type or data was invalid)
-only if above was true:
-	object-id (-1 if command failed. check server log for error message)
+	errno
+only if above was ERR_SUCCESS:
+	object-id
 
 
 delete object (CLCMD_DELETE_OBJECT)
 parameters:
 	object-id
 server returns:
-	bool (false if object does not exist)
+	errno
 
 
 get object_type (CLCMD_GET_OBJECTTYPE)
 parameters:
 	object-id
 server returns:
-	bool (false if object does not exist)
-only if above was true:
-	enum object_type
+	errno
+only if above was ERR_SUCCESS:
+	object-type
 
 
 object command (CLCMD_OBJECT_COMMAND)
@@ -193,8 +198,8 @@ parameters:
 	size of additional parameters (NOT count!),
 	additional parameters[]
 server returns:
-	bool (false if command was invalid)
-only if above was true:
+	errno
+only if above was ERR_SUCCESS:
 	data[] -- see specific command --
 
 
@@ -202,8 +207,8 @@ say hello to carsten (CLCMD_HELLO_CARSTEN)
 parameters: 1
 	int (how often)
 server returns:
-	bool (true if he's there)
-only if above was true:
+	errno
+only if above was ERR_SUCCESS:
 	int (how often he said thanks)
 
 ================================================================================
