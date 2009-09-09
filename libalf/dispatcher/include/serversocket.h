@@ -32,16 +32,24 @@ class serversocket {
 		bool listen(int queue_length);
 		serversocket *accept();
 
-
+		// sending of raw data:
 		int stream_send(const void *msg, int length);
 		int stream_receive(void *msg, int length);
 
+		// will do htonl:
 		bool stream_receive_int(int32_t & ret);
-		bool stream_receive_blob(basic_string<int32_t> & blob, int length);
-
 		bool stream_send_int(int32_t val);
+		// will do no htonl:
+		bool stream_receive_raw_int(int32_t & ret);
+		bool stream_send_raw_int(int32_t val);
+
+		// will send the string without byte-order conversion:
+		bool stream_receive_raw_blob(basic_string<int32_t> & blob, int length);
+		bool stream_send_raw_blob(basic_string<int32_t> & blob);
+
+		// send string with initial length field (in network byte order)
 		bool stream_send_string(const char * str);
-		bool stream_send_blob(basic_string<int32_t> & blob);
+
 };
 
 #endif // __libalf_dispatcher_serversocket_h__

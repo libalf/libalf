@@ -39,7 +39,7 @@ bool co_logger::handle_command(int command, basic_string<int32_t> & command_data
 
 			s = o->receive_and_flush();
 
-			if(!this->sv->client->stream_send_int(htonl(ERR_SUCCESS))) {
+			if(!this->sv->client->stream_send_int(ERR_SUCCESS)) {
 				delete s;
 				return false;
 			}

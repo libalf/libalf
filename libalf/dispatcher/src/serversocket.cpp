@@ -51,6 +51,7 @@ void serversocket::close()
 		::close(sock);
 }}}
 
+
 int serversocket::stream_send(const void *msg, int length)
 {{{
 	int total = 0;		// how many bytes we've sent
@@ -75,7 +76,24 @@ int serversocket::stream_receive(void *msg, int length)
 	return recv(sock, msg, length, MSG_WAITALL);
 }}}
 
+
 bool serversocket::stream_receive_int(int32_t & ret)
+{{{
+	int s;
+	s = recv(sock, &ret, sizeof(int32_t), MSG_WAITALL);
+	if(s != sizeof(int32_t))
+		return false;
+	ret = ntohl(ret);
+	return true;
+}}}
+
+bool serversocket::stream_send_int(int32_t val)
+{{{
+	val = htonl(val);
+	return stream_send(&val, sizeof(int32_t));
+}}}
+
+bool serversocket::stream_receive_raw_int(int32_t & ret)
 {{{
 	int s;
 	s = recv(sock, &ret, sizeof(int32_t), MSG_WAITALL);
@@ -84,7 +102,13 @@ bool serversocket::stream_receive_int(int32_t & ret)
 	return true;
 }}}
 
-bool serversocket::stream_receive_blob(basic_string<int32_t> & blob, int length)
+bool serversocket::stream_send_raw_int(int32_t val)
+{{{
+	return stream_send(&val, sizeof(int32_t));
+}}}
+
+
+bool serversocket::stream_receive_raw_blob(basic_string<int32_t> & blob, int length)
 {{{
 	blob.clear();
 
@@ -93,7 +117,7 @@ bool serversocket::stream_receive_blob(basic_string<int32_t> & blob, int length)
 
 	while(length > 0) {
 		int i;
-		if(!stream_receive_int(i)) {
+		if(!stream_receive_raw_int(i)) {
 			return false;
 		}
 		blob.push_back(i);
@@ -103,10 +127,17 @@ bool serversocket::stream_receive_blob(basic_string<int32_t> & blob, int length)
 	return true;
 }}}
 
-bool serversocket::stream_send_int(int32_t val)
+bool serversocket::stream_send_raw_blob(basic_string<int32_t> & blob)
 {{{
-	return stream_send(&val, sizeof(int32_t));
+	basic_string<int32_t>::iterator bi;
+
+	for(bi = blob.begin(); bi != blob.end(); bi++)
+		if(!stream_send_raw_int(*bi))
+			return false;
+
+	return true;
 }}}
+
 
 bool serversocket::stream_send_string(const char * str)
 {{{
@@ -115,16 +146,6 @@ bool serversocket::stream_send_string(const char * str)
 	return stream_send(str, strlen(str));
 }}}
 
-bool serversocket::stream_send_blob(basic_string<int32_t> & blob)
-{{{
-	basic_string<int32_t>::iterator bi;
-
-	for(bi = blob.begin(); bi != blob.end(); bi++)
-		if(!stream_send_int(*bi))
-			return false;
-
-	return true;
-}}}
 
 bool serversocket::bind(string & listen_address, uint16_t listen_port)
 {{{
