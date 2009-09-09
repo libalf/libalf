@@ -35,11 +35,11 @@ bool co_logger::handle_command(int command, basic_string<int32_t> & command_data
 	switch(command) {
 		case LOGGER_RECEIVE_AND_FLUSH:
 			if(command_data.size() != 0)
-				return this->sv->client->stream_send_int(ERR_BAD_PARAMETER_COUNT);
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 
 			s = o->receive_and_flush();
 
-			if(!this->sv->client->stream_send_int(ERR_SUCCESS)) {
+			if(!this->sv->send_errno(ERR_SUCCESS)) {
 				delete s;
 				return false;
 			}
@@ -52,7 +52,7 @@ bool co_logger::handle_command(int command, basic_string<int32_t> & command_data
 			delete s;
 			return true;
 		default:
-			return this->sv->client->stream_send_int(ERR_BAD_COMMAND);
+			return this->sv->send_errno(ERR_BAD_COMMAND);
 	}
 
 	return false;

@@ -41,6 +41,44 @@ enum command_error_code {
 	ERR_INTERNAL_ERROR = 1001,
 };
 
+inline const char* err2string(int errno)
+{{{
+	switch(errno) {
+		case 0:
+			return "success";
+		case 1:
+			return "object does not exist";
+		case 2:
+			return "bad object";
+		case 10:
+			return "bad command";
+		case 11:
+			return "command not implemented";
+		case 15:
+			return "bad parameter count";
+		case 16:
+			return "bad parameters";
+		case 20:
+			return "command failed";
+		case 40:
+			return "unresolved referenced removed during deletion";
+		case 41:
+			return "disconnecting but leaving objects behind";
+		case 100:
+			return "authentication required";
+		case 101:
+			return "authentication failed";
+		case 110:
+			return "TLS required";
+		case 1000:
+			return "out of memory";
+		case 1001:
+			return "internal error";
+		default:
+			return "unknown error";
+	};
+}}}
+
 enum client_command {
 	CLCMD_REQ_CAPA = 0,
 	CLCMD_REQ_VERSION = 1,
@@ -70,42 +108,42 @@ enum client_command {
 inline const char* cmd2string(int cmd)
 {{{
 	if(cmd == 0)
-		return "CLCMD_REQ_CAPA";
+		return "request capabilities";
 	if(cmd == 1)
-		return "CLCMD_REQ_VERSION";
+		return "request server";
 
 	if(cmd == 10)
-		return "CLCMD_DISCONNECT";
+		return "disconnect";
 	if(cmd == 11)
-		return "CLCMD_STARTTLS";
+		return "STARTTLS";
 	if(cmd == 12)
-		return "CLCMD_AUTH";
+		return "authenticate";
 
 	if(cmd == 20)
-		return "CLCMD_CREATE_OBJECT";
+		return "create object";
 	if(cmd == 21)
-		return "CLCMD_DELETE_OBJECT";
+		return "delete object";
 	if(cmd == 22)
-		return "CLCMD_GET_OBJECTTYPE";
+		return "get object_type";
 	if(cmd == 23)
-		return "CLCMD_OBJECT_COMMAND";
+		return "object command";
 	if(cmd == 30)
-		return "CLCMD_COUNT_DISPATCHER_REFERENCES";
+		return "count dispatcher references";
 	/*
 	if(cmd == 35)
-		return "CLCMD_ENABLE_CLIENT_REFERENCING";
+		return "enable client-referencing framework";
 	if(cmd == 36)
-		return "CLCMD_DISABLE_CLIENT_REFERENCING";
+		return "disable client-referencing framework";
 	if(cmd == 37)
-		return "CLCMD_COUNT_DISPATCHER_REFERENCES";
+		return "count client references";
 	if(cmd == 38)
-		return "CLCMD_INCREASE_CLIENT_REFERENCES";
+		return "decrease client references";
 	if(cmd == 39)
-		return "CLCMD_DECREASE_CLIENT_REFERENCES";
+		return "increase client references";
 	*/
 
 	if(cmd == 99)
-		return "CLCMD_HELLO_CARSTEN";
+		return "say hello to carsten";
 
 	return "invalid";
 }}}
@@ -116,8 +154,25 @@ enum object_type {
 	OBJ_KNOWLEDGEBASE = 10,
 	OBJ_KNOWLEDGEBASE_ITERATOR = 11,
 	OBJ_LEARNING_ALGORITHM = 20,
-	OBJ_NORMALIZER = 21,
+	OBJ_NORMALIZER = 30,
 };
+
+inline const char* obj2string(int type)
+{{{
+	if(type == -1)
+		return "OBJ_NONE";
+	if(type == 0)
+		return "logger";
+	if(type == 10)
+		return "knowledgebase";
+	if(type == 11)
+		return "knowledgebase::iterator";
+	if(type == 20)
+		return "learning_algorithm";
+	if(type == 30)
+		return "normalizer";
+	return "invalid";
+}}}
 
 enum logger_command {
 	LOGGER_RECEIVE_AND_FLUSH = 0,

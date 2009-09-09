@@ -42,6 +42,7 @@ class servant {
 		~servant();
 
 		bool serve();
+		bool send_errno(enum command_error_code);
 
 	private:
 		bool reply_create_object();

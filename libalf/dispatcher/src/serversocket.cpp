@@ -141,7 +141,7 @@ bool serversocket::stream_send_raw_blob(basic_string<int32_t> & blob)
 
 bool serversocket::stream_send_string(const char * str)
 {{{
-	if(!stream_send_int(ntohl(strlen(str))))
+	if(!stream_send_int(strlen(str)))
 		return false;
 	return stream_send(str, strlen(str));
 }}}
