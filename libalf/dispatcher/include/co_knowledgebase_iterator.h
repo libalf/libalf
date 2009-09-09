@@ -37,6 +37,14 @@ class co_knowledgebase_iterator : public client_object {
 		virtual void ref_knowledgebase(int oid);
 		virtual void deref_knowledgebase(int oid);
 
+		virtual int get_reference_count()
+		{
+			int refs = 0;
+			if(referenced_knowledgebase != -1)
+				refs++;
+			return refs;
+		}
+
 		void invalidate();
 		bool is_valid();
 };

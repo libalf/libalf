@@ -30,7 +30,26 @@ co_logger::~co_logger()
 
 bool co_logger::handle_command(int command, basic_string<int32_t> & command_data)
 {
-	
+	string *s;
+
+	switch(command) {
+		case LOGGER_RECEIVE_AND_FLUSH:
+			if(command_data.size() != 0)
+				return this->sv->client->stream_send_int(ERR_BAD_PARAMETER_COUNT);
+			s = o->receive_and_flush();
+			if(!this->sv->client->stream_send_int(ERR_SUCCESS))
+				return false;
+			if(!this->sv->client->stream_send_string(s->c_str())) {
+				delete s;
+				return false;
+			} else {
+				delete s;
+				return true;
+			}
+		default:
+			return this->sv->client->stream_send_int(ERR_BAD_COMMAND);
+	}
+
 	return false;
 };
 

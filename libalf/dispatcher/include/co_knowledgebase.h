@@ -46,6 +46,14 @@ class co_knowledgebase : public client_object {
 
 		virtual void ref_knowledgebase_iterator(int oid);
 		virtual void deref_knowledgebase_iterator(int oid);
+
+		virtual int get_reference_count()
+		{
+			int refs = 0;
+			refs += referring_learning_algorithms.size();
+			refs += referring_iterators.size();
+			return refs;
+		}
 };
 
 #endif // __libalf_dispatcher_co_knowledgebase_h__

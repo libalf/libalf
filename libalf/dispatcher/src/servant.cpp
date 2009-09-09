@@ -281,7 +281,7 @@ bad_parameter_count:
 }}}
 
 bool servant::reply_delete_object()
-{
+{{{
 	int id;
 
 	if(!client->stream_receive_int(id))
@@ -291,12 +291,17 @@ bool servant::reply_delete_object()
 	if(id < 0 || id >= (int)objects.size() || objects[id] == NULL) {
 		return client->stream_send_int(htonl(ERR_NO_OBJECT));
 	} else {
+		int r;
+		if(objects[id]->get_reference_count() != 0)
+			r = ERR_UNRESOLVED_REFERENCES_REMOVED;
+		else
+			r = ERR_SUCCESS;
 		delete objects[id];
 		objects[id] = NULL;
 		// FIXME: check reference count.
-		return client->stream_send_int(htonl(ERR_SUCCESS));
+		return client->stream_send_int(htonl(r));
 	}
-}
+}}}
 
 bool servant::reply_get_objecttype()
 {{{
@@ -348,7 +353,7 @@ bool servant::reply_object_command()
 
 
 bool servant::reply_count_dispatcher_references()
-{
+{{{
 	int id;
 
 	if(!client->stream_receive_int(id))
@@ -361,9 +366,8 @@ bool servant::reply_count_dispatcher_references()
 
 	if(!client->stream_send_int(ERR_SUCCESS))
 		return false;
-	// FIXME: get real reference count.
-	return client->stream_send_int(0);
-}
+	return client->stream_send_int(objects[id]->get_reference_count());
+}}}
 
 
 bool servant::reply_hello_carsten()

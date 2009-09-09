@@ -44,6 +44,18 @@ class co_learning_algorithm : public client_object {
 
 		virtual void ref_normalizer(int oid);
 		virtual void deref_normalizer(int oid);
+
+		virtual int get_reference_count()
+		{
+			int refs = 0;
+			if(referenced_knowledgebase != -1)
+				refs++;
+			if(referenced_logger != -1)
+				refs++;
+			if(referenced_normalizer != -1)
+				refs++;
+			return refs;
+		}
 };
 
 #endif // __libalf_dispatcher_co_algorithm_h__

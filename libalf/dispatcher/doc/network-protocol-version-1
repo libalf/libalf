@@ -534,6 +534,14 @@ server returns:
 	character-string
 
 
+deserialize algorithm-specific parameters (LEARNING_ALGORITHM_DESERIALIZE_MAGIC)
+parameters: 2
+	size,
+	serialized data[]
+server returns:
+	bool
+
+
 associate logger with algorithm (LEARNING_ALGORITHM_ASSOCIATE_LOGGER)
 parameters: 1
 	object-id (of logger)

@@ -38,6 +38,13 @@ class co_normalizer : public client_object {
 
 		virtual void ref_learning_algorithm(int oid);
 		virtual void deref_learning_algorithm(int oid);
+
+		virtual int get_reference_count()
+		{
+			int refs = 0;
+			refs += referring_learning_algorithms.size();
+			return refs;
+		}
 };
 
 #endif // __libalf_dispatcher_co_normalizer_h__

@@ -81,6 +81,12 @@ class client_object {
 		{ log("client %d: bad call to ref/deref!\n", getpid()); };
 		virtual void deref_learning_algorithm(int oid)
 		{ log("client %d: bad call to ref/deref!\n", getpid()); };
+
+		virtual int get_reference_count()
+		{
+			log("client %d: bad call to ref/deref!\n", getpid());
+			return 0;
+		};
 };
 
 #endif // __libalf_dispatcher_client_object_h__

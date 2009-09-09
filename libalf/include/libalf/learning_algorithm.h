@@ -182,6 +182,10 @@ class learning_algorithm {
 		virtual basic_string<int32_t> serialize() = 0;
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit) = 0;
 
+		// for algorithm-specific commands (e.g. parameter passing via dispatcher)
+		virtual bool deserialize_magic(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+		{ return false; };
+
 		virtual void print(ostream &os) = 0;
 		virtual string tostring() = 0;
 
