@@ -50,6 +50,7 @@ class servant {
 		bool reply_object_command();
 		bool reply_capabilities();
 		bool reply_version();
+		bool reply_count_dispatcher_references();
 		bool reply_hello_carsten();
 
 };

@@ -91,6 +91,8 @@ bool servant::serve()
 	log("client %d: command %d.\n", pid, cmd);
 #endif
 
+	int r;
+
 	switch(cmd) {
 		case CLCMD_REQ_CAPA:
 			if(!reply_capabilities()) {
@@ -107,7 +109,12 @@ bool servant::serve()
 			return true;
 
 		case CLCMD_DISCONNECT:
-			if(!client->stream_send_int(1)) {
+			if(objects.size() != 0)
+				r = ERR_REMAINING_OBJECTS;
+			else
+				r = ERR_SUCCESS;
+
+			if(!client->stream_send_int(htonl(r))) {
 				log("client %d: failed to ACK disconnect. disconnecting anyway ;)\n", pid);
 			} else {
 				log("client %d: valid disconnect. bye bye.\n", pid);
@@ -142,6 +149,13 @@ bool servant::serve()
 			}
 			return true;
 
+		case CLCMD_COUNT_DISPATCHER_REFERENCES:
+			if(!reply_count_dispatcher_references()) {
+				log("client %d: count_dispatcher_references command failed. disconnecting.\n", pid);
+				return false;
+			};
+			return true;
+
 		case CLCMD_HELLO_CARSTEN:
 			if(!reply_hello_carsten()) {
 				log("client %d: tried hello carsten, but failed. disconnecting.\n", pid);
@@ -151,6 +165,9 @@ bool servant::serve()
 
 		case CLCMD_STARTTLS:
 		case CLCMD_AUTH:
+			log("client %d: command %d requested but is not implemented. disconnecting.\n", pid, cmd);
+			client->stream_send_int(htonl(ERR_NOT_IMPLEMENTED));
+			return false;
 		default:
 			log("client %d: sent invalid command %d. disconnecting.\n", pid, cmd);
 			return false;
@@ -166,14 +183,14 @@ bool servant::serve()
 
 bool servant::reply_capabilities()
 {{{
-	if(!client->stream_send_int(htonl(1)))
+	if(!client->stream_send_int(htonl(ERR_SUCCESS)))
 		return false;
 	return client->stream_send_string(capa.c_str());
 }}}
 
 bool servant::reply_version()
 {{{
-	if(!client->stream_send_int(htonl(1)))
+	if(!client->stream_send_int(htonl(ERR_SUCCESS)))
 		return false;
 	return client->stream_send_string(dispatcher_version());
 }}}
@@ -204,65 +221,67 @@ bool servant::reply_create_object()
 	switch(type) {
 		case OBJ_LOGGER:
 			if(data.size() != 0)
-				goto bad_data;
+				goto bad_parameter_count;
 
 			objects[new_id] = new co_logger;
 
 			break;
 		case OBJ_KNOWLEDGEBASE:
 			if(data.size() != 0)
-				goto bad_data;
+				goto bad_parameter_count;
 
 			objects[new_id] = new co_knowledgebase;
 
 			break;
 		case OBJ_KNOWLEDGEBASE_ITERATOR:
 			if(data.size() != 0)
-				goto bad_data;
+				goto bad_parameter_count;
 
 			objects[new_id] = new co_knowledgebase_iterator;
 
 			break;
 		case OBJ_LEARNING_ALGORITHM:
 			if(data.size() != 2)
-				goto bad_data;
+				goto bad_parameter_count;
 			t = ntohl(data[0]); // algorithm type
 			u = ntohl(data[1]); // alphabet_size
 			if(t <= learning_algorithm<extended_bool>::ALG_NONE || t >= learning_algorithm<extended_bool>::ALG_LAST_INVALID)
-				goto bad_data;
+				goto bad_parameters;
 			if(u <= 1)
-				goto bad_data;
+				goto bad_parameters;
 
 			objects[new_id] = new co_learning_algorithm( (enum libalf::learning_algorithm<extended_bool>::algorithm) t, u);
 
 			break;
 		case OBJ_NORMALIZER:
 			if(data.size() != 1)
-				goto bad_data;
+				goto bad_parameter_count;
 			t = ntohl(data[0]); // normalizer type
 			if(t <= normalizer::NORMALIZER_NONE || t >= normalizer::NORMALIZER_LAST_INVALID)
-				goto bad_data;
+				goto bad_parameters;
 
 			objects[new_id] = new co_normalizer( (enum libalf::normalizer::type) t);
 
 			break;
 		default:
-			return client->stream_send_int(htonl(0));
+			goto bad_parameters;
 	}
 
 	objects[new_id]->set_servant(this);
 	objects[new_id]->set_id(new_id);
 
-	if(!client->stream_send_int(1))
+	if(!client->stream_send_int(htonl(ERR_SUCCESS)))
 		return false;
-	return (client->stream_send_int(1));
+	return (client->stream_send_int(htonl(new_id)));
 
-bad_data:
-	return client->stream_send_int(htonl(0));
+bad_parameters:
+	return client->stream_send_int(htonl(ERR_BAD_PARAMETERS));
+bad_parameter_count:
+	return client->stream_send_int(htonl(ERR_BAD_PARAMETER_COUNT));
 }}}
 
 bool servant::reply_delete_object()
-{{{
+{
 	int id;
 
 	if(!client->stream_receive_int(id))
@@ -270,13 +289,14 @@ bool servant::reply_delete_object()
 
 	id = ntohl(id);
 	if(id < 0 || id >= (int)objects.size() || objects[id] == NULL) {
-		return client->stream_send_int(htonl(0));
+		return client->stream_send_int(htonl(ERR_NO_OBJECT));
 	} else {
 		delete objects[id];
 		objects[id] = NULL;
-		return client->stream_send_int(htonl(1));
+		// FIXME: check reference count.
+		return client->stream_send_int(htonl(ERR_SUCCESS));
 	}
-}}}
+}
 
 bool servant::reply_get_objecttype()
 {{{
@@ -287,9 +307,9 @@ bool servant::reply_get_objecttype()
 
 	id = ntohl(id);
 	if(id < 0 || id >= (int)objects.size() || objects[id] == NULL) {
-		return client->stream_send_int(htonl(0));
+		return client->stream_send_int(htonl(ERR_NO_OBJECT));
 	} else {
-		if(!client->stream_send_int(htonl(1)))
+		if(!client->stream_send_int(htonl(ERR_SUCCESS)))
 			return false;
 		return client->stream_send_int(htonl( (int) objects[id]->get_type() ));
 	}
@@ -321,11 +341,29 @@ bool servant::reply_object_command()
 
 	// check validity of object-id
 	if(id < 0 || id >= (int)objects.size() || objects[id] == NULL)
-		return client->stream_send_int(htonl(0));
+		return client->stream_send_int(htonl(ERR_NO_OBJECT));
 
 	return objects[id]->handle_command(command, command_data);
 }}}
 
+
+bool servant::reply_count_dispatcher_references()
+{
+	int id;
+
+	if(!client->stream_receive_int(id))
+		return false;
+	id = ntohl(id);
+
+	// check validity of object-id
+	if(id < 0 || id >= (int)objects.size() || objects[id] == NULL)
+		return client->stream_send_int(htonl(ERR_NO_OBJECT));
+
+	if(!client->stream_send_int(ERR_SUCCESS))
+		return false;
+	// FIXME: get real reference count.
+	return client->stream_send_int(0);
+}
 
 
 bool servant::reply_hello_carsten()
@@ -337,9 +375,10 @@ bool servant::reply_hello_carsten()
 
 	log("client %d: said %d times hello to carsten. how nice of him!\n", pid, ntohl(count));
 
-	if(!client->stream_send_int(1))
+	if(!client->stream_send_int(htonl(ERR_SUCCESS)))
 		return false;
 
 	return client->stream_send_int(count);
 }}}
+
 

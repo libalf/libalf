@@ -203,6 +203,15 @@ only if above was ERR_SUCCESS:
 	data[] -- see specific command --
 
 
+count dispatcher-internal references of obj (CLCMD_COUNT_DISPATCHER_REFERENCES)
+parameters: 1
+	object-id
+server returns:
+	errno
+only if above was ERR_SUCCESS:
+	int reference_count
+
+
 say hello to carsten (CLCMD_HELLO_CARSTEN)
 parameters: 1
 	int (how often)
