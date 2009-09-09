@@ -6,9 +6,12 @@ import de.libalf.LearningAlgorithm;
 import de.libalf.Logger;
 import de.libalf.LibALFFactory.Algorithm;
 
-public class DispatcherLearningAlgorithm extends DispatcherObject implements LearningAlgorithm {
-	public DispatcherLearningAlgorithm(DispatcherFactory factory, Algorithm algorithm, Object[] args) throws DispatcherException {
-		super(factory, DispatcherConstants.OBJ_LEARNING_ALGORITHM);
+public abstract class DispatcherLearningAlgorithm extends DispatcherObject implements LearningAlgorithm {
+	private DispatcherLogger logger;
+	private DispatcherKnowledgebase base;
+
+	protected DispatcherLearningAlgorithm(DispatcherFactory factory, DispatcherConstants algo, int alphabet_size) throws DispatcherException {
+		super(factory, DispatcherConstants.OBJ_LEARNING_ALGORITHM, new int[] { algo.id, alphabet_size });
 	}
 
 	@Override
@@ -37,8 +40,10 @@ public class DispatcherLearningAlgorithm extends DispatcherObject implements Lea
 	}
 
 	@Override
-	public Knowledgebase get_knowledge_source() throws DispatcherException {
-		return this.factory.dispatchObjectCommandAlgorithmGetKnowledgeSource(this);
+	public DispatcherKnowledgebase get_knowledge_source() throws DispatcherException {
+		if (this.base.id != this.factory.dispatchObjectCommandAlgorithmGetKnowledgeSource(this))
+			throw new DispatcherProtocolException("knowledgebase changed");
+		return this.base;
 	}
 
 	@Override
@@ -58,12 +63,14 @@ public class DispatcherLearningAlgorithm extends DispatcherObject implements Lea
 
 	@Override
 	public void set_knowledge_source(Knowledgebase base) throws DispatcherException {
-		this.factory.dispatchObjectCommandAlgorithmSetKnowledgeSource(this, base);
+		checkFactory(base);
+		this.factory.dispatchObjectCommandAlgorithmSetKnowledgeSource(this, this.base = (DispatcherKnowledgebase) base);
 	}
 
 	@Override
 	public void set_logger(Logger logger) throws DispatcherException {
-		this.factory.dispatchObjectCommandAlgorithmSetLogger(this, logger);
+		checkFactory(logger);
+		this.factory.dispatchObjectCommandAlgorithmSetLogger(this, this.logger = (DispatcherLogger) logger);
 	}
 
 	@Override

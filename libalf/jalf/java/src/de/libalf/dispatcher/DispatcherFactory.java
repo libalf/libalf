@@ -5,7 +5,6 @@ import java.net.Socket;
 import java.util.LinkedList;
 
 import de.libalf.BasicAutomaton;
-import de.libalf.Knowledgebase;
 import de.libalf.LibALFFactory;
 import de.libalf.Logger;
 import de.libalf.Knowledgebase.Acceptance;
@@ -218,10 +217,10 @@ public class DispatcherFactory implements LibALFFactory {
 		return 0;
 	}
 
-	synchronized Knowledgebase dispatchObjectCommandAlgorithmGetKnowledgeSource(DispatcherLearningAlgorithm obj) {
+	synchronized int dispatchObjectCommandAlgorithmGetKnowledgeSource(DispatcherLearningAlgorithm obj) {
 		// TODO Auto-generated method stub
 		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_GET_KNOWLEDGE_SOURCE);
-		return null;
+		return 0;
 	}
 
 	synchronized void dispatchObjectCommandAlgorithmIncreaseAlphabetSize(DispatcherLearningAlgorithm obj, int new_size) {
@@ -230,9 +229,8 @@ public class DispatcherFactory implements LibALFFactory {
 	}
 
 	synchronized int[] dispatchObjectCommandAlgorithmSerialize(DispatcherLearningAlgorithm obj) {
-		// TODO Auto-generated method stub
 		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_SERIALIZE);
-		return null;
+		return this.io.readInts();
 	}
 
 	synchronized void dispatchObjectCommandAlgorithmSetAlphabetSize(DispatcherLearningAlgorithm obj, int alphabet_size) {
@@ -240,12 +238,10 @@ public class DispatcherFactory implements LibALFFactory {
 	//		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_);
 	}
 
-	synchronized void dispatchObjectCommandAlgorithmSetKnowledgeSource(DispatcherLearningAlgorithm obj, Knowledgebase base) {
+	synchronized void dispatchObjectCommandAlgorithmSetKnowledgeSource(DispatcherLearningAlgorithm obj, DispatcherKnowledgebase base) {
 		// TODO Auto-generated method stub
-		if (base instanceof DispatcherKnowledgebase) {
-			DispatcherKnowledgebase kb = (DispatcherKnowledgebase) base;
-			this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_SET_KNOWLEDGE_SOURCE, kb.id);
-		}
+		obj.checkFactory(base);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_SET_KNOWLEDGE_SOURCE, base.id);
 	}
 
 	synchronized void dispatchObjectCommandAlgorithmSetLogger(DispatcherLearningAlgorithm obj, Logger logger) {
@@ -284,6 +280,19 @@ public class DispatcherFactory implements LibALFFactory {
 
 	@Override
 	public DispatcherLearningAlgorithm createLearningAlgorithm(Algorithm algorithm, Object[] args) {
-		return new DispatcherLearningAlgorithm(this, algorithm, args); // FIXME: algo, args
+		switch (algorithm) {
+		case ANGLUIN:
+			return new DispatcherAlgorithmAngluin(this, (DispatcherKnowledgebase) args[0], (Integer) args[1]);
+		case ANGLUIN_COLUMN:
+			return new DispatcherAlgorithmAngluinColumn(this, (DispatcherKnowledgebase) args[0], (Integer) args[1]);
+		case NL_STAR:
+			return new DispatcherAlgorithmNLstar(this, (DispatcherKnowledgebase) args[0], (Integer) args[1]);
+		case RPNI:
+			return new DispatcherAlgorithmRPNI(this, (DispatcherKnowledgebase) args[0], (Integer) args[1]);
+		case BIERMANN_MINISAT:
+			return new DispatcherAlgorithmBiermannMiniSAT(this, (DispatcherKnowledgebase) args[0], (Integer) args[1]);
+		default:
+			return null;
+		}
 	}
 }

@@ -69,4 +69,10 @@ public abstract class DispatcherObject implements Sendable {
 	public void finalize() throws DispatcherException {
 		this.factory.dispatchDeleteObject(this);
 	}
+
+	void checkFactory(Object obj) {
+		if (obj instanceof DispatcherObject && ((DispatcherObject) obj).factory == this.factory)
+			return;
+		throw new IllegalArgumentException("object has to be from the same factory!");
+	}
 }
