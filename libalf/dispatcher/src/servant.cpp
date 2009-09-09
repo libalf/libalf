@@ -348,6 +348,10 @@ bool servant::reply_object_command()
 	if(id < 0 || id >= (int)objects.size() || objects[id] == NULL)
 		return client->stream_send_int(htonl(ERR_NO_OBJECT));
 
+#ifdef READABLE
+	log("client %d: object %d command %d with parameters size %d\n", pid, command, command_data.size());
+#endif
+
 	return objects[id]->handle_command(command, command_data);
 }}}
 
