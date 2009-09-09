@@ -335,7 +335,7 @@ bool servant::reply_object_command()
 
 	if(!client->stream_receive_int(command))
 		return false;
-	command = ntohl(id);
+	command = ntohl(command);
 
 	if(!client->stream_receive_int(size))
 		return false;
@@ -349,7 +349,7 @@ bool servant::reply_object_command()
 		return client->stream_send_int(htonl(ERR_NO_OBJECT));
 
 #ifdef READABLE
-	log("client %d: object %d command %d with parameters size %d\n", pid, command, command_data.size());
+	log("client %d: object %d command %d with parameters size %d\n", pid, id, command, command_data.size());
 #endif
 
 	return objects[id]->handle_command(command, command_data);
@@ -368,9 +368,9 @@ bool servant::reply_count_dispatcher_references()
 	if(id < 0 || id >= (int)objects.size() || objects[id] == NULL)
 		return client->stream_send_int(htonl(ERR_NO_OBJECT));
 
-	if(!client->stream_send_int(ERR_SUCCESS))
+	if(!client->stream_send_int(htonl(ERR_SUCCESS)))
 		return false;
-	return client->stream_send_int(objects[id]->get_reference_count());
+	return client->stream_send_int(htonl(objects[id]->get_reference_count()));
 }}}
 
 
@@ -386,7 +386,7 @@ bool servant::reply_hello_carsten()
 	if(!client->stream_send_int(htonl(ERR_SUCCESS)))
 		return false;
 
-	return client->stream_send_int(count);
+	return client->stream_send_int(htonl(count));
 }}}
 
 
