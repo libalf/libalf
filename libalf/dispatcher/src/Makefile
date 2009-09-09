@@ -7,7 +7,7 @@ PREFIX ?= /usr/local/
 
 LOCALCHANGES = $(shell test "`svn status | wc -c`" != "0" && echo "-LocalChanges")
 SVNREVISION = $(shell LC_ALL=POSIX svn info | awk '/^Revision:/ {print $$2}')
-VERSION=svn-r${SVNREVISION}${LOCALCHANGES}
+VERSION ?= svn-r${SVNREVISION}${LOCALCHANGES}
 
 CPPFLAGS+=-Wall -I../../include/ -I ../include/ -I${PREFIX}/include -ggdb3
 CPPFLAGS+=-D__cplusplus -DVERSION="\"${VERSION}\"" -DREADABLE
@@ -30,4 +30,6 @@ install: dispatcher
 	chmod 755 ${PREFIX}/bin/dispatcher
 
 uninstall:
+	echo removing dispatcher binary
+	rm ${PREFIX}/bin/dispatcher
 
