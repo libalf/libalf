@@ -192,7 +192,7 @@ int main(int argc, char**argv)
 			} else {
 				int pid = fork();
 				if(pid < 0) {
-					log("failed to fork. aborting.\n");
+					log("FAILED TO FORK. ABORTING.\n");
 					return -3;
 				}
 				if(pid == 0) {
@@ -205,10 +205,10 @@ int main(int argc, char**argv)
 					while(sv.serve());
 
 					// end child.
-					log("client %d: terminating.\n", getpid());
+					log("client %d: TERMINATING.\n", getpid());
 					return 0;
 				} else {
-					log("new client, pid %d.\n", pid);
+					log("NEW CLIENT, PID %d.\n", pid);
 					// parent
 					// get rid of client socket
 					delete cl;

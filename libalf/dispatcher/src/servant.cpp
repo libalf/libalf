@@ -70,7 +70,7 @@ bool servant::serve()
 
 	if(!capa_sent) {
 		if(!reply_capabilities()) {
-			log("client %d: sending of initial CAPA failed. disconnecting.\n", pid);
+			log("client %d: sending of initial CAPA failed. DISCONNECTING.\n", pid);
 			return false;
 		}
 		capa_sent = true;
@@ -80,7 +80,7 @@ bool servant::serve()
 	int32_t cmd;
 
 	if(!client->stream_receive_int(cmd)) {
-		log("socket to client %d failed. disconnecting.\n", pid);
+		log("socket to client %d failed. DISCONNECTING.\n", pid);
 		return false;
 	}
 	cmd = ntohl(cmd);
@@ -96,14 +96,14 @@ bool servant::serve()
 	switch(cmd) {
 		case CLCMD_REQ_CAPA:
 			if(!reply_capabilities()) {
-				log("client %d: failed to send requested CAPA. disconnecting.\n", pid);
+				log("client %d: failed to send requested CAPA. DISCONNECTING.\n", pid);
 				return false;
 			}
 			return true;
 
 		case CLCMD_REQ_VERSION:
 			if(!reply_version()) {
-				log("client %d: failed to send requested version. disconnecting.\n", pid);
+				log("client %d: failed to send requested version. DISCONNECTING.\n", pid);
 				return false;
 			}
 			return true;
@@ -115,66 +115,66 @@ bool servant::serve()
 				r = ERR_SUCCESS;
 
 			if(!client->stream_send_int(htonl(r))) {
-				log("client %d: failed to ACK disconnect. disconnecting anyway ;)\n", pid);
+				log("client %d: failed to ACK disconnect. DISCONNECTING anyway ;)\n", pid);
 			} else {
-				log("client %d: valid disconnect. bye bye.\n", pid);
+				log("client %d: valid disconnect. bye bye. DISCONNECTING.\n", pid);
 			}
 			return false;
 
 		case CLCMD_CREATE_OBJECT:
 			if(!reply_create_object()) {
-				log("client %d: create object command failed. disconnecting.\n", pid);
+				log("client %d: create object command failed. DISCONNECTING.\n", pid);
 				return false;
 			}
 			return true;
 
 		case CLCMD_DELETE_OBJECT:
 			if(!reply_delete_object()) {
-				log("client %d: delete object command failed. disconnecting.\n", pid);
+				log("client %d: delete object command failed. DISCONNECTING.\n", pid);
 				return false;
 			}
 			return true;
 
 		case CLCMD_GET_OBJECTTYPE:
 			if(!reply_get_objecttype()) {
-				log("client %d: get objecttype command failed. disconnecting.\n", pid);
+				log("client %d: get objecttype command failed. DISCONNECTING.\n", pid);
 				return false;
 			}
 			return true;
 
 		case CLCMD_OBJECT_COMMAND:
 			if(!reply_object_command()) {
-				log("client %d: object command failed. disconnecting.\n", pid);
+				log("client %d: object command failed. DISCONNECTING.\n", pid);
 				return false;
 			}
 			return true;
 
 		case CLCMD_COUNT_DISPATCHER_REFERENCES:
 			if(!reply_count_dispatcher_references()) {
-				log("client %d: count_dispatcher_references command failed. disconnecting.\n", pid);
+				log("client %d: count_dispatcher_references command failed. DISCONNECTING.\n", pid);
 				return false;
 			};
 			return true;
 
 		case CLCMD_HELLO_CARSTEN:
 			if(!reply_hello_carsten()) {
-				log("client %d: tried hello carsten, but failed. disconnecting.\n", pid);
+				log("client %d: tried hello carsten, but failed. DISCONNECTING.\n", pid);
 				return false;
 			};
 			return true;
 
 		case CLCMD_STARTTLS:
 		case CLCMD_AUTH:
-			log("client %d: command %d requested but is not implemented. disconnecting.\n", pid, cmd);
+			log("client %d: command %d requested but is not implemented. DISCONNECTING.\n", pid, cmd);
 			client->stream_send_int(htonl(ERR_NOT_IMPLEMENTED));
 			return false;
 		default:
-			log("client %d: sent invalid command %d. disconnecting.\n", pid, cmd);
+			log("client %d: sent invalid command %d. DISCONNECTING.\n", pid, cmd);
 			return false;
 	}
 
 	// should never be reached.
-	log("INTERNAL ERROR: reached invalid code (client %d). disconnecting this client.\n", pid);
+	log("INTERNAL ERROR: reached invalid code (client %d). DISCONNECTING this client.\n", pid);
 
 	return false;
 }}}
@@ -272,6 +272,11 @@ bool servant::reply_create_object()
 
 	if(!client->stream_send_int(htonl(ERR_SUCCESS)))
 		return false;
+
+#ifdef READABLE
+	log("client %d: created object %d type %d\n", pid, new_id, type);
+#endif
+
 	return (client->stream_send_int(htonl(new_id)));
 
 bad_parameters:
@@ -298,7 +303,9 @@ bool servant::reply_delete_object()
 			r = ERR_SUCCESS;
 		delete objects[id];
 		objects[id] = NULL;
-		// FIXME: check reference count.
+#ifdef READABLE
+		log("client %d: deleted object %d.\n", pid, id);
+#endif
 		return client->stream_send_int(htonl(r));
 	}
 }}}
@@ -380,8 +387,9 @@ bool servant::reply_hello_carsten()
 
 	if(!client->stream_receive_int(count))
 		return false;
+	count = ntohl(count);
 
-	log("client %d: said %d times hello to carsten. how nice of him!\n", pid, ntohl(count));
+	log("client %d: said %d times hello to carsten. how nice of him!\n", pid, count);
 
 	if(!client->stream_send_int(htonl(ERR_SUCCESS)))
 		return false;
