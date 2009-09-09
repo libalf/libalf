@@ -17,9 +17,10 @@ public class DispatcherFactory implements LibALFFactory {
 		try {
 			// socket
 			this.io = new DispatcherSocket(new Socket(host, port));
+			//this.io = new DispatcherSocket(Runtime.getRuntime().exec(new String[]{"nc",host, port+""}));
 
 			// get init stuff
-			if (!this.io.readBool())
+			if (this.io.readInt() != 0)	// TODO
 				throw new DispatcherProtocolException("Connection init failed");
 			String capa = this.io.readString(); // TODO
 			System.out.println(capa);
@@ -42,8 +43,8 @@ public class DispatcherFactory implements LibALFFactory {
 		return this.io.readString();
 	}
 
-	synchronized int dispatchCreateObject(DispatcherConstants objType) {
-		this.io.writeCommandThrowing(DispatcherConstants.CLCMD_CREATE_OBJECT, objType);
+	synchronized int dispatchCreateObject(DispatcherConstants objType, int[] data) {
+		this.io.writeCommandThrowing(DispatcherConstants.CLCMD_CREATE_OBJECT, objType, data);
 		return this.io.readInt();
 	}
 
@@ -58,10 +59,11 @@ public class DispatcherFactory implements LibALFFactory {
 	}
 
 	private void dispatchObjectCommandThrowing(DispatcherObject obj, DispatcherConstants objCmd, Object... args) {
-		Object[] newArgs = new Object[args.length + 2];
+		Object[] newArgs = new Object[args.length + 3];
 		newArgs[0] = obj;
 		newArgs[1] = objCmd;
-		System.arraycopy(args, 0, newArgs, 2, args.length);
+		newArgs[2] = this.io.getSize(args);
+		System.arraycopy(args, 0, newArgs, 3, args.length);
 
 		try {
 			this.io.writeCommandThrowing(DispatcherConstants.CLCMD_OBJECT_COMMAND, newArgs);

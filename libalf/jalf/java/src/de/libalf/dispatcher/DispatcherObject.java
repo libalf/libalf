@@ -45,8 +45,12 @@ public abstract class DispatcherObject implements Sendable {
 			throw new DispatcherProtocolException("Negative object identifier!");
 	}
 
+	protected DispatcherObject(DispatcherFactory factory, DispatcherConstants objType, int[] data) throws DispatcherProtocolException {
+		this(factory, factory.dispatchCreateObject(objType, data));
+	}
+
 	protected DispatcherObject(DispatcherFactory factory, DispatcherConstants objType) throws DispatcherProtocolException {
-		this(factory, factory.dispatchCreateObject(objType));
+		this(factory, factory.dispatchCreateObject(objType, new int[0]));
 	}
 
 	@Override
@@ -60,4 +64,9 @@ public abstract class DispatcherObject implements Sendable {
 	//	this.factory.dispatchDeleteObject(this);
 	//	super.finalize();
 	//}
+
+	@Override
+	public void finalize() throws DispatcherException {
+		this.factory.dispatchDeleteObject(this);
+	}
 }

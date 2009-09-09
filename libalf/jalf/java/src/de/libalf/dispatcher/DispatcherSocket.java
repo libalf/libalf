@@ -20,8 +20,22 @@ class DispatcherSocket {
 		}
 	}
 
+	@Deprecated
+	public DispatcherSocket(Process process) {
+		this.in = new DataInputStream(process.getInputStream());
+		this.out = new DataOutputStream(process.getOutputStream());
+	}
+
 	////////////////////////////////////////////////////////////////
 	// SENDING
+
+	private void flush() {
+		try {
+			this.out.flush();
+		} catch (IOException e) {
+			throw new DispatcherIOException(e);
+		}
+	}
 
 	private void writeSendable(Sendable o) {
 		writeInt(o.getInt());
@@ -45,7 +59,7 @@ class DispatcherSocket {
 			writeInt(i);
 	}
 
-	boolean writeCommand(DispatcherConstants cmd, Object... args) throws DispatcherIOException {
+	int writeCommand(DispatcherConstants cmd, Object... args) throws DispatcherIOException {
 		// send command
 		writeSendable(cmd);
 
@@ -59,21 +73,40 @@ class DispatcherSocket {
 				writeInt((Integer) arg);
 			else if (arg instanceof int[])
 				writeInts((int[]) arg);
-			//else if (arg instanceof Integer[])
-			//	writeInts((Integer[]) arg);
-			//else if (arg instanceof String)
-			//	writeString((String) arg);
 			else
 				throw new IllegalArgumentException();
 		}
+		
+		flush();
 
 		// get response code
-		return readBool();
+		return readInt();
+	}
+
+	int getSize(Object... args) {
+		int size = 0;
+		for (Object arg : args) {
+			if (arg instanceof Sendable)
+				size++;
+			else if (arg instanceof Boolean)
+				size++;
+			else if (arg instanceof Integer)
+				size++;
+			else if (arg instanceof int[])
+				size += 1 + ((int[]) arg).length;
+			else
+				throw new IllegalArgumentException();
+		}
+		return size;
 	}
 
 	void writeCommandThrowing(DispatcherConstants cmd, Object... args) throws DispatcherIOException, DispatcherProtocolException {
-		if (!writeCommand(cmd, args))
-			throw cmd.getException();
+		int result = writeCommand(cmd, args);
+		if (result == 0)
+			return;
+		
+		System.out.println(DispatcherError.toString(result));
+		throw cmd.getException();
 	}
 
 	////////////////////////////////////////////////////////////////
