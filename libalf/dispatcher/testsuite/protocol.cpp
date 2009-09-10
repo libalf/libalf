@@ -160,8 +160,52 @@ int main()
 	ret = receive_blob(sock, 1); // eat initial ERR_SUCCESS
 	cout << "initial CAPA: \"" << receive_string(sock) << "\".\n";
 
+	// create a logger:
+	cout << "\n";
+	int logger_id;
+	cmd.clear();
+	cmd.push_back(CLCMD_CREATE_OBJECT);
+	cmd.push_back(OBJ_LOGGER);
+	cmd.push_back(0);
+	send_blob(sock, cmd);
+
+	ret = receive_blob(sock, 1);
+	cout << "create object resulted in " << ret[0] << ".\n";
+
+	if(ret[0] == 0) {
+		ret = receive_blob(sock, 1);
+		logger_id = ret[0];
+		cout << "object id " << logger_id << ".\n";
+	}
+
+	// call receive&flush on logger
+	cout << "\n";
+	cmd.clear();
+	cmd.push_back(CLCMD_OBJECT_COMMAND);
+	cmd.push_back(logger_id);
+	cmd.push_back(LOGGER_RECEIVE_AND_FLUSH);
+	cmd.push_back(0);
+	send_blob(sock, cmd);
+
+	ret = receive_blob(sock, 1);
+	cout << "receive&flush resulted in " << ret[0] << ".\n";
+
+	if(ret[0] == 0) {
+		cout << "logger string: \"" << receive_string(sock) << "\".\n";
+	}
+
+	// delete logger:
+	cout << "\n";
+	cmd.clear();
+	cmd.push_back(CLCMD_DELETE_OBJECT);
+	cmd.push_back(logger_id);
+	send_blob(sock, cmd);
+
+	ret = receive_blob(sock, 1);
+	cout << "delete resulted in " << ret[0] << ".\n";
 
 	// disconnect
+	cout << "\n";
 	cmd.clear();
 	cmd.push_back(CLCMD_DISCONNECT);
 	send_blob(sock, cmd);

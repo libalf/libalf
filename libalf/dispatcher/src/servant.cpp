@@ -87,7 +87,7 @@ bool servant::serve()
 	}
 
 #ifdef READABLE
-	clog("command: %d (%s).\n", cmd, cmd2string(cmd));
+	clog("CLCMD: %s[%d].\n", cmd2string(cmd), cmd);
 #endif
 
 	enum command_error_code r;
@@ -108,10 +108,17 @@ bool servant::serve()
 			return true;
 
 		case CLCMD_DISCONNECT:
-			if(objects.size() != 0)
-				r = ERR_REMAINING_OBJECTS;
-			else
-				r = ERR_SUCCESS;
+			{
+				vector<client_object *>::iterator vi;
+				int c = 0;
+				for(vi = objects.begin(); vi != objects.end(); vi++)
+					if(*vi)
+						c++;
+				if(c)
+					r = ERR_REMAINING_OBJECTS;
+				else
+					r = ERR_SUCCESS;
+			}
 
 			if(!send_errno(r)) {
 				clog("failed to ACK disconnect. DISCONNECTING anyway ;)\n");
@@ -299,7 +306,7 @@ bool servant::reply_create_object()
 		return false;
 
 #ifdef READABLE
-	clog("created object %d type %d (%d).\n", new_id, obj2string(type), type);
+	clog("created object %d type %s (%d).\n", new_id, obj2string(type), type);
 #endif
 
 	return (client->stream_send_int(new_id));
@@ -326,7 +333,7 @@ bool servant::reply_delete_object()
 		else
 			r = ERR_SUCCESS;
 #ifdef READABLE
-		clog("deleting object %d type %s (%d).\n", id, obj2string(objects[id]->get_type()), objects[id]->get_type(), err2string(r));
+		clog("deleting object %d type %s[%d].\n", id, obj2string(objects[id]->get_type()), objects[id]->get_type(), err2string(r));
 #endif
 		delete objects[id];
 		objects[id] = NULL;
@@ -345,7 +352,7 @@ bool servant::reply_get_objecttype()
 		return send_errno(ERR_NO_OBJECT);
 	} else {
 #ifdef READABLE
-		clog("object %d: requested type is %s (%d).\n", id, obj2string(objects[id]->get_type()), objects[id]->get_type());
+		clog("object %d: requested type is %s[%d].\n", id, obj2string(objects[id]->get_type()), objects[id]->get_type());
 #endif
 		if(!send_errno(ERR_SUCCESS))
 			return false;
@@ -379,8 +386,8 @@ bool servant::reply_object_command()
 		return send_errno(ERR_NO_OBJECT);
 
 #ifdef READABLE
-	clog("%s (%s) object (id %d) command %d with parameters size %d\n",
-		obj2string(objects[id]->get_type()), objects[id]->get_type(), id, command, command_data.size());
+	clog("object command %d on object %d type %s[%d] with parameters of size %d\n",
+		command, id, obj2string(objects[id]->get_type()), objects[id]->get_type(), command_data.size());
 #endif
 
 	return objects[id]->handle_command(command, command_data);

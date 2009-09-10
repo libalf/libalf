@@ -9,8 +9,6 @@
  * see LICENSE file for licensing information.
  */
 
-#include <stdlib.h>
-
 #include <libalf/learning_algorithm.h>
 
 #include <libalf/algorithm_angluin.h>
@@ -34,7 +32,7 @@ co_learning_algorithm::co_learning_algorithm(enum libalf::learning_algorithm<ext
 
 	switch(alg) {
 		default:
-			log("client %d: somehow bad request reached co_learning_algorithm constructor (bad type of learning algorithm: %d). killing client.\n", getpid(), (int)alg);
+			this->sv->clog("somehow bad request reached co_learning_algorithm constructor (bad type of learning algorithm: %d). killing client.\n", (int)alg);
 			exit(-1);
 
 		case learning_algorithm<extended_bool>::ALG_ANGLUIN:

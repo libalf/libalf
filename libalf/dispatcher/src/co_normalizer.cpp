@@ -9,8 +9,6 @@
  * see LICENSE file for licensing information.
  */
 
-#include <stdlib.h>
-
 #include <libalf/normalizer.h>
 #include <libalf/normalizer_msc.h>
 
@@ -22,7 +20,7 @@ co_normalizer::co_normalizer(enum libalf::normalizer::type type)
 {{{
 	switch(type) {
 		default:
-			log("client %d: somehow bad request reached co_normalizer constructor (bad type of normalizer: %d). killing client.\n", getpid(), (int)type);
+			this->sv->clog("somehow bad request reached co_normalizer constructor (bad type of normalizer: %d). killing client.\n", (int)type);
 			exit(-1);
 
 		case normalizer::NORMALIZER_MSC:
