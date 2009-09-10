@@ -61,9 +61,9 @@ inline const char* err2string(int errno)
 		case 20:
 			return "command failed";
 		case 40:
-			return "unresolved referenced removed during deletion";
+			return "unresolved references removed during deletion";
 		case 41:
-			return "disconnecting but leaving objects behind";
+			return "disconnecting with remaining objects";
 		case 100:
 			return "authentication required";
 		case 101:
@@ -237,9 +237,9 @@ enum algorithm_command {
 	LEARNING_ALGORITHM_REMOVE_LOGGER = 11,
 	LEARNING_ALGORITHM_SET_KNOWLEDGE_SOURCE = 12,
 	LEARNING_ALGORITHM_GET_KNOWLEDGE_SOURCE = 13,
-	LEARNING_ALGORITHM_SET_NORMALIZER=14,
-	LEARNING_ALGORITHM_GET_NORMALIZER=15,
-	LEARNING_ALGORITHM_UNSET_NORMALIZER=16,
+	LEARNING_ALGORITHM_SET_NORMALIZER = 14,
+	LEARNING_ALGORITHM_GET_NORMALIZER = 15,
+	LEARNING_ALGORITHM_UNSET_NORMALIZER = 16,
 
 	LEARNING_ALGORITHM_GET_MEMORY_STATISTICS = 20,
 	LEARNING_ALGORITHM_GET_TIMING_STATISTICS = 21,
