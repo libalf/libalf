@@ -27,6 +27,10 @@
 using namespace std;
 
 
+#define C_NOTE "\x1b[;0;44m"
+#define C_RESET "\x1b[m"
+
+
 void print_blob(basic_string<int32_t> blob)
 {{{
 	basic_string<int32_t>::iterator bi;
@@ -160,6 +164,19 @@ int main()
 	ret = receive_blob(sock, 1); // eat initial ERR_SUCCESS
 	cout << "initial CAPA: \"" << receive_string(sock) << "\".\n";
 
+	// get version
+	cout << "\n";
+	cmd.clear();
+	cmd.push_back(CLCMD_REQ_VERSION);
+	send_blob(sock, cmd);
+
+	ret = receive_blob(sock, 1);
+	cout << "request version resulted in " << ret[0] << ".\n";
+
+	if(ret[0] == 0) {
+		cout << "version string: {\n" C_NOTE << receive_string(sock) << C_RESET "}.\n";
+	}
+
 	// create a logger:
 	cout << "\n";
 	int logger_id;
@@ -191,7 +208,7 @@ int main()
 	cout << "receive&flush resulted in " << ret[0] << ".\n";
 
 	if(ret[0] == 0) {
-		cout << "logger string: \"" << receive_string(sock) << "\".\n";
+		cout << "logger string: {\n" C_NOTE << receive_string(sock) << C_RESET "}.\n";
 	}
 
 	// delete logger:

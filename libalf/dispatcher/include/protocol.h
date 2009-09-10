@@ -108,9 +108,9 @@ enum client_command {
 inline const char* cmd2string(int cmd)
 {{{
 	if(cmd == 0)
-		return "request capabilities";
+		return "request server capabilities";
 	if(cmd == 1)
-		return "request server";
+		return "request server version";
 
 	if(cmd == 10)
 		return "disconnect";

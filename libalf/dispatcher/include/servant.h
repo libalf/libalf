@@ -47,7 +47,6 @@ class servant {
 		void clog(const char * format, ...);
 
 	private:
-		bool initial_capabilities();
 		bool reply_capabilities();
 		bool reply_version();
 		bool reply_create_object();

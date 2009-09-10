@@ -71,7 +71,10 @@ bool servant::serve()
 		return false;
 
 	if(!capa_sent) {
-		if(!initial_capabilities()) {
+#ifdef VERBOSE_DEBUG
+	clog1("CLCMD: initial %s[%d].\n", cmd2string(CLCMD_REQ_CAPA), CLCMD_REQ_CAPA);
+#endif
+		if(!reply_capabilities()) {
 			clog("sending of initial CAPA failed. DISCONNECTING.\n");
 			return false;
 		}
@@ -221,13 +224,6 @@ void servant::clog(const char * format, ...)
 	va_end(ap);
 }}}
 
-
-bool servant::initial_capabilities()
-{{{
-	if(!client->stream_send_int(ERR_SUCCESS))
-		return false;
-	return client->stream_send_string(capa.c_str());
-}}}
 
 bool servant::reply_capabilities()
 {{{
