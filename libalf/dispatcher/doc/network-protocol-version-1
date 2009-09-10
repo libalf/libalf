@@ -401,7 +401,6 @@ merge other knowledgebase into this (KNOWLEDGEBASE_MERGE_TREE)
 parameters: 1
 	object-id of other knowledgebase_command
 server returns:
-	bool (false if object was not of type knowledgebase)
 	bool (false if the two bases are inconsistent)
 
 
@@ -463,15 +462,13 @@ server returns:
 assign other iterator to this one (KITERATOR_ASSIGN)
 parameters: 1
 	object-id of other knowledgebase-iterator
-server returns:
-	bool (false if object was not of type knowledgebase-iterator)
+server returns: nothing.
 
 
 compare to other iterator (KITERATOR_COMPARE)
 parameters: 1
 	object-id of other knowledgebase-iterator
 server returns:
-	bool (false if object was not of type knowledgebase-iterator)
 	bool (false if the two iterators are referencing different words
 
 
@@ -522,8 +519,7 @@ deserialize algorithm (LEARNING_ALGORITHM_DESERIALIZE)
 parameters: 2
 	size,
 	serialized data[]
-server returns:
-	bool
+server returns: nothing. (see errno of object-command)
 
 
 create text-version (LEARNING_ALGORITHM_TO_STRING)
@@ -536,15 +532,13 @@ deserialize algorithm-specific parameters (LEARNING_ALGORITHM_DESERIALIZE_MAGIC)
 parameters: 2
 	size,
 	serialized data[]
-server returns:
-	bool
+server returns: nothing. (see errno of object-command)
 
 
 associate logger with algorithm (LEARNING_ALGORITHM_ASSOCIATE_LOGGER)
 parameters: 1
 	object-id (of logger)
-server returns:
-	bool (false if object does not exist or is no logger)
+server returns: nothing.
 
 
 remove logger from algorithm (LEARNING_ALGORITHM_REMOVE_LOGGER)
@@ -555,8 +549,7 @@ server returns: nothing.
 associate knowledgebase with algorithm (LEARNING_ALGORITHM_SET_KNOWLEDGE_SOURCE)
 parameters: 1
 	object-id (of knowledgebase)
-server returns:
-	bool (false if object does not exist or is no knowledgebase)
+server returns: nothing.
 
 
 get knowledgebase from algorithm (LEARNING_ALGORITHM_GET_KNOWLEDGE_SOURCE)
@@ -568,8 +561,7 @@ server returns:
 associate normalizer with algorithm (LEARNING_ALGORITHM_SET_NORMALIZER)
 parameters: 1
 	object-id (of normalizer)
-server returns:
-	bool (false if object does not exist or is no normalizer)
+server returns: nothing.
 
 
 get knowledgebase from algorithm (LEARNING_ALGORITHM_GET_NORMALIZER)
@@ -683,8 +675,8 @@ server returns:
 
 sync algorithm to knowledgebase (LEARNING_ALGORITHM_SYNC_TO_KNOWLEDGEBASE)
 parameters: none.
-server returns:
-	bool (false if failed)
+server returns:	nothing (see errno of object command)
+
 
 ================================================================================
 
@@ -702,16 +694,14 @@ deserialize normalizer (NORMALIZER_DESERIALIZE)
 parameters: 2
 	size,
 	serialized data[]
-server returns:
-	bool
+server returns: nothing. (see errno of object-command)
 
 
 deserialize normalizer extension (NORMALIZER_DESERIALIZE_EXTENSION)
 parameters: 2
 	size,
 	serialized data[]
-server returns:
-	bool
+server returns: nothing. (see errno of object-command)
 
 
 get type of normalizer (NORMALIZER_GET_TYPE)
