@@ -20,18 +20,18 @@ public class Test {
 			DispatcherLogger l = factory.createLogger();
 			System.out.println(l);
 			System.out.println(l.receive_and_flush());
-			factory.dispatchGetObjectType(l);
-			l.finalize();
 
+			factory.dispatchGetObjectType(l);
+
+			l.finalize();
+			
 			System.out.println(Arrays.toString(kb.serialize()));
+
+			kb.finalize();
 
 			kb = factory.createKnowledgebase();
 
-//			System.out.println(l.receive_and_flush());
-			
-//			System.out.println(kb.deserialize(new int[0]));
-
-//			kb.finalize();
+			kb.finalize();
 
 			System.out.println("disconnect: " + DispatcherConstants.getErrorString(factory.dispatchDisconnect()));
 		} catch (Throwable e) {

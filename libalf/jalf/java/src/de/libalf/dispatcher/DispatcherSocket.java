@@ -8,7 +8,7 @@ import java.net.Socket;
 import de.libalf.Knowledgebase.Acceptance;
 
 class DispatcherSocket {
-	DataInputStream in;
+	private DataInputStream in;
 	private DataOutputStream out;
 
 	public DispatcherSocket(Socket socket) throws DispatcherIOException {
@@ -144,7 +144,9 @@ class DispatcherSocket {
 
 	public int readInt() throws DispatcherIOException {
 		try {
-			return this.in.readInt();
+			int i = this.in.readInt();
+//			System.out.println(">> " + DispatcherConstants.printUInt32(i));
+			return i;
 		} catch (IOException e) {
 			throw new DispatcherIOException(e);
 		}
@@ -159,7 +161,9 @@ class DispatcherSocket {
 
 	private byte readByte() {
 		try {
-			return this.in.readByte();
+			byte b = this.in.readByte();
+//			System.out.println(">> " + DispatcherConstants.printUInt8(b));
+			return b;
 		} catch (IOException e) {
 			throw new DispatcherIOException(e);
 		}

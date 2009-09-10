@@ -56,8 +56,9 @@ public class DispatcherFactory implements LibALFFactory {
 		this.io.writeCommandThrowing(DispatcherConstants.CLCMD_DELETE_OBJECT, obj); // TODO
 	}
 
-	synchronized void dispatchGetObjectType(DispatcherObject obj) {
+	synchronized int dispatchGetObjectType(DispatcherObject obj) {
 		this.io.writeCommandThrowing(DispatcherConstants.CLCMD_GET_OBJECTTYPE, obj);
+		return this.io.readInt();
 	}
 
 	synchronized void dispatchHelloCarsten(int i) throws DispatcherIOException {

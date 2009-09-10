@@ -64,13 +64,15 @@ public abstract class DispatcherLearningAlgorithm extends DispatcherObject imple
 	@Override
 	public void set_knowledge_source(Knowledgebase base) throws DispatcherException {
 		checkFactory(base);
-		this.factory.dispatchObjectCommandAlgorithmSetKnowledgeSource(this, this.base = (DispatcherKnowledgebase) base);
+		this.factory.dispatchObjectCommandAlgorithmSetKnowledgeSource(this, (DispatcherKnowledgebase) base);
+		this.base = (DispatcherKnowledgebase) base; // set if above command was successful
 	}
 
 	@Override
 	public void set_logger(Logger logger) throws DispatcherException {
 		checkFactory(logger);
-		this.factory.dispatchObjectCommandAlgorithmSetLogger(this, this.logger = (DispatcherLogger) logger);
+		this.factory.dispatchObjectCommandAlgorithmSetLogger(this, (DispatcherLogger) logger);
+		this.logger = (DispatcherLogger) logger; // set if above command was successful
 	}
 
 	@Override
