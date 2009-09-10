@@ -29,8 +29,9 @@ co_logger::~co_logger()
 }}};
 
 bool co_logger::handle_command(int command, basic_string<int32_t> & command_data)
-{
+{{{
 	string *s;
+	int level;
 
 	switch(command) {
 		case LOGGER_RECEIVE_AND_FLUSH:
@@ -52,16 +53,29 @@ bool co_logger::handle_command(int command, basic_string<int32_t> & command_data
 			delete s;
 			return true;
 		case LOGGER_SET_MIN_LOGLEVEL:
+			if(command_data.size() != 1)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			level = ntohl(command_data[0]);
+			if(level < 1 || level > 4)
+				return this->sv->send_errno(ERR_BAD_PARAMETERS);
+
+			o->set_minimal_loglevel((enum logger_loglevel) level);
 		case LOGGER_LOG_ALGORITHM:
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			o->set_log_algorithm(true);
+			return this->sv->send_errno(ERR_SUCCESS);
 		case LOGGER_NOT_LOG_ALGORITHM:
-			
-			return this->sv->send_errno(ERR_NOT_IMPLEMENTED);
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			o->set_log_algorithm(false);
+			return this->sv->send_errno(ERR_SUCCESS);
 		default:
 			return this->sv->send_errno(ERR_BAD_COMMAND);
 	}
 
 	return false;
-};
+}}};
 
 void co_logger::ref_learning_algorithm(int oid)
 {{{

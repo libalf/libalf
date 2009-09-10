@@ -33,8 +33,62 @@ co_knowledgebase::~co_knowledgebase()
 
 bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & command_data)
 {
-	
-	return this->sv->send_errno(ERR_NOT_IMPLEMENTED);
+	string s;
+	basic_string<int32_t> serial;
+	basic_string<int32_t>::iterator si;
+
+	switch(command) {
+		case KNOWLEDGEBASE_SERIALIZE:
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			serial = o->serialize();
+			return this->sv->client->stream_send_raw_blob(serial);
+		case KNOWLEDGEBASE_DESERIALIZE:
+			si = command_data.begin();
+			if(!o->deserialize(si, command_data.end()))
+				return this->sv->send_errno(ERR_BAD_PARAMETERS);
+			if(si != command_data.end())
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			return this->sv->send_errno(ERR_SUCCESS);
+		case KNOWLEDGEBASE_TO_DOTFILE:
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			s = o->generate_dotfile();
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			return this->sv->client->stream_send_string(s.c_str());
+		case KNOWLEDGEBASE_TO_STRING:
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			s = o->tostring();
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			return this->sv->client->stream_send_string(s.c_str());
+		case KNOWLEDGEBASE_IS_ANSWERED:
+		case KNOWLEDGEBASE_IS_EMPTY:
+		case KNOWLEDGEBASE_GET_ALPHABET_SIZE:
+		case KNOWLEDGEBASE_COUNT_QUERIES:
+		case KNOWLEDGEBASE_COUNT_ANSWERS:
+		case KNOWLEDGEBASE_COUNT_RESOLVED_QUERIES:
+		case KNOWLEDGEBASE_GET_MEMORY_USAGE:
+		case KNOWLEDGEBASE_RESOLVE_QUERY:
+		case KNOWLEDGEBASE_RESOLVE_OR_ADD_QUERY:
+		case KNOWLEDGEBASE_ADD_KNOWLEDGE:
+		case KNOWLEDGEBASE_GET_QUERY_TREE:
+		case KNOWLEDGEBASE_MERGE_TREE:
+		case KNOWLEDGEBASE_BEGIN:
+		case KNOWLEDGEBASE_END:
+		case KNOWLEDGEBASE_QBEGIN:
+		case KNOWLEDGEBASE_QEND:
+		case KNOWLEDGEBASE_CLEAR:
+		case KNOWLEDGEBASE_CLEAR_QUERIES:
+		case KNOWLEDGEBASE_UNDO:
+			return this->sv->send_errno(ERR_NOT_IMPLEMENTED);
+		default:
+			return this->sv->send_errno(ERR_BAD_COMMAND);
+	}
+
+	return false;
 };
 
 void co_knowledgebase::ref_learning_algorithm(int oid)

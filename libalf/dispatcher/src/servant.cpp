@@ -217,7 +217,11 @@ void servant::clog(const char * format, ...)
 
 	print_time();
 
+#ifdef VERBOSE_DEBUG
 	printf(" client %d:     ", pid);
+#else
+	printf(" client %d: ", pid);
+#endif
 
 	va_start(ap, format);
 	vprintf(format, ap);
