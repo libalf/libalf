@@ -86,8 +86,8 @@ bool servant::serve()
 		return false;
 	}
 
-#ifdef READABLE
-	clog("CLCMD: %s[%d].\n", cmd2string(cmd), cmd);
+#ifdef VERBOSE_DEBUG
+	clog1("CLCMD: %s[%d].\n", cmd2string(cmd), cmd);
 #endif
 
 	enum command_error_code r;
@@ -123,7 +123,9 @@ bool servant::serve()
 			if(!send_errno(r)) {
 				clog("failed to ACK disconnect. DISCONNECTING anyway ;)\n");
 			} else {
+#ifdef VERBOSE_DEBUG
 				clog("valid disconnect. bye bye. DISCONNECTING.\n");
+#endif
 			}
 			return false;
 
@@ -187,10 +189,23 @@ bool servant::serve()
 
 bool servant::send_errno(enum command_error_code err)
 {{{
-#ifdef READABLE
+#ifdef VERBOSE_DEBUG
 	clog("result: %s (%d)\n", err2string(err), err);
 #endif
 	return client->stream_send_int(err);
+}}}
+
+void servant::clog1(const char * format, ...)
+{{{
+	va_list ap;
+
+	print_time();
+
+	printf(" client %d: ", pid);
+
+	va_start(ap, format);
+	vprintf(format, ap);
+	va_end(ap);
 }}}
 
 void servant::clog(const char * format, ...)
@@ -199,7 +214,7 @@ void servant::clog(const char * format, ...)
 
 	print_time();
 
-	printf(" client %d: ", pid);
+	printf(" client %d:     ", pid);
 
 	va_start(ap, format);
 	vprintf(format, ap);
@@ -310,7 +325,7 @@ bool servant::reply_create_object()
 	if(!send_errno(ERR_SUCCESS))
 		return false;
 
-#ifdef READABLE
+#ifdef VERBOSE_DEBUG
 	clog("created object %d type %s (%d).\n", new_id, obj2string(type), type);
 #endif
 
@@ -337,7 +352,7 @@ bool servant::reply_delete_object()
 			r = ERR_UNRESOLVED_REFERENCES_REMOVED;
 		else
 			r = ERR_SUCCESS;
-#ifdef READABLE
+#ifdef VERBOSE_DEBUG
 		clog("deleting object %d type %s[%d].\n", id, obj2string(objects[id]->get_type()), objects[id]->get_type(), err2string(r));
 #endif
 		delete objects[id];
@@ -356,7 +371,7 @@ bool servant::reply_get_objecttype()
 	if(id < 0 || id >= (int)objects.size() || objects[id] == NULL) {
 		return send_errno(ERR_NO_OBJECT);
 	} else {
-#ifdef READABLE
+#ifdef VERBOSE_DEBUG
 		clog("object %d: requested type is %s[%d].\n", id, obj2string(objects[id]->get_type()), objects[id]->get_type());
 #endif
 		if(!send_errno(ERR_SUCCESS))
@@ -390,7 +405,7 @@ bool servant::reply_object_command()
 	if(id < 0 || id >= (int)objects.size() || objects[id] == NULL)
 		return send_errno(ERR_NO_OBJECT);
 
-#ifdef READABLE
+#ifdef VERBOSE_DEBUG
 	clog("object command %d on object %d type %s[%d] with parameters of size %d\n",
 		command, id, obj2string(objects[id]->get_type()), objects[id]->get_type(), command_data.size());
 #endif

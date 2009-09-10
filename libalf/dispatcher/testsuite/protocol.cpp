@@ -204,6 +204,20 @@ int main()
 	ret = receive_blob(sock, 1);
 	cout << "delete resulted in " << ret[0] << ".\n";
 
+	// say hello to carsten
+	cout << "\n";
+	cmd.clear();
+	cmd.push_back(CLCMD_HELLO_CARSTEN);
+	cmd.push_back(23);
+	send_blob(sock, cmd);
+
+	ret = receive_blob(sock, 1);
+	cout << "hello carsten (23) resulted in " << ret[0] << ".\n";
+	if(ret[0] == 0) {
+		ret = receive_blob(sock, 1);
+		cout << "and replied " << ret[0] << ".\n";
+	}
+
 	// disconnect
 	cout << "\n";
 	cmd.clear();

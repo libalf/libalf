@@ -43,6 +43,7 @@ class servant {
 
 		bool serve();
 		bool send_errno(enum command_error_code);
+		void clog1(const char * format, ...);
 		void clog(const char * format, ...);
 
 	private:
