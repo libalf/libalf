@@ -244,6 +244,11 @@ bool servant::reply_create_object()
 	if(!client->stream_receive_int(size))
 		return false;
 
+	if(size < 0) {
+		clog("BAD PARAMETER SIZE %d for object command\n", size);
+		return false;
+	}
+
 	if(!client->stream_receive_raw_blob(data, size))
 		return false;
 
@@ -279,7 +284,7 @@ bool servant::reply_create_object()
 			u = ntohl(data[1]); // alphabet_size
 			if(t <= learning_algorithm<extended_bool>::ALG_NONE || t >= learning_algorithm<extended_bool>::ALG_LAST_INVALID)
 				goto bad_parameters;
-			if(u <= 1)
+			if(u <= 0)
 				goto bad_parameters;
 
 			objects[new_id] = new co_learning_algorithm( (enum libalf::learning_algorithm<extended_bool>::algorithm) t, u);
