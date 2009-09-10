@@ -11,6 +11,7 @@
 
 #include <sys/types.h>
 #include <unistd.h>
+#include <stdarg.h>
 
 #include <libalf/alf.h>
 #include <libalf/learning_algorithm.h>
@@ -37,6 +38,7 @@ servant::servant(serversocket *connection)
 	capa = "protocol-version-1";
 	capa_sent = false;
 	pid = getpid();
+	usleep(100000); // wait for parent to print its connection-message
 }}}
 
 servant::~servant()
@@ -69,8 +71,8 @@ bool servant::serve()
 		return false;
 
 	if(!capa_sent) {
-		if(!reply_capabilities()) {
-			log("client %d: sending of initial CAPA failed. DISCONNECTING.\n", pid);
+		if(!initial_capabilities()) {
+			clog("sending of initial CAPA failed. DISCONNECTING.\n");
 			return false;
 		}
 		capa_sent = true;
@@ -80,12 +82,12 @@ bool servant::serve()
 	int32_t cmd;
 
 	if(!client->stream_receive_int(cmd)) {
-		log("socket to client %d failed. DISCONNECTING.\n", pid);
+		clog("socket failed. DISCONNECTING.\n");
 		return false;
 	}
 
 #ifdef READABLE
-	log("client %d: command: %s (%s).\n", pid, cmd, cmd2string(cmd), cmd);
+	clog("command: %d (%s).\n", cmd, cmd2string(cmd));
 #endif
 
 	enum command_error_code r;
@@ -93,14 +95,14 @@ bool servant::serve()
 	switch(cmd) {
 		case CLCMD_REQ_CAPA:
 			if(!reply_capabilities()) {
-				log("client %d: failed to send requested CAPA. DISCONNECTING.\n", pid);
+				clog("failed to send requested CAPA. DISCONNECTING.\n");
 				return false;
 			}
 			return true;
 
 		case CLCMD_REQ_VERSION:
 			if(!reply_version()) {
-				log("client %d: failed to send requested version. DISCONNECTING.\n", pid);
+				clog("failed to send requested version. DISCONNECTING.\n");
 				return false;
 			}
 			return true;
@@ -112,66 +114,66 @@ bool servant::serve()
 				r = ERR_SUCCESS;
 
 			if(!send_errno(r)) {
-				log("client %d: failed to ACK disconnect. DISCONNECTING anyway ;)\n", pid);
+				clog("failed to ACK disconnect. DISCONNECTING anyway ;)\n");
 			} else {
-				log("client %d: valid disconnect. bye bye. DISCONNECTING.\n", pid);
+				clog("valid disconnect. bye bye. DISCONNECTING.\n");
 			}
 			return false;
 
 		case CLCMD_CREATE_OBJECT:
 			if(!reply_create_object()) {
-				log("client %d: create object command failed. DISCONNECTING.\n", pid);
+				clog("create object command failed. DISCONNECTING.\n");
 				return false;
 			}
 			return true;
 
 		case CLCMD_DELETE_OBJECT:
 			if(!reply_delete_object()) {
-				log("client %d: delete object command failed. DISCONNECTING.\n", pid);
+				clog("delete object command failed. DISCONNECTING.\n");
 				return false;
 			}
 			return true;
 
 		case CLCMD_GET_OBJECTTYPE:
 			if(!reply_get_objecttype()) {
-				log("client %d: get objecttype command failed. DISCONNECTING.\n", pid);
+				clog("get objecttype command failed. DISCONNECTING.\n");
 				return false;
 			}
 			return true;
 
 		case CLCMD_OBJECT_COMMAND:
 			if(!reply_object_command()) {
-				log("client %d: object command failed. DISCONNECTING.\n", pid);
+				clog("object command failed. DISCONNECTING.\n");
 				return false;
 			}
 			return true;
 
 		case CLCMD_COUNT_DISPATCHER_REFERENCES:
 			if(!reply_count_dispatcher_references()) {
-				log("client %d: count_dispatcher_references command failed. DISCONNECTING.\n", pid);
+				clog("count_dispatcher_references command failed. DISCONNECTING.\n");
 				return false;
 			};
 			return true;
 
 		case CLCMD_HELLO_CARSTEN:
 			if(!reply_hello_carsten()) {
-				log("client %d: tried hello carsten, but failed. DISCONNECTING.\n", pid);
+				clog("tried hello carsten, but failed. DISCONNECTING.\n");
 				return false;
 			};
 			return true;
 
 		case CLCMD_STARTTLS:
 		case CLCMD_AUTH:
-			log("client %d: command %d requested but is not implemented. DISCONNECTING.\n", pid, cmd);
+			clog("command %d requested but is not implemented. DISCONNECTING.\n", cmd);
 			send_errno(ERR_NOT_IMPLEMENTED);
 			return false;
 		default:
-			log("client %d: sent invalid command %d. DISCONNECTING.\n", pid, cmd);
+			clog("sent invalid command %d. DISCONNECTING.\n", cmd);
 			return false;
 	}
 
 	// should never be reached.
-	log("INTERNAL ERROR: reached invalid code (client %d). DISCONNECTING this client.\n", pid);
+	clog("INTERNAL ERROR: reached invalid code (client %d). DISCONNECTING this client.\n");
 
 	return false;
 }}}
@@ -179,11 +181,31 @@ bool servant::serve()
 bool servant::send_errno(enum command_error_code err)
 {{{
 #ifdef READABLE
-	log("client %d: result: %s (%d)", pid, err2string(err), err);
+	clog("result: %s (%d)\n", err2string(err), err);
 #endif
 	return client->stream_send_int(err);
 }}}
 
+void servant::clog(const char * format, ...)
+{{{
+	va_list ap;
+
+	print_time();
+
+	printf(" client %d: ", pid);
+
+	va_start(ap, format);
+	vprintf(format, ap);
+	va_end(ap);
+}}}
+
+
+bool servant::initial_capabilities()
+{{{
+	if(!client->stream_send_int(ERR_SUCCESS))
+		return false;
+	return client->stream_send_string(capa.c_str());
+}}}
 
 bool servant::reply_capabilities()
 {{{
@@ -277,7 +299,7 @@ bool servant::reply_create_object()
 		return false;
 
 #ifdef READABLE
-	log("client %d: created object %d type %d (%d).\n", pid, new_id, obj2string(type), type);
+	clog("created object %d type %d (%d).\n", new_id, obj2string(type), type);
 #endif
 
 	return (client->stream_send_int(new_id));
@@ -304,7 +326,7 @@ bool servant::reply_delete_object()
 		else
 			r = ERR_SUCCESS;
 #ifdef READABLE
-		log("client %d: deleting object %d type %s (%d).\n", pid, id, obj2string(objects[id]->get_type()), objects[id]->get_type(), err2string(r));
+		clog("deleting object %d type %s (%d).\n", id, obj2string(objects[id]->get_type()), objects[id]->get_type(), err2string(r));
 #endif
 		delete objects[id];
 		objects[id] = NULL;
@@ -323,7 +345,7 @@ bool servant::reply_get_objecttype()
 		return send_errno(ERR_NO_OBJECT);
 	} else {
 #ifdef READABLE
-		log("client %d: object %d: requested type is %s (%d).\n", pid, id, obj2string(objects[id]->get_type()), objects[id]->get_type());
+		clog("object %d: requested type is %s (%d).\n", id, obj2string(objects[id]->get_type()), objects[id]->get_type());
 #endif
 		if(!send_errno(ERR_SUCCESS))
 			return false;
@@ -357,8 +379,8 @@ bool servant::reply_object_command()
 		return send_errno(ERR_NO_OBJECT);
 
 #ifdef READABLE
-	log("client %d: %s (%s) object (id %d) command %d with parameters size %d\n",
-		pid, obj2string(objects[id]->get_type()), objects[id]->get_type(), id, command, command_data.size());
+	clog("%s (%s) object (id %d) command %d with parameters size %d\n",
+		obj2string(objects[id]->get_type()), objects[id]->get_type(), id, command, command_data.size());
 #endif
 
 	return objects[id]->handle_command(command, command_data);
@@ -390,7 +412,7 @@ bool servant::reply_hello_carsten()
 	if(!client->stream_receive_int(count))
 		return false;
 
-	log("client %d: said %d times hello to carsten. how nice of him!\n", pid, count);
+	clog("said %d times hello to carsten. how nice of him!\n", count);
 
 	if(!send_errno(ERR_SUCCESS))
 		return false;

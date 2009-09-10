@@ -13,6 +13,9 @@
 #ifndef __libalf_dispatcher_serversocket_h__
 # define __libalf_dispatcher_serversocket_h__
 
+#include <sys/types.h>
+#include <arpa/inet.h>
+
 #include <string>
 
 using namespace std;
@@ -30,7 +33,7 @@ class serversocket {
 
 		bool bind(std::string & listen_address, uint16_t listen_port);
 		bool listen(int queue_length);
-		serversocket *accept();
+		serversocket *accept(struct sockaddr_in & remote_addr, socklen_t & sin_size);
 
 		// sending of raw data:
 		int stream_send(const void *msg, int length);

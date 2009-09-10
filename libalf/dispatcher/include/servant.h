@@ -43,14 +43,16 @@ class servant {
 
 		bool serve();
 		bool send_errno(enum command_error_code);
+		void clog(const char * format, ...);
 
 	private:
+		bool initial_capabilities();
+		bool reply_capabilities();
+		bool reply_version();
 		bool reply_create_object();
 		bool reply_delete_object();
 		bool reply_get_objecttype();
 		bool reply_object_command();
-		bool reply_capabilities();
-		bool reply_version();
 		bool reply_count_dispatcher_references();
 		bool reply_hello_carsten();
 

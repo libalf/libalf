@@ -132,7 +132,7 @@ void print_time()
 	strftime(timestr, 64, "[%F %T] ", now_brk);
 	timestr[63] = 0;
 
-	cout << timestr;
+	printf("%s", timestr);
 }}}
 
 void log(const char * format, ...)
@@ -185,7 +185,9 @@ int main(int argc, char**argv)
 		t.tv_sec = 1;
 		t.tv_usec = 0;
 		if(select(master->sock+1, &fds, &fds, &fds, &t)) {
-			serversocket *cl = master->accept();
+			struct sockaddr_in remote_addr;
+			socklen_t sin_size = sizeof(struct sockaddr_in);
+			serversocket *cl = master->accept(remote_addr, sin_size);
 
 			if( ! cl) {
 				log("ASSERT: master->accept() returned NULL. ignoring.\n");
@@ -205,10 +207,10 @@ int main(int argc, char**argv)
 					while(sv.serve());
 
 					// end child.
-					log("client %d: TERMINATING.\n", getpid());
+					log("TERMINATING: client %d.\n", getpid());
 					return 0;
 				} else {
-					log("NEW CLIENT, PID %d.\n", pid);
+					log("NEW CLIENT: from %s, PID %d.\n", inet_ntoa(remote_addr.sin_addr), pid);
 					// parent
 					// get rid of client socket
 					delete cl;

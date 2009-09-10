@@ -175,10 +175,9 @@ bool serversocket::listen(int queue_length)
 	return::listen(sock, queue_length) == -1 ? false : true;
 }}}
 
-serversocket *serversocket::accept()
+serversocket *serversocket::accept(struct sockaddr_in & remote_addr, socklen_t & sin_size)
 {{{
 	serversocket *newsock;
-	struct sockaddr_in remote_addr;
 	socklen_t sin_size = sizeof(struct sockaddr_in);
 	newsock = new serversocket(::accept(sock, (struct sockaddr *) &remote_addr, &sin_size));
 	if (!newsock->alive()) {
