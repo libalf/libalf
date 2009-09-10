@@ -1,9 +1,9 @@
 # $Id$
 # libalf Makefile
 
-.PHONY: all clean algorithm_analysis alphabet angluin_col_table angluin_simple_table automaton biermann DeLeTe2 dispatcher_protocol KVtree NLstar_count_eq_queries NLstar_table normalizer RPNI
+.PHONY: all clean algorithm_analysis alphabet angluin_col_table angluin_simple_table automaton biermann DeLeTe2 KVtree NLstar_count_eq_queries NLstar_table normalizer RPNI
 
-all: algorithm_analysis alphabet angluin_col_table angluin_simple_table automaton biermann DeLeTe2 dispatcher_protocol NLstar_count_eq_queries NLstar_table normalizer RPNI
+all: algorithm_analysis alphabet angluin_col_table angluin_simple_table automaton biermann DeLeTe2 NLstar_count_eq_queries NLstar_table normalizer RPNI
 
 algorithm_analysis:
 	make -C algorithm_analysis
@@ -25,9 +25,6 @@ biermann:
 
 DeLeTe2:
 	make -C DeLeTe2
-
-dispatcher_protocol:
-	make -C dispatcher_protocol
 
 KVtree:
 	make -C KVtree
@@ -52,7 +49,6 @@ clean:
 	make -C automaton clean
 	make -C biermann clean
 	make -C DeLeTe2 clean
-	make -C dispatcher_protocol clean
 	make -C KVtree clean
 	make -C NLstar_count_eq_queries clean
 	make -C NLstar_table clean
