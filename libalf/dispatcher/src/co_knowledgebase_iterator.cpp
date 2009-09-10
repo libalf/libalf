@@ -31,7 +31,7 @@ co_knowledgebase_iterator::~co_knowledgebase_iterator()
 bool co_knowledgebase_iterator::handle_command(int command, basic_string<int32_t> & command_data)
 {
 	
-	return false;
+	return this->sv->send_errno(ERR_NOT_IMPLEMENTED);
 };
 
 void co_knowledgebase_iterator::ref_knowledgebase(int oid)

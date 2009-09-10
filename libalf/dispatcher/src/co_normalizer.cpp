@@ -44,7 +44,7 @@ co_normalizer::~co_normalizer()
 bool co_normalizer::handle_command(int command, basic_string<int32_t> & command_data)
 {
 	
-	return false;
+	return this->sv->send_errno(ERR_NOT_IMPLEMENTED);
 };
 
 void co_normalizer::ref_learning_algorithm(int oid)

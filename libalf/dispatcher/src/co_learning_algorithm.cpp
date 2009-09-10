@@ -79,7 +79,7 @@ co_learning_algorithm::~co_learning_algorithm()
 bool co_learning_algorithm::handle_command(int command, basic_string<int32_t> & command_data)
 {
 	
-	return false;
+	return this->sv->send_errno(ERR_NOT_IMPLEMENTED);
 };
 
 void co_learning_algorithm::ref_knowledgebase(int oid)

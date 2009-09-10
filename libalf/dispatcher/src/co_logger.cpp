@@ -51,6 +51,11 @@ bool co_logger::handle_command(int command, basic_string<int32_t> & command_data
 
 			delete s;
 			return true;
+		case LOGGER_SET_MIN_LOGLEVEL:
+		case LOGGER_LOG_ALGORITHM:
+		case LOGGER_NOT_LOG_ALGORITHM:
+			
+			return this->sv->send_errno(ERR_NOT_IMPLEMENTED);
 		default:
 			return this->sv->send_errno(ERR_BAD_COMMAND);
 	}
