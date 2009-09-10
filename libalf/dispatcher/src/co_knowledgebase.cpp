@@ -42,6 +42,8 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 			if(command_data.size() != 0)
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 			serial = o->serialize();
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
 			return this->sv->client->stream_send_raw_blob(serial);
 		case KNOWLEDGEBASE_DESERIALIZE:
 			si = command_data.begin();
