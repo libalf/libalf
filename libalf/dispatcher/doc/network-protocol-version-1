@@ -518,7 +518,7 @@ server returns:
 	serialized data[]
 
 
-deserialize normalizer (LEARNING_ALGORITHM_DESERIALIZE)
+deserialize algorithm (LEARNING_ALGORITHM_DESERIALIZE)
 parameters: 2
 	size,
 	serialized data[]

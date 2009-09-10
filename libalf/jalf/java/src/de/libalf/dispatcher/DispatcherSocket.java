@@ -8,7 +8,7 @@ import java.net.Socket;
 import de.libalf.Knowledgebase.Acceptance;
 
 class DispatcherSocket {
-	private DataInputStream in;
+	DataInputStream in;
 	private DataOutputStream out;
 
 	public DispatcherSocket(Socket socket) throws DispatcherIOException {
@@ -191,5 +191,12 @@ class DispatcherSocket {
 	protected void finalize() throws Throwable {
 		close();
 		super.finalize();
+	}
+
+	void printRest(int wait) throws Throwable {
+		Thread.sleep(wait);
+		while (this.in.available() > 0) {
+			System.out.println(this.in.available() < 4 ? DispatcherConstants.printUInt8(readByte()) : DispatcherConstants.printUInt32(readInt()));
+		}
 	}
 }

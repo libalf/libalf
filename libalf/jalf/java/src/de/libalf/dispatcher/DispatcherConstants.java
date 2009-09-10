@@ -189,6 +189,10 @@ enum DispatcherConstants implements Sendable {
 		return code + " (0x" + printUInt32(code) + ")" + (error == null ? "" : " " + error);
 	}
 
+	static String printUInt8(byte code) {
+		return String.format("%02X", code);
+	}
+
 	static String printUInt32(int code) {
 		return String.format("%08X", code);
 	}

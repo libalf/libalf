@@ -25,7 +25,7 @@ public interface LibALFFactory {
 	public abstract Knowledgebase createKnowledgebase();
 
 
-	public abstract LearningAlgorithm createLearningAlgorithm(Algorithm algorithm, Object[] parameter);
+	public abstract LearningAlgorithm createLearningAlgorithm(Algorithm algorithm, Object... parameter);
 
 	/**
 	 * Creates a new <code>Logger</code>.

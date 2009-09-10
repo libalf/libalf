@@ -56,6 +56,10 @@ public class DispatcherFactory implements LibALFFactory {
 		this.io.writeCommandThrowing(DispatcherConstants.CLCMD_DELETE_OBJECT, obj); // TODO
 	}
 
+	synchronized void dispatchGetObjectType(DispatcherObject obj) {
+		this.io.writeCommandThrowing(DispatcherConstants.CLCMD_GET_OBJECTTYPE, obj);
+	}
+
 	synchronized void dispatchHelloCarsten(int i) throws DispatcherIOException {
 		this.io.writeCommandThrowing(DispatcherConstants.CLCMD_HELLO_CARSTEN, i);
 		if (this.io.readInt() != i)
@@ -241,12 +245,12 @@ public class DispatcherFactory implements LibALFFactory {
 	synchronized void dispatchObjectCommandAlgorithmSetKnowledgeSource(DispatcherLearningAlgorithm obj, DispatcherKnowledgebase base) {
 		// TODO Auto-generated method stub
 		obj.checkFactory(base);
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_SET_KNOWLEDGE_SOURCE, base.id);
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_SET_KNOWLEDGE_SOURCE, base);
 	}
 
-	synchronized void dispatchObjectCommandAlgorithmSetLogger(DispatcherLearningAlgorithm obj, Logger logger) {
+	synchronized void dispatchObjectCommandAlgorithmSetLogger(DispatcherLearningAlgorithm obj, DispatcherLogger logger) {
 	// TODO Auto-generated method stub
-	//		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_);
+			this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_ASSOCIATE_LOGGER, logger);
 	}
 
 	synchronized boolean dispatchObjectCommandAlgorithmSupportsSync(DispatcherLearningAlgorithm obj) {
@@ -279,7 +283,7 @@ public class DispatcherFactory implements LibALFFactory {
 	}
 
 	@Override
-	public DispatcherLearningAlgorithm createLearningAlgorithm(Algorithm algorithm, Object[] args) {
+	public DispatcherLearningAlgorithm createLearningAlgorithm(Algorithm algorithm, Object... args) {
 		switch (algorithm) {
 		case ANGLUIN:
 			return new DispatcherAlgorithmAngluin(this, (DispatcherKnowledgebase) args[0], (Integer) args[1]);

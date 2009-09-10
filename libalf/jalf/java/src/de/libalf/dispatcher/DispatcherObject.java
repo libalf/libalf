@@ -31,7 +31,7 @@ public abstract class DispatcherObject implements Sendable {
 	/**
 	 * Stores the reference of the dispatcher object id.
 	 */
-	transient final int id;
+	transient private int id;
 
 	/**
 	 * Object's factory.
@@ -58,21 +58,18 @@ public abstract class DispatcherObject implements Sendable {
 		return this.id;
 	}
 
-	// FIXME
-	//@Override
-	//protected void finalize() throws Throwable {
-	//	this.factory.dispatchDeleteObject(this);
-	//	super.finalize();
-	//}
-
 	@Override
 	public void finalize() throws DispatcherException {
+		if (this.id < 0)
+			return;
+
 		this.factory.dispatchDeleteObject(this);
+		this.id = -1;
 	}
 
 	void checkFactory(Object obj) {
 		if (obj instanceof DispatcherObject && ((DispatcherObject) obj).factory == this.factory)
 			return;
-		throw new IllegalArgumentException("object has to be from the same factory!");
+		throw obj == null ? new NullPointerException() : new IllegalArgumentException("object has to be from the same factory!");
 	}
 }

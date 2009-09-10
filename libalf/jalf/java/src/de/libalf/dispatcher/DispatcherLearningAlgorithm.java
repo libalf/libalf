@@ -41,7 +41,7 @@ public abstract class DispatcherLearningAlgorithm extends DispatcherObject imple
 
 	@Override
 	public DispatcherKnowledgebase get_knowledge_source() throws DispatcherException {
-		if (this.base.id != this.factory.dispatchObjectCommandAlgorithmGetKnowledgeSource(this))
+		if (this.base.getInt() != this.factory.dispatchObjectCommandAlgorithmGetKnowledgeSource(this))
 			throw new DispatcherProtocolException("knowledgebase changed");
 		return this.base;
 	}
