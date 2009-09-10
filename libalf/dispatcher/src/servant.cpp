@@ -85,7 +85,7 @@ bool servant::serve()
 	int32_t cmd;
 
 	if(!client->stream_receive_int(cmd)) {
-		clog("socket failed. DISCONNECTING.\n");
+		clog("socket failed right before CLCMD. DISCONNECTING.\n");
 		return false;
 	}
 
