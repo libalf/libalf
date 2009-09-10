@@ -187,7 +187,7 @@ int main()
 	send_blob(sock, cmd);
 
 	ret = receive_blob(sock, 1);
-	cout << "create object resulted in " << ret[0] << ".\n";
+	cout << "create L object resulted in " << ret[0] << ".\n";
 
 	if(ret[0] == 0) {
 		ret = receive_blob(sock, 1);
@@ -220,6 +220,53 @@ int main()
 
 	ret = receive_blob(sock, 1);
 	cout << "delete resulted in " << ret[0] << ".\n";
+
+	// create a knowledgebase:
+	cout << "\n";
+	int kb_id;
+	cmd.clear();
+	cmd.push_back(CLCMD_CREATE_OBJECT);
+	cmd.push_back(OBJ_KNOWLEDGEBASE);
+	cmd.push_back(0);
+	send_blob(sock, cmd);
+
+	ret = receive_blob(sock, 1);
+	cout << "create KB object resulted in " << ret[0] << ".\n";
+
+	if(ret[0] == 0) {
+		ret = receive_blob(sock, 1);
+		kb_id = ret[0];
+		cout << "object id " << kb_id << ".\n";
+	}
+
+	// serialize knowledgebase
+	cout << "\n";
+	cmd.clear();
+	cmd.push_back(CLCMD_OBJECT_COMMAND);
+	cmd.push_back(kb_id);
+	cmd.push_back(KNOWLEDGEBASE_SERIALIZE);
+	cmd.push_back(0);
+	send_blob(sock, cmd);
+
+	ret = receive_blob(sock, 1);
+	cout << "serialize KB object resulted in " << ret[0] << ".\n";
+
+	if(ret[0] == 0) {
+		ret = receive_blob(sock,1);
+		cout << "kb is " << ret[0] << " long:\n";
+		ret = receive_blob(sock,ret[0]);
+		print_blob(ret);
+	}
+
+	// delete knowledgebase:
+	cout << "\n";
+	cmd.clear();
+	cmd.push_back(CLCMD_DELETE_OBJECT);
+	cmd.push_back(kb_id);
+	send_blob(sock, cmd);
+
+	ret = receive_blob(sock, 1);
+	cout << "delete KB resulted in " << ret[0] << ".\n";
 
 	// say hello to carsten
 	cout << "\n";
