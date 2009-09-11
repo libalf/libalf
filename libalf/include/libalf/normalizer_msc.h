@@ -124,6 +124,9 @@ class normalizer_msc : public normalizer {
 
 		virtual ~normalizer_msc();
 
+		virtual enum type get_type()
+		{ return NORMALIZER_MSC; };
+
 		void clear();
 
 		virtual basic_string<int32_t> serialize();

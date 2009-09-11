@@ -29,6 +29,9 @@ class normalizer {
 
 		virtual ~normalizer() { };
 
+		virtual enum type get_type()
+		{ return NORMALIZER_NONE; };
+
 		virtual basic_string<int32_t> serialize() = 0;
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit) = 0;
 

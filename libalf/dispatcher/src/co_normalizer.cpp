@@ -69,8 +69,15 @@ bool co_normalizer::handle_command(int command, basic_string<int32_t> & command_
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 			return this->sv->send_errno(ERR_SUCCESS);
 		case NORMALIZER_GET_TYPE:
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			return this->sv->client->stream_send_int((int)o->get_type());
 		case NORMALIZER_NORMALIZE_A_WORD_PNF:
+			
 		case NORMALIZER_NORMALIZE_A_WORD_SNF:
+			
 			return this->sv->send_errno(ERR_NOT_IMPLEMENTED);
 		default:
 			return this->sv->send_errno(ERR_BAD_COMMAND);

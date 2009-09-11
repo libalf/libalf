@@ -36,6 +36,9 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 	string s;
 	basic_string<int32_t> serial;
 	basic_string<int32_t>::iterator si;
+	list<int> word;
+	extended_bool acceptance;
+	int i;
 
 	switch(command) {
 		case KNOWLEDGEBASE_SERIALIZE:
@@ -67,25 +70,128 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 				return false;
 			return this->sv->client->stream_send_string(s.c_str());
 		case KNOWLEDGEBASE_IS_ANSWERED:
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			return this->sv->client->stream_send_int(o->is_answered() ? 1 : 0);
 		case KNOWLEDGEBASE_IS_EMPTY:
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			return this->sv->client->stream_send_int(o->is_empty() ? 1 : 0);
 		case KNOWLEDGEBASE_GET_ALPHABET_SIZE:
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			return this->sv->client->stream_send_int(o->get_alphabet_size());
 		case KNOWLEDGEBASE_COUNT_QUERIES:
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			return this->sv->client->stream_send_int(o->count_queries());
 		case KNOWLEDGEBASE_COUNT_ANSWERS:
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			return this->sv->client->stream_send_int(o->count_answers());
 		case KNOWLEDGEBASE_COUNT_RESOLVED_QUERIES:
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			return this->sv->client->stream_send_int(o->count_resolved_queries());
 		case KNOWLEDGEBASE_GET_MEMORY_USAGE:
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			return this->sv->client->stream_send_int(o->get_memory_usage());
 		case KNOWLEDGEBASE_RESOLVE_QUERY:
+			si = command_data.begin();
+			if(!deserialize_word(word, si, command_data.end()))
+				return this->sv->send_errno(ERR_BAD_PARAMETERS);
+			if(si != command_data.end())
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			if(o->resolve_query(word, acceptance)) {
+				// known
+				if(!this->sv->client->stream_send_int(1))
+					return false;
+				return this->sv->client->stream_send_int(acceptance);
+			} else {
+				// unknown
+				return this->sv->client->stream_send_int(0);
+			}
 		case KNOWLEDGEBASE_RESOLVE_OR_ADD_QUERY:
+			si = command_data.begin();
+			if(!deserialize_word(word, si, command_data.end()))
+				return this->sv->send_errno(ERR_BAD_PARAMETERS);
+			if(si != command_data.end())
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			if(o->resolve_or_add_query(word, acceptance)) {
+				// known
+				if(!this->sv->client->stream_send_int(1))
+					return false;
+				return this->sv->client->stream_send_int(acceptance);
+			} else {
+				// unknown
+				return this->sv->client->stream_send_int(0);
+			}
 		case KNOWLEDGEBASE_ADD_KNOWLEDGE:
+			si = command_data.begin();
+			if(!deserialize_word(word, si, command_data.end()))
+				return this->sv->send_errno(ERR_BAD_PARAMETERS);
+			if(si == command_data.end())
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			acceptance = (int32_t)ntohl(*si);
+			if(acceptance != extended_bool::EBOOL_FALSE && acceptance != extended_bool::EBOOL_UNKNOWN && acceptance != extended_bool::EBOOL_TRUE)
+				return this->sv->send_errno(ERR_BAD_PARAMETERS);
+			si++;
+			if(si != command_data.end())
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			return sv->client->stream_send_int(o->add_knowledge(word, acceptance) ? 1 : 0);
 		case KNOWLEDGEBASE_GET_QUERY_TREE:
+			
 		case KNOWLEDGEBASE_MERGE_TREE:
+			
 		case KNOWLEDGEBASE_BEGIN:
+			
 		case KNOWLEDGEBASE_END:
+			
 		case KNOWLEDGEBASE_QBEGIN:
+			
 		case KNOWLEDGEBASE_QEND:
-		case KNOWLEDGEBASE_CLEAR:
-		case KNOWLEDGEBASE_CLEAR_QUERIES:
-		case KNOWLEDGEBASE_UNDO:
+			
 			return this->sv->send_errno(ERR_NOT_IMPLEMENTED);
+		case KNOWLEDGEBASE_CLEAR:
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			o->clear();
+			return this->sv->send_errno(ERR_SUCCESS);
+		case KNOWLEDGEBASE_CLEAR_QUERIES:
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			o->clear_queries();
+			return this->sv->send_errno(ERR_SUCCESS);
+		case KNOWLEDGEBASE_UNDO:
+			if(command_data.size() != 1)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			i = ntohl(command_data[0]);
+			if(i < 1)
+				return this->sv->send_errno(ERR_BAD_PARAMETERS);
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			return this->sv->client->stream_send_int(o->undo(i) ? 1 : 0);
 		default:
 			return this->sv->send_errno(ERR_BAD_COMMAND);
 	}
