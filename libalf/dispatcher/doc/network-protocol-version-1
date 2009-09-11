@@ -649,8 +649,9 @@ advance algorithm (LEARNING_ALGORITHM_ADVANCE)
 parameters: none.
 server returns:
 	bool (true if hypothesis is ready, false if queries need to be answered)
-	-- the following only, if hypothesis is ready: --
+only if above was true:
 	serialized automaton[] (first int is size-1)
+
 
 	serialized automaton is:
 		size of upcoming data (whole size - 1)
@@ -662,6 +663,7 @@ server returns:
 		final states[]
 		number of transitions
 		transitions[]
+
 
 	where a single transition consists of:
 		source-state
