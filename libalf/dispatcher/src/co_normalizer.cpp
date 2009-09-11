@@ -42,9 +42,11 @@ co_normalizer::~co_normalizer()
 }}};
 
 bool co_normalizer::handle_command(int command, basic_string<int32_t> & command_data)
-{
+{{{
 	basic_string<int32_t> serial;
 	basic_string<int32_t>::iterator si;
+	list<int> word, nword;
+	bool bottom;
 
 	switch(command) {
 		case NORMALIZER_SERIALIZE:
@@ -75,16 +77,45 @@ bool co_normalizer::handle_command(int command, basic_string<int32_t> & command_
 				return false;
 			return this->sv->client->stream_send_int((int)o->get_type());
 		case NORMALIZER_NORMALIZE_A_WORD_PNF:
-			
+			si = command_data.begin();
+			if(!deserialize_word(word, si, command_data.end()))
+				return this->sv->send_errno(ERR_BAD_PARAMETERS);
+			if(si != command_data.end())
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			nword = o->prefix_normal_form(word, bottom);
+			if(bottom) {
+				return this->sv->client->stream_send_int(1);
+			} else {
+				if(!this->sv->client->stream_send_int(0))
+					return false;
+				serial = serialize_word(nword);
+				return this->sv->client->stream_send_raw_blob(serial);
+			}
 		case NORMALIZER_NORMALIZE_A_WORD_SNF:
-			
-			return this->sv->send_errno(ERR_NOT_IMPLEMENTED);
+			si = command_data.begin();
+			if(!deserialize_word(word, si, command_data.end()))
+				return this->sv->send_errno(ERR_BAD_PARAMETERS);
+			if(si != command_data.end())
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			nword = o->suffix_normal_form(word, bottom);
+			if(bottom) {
+				return this->sv->client->stream_send_int(1);
+			} else {
+				if(!this->sv->client->stream_send_int(0))
+					return false;
+				serial = serialize_word(nword);
+				return this->sv->client->stream_send_raw_blob(serial);
+			}
 		default:
 			return this->sv->send_errno(ERR_BAD_COMMAND);
 	}
 
 	return false;
-};
+}}};
 
 void co_normalizer::ref_learning_algorithm(int oid)
 {{{

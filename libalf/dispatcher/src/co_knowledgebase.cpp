@@ -164,6 +164,7 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 			
 		case KNOWLEDGEBASE_MERGE_TREE:
 			
+			return this->sv->send_errno(ERR_NOT_IMPLEMENTED);
 		case KNOWLEDGEBASE_BEGIN:
 			
 		case KNOWLEDGEBASE_END:
