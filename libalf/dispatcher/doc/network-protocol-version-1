@@ -726,6 +726,7 @@ parameters: 2
 	word[]
 server returns:
 	bool (true if word was normalized to bottom)
+only if above was false:
 	size of word,
 	word[]
 
@@ -736,6 +737,7 @@ parameters: 2
 	word[]
 server returns:
 	bool (true if word was normalized to bottom)
+only if above was false:
 	size of word,
 	word[]
 
