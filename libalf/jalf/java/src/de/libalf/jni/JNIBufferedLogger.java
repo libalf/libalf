@@ -58,11 +58,6 @@ public class JNIBufferedLogger extends JNIObject implements Logger, Serializable
 	 */
 	private native long init();
 
-	@Override
-	public long getPointer() {
-		return this.pointer;
-	}
-
 	/**
 	 * Creates a new buffered logger. The logger has the given minimal log level
 	 * or {@link JNIBufferedLogger#DEFAULT_LOGGER_LEVEL} if
@@ -114,6 +109,7 @@ public class JNIBufferedLogger extends JNIObject implements Logger, Serializable
 
 	@Override
 	public String receive_and_flush() {
+		check();
 		String ret = this.unread + receive_and_flush(this.pointer);
 		this.unread = "";
 		return ret;
@@ -148,12 +144,14 @@ public class JNIBufferedLogger extends JNIObject implements Logger, Serializable
 	private native void destroy(long pointer);
 	
 	private void writeObject(ObjectOutputStream out) throws IOException {
+		check();
 		this.unread = receive_and_flush();
 		out.defaultWriteObject();
 	}
 
 	private void readObject(ObjectInputStream in) throws IOException,
 			ClassNotFoundException {
+		check();
 		this.pointer = this.minimalLogLevel == null
 				|| this.logAlgorithm == null ? init() : init(
 				this.minimalLogLevel, this.logAlgorithm);

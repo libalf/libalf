@@ -17,8 +17,6 @@ General:
 JNI:
 ====================
 
-* Methoden müssen eine isDead-Exception werfen, wenn das Objekt bereits tot ist, aber Methoden aufgerufen werden.
-
 * Iterator implementieren.
 
 

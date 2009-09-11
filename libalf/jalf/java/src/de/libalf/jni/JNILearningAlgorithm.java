@@ -51,11 +51,13 @@ public abstract class JNILearningAlgorithm extends JNIObject implements
 
 	@Override
 	public Knowledgebase get_knowledge_source() {
+		check();
 		return this.knowledgebase;
 	}
 
 	@Override
 	public void add_counterexample(int[] counterexample) {
+		check();
 		add_counterexample(counterexample, this.pointer);
 	}
 
@@ -75,6 +77,7 @@ public abstract class JNILearningAlgorithm extends JNIObject implements
 
 	@Override
 	public BasicAutomaton advance() {
+		check();
 		return advance(this.pointer);
 	}
 
@@ -91,6 +94,7 @@ public abstract class JNILearningAlgorithm extends JNIObject implements
 
 	@Override
 	public boolean conjecture_ready() {
+		check();
 		return conjecture_ready(this.pointer);
 	}
 
@@ -108,6 +112,7 @@ public abstract class JNILearningAlgorithm extends JNIObject implements
 
 	@Override
 	public int get_alphabet_size() {
+		check();
 		return get_alphabet_size(this.pointer);
 	}
 
@@ -125,6 +130,7 @@ public abstract class JNILearningAlgorithm extends JNIObject implements
 
 	@Override
 	public void increase_alphabet_size(int newSize) {
+		check();
 		increase_alphabet_size(newSize, this.pointer);
 
 	}
@@ -144,6 +150,7 @@ public abstract class JNILearningAlgorithm extends JNIObject implements
 
 	@Override
 	public void set_alphabet_size(int alphabetSize) {
+		check();
 		set_alphabet_size(alphabetSize, this.pointer);
 
 	}
@@ -164,6 +171,7 @@ public abstract class JNILearningAlgorithm extends JNIObject implements
 	@Override
 	// TODO: Change class cast exception policy!
 	public void set_knowledge_source(Knowledgebase base) {
+		check();
 		if (base == null) {
 			this.knowledgebase = null;
 			set_knowledge_source_NULL(this.pointer);
@@ -202,6 +210,7 @@ public abstract class JNILearningAlgorithm extends JNIObject implements
 
 	@Override
 	public boolean sync_to_knowledgebase() {
+		check();
 		return sync_to_knowledgebase(this.pointer);
 	}
 
@@ -219,6 +228,7 @@ public abstract class JNILearningAlgorithm extends JNIObject implements
 
 	@Override
 	public boolean supports_sync() {
+		check();
 		return supports_sync(this.pointer);
 	}
 
@@ -236,6 +246,7 @@ public abstract class JNILearningAlgorithm extends JNIObject implements
 
 	@Override
 	public int[] serialize() {
+		check();
 		return serialize(this.pointer);
 	}
 
@@ -252,6 +263,7 @@ public abstract class JNILearningAlgorithm extends JNIObject implements
 
 	@Override
 	public boolean deserialize(int[] serialization) {
+		check();
 		return deserialize(serialization, this.pointer);
 	}
 
@@ -272,6 +284,7 @@ public abstract class JNILearningAlgorithm extends JNIObject implements
 	@Override
 	// TODO: Change class cast policy!
 	public void set_logger(Logger logger) {
+		check();
 		this.logger = (JNIBufferedLogger) logger;
 		set_logger(this.logger.getPointer(), this.pointer);
 	}
@@ -308,6 +321,7 @@ public abstract class JNILearningAlgorithm extends JNIObject implements
 	
 	@Override
 	public String toString() {
+		check();
 		return tostring(this.pointer);
 	}
 

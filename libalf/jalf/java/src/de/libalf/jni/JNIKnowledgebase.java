@@ -48,6 +48,7 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase,
 
 	@Override
 	public boolean is_answered() {
+		check();
 		return is_answered(this.pointer);
 	}
 
@@ -64,6 +65,7 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase,
 
 	@Override
 	public LinkedList<int[]> get_knowledge() {
+		check();
 		return get_knowledge(this.pointer);
 	}
 
@@ -80,6 +82,7 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase,
 
 	@Override
 	public boolean is_empty() {
+		check();
 		return is_empty(this.pointer);
 	}
 
@@ -96,6 +99,7 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase,
 
 	@Override
 	public int count_queries() {
+		check();
 		return count_queries(this.pointer);
 	}
 
@@ -112,6 +116,7 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase,
 
 	@Override
 	public LinkedList<int[]> get_queries() {
+		check();
 		return get_queries(this.pointer);
 	}
 
@@ -128,6 +133,7 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase,
 
 	@Override
 	public Acceptance resolve_query(int[] word) {
+		check();
 		int acceptance = resolve_query(word, this.pointer);
 		switch (acceptance) {
 		case ACCEPTANCE_FALSE:
@@ -159,6 +165,7 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase,
 
 	@Override
 	public Acceptance resolve_or_add_query(int[] word) {
+		check();
 		int acceptanceOrExists = resolve_or_add_query(word, this.pointer);
 		switch (acceptanceOrExists) {
 		case ACCEPTANCE_FALSE:
@@ -192,6 +199,7 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase,
 
 	@Override
 	public boolean add_knowledge(int[] word, boolean acceptance) {
+		check();
 		return add_knowledge(word, acceptance, this.pointer);
 	}
 
@@ -212,6 +220,7 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase,
 
 	@Override
 	public void clear() {
+		check();
 		clear(this.pointer);
 	}
 
@@ -227,6 +236,7 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase,
 
 	@Override
 	public void clear_queries() {
+		check();
 		clear_queries(this.pointer);
 	}
 
@@ -242,6 +252,7 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase,
 
 	@Override
 	public boolean undo(int count) {
+		check();
 		return undo(count, this.pointer);
 	}
 
@@ -260,6 +271,7 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase,
 
 	@Override
 	public int get_memory_usage() {
+		check();
 		return get_memory_usage(this.pointer);
 	}
 
@@ -276,6 +288,7 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase,
 
 	@Override
 	public int count_answers() {
+		check();
 		return count_answers(this.pointer);
 	}
 
@@ -292,6 +305,7 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase,
 
 	@Override
 	public String generate_dotfile() {
+		check();
 		return generate_dotfile(this.pointer);
 	}
 
@@ -308,6 +322,7 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase,
 
 	@Override
 	public int[] serialize() {
+		check();
 		return serialize(this.pointer);
 	}
 
@@ -324,6 +339,7 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase,
 
 	@Override
 	public boolean deserialize(int[] serialization) {
+		check();
 		return deserialize(serialization, this.pointer);
 	}
 
@@ -359,6 +375,7 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase,
 
 	@Override
 	public String toString() {
+		check();
 		return tostring(this.pointer);
 	}
 
@@ -377,6 +394,7 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase,
 	 * @see Serializable
 	 */
 	private void writeObject(ObjectOutputStream out) throws IOException {
+		check();
 		out.defaultWriteObject();
 		out.writeObject(serialize());
 	}
@@ -386,6 +404,7 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase,
 	 */
 	private void readObject(ObjectInputStream in) throws IOException,
 			ClassNotFoundException {
+		check();
 		in.defaultReadObject();
 		this.pointer = init();
 		int[] serialization = (int[]) in.readObject();

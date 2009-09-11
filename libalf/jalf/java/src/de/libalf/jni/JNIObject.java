@@ -1,6 +1,6 @@
 package de.libalf.jni;
 
-import de.libalf.AlfException;
+import de.libalf.AlfObjectDestroyedException;
 
 /**
  * <p>
@@ -92,8 +92,8 @@ public abstract class JNIObject {
 	 * <li>If it is not alive, then an <code>AlfEcxeption</code> is thrown.</li>
 	 * </ol>
 	 */
-	protected void check() throws AlfException {
-		if(!isAlive) throw new AlfException("Object has been destroyed.");
+	protected void check() throws AlfObjectDestroyedException {
+		if(!isAlive) throw new AlfObjectDestroyedException("Object has been destroyed.");
 	}
 	
 	/**
