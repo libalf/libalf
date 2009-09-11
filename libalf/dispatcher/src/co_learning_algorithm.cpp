@@ -10,6 +10,7 @@
  */
 
 #include <libalf/learning_algorithm.h>
+#include <libalf/automaton.h>
 
 #include <libalf/algorithm_angluin.h>
 //#include <libalf/KVtree.h>
@@ -81,6 +82,8 @@ bool co_learning_algorithm::handle_command(int command, basic_string<int32_t> & 
 	basic_string<int32_t> serial;
 	basic_string<int32_t>::iterator si;
 	string s;
+	list<int> word;
+	int i;
 
 	switch(command) {
 		case LEARNING_ALGORITHM_SERIALIZE:
@@ -112,25 +115,99 @@ bool co_learning_algorithm::handle_command(int command, basic_string<int32_t> & 
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 			return this->sv->send_errno(ERR_SUCCESS);
 		case LEARNING_ALGORITHM_ASSOCIATE_LOGGER:
+			
 		case LEARNING_ALGORITHM_REMOVE_LOGGER:
+			
 		case LEARNING_ALGORITHM_SET_KNOWLEDGE_SOURCE:
+			
 		case LEARNING_ALGORITHM_GET_KNOWLEDGE_SOURCE:
+			
 		case LEARNING_ALGORITHM_SET_NORMALIZER:
+			
 		case LEARNING_ALGORITHM_GET_NORMALIZER:
+			
 		case LEARNING_ALGORITHM_UNSET_NORMALIZER:
+			
 		case LEARNING_ALGORITHM_GET_MEMORY_STATISTICS:
+			
 		case LEARNING_ALGORITHM_GET_TIMING_STATISTICS:
-		case LEARNING_ALGORITHM_ENABLE_TIMING:
-		case LEARNING_ALGORITHM_DISABLE_TIMING:
-		case LEARNING_ALGORITHM_RESET_TIMING:
-		case LEARNING_ALGORITHM_GET_ALPHABET_SIZE:
-		case LEARNING_ALGORITHM_INCREASE_ALPHABET_SIZE:
-		case LEARNING_ALGORITHM_CONJECTURE_READY:
-		case LEARNING_ALGORITHM_ADVANCE:
-		case LEARNING_ALGORITHM_ADD_COUNTEREXAMPLE:
-		case LEARNING_ALGORITHM_SUPPORTS_SYNC:
-		case LEARNING_ALGORITHM_SYNC_TO_KNOWLEDGEBASE:
+			
 			return this->sv->send_errno(ERR_NOT_IMPLEMENTED);
+		case LEARNING_ALGORITHM_ENABLE_TIMING:
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			o->enable_timing();
+			return this->sv->send_errno(ERR_SUCCESS);
+		case LEARNING_ALGORITHM_DISABLE_TIMING:
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			o->disable_timing();
+			return this->sv->send_errno(ERR_SUCCESS);
+		case LEARNING_ALGORITHM_RESET_TIMING:
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			o->reset_timing();
+			return this->sv->send_errno(ERR_SUCCESS);
+		case LEARNING_ALGORITHM_GET_ALPHABET_SIZE:
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			return this->sv->client->stream_send_int(o->get_alphabet_size());
+		case LEARNING_ALGORITHM_INCREASE_ALPHABET_SIZE:
+			if(command_data.size() != 1)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			i = ntohl(command_data[0]);
+			if(i < 1)
+				return this->sv->send_errno(ERR_BAD_PARAMETERS);
+			o->increase_alphabet_size(i);
+			return this->sv->send_errno(ERR_SUCCESS);
+		case LEARNING_ALGORITHM_CONJECTURE_READY:
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			return this->sv->client->stream_send_int(o->conjecture_ready() ? 1 : 0);
+		case LEARNING_ALGORITHM_ADVANCE:
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			{
+				bool is_dfa;
+				int alphabet_size, state_count;
+				set<int> initial, final;
+				multimap<pair<int, int>, int> transitions;
+				if(o->advance(is_dfa, alphabet_size, state_count, initial, final, transitions)) {
+					if(!this->sv->client->stream_send_int(1))
+						return false;
+					serial = serialize_automaton(alphabet_size, state_count, initial, final, transitions);
+					return this->sv->client->stream_send_raw_blob(serial);
+				} else {
+					return this->sv->client->stream_send_int(0);
+				}
+			}
+		case LEARNING_ALGORITHM_ADD_COUNTEREXAMPLE:
+			si = command_data.begin();
+			if(!deserialize_word(word, si, command_data.end()))
+				return this->sv->send_errno(ERR_BAD_PARAMETERS);
+			if(si != command_data.end())
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			o->add_counterexample(word);
+			return this->sv->send_errno(ERR_SUCCESS);
+		case LEARNING_ALGORITHM_SUPPORTS_SYNC:
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			return this->sv->client->stream_send_int(o->supports_sync() ? 1 : 0);
+		case LEARNING_ALGORITHM_SYNC_TO_KNOWLEDGEBASE:
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			if(o->sync_to_knowledgebase())
+				return this->sv->send_errno(ERR_SUCCESS);
+			else
+				return this->sv->send_errno(ERR_COMMAND_FAILED);
 		default:
 			return this->sv->send_errno(ERR_BAD_COMMAND);
 	}
