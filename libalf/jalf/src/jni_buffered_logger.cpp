@@ -70,3 +70,8 @@ JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNIBufferedLogger_receive_1and_1flu
 
 	return env->NewStringUTF(c);
 }
+
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNIBufferedLogger_destroy (JNIEnv *env, jobject obj, jlong pointer) {
+	// Kill the learning algorithm
+	delete (buffered_logger*)pointer;
+}

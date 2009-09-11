@@ -41,6 +41,14 @@ JNIEXPORT jlong JNICALL Java_de_libalf_jni_JNIBufferedLogger_init__IZ
 JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNIBufferedLogger_receive_1and_1flush
   (JNIEnv *, jobject, jlong);
 
+/*
+ * Class:     de_libalf_jni_JNIBufferedLogger
+ * Method:    destroy
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNIBufferedLogger_destroy
+  (JNIEnv *, jobject, jlong);
+
 #ifdef __cplusplus
 }
 #endif

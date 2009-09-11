@@ -115,6 +115,14 @@ JNIEXPORT void JNICALL Java_de_libalf_jni_JNILearningAlgorithm_set_1logger
 
 /*
  * Class:     de_libalf_jni_JNILearningAlgorithm
+ * Method:    destroy
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNILearningAlgorithm_destroy
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     de_libalf_jni_JNILearningAlgorithm
  * Method:    tostring
  * Signature: (J)Ljava/lang/String;
  */

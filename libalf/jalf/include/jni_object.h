@@ -17,10 +17,10 @@ JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNIObject_getLibALFVersion
 
 /*
  * Class:     de_libalf_jni_JNIObject
- * Method:    kill
+ * Method:    destroy
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_de_libalf_jni_JNIObject_kill
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNIObject_destroy
   (JNIEnv *, jobject, jlong);
 
 #ifdef __cplusplus

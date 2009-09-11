@@ -42,12 +42,12 @@ public abstract class JNILearningAlgorithm extends JNIObject implements
 	/**
 	 * The knowledgebase from which the learning algorithm gets its data.
 	 */
-	JNIKnowledgebase knowledgebase;
+	protected JNIKnowledgebase knowledgebase;
 
 	/**
 	 * The logger to log events to.
 	 */
-	JNIBufferedLogger logger;
+	protected JNIBufferedLogger logger;
 
 	@Override
 	public Knowledgebase get_knowledge_source() {
@@ -289,6 +289,23 @@ public abstract class JNILearningAlgorithm extends JNIObject implements
 	 */
 	private native void set_logger(long logger_pointer, long pointer);
 
+	@Override
+	public void destroy() {
+		check();
+		destroy(pointer);
+		isAlive = false;
+	}
+	
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See {@link JNILearningAlgorithm#destroy()}.
+	 * </p>
+	 * 
+	 * @param pointer
+	 *            the pointer to the C++ object.
+	 */
+	private native void destroy(long pointer);
+	
 	@Override
 	public String toString() {
 		return tostring(this.pointer);

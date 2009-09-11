@@ -327,6 +327,23 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase,
 		return deserialize(serialization, this.pointer);
 	}
 
+	@Override
+	public void destroy() {
+		check();
+		destroy(pointer);
+		isAlive = false;
+	}
+	
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See {@link JNILearningAlgorithm#destroy()}.
+	 * </p>
+	 * 
+	 * @param pointer
+	 *            the pointer to the C++ object.
+	 */
+	private native void destroy(long pointer);
+	
 	/**
 	 * <p>
 	 * <em>JNI method call:</em> See {@link Knowledgebase#deserialize(int[])}.

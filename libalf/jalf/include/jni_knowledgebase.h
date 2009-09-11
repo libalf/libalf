@@ -145,6 +145,14 @@ JNIEXPORT jintArray JNICALL Java_de_libalf_jni_JNIKnowledgebase_serialize
 
 /*
  * Class:     de_libalf_jni_JNIKnowledgebase
+ * Method:    destroy
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNIKnowledgebase_destroy
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     de_libalf_jni_JNIKnowledgebase
  * Method:    deserialize
  * Signature: ([IJ)Z
  */

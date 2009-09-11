@@ -130,6 +130,23 @@ public class JNIBufferedLogger extends JNIObject implements Logger, Serializable
 	 */
 	private native String receive_and_flush(long pointer);
 
+	@Override
+	public void destroy() {
+		check();
+		destroy(pointer);
+		isAlive = false;
+	}
+	
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See {@link JNILearningAlgorithm#destroy()}.
+	 * </p>
+	 * 
+	 * @param pointer
+	 *            the pointer to the C++ object.
+	 */
+	private native void destroy(long pointer);
+	
 	private void writeObject(ObjectOutputStream out) throws IOException {
 		this.unread = receive_and_flush();
 		out.defaultWriteObject();

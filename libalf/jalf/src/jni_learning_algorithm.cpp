@@ -181,3 +181,8 @@ JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNILearningAlgorithm_tostring (JNIE
 
 	return env->NewStringUTF(c);
 }
+
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNILearningAlgorithm_destroy (JNIEnv *env, jobject obj, jlong pointer) {
+	// Kill the learning algorithm
+	delete (learning_algorithm<bool>*)pointer;
+}

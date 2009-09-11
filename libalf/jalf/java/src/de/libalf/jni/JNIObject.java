@@ -1,5 +1,7 @@
 package de.libalf.jni;
 
+import de.libalf.AlfException;
+
 /**
  * <p>
  * Root of all classes representing the JNI LibALF C++ objects.
@@ -83,29 +85,28 @@ public abstract class JNIObject {
 	}
 	
 	/**
-	 * <p>Kills the object by freeing the memory occupied by the C++ object.</p>
-	 * <p>After an object is dead, no more operations on this object can be performed.</p>
+	 * Check performed by every method before an operation is performed.
+	 * The method performs the following:
+	 * <ol>
+	 * <li>It check whether the object is alive.</li>
+	 * <li>If it is not alive, then an <code>AlfEcxeption</code> is thrown.</li>
+	 * </ol>
 	 */
-	public void kill() {
-		kill(pointer);
-		isAlive = false;
+	protected void check() throws AlfException {
+		if(!isAlive) throw new AlfException("Object has been destroyed.");
 	}
 	
 	/**
-	 * <p>
-	 * <em>JNI method call:</em> See {@link JNIObject#kill()}.
-	 * </p>
-	 *
-	 * @param pointer
-	 *            the pointer to the C++ object.
+	 * <p>Kills the object by freeing the memory occupied by the C++ object.</p>
+	 * <p>After an object is dead, no more operations on this object can be performed.</p>
 	 */
-	private native void kill(long pointer);
+	public abstract void destroy();
 	
 	@Override
 	protected void finalize() throws Throwable {
 		if(isAlive) {
+			destroy();
 			isAlive = false;
-			kill(pointer);
 		}
 	}
 }
