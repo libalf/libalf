@@ -1,12 +1,13 @@
 package de.libalf.dispatcher;
 
-public class DispatcherCommandError extends DispatcherException {
+import de.libalf.AlfException;
+
+public class DispatcherCommandError extends AlfException {
 	private static final long serialVersionUID = 1L;
 	private int code;
 
 	public DispatcherCommandError(int code, DispatcherConstants cmd) {
 		super("command " + cmd + " failed: " + getErrorString(code));
-
 		this.code = code;
 	}
 

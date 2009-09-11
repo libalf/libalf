@@ -2,7 +2,9 @@ package de.libalf.dispatcher;
 
 import java.io.IOException;
 
-public class DispatcherIOException extends DispatcherException {
+import de.libalf.AlfException;
+
+public class DispatcherIOException extends AlfException {
 	private static final long serialVersionUID = 1L;
 
 	public DispatcherIOException(IOException e) {

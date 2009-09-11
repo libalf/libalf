@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
+import de.libalf.AlfException;
 import de.libalf.Knowledgebase.Acceptance;
 
 class DispatcherSocket {
@@ -119,7 +120,7 @@ class DispatcherSocket {
 		return writeCommand(DispatcherConstants.CLCMD_OBJECT_COMMAND, newArgs);
 	}
 
-	void writeCommandThrowing(DispatcherConstants cmd, Object... args) throws DispatcherIOException, DispatcherProtocolException {
+	void writeCommandThrowing(DispatcherConstants cmd, Object... args) throws AlfException {
 		int code = writeCommand(cmd, args);
 		if (code == 0)
 			return;
@@ -132,7 +133,10 @@ class DispatcherSocket {
 		if (code == 0)
 			return;
 
-		throw new DispatcherCommandError(code, objCmd);
+		AlfException exception = new DispatcherCommandError(code, objCmd);
+		if (code == DispatcherConstants.ERR_NO_OBJECT.id)
+			exception = new DispatcherObjectDestroyedException(exception);
+		throw exception;
 	}
 
 	////////////////////////////////////////////////////////////////
@@ -186,9 +190,20 @@ class DispatcherSocket {
 	}
 
 	public Acceptance readAcceptance() {
-		boolean known = readBool();
-		boolean accept = readBool();
-		return known ? accept ? Acceptance.ACCEPT : Acceptance.REJECT : Acceptance.UNKNOWN;
+		if (!readBool())
+			return null;
+
+		int i = readInt();
+		switch (i) {
+		case 0:
+			return Acceptance.REJECT;
+		case 1:
+			return Acceptance.UNKNOWN;
+		case 2:
+			return Acceptance.ACCEPT;
+		}
+
+		throw new DispatcherProtocolException("unknown acceptance type: " + i + " (" + DispatcherCommandError.printUInt32(i) + ")");
 	}
 
 	@Override

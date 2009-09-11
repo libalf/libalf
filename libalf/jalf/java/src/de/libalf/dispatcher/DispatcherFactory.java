@@ -95,8 +95,12 @@ public class DispatcherFactory implements LibALFFactory {
 	}
 
 	synchronized boolean dispatchObjectCommandKnowledgebaseDeserialize(DispatcherKnowledgebase obj, int[] serialization) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_DESERIALIZE, serialization);
-		return this.io.readBool();
+		try {
+			this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_DESERIALIZE, serialization);
+			return true;
+		} catch (DispatcherCommandError e) {
+			return false;
+		}
 	}
 
 	synchronized String dispatchObjectCommandKnowledgebaseGenerateDotfile(DispatcherKnowledgebase obj) {
@@ -176,6 +180,16 @@ public class DispatcherFactory implements LibALFFactory {
 		return this.io.readBool();
 	}
 
+	synchronized String dispatchObjectCommandKnowledgebaseToString(DispatcherKnowledgebase obj) {
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_TO_STRING);
+		return this.io.readString();
+	}
+
+	synchronized String dispatchObjectCommandKnowledgebaseToDotFile(DispatcherKnowledgebase obj) {
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_TO_DOTFILE);
+		return this.io.readString();
+	}
+
 	synchronized boolean dispatchObjectCommandKIteratorCompare(DispatcherKnowledgebaseIterator obj1, DispatcherKnowledgebaseIterator obj2) {
 		this.io.writeObjectCommandThrowing(obj1, DispatcherConstants.KITERATOR_COMPARE, obj2);
 		return this.io.readBool();
@@ -210,9 +224,12 @@ public class DispatcherFactory implements LibALFFactory {
 	}
 
 	synchronized boolean dispatchObjectCommandAlgorithmDeserialize(DispatcherLearningAlgorithm obj, int[] serialization) {
-		// TODO Auto-generated method stub
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_DESERIALIZE, serialization);
-		return false;
+		try {
+			this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_DESERIALIZE, serialization);
+			return true;
+		} catch (DispatcherCommandError e) {
+			return false;
+		}
 	}
 
 	synchronized int dispatchObjectCommandAlgorithmGetAlphabetSize(DispatcherLearningAlgorithm obj) {

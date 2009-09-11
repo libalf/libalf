@@ -1,6 +1,8 @@
 package de.libalf.dispatcher;
 
-public class DispatcherProtocolException extends DispatcherException {
+import de.libalf.AlfException;
+
+public class DispatcherProtocolException extends AlfException {
 	private static final long serialVersionUID = 1L;
 
 	public DispatcherProtocolException() {}

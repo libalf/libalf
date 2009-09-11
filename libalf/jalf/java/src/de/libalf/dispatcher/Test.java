@@ -2,6 +2,8 @@ package de.libalf.dispatcher;
 
 import java.util.Arrays;
 
+import de.libalf.LibALFFactory.Algorithm;
+
 public class Test {
 	public static void main(String[] args) throws Throwable {
 		DispatcherFactory factory = new DispatcherFactory("127.0.0.1", 24940);
@@ -14,26 +16,17 @@ public class Test {
 
 			System.out.println(kb);
 
-			System.out.println("creating l ...");
-			DispatcherLogger l = factory.createLogger();
-			System.out.println(l);
-			System.out.println(l.receive_and_flush());
+			int[] serialization = kb.serialize();
+			System.out.println(Arrays.toString(serialization));
 
-			factory.dispatchGetObjectType(l);
-
-			l.finalize();
-
-			System.out.println(Arrays.toString(kb.serialize()));
-
-			kb.checkObjType();
-
-			kb.is_empty();
-
-			kb.finalize();
-
+			kb.kill();
+			
 			kb = factory.createKnowledgebase();
 
-			kb.finalize();
+			System.out.println(kb.deserialize(serialization));
+			System.out.println(kb.deserialize(new int[0]));
+			
+			kb.kill();
 
 			System.out.println("disconnect: " + DispatcherCommandError.getErrorString(factory.dispatchDisconnect()));
 		} catch (Throwable e) {

@@ -1,5 +1,7 @@
 package de.libalf.dispatcher;
 
+import de.libalf.AlfException;
+
 /**
  * TODO: check the following text
  * <p>
@@ -60,14 +62,23 @@ public abstract class DispatcherObject implements Sendable {
 	public int getInt() {
 		return this.id;
 	}
-
+	
 	@Override
-	public void finalize() throws DispatcherException {
+	protected void finalize() throws Throwable {
+		kill();
+		super.finalize();
+	}
+
+	public void kill() throws AlfException {
 		if (this.id < 0)
 			return;
 
 		this.factory.dispatchDeleteObject(this);
 		this.id = -1;
+	}
+
+	public boolean isKilled() {
+		return this.id < 0;
 	}
 
 	void checkFactory(Object obj) {
