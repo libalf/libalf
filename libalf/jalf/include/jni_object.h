@@ -15,6 +15,14 @@ extern "C" {
 JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNIObject_getLibALFVersion
   (JNIEnv *, jclass);
 
+/*
+ * Class:     de_libalf_jni_JNIObject
+ * Method:    kill
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNIObject_kill
+  (JNIEnv *, jobject, jlong);
+
 #ifdef __cplusplus
 }
 #endif

@@ -39,14 +39,19 @@ public abstract class JNIObject {
 	/**
 	 * Stores the reference of the C++ object.
 	 */
-	transient long pointer;
+	transient protected long pointer;
 
+	/**
+	 * Stores whether the object has been killed.
+	 */
+	transient protected boolean isAlive = true;
+	
 	/**
 	 * Returns the pointer to the C++ object.
 	 * 
 	 * @return the pointer to the C++ object.
 	 */
-	public long getPointer() {
+	protected long getPointer() {
 		return this.pointer;
 	}
 
@@ -66,5 +71,41 @@ public abstract class JNIObject {
 	 * 
 	 * @return the libalf version string.
 	 */
-	public static native String getLibALFVersion();
+	private static native String getLibALFVersion();
+	
+	/**
+	 * Checks whether the object is living and can perform actions.
+	 *
+	 * @return the status of the object.
+	 */
+	public boolean isAlive() {
+		return isAlive;
+	}
+	
+	/**
+	 * <p>Kills the object by freeing the memory occupied by the C++ object.</p>
+	 * <p>After an object is dead, no more operations on this object can be performed.</p>
+	 */
+	public void kill() {
+		kill(pointer);
+		isAlive = false;
+	}
+	
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See {@link JNIObject#kill()}.
+	 * </p>
+	 *
+	 * @param pointer
+	 *            the pointer to the C++ object.
+	 */
+	private native void kill(long pointer);
+	
+	@Override
+	protected void finalize() throws Throwable {
+		if(isAlive) {
+			isAlive = false;
+			kill(pointer);
+		}
+	}
 }

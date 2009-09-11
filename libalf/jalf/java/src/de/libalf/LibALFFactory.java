@@ -22,16 +22,16 @@ public interface LibALFFactory {
 	 * 
 	 * @return a new <code>Knowledgebase</code>.
 	 */
-	public abstract Knowledgebase createKnowledgebase();
+	public abstract Knowledgebase createKnowledgebase(Object... args);
 
 
-	public abstract LearningAlgorithm createLearningAlgorithm(Algorithm algorithm, Object... parameter);
+	public abstract LearningAlgorithm createLearningAlgorithm(Algorithm algorithm, Object... args);
 
 	/**
 	 * Creates a new <code>Logger</code>.
 	 * 
 	 * @return a new <code>Logger</code>.
 	 */
-	public abstract Logger createLogger();
+	public abstract Logger createLogger(Object... args);
 
 }

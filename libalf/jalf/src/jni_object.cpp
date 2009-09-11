@@ -8,7 +8,7 @@
  *
  * see LICENSE file for licensing information.
  */
-
+#include <iostream> // DELETE ME!
 #include <string>
 
 #include "jni_tools.h"
@@ -31,4 +31,9 @@ JNIEXPORT jstring JNICALL JNICALL Java_de_libalf_jni_JNIObject_getLibALFVersion 
         const char* c = str.c_str();
 
         return env->NewStringUTF(c);
+}
+
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNIObject_kill (JNIEnv *env, jobject obj, jlong pointer) {
+	// Kill the object
+	cout << "Kill me!";
 }

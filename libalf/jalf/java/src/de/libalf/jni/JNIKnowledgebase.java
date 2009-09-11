@@ -23,7 +23,9 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase,
 	private static final long serialVersionUID = 2L;
 
 	private static final int ACCEPTANCE_TRUE = 2;
+	
 	private static final int ACCEPTANCE_FALSE = 0;
+	
 	private static final int ACCEPTANCE_UNKNOWN = 1;
 
 	/**

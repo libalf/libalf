@@ -274,12 +274,12 @@ public class DispatcherFactory implements LibALFFactory {
 	}
 
 	@Override
-	public DispatcherLogger createLogger() {
+	public DispatcherLogger createLogger(Object... args) {
 		return new DispatcherLogger(this);
 	}
 
 	@Override
-	public DispatcherKnowledgebase createKnowledgebase() {
+	public DispatcherKnowledgebase createKnowledgebase(Object... args) {
 		return new DispatcherKnowledgebase(this);
 	}
 
