@@ -38,19 +38,22 @@ public abstract class DispatcherObject implements Sendable {
 	 */
 	transient final DispatcherFactory factory;
 
-	protected DispatcherObject(DispatcherFactory factory, int id) throws DispatcherProtocolException {
+	private final DispatcherConstants objType;
+
+	protected DispatcherObject(DispatcherFactory factory, DispatcherConstants objType, int id) throws DispatcherProtocolException {
 		this.factory = factory;
+		this.objType = objType;
 		this.id = id;
 		if (id < 0)
 			throw new DispatcherProtocolException("Negative object identifier!");
 	}
 
 	protected DispatcherObject(DispatcherFactory factory, DispatcherConstants objType, int[] data) throws DispatcherProtocolException {
-		this(factory, factory.dispatchCreateObject(objType, data));
+		this(factory, objType, factory.dispatchCreateObject(objType, data));
 	}
 
 	protected DispatcherObject(DispatcherFactory factory, DispatcherConstants objType) throws DispatcherProtocolException {
-		this(factory, factory.dispatchCreateObject(objType, new int[0]));
+		this(factory, objType, new int[0]);
 	}
 
 	@Override
@@ -71,5 +74,19 @@ public abstract class DispatcherObject implements Sendable {
 		if (obj instanceof DispatcherObject && ((DispatcherObject) obj).factory == this.factory)
 			return;
 		throw obj == null ? new NullPointerException() : new IllegalArgumentException("object has to be from the same factory!");
+	}
+
+	public DispatcherConstants getObjType() {
+		return this.objType;
+	}
+
+	void checkObjType() {
+		if (this.objType.getInt() != this.factory.dispatchGetObjectType(this))
+			throw new DispatcherProtocolException("object type mismatch");
+	}
+
+	@Override
+	public String toString() {
+		return getClass().getCanonicalName() + " (type=" + this.objType + ", id=" + this.id + ")";
 	}
 }

@@ -4,7 +4,6 @@ import de.libalf.BasicAutomaton;
 import de.libalf.Knowledgebase;
 import de.libalf.LearningAlgorithm;
 import de.libalf.Logger;
-import de.libalf.LibALFFactory.Algorithm;
 
 public abstract class DispatcherLearningAlgorithm extends DispatcherObject implements LearningAlgorithm {
 	private DispatcherLogger logger;

@@ -124,7 +124,7 @@ class DispatcherSocket {
 		if (code == 0)
 			return;
 
-		throw new DispatcherProtocolException("command " + cmd + " failed: " + DispatcherConstants.getErrorString(code));
+		throw new DispatcherCommandError(code, cmd);
 	}
 
 	void writeObjectCommandThrowing(DispatcherObject obj, DispatcherConstants objCmd, Object... args) {
@@ -132,7 +132,7 @@ class DispatcherSocket {
 		if (code == 0)
 			return;
 
-		throw new DispatcherProtocolException("object command " + objCmd + " failed: " + DispatcherConstants.getErrorString(code));
+		throw new DispatcherCommandError(code, objCmd);
 	}
 
 	////////////////////////////////////////////////////////////////
@@ -145,7 +145,7 @@ class DispatcherSocket {
 	public int readInt() throws DispatcherIOException {
 		try {
 			int i = this.in.readInt();
-//			System.out.println(">> " + DispatcherConstants.printUInt32(i));
+			//			System.out.println(">> " + DispatcherConstants.printUInt32(i));
 			return i;
 		} catch (IOException e) {
 			throw new DispatcherIOException(e);
@@ -162,7 +162,7 @@ class DispatcherSocket {
 	private byte readByte() {
 		try {
 			byte b = this.in.readByte();
-//			System.out.println(">> " + DispatcherConstants.printUInt8(b));
+			//			System.out.println(">> " + DispatcherConstants.printUInt8(b));
 			return b;
 		} catch (IOException e) {
 			throw new DispatcherIOException(e);
@@ -200,7 +200,7 @@ class DispatcherSocket {
 	void printRest(int wait) throws Throwable {
 		Thread.sleep(wait);
 		while (this.in.available() > 0) {
-			System.out.println(this.in.available() < 4 ? DispatcherConstants.printUInt8(readByte()) : DispatcherConstants.printUInt32(readInt()));
+			System.out.println(this.in.available() < 4 ? DispatcherCommandError.printUInt8(readByte()) : DispatcherCommandError.printUInt32(readInt()));
 		}
 	}
 }

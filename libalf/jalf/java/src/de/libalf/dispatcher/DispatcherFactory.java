@@ -6,7 +6,6 @@ import java.util.LinkedList;
 
 import de.libalf.BasicAutomaton;
 import de.libalf.LibALFFactory;
-import de.libalf.Logger;
 import de.libalf.Knowledgebase.Acceptance;
 
 public class DispatcherFactory implements LibALFFactory {
@@ -21,7 +20,7 @@ public class DispatcherFactory implements LibALFFactory {
 			// get init stuff
 			int code = this.io.readInt();
 			if (code != 0)
-				throw new DispatcherProtocolException("Connection failed: " + DispatcherConstants.getErrorString(code));
+				throw new DispatcherCommandError(code, DispatcherConstants.CLCMD_REQ_CAPA);
 			String capa = this.io.readString(); // TODO
 			System.out.println(capa);
 		} catch (IOException e) {
@@ -64,7 +63,7 @@ public class DispatcherFactory implements LibALFFactory {
 	synchronized void dispatchHelloCarsten(int i) throws DispatcherIOException {
 		this.io.writeCommandThrowing(DispatcherConstants.CLCMD_HELLO_CARSTEN, i);
 		if (this.io.readInt() != i)
-			throw DispatcherConstants.CLCMD_HELLO_CARSTEN.getException();
+			throw new DispatcherProtocolException(DispatcherConstants.CLCMD_HELLO_CARSTEN.toString());
 	}
 
 	synchronized String dispatchObjectCommandLoggerReceiveAndFlush(DispatcherObject obj) {
@@ -239,8 +238,8 @@ public class DispatcherFactory implements LibALFFactory {
 	}
 
 	synchronized void dispatchObjectCommandAlgorithmSetAlphabetSize(DispatcherLearningAlgorithm obj, int alphabet_size) {
-	// TODO Auto-generated method stub
-	//		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_);
+		// TODO Auto-generated method stub
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_INCREASE_ALPHABET_SIZE, alphabet_size); // TODO: checken
 	}
 
 	synchronized void dispatchObjectCommandAlgorithmSetKnowledgeSource(DispatcherLearningAlgorithm obj, DispatcherKnowledgebase base) {
@@ -250,8 +249,8 @@ public class DispatcherFactory implements LibALFFactory {
 	}
 
 	synchronized void dispatchObjectCommandAlgorithmSetLogger(DispatcherLearningAlgorithm obj, DispatcherLogger logger) {
-	// TODO Auto-generated method stub
-			this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_ASSOCIATE_LOGGER, logger);
+		// TODO Auto-generated method stub
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_ASSOCIATE_LOGGER, logger);
 	}
 
 	synchronized boolean dispatchObjectCommandAlgorithmSupportsSync(DispatcherLearningAlgorithm obj) {
