@@ -331,13 +331,14 @@ server returns:
 
 check if all queries are answered (KNOWLEDGEBASE_IS_ANSWERED)
 parameters: none.
-server returns: nothing. (see errno of object-command)
+server returns:
+	bool (true if all queries are answered)
 
 
 check if no knowledge exists (KNOWLEDGEBASE_IS_EMPTY)
 parameters: none.
 server returns:
-	bool
+	bool (true if empty)
 
 
 get alphabet_size of knowledgebase (KNOWLEDGEBASE_GET_ALPHABET_SIZE)
@@ -362,6 +363,12 @@ count resolved queries (KNOWLEDGEBASE_COUNT_RESOLVED_QUERIES)
 parameters: none.
 server returns:
 	count of resolved queries
+
+
+get memory usage of knowledgebase (KNOWLEDGEBASE_GET_MEMORY_USAGE)
+parameters: none.
+server returns:
+	int
 
 
 resolve query (KNOWLEDGEBASE_RESOLVE_QUERY)
