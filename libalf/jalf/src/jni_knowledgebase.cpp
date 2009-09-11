@@ -309,14 +309,13 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIKnowledgebase_deserialize (JNIE
 	return base->deserialize(si, ser.end());
 }
 
-// Fix method
 JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNIKnowledgebase_tostring (JNIEnv *env , jobject obj, jlong pointer) {
 	// Get the knowledgebase object
 	knowledgebase<bool> *base = (knowledgebase<bool>*)pointer;
 
 	// Get string
 	string str;
-	str = base->generate_dotfile();
+	str = base->tostring();
 
 	//Convert string
 	const char* c = str.c_str();
