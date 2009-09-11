@@ -377,7 +377,8 @@ parameters: 2
 	word[]
 server returns:
 	bool (false if acceptance is unknown)
-	acceptance (undefined if acceptance is unknown)
+only if above was true:
+	acceptance
 
 
 resolve or add query (KNOWLEDGEBASE_RESOLVE_OR_ADD_QUERY)
@@ -386,7 +387,8 @@ parameters: 2
 	word[]
 server returns:
 	bool (false if acceptance is unknown. then, word is marked as required)
-	acceptance (undefined if acceptance is unknown)
+only if above was true:
+	acceptance
 
 
 add knowledge (KNOWLEDGEBASE_ADD_KNOWLEDGE)
@@ -449,9 +451,9 @@ server returns: nothing.
 
 undo (KNOWLEDGEBASE_UNDO)
 parameters: 1.
-	count (int FIXME)
+	count (number of steps)
 server returns:
-	bool (FIXME)
+	bool (true if success)
 
 ================================================================================
 
