@@ -5,6 +5,7 @@ import java.net.Socket;
 import java.util.LinkedList;
 
 import de.libalf.BasicAutomaton;
+import de.libalf.BasicTransition;
 import de.libalf.LibALFFactory;
 import de.libalf.Knowledgebase.Acceptance;
 
@@ -52,7 +53,7 @@ public class DispatcherFactory implements LibALFFactory {
 	}
 
 	synchronized void dispatchDeleteObject(DispatcherObject obj) {
-		this.io.writeCommandThrowing(DispatcherConstants.CLCMD_DELETE_OBJECT, obj); // TODO
+		this.io.writeCommandThrowing(DispatcherConstants.CLCMD_DELETE_OBJECT, obj);
 	}
 
 	synchronized int dispatchGetObjectType(DispatcherObject obj) {
@@ -210,11 +211,26 @@ public class DispatcherFactory implements LibALFFactory {
 
 	synchronized BasicAutomaton dispatchObjectCommandAlgorithmAdvance(DispatcherLearningAlgorithm obj) {
 		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_ADVANCE);
-		if (!this.io.readBool())
-			return null;
+		return this.io.readBool() ? getBA(this.io.readInts()) : null;
+	}
 
-		// TODO basic automata
-		return null;
+	private static BasicAutomaton getBA(int[] ints) {
+		int pos = 0;
+
+		int alphabetSize = ints[pos++];
+		int numberOfStates = ints[pos++];
+		BasicAutomaton auto = new BasicAutomaton(numberOfStates, alphabetSize);
+		int numberOfInitStates = ints[pos++];
+		while (numberOfInitStates-- > 0)
+			auto.addInitialState(ints[pos++]);
+		int numberOfFinalStates = ints[pos++];
+		while (numberOfFinalStates-- > 0)
+			auto.addFinalState(ints[pos++]);
+		int numberOfTransitions = ints[pos++];
+		while (numberOfTransitions-- > 0)
+			auto.addTransition(new BasicTransition(ints[pos++], ints[pos++], ints[pos++]));
+
+		return auto;
 	}
 
 	synchronized boolean dispatchObjectCommandAlgorithmConjectureReady(DispatcherLearningAlgorithm obj) {
@@ -280,6 +296,11 @@ public class DispatcherFactory implements LibALFFactory {
 		// TODO Auto-generated method stub
 		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_SYNC_TO_KNOWLEDGEBASE);
 		return false;
+	}
+
+	synchronized String dispatchObjectCommandAlgorithmToString(DispatcherLearningAlgorithm obj) {
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_TO_STRING);
+		return this.io.readString();
 	}
 
 	////////////////////////////////////////////////////////////////

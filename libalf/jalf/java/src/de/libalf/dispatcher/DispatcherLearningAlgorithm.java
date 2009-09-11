@@ -91,4 +91,9 @@ public abstract class DispatcherLearningAlgorithm extends DispatcherObject imple
 	public boolean sync_to_knowledgebase() throws AlfException {
 		return this.factory.dispatchObjectCommandAlgorithmSyncToKnowledgebase(this);
 	}
+
+	@Override
+	public String toString() throws AlfException {
+		return this.factory.dispatchObjectCommandAlgorithmToString(this);
+	}
 }
