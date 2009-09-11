@@ -204,6 +204,11 @@ class learning_algorithm {
 		{{{
 			bool ret = false;
 
+			if(my_knowledge == NULL) {
+				(*my_logger)(LOGGER_ERROR, "learning_algorithm::advance(): trying to advance without knowledgebase!\n");
+				return false;
+			}
+
 			start_timing();
 
 			if(complete()) {

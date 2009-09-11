@@ -237,6 +237,11 @@ class KVtree: public learning_algorithm<answer> {
 		}}}
 		virtual void add_counterexample(list<int> word)
 		{
+			if(this->my_knowledge == NULL) {
+				(*this->my_logger)(LOGGER_ERROR, "KVtree: add_counterexample() without knowledgebase!\n");
+				return;
+			}
+
 			if(!oh_valid) {
 				(*this->my_logger)(LOGGER_ERROR, "KVtree: trying to give counterexample but there is no old hypothesis! trying to ignore.\n");
 				return;

@@ -245,6 +245,11 @@ class angluin_table : public learning_algorithm<answer> {
 			typename table::iterator ti;
 			list<int>::iterator wi;
 
+			if(this->my_knowledge == NULL) {
+				(*this->my_logger)(LOGGER_ERROR, "angluin_table: add_counterexample() without knowledgebase!\n");
+				return;
+			}
+
 			ti = search_tables(word);
 			if(ti != lower_table.end()) {
 				string s = word2string(word);
@@ -1339,6 +1344,11 @@ class angluin_col_table : public angluin_simple_table<answer> {
 		{{{
 			typename vector< list<int> >::iterator ci;
 			list<int>::iterator wi;
+
+			if(this->my_knowledge == NULL) {
+				(*this->my_logger)(LOGGER_ERROR, "angluin_col_table: add_counterexample() without knowledgebase!\n");
+				return;
+			}
 
 			ci = this->search_columns(word);
 			if(ci != this->column_names.end()) {

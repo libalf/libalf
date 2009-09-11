@@ -365,6 +365,10 @@ deserialization_failed:
 
 		virtual void add_counterexample(list<int> w)
 		{{{
+			if(this->my_knowledge == NULL) {
+				(*this->my_logger)(LOGGER_ERROR, "NLstar_table: add_counterexample() without knowledgebase!\n");
+				return;
+			}
 			// add counterexample and all its suffixes to the columns
 			int sigma = -1;
 			while(!w.empty()) { // epsilon is always in table
