@@ -20,7 +20,7 @@
 using namespace libalf;
 
 class co_knowledgebase_iterator : public client_object {
-	private:
+	public:
 		knowledgebase<extended_bool>::iterator * o;
 
 		int referenced_knowledgebase;

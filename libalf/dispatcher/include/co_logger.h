@@ -21,7 +21,7 @@
 using namespace libalf;
 
 class co_logger : public client_object {
-	private:
+	public:
 		buffered_logger * o;
 
 		set<int> referring_learning_algorithms;

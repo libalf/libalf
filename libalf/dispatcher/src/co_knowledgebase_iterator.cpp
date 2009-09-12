@@ -32,13 +32,21 @@ bool co_knowledgebase_iterator::handle_command(int command, basic_string<int32_t
 {
 	switch(command) {
 		case KITERATOR_IS_VALID:
+			
 		case KITERATOR_ASSIGN:
+			
 		case KITERATOR_COMPARE:
+			
 		case KITERATOR_NEXT:
+			
 		case KITERATOR_GET_WORD:
+			
 		case KITERATOR_IS_ANSWERED:
+			
 		case KITERATOR_GET_ANSWER:
+			
 		case KITERATOR_ANSWER:
+			
 			return this->sv->send_errno(ERR_NOT_IMPLEMENTED);
 		default:
 			return this->sv->send_errno(ERR_BAD_COMMAND);

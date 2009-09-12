@@ -21,7 +21,7 @@
 using namespace libalf;
 
 class co_normalizer : public client_object {
-	private:
+	public:
 		normalizer * o;
 
 		set<int> referring_learning_algorithms;

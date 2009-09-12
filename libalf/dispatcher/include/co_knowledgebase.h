@@ -26,7 +26,7 @@ class co_knowledgebase;
 using namespace libalf;
 
 class co_knowledgebase : public client_object {
-	private:
+	public:
 		knowledgebase<extended_bool> * o;
 
 		set<int> referring_learning_algorithms;

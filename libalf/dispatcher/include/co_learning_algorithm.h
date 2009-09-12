@@ -19,7 +19,7 @@
 using namespace libalf;
 
 class co_learning_algorithm : public client_object {
-	private:
+	public:
 		learning_algorithm<extended_bool> * o;
 
 		int referenced_knowledgebase;
