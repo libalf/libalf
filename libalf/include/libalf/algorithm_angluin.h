@@ -109,7 +109,7 @@ class angluin_table : public learning_algorithm<answer> {
 			if(!sync_tables())
 				ret = false;
 
-			return false;
+			return ret;
 		}}}
 
 		virtual bool supports_sync()
