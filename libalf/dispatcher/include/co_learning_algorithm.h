@@ -56,6 +56,13 @@ class co_learning_algorithm : public client_object {
 				refs++;
 			return refs;
 		}
+		virtual int get_depending_reference_count()
+		{
+			// we don't care  for references in a learning_algorithm.
+			// none of these depend on the learning_algorithm,
+			// but it depends on them.
+			return 0;
+		};
 };
 
 #endif // __libalf_dispatcher_co_algorithm_h__

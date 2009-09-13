@@ -54,6 +54,8 @@ class co_knowledgebase : public client_object {
 			refs += referring_iterators.size();
 			return refs;
 		}
+		virtual int get_depending_reference_count()
+		{ return get_reference_count(); };
 };
 
 #endif // __libalf_dispatcher_co_knowledgebase_h__

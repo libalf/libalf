@@ -119,6 +119,7 @@ bool co_learning_algorithm::handle_command(int command, basic_string<int32_t> & 
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 			return this->sv->send_errno(ERR_SUCCESS);
 		case LEARNING_ALGORITHM_ASSOCIATE_LOGGER:
+			// Checked.
 			if(command_data.size() != 1)
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 			i = ntohl(command_data[0]);
@@ -127,15 +128,16 @@ bool co_learning_algorithm::handle_command(int command, basic_string<int32_t> & 
 			if(this->sv->objects[i]->get_type() != OBJ_LOGGER)
 				return this->sv->send_errno(ERR_BAD_OBJECT);
 
-			this->sv->objects[i]->ref_learning_algorithm(this->id);
 			this->ref_logger(i);
+			this->sv->objects[i]->ref_learning_algorithm(this->id);
 
 			return this->sv->send_errno(ERR_SUCCESS);
 		case LEARNING_ALGORITHM_REMOVE_LOGGER:
+			// Checked.
 			if(command_data.size() != 0)
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 
-			this->sv->objects[referenced_logger]->deref_knowledgebase(this->id);
+			this->sv->objects[referenced_logger]->deref_learning_algorithm(this->id);
 			this->deref_logger(referenced_logger);
 
 			return this->sv->send_errno(ERR_SUCCESS);
@@ -148,8 +150,8 @@ bool co_learning_algorithm::handle_command(int command, basic_string<int32_t> & 
 			if(this->sv->objects[i]->get_type() != OBJ_KNOWLEDGEBASE)
 				return this->sv->send_errno(ERR_BAD_OBJECT);
 
-			this->sv->objects[i]->ref_learning_algorithm(this->id);
 			this->ref_knowledgebase(i);
+			this->sv->objects[i]->ref_learning_algorithm(this->id);
 
 			return this->sv->send_errno(ERR_SUCCESS);
 		case LEARNING_ALGORITHM_GET_KNOWLEDGE_SOURCE:
@@ -180,7 +182,7 @@ bool co_learning_algorithm::handle_command(int command, basic_string<int32_t> & 
 		case LEARNING_ALGORITHM_UNSET_NORMALIZER:
 			if(command_data.size() != 0)
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
-			this->sv->objects[referenced_normalizer]->deref_knowledgebase(this->id);
+			this->sv->objects[referenced_normalizer]->deref_learning_algorithm(this->id);
 			this->deref_normalizer(referenced_normalizer);
 			return this->sv->send_errno(ERR_SUCCESS);
 		case LEARNING_ALGORITHM_GET_MEMORY_STATISTICS:
@@ -273,8 +275,9 @@ bool co_learning_algorithm::handle_command(int command, basic_string<int32_t> & 
 void co_learning_algorithm::ref_knowledgebase(int oid)
 {{{
 	if(referenced_knowledgebase != -1) {
+		// deref former knowledgebase
 		this->sv->objects[referenced_knowledgebase]->deref_learning_algorithm(this->id);
-		this->deref_knowledgebase(referenced_knowledgebase);
+		this->deref_learning_algorithm(referenced_knowledgebase);
 	}
 
 	referenced_knowledgebase = oid;
@@ -291,6 +294,7 @@ void co_learning_algorithm::deref_knowledgebase(int oid)
 void co_learning_algorithm::ref_logger(int oid)
 {{{
 	if(referenced_logger != -1) {
+		// deref former logger
 		this->sv->objects[referenced_logger]->deref_learning_algorithm(this->id);
 		this->deref_logger(referenced_logger);
 	}
@@ -309,7 +313,8 @@ void co_learning_algorithm::deref_logger(int oid)
 void co_learning_algorithm::ref_normalizer(int oid)
 {{{
 	if(referenced_normalizer != -1) {
-		this->sv->objects[referenced_normalizer]->deref_knowledgebase(this->id);
+		// deref former normalizer
+		this->sv->objects[referenced_normalizer]->deref_learning_algorithm(this->id);
 		this->deref_normalizer(referenced_normalizer);
 	}
 

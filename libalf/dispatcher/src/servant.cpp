@@ -348,7 +348,7 @@ bool servant::reply_delete_object()
 		return send_errno(ERR_NO_OBJECT);
 	} else {
 		enum command_error_code r;
-		if(objects[id]->get_reference_count() != 0)
+		if(objects[id]->get_depending_reference_count() != 0)
 			r = ERR_UNRESOLVED_REFERENCES_REMOVED;
 		else
 			r = ERR_SUCCESS;

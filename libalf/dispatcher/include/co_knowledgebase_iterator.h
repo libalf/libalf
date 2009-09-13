@@ -44,6 +44,13 @@ class co_knowledgebase_iterator : public client_object {
 				refs++;
 			return refs;
 		}
+		virtual int get_depending_reference_count()
+		{
+			// we don't care  for references in a knowledgebase::iterator.
+			// none of these depend on the learning_algorithm,
+			// but it depends on them.
+			return 0;
+		}
 
 		void invalidate();
 		bool is_valid();

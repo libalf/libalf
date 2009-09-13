@@ -44,6 +44,8 @@ class co_logger : public client_object {
 			refs += referring_learning_algorithms.size();
 			return refs;
 		}
+		virtual int get_depending_reference_count()
+		{ return get_reference_count(); };
 };
 
 #endif // __libalf_dispatcher_co_logger_h__
