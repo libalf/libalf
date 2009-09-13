@@ -1,7 +1,8 @@
 package de.libalf.dispatcher;
 
 import java.io.IOException;
-import java.net.Socket;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.LinkedList;
 
 import de.libalf.BasicAutomaton;
@@ -10,23 +11,45 @@ import de.libalf.LibALFFactory;
 import de.libalf.Knowledgebase.Acceptance;
 
 public class DispatcherFactory implements LibALFFactory {
-	DispatcherSocket io;
+	private static final long serialVersionUID = 1L;
+
+	private DispatcherSocket io;
 
 	public DispatcherFactory(String host, int port) throws DispatcherIOException, DispatcherProtocolException {
-		try {
-			// socket
-			this.io = new DispatcherSocket(new Socket(host, port));
-			//this.io = new DispatcherSocket(Runtime.getRuntime().exec(new String[]{"nc",host, port+""}));
+		// socket
+		this.io = new DispatcherSocket(host, port);
 
-			// get init stuff
-			int code = this.io.readInt();
-			if (code != 0)
-				throw new DispatcherCommandError(code, DispatcherConstants.CLCMD_REQ_CAPA);
-			String capa = this.io.readString(); // TODO
-			System.out.println(capa);
-		} catch (IOException e) {
-			throw new DispatcherIOException(e);
-		}
+		// get init stuff
+		init();
+	}
+
+	private void init() {
+		int code = this.io.readInt();
+		if (code != 0)
+			throw new DispatcherCommandError(code, DispatcherConstants.CLCMD_REQ_CAPA);
+		String capa = this.io.readString(); // TODO
+		System.out.println(capa);
+	}
+
+	/**
+	 * @see Serializable
+	 */
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		init();
+	}
+
+	public void kill() {
+		int disco = dispatchDisconnect();
+		if (disco != 0)
+			new DispatcherCommandError(disco, DispatcherConstants.CLCMD_DISCONNECT).printStackTrace();
+		this.io.close();
+	}
+
+	@Override
+	protected void finalize() throws Throwable {
+		kill();
+		super.finalize();
 	}
 
 	////////////////////////////////////////////////////////////////
@@ -234,9 +257,8 @@ public class DispatcherFactory implements LibALFFactory {
 	}
 
 	synchronized boolean dispatchObjectCommandAlgorithmConjectureReady(DispatcherLearningAlgorithm obj) {
-		// TODO Auto-generated method stub
 		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_CONJECTURE_READY);
-		return false;
+		return this.io.readBool();
 	}
 
 	synchronized boolean dispatchObjectCommandAlgorithmDeserialize(DispatcherLearningAlgorithm obj, int[] serialization) {
@@ -249,15 +271,13 @@ public class DispatcherFactory implements LibALFFactory {
 	}
 
 	synchronized int dispatchObjectCommandAlgorithmGetAlphabetSize(DispatcherLearningAlgorithm obj) {
-		// TODO Auto-generated method stub
 		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_GET_ALPHABET_SIZE);
-		return 0;
+		return this.io.readInt();
 	}
 
 	synchronized int dispatchObjectCommandAlgorithmGetKnowledgeSource(DispatcherLearningAlgorithm obj) {
-		// TODO Auto-generated method stub
 		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_GET_KNOWLEDGE_SOURCE);
-		return 0;
+		return this.io.readInt();
 	}
 
 	synchronized void dispatchObjectCommandAlgorithmIncreaseAlphabetSize(DispatcherLearningAlgorithm obj, int new_size) {
@@ -271,25 +291,24 @@ public class DispatcherFactory implements LibALFFactory {
 	}
 
 	synchronized void dispatchObjectCommandAlgorithmSetAlphabetSize(DispatcherLearningAlgorithm obj, int alphabet_size) {
-		// TODO Auto-generated method stub
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_INCREASE_ALPHABET_SIZE, alphabet_size); // TODO: checken
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_INCREASE_ALPHABET_SIZE, alphabet_size); // FIXME: SET not INCR
 	}
 
-	synchronized void dispatchObjectCommandAlgorithmSetKnowledgeSource(DispatcherLearningAlgorithm obj, DispatcherKnowledgebase base) {
-		// TODO Auto-generated method stub
-		obj.checkFactory(base);
+	synchronized void dispatchObjectCommandAlgorithmSetKnowledgeSource(DispatcherLearningAlgorithm obj, int base) {
 		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_SET_KNOWLEDGE_SOURCE, base);
 	}
 
 	synchronized void dispatchObjectCommandAlgorithmSetLogger(DispatcherLearningAlgorithm obj, DispatcherLogger logger) {
-		// TODO Auto-generated method stub
 		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_ASSOCIATE_LOGGER, logger);
 	}
 
+	synchronized void dispatchObjectCommandAlgorithmRemoveLogger(DispatcherLearningAlgorithm obj) {
+		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_REMOVE_LOGGER);
+	}
+
 	synchronized boolean dispatchObjectCommandAlgorithmSupportsSync(DispatcherLearningAlgorithm obj) {
-		// TODO Auto-generated method stub
 		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_SUPPORTS_SYNC);
-		return false;
+		return this.io.readBool();
 	}
 
 	synchronized boolean dispatchObjectCommandAlgorithmSyncToKnowledgebase(DispatcherLearningAlgorithm obj) {
@@ -312,12 +331,12 @@ public class DispatcherFactory implements LibALFFactory {
 
 	@Override
 	public DispatcherLogger createLogger(Object... args) {
-		return new DispatcherLogger(this);
+		return new DispatcherLogger(this); // FIXME: args?!
 	}
 
 	@Override
 	public DispatcherKnowledgebase createKnowledgebase(Object... args) {
-		return new DispatcherKnowledgebase(this);
+		return new DispatcherKnowledgebase(this); // FIXME: args?!
 	}
 
 	@Override
@@ -336,5 +355,9 @@ public class DispatcherFactory implements LibALFFactory {
 		default:
 			return null;
 		}
+	}
+
+	void printRest(int wait) throws Throwable {
+		this.io.printRest(wait);
 	}
 }

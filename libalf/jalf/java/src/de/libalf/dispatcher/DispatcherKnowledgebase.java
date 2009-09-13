@@ -1,13 +1,20 @@
 package de.libalf.dispatcher;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.LinkedList;
 
 import de.libalf.AlfException;
 import de.libalf.Knowledgebase;
 
 public class DispatcherKnowledgebase extends DispatcherObject implements Knowledgebase {
+	private static final long serialVersionUID = 1L;
+
 	public DispatcherKnowledgebase(DispatcherFactory factory) throws AlfException {
 		super(factory, DispatcherConstants.OBJ_KNOWLEDGEBASE);
+		create();
 	}
 
 	@Override
@@ -97,5 +104,22 @@ public class DispatcherKnowledgebase extends DispatcherObject implements Knowled
 
 	public String toDot() throws AlfException {
 		return this.factory.dispatchObjectCommandKnowledgebaseToDotFile(this);
+	}
+
+	/**
+	 * @see Serializable
+	 */
+	private void writeObject(ObjectOutputStream out) throws IOException {
+		out.defaultWriteObject();
+		out.writeObject(serialize());
+	}
+
+	/**
+	 * @see Serializable
+	 */
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		create();
+		deserialize((int[]) in.readObject());
 	}
 }

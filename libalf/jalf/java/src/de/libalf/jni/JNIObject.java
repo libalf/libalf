@@ -89,7 +89,7 @@ public abstract class JNIObject {
 	 * The method performs the following:
 	 * <ol>
 	 * <li>It check whether the object is alive.</li>
-	 * <li>If it is not alive, then an <code>AlfEcxeption</code> is thrown.</li>
+	 * <li>If it is not alive, then an {@link AlfObjectDestroyedException} is thrown.</li>
 	 * </ol>
 	 */
 	protected void check() throws AlfObjectDestroyedException {

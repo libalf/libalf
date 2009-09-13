@@ -1,5 +1,7 @@
 package de.libalf;
 
+import java.io.Serializable;
+
 /**
  * Implements an abstract factory to create libalf objects. Each factory
  * implementing this interface has to provide methods to create concrete
@@ -11,7 +13,7 @@ package de.libalf;
  *         University
  * @version 1.0
  */
-public interface LibALFFactory {
+public interface LibALFFactory extends Serializable {
 
 	public static enum Algorithm {
 		ANGLUIN, ANGLUIN_COLUMN, NL_STAR, RPNI, BIERMANN_MINISAT;

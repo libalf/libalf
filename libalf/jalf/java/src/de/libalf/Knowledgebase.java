@@ -1,5 +1,6 @@
 package de.libalf;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 
 /**
@@ -46,7 +47,7 @@ import java.util.LinkedList;
  *         University
  * @version 1.0
  */
-public interface Knowledgebase {
+public interface Knowledgebase extends Serializable {
 
 	/**
 	 * Indicates whether a word belongs to a formal language or not or whether

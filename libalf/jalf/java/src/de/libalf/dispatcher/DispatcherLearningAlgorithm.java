@@ -1,5 +1,10 @@
 package de.libalf.dispatcher;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
 import de.libalf.AlfException;
 import de.libalf.BasicAutomaton;
 import de.libalf.Knowledgebase;
@@ -7,11 +12,21 @@ import de.libalf.LearningAlgorithm;
 import de.libalf.Logger;
 
 public abstract class DispatcherLearningAlgorithm extends DispatcherObject implements LearningAlgorithm {
+	private static final long serialVersionUID = 1L;
+
 	private DispatcherLogger logger;
 	private DispatcherKnowledgebase base;
 
+	private DispatcherConstants algo;
+
 	protected DispatcherLearningAlgorithm(DispatcherFactory factory, DispatcherConstants algo, int alphabet_size) throws AlfException {
-		super(factory, DispatcherConstants.OBJ_LEARNING_ALGORITHM, new int[] { algo.id, alphabet_size });
+		super(factory, DispatcherConstants.OBJ_LEARNING_ALGORITHM);
+		this.algo = algo;
+		create(alphabet_size);
+	}
+
+	private void create(int alphabet_size) {
+		create(new int[] { this.algo.id, alphabet_size });
 	}
 
 	protected DispatcherLearningAlgorithm(DispatcherFactory factory, DispatcherConstants algo, int alphabet_size, DispatcherKnowledgebase base) throws AlfException {
@@ -71,7 +86,7 @@ public abstract class DispatcherLearningAlgorithm extends DispatcherObject imple
 	@Override
 	public void set_knowledge_source(Knowledgebase base) throws AlfException {
 		checkFactory(base);
-		this.factory.dispatchObjectCommandAlgorithmSetKnowledgeSource(this, (DispatcherKnowledgebase) base);
+		this.factory.dispatchObjectCommandAlgorithmSetKnowledgeSource(this, ((DispatcherKnowledgebase) base).getInt());
 		this.base = (DispatcherKnowledgebase) base; // set if above command was successful
 	}
 
@@ -80,6 +95,11 @@ public abstract class DispatcherLearningAlgorithm extends DispatcherObject imple
 		checkFactory(logger);
 		this.factory.dispatchObjectCommandAlgorithmSetLogger(this, (DispatcherLogger) logger);
 		this.logger = (DispatcherLogger) logger; // set if above command was successful
+	}
+
+	public void remove_logger() throws AlfException {
+		this.factory.dispatchObjectCommandAlgorithmRemoveLogger(this);
+		this.logger = null; // set if above command was successful
 	}
 
 	@Override
@@ -95,5 +115,27 @@ public abstract class DispatcherLearningAlgorithm extends DispatcherObject imple
 	@Override
 	public String toString() throws AlfException {
 		return this.factory.dispatchObjectCommandAlgorithmToString(this);
+	}
+
+	/**
+	 * @see Serializable
+	 */
+	private void writeObject(ObjectOutputStream out) throws IOException {
+		out.defaultWriteObject();
+		out.writeObject(get_alphabet_size());
+		out.writeObject(serialize());
+	}
+
+	/**
+	 * @see Serializable
+	 */
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		create((Integer) in.readObject());
+		deserialize((int[]) in.readObject());
+		if (this.logger != null)
+			set_logger(this.logger);
+		if (this.base != null)
+			set_knowledge_source(this.base);
 	}
 }

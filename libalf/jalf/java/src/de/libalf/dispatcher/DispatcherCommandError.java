@@ -19,14 +19,6 @@ public class DispatcherCommandError extends AlfException {
 		return getError(this.code);
 	}
 
-	static String printUInt32(int code) {
-		return String.format("%08X", code);
-	}
-
-	static String printUInt8(byte code) {
-		return String.format("%02X", code);
-	}
-
 	public static DispatcherConstants getError(int code) {
 		for (DispatcherConstants c : DispatcherConstants.values())
 			if (c.id == code && c.toString().startsWith("ERR_"))
@@ -36,6 +28,6 @@ public class DispatcherCommandError extends AlfException {
 
 	static String getErrorString(int code) {
 		DispatcherConstants error = getError(code);
-		return code + " (0x" + printUInt32(code) + ")" + (error == null ? "" : " " + error);
+		return code + " (" + String.format("0x%08X", code) + ")" + (error == null ? "" : " " + error);
 	}
 }

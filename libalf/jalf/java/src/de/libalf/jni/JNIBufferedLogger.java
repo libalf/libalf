@@ -22,7 +22,7 @@ import de.libalf.Logger;
  * @version 1.0
  * 
  */
-public class JNIBufferedLogger extends JNIObject implements Logger, Serializable {
+public class JNIBufferedLogger extends JNIObject implements Logger {
 
 	private static final long serialVersionUID = 2L;
 
@@ -143,15 +143,19 @@ public class JNIBufferedLogger extends JNIObject implements Logger, Serializable
 	 */
 	private native void destroy(long pointer);
 	
+	/**
+	 * @see Serializable
+	 */
 	private void writeObject(ObjectOutputStream out) throws IOException {
-		check();
 		this.unread = receive_and_flush();
 		out.defaultWriteObject();
 	}
 
+	/**
+	 * @see Serializable
+	 */
 	private void readObject(ObjectInputStream in) throws IOException,
 			ClassNotFoundException {
-		check();
 		this.pointer = this.minimalLogLevel == null
 				|| this.logAlgorithm == null ? init() : init(
 				this.minimalLogLevel, this.logAlgorithm);

@@ -1,5 +1,7 @@
 package de.libalf.dispatcher;
 
+import java.io.Serializable;
+
 import de.libalf.AlfException;
 
 /**
@@ -29,7 +31,9 @@ import de.libalf.AlfException;
  * @author Stefan Schulz
  * @version 1.0
  */
-public abstract class DispatcherObject implements Sendable {
+public abstract class DispatcherObject implements Sendable, Serializable {
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * Stores the reference of the dispatcher object id.
 	 */
@@ -38,31 +42,34 @@ public abstract class DispatcherObject implements Sendable {
 	/**
 	 * Object's factory.
 	 */
-	transient final DispatcherFactory factory;
+	protected final DispatcherFactory factory;
 
 	private final DispatcherConstants objType;
 
-	protected DispatcherObject(DispatcherFactory factory, DispatcherConstants objType, int id) throws DispatcherProtocolException {
+	protected DispatcherObject(DispatcherFactory factory, DispatcherConstants objType) throws DispatcherProtocolException {
 		this.factory = factory;
 		this.objType = objType;
+	}
+
+	protected void useID(int id) throws DispatcherProtocolException {
 		this.id = id;
 		if (id < 0)
 			throw new DispatcherProtocolException("Negative object identifier!");
 	}
 
-	protected DispatcherObject(DispatcherFactory factory, DispatcherConstants objType, int[] data) throws DispatcherProtocolException {
-		this(factory, objType, factory.dispatchCreateObject(objType, data));
+	protected void create(int[] data) throws DispatcherProtocolException {
+		useID(this.factory.dispatchCreateObject(this.objType, data));
 	}
 
-	protected DispatcherObject(DispatcherFactory factory, DispatcherConstants objType) throws DispatcherProtocolException {
-		this(factory, objType, new int[0]);
+	protected void create() throws DispatcherProtocolException {
+		create(new int[0]);
 	}
 
 	@Override
 	public int getInt() {
 		return this.id;
 	}
-	
+
 	@Override
 	protected void finalize() throws Throwable {
 		kill();

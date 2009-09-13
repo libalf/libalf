@@ -573,7 +573,7 @@ parameters: 1
 server returns: nothing.
 
 
-get knowledgebase from algorithm (LEARNING_ALGORITHM_GET_NORMALIZER)
+get normalizer from algorithm (LEARNING_ALGORITHM_GET_NORMALIZER)
 parameters: none.
 server returns:
 	object-id (of normalizer)

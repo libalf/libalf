@@ -3,17 +3,31 @@ package de.libalf.dispatcher;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.net.Socket;
 
 import de.libalf.AlfException;
 import de.libalf.Knowledgebase.Acceptance;
 
-class DispatcherSocket {
-	private DataInputStream in;
-	private DataOutputStream out;
+class DispatcherSocket implements Serializable {
+	private static final long serialVersionUID = 1L;
 
-	public DispatcherSocket(Socket socket) throws DispatcherIOException {
+	private transient DataInputStream in;
+	private transient DataOutputStream out;
+
+	private final String host;
+	private final int port;
+
+	public DispatcherSocket(String host, int port) throws DispatcherIOException {
+		this.host = host;
+		this.port = port;
+		init();
+	}
+
+	private void init() {
 		try {
+			Socket socket = new Socket(this.host, this.port);
 			this.in = new DataInputStream(socket.getInputStream());
 			this.out = new DataOutputStream(socket.getOutputStream());
 		} catch (IOException e) {
@@ -21,16 +35,18 @@ class DispatcherSocket {
 		}
 	}
 
-	@Deprecated
-	public DispatcherSocket(Process process) {
-		this.in = new DataInputStream(process.getInputStream());
-		this.out = new DataOutputStream(process.getOutputStream());
+	/**
+	 * @see Serializable
+	 */
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		init();
 	}
-
+	
 	////////////////////////////////////////////////////////////////
 	// SENDING
 
-	private void close() {
+	void close() {
 		try {
 			this.in.close();
 			this.out.close();
@@ -203,7 +219,7 @@ class DispatcherSocket {
 			return Acceptance.ACCEPT;
 		}
 
-		throw new DispatcherProtocolException("unknown acceptance type: " + i + " (" + DispatcherCommandError.printUInt32(i) + ")");
+		throw new DispatcherProtocolException("unknown acceptance type: " + i + " (" + String.format("0x%08X", i) + ")");
 	}
 
 	@Override
@@ -215,7 +231,7 @@ class DispatcherSocket {
 	void printRest(int wait) throws Throwable {
 		Thread.sleep(wait);
 		while (this.in.available() > 0) {
-			System.out.println(this.in.available() < 4 ? DispatcherCommandError.printUInt8(readByte()) : DispatcherCommandError.printUInt32(readInt()));
+			System.out.println(this.in.available() < 4 ? String.format("0x%02X", readByte()) : String.format("0x%08X", readInt()));
 		}
 	}
 }
