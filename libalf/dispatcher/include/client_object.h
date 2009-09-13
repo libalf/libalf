@@ -58,29 +58,39 @@ class client_object {
 		virtual bool handle_command(int command, basic_string<int32_t> & command_data) = 0;
 
 		virtual void ref_knowledgebase(int oid)
-		{ log("client %d: BAD CALL to ref kb (oid %d, type %s[%d])!\n", getpid(), id, obj2string(this->get_type()),this->get_type()); };
+		{ log("client %d: BAD CALL to ref kb (oid %d, type %s[%d])!\n",
+				getpid(), id, obj2string(this->get_type()),this->get_type()); };
 		virtual void deref_knowledgebase(int oid)
-		{ log("client %d: BAD CALL to deref kb (oid %d, type %s[%d])!\n", getpid(), id, obj2string(this->get_type()),this->get_type()); };
+		{ log("client %d: BAD CALL to deref kb (oid %d, type %s[%d])!\n",
+				getpid(), id, obj2string(this->get_type()),this->get_type()); };
 
 		virtual void ref_knowledgebase_iterator(int oid)
-		{ log("client %d: BAD CALL to ref ki (oid %d, type %s[%d])!\n", getpid(), id, obj2string(this->get_type()),this->get_type()); };
+		{ log("client %d: BAD CALL to ref ki (oid %d, type %s[%d])!\n",
+				getpid(), id, obj2string(this->get_type()),this->get_type()); };
 		virtual void deref_knowledgebase_iterator(int oid)
-		{ log("client %d: BAD CALL to deref ki (oid %d, type %s[%d])!\n", getpid(), id, obj2string(this->get_type()),this->get_type()); };
+		{ log("client %d: BAD CALL to deref ki (oid %d, type %s[%d])!\n",
+				getpid(), id, obj2string(this->get_type()),this->get_type()); };
 
 		virtual void ref_logger(int oid)
-		{ log("client %d: BAD CALL to ref l (oid %d, type %s[%d])!\n", getpid(), id, obj2string(this->get_type()),this->get_type()); };
+		{ log("client %d: BAD CALL to ref l (oid %d, type %s[%d])!\n",
+				getpid(), id, obj2string(this->get_type()),this->get_type()); };
 		virtual void deref_logger(int oid)
-		{ log("client %d: BAD CALL to deref l (oid %d, type %s[%d])!\n", getpid(), id, obj2string(this->get_type()),this->get_type()); };
+		{ log("client %d: BAD CALL to deref l (oid %d, type %s[%d])!\n",
+				getpid(), id, obj2string(this->get_type()),this->get_type()); };
 
 		virtual void ref_normalizer(int oid)
-		{ log("client %d: BAD CALL to ref no (oid %d, type %s[%d])!\n", getpid(), id, obj2string(this->get_type()),this->get_type()); };
+		{ log("client %d: BAD CALL to ref no (oid %d, type %s[%d])!\n",
+				getpid(), id, obj2string(this->get_type()),this->get_type()); };
 		virtual void deref_normalizer(int oid)
-		{ log("client %d: BAD CALL to deref no (oid %d, type %s[%d])!\n", getpid(), id, obj2string(this->get_type()),this->get_type()); };
+		{ log("client %d: BAD CALL to deref no (oid %d, type %s[%d])!\n",
+				getpid(), id, obj2string(this->get_type()),this->get_type()); };
 
 		virtual void ref_learning_algorithm(int oid)
-		{ log("client %d: BAD CALL to ref la (oid %d, type %s[%d])!\n", getpid(), id, obj2string(this->get_type()),this->get_type()); };
+		{ log("client %d: BAD CALL to ref la (oid %d, type %s[%d])!\n",
+				getpid(), id, obj2string(this->get_type()),this->get_type()); };
 		virtual void deref_learning_algorithm(int oid)
-		{ log("client %d: BAD CALL to deref la (oid %d, type %s[%d])!\n", getpid(), id, obj2string(this->get_type()),this->get_type()); };
+		{ log("client %d: BAD CALL to deref la (oid %d, type %s[%d])!\n",
+				getpid(), id, obj2string(this->get_type()),this->get_type()); };
 
 		virtual int get_reference_count()
 		{
