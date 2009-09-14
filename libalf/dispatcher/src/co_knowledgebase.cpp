@@ -10,15 +10,16 @@
  */
 
 #include "co_knowledgebase.h"
+#include "co_knowledgebase_iterator.h"
 
 co_knowledgebase::co_knowledgebase()
 {{{
 	o = new knowledgebase<extended_bool>;
 }}};
 
-co_knowledgebase::co_knowledgebase(knowledgebase<extended_bool> * base)
+co_knowledgebase::co_knowledgebase(knowledgebase<extended_bool> * o)
 {{{
-	o = base;
+	this->o = o;
 }}}
 
 co_knowledgebase::~co_knowledgebase()
@@ -44,6 +45,7 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 	list<int> word;
 	extended_bool acceptance;
 	int i;
+	knowledgebase<extended_bool>::iterator * it;
 
 	switch(command) {
 		case KNOWLEDGEBASE_SERIALIZE:
@@ -173,16 +175,11 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 				knowledgebase<extended_bool> * qry_tree;
 				qry_tree = o->create_query_tree();
 
-				// create a new co_knowledgebase-object
-				unsigned int new_id = this->sv->get_free_id();
-				this->sv->objects[new_id] = new co_knowledgebase(qry_tree);
-				this->sv->objects[new_id]->set_servant(this->sv);
-				this->sv->objects[new_id]->set_id(new_id);
-
-				// return object-id
 				if(!this->sv->send_errno(ERR_SUCCESS))
 					return false;
-				return this->sv->client->stream_send_int(new_id);
+
+				// create&return a new co_knowledgebase-object
+				return this->sv->client->stream_send_int( this->sv->store_object(new co_knowledgebase(qry_tree)) );
 			}
 		case KNOWLEDGEBASE_MERGE_TREE:
 			if(command_data.size() != 1)
@@ -207,14 +204,57 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 			return this->sv->send_errno(ERR_SUCCESS);
 		case KNOWLEDGEBASE_BEGIN:
-			
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+
+			it = new knowledgebase<extended_bool>::iterator;
+			*it = o->begin();
+			i = this->sv->store_object( new co_knowledgebase_iterator(it) );
+			this->sv->objects[i]->ref_knowledgebase(this->id);
+			this->ref_knowledgebase_iterator(i);
+
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			return this->sv->client->stream_send_int(i);
 		case KNOWLEDGEBASE_END:
-			
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+
+			it = new knowledgebase<extended_bool>::iterator;
+			*it = o->end();
+			i = this->sv->store_object( new co_knowledgebase_iterator(it) );
+			this->sv->objects[i]->ref_knowledgebase(this->id);
+			this->ref_knowledgebase_iterator(i);
+
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			return this->sv->client->stream_send_int(i);
 		case KNOWLEDGEBASE_QBEGIN:
-			
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+
+			it = new knowledgebase<extended_bool>::iterator;
+			*it = o->qbegin();
+			i = this->sv->store_object( new co_knowledgebase_iterator(it) );
+			this->sv->objects[i]->ref_knowledgebase(this->id);
+			this->ref_knowledgebase_iterator(i);
+
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			return this->sv->client->stream_send_int(i);
 		case KNOWLEDGEBASE_QEND:
-			
-			return this->sv->send_errno(ERR_NOT_IMPLEMENTED);
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+
+			it = new knowledgebase<extended_bool>::iterator;
+			*it = o->qend();
+			i = this->sv->store_object( new co_knowledgebase_iterator(it) );
+			this->sv->objects[i]->ref_knowledgebase(this->id);
+			this->ref_knowledgebase_iterator(i);
+
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			return this->sv->client->stream_send_int(i);
 		case KNOWLEDGEBASE_CLEAR:
 			if(command_data.size() != 0)
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);

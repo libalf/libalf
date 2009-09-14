@@ -18,6 +18,13 @@ co_knowledgebase_iterator::co_knowledgebase_iterator()
 	o = new knowledgebase<extended_bool>::iterator;
 }}};
 
+co_knowledgebase_iterator::co_knowledgebase_iterator(knowledgebase<extended_bool>::iterator * o)
+{{{
+	referenced_knowledgebase = -1;
+
+	this->o = o;
+}}}
+
 co_knowledgebase_iterator::~co_knowledgebase_iterator()
 {{{
 	if(referenced_knowledgebase != -1)

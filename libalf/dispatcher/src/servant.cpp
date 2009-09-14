@@ -47,7 +47,7 @@ servant::~servant()
 		delete client;
 }}}
 
-unsigned int servant::get_free_id()
+unsigned int servant::store_object(client_object * o)
 {{{
 	unsigned int new_id;
 
@@ -60,9 +60,12 @@ unsigned int servant::get_free_id()
 	if(new_id == objects.size())
 		objects.push_back((client_object *) NULL);
 
+	objects[new_id] = o;
+	o->set_servant(this);
+	o->set_id(new_id);
+
 	return new_id;
 }}}
-
 
 
 bool servant::serve()
@@ -268,29 +271,26 @@ bool servant::reply_create_object()
 		return false;
 
 	// find free object-id
-	unsigned int new_id = get_free_id();
+	unsigned int new_id;
 
 	switch(type) {
 		case OBJ_LOGGER:
 			if(data.size() != 0)
 				goto bad_parameter_count;
 
-			objects[new_id] = new co_logger;
-
+			new_id = store_object(new co_logger);
 			break;
 		case OBJ_KNOWLEDGEBASE:
 			if(data.size() != 0)
 				goto bad_parameter_count;
 
-			objects[new_id] = new co_knowledgebase;
-
+			new_id = store_object(new co_knowledgebase);
 			break;
 		case OBJ_KNOWLEDGEBASE_ITERATOR:
 			if(data.size() != 0)
 				goto bad_parameter_count;
 
-			objects[new_id] = new co_knowledgebase_iterator;
-
+			new_id = store_object(new co_knowledgebase_iterator);
 			break;
 		case OBJ_LEARNING_ALGORITHM:
 			if(data.size() != 2)
@@ -302,8 +302,7 @@ bool servant::reply_create_object()
 			if(u <= 0)
 				goto bad_parameters;
 
-			objects[new_id] = new co_learning_algorithm( (enum libalf::learning_algorithm<extended_bool>::algorithm) t, u);
-
+			new_id = store_object(new co_learning_algorithm( (enum libalf::learning_algorithm<extended_bool>::algorithm) t, u));
 			break;
 		case OBJ_NORMALIZER:
 			if(data.size() != 1)
@@ -312,15 +311,11 @@ bool servant::reply_create_object()
 			if(t <= normalizer::NORMALIZER_NONE || t >= normalizer::NORMALIZER_LAST_INVALID)
 				goto bad_parameters;
 
-			objects[new_id] = new co_normalizer( (enum libalf::normalizer::type) t);
-
+			new_id = store_object(new co_normalizer( (enum libalf::normalizer::type) t));
 			break;
 		default:
 			goto bad_parameters;
 	}
-
-	objects[new_id]->set_servant(this);
-	objects[new_id]->set_id(new_id);
 
 	if(!send_errno(ERR_SUCCESS))
 		return false;

@@ -35,7 +35,7 @@ class servant {
 	public: // required by client_objects
 		serversocket * client;
 		vector<client_object *> objects;
-		unsigned int get_free_id();
+		unsigned int store_object(client_object * o);
 
 	public:
 		servant(serversocket *connection);
