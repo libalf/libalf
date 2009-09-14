@@ -27,7 +27,7 @@ using namespace std;
 
 logger::logger()
 {{{
-	minimal_loglevel = LOGGER_ERROR;
+	minimal_loglevel = LOGGER_INFO;
 	log_algorithm = true;
 }}}
 
@@ -65,20 +65,14 @@ void logger::set_log_algorithm(bool log_algorithm)
 
 
 ignore_logger::~ignore_logger()
-{{{
-	/* nothing */
-}}}
+{ /* nothing */ }
 void ignore_logger::log(enum logger_loglevel l, const char* s)
-{{{
-	/* nothing */
-}}}
+{ /* nothing */ }
 
 
 
 ostream_logger::ostream_logger()
 {{{
-	minimal_loglevel = LOGGER_ERROR;
-	log_algorithm = true;
 	use_color = true;
 	out = NULL;
 }}}
@@ -117,11 +111,7 @@ void ostream_logger::log(enum logger_loglevel l, const char* s)
 
 buffered_logger::buffered_logger()
 {{{
-	minimal_loglevel = LOGGER_ERROR;
-	log_algorithm = true;
-
 	buffer = new string;
-
 	log(LOGGER_INTERNAL, "started logger instance\n");
 }}}
 
