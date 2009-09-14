@@ -36,31 +36,105 @@ co_knowledgebase_iterator::~co_knowledgebase_iterator()
 }}};
 
 bool co_knowledgebase_iterator::handle_command(int command, basic_string<int32_t> & command_data)
-{
+{{{
+	int i;
+
 	switch(command) {
 		case KITERATOR_IS_VALID:
-			
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			return this->sv->client->stream_send_int( o->is_valid() ? 1 : 0 );
 		case KITERATOR_ASSIGN:
-			
+			// don't check for iterator validity, kb->end() is invalid.
+			if(command_data.size() != 1)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			i = ntohl(command_data[0]);
+			if(i < 0 || i >= (int)sv->objects.size())
+				return this->sv->send_errno(ERR_NO_OBJECT);
+			if(this->sv->objects[i]->get_type() != OBJ_LOGGER)
+				return this->sv->send_errno(ERR_BAD_OBJECT);
+
+			*o = *(this->sv->objects[i]->o)
+
+			return this->sv->send_errno(ERR_SUCCESS);
 		case KITERATOR_COMPARE:
-			
+			// don't check for iterator validity, kb->end() is invalid.
+			if(command_data.size() != 1)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			i = ntohl(command_data[0]);
+			if(i < 0 || i >= (int)sv->objects.size())
+				return this->sv->send_errno(ERR_NO_OBJECT);
+			if(this->sv->objects[i]->get_type() != OBJ_LOGGER)
+				return this->sv->send_errno(ERR_BAD_OBJECT);
+			return this->sv->client->stream_send_int( (*o == *(this->sv->objects[i]->o)) ? 1 : 0);
 		case KITERATOR_NEXT:
-			
+			if(!o->is_valid())
+				return this->sv->send_errno(ERR_BAD_OBJECT_STATE);
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			++(*o);
+			return this->sv->send_errno(ERR_SUCCESS);
 		case KITERATOR_GET_WORD:
-			
+			if(!o->is_valid()) {
+				return this->sv->send_errno(ERR_BAD_OBJECT_STATE);
+			} else {
+				if(command_data.size() != 0)
+					return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+				list<int> word = (*o)->get_word();
+				basic_string<int32_t> serial = serialize_word(word);
+				if(!this->sv->send_errno(ERR_SUCCESS))
+					return false;
+				return this->sv->client->stream_send_raw_blob(serial);
+			}
 		case KITERATOR_IS_ANSWERED:
-			
+			if(!o->is_valid())
+				return this->sv->send_errno(ERR_BAD_OBJECT_STATE);
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			return this->sv->client->stream_send_int((*o)->is_answered() ? 1 : 0);
 		case KITERATOR_GET_ANSWER:
-			
+			if(!o->is_valid())
+				return this->sv->send_errno(ERR_BAD_OBJECT_STATE);
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			if((*o)->is_answered()) {
+				extended_bool a;
+				if(!this->sv->client->stream_send_int(1))
+					return false;
+				a = (*o)->get_answer();
+				return this->sv->client->stream_send_int( (int32_t) a);
+			} else {
+				return this->sv->client->stream_send_int(0);
+			}
 		case KITERATOR_ANSWER:
-			
-			return this->sv->send_errno(ERR_NOT_IMPLEMENTED);
+			if(!o->is_valid()) {
+				return this->sv->send_errno(ERR_BAD_OBJECT_STATE);
+			} else {
+				if(command_data.size() != 1)
+					return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+
+				extended_bool a;
+
+				i = ntohl(command_data[0]);
+				if(i < 0 || i > 2)
+					return this->sv->send_errno(ERR_BAD_PARAMETERS);
+				a = (int32_t)i;
+				if(!this->sv->send_errno(ERR_SUCCESS))
+					return false;
+				return this->sv->client->stream_send_int((*o)->set_answer(a) ? 1 : 0);
+			}
 		default:
 			return this->sv->send_errno(ERR_BAD_COMMAND);
 	}
 
 	return false;
-};
+}}};
 
 void co_knowledgebase_iterator::ref_knowledgebase(int oid)
 {{{

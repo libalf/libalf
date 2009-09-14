@@ -38,7 +38,7 @@ co_knowledgebase::~co_knowledgebase()
 }}};
 
 bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & command_data)
-{
+{{{
 	string s;
 	basic_string<int32_t> serial;
 	basic_string<int32_t>::iterator si;
@@ -279,7 +279,7 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 	}
 
 	return false;
-};
+}}};
 
 void co_knowledgebase::ref_learning_algorithm(int oid)
 {{{
