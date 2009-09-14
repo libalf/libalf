@@ -82,7 +82,7 @@ co_learning_algorithm::~co_learning_algorithm()
 }}};
 
 bool co_learning_algorithm::handle_command(int command, basic_string<int32_t> & command_data)
-{
+{{{
 	basic_string<int32_t> serial;
 	basic_string<int32_t>::iterator si;
 	string s;
@@ -188,10 +188,19 @@ bool co_learning_algorithm::handle_command(int command, basic_string<int32_t> & 
 			this->deref_normalizer(referenced_normalizer);
 			return this->sv->send_errno(ERR_SUCCESS);
 		case LEARNING_ALGORITHM_GET_MEMORY_STATISTICS:
-			
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			serial = this->o->get_memory_statistics().serialize();
+			return this->sv->client->stream_send_raw_blob(serial);
 		case LEARNING_ALGORITHM_GET_TIMING_STATISTICS:
-			
-			return this->sv->send_errno(ERR_NOT_IMPLEMENTED);
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			serial = this->o->get_timing_statistics().serialize();
+			return this->sv->client->stream_send_raw_blob(serial);
 		case LEARNING_ALGORITHM_ENABLE_TIMING:
 			if(command_data.size() != 0)
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
@@ -272,7 +281,7 @@ bool co_learning_algorithm::handle_command(int command, basic_string<int32_t> & 
 	}
 
 	return false;
-};
+}}};
 
 void co_learning_algorithm::ref_knowledgebase(int oid)
 {{{
