@@ -7,7 +7,9 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.net.Socket;
 import de.libalf.AlfException;
+import de.libalf.Knowledgebase;
 import de.libalf.LibALFFactory;
+import de.libalf.Logger;
 import de.libalf.Knowledgebase.Acceptance;
 
 public class DispatcherFactory implements LibALFFactory {
@@ -317,17 +319,66 @@ public class DispatcherFactory implements LibALFFactory {
 	@Override
 	public DispatcherLearningAlgorithm createLearningAlgorithm(Algorithm algorithm, Object... args) {
 		switch (algorithm) {
+
 		case ANGLUIN:
-			return new DispatcherAlgorithmAngluin(this, (DispatcherKnowledgebase) args[0], (Integer) args[1]);
+			/*
+			 * Create Angluin learning algorithm.
+			 */
+			if (args.length == 2)
+				return new DispatcherAlgorithmAngluin(this, (Knowledgebase) args[0], (Integer) args[1], null);
+			else if (args.length == 3)
+				return new DispatcherAlgorithmAngluin(this, (Knowledgebase) args[0], (Integer) args[1], (Logger) args[2]);
+			else
+				throw new AlfException("Invalid parameters for creating Angluin learning algorithm: " + args.length + ".");
+
 		case ANGLUIN_COLUMN:
-			return new DispatcherAlgorithmAngluinColumn(this, (DispatcherKnowledgebase) args[0], (Integer) args[1]);
+			/*
+			 * Create Angluin (column) learning algorithm.
+			 */
+			if (args.length == 2)
+				return new DispatcherAlgorithmAngluinColumn(this, (Knowledgebase) args[0], (Integer) args[1], null);
+			else if (args.length == 3)
+				return new DispatcherAlgorithmAngluinColumn(this, (Knowledgebase) args[0], (Integer) args[1], (Logger) args[2]);
+			else
+				throw new AlfException("Invalid parameters for creating Angluin (column) learning algorithm: " + args.length + ".");
+
 		case NL_STAR:
-			return new DispatcherAlgorithmNLstar(this, (DispatcherKnowledgebase) args[0], (Integer) args[1]);
+			/*
+			 * Create NL^* learning algorithm.
+			 */
+			if (args.length == 2)
+				return new DispatcherAlgorithmNLstar(this, (Knowledgebase) args[0], (Integer) args[1], null);
+			else if (args.length == 3)
+				return new DispatcherAlgorithmNLstar(this, (Knowledgebase) args[0], (Integer) args[1], (Logger) args[2]);
+			else
+				throw new AlfException("Invalid parameters for creating NL^* learning algorithm: " + args.length + ".");
+
 		case RPNI:
-			return new DispatcherAlgorithmRPNI(this, (DispatcherKnowledgebase) args[0], (Integer) args[1]);
+			/*
+			 * Create RPNI learning algorithm.
+			 */
+			if (args.length == 2)
+				return new DispatcherAlgorithmRPNI(this, (Knowledgebase) args[0], (Integer) args[1], null);
+			else if (args.length == 3)
+				return new DispatcherAlgorithmRPNI(this, (Knowledgebase) args[0], (Integer) args[1], (Logger) args[2]);
+			else
+				throw new AlfException("Invalid parameters for creating RPNI learning algorithm: " + args.length + ".");
+
 		case BIERMANN_MINISAT:
-			return new DispatcherAlgorithmBiermannMiniSAT(this, (DispatcherKnowledgebase) args[0], (Integer) args[1]);
+			/*
+			 * Create Biermann (MiniSAT) learning algorithm.
+			 */
+			if (args.length == 2)
+				return new DispatcherAlgorithmBiermannMiniSAT(this, (Knowledgebase) args[0], (Integer) args[1], null);
+			else if (args.length == 3)
+				return new DispatcherAlgorithmBiermannMiniSAT(this, (Knowledgebase) args[0], (Integer) args[1], (Logger) args[2]);
+			else
+				throw new AlfException("Invalid parameters for creating Biermann (MiniSAT) learning algorithm: " + args.length + ".");
+
 		default:
+			/*
+			 * Default switch: Should never happen.
+			 */
 			return null;
 		}
 	}

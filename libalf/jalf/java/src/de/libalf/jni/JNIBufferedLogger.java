@@ -134,8 +134,8 @@ public class JNIBufferedLogger extends JNIObject implements Logger {
 	@Override
 	public void destroy() {
 		check();
-		destroy(pointer);
-		isAlive = false;
+		destroy(this.pointer);
+		this.isAlive = false;
 	}
 	
 	/**

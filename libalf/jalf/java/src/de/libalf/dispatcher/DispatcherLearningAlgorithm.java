@@ -30,10 +30,12 @@ public abstract class DispatcherLearningAlgorithm extends DispatcherObject imple
 		create(new int[] { this.algo.id, alphabet_size });
 	}
 
-	protected DispatcherLearningAlgorithm(DispatcherFactory factory, DispatcherConstants algo, int alphabet_size, DispatcherKnowledgebase base) throws AlfException {
+	protected DispatcherLearningAlgorithm(DispatcherFactory factory, DispatcherConstants algo, Knowledgebase base, int alphabet_size, Logger logger) throws AlfException {
 		this(factory, algo, alphabet_size);
 		if (base != null)
 			set_knowledge_source(base);
+		if (logger != null)
+			set_logger(logger);
 	}
 
 	@Override

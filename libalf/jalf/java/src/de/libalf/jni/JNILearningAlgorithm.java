@@ -47,7 +47,7 @@ public abstract class JNILearningAlgorithm extends JNIObject implements
 	/**
 	 * The logger to log events to.
 	 */
-	protected JNIBufferedLogger logger;
+	public JNIBufferedLogger logger;
 
 	@Override
 	public Knowledgebase get_knowledge_source() {
@@ -305,8 +305,8 @@ public abstract class JNILearningAlgorithm extends JNIObject implements
 	@Override
 	public void destroy() {
 		check();
-		destroy(pointer);
-		isAlive = false;
+		destroy(this.pointer);
+		this.isAlive = false;
 	}
 	
 	/**

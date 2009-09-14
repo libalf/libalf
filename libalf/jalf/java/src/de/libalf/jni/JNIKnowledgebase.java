@@ -346,8 +346,8 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase,
 	@Override
 	public void destroy() {
 		check();
-		destroy(pointer);
-		isAlive = false;
+		destroy(this.pointer);
+		this.isAlive = false;
 	}
 	
 	/**

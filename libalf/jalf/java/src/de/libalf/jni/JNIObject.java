@@ -29,6 +29,7 @@ import de.libalf.LibALFObject;
  * @version 1.0
  */
 public abstract class JNIObject implements LibALFObject {
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Load the JNI library.
@@ -47,7 +48,7 @@ public abstract class JNIObject implements LibALFObject {
 	/**
 	 * Stores whether the object has been killed.
 	 */
-	transient protected boolean isAlive = true;
+	protected boolean isAlive = true;
 	
 	/**
 	 * Returns the pointer to the C++ object.
@@ -83,7 +84,7 @@ public abstract class JNIObject implements LibALFObject {
 	 */
 	@Override
 	public boolean isDestroyed() {
-		return !isAlive;
+		return !this.isAlive;
 	}
 	
 	/**
@@ -107,9 +108,9 @@ public abstract class JNIObject implements LibALFObject {
 	
 	@Override
 	protected void finalize() throws Throwable {
-		if(isAlive) {
+		if(this.isAlive) {
 			destroy();
-			isAlive = false;
+			this.isAlive = false;
 		}
 	}
 }
