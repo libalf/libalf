@@ -20,6 +20,7 @@ enum command_error_code {
 	ERR_SUCCESS = 0,
 	ERR_NO_OBJECT = 1,
 	ERR_BAD_OBJECT = 2,
+	ERR_BAD_OBJECT_STATE = 3,
 
 	ERR_BAD_COMMAND = 10,
 	ERR_NOT_IMPLEMENTED = 11,
@@ -50,6 +51,8 @@ inline const char* err2string(int errno)
 			return "object does not exist";
 		case 2:
 			return "bad object";
+		case 3:
+			return "object is in bad state";
 		case 10:
 			return "bad command";
 		case 11:
