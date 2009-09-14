@@ -115,7 +115,6 @@ string receive_string(int sock)
 		exit(-1);
 	}
 	size = ntohl(size);
-	cout << "receiving string size "<<size<<".\n";
 	while(size) {
 		char d;
 		if(sizeof(d) != recv(sock, &d, sizeof(d), MSG_WAITALL)) {
@@ -205,21 +204,12 @@ int main()
 	send_blob(sock, cmd);
 
 	ret = receive_blob(sock, 1);
-	cout << "receive&flush resulted in " << ret[0] << ".\n";
 
 	if(ret[0] == 0) {
 		cout << "logger string: {\n" C_NOTE << receive_string(sock) << C_RESET "}.\n";
+	} else {
+		cout << "LOGGER FAILED!\n";
 	}
-
-	// delete logger:
-	cout << "\n";
-	cmd.clear();
-	cmd.push_back(CLCMD_DELETE_OBJECT);
-	cmd.push_back(logger_id);
-	send_blob(sock, cmd);
-
-	ret = receive_blob(sock, 1);
-	cout << "delete resulted in " << ret[0] << ".\n";
 
 	// create a knowledgebase:
 	cout << "\n";
@@ -258,15 +248,126 @@ int main()
 		print_blob(ret);
 	}
 
-	// delete knowledgebase:
+	// create learning_algorithm
+	int alg_id;
 	cout << "\n";
 	cmd.clear();
-	cmd.push_back(CLCMD_DELETE_OBJECT);
+	cmd.push_back(CLCMD_CREATE_OBJECT);
+	cmd.push_back(OBJ_LEARNING_ALGORITHM);
+	cmd.push_back(2);
+	cmd.push_back(ALG_ANGLUIN);
+	cmd.push_back(2);
+	send_blob(sock, cmd);
+
+	ret = receive_blob(sock, 1);
+	cout << "create ALG object resulted in " << ret[0] << ".\n";
+
+	if(ret[0] == 0) {
+		ret = receive_blob(sock, 1);
+		alg_id = ret[0];
+		cout << "object id " << alg_id << ".\n";
+	}
+
+	// associate logger with alg
+	cout << "\n";
+	cmd.clear();
+	cmd.push_back(CLCMD_OBJECT_COMMAND);
+	cmd.push_back(alg_id);
+	cmd.push_back(LEARNING_ALGORITHM_ASSOCIATE_LOGGER);
+	cmd.push_back(1);
+	cmd.push_back(logger_id);
+	send_blob(sock, cmd);
+
+	ret = receive_blob(sock, 1);
+	cout << "associate logger&alg: " << ret[0] << ".\n";
+
+	// associate knowledgebase with alg
+	cout << "\n";
+	cmd.clear();
+	cmd.push_back(CLCMD_OBJECT_COMMAND);
+	cmd.push_back(alg_id);
+	cmd.push_back(LEARNING_ALGORITHM_SET_KNOWLEDGE_SOURCE);
+	cmd.push_back(1);
 	cmd.push_back(kb_id);
 	send_blob(sock, cmd);
 
 	ret = receive_blob(sock, 1);
-	cout << "delete KB resulted in " << ret[0] << ".\n";
+	cout << "associate kb&alg: " << ret[0] << ".\n";
+
+	// sync alg
+	cout << "\n";
+	cmd.clear();
+	cmd.push_back(CLCMD_OBJECT_COMMAND);
+	cmd.push_back(alg_id);
+	cmd.push_back(LEARNING_ALGORITHM_SYNC_TO_KNOWLEDGEBASE);
+	cmd.push_back(0);
+	send_blob(sock, cmd);
+
+	ret = receive_blob(sock, 1);
+	cout << "sync kb/alg: " << ret[0] << ".\n";
+
+	// call receive&flush on logger
+	cout << "\n";
+	cmd.clear();
+	cmd.push_back(CLCMD_OBJECT_COMMAND);
+	cmd.push_back(logger_id);
+	cmd.push_back(LOGGER_RECEIVE_AND_FLUSH);
+	cmd.push_back(0);
+	send_blob(sock, cmd);
+
+	ret = receive_blob(sock, 1);
+
+	if(ret[0] == 0) {
+		cout << "logger string: {\n" C_NOTE << receive_string(sock) << C_RESET "}.\n";
+	} else {
+		cout << "LOGGER FAILED!\n";
+	}
+
+	// create query-tree
+	cout << "\n";
+	cmd.clear();
+	cmd.push_back(CLCMD_OBJECT_COMMAND);
+	cmd.push_back(kb_id);
+	cmd.push_back(KNOWLEDGEBASE_GET_QUERY_TREE);
+	cmd.push_back(0);
+	send_blob(sock, cmd);
+
+	ret = receive_blob(sock, 1);
+	cout << "kb->create_query_tree resulted in " << ret[0] << ".\n";
+	int qryTrid = -1;
+	if(ret[0] == 0) {
+		ret = receive_blob(sock, 1);
+		cout << "new knowledgebase: " << ret[0] << ".\n";
+		qryTrid = ret[0];
+	}
+
+	// serialize qruery tree
+	cout << "\n";
+	cmd.clear();
+	cmd.push_back(CLCMD_OBJECT_COMMAND);
+	cmd.push_back(qryTrid);
+	cmd.push_back(KNOWLEDGEBASE_SERIALIZE);
+	cmd.push_back(0);
+	send_blob(sock, cmd);
+
+	ret = receive_blob(sock, 1);
+	cout << "serialize query tree resulted in " << ret[0] << ".\n";
+
+	if(ret[0] == 0) {
+		ret = receive_blob(sock,1);
+		cout << "qryTri is " << ret[0] << " long:\n";
+		ret = receive_blob(sock,ret[0]);
+		print_blob(ret);
+	}
+
+
+
+
+
+
+
+
+
 
 	// say hello to carsten
 	cout << "\n";
@@ -281,6 +382,53 @@ int main()
 		ret = receive_blob(sock, 1);
 		cout << "and replied " << ret[0] << ".\n";
 	}
+
+	// call receive&flush on logger
+	cout << "\n";
+	cmd.clear();
+	cmd.push_back(CLCMD_OBJECT_COMMAND);
+	cmd.push_back(logger_id);
+	cmd.push_back(LOGGER_RECEIVE_AND_FLUSH);
+	cmd.push_back(0);
+	send_blob(sock, cmd);
+
+	ret = receive_blob(sock, 1);
+
+	if(ret[0] == 0) {
+		cout << "logger string: {\n" C_NOTE << receive_string(sock) << C_RESET "}.\n";
+	} else {
+		cout << "LOGGER FAILED!\n";
+	}
+
+	// delete algorithm:
+	cout << "\n";
+	cmd.clear();
+	cmd.push_back(CLCMD_DELETE_OBJECT);
+	cmd.push_back(alg_id);
+	send_blob(sock, cmd);
+
+	ret = receive_blob(sock, 1);
+	cout << "delete ALG resulted in " << ret[0] << ".\n";
+
+	// delete knowledgebase:
+	cout << "\n";
+	cmd.clear();
+	cmd.push_back(CLCMD_DELETE_OBJECT);
+	cmd.push_back(kb_id);
+	send_blob(sock, cmd);
+
+	ret = receive_blob(sock, 1);
+	cout << "delete KB resulted in " << ret[0] << ".\n";
+
+	// delete logger:
+	cout << "\n";
+	cmd.clear();
+	cmd.push_back(CLCMD_DELETE_OBJECT);
+	cmd.push_back(logger_id);
+	send_blob(sock, cmd);
+
+	ret = receive_blob(sock, 1);
+	cout << "delete logger resulted in " << ret[0] << ".\n";
 
 	// disconnect
 	cout << "\n";

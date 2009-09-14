@@ -416,7 +416,7 @@ server returns:
 answer all queries in one chunk (KNOWLEDGEBASE_DESERIALIZE_QUERY_ACCEPTANCES)
 parameters: 2
 	size,
-	acceptances[]
+	acceptances[] (in order of ascending timestamps of queries)
 server returns: nothing (see errno of object-command)
 
 

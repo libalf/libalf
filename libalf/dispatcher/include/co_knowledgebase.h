@@ -26,6 +26,9 @@ class co_knowledgebase;
 using namespace libalf;
 
 class co_knowledgebase : public client_object {
+	private:
+		co_knowledgebase(knowledgebase<extended_bool> * base);
+
 	public:
 		knowledgebase<extended_bool> * o;
 
