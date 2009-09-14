@@ -19,9 +19,14 @@ public class DispatcherLogger extends DispatcherObject implements Logger {
 
 	@Override
 	public String receive_and_flush() throws AlfException {
-		String ret = this.unread + this.factory.dispatchObjectCommandLoggerReceiveAndFlush(this);
-		this.unread = ""; // reset unread
-		return ret;
+		try {
+			synchronized (this.factory) {
+				this.factory.writeObjectCommandThrowing(this, DispatcherConstants.LOGGER_RECEIVE_AND_FLUSH);
+				return this.unread + this.factory.readString();
+			}
+		} finally {
+			this.unread = ""; // reset unread
+		}
 	}
 
 	/**

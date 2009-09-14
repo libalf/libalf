@@ -1,5 +1,6 @@
 package de.libalf;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.LinkedList;
 
@@ -39,7 +40,7 @@ import java.util.LinkedList;
  * @version 1.0
  * 
  */
-public class BasicAutomaton {
+public class BasicAutomaton implements Serializable {
 
 	/**
 	 * Is this object representing a deterministic finite automaton?

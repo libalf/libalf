@@ -1,7 +1,5 @@
 package de.libalf;
 
-import java.io.Serializable;
-
 /**
  * <p>
  * Each logged event is associated with a specific {@link LoggerLevel}, which
@@ -23,7 +21,7 @@ import java.io.Serializable;
  *         University
  * @version 1.0
  */
-public interface Logger extends Serializable {
+public interface Logger extends LibALFObject {
 
 	/**
 	 * Enumeration of all available logger levels.

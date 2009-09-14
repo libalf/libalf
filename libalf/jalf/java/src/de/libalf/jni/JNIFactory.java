@@ -14,6 +14,7 @@ import de.libalf.AlfException;
  * @version 1.0
  */
 public class JNIFactory implements LibALFFactory {
+	private static final long serialVersionUID = 1L;
 
 	@Override
 	public Knowledgebase createKnowledgebase(Object... args) {
@@ -105,4 +106,14 @@ public class JNIFactory implements LibALFFactory {
 		return new JNIBufferedLogger();
 	}
 
+	@Override
+	public void destroy() {
+		// indestructible
+	}
+	
+	@Override
+	public boolean isDestroyed() {
+		// indestructible
+		return false;
+	}
 }

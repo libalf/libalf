@@ -77,14 +77,19 @@ public class JNIBufferedLogger extends JNIObject implements Logger {
 		switch (minimalLogLevel) {
 		case LOGGER_ERROR:
 			ll = ERROR;
+			break;
 		case LOGGER_WARN:
 			ll = WARN;
+			break;
 		case LOGGER_INFO:
 			ll = INFO;
+			break;
 		case LOGGER_DEBUG:
 			ll = DEBUG;
+			break;
 		default:
 			ll = ERROR;
+			break;
 		}
 
 		this.pointer = init(this.minimalLogLevel = ll,

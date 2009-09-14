@@ -1,8 +1,8 @@
 package de.libalf.dispatcher;
 
-import java.io.Serializable;
-
 import de.libalf.AlfException;
+import de.libalf.AlfObjectDestroyedException;
+import de.libalf.LibALFObject;
 
 /**
  * TODO: check the following text
@@ -31,7 +31,7 @@ import de.libalf.AlfException;
  * @author Stefan Schulz
  * @version 1.0
  */
-public abstract class DispatcherObject implements Sendable, Serializable {
+public abstract class DispatcherObject implements LibALFObject, Sendable {
 	private static final long serialVersionUID = 1L;
 
 	/**
@@ -58,7 +58,10 @@ public abstract class DispatcherObject implements Sendable, Serializable {
 	}
 
 	protected void create(int[] data) throws DispatcherProtocolException {
-		useID(this.factory.dispatchCreateObject(this.objType, data));
+		synchronized (this.factory) {
+			this.factory.writeCommandThrowing(DispatcherConstants.CLCMD_CREATE_OBJECT, this.objType, data);
+			useID(this.factory.readInt());
+		}
 	}
 
 	protected void create() throws DispatcherProtocolException {
@@ -72,26 +75,35 @@ public abstract class DispatcherObject implements Sendable, Serializable {
 
 	@Override
 	protected void finalize() throws Throwable {
-		kill();
+		destroy();
 		super.finalize();
 	}
 
-	public void kill() throws AlfException {
-		if (this.id < 0)
-			return;
+	@Override
+	public void destroy() throws AlfException {
+		synchronized (this.factory) {
+			if (isDestroyed())
+				return;
 
-		this.factory.dispatchDeleteObject(this);
-		this.id = -1;
+			this.factory.writeCommandThrowing(DispatcherConstants.CLCMD_DELETE_OBJECT, this);
+			this.id = -1;
+		}
 	}
 
-	public boolean isKilled() {
-		return this.id < 0;
+	@Override
+	public boolean isDestroyed() {
+		return this.id < 0 || this.factory.isDestroyed();
 	}
 
-	void checkFactory(Object obj) {
-		if (obj instanceof DispatcherObject && ((DispatcherObject) obj).factory == this.factory)
+	protected void checkDestroyed() throws AlfObjectDestroyedException {
+		if (isDestroyed())
+			throw new DispatcherObjectDestroyedException("Object has been destroyed.");
+	}
+
+	protected void checkFactory(LibALFObject obj) {
+		if (!obj.isDestroyed() && obj instanceof DispatcherObject && ((DispatcherObject) obj).factory == this.factory)
 			return;
-		throw obj == null ? new NullPointerException() : new IllegalArgumentException("object has to be from the same factory!");
+		throw new IllegalArgumentException("object has to be from the same factory!");
 	}
 
 	public DispatcherConstants getObjType() {
@@ -99,8 +111,11 @@ public abstract class DispatcherObject implements Sendable, Serializable {
 	}
 
 	void checkObjType() {
-		if (this.objType.getInt() != this.factory.dispatchGetObjectType(this))
-			throw new DispatcherProtocolException("object type mismatch");
+		synchronized (this.factory) {
+			this.factory.writeCommandThrowing(DispatcherConstants.CLCMD_GET_OBJECTTYPE, this);
+			if (this.objType.getInt() != this.factory.readInt())
+				throw new DispatcherProtocolException("object type mismatch");
+		}
 	}
 
 	@Override

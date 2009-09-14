@@ -19,91 +19,198 @@ public class DispatcherKnowledgebase extends DispatcherObject implements Knowled
 
 	@Override
 	public boolean add_knowledge(int[] word, boolean acceptance) throws AlfException {
-		return this.factory.dispatchObjectCommandKnowledgebaseAddKnowledge(this, word, acceptance);
+		synchronized (this.factory) {
+			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.KNOWLEDGEBASE_ADD_KNOWLEDGE, word, acceptance);
+			return this.factory.readBool();
+		}
 	}
 
 	@Override
 	public void clear() throws AlfException {
-		this.factory.dispatchObjectCommandKnowledgebaseClear(this);
+		synchronized (this.factory) {
+			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.KNOWLEDGEBASE_CLEAR);
+		}
 	}
 
 	@Override
 	public void clear_queries() throws AlfException {
-		this.factory.dispatchObjectCommandKnowledgebaseClearQueries(this);
+		synchronized (this.factory) {
+			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.KNOWLEDGEBASE_CLEAR_QUERIES);
+		}
 	}
 
 	@Override
 	public int count_answers() throws AlfException {
-		return this.factory.dispatchObjectCommandKnowledgebaseCountAnswers(this);
+		synchronized (this.factory) {
+			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.KNOWLEDGEBASE_COUNT_ANSWERS);
+			return this.factory.readInt();
+		}
 	}
 
 	@Override
 	public int count_queries() throws AlfException {
-		return this.factory.dispatchObjectCommandKnowledgebaseCountQueries(this);
+		synchronized (this.factory) {
+			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.KNOWLEDGEBASE_COUNT_QUERIES);
+			return this.factory.readInt();
+		}
 	}
 
 	@Override
 	public boolean deserialize(int[] serialization) throws AlfException {
-		return this.factory.dispatchObjectCommandKnowledgebaseDeserialize(this, serialization);
+		synchronized (this.factory) {
+			try {
+				this.factory.writeObjectCommandThrowing(this, DispatcherConstants.KNOWLEDGEBASE_DESERIALIZE, serialization);
+				return true;
+			} catch (DispatcherCommandError e) {
+				return false;
+			}
+		}
 	}
 
 	@Override
 	public String generate_dotfile() throws AlfException {
-		return this.factory.dispatchObjectCommandKnowledgebaseGenerateDotfile(this);
-	}
-
-	@Override
-	public LinkedList<int[]> get_knowledge() throws AlfException {
-		return this.factory.dispatchObjectCommandKnowledgebaseGetKnowledge(this);
+		synchronized (this.factory) {
+			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.KNOWLEDGEBASE_TO_DOTFILE);
+			return this.factory.readString();
+		}
 	}
 
 	@Override
 	public int get_memory_usage() throws AlfException {
-		return this.factory.dispatchObjectCommandKnowledgebaseGetMemoryUsage(this);
+		synchronized (this.factory) {
+			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.KNOWLEDGEBASE_GET_MEMORY_USAGE);
+			return this.factory.readInt();
+		}
+	}
+
+	@SuppressWarnings("serial")
+	private static class DispatcherKnowledgebaseIterator extends DispatcherObject {
+		DispatcherKnowledgebaseIterator(DispatcherFactory factory, int id) {
+			super(factory, DispatcherConstants.OBJ_KNOWLEDGEBASE_ITERATOR);
+			useID(id);
+		}
+	}
+
+	@Override
+	public LinkedList<int[]> get_knowledge() throws AlfException {
+		synchronized (this.factory) {
+			return iterateToList(dispatchBegin(this), dispatchEnd(this));
+		}
 	}
 
 	@Override
 	public LinkedList<int[]> get_queries() throws AlfException {
-		return this.factory.dispatchObjectCommandKnowledgebaseGetQueries(this);
+		synchronized (this.factory) {
+			return iterateToList(dispatchQBegin(this), dispatchQEnd(this));
+		}
+	}
+
+	private LinkedList<int[]> iterateToList(DispatcherKnowledgebaseIterator begin, DispatcherKnowledgebaseIterator end) {
+		LinkedList<int[]> list = new LinkedList<int[]>();
+		while (!dispatchIteratorCompare(begin, end)) {
+			list.add(dispatchIteratorGetWord(begin));
+			dispatchIteratorNext(begin);
+		}
+		begin.destroy();
+		end.destroy();
+		return list;
+	}
+
+	private boolean dispatchIteratorCompare(DispatcherKnowledgebaseIterator obj1, DispatcherKnowledgebaseIterator obj2) {
+		this.factory.writeObjectCommandThrowing(obj1, DispatcherConstants.KITERATOR_COMPARE, obj2);
+		return this.factory.readBool();
+	}
+
+	private void dispatchIteratorNext(DispatcherKnowledgebaseIterator obj) {
+		this.factory.writeObjectCommandThrowing(obj, DispatcherConstants.KITERATOR_NEXT);
+	}
+
+	private int[] dispatchIteratorGetWord(DispatcherKnowledgebaseIterator obj) {
+		this.factory.writeObjectCommandThrowing(obj, DispatcherConstants.KITERATOR_GET_WORD);
+		return this.factory.readInts();
+	}
+
+	private DispatcherKnowledgebaseIterator dispatchBegin(DispatcherKnowledgebase obj) {
+		this.factory.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_BEGIN);
+		return new DispatcherKnowledgebaseIterator(this.factory, this.factory.readInt());
+	}
+
+	private DispatcherKnowledgebaseIterator dispatchEnd(DispatcherKnowledgebase obj) {
+		this.factory.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_END);
+		return new DispatcherKnowledgebaseIterator(this.factory, this.factory.readInt());
+	}
+
+	private DispatcherKnowledgebaseIterator dispatchQBegin(DispatcherKnowledgebase obj) {
+		this.factory.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_QBEGIN);
+		return new DispatcherKnowledgebaseIterator(this.factory, this.factory.readInt());
+	}
+
+	private DispatcherKnowledgebaseIterator dispatchQEnd(DispatcherKnowledgebase obj) {
+		this.factory.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_QEND);
+		return new DispatcherKnowledgebaseIterator(this.factory, this.factory.readInt());
 	}
 
 	@Override
 	public boolean is_answered() throws AlfException {
-		return this.factory.dispatchObjectCommandKnowledgebaseIsAnswered(this);
+		synchronized (this.factory) {
+			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.KNOWLEDGEBASE_IS_ANSWERED);
+			return this.factory.readBool();
+		}
 	}
 
 	@Override
 	public boolean is_empty() throws AlfException {
-		return this.factory.dispatchObjectCommandKnowledgebaseIsEmpty(this);
+		synchronized (this.factory) {
+			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.KNOWLEDGEBASE_IS_EMPTY);
+			return this.factory.readBool();
+		}
 	}
 
 	@Override
 	public Acceptance resolve_or_add_query(int[] word) throws AlfException {
-		return this.factory.dispatchObjectCommandKnowledgebaseResolveOrAddQuery(this, word);
+		synchronized (this.factory) {
+			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.KNOWLEDGEBASE_RESOLVE_OR_ADD_QUERY, word);
+			return this.factory.readAcceptance();
+		}
 	}
 
 	@Override
 	public Acceptance resolve_query(int[] word) throws AlfException {
-		return this.factory.dispatchObjectCommandKnowledgebaseResolveQuery(this, word);
+		synchronized (this.factory) {
+			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.KNOWLEDGEBASE_RESOLVE_QUERY, word);
+			return this.factory.readAcceptance();
+		}
 	}
 
 	@Override
 	public int[] serialize() throws AlfException {
-		return this.factory.dispatchObjectCommandKnowledgebaseSerialize(this);
+		synchronized (this.factory) {
+			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.KNOWLEDGEBASE_SERIALIZE);
+			return this.factory.readInts();
+		}
 	}
 
 	@Override
 	public boolean undo(int count) throws AlfException {
-		return this.factory.dispatchObjectCommandKnowledgebaseUndo(this, count);
+		synchronized (this.factory) {
+			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.KNOWLEDGEBASE_UNDO, count);
+			return this.factory.readBool();
+		}
 	}
 
 	@Override
 	public String toString() throws AlfException {
-		return this.factory.dispatchObjectCommandKnowledgebaseToString(this);
+		synchronized (this.factory) {
+			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.KNOWLEDGEBASE_TO_STRING);
+			return this.factory.readString();
+		}
 	}
 
 	public String toDot() throws AlfException {
-		return this.factory.dispatchObjectCommandKnowledgebaseToDotFile(this);
+		synchronized (this.factory) {
+			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.KNOWLEDGEBASE_TO_DOTFILE);
+			return this.factory.readString();
+		}
 	}
 
 	/**

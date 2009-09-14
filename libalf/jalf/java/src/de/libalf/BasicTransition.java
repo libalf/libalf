@@ -1,5 +1,7 @@
 package de.libalf;
 
+import java.io.Serializable;
+
 /**
  * A transition of a {@link BasicAutomaton}. It consists of:
  * <ul>
@@ -15,7 +17,7 @@ package de.libalf;
  * @version 1.0
  * 
  */
-public class BasicTransition {
+public class BasicTransition implements Serializable {
 
 	/**
 	 * The source state of the transition.

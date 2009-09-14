@@ -1,7 +1,5 @@
 package de.libalf;
 
-import java.io.Serializable;
-
 import de.libalf.Knowledgebase.Acceptance;
 
 /**
@@ -71,7 +69,7 @@ import de.libalf.Knowledgebase.Acceptance;
  * @version 1.0
  * 
  */
-public interface LearningAlgorithm extends Serializable {
+public interface LearningAlgorithm extends LibALFObject {
 
 	/**
 	 * Sets the size of the alphabet to a new value.

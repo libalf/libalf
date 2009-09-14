@@ -13,13 +13,15 @@ public class Test {
 		DispatcherFactory factory = new DispatcherFactory("127.0.0.1", 24940);
 		try {
 			DispatcherKnowledgebase kb = factory.createKnowledgebase();
-			DispatcherLearningAlgorithm a = factory.createLearningAlgorithm(Algorithm.NL_STAR, kb, 7);
+			DispatcherLearningAlgorithm a = factory.createLearningAlgorithm(Algorithm.ANGLUIN_COLUMN, kb, 7);
 
 			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("blah.jdat"));
 			out.writeObject(a);
 			out.close();
 			
-			factory.kill();
+			a.destroy();
+//			kb.destroy();
+			factory.destroy();
 			
 			////
 			
@@ -28,10 +30,13 @@ public class Test {
 			in.close();
 			
 			System.out.println(a);
+			System.out.println(a.get_knowledge_source());
+			System.out.println(a.supports_sync());
+			System.out.println(a.sync_to_knowledgebase());
 			
 			factory = a.factory;
-			factory.dispatchHelloCarsten(23);
-			factory.kill();
+			factory.sendNoOp();
+			factory.destroy();
 			
 			System.exit(0);
 			
@@ -39,7 +44,7 @@ public class Test {
 			
 			
 
-			factory.dispatchHelloCarsten(23);
+			factory.sendNoOp();
 
 //			DispatcherLogger l = factory.createLogger();
 
@@ -60,18 +65,18 @@ public class Test {
 //				System.out.println(a.sync_to_knowledgebase());
 //				System.out.println(a.sync_to_knowledgebase());
 				
-				a.kill();
+				a.destroy();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 
-			kb.kill();
+			kb.destroy();
 
 //			System.out.println(l.receive_and_flush());
 			
 //			l.kill();
 
-			factory.kill();
+			factory.destroy();
 		} catch (Throwable e) {
 			e.printStackTrace();
 			factory.printRest(500);

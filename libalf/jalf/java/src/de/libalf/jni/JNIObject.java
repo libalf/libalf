@@ -1,6 +1,7 @@
 package de.libalf.jni;
 
 import de.libalf.AlfObjectDestroyedException;
+import de.libalf.LibALFObject;
 
 /**
  * <p>
@@ -27,7 +28,7 @@ import de.libalf.AlfObjectDestroyedException;
  *         University
  * @version 1.0
  */
-public abstract class JNIObject {
+public abstract class JNIObject implements LibALFObject {
 
 	/**
 	 * Load the JNI library.
@@ -76,12 +77,13 @@ public abstract class JNIObject {
 	private static native String getLibALFVersion();
 	
 	/**
-	 * Checks whether the object is living and can perform actions.
+	 * Checks whether the object is destroyed and can not perform actions.
 	 *
-	 * @return the status of the object.
+	 * @return <code>true</code> iff the object is destroyed.
 	 */
-	public boolean isAlive() {
-		return isAlive;
+	@Override
+	public boolean isDestroyed() {
+		return !isAlive;
 	}
 	
 	/**
@@ -93,13 +95,14 @@ public abstract class JNIObject {
 	 * </ol>
 	 */
 	protected void check() throws AlfObjectDestroyedException {
-		if(!isAlive) throw new AlfObjectDestroyedException("Object has been destroyed.");
+		if(isDestroyed()) throw new AlfObjectDestroyedException("Object has been destroyed.");
 	}
 	
 	/**
 	 * <p>Kills the object by freeing the memory occupied by the C++ object.</p>
 	 * <p>After an object is dead, no more operations on this object can be performed.</p>
 	 */
+	@Override
 	public abstract void destroy();
 	
 	@Override

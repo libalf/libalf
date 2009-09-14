@@ -1,34 +1,51 @@
 package de.libalf.dispatcher;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.util.LinkedList;
-
-import de.libalf.BasicAutomaton;
-import de.libalf.BasicTransition;
+import java.net.Socket;
+import de.libalf.AlfException;
 import de.libalf.LibALFFactory;
 import de.libalf.Knowledgebase.Acceptance;
 
 public class DispatcherFactory implements LibALFFactory {
 	private static final long serialVersionUID = 1L;
 
-	private DispatcherSocket io;
+	private transient DataInputStream in;
+	private transient DataOutputStream out;
+
+	private final String host;
+	private final int port;
 
 	public DispatcherFactory(String host, int port) throws DispatcherIOException, DispatcherProtocolException {
 		// socket
-		this.io = new DispatcherSocket(host, port);
+		this.host = host;
+		this.port = port;
 
 		// get init stuff
 		init();
 	}
 
 	private void init() {
-		int code = this.io.readInt();
+		connect();
+
+		int code = readInt();
 		if (code != 0)
 			throw new DispatcherCommandError(code, DispatcherConstants.CLCMD_REQ_CAPA);
-		String capa = this.io.readString(); // TODO
+		String capa = readString(); // TODO
 		System.out.println(capa);
+	}
+
+	private void connect() {
+		try {
+			Socket socket = new Socket(this.host, this.port);
+			this.in = new DataInputStream(socket.getInputStream());
+			this.out = new DataOutputStream(socket.getOutputStream());
+		} catch (IOException e) {
+			throw new DispatcherIOException(e);
+		}
 	}
 
 	/**
@@ -39,295 +56,253 @@ public class DispatcherFactory implements LibALFFactory {
 		init();
 	}
 
-	public void kill() {
-		int disco = dispatchDisconnect();
-		if (disco != 0)
-			new DispatcherCommandError(disco, DispatcherConstants.CLCMD_DISCONNECT).printStackTrace();
-		this.io.close();
-	}
+	////////////////////////////////////////////////////////////////
+	// KILLING
 
 	@Override
 	protected void finalize() throws Throwable {
-		kill();
+		destroy();
 		super.finalize();
+	}
+
+	@Override
+	public void destroy() throws DispatcherCommandError, DispatcherIOException {
+		try {
+			int disco = writeCommand(DispatcherConstants.CLCMD_DISCONNECT);
+			if (disco != 0) {
+				System.err.print("WARNING -- ");
+				new DispatcherCommandError(disco, DispatcherConstants.CLCMD_DISCONNECT).printStackTrace();
+			}
+		} finally {
+			try {
+				this.in.close();
+				this.out.close();
+			} catch (IOException e) {
+				throw new DispatcherIOException(e);
+			} finally {
+				this.in = null;
+				this.out = null;
+			}
+		}
+	}
+
+	@Override
+	public boolean isDestroyed() {
+		return this.in == null || this.out == null;
+	}
+
+	////////////////////////////////////////////////////////////////
+	// SENDING
+
+	private void flush() {
+		try {
+			this.out.flush();
+		} catch (IOException e) {
+			throw new DispatcherIOException(e);
+		}
+	}
+
+	private void writeSendable(Sendable o) {
+		writeInt(o.getInt());
+	}
+
+	private void writeBool(boolean b) {
+		writeInt(b ? 1 : 0);
+	}
+
+	private void writeInt(int i) {
+		try {
+			this.out.writeInt(i);
+		} catch (IOException e) {
+			throw new DispatcherIOException(e);
+		}
+	}
+
+	private void writeInts(int[] is) {
+		writeInt(is.length);
+		for (int i : is)
+			writeInt(i);
+	}
+
+	private int getSize(Object... args) {
+		int size = 0;
+		for (Object arg : args) {
+			if (arg instanceof Sendable)
+				size++;
+			else if (arg instanceof Boolean)
+				size++;
+			else if (arg instanceof Integer)
+				size++;
+			else if (arg instanceof int[])
+				size += 1 + ((int[]) arg).length;
+			else
+				throw new IllegalArgumentException();
+		}
+		return size;
+	}
+
+	int writeCommand(DispatcherConstants cmd, Object... args) throws DispatcherIOException {
+		if (isDestroyed())
+			throw new DispatcherObjectDestroyedException("Factory has been destroyed.");
+
+		// send command
+		writeSendable(cmd);
+
+		// send arguments
+		for (Object arg : args) {
+			if (arg instanceof Sendable)
+				writeSendable((Sendable) arg);
+			else if (arg instanceof Boolean)
+				writeBool((Boolean) arg);
+			else if (arg instanceof Integer)
+				writeInt((Integer) arg);
+			else if (arg instanceof int[])
+				writeInts((int[]) arg);
+			else
+				throw new IllegalArgumentException();
+		}
+
+		flush();
+
+		// get response code
+		return readInt();
+	}
+
+	int writeObjectCommand(DispatcherObject obj, DispatcherConstants objCmd, Object... args) {
+		if (obj.isDestroyed())
+			throw new DispatcherObjectDestroyedException("Object has been destroyed.");
+
+		Object[] newArgs = new Object[args.length + 3];
+		newArgs[0] = obj;
+		newArgs[1] = objCmd;
+		newArgs[2] = getSize(args);
+		System.arraycopy(args, 0, newArgs, 3, args.length);
+
+		return writeCommand(DispatcherConstants.CLCMD_OBJECT_COMMAND, newArgs);
+	}
+
+	void writeCommandThrowing(DispatcherConstants cmd, Object... args) throws AlfException {
+		int code = writeCommand(cmd, args);
+		if (code == 0)
+			return;
+
+		throw new DispatcherCommandError(code, cmd);
+	}
+
+	void writeObjectCommandThrowing(DispatcherObject obj, DispatcherConstants objCmd, Object... args) {
+		int code = writeObjectCommand(obj, objCmd, args);
+		if (code == 0)
+			return;
+
+		DispatcherCommandError cmdError = new DispatcherCommandError(code, objCmd);
+		if (code == DispatcherConstants.ERR_NO_OBJECT.id)
+			throw new DispatcherObjectDestroyedException(cmdError);
+		throw cmdError;
+	}
+
+	////////////////////////////////////////////////////////////////
+	// RECEIVING
+
+	public boolean readBool() throws DispatcherIOException {
+		return readInt() != 0;
+	}
+
+	public int readInt() throws DispatcherIOException {
+		try {
+			int i = this.in.readInt();
+			//			System.out.println(">> " + DispatcherConstants.printUInt32(i));
+			return i;
+		} catch (IOException e) {
+			throw new DispatcherIOException(e);
+		}
+	}
+
+	public int[] readInts() throws DispatcherIOException {
+		int[] is = new int[readInt()];
+		for (int i = 0; i < is.length; i++)
+			is[i] = readInt();
+		return is;
+	}
+
+	private byte readByte() {
+		try {
+			byte b = this.in.readByte();
+			//			System.out.println(">> " + DispatcherConstants.printUInt8(b));
+			return b;
+		} catch (IOException e) {
+			throw new DispatcherIOException(e);
+		}
+	}
+
+	@SuppressWarnings("deprecation")
+	public String readString() throws DispatcherIOException {
+		byte[] buf = new byte[readInt()];
+		for (int i = 0; i < buf.length; i++)
+			buf[i] = readByte();
+		assert is7bit(buf);
+		return new String(buf, 0);
+	}
+
+	private boolean is7bit(byte[] buf) {
+		for (byte b : buf)
+			if (b < 0)
+				return true;
+		return true;
+	}
+
+	public Acceptance readAcceptance() {
+		if (!readBool())
+			return null;
+
+		int i = readInt();
+		switch (i) {
+		case 0:
+			return Acceptance.REJECT;
+		case 1:
+			return Acceptance.UNKNOWN;
+		case 2:
+			return Acceptance.ACCEPT;
+		}
+
+		throw new DispatcherProtocolException("unknown acceptance type: " + i + " (" + String.format("0x%08X", i) + ")");
+	}
+
+	void printRest(int wait) throws Throwable {
+		if (isDestroyed())
+			return;
+
+		Thread.sleep(wait);
+		while (this.in.available() > 0) {
+			System.out.println(this.in.available() < 4 ? String.format("0x%02X", readByte()) : String.format("0x%08X", readInt()));
+		}
 	}
 
 	////////////////////////////////////////////////////////////////
 	// COMMUNICATION
 	// has to be synchronized in order to not interleave requests of concurrent threads.
 
-	synchronized String dispatchReqCapa() {
-		this.io.writeCommandThrowing(DispatcherConstants.CLCMD_REQ_CAPA);
-		return this.io.readString();
+	public synchronized String requestCapa() {
+		writeCommandThrowing(DispatcherConstants.CLCMD_REQ_CAPA);
+		return readString();
 	}
 
-	synchronized String dispatchReqVersion() {
-		this.io.writeCommandThrowing(DispatcherConstants.CLCMD_REQ_VERSION);
-		return this.io.readString();
+	public synchronized String getVersion() {
+		writeCommandThrowing(DispatcherConstants.CLCMD_REQ_VERSION);
+		return readString();
 	}
 
-	synchronized int dispatchDisconnect() {
-		return this.io.writeCommand(DispatcherConstants.CLCMD_DISCONNECT);
-	}
-
-	synchronized int dispatchCreateObject(DispatcherConstants objType, int[] data) {
-		this.io.writeCommandThrowing(DispatcherConstants.CLCMD_CREATE_OBJECT, objType, data);
-		return this.io.readInt();
-	}
-
-	synchronized void dispatchDeleteObject(DispatcherObject obj) {
-		this.io.writeCommandThrowing(DispatcherConstants.CLCMD_DELETE_OBJECT, obj);
-	}
-
-	synchronized int dispatchGetObjectType(DispatcherObject obj) {
-		this.io.writeCommandThrowing(DispatcherConstants.CLCMD_GET_OBJECTTYPE, obj);
-		return this.io.readInt();
-	}
-
-	synchronized void dispatchHelloCarsten(int i) throws DispatcherIOException {
-		this.io.writeCommandThrowing(DispatcherConstants.CLCMD_HELLO_CARSTEN, i);
-		if (this.io.readInt() != i)
+	private void dispatchHelloCarsten(int i) throws DispatcherIOException {
+		writeCommandThrowing(DispatcherConstants.CLCMD_HELLO_CARSTEN, i);
+		if (readInt() != i)
 			throw new DispatcherProtocolException(DispatcherConstants.CLCMD_HELLO_CARSTEN.toString());
 	}
 
-	synchronized String dispatchObjectCommandLoggerReceiveAndFlush(DispatcherObject obj) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LOGGER_RECEIVE_AND_FLUSH);
-		return this.io.readString();
-	}
-
-	synchronized boolean dispatchObjectCommandKnowledgebaseAddKnowledge(DispatcherKnowledgebase obj, int[] word, boolean acceptance) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_ADD_KNOWLEDGE, word, acceptance);
-		return this.io.readBool();
-	}
-
-	synchronized void dispatchObjectCommandKnowledgebaseClear(DispatcherKnowledgebase obj) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_CLEAR);
-	}
-
-	synchronized void dispatchObjectCommandKnowledgebaseClearQueries(DispatcherKnowledgebase obj) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_CLEAR_QUERIES);
-	}
-
-	synchronized int dispatchObjectCommandKnowledgebaseCountAnswers(DispatcherKnowledgebase obj) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_COUNT_ANSWERS);
-		return this.io.readInt();
-	}
-
-	synchronized int dispatchObjectCommandKnowledgebaseCountQueries(DispatcherKnowledgebase obj) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_COUNT_QUERIES);
-		return this.io.readInt();
-	}
-
-	synchronized boolean dispatchObjectCommandKnowledgebaseDeserialize(DispatcherKnowledgebase obj, int[] serialization) {
-		try {
-			this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_DESERIALIZE, serialization);
-			return true;
-		} catch (DispatcherCommandError e) {
-			return false;
-		}
-	}
-
-	synchronized String dispatchObjectCommandKnowledgebaseGenerateDotfile(DispatcherKnowledgebase obj) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_TO_DOTFILE);
-		return this.io.readString();
-	}
-
-	private DispatcherKnowledgebaseIterator dispatchObjectCommandKnowledgebaseBegin(DispatcherKnowledgebase obj) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_BEGIN);
-		return new DispatcherKnowledgebaseIterator(this, this.io.readInt());
-	}
-
-	private DispatcherKnowledgebaseIterator dispatchObjectCommandKnowledgebaseEnd(DispatcherKnowledgebase obj) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_END);
-		return new DispatcherKnowledgebaseIterator(this, this.io.readInt());
-	}
-
-	private LinkedList<int[]> iterateToList(DispatcherKnowledgebaseIterator begin, DispatcherKnowledgebaseIterator end) {
-		LinkedList<int[]> list = new LinkedList<int[]>();
-		while (!dispatchObjectCommandKIteratorCompare(begin, end)) {
-			list.add(dispatchObjectCommandKIteratorGetWord(begin));
-			dispatchObjectCommandKIteratorNext(begin);
-		}
-		return list;
-	}
-
-	synchronized LinkedList<int[]> dispatchObjectCommandKnowledgebaseGetKnowledge(DispatcherKnowledgebase obj) {
-		return iterateToList(dispatchObjectCommandKnowledgebaseBegin(obj), dispatchObjectCommandKnowledgebaseEnd(obj));
-	}
-
-	synchronized int dispatchObjectCommandKnowledgebaseGetMemoryUsage(DispatcherKnowledgebase obj) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_GET_MEMORY_USAGE);
-		return this.io.readInt();
-	}
-
-	private DispatcherKnowledgebaseIterator dispatchObjectCommandKnowledgebaseQBegin(DispatcherKnowledgebase obj) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_QBEGIN);
-		return new DispatcherKnowledgebaseIterator(this, this.io.readInt());
-	}
-
-	private DispatcherKnowledgebaseIterator dispatchObjectCommandKnowledgebaseQEnd(DispatcherKnowledgebase obj) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_QEND);
-		return new DispatcherKnowledgebaseIterator(this, this.io.readInt());
-	}
-
-	synchronized LinkedList<int[]> dispatchObjectCommandKnowledgebaseGetQueries(DispatcherKnowledgebase obj) {
-		return iterateToList(dispatchObjectCommandKnowledgebaseQBegin(obj), dispatchObjectCommandKnowledgebaseQEnd(obj));
-	}
-
-	synchronized boolean dispatchObjectCommandKnowledgebaseIsAnswered(DispatcherKnowledgebase obj) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_IS_ANSWERED);
-		return this.io.readBool();
-	}
-
-	synchronized boolean dispatchObjectCommandKnowledgebaseIsEmpty(DispatcherKnowledgebase obj) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_IS_EMPTY);
-		return this.io.readBool();
-	}
-
-	synchronized Acceptance dispatchObjectCommandKnowledgebaseResolveOrAddQuery(DispatcherKnowledgebase obj, int[] word) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_RESOLVE_OR_ADD_QUERY, word);
-		return this.io.readAcceptance();
-	}
-
-	synchronized Acceptance dispatchObjectCommandKnowledgebaseResolveQuery(DispatcherKnowledgebase obj, int[] word) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_RESOLVE_QUERY, word);
-		return this.io.readAcceptance();
-	}
-
-	synchronized int[] dispatchObjectCommandKnowledgebaseSerialize(DispatcherKnowledgebase obj) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_SERIALIZE);
-		return this.io.readInts();
-	}
-
-	synchronized boolean dispatchObjectCommandKnowledgebaseUndo(DispatcherKnowledgebase obj, int count) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_UNDO, count);
-		return this.io.readBool();
-	}
-
-	synchronized String dispatchObjectCommandKnowledgebaseToString(DispatcherKnowledgebase obj) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_TO_STRING);
-		return this.io.readString();
-	}
-
-	synchronized String dispatchObjectCommandKnowledgebaseToDotFile(DispatcherKnowledgebase obj) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KNOWLEDGEBASE_TO_DOTFILE);
-		return this.io.readString();
-	}
-
-	synchronized boolean dispatchObjectCommandKIteratorCompare(DispatcherKnowledgebaseIterator obj1, DispatcherKnowledgebaseIterator obj2) {
-		this.io.writeObjectCommandThrowing(obj1, DispatcherConstants.KITERATOR_COMPARE, obj2);
-		return this.io.readBool();
-	}
-
-	synchronized void dispatchObjectCommandKIteratorNext(DispatcherKnowledgebaseIterator obj) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KITERATOR_NEXT);
-	}
-
-	synchronized int[] dispatchObjectCommandKIteratorGetWord(DispatcherKnowledgebaseIterator obj) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.KITERATOR_GET_WORD);
-		return this.io.readInts();
-	}
-
-	synchronized void dispatchObjectCommandAlgorithmAddCounterexample(DispatcherLearningAlgorithm obj, int[] counterexample) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_ADD_COUNTEREXAMPLE, counterexample);
-	}
-
-	synchronized BasicAutomaton dispatchObjectCommandAlgorithmAdvance(DispatcherLearningAlgorithm obj) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_ADVANCE);
-		return this.io.readBool() ? getBA(this.io.readInts()) : null;
-	}
-
-	private static BasicAutomaton getBA(int[] ints) {
-		int pos = 0;
-
-		int alphabetSize = ints[pos++];
-		int numberOfStates = ints[pos++];
-		BasicAutomaton auto = new BasicAutomaton(numberOfStates, alphabetSize);
-		int numberOfInitStates = ints[pos++];
-		while (numberOfInitStates-- > 0)
-			auto.addInitialState(ints[pos++]);
-		int numberOfFinalStates = ints[pos++];
-		while (numberOfFinalStates-- > 0)
-			auto.addFinalState(ints[pos++]);
-		int numberOfTransitions = ints[pos++];
-		while (numberOfTransitions-- > 0)
-			auto.addTransition(new BasicTransition(ints[pos++], ints[pos++], ints[pos++]));
-
-		return auto;
-	}
-
-	synchronized boolean dispatchObjectCommandAlgorithmConjectureReady(DispatcherLearningAlgorithm obj) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_CONJECTURE_READY);
-		return this.io.readBool();
-	}
-
-	synchronized boolean dispatchObjectCommandAlgorithmDeserialize(DispatcherLearningAlgorithm obj, int[] serialization) {
-		try {
-			this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_DESERIALIZE, serialization);
-			return true;
-		} catch (DispatcherCommandError e) {
-			return false;
-		}
-	}
-
-	synchronized int dispatchObjectCommandAlgorithmGetAlphabetSize(DispatcherLearningAlgorithm obj) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_GET_ALPHABET_SIZE);
-		return this.io.readInt();
-	}
-
-	synchronized int dispatchObjectCommandAlgorithmGetKnowledgeSource(DispatcherLearningAlgorithm obj) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_GET_KNOWLEDGE_SOURCE);
-		return this.io.readInt();
-	}
-
-	synchronized void dispatchObjectCommandAlgorithmIncreaseAlphabetSize(DispatcherLearningAlgorithm obj, int new_size) {
-		// TODO Auto-generated method stub
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_INCREASE_ALPHABET_SIZE, new_size);
-	}
-
-	synchronized int[] dispatchObjectCommandAlgorithmSerialize(DispatcherLearningAlgorithm obj) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_SERIALIZE);
-		return this.io.readInts();
-	}
-
-	synchronized void dispatchObjectCommandAlgorithmSetAlphabetSize(DispatcherLearningAlgorithm obj, int alphabet_size) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_INCREASE_ALPHABET_SIZE, alphabet_size); // FIXME: SET not INCR
-	}
-
-	synchronized void dispatchObjectCommandAlgorithmSetKnowledgeSource(DispatcherLearningAlgorithm obj, int base) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_SET_KNOWLEDGE_SOURCE, base);
-	}
-
-	synchronized void dispatchObjectCommandAlgorithmSetLogger(DispatcherLearningAlgorithm obj, DispatcherLogger logger) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_ASSOCIATE_LOGGER, logger);
-	}
-
-	synchronized void dispatchObjectCommandAlgorithmRemoveLogger(DispatcherLearningAlgorithm obj) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_REMOVE_LOGGER);
-	}
-
-	synchronized boolean dispatchObjectCommandAlgorithmSupportsSync(DispatcherLearningAlgorithm obj) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_SUPPORTS_SYNC);
-		return this.io.readBool();
-	}
-
-	synchronized boolean dispatchObjectCommandAlgorithmSyncToKnowledgebase(DispatcherLearningAlgorithm obj) {
-		// TODO Auto-generated method stub
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_SYNC_TO_KNOWLEDGEBASE);
-		return false;
-	}
-
-	synchronized String dispatchObjectCommandAlgorithmToString(DispatcherLearningAlgorithm obj) {
-		this.io.writeObjectCommandThrowing(obj, DispatcherConstants.LEARNING_ALGORITHM_TO_STRING);
-		return this.io.readString();
+	public void sendNoOp() throws DispatcherIOException {
+		dispatchHelloCarsten(0xDEADBEEF);
 	}
 
 	////////////////////////////////////////////////////////////////
-	// BASIC COMMANDS
-
-	public void sendNoOp() throws DispatcherIOException {
-		dispatchHelloCarsten(0);
-	}
+	// FACTORY STUFF
 
 	@Override
 	public DispatcherLogger createLogger(Object... args) {
@@ -355,9 +330,5 @@ public class DispatcherFactory implements LibALFFactory {
 		default:
 			return null;
 		}
-	}
-
-	void printRest(int wait) throws Throwable {
-		this.io.printRest(wait);
 	}
 }
