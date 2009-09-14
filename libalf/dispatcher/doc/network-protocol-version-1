@@ -509,8 +509,9 @@ server returns:
 get answer to referenced word (KITERATOR_IS_ANSWERED)
 parameters: none.
 server returns:
-	bool (false if not answered)
-	acceptance (undefined if not answered)
+	bool (false if acceptance is unknown)
+only if above was true:
+	acceptance
 
 
 set answer to referenced word (KITERATOR_ANSWER)
