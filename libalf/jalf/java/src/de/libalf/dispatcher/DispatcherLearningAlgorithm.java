@@ -170,9 +170,16 @@ public abstract class DispatcherLearningAlgorithm extends DispatcherObject imple
 	@Override
 	public boolean sync_to_knowledgebase() throws AlfException {
 		synchronized (this.factory) {
-			// TODO Auto-generated method stub
 			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.LEARNING_ALGORITHM_SYNC_TO_KNOWLEDGEBASE);
-			return false;
+			return false; // FIXME: return something
+		}
+	}
+
+	@Override
+	public int[] deserialize_magic(int[] data) {
+		synchronized (this.factory) {
+			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.LEARNING_ALGORITHM_DESERIALIZE_MAGIC, data);
+			return this.factory.readInts();
 		}
 	}
 

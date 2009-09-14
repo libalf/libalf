@@ -189,6 +189,14 @@ public interface LearningAlgorithm extends LibALFObject {
 	public boolean deserialize(int[] serialization);
 
 	/**
+	 * Performs some magic custom action (useful for easy self-made extensions).
+	 * 
+	 * @param data some data.
+	 * @return some data.
+	 */
+	public int[] deserialize_magic(int[] data);
+
+	/**
 	 * Sets the logger for this learning algorithm.
 	 * 
 	 * @param logger

@@ -20,11 +20,11 @@ public class Test {
 	public static void main(String[] args) throws Throwable {
 		LibALFFactory factory;
 		factory = new JNIFactory();
-		//		factory = new DispatcherFactory("127.0.0.1", 24940);
+		factory = new DispatcherFactory("127.0.0.1", 24940);
 		try {
 			Knowledgebase kb = factory.createKnowledgebase();
 			Logger l = factory.createLogger();
-			LearningAlgorithm a = factory.createLearningAlgorithm(Algorithm.ANGLUIN_COLUMN, kb, 7, l);
+			LearningAlgorithm a = factory.createLearningAlgorithm(Algorithm.ANGLUIN, kb, 7, l);
 
 			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("blah.jdat"));
 			out.writeObject(a);
@@ -41,10 +41,10 @@ public class Test {
 			a = (LearningAlgorithm) in.readObject();
 			in.close();
 
-			System.out.println(a);
+			System.out.println(a.advance());
 			System.out.println(kb = a.get_knowledge_source());
-			System.out.println(a.supports_sync());
-			//			System.out.println(a.sync_to_knowledgebase());
+
+			factory.destroy();
 
 			System.exit(0);
 
