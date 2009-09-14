@@ -110,6 +110,13 @@ class learning_algorithm {
 			else
 				my_logger = (&this->ignore);
 		}}}
+		virtual logger * get_logger()
+		{{{
+			if(my_logger == (&this->ignore))
+				return NULL;
+			else
+				return my_logger;
+		}}}
 
 		virtual void set_knowledge_source(knowledgebase<answer> *base)
 		// set a source for all membership information.

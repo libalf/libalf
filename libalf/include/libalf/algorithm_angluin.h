@@ -98,18 +98,23 @@ class angluin_table : public learning_algorithm<answer> {
 		virtual bool sync_to_knowledgebase()
 		{{{
 			if(this->my_knowledge == NULL) {
-				(*this->my_logger)(LOGGER_WARN, "angluin_table: sync-operation is only supported in combination with a knowledgebase!\n");
+				(*this->my_logger)(LOGGER_WARN, "angluin_table: sync_to_knowledgebase is only supported in combination with a knowledgebase!\n");
 				return false;
 			}
 
-			// we will check all knowledge back with the knowledgebase.
-			bool ret = true;
-			if(!sync_columns())
-				ret = false;
-			if(!sync_tables())
-				ret = false;
+			if(initialized) {
+				// we will check all knowledge back with the knowledgebase.
+				bool ret = true;
+				if(!sync_columns())
+					ret = false;
+				if(!sync_tables())
+					ret = false;
 
-			return ret;
+				return ret;
+			} else {
+				(*this->my_logger)(LOGGER_WARN, "angluin_table: sync_to_knowledgebase: trying to sync a non-initialized table!\n");
+				return false;
+			}
 		}}}
 
 		virtual bool supports_sync()
@@ -481,11 +486,13 @@ class angluin_table : public learning_algorithm<answer> {
 						column_timestamps.pop_back();
 					}
 				} else {
-					(*this->my_logger)(LOGGER_WARN, "angluin_table: sync: table is empty after sync!\n");
-					break;
+					(*this->my_logger)(LOGGER_WARN, "angluin_table: sync_to_knowledgebase: columns are empty after sync! resetting table.\n");
+					upper_table.clear();
+					lower_table.clear();
+					initialized = false;
+					return false;
 				}
 			}
-
 			return true;
 		}}}
 
@@ -524,6 +531,14 @@ class angluin_table : public learning_algorithm<answer> {
 				} else {
 					lti++;
 				}
+			}
+
+			if(upper_table.size() == 0 || lower_table.size() == 0) {
+				(*this->my_logger)(LOGGER_WARN, "angluin_table: sync_to_knowledgebase: rows are empty after sync! resetting table.\n");
+				upper_table.clear();
+				lower_table.clear();
+				initialized = false;
+				return false;
 			}
 
 			sync_table_acceptances(upper_table, true);
