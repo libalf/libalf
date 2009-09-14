@@ -472,12 +472,17 @@ class angluin_table : public learning_algorithm<answer> {
 			bool timestamp_ok = false;
 
 			while(!timestamp_ok) {
-				// FIXME: <= or < ?
-				if(column_timestamps.back() < this->my_knowledge->get_timestamp()) {
-					timestamp_ok = true;
+				if(column_timestamps.size() > 0) {
+					// FIXME: <= or < ?
+					if(column_timestamps.back() < this->my_knowledge->get_timestamp()) {
+						timestamp_ok = true;
+					} else {
+						column_names.pop_back();
+						column_timestamps.pop_back();
+					}
 				} else {
-					column_names.pop_back();
-					column_timestamps.pop_back();
+					(*this->my_logger)(LOGGER_WARN, "angluin_table: sync: table is empty after sync!\n");
+					break;
 				}
 			}
 
