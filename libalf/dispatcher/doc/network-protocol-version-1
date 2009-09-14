@@ -548,7 +548,9 @@ deserialize algorithm-specific parameters (LEARNING_ALGORITHM_DESERIALIZE_MAGIC)
 parameters: 2
 	size,
 	serialized data[]
-server returns: nothing. (see errno of object-command)
+server returns:
+	size
+	serialized data[]
 
 
 associate logger with algorithm (LEARNING_ALGORITHM_ASSOCIATE_LOGGER)
