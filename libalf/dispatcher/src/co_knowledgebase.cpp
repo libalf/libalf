@@ -16,6 +16,11 @@ co_knowledgebase::co_knowledgebase()
 	o = new knowledgebase<extended_bool>;
 }}};
 
+co_knowledgebase::co_knowledgebase(knowledgebase<extended_bool> * base)
+{{{
+	o = base;
+}}}
+
 co_knowledgebase::~co_knowledgebase()
 {{{
 	set<int>::iterator si;
@@ -161,12 +166,46 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 				return false;
 			return sv->client->stream_send_int(o->add_knowledge(word, acceptance) ? 1 : 0);
 		case KNOWLEDGEBASE_GET_QUERY_TREE:
-			
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			{
+				// get query-tree
+				knowledgebase<extended_bool> * qry_tree;
+				qry_tree = o->create_query_tree();
+
+				// create a new co_knowledgebase-object
+				unsigned int new_id = this->sv->get_free_id();
+				this->sv->objects[new_id] = new co_knowledgebase(qry_tree);
+				this->sv->objects[new_id]->set_servant(this->sv);
+				this->sv->objects[new_id]->set_id(new_id);
+
+				// return object-id
+				if(!this->sv->send_errno(ERR_SUCCESS))
+					return false;
+				return this->sv->client->stream_send_int(new_id);
+			}
 		case KNOWLEDGEBASE_MERGE_TREE:
-			
+			if(command_data.size() != 1)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			i = ntohl(command_data[0]);
+			if(i < 0 || i >= (int)sv->objects.size())
+				return this->sv->send_errno(ERR_NO_OBJECT);
+			if(this->sv->objects[i]->get_type() != OBJ_KNOWLEDGEBASE)
+				return this->sv->send_errno(ERR_BAD_OBJECT);
+
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			if(o->merge_knowledgebase( * dynamic_cast<co_knowledgebase*>(this->sv->objects[i])->o ))
+				return this->sv->client->stream_send_int(1);
+			else
+				return this->sv->client->stream_send_int(0);
 		case KNOWLEDGEBASE_DESERIALIZE_QUERY_ACCEPTANCES:
-			
-			return this->sv->send_errno(ERR_NOT_IMPLEMENTED);
+			si = command_data.begin();
+			if(!o->deserialize_query_acceptances(si, command_data.end()))
+				return this->sv->send_errno(ERR_BAD_PARAMETERS);
+			if(si != command_data.end())
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			return this->sv->send_errno(ERR_SUCCESS);
 		case KNOWLEDGEBASE_BEGIN:
 			
 		case KNOWLEDGEBASE_END:
