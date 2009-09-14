@@ -56,7 +56,7 @@ bool co_knowledgebase_iterator::handle_command(int command, basic_string<int32_t
 			if(this->sv->objects[i]->get_type() != OBJ_LOGGER)
 				return this->sv->send_errno(ERR_BAD_OBJECT);
 
-			*o = *(this->sv->objects[i]->o)
+			*o = *(dynamic_cast<co_knowledgebase_iterator *>(this->sv->objects[i])->o);
 
 			return this->sv->send_errno(ERR_SUCCESS);
 		case KITERATOR_COMPARE:
@@ -68,7 +68,10 @@ bool co_knowledgebase_iterator::handle_command(int command, basic_string<int32_t
 				return this->sv->send_errno(ERR_NO_OBJECT);
 			if(this->sv->objects[i]->get_type() != OBJ_LOGGER)
 				return this->sv->send_errno(ERR_BAD_OBJECT);
-			return this->sv->client->stream_send_int( (*o == *(this->sv->objects[i]->o)) ? 1 : 0);
+			if(*o == *(dynamic_cast<co_knowledgebase_iterator *>(this->sv->objects[i])->o))
+				this->sv->client->stream_send_int(1);
+			else
+				this->sv->client->stream_send_int(0);
 		case KITERATOR_NEXT:
 			if(!o->is_valid())
 				return this->sv->send_errno(ERR_BAD_OBJECT_STATE);
