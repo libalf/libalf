@@ -102,6 +102,17 @@ public class JNIAlgorithmAngluinColumn extends JNILearningAlgorithm {
 			long logger_pointer);
 
 	/**
+	 * Performs no action and just returns <code>null</code>.
+	 *
+	 * @param data some data.
+	 *
+	 * @return <code>null</code>.
+	 */
+	public int[] deserialize_magic(int[] data) {
+		return null;
+	}
+
+	/**
 	 * @see Serializable
 	 */
 	private void readObject(ObjectInputStream in) throws IOException,
