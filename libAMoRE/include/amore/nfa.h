@@ -67,7 +67,7 @@ nfa newnfa();
 /** clone the nfa */
 nfa clonenfa(nfa n);
 
-/** frees the memory used by the nfa na */
+/** frees the memory used by the nfa na (but not na itself! use free() for na.) */
 void freenfa(nfa na);
 
 /** allocate memory for the transition relation of a nondeterministic automaton

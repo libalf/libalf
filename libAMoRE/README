@@ -75,8 +75,8 @@ most notable things NOT changed:
 	* newdfa() and newnfa() create a blank new automaton structure
 	  (nfauto/dfauto). freedfa() and freenfa() free all data _referenced_ by
 	  an automaton structure (nfauto/dfauto), but do not free the structure
-	  itself. i personally consider this a bug, but have not fixed it as i
-	  do not know if this behaviour is expected internally. so to get rid of
-	  an nfauto, you have to freenfa() it and then, if you're working with a
-	  pointer (which is reasonable), free it.
+	  itself. i personally consider this a bug (or at least bad-documented),
+	  but have not fixed it as i do not know if this behaviour is expected
+	  internally. so to get rid of an nfauto, you have to freenfa() it and
+	  then, if you're working with a pointer (which is reasonable), free it.
 

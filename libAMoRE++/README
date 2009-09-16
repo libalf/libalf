@@ -17,7 +17,7 @@ and additional functionality. most notably:
 	* efficient implementation of emtpyness-check
 	* calculating a sample-word of a language (if not empty)
 
-planned features:
+planned features: (see TODO)
 
 	* antichain algorithm for efficient checking of
 	  language inclusion and language universality

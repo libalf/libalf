@@ -19,11 +19,13 @@ from java interchangable via the generic interface ``jalf''
 DEPENCENCIES:
 
 
-libalf is a stand-alone C++ library, no external libraries except c++ standard
-lib and STL are required.
+libalf is a stand-alone C++ library, no external libraries except the C++
+standard library and standard template library (STL) are required. Also, MiniSat
+v1.14 is fully integrated into libalf, as it is required for the bierman
+learning algorithm. there are no further dependencies.
 
-however, the following libraries may be of help for developing applications or
-are required for some of the testcases:
+however, the following libraries may be of help when developing applications and
+are partially required for some of the testcases:
 
 1) libAMoRE-1.0 / libAMoRE++ : C/C++ automata library for working with finite
 automata. (both AMoRE-1.0 with some patches and the C++ interface currently
@@ -36,8 +38,5 @@ in the form of automata or regular expressions. it came to existence during the
 development of libalf and thus has the same interfaces for automata. it is
 useful e.g. for generating random automata or regex with specific constraints,
 so algorithms can automatically massively be tested.
-
-3) MiniSat v1.14 is fully integrated into libalf, as it is required for the
-bierman algorithm.
 
 

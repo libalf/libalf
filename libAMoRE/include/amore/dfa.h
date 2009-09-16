@@ -68,7 +68,7 @@ dfa newdfa();
 /** clone the dfa */
 dfa clonedfa(dfa n);
 
-/** frees the memory used by the dfa da */
+/** frees the memory used by the dfa da (but not da itself! use free() for da.) */
 void freedfa(dfa da);
 
 /** allocate memory for the transition function of a deterministic automaton
