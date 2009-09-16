@@ -62,6 +62,9 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 			if(si != command_data.end())
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 			return this->sv->send_errno(ERR_SUCCESS);
+		case KNOWLEDGEBASE_ASSIGN:
+			
+			return this->sv->send_errno(ERR_NOT_IMPLEMENTED);
 		case KNOWLEDGEBASE_TO_DOTFILE:
 			if(command_data.size() != 0)
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);

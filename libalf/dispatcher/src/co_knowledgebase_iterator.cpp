@@ -72,13 +72,17 @@ bool co_knowledgebase_iterator::handle_command(int command, basic_string<int32_t
 				this->sv->client->stream_send_int(1);
 			else
 				this->sv->client->stream_send_int(0);
-		case KITERATOR_NEXT:
+		case KITERATOR_IS_ANSWERED:
 			if(!o->is_valid())
 				return this->sv->send_errno(ERR_BAD_OBJECT_STATE);
 			if(command_data.size() != 0)
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
-			++(*o);
-			return this->sv->send_errno(ERR_SUCCESS);
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			return this->sv->client->stream_send_int((*o)->is_answered() ? 1 : 0);
+		case KITERATOR_IS_REQUIRED:
+			
+			return this->sv->send_errno(ERR_NOT_IMPLEMENTED);
 		case KITERATOR_GET_WORD:
 			if(!o->is_valid()) {
 				return this->sv->send_errno(ERR_BAD_OBJECT_STATE);
@@ -91,14 +95,6 @@ bool co_knowledgebase_iterator::handle_command(int command, basic_string<int32_t
 					return false;
 				return this->sv->client->stream_send_raw_blob(serial);
 			}
-		case KITERATOR_IS_ANSWERED:
-			if(!o->is_valid())
-				return this->sv->send_errno(ERR_BAD_OBJECT_STATE);
-			if(command_data.size() != 0)
-				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
-			if(!this->sv->send_errno(ERR_SUCCESS))
-				return false;
-			return this->sv->client->stream_send_int((*o)->is_answered() ? 1 : 0);
 		case KITERATOR_GET_ANSWER:
 			if(!o->is_valid())
 				return this->sv->send_errno(ERR_BAD_OBJECT_STATE);
@@ -115,6 +111,13 @@ bool co_knowledgebase_iterator::handle_command(int command, basic_string<int32_t
 			} else {
 				return this->sv->client->stream_send_int(0);
 			}
+		case KITERATOR_NEXT:
+			if(!o->is_valid())
+				return this->sv->send_errno(ERR_BAD_OBJECT_STATE);
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			++(*o);
+			return this->sv->send_errno(ERR_SUCCESS);
 		case KITERATOR_ANSWER:
 			if(!o->is_valid()) {
 				return this->sv->send_errno(ERR_BAD_OBJECT_STATE);
