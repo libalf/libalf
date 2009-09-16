@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.net.Socket;
+
 import de.libalf.AlfException;
 import de.libalf.Knowledgebase;
 import de.libalf.LibALFFactory;
@@ -69,6 +70,8 @@ public class DispatcherFactory implements LibALFFactory {
 
 	@Override
 	public void destroy() throws DispatcherCommandError, DispatcherIOException {
+		if (isDestroyed())
+			return;
 		try {
 			int disco = writeCommand(DispatcherConstants.CLCMD_DISCONNECT);
 			if (disco != 0) {

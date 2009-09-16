@@ -12,7 +12,6 @@ import de.libalf.LibALFFactory;
 import de.libalf.Logger;
 import de.libalf.LibALFFactory.Algorithm;
 import de.libalf.jni.JNIFactory;
-import de.libalf.jni.JNILearningAlgorithm;
 
 // TODO: remove class
 @Deprecated
@@ -29,6 +28,8 @@ public class Test {
 			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("blah.jdat"));
 			out.writeObject(a);
 			out.close();
+
+			System.out.println(kb);
 
 			a.destroy();
 			kb.destroy();
