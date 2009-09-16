@@ -317,6 +317,9 @@ parameters: 2
 server returns: nothing. (see errno of object-command)
 
 
+// FIXME: assign (KNOWLEDGEBASE_ASSIGN)
+
+
 create dotfile (KNOWLEDGEBASE_TO_DOTFILE)
 parameters: none.
 server returns:
@@ -488,9 +491,13 @@ server returns:
 	bool (false if the two iterators are referencing different words
 
 
-interator++ (KITERATOR_NEXT)
+check if referenced word is answered (KITERATOR_IS_ANSWERED)
 parameters: none.
-server returns: nothing.
+server returns:
+	bool (false if not answered)
+
+
+// FIXME: KITERATOR_IS_REQUIRED
 
 
 get referenced word (KITERATOR_GET_WORD)
@@ -500,18 +507,17 @@ server returns:
 	word[]
 
 
-check if referenced word is answered (KITERATOR_IS_ANSWERED)
-parameters: none.
-server returns:
-	bool (false if not answered)
-
-
-get answer to referenced word (KITERATOR_IS_ANSWERED)
+get answer to referenced word (KITERATOR_GET_ANSWER)
 parameters: none.
 server returns:
 	bool (false if acceptance is unknown)
 only if above was true:
 	acceptance
+
+
+interator++ (KITERATOR_NEXT)
+parameters: none.
+server returns: nothing.
 
 
 set answer to referenced word (KITERATOR_ANSWER)
