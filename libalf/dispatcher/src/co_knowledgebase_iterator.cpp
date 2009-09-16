@@ -53,7 +53,7 @@ bool co_knowledgebase_iterator::handle_command(int command, basic_string<int32_t
 			i = ntohl(command_data[0]);
 			if(i < 0 || i >= (int)sv->objects.size())
 				return this->sv->send_errno(ERR_NO_OBJECT);
-			if(this->sv->objects[i]->get_type() != OBJ_LOGGER)
+			if(this->sv->objects[i]->get_type() != OBJ_KNOWLEDGEBASE_ITERATOR)
 				return this->sv->send_errno(ERR_BAD_OBJECT);
 
 			*o = *(dynamic_cast<co_knowledgebase_iterator *>(this->sv->objects[i])->o);
@@ -66,7 +66,7 @@ bool co_knowledgebase_iterator::handle_command(int command, basic_string<int32_t
 			i = ntohl(command_data[0]);
 			if(i < 0 || i >= (int)sv->objects.size())
 				return this->sv->send_errno(ERR_NO_OBJECT);
-			if(this->sv->objects[i]->get_type() != OBJ_LOGGER)
+			if(this->sv->objects[i]->get_type() != OBJ_KNOWLEDGEBASE_ITERATOR)
 				return this->sv->send_errno(ERR_BAD_OBJECT);
 			if(*o == *(dynamic_cast<co_knowledgebase_iterator *>(this->sv->objects[i])->o))
 				this->sv->client->stream_send_int(1);
