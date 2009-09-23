@@ -71,9 +71,9 @@ bool co_knowledgebase_iterator::handle_command(int command, basic_string<int32_t
 			if(!this->sv->send_errno(ERR_SUCCESS))
 				return false;
 			if(*o == *(dynamic_cast<co_knowledgebase_iterator *>(this->sv->objects[i])->o))
-				this->sv->client->stream_send_int(1);
+				return this->sv->client->stream_send_int(1);
 			else
-				this->sv->client->stream_send_int(0);
+				return this->sv->client->stream_send_int(0);
 		case KITERATOR_IS_ANSWERED:
 			if(!o->is_valid())
 				return this->sv->send_errno(ERR_BAD_OBJECT_STATE);
