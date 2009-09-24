@@ -152,7 +152,7 @@ public class BasicAutomaton implements Serializable {
 	 *            the state to add to the set of initial states
 	 */
 	public void addInitialState(int stateToAdd) {
-		if (stateToAdd >= 0 && stateToAdd <= numberOfStates)
+		if (stateToAdd >= 0 && stateToAdd < numberOfStates)
 			initialStates.add(stateToAdd);
 	}
 
@@ -183,7 +183,7 @@ public class BasicAutomaton implements Serializable {
 	 *            the state to add
 	 */
 	public void addFinalState(int stateToAdd) {
-		if (stateToAdd >= 0 && stateToAdd <= numberOfStates)
+		if (stateToAdd >= 0 && stateToAdd < numberOfStates)
 			finalStates.add(stateToAdd);
 	}
 
@@ -226,8 +226,8 @@ public class BasicAutomaton implements Serializable {
 	 *            the transition to add
 	 */
 	public void addTransition(BasicTransition transitionToAdd) {
-		if ((transitionToAdd.source >= 0 && transitionToAdd.source <= numberOfStates)
-				&& (transitionToAdd.destination >= 0 && transitionToAdd.destination <= numberOfStates)
+		if ((transitionToAdd.source >= 0 && transitionToAdd.source < numberOfStates)
+				&& (transitionToAdd.destination >= 0 && transitionToAdd.destination < numberOfStates)
 				&& (transitionToAdd.label >= 0 && transitionToAdd.label <= alphabetSize))
 			transitions.add(transitionToAdd);
 	}
