@@ -403,12 +403,69 @@ int main()
 	cmd.push_back(KNOWLEDGEBASE_DESERIALIZE_QUERY_ACCEPTANCES);
 	cmd.push_back(3); // para size
 	cmd.push_back(2); // answer size
-	cmd.push_back(2); // 2 = true; 0 = false;
+	cmd.push_back(0); // 2 = true; 0 = false;
 	cmd.push_back(2); // 2 = true; 0 = false;
 	send_blob(sock, cmd);
 
 	ret = receive_blob(sock, 1);
 	cout << "answer queries: " << ret[0] << ".\n";
+
+
+
+
+
+
+
+	// advance algorithm
+	cout << "\n";
+	cmd.clear();
+	cmd.push_back(CLCMD_OBJECT_COMMAND);
+	cmd.push_back(alg_id);
+	cmd.push_back(LEARNING_ALGORITHM_ADVANCE);
+	cmd.push_back(0);
+	send_blob(sock, cmd);
+
+	ret = receive_blob(sock, 1);
+	cout << "advance: " << ret[0] << ".\n";
+	if(ret[0] == ERR_SUCCESS) {
+		ret = receive_blob(sock, 1);
+		cout << "A: " << ret[0] << "\n";
+	}
+
+	// count required
+	cout << "\n";
+	cmd.clear();
+	cmd.push_back(CLCMD_OBJECT_COMMAND);
+	cmd.push_back(kb_id);
+	cmd.push_back(KNOWLEDGEBASE_COUNT_QUERIES);
+	cmd.push_back(0);
+	send_blob(sock, cmd);
+
+	ret = receive_blob(sock, 1);
+	cout << "count requires: " << ret[0] << ".\n";
+	if(ret[0] == ERR_SUCCESS) {
+		ret = receive_blob(sock, 1);
+		cout << "required: "<<ret[0]<<"\n";
+	}
+
+	// answer queries (all positive)
+	cout << "\n";
+	cmd.clear();
+	cmd.push_back(CLCMD_OBJECT_COMMAND);
+	cmd.push_back(kb_id);
+	cmd.push_back(KNOWLEDGEBASE_DESERIALIZE_QUERY_ACCEPTANCES);
+	cmd.push_back(3); // para size
+	cmd.push_back(2); // answer size
+	cmd.push_back(0); // 2 = true; 0 = false;
+	cmd.push_back(0); // 2 = true; 0 = false;
+	send_blob(sock, cmd);
+
+	ret = receive_blob(sock, 1);
+	cout << "answer queries: " << ret[0] << ".\n";
+
+
+
+
 
 	// advance algorithm
 	cout << "\n";
