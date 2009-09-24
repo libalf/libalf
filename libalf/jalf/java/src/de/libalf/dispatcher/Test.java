@@ -1,11 +1,13 @@
 package de.libalf.dispatcher;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
 
+import de.libalf.BasicAutomaton;
 import de.libalf.Knowledgebase;
 import de.libalf.LearningAlgorithm;
 import de.libalf.LibALFFactory;
@@ -23,13 +25,32 @@ public class Test {
 		try {
 			Knowledgebase kb = factory.createKnowledgebase();
 			Logger l = factory.createLogger();
-			LearningAlgorithm a = factory.createLearningAlgorithm(Algorithm.ANGLUIN, kb, 7, l);
-
-			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("blah.jdat"));
-			out.writeObject(a);
-			out.close();
+			LearningAlgorithm a = factory.createLearningAlgorithm(Algorithm.ANGLUIN, kb, 2, l);
 
 			System.out.println(kb);
+
+			while (true) {
+				BasicAutomaton auto = a.advance();
+				System.out.println(auto);
+				if (auto != null)
+					break;
+
+				for (int[] word : kb.get_queries()) {
+					System.out.print("? " + Arrays.toString(word));
+					boolean b = word.length == 0 || word.length == word[word.length - 1];
+					System.out.println(" ! " + b);
+					kb.add_knowledge(word, b);
+				}
+			}
+
+			////
+
+			File file = new File("blah.jdat");
+			file.deleteOnExit();
+
+			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
+			out.writeObject(a);
+			out.close();
 
 			a.destroy();
 			kb.destroy();
@@ -38,12 +59,15 @@ public class Test {
 
 			////
 
-			ObjectInputStream in = new ObjectInputStream(new FileInputStream("blah.jdat"));
+			ObjectInputStream in = new ObjectInputStream(new FileInputStream(file));
 			a = (LearningAlgorithm) in.readObject();
 			in.close();
 
 			System.out.println(a.advance());
 			System.out.println(kb = a.get_knowledge_source());
+
+			for (int[] word : kb.get_knowledge())
+				System.out.println(Arrays.toString(word) + " > " + kb.resolve_query(word));
 
 			factory.destroy();
 

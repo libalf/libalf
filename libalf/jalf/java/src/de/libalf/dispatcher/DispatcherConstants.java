@@ -164,6 +164,11 @@ enum DispatcherConstants implements Sendable {
 	ALG_DELETE2(8),
 	ALG_LAST_INVALID(9),
 
+	// enum acceptance
+	ACCEPTANCE_REJECT(0),
+	ACCEPTANCE_UNKNOWN(1),
+	ACCEPTANCE_ACCEPT(2),
+
 	;
 
 	static final int DISPATCHER_PROTOCOL_VERSION = 1;
