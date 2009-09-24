@@ -294,18 +294,6 @@ int main()
 	ret = receive_blob(sock, 1);
 	cout << "associate kb&alg: " << ret[0] << ".\n";
 
-	// sync alg
-	cout << "\n";
-	cmd.clear();
-	cmd.push_back(CLCMD_OBJECT_COMMAND);
-	cmd.push_back(alg_id);
-	cmd.push_back(LEARNING_ALGORITHM_SYNC_TO_KNOWLEDGEBASE);
-	cmd.push_back(0);
-	send_blob(sock, cmd);
-
-	ret = receive_blob(sock, 1);
-	cout << "sync kb/alg: " << ret[0] << ".\n";
-
 	// call receive&flush on logger
 	cout << "\n";
 	cmd.clear();
@@ -323,42 +311,130 @@ int main()
 		cout << "LOGGER FAILED!\n";
 	}
 
-	// create query-tree
+
+
+
+	// advance algorithm
+	cout << "\n";
+	cmd.clear();
+	cmd.push_back(CLCMD_OBJECT_COMMAND);
+	cmd.push_back(alg_id);
+	cmd.push_back(LEARNING_ALGORITHM_ADVANCE);
+	cmd.push_back(0);
+	send_blob(sock, cmd);
+
+	ret = receive_blob(sock, 1);
+	cout << "advance: " << ret[0] << ".\n";
+	if(ret[0] == ERR_SUCCESS) {
+		ret = receive_blob(sock, 1);
+		cout << "A: " << ret[0] << "\n";
+	}
+
+	// count required
 	cout << "\n";
 	cmd.clear();
 	cmd.push_back(CLCMD_OBJECT_COMMAND);
 	cmd.push_back(kb_id);
-	cmd.push_back(KNOWLEDGEBASE_GET_QUERY_TREE);
+	cmd.push_back(KNOWLEDGEBASE_COUNT_QUERIES);
 	cmd.push_back(0);
 	send_blob(sock, cmd);
 
 	ret = receive_blob(sock, 1);
-	cout << "kb->create_query_tree resulted in " << ret[0] << ".\n";
-	int qryTrid = -1;
-	if(ret[0] == 0) {
+	cout << "count requires: " << ret[0] << ".\n";
+	if(ret[0] == ERR_SUCCESS) {
 		ret = receive_blob(sock, 1);
-		cout << "new knowledgebase: " << ret[0] << ".\n";
-		qryTrid = ret[0];
+		cout << "required: "<<ret[0]<<"\n";
 	}
 
-	// serialize qruery tree
+	// answer queries (all positive)
 	cout << "\n";
 	cmd.clear();
 	cmd.push_back(CLCMD_OBJECT_COMMAND);
-	cmd.push_back(qryTrid);
-	cmd.push_back(KNOWLEDGEBASE_SERIALIZE);
+	cmd.push_back(kb_id);
+	cmd.push_back(KNOWLEDGEBASE_DESERIALIZE_QUERY_ACCEPTANCES);
+	cmd.push_back(2); // para size
+	cmd.push_back(1); // answer size
+	cmd.push_back(2); // 2 = true; 0 = false;
+	send_blob(sock, cmd);
+
+	ret = receive_blob(sock, 1);
+	cout << "answer queries: " << ret[0] << ".\n";
+
+
+
+
+	// advance algorithm
+	cout << "\n";
+	cmd.clear();
+	cmd.push_back(CLCMD_OBJECT_COMMAND);
+	cmd.push_back(alg_id);
+	cmd.push_back(LEARNING_ALGORITHM_ADVANCE);
 	cmd.push_back(0);
 	send_blob(sock, cmd);
 
 	ret = receive_blob(sock, 1);
-	cout << "serialize query tree resulted in " << ret[0] << ".\n";
-
-	if(ret[0] == 0) {
-		ret = receive_blob(sock,1);
-		cout << "qryTri is " << ret[0] << " long:\n";
-		ret = receive_blob(sock,ret[0]);
-		print_blob(ret);
+	cout << "advance: " << ret[0] << ".\n";
+	if(ret[0] == ERR_SUCCESS) {
+		ret = receive_blob(sock, 1);
+		cout << "A: " << ret[0] << "\n";
 	}
+
+	// count required
+	cout << "\n";
+	cmd.clear();
+	cmd.push_back(CLCMD_OBJECT_COMMAND);
+	cmd.push_back(kb_id);
+	cmd.push_back(KNOWLEDGEBASE_COUNT_QUERIES);
+	cmd.push_back(0);
+	send_blob(sock, cmd);
+
+	ret = receive_blob(sock, 1);
+	cout << "count requires: " << ret[0] << ".\n";
+	if(ret[0] == ERR_SUCCESS) {
+		ret = receive_blob(sock, 1);
+		cout << "required: "<<ret[0]<<"\n";
+	}
+
+	// answer queries (all positive)
+	cout << "\n";
+	cmd.clear();
+	cmd.push_back(CLCMD_OBJECT_COMMAND);
+	cmd.push_back(kb_id);
+	cmd.push_back(KNOWLEDGEBASE_DESERIALIZE_QUERY_ACCEPTANCES);
+	cmd.push_back(3); // para size
+	cmd.push_back(2); // answer size
+	cmd.push_back(2); // 2 = true; 0 = false;
+	cmd.push_back(2); // 2 = true; 0 = false;
+	send_blob(sock, cmd);
+
+	ret = receive_blob(sock, 1);
+	cout << "answer queries: " << ret[0] << ".\n";
+
+	// advance algorithm
+	cout << "\n";
+	cmd.clear();
+	cmd.push_back(CLCMD_OBJECT_COMMAND);
+	cmd.push_back(alg_id);
+	cmd.push_back(LEARNING_ALGORITHM_ADVANCE);
+	cmd.push_back(0);
+	send_blob(sock, cmd);
+
+	ret = receive_blob(sock, 1);
+	cout << "advance: " << ret[0] << ".\n";
+	if(ret[0] == ERR_SUCCESS) {
+		int size;
+		ret = receive_blob(sock, 1);
+		cout << "A: " << ret[0] << "\n";
+		ret = receive_blob(sock, 1);
+		size = ret[0];
+		ret = receive_blob(sock, size);
+		ret = size + ret;
+		cout << " {\n  ";
+		print_blob(ret);
+		cout << " }\n";
+	}
+
+
 
 
 

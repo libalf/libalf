@@ -1,0 +1,9 @@
+
+in co_knowledgebase::undo:
+
+check if assigned algorithms support sync and enforce calling it somehow after an undo.
+otherwise, the algorithm may have illegal node-references after an undo. undo should
+fail if a non-sync-capable algorithm references the knowledgebase.
+
+
+
