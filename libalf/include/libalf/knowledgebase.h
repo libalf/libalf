@@ -1203,6 +1203,7 @@ class knowledgebase {
 				a = (int32_t)ntohl(*it);
 				ki->set_answer(a);
 				size--;
+				it++;
 			}
 
 			if(size == 0)
