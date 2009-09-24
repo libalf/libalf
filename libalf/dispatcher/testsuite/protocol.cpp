@@ -459,6 +459,29 @@ int main()
 		cout << "and replied " << ret[0] << ".\n";
 	}
 
+	// resolve membership-info for .
+	cout << "\n";
+	cmd.clear();
+	cmd.push_back(CLCMD_OBJECT_COMMAND);
+	cmd.push_back(kb_id);
+	cmd.push_back(KNOWLEDGEBASE_RESOLVE_QUERY);
+	cmd.push_back(1); // para size
+	cmd.push_back(0);
+	send_blob(sock, cmd);
+
+	ret = receive_blob(sock, 1);
+	cout << "resolve . resulted in " << ret[0] << ".\n";
+	if(ret[0] == 0) {
+		ret = receive_blob(sock, 1);
+		if(ret[0]) {
+			cout << "known: ";
+			ret = receive_blob(sock, 1);
+			cout << ret[0] << ".\n";
+		} else {
+			cout << "unknown.\n";
+		}
+	};
+
 	// call receive&flush on logger
 	cout << "\n";
 	cmd.clear();

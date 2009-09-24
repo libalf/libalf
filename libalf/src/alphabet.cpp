@@ -132,7 +132,7 @@ bool deserialize_word(list<int32_t> &into, basic_string<int32_t>::iterator &it, 
 	length = ntohl(*it);
 	it++;
 
-	if(it == limit) return false;
+	if(it == limit) return (length == 0);
 
 	for(/* -- */; it != limit && length > 0; length--, it++)
 		into.push_back(ntohl(*it));
