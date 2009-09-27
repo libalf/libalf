@@ -166,7 +166,7 @@ public interface Knowledgebase extends LibALFObject {
 	 *         </ul>
 	 * 
 	 */
-	public abstract boolean add_knowledge(int[] word, boolean acceptance);
+	public boolean add_knowledge(int[] word, Acceptance acceptance) throws AlfException;
 
 	/**
 	 * Removes all data from the knowledgebase, i.e. the knowledgebase is empty.

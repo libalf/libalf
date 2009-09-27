@@ -197,6 +197,7 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase,
 	 */
 	private native int resolve_or_add_query(int[] word, long pointer);
 
+	@Deprecated	// TODO: change boolean to Knowledgebase.Acceptance
 	@Override
 	public boolean add_knowledge(int[] word, boolean acceptance) {
 		check();

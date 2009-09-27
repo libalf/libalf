@@ -1,5 +1,7 @@
 package de.libalf.dispatcher;
 
+import de.libalf.Knowledgebase.Acceptance;
+
 enum DispatcherConstants implements Sendable {
 	// enum command_error_code
 	ERR_SUCCESS(0),
@@ -170,6 +172,19 @@ enum DispatcherConstants implements Sendable {
 	ACCEPTANCE_ACCEPT(2),
 
 	;
+
+	static DispatcherConstants convertAcceptance(Acceptance a) {
+		switch (a) {
+		case REJECT:
+			return ACCEPTANCE_REJECT;
+		case UNKNOWN:
+			return ACCEPTANCE_UNKNOWN;
+		case ACCEPT:
+			return ACCEPTANCE_ACCEPT;
+		default:
+			return null;
+		}
+	}
 
 	static final int DISPATCHER_PROTOCOL_VERSION = 1;
 
