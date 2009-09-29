@@ -46,6 +46,7 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 	extended_bool acceptance;
 	int i;
 	knowledgebase<extended_bool>::iterator * it;
+	knowledgebase<extended_bool>::iterator it2;
 
 	switch(command) {
 		case KNOWLEDGEBASE_SERIALIZE:
@@ -206,6 +207,18 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 			if(si != command_data.end())
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 			return this->sv->send_errno(ERR_SUCCESS);
+		case KNOWLEDGEBASE_SERIALIZE_QUERIES:
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			for(it2 = o->qbegin(); it2 != o->qend(); it2++) {
+				word = it2->get_word();
+				serial = serialize_word(word);
+				if(!this->sv->client->stream_send_raw_blob(serial))
+					return false;
+			}
+			return this->sv->client->stream_send_int(-1);
 		case KNOWLEDGEBASE_BEGIN:
 			if(command_data.size() != 0)
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);

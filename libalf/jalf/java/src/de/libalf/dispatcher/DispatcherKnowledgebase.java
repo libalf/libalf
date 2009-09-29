@@ -102,10 +102,25 @@ public class DispatcherKnowledgebase extends DispatcherObject implements Knowled
 		}
 	}
 
+	@Deprecated
+	public LinkedList<int[]> get_queries_old() throws AlfException {
+		synchronized (this.factory) {
+			return iterateToList(dispatchQBegin(this), dispatchQEnd(this));
+		}
+	}
+
 	@Override
 	public LinkedList<int[]> get_queries() throws AlfException {
 		synchronized (this.factory) {
-			return iterateToList(dispatchQBegin(this), dispatchQEnd(this));
+			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.KNOWLEDGEBASE_SERIALIZE_QUERIES);
+
+			LinkedList<int[]> list = new LinkedList<int[]>();
+			try {
+				while (true)
+					list.add(this.factory.readInts());
+			} catch (NegativeArraySizeException e) {}
+
+			return list;
 		}
 	}
 

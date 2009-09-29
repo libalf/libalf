@@ -423,6 +423,18 @@ parameters: 2
 server returns: nothing (see errno of object-command)
 
 
+get all queries in one chunk (KNOWLEDGEBASE_SERIALIZE_QUERIES)
+parameters: 0
+server returns:
+	words
+
+
+	where words is a sequence of
+		size of word
+		word[]
+	until size of word is -1
+
+
 get beginning-iterator (KNOWLEDGEBASE_BEGIN)
 parameters: none.
 server returns:
