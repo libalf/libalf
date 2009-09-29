@@ -121,6 +121,11 @@ public interface Knowledgebase extends LibALFObject {
 	public abstract int count_queries();
 
 	/**
+	 * Answer a list of queries in the same order as retrieved by {@link #get_queries()}.
+	 */
+	public void deserialize_query_acceptance(boolean[] acceptances);
+
+	/**
 	 * Retrieves the list of queries stored in the knowledgebase.
 	 * 
 	 * @return a list of queries. The result is always a valid object even if

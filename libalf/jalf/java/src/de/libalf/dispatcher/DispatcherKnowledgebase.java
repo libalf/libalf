@@ -102,6 +102,17 @@ public class DispatcherKnowledgebase extends DispatcherObject implements Knowled
 		}
 	}
 
+	@Override
+	public void deserialize_query_acceptance(boolean[] acceptances) throws AlfException {
+		synchronized (this.factory) {
+			int i = acceptances.length;
+			int[] is = new int[i];
+			while (i-- > 0)
+				is[i] = DispatcherConstants.convertAcceptance(acceptances[i] ? Acceptance.ACCEPT : Acceptance.REJECT).id;
+			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.KNOWLEDGEBASE_DESERIALIZE_QUERY_ACCEPTANCES, is);
+		}
+	}
+
 	@Deprecated
 	public LinkedList<int[]> get_queries_old() throws AlfException {
 		synchronized (this.factory) {
