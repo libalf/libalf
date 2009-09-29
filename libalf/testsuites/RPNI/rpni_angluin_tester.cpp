@@ -39,19 +39,18 @@ finite_automaton * angluin_learn_model(logger & log, finite_automaton * model, k
 {{{
 	angluin_simple_table<bool> angluin(&knowledge, &log, model->get_alphabet_size());
 
-	bool f_is_dfa;
-	int f_alphabet_size, f_state_count;
-	std::set<int> f_initial, f_final;
-	multimap<pair<int,int>, int> f_transitions;
-
 	finite_automaton * hypothesis;
 	bool equal = false;
 
 	while(!equal) {
-		while(! angluin.advance(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions) )
+		conjecture *cj;
+		simple_automaton *ba;
+		while( NULL == (cj = angluin.advance()) )
 			amore_alf_glue::automaton_answer_knowledgebase(*model, knowledge);
 
-		hypothesis = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
+		ba = dynamic_cast<simple_automaton*>(cj);
+		hypothesis = construct_amore_automaton(ba->is_deterministic, ba->alphabet_size, ba->state_count, ba->initial, ba->final, ba->transitions);
+		delete cj;
 		if(!hypothesis) {
 			log(LOGGER_ERROR, "angluin: failed to construct hypothesis!\n");
 			return NULL;
@@ -81,22 +80,22 @@ bool check_validity(logger & log, finite_automaton * model)
 		return false;
 	}
 
-	bool f_is_dfa;
-	int f_alphabet_size, f_state_count;
-	std::set<int> f_initial, f_final;
-	multimap<pair<int,int>, int> f_transitions;
+	conjecture *cj;
 
 	if(!rpni.conjecture_ready()) {
 		log(LOGGER_WARN, "RPNI says that no conjecture is ready! trying anyway...\n");
 	}
 
-	if(!rpni.advance(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
+	if(NULL == (cj = rpni.advance()) ) {
 		log(LOGGER_ERROR, "RPNI failed to advance!\n");
 		ret = false;
 	} else {
 		// compare mdfa and result
+		simple_automaton *ba;
+		ba = dynamic_cast<simple_automaton*>(cj);
 		finite_automaton * res;
-		res = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
+		res = construct_amore_automaton(ba->is_deterministic, ba->alphabet_size, ba->state_count, ba->initial, ba->final, ba->transitions);
+		delete cj;
 		if(res == NULL) {
 			log(LOGGER_ERROR, "construct of RPNI failed!\n");
 			ret = false;

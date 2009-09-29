@@ -16,6 +16,7 @@
 // it gives everything to teach algorithms from automata (teacher and oracle)
 
 #include <amore++/finite_automaton.h>
+#include <libalf/conjecture.h>
 
 namespace amore_alf_glue {
 
@@ -24,7 +25,7 @@ using namespace libalf;
 using namespace amore;
 
 
-inline bool automaton_equivalence_query(finite_automaton & automaton, finite_automaton & hypothesis, list<int> & counterexample)
+inline bool automaton_equivalence_query(finite_automaton & model, finite_automaton & hypothesis, list<int> & counterexample)
 {
 	// there are two options:
 	// either get automaton containing the symmetric difference of model and hypothesis (variant 1)
@@ -36,16 +37,16 @@ inline bool automaton_equivalence_query(finite_automaton & automaton, finite_aut
 
 #if 0
 	// variant 1:
-	difference = automaton.lang_symmetric_difference(hypothesis);
+	difference = model.lang_symmetric_difference(hypothesis);
 	counterexample = difference->get_sample_word(is_empty);
 #else
 	// variant 2:
-	difference = automaton.lang_difference(hypothesis);
+	difference = model.lang_difference(hypothesis);
 	counterexample = difference->get_sample_word(is_empty);
 
 	if(is_empty) {
 		delete difference;
-		difference = hypothesis.lang_difference(automaton);
+		difference = hypothesis.lang_difference(model);
 		counterexample = difference->get_sample_word(is_empty);
 	}
 #endif
@@ -55,13 +56,35 @@ inline bool automaton_equivalence_query(finite_automaton & automaton, finite_aut
 	return is_empty;
 };
 
+inline bool automaton_equivalence_query(finite_automaton & model, conjecture *cj, list<int> & counterexample)
+{
+	simple_automaton *ba;
+	finite_automaton *hypothesis;
+	bool ret;
 
-inline bool automaton_membership_query(finite_automaton & automaton, list<int> & word)
-{ return automaton.contains(word); };
+	ba = dynamic_cast<simple_automaton*>(cj);
+	if(!ba) {
+		fprintf(stderr, "equivalence query: hypothesis is not an automaton!\n");
+		return false;
+	}
+	hypothesis = construct_amore_automaton(ba->is_deterministic, ba->alphabet_size, ba->state_count, ba->initial, ba->final, ba->transitions);
+
+	ret = automaton_equivalence_query(model, *hypothesis, counterexample);
+
+	delete hypothesis;
+
+	return ret;
+
+}
+
+
+
+inline bool automaton_membership_query(finite_automaton & model, list<int> & word)
+{ return model.contains(word); };
 
 
 template<class answer>
-inline int automaton_answer_knowledgebase(finite_automaton & automaton, knowledgebase<answer> & base)
+inline int automaton_answer_knowledgebase(finite_automaton & model, knowledgebase<answer> & base)
 {
 	int count = 0;
 	typename knowledgebase<answer>::iterator qi = base.qbegin();
@@ -69,7 +92,7 @@ inline int automaton_answer_knowledgebase(finite_automaton & automaton, knowledg
 	while(qi != base.qend()) {
 		list<int> word;
 		word = qi->get_word();
-		qi->set_answer( (answer) automaton_membership_query(automaton, word) );
+		qi->set_answer( (answer) automaton_membership_query(model, word) );
 		qi = base.qbegin();
 		count++;
 	}

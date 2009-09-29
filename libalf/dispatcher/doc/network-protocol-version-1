@@ -100,6 +100,10 @@ and
 
 libalf/include/normalizer.h (enum normalizer::type)
 
+and
+
+libalf/include/conjecture.h (enum conjecture::type)
+
 ================================================================================
 
 CLIENT COMMANDS
@@ -482,6 +486,9 @@ server returns:
 KNOWLEDGEBASE ITERATOR COMMAND
 
 
+FIXME: aufbroeseln: valid vs. end; invalid catchen ?
+
+
 check if iterator is valid (may be invalid e.g. after deleting a
 knowledgebase-object) (KITERATOR_IS_VALID)
 parameters: none.
@@ -678,11 +685,13 @@ parameters: none.
 server returns:
 	bool (true if hypothesis is ready, false if queries need to be answered)
 only if above was true:
-	serialized automaton[] (first int is size-1)
+	conjecture-type
+	serialized conjecture[] (first int is size-1)
 
 
-	serialized automaton is:
+	a serialized basic_automaton is:
 		size of upcoming data (whole size - 1)
+		int: 1 if deterministic, 0 if not.
 		alphabet_size
 		state count
 		number of initial states
@@ -692,11 +701,10 @@ only if above was true:
 		number of transitions
 		transitions[]
 
-
-	where a single transition consists of:
-		source-state
-		label
-		destination-state
+		where a single transition consists of:
+			source-state
+			label
+			destination-state
 
 
 add counterexample (LEARNING_ALGORITHM_ADD_COUNTEREXAMPLE)

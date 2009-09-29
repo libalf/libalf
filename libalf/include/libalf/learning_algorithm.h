@@ -40,6 +40,7 @@
 #include <libalf/statistics.h>
 #include <libalf/knowledgebase.h>
 #include <libalf/normalizer.h>
+#include <libalf/conjecture.h>
 
 namespace libalf {
 
@@ -66,15 +67,25 @@ class learning_algorithm {
 	public:	// types
 		enum algorithm {
 			ALG_NONE = 0,
+			// BEGIN
+
+			// online
 			ALG_ANGLUIN = 1,
 			ALG_ANGLUIN_COLUMN = 2,
-			ALG_KVTREE = 3,
-			ALG_BIERMANN = 4,
-			ALG_BIERMANN_ANGLUIN = 5,
-			ALG_NL_STAR = 6,
-			ALG_RPNI = 7,
-			ALG_DELETE2 = 8,
-			ALG_LAST_INVALID = 9
+			ALG_RVA = 3,			// Rivest and Shapira: reduced angluin
+			ALG_KVTREE = 4,			// Kearns and Vazirani
+			ALG_NL_STAR = 5,
+			ALG_BIERMANN_ANGLUIN = 6,
+
+			// offline
+			ALG_BIERMANN = 7,
+			ALG_RPNI = 8,
+			ALG_DELETE2 = 9,
+			ALG_TB_INFERENCE = 10,		// Trakhtenbrot and Barzdin
+			ALG_HSI = 11,			// homing sequence inference
+
+			// END
+			ALG_LAST_INVALID = 12
 		};
 
 	public: // methods
@@ -91,6 +102,7 @@ class learning_algorithm {
 
 		// set_alphabet_size() is only for initial setting.
 		// once any data is in the structure, use increase_alphabet_size ONLY.
+// FIXME: increase + decrease alphabet-size, check initialized.
 		virtual void set_alphabet_size(int alphabet_size)
 		{{{
 			this->alphabet_size = alphabet_size;
@@ -205,31 +217,18 @@ class learning_algorithm {
 		// was unknown it will be marked as required and false will be returned.
 		// knowledgebase needs to be updated by you, then.
 		//
-		// if all knowledge was found and an automaton is ready, it will be stored into
-		// automaton and true will be returned.
-		virtual bool advance(bool & t_is_dfa, int & t_alphabet_size, int & t_state_count, set<int> & t_initial, set<int> & t_final, multimap<pair<int, int>, int> & t_transitions)
+		// if all knowledge was found and a conjecture is ready, it will be returned.
+		// otherwise, NULL will be returned.
+		virtual conjecture * advance()
 		{{{
-			bool ret = false;
-
-			if(my_knowledge == NULL) {
-				(*my_logger)(LOGGER_ERROR, "learning_algorithm::advance(): trying to advance without knowledgebase!\n");
-				return false;
-			}
+			conjecture * ret = NULL;
 
 			start_timing();
 
 			if(complete()) {
-				t_alphabet_size = 0;
-				t_state_count = 0;
-				t_initial.clear();
-				t_final.clear();
-				t_transitions.clear();
-
-				if(!derive_automaton(t_is_dfa, t_alphabet_size, t_state_count, t_initial, t_final, t_transitions)) {
+				ret = derive_conjecture();
+				if(!ret)
 					(*my_logger)(LOGGER_ERROR, "learning_algorithm::advance(): derive from completed data structure failed! possibly internal error.\n");
-				} else {
-					ret = true;
-				}
 			}
 
 			stop_timing();
@@ -246,7 +245,7 @@ class learning_algorithm {
 		// return false if table could not be completed due to missing knowledge
 		virtual bool complete() = 0;
 		// derive an automaton from data structure
-		virtual bool derive_automaton(bool & is_dfa, int & alphabet_size, int & state_count, set<int> & initial, set<int> & final, multimap<pair<int, int>, int> & transitions) = 0;
+		virtual conjecture * derive_conjecture() = 0;
 
 // FIXME: is _LINUX defined on linux?
 #ifdef _LINUX

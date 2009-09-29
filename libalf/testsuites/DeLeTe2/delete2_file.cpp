@@ -31,6 +31,7 @@ int main(int argc, char**argv)
 	knowledgebase<bool> knowledge;
 
 	ofstream file;
+	char filename[128];
 
 	int alphabet_size;
 
@@ -60,33 +61,23 @@ int main(int argc, char**argv)
 	alphabet_size = knowledge.get_alphabet_size();
 
 	DeLeTe2<bool> rm(&knowledge, &log, alphabet_size);
-	bool f_is_dfa;
-	int f_alphabet_size, f_state_count;
-	set<int> f_initial, f_final;
-	multimap<pair<int, int>, int> f_transitions;
+	conjecture *cj;
 
 	if(!rm.conjecture_ready()) {
 		log(LOGGER_WARN, "DeLeTe2 says that no conjecture is ready! trying anyway...\n");
 	}
 
-	if(!rm.advance(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
+	if( NULL == (cj = rm.advance()) ) {
 		log(LOGGER_ERROR, "advance() returned false!\n");
 	} else {
 //		rm.print(cout);
-		basic_string<int32_t> serial;
-		serial = serialize_automaton(f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
-		basic_string_to_file(serial, "hypothesis");
+		snprintf(filename, 128, "hypothesis.dot");
+		file.open(filename);
 
-		file.open("hypothesis.dot");
-		file << automaton2dotfile(f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
+		file << cj->visualize();
+
 		file.close();
 		printf("\n\nhypothesis saved.\n\n");
-
-		basic_string<int32_t>::iterator si;
-		si = serial.begin();
-		if(!deserialize_automaton(si, serial.end(), f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
-			printf("deser failed!\n");
-		}
 	}
 
 	return 0;

@@ -814,9 +814,11 @@ class angluin_table : public learning_algorithm<answer> {
 			}
 		}}}
 
-		// the following will derive an automaton into the given references
-		virtual bool derive_automaton(bool & t_is_dfa, int & t_alphabet_size, int & t_state_count, set<int> & t_initial, set<int> & t_final, multimap<pair<int, int>, int> & t_transitions)
+		// derive an automaton and return it
+		virtual conjecture * derive_conjecture()
 		{{{
+			simple_automaton *ret = new simple_automaton;
+
 			// derive deterministic finite automaton from this table
 			typename table::iterator uti, ti;
 
@@ -848,13 +850,13 @@ class angluin_table : public learning_algorithm<answer> {
 
 			// q0 is row(epsilon)
 			// as epsilon is the first row in uti, it will have id 0.
-			t_initial.insert( 0 );
+			ret->initial.insert( 0 );
 
 			for(state_it = states.begin(); state_it != states.end(); state_it++) {
 				// the final, accepting states are the rows with
 				// acceptance in the epsilon-column
 				if(state_it->tableentry->acceptance.front() == true)
-					t_final.insert(state_it->id);
+					ret->final.insert(state_it->id);
 
 				// the transformation function is:
 				// \delta: (row, char) -> row : (row(s), a) -> row(sa)
@@ -880,7 +882,7 @@ class angluin_table : public learning_algorithm<answer> {
 							pair<int, int> trid;
 							trid.first = state_it->id;
 							trid.second = i;
-							t_transitions.insert( pair<pair<int, int>, int>( trid, state_it2->id) );
+							ret->transitions.insert( pair<pair<int, int>, int>( trid, state_it2->id) );
 
 							break;
 						}
@@ -888,12 +890,14 @@ class angluin_table : public learning_algorithm<answer> {
 				}
 			}
 
-			t_alphabet_size = this->get_alphabet_size();
-			t_state_count = states.size();
-			t_is_dfa = true;
+			ret->alphabet_size = this->get_alphabet_size();
+			ret->state_count = states.size();
+			ret->is_deterministic = true;
 
-			return true;
-		}}}
+			ret->valid = true;
+
+			return ret;
+		}}};
 
 };
 

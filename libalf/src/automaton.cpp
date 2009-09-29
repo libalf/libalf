@@ -413,6 +413,11 @@ basic_string<int32_t> serialize_automaton(int alphabet_size, int state_count, se
 	multimap<pair<int, int>, int>::iterator tit;
 
 	ret += 0; // length, filled in later.
+	if(automaton_is_deterministic(alphabet_size, state_count, initial, final, transitions)) {
+		ret += htonl(1);
+	} else {
+		ret += htonl(0);
+	};
 	ret += htonl(alphabet_size);
 	ret += htonl(state_count);
 	ret += htonl(initial.size());
@@ -448,8 +453,13 @@ bool deserialize_automaton(basic_string<int32_t>::iterator &it, basic_string<int
 
 	size = ntohl(*it);
 
-	// alphabet size
+	// skip det field (if ok)
 	it++; if(size <= 0 || limit == it) goto deserialization_failed_fast;
+	s = ntohl(*it);
+	if(s != 0 && s != 1) goto deserialization_failed_fast;
+
+	// alphabet size
+	size--, it++; if(size <= 0 || limit == it) goto deserialization_failed_fast;
 	alphabet_size = ntohl(*it);
 	if(alphabet_size < 1)
 		return false;

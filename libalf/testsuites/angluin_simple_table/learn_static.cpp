@@ -35,6 +35,7 @@ nondeterministic_finite_automaton * sample_automaton()
 
 	/*
 	int automaton[] = {
+		0, // is not deterministic
 		2, // alphabet size
 		3, // state count
 		1, // number of initial states
@@ -48,22 +49,22 @@ nondeterministic_finite_automaton * sample_automaton()
 
 	// sample automaton from "angluin style learning of NFA"-paper:
 	// Fig. 11: (NFA)
-//	int automaton[] = { 2, 4, 1, 0, 4, 0,1,2,3, 7, 0,0,1, 0,1,1, 1,0,2, 1,1,2, 2,0,3, 2,1,3, 3,1,0 };
+//	int automaton[] = { 0, 2, 4, 1, 0, 4, 0,1,2,3, 7, 0,0,1, 0,1,1, 1,0,2, 1,1,2, 2,0,3, 2,1,3, 3,1,0 };
 
 	// Fig. 13: (NFA)
-//	int automaton[] = { 2, 6, 1, 0, 5, 0,1,2,3,4, 12, 0,1,1, 0,0,2, 1,1,1, 1,0,3, 2,0,2, 2,1,4, 3,0,5, 3,1,5, 4,1,4, 4,0,5, 5,0,5, 5,1,5 };
+//	int automaton[] = { 0, 2, 6, 1, 0, 5, 0,1,2,3,4, 12, 0,1,1, 0,0,2, 1,1,1, 1,0,3, 2,0,2, 2,1,4, 3,0,5, 3,1,5, 4,1,4, 4,0,5, 5,0,5, 5,1,5 };
 
 	// Fig. 15: (NFA)
-//	int automaton[] = { 3, 7, 1, 0, 4, 0,1,4,5, 21, 0,0,1, 0,1,2, 0,2,3, 1,0,1, 1,1,4, 1,2,2, 2,0,5, 2,1,4, 2,2,4, 3,0,5, 3,1,3, 3,2,5, 4,0,1, 4,1,4, 4,2,4, 5,0,6, 5,1,3, 5,2,3, 6,0,5, 6,1,1, 6,2,2 };
+//	int automaton[] = { 0, 3, 7, 1, 0, 4, 0,1,4,5, 21, 0,0,1, 0,1,2, 0,2,3, 1,0,1, 1,1,4, 1,2,2, 2,0,5, 2,1,4, 2,2,4, 3,0,5, 3,1,3, 3,2,5, 4,0,1, 4,1,4, 4,2,4, 5,0,6, 5,1,3, 5,2,3, 6,0,5, 6,1,1, 6,2,2 };
 
 	// Fig. 16: (NFA)
-//	int automaton[] = { 2, 4, 1, 0, 2, 1,2, 6, 0,1,1, 1,0,2, 1,1,1, 2,1,3, 3,0,2, 3,1,2, };
+//	int automaton[] = { 0, 2, 4, 1, 0, 2, 1,2, 6, 0,1,1, 1,0,2, 1,1,1, 2,1,3, 3,0,2, 3,1,2, };
 
 	// Fig. 18: (NFA)
-//	int automaton[] = { 2, 10, 1, 0, 5, 0,1,2,8,9, 12, 0,0,1, 0,1,2, 1,0,3, 1,1,7, 2,1,2, 3,0,4, 4,0,3, 4,1,5, 5,1,6, 6,1,9, 7,1,8, 8,1,9 };
+//	int automaton[] = { 0, 2, 10, 1, 0, 5, 0,1,2,8,9, 12, 0,0,1, 0,1,2, 1,0,3, 1,1,7, 2,1,2, 3,0,4, 4,0,3, 4,1,5, 5,1,6, 6,1,9, 7,1,8, 8,1,9 };
 
 	// Fig. 24: (NFA)
-	int automaton[] = { 2, 6, 1, 0, 2, 3,5, 6, 0,1,1, 1,0,2, 2,0,3, 3,0,5, 3,1,4, 4,0,5 };
+	int automaton[] = { 0, 2, 6, 1, 0, 2, 3,5, 6, 0,1,1, 1,0,2, 2,0,3, 3,0,5, 3,1,4, 4,0,5 };
 
 	basic_string<int32_t> serial;
 	basic_string<int32_t>::iterator si;
@@ -119,12 +120,9 @@ int main(int argc, char**argv)
 
 	for(iteration = 1; iteration <= 100; iteration++) {
 		int c = 'a';
-		bool f_is_dfa;
-		int f_alphabet_size, f_state_count;
-		set<int> f_initial, f_final;
-		multimap<pair<int, int>, int> f_transitions;
+		conjecture * cj;
 
-		while( ! ot.advance(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions) ) {
+		while( NULL == (cj = ot.advance()) ) {
 			// resolve missing knowledge:
 
 			snprintf(filename, 128, "knowledgebase%02d%c.dot", iteration, c);
@@ -149,9 +147,11 @@ int main(int argc, char**argv)
 			c++;
 		}
 
+		simple_automaton * ba = dynamic_cast<simple_automaton*>(cj);
 		if(hypothesis)
 			delete hypothesis;
-		hypothesis = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
+		hypothesis = construct_amore_automaton(ba->is_deterministic, ba->alphabet_size, ba->state_count, ba->initial, ba->final, ba->transitions);
+		delete cj;
 		if(!hypothesis) {
 			printf("generation of hypothesis failed!\n");
 			return -1;
@@ -217,7 +217,6 @@ int main(int argc, char**argv)
 	stats.memory = ot.get_memory_statistics();
 	stats.queries.membership = knowledge.count_resolved_queries();
 
-	delete nfa;
 
 	cout << "\nrequired membership queries: " << stats.queries.membership << "\n";
 	cout << "required uniq membership queries: " << stats.queries.uniq_membership << "\n";
@@ -231,6 +230,7 @@ int main(int argc, char**argv)
 	cout << "minimal state count: " << hypothesis->get_state_count() << "\n";
 
 	delete hypothesis;
+	delete nfa;
 
 	if(success)
 		return 0;

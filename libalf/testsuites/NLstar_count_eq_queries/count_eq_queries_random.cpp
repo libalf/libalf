@@ -45,38 +45,28 @@ int learn_via_NLstar(int asize, finite_automaton * model)
 
 	// create NLstar table and teach it the automaton
 	NLstar_table<ANSWERTYPE> ot(&knowledge, &log, asize);
-	finite_automaton * hypothesis = NULL;
 
 	for(iteration = 1; iteration <= 100; iteration++) {
-		bool f_is_dfa;
-		int f_alphabet_size, f_state_count;
-		set<int> f_initial, f_final;
-		multimap<pair<int, int>, int> f_transitions;
+		conjecture *cj;
 
-		while( ! ot.advance(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions) )
+		while( NULL == (cj = ot.advance()) ) {
+			// resolve missing knowledge:
 			stats.queries.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*model, knowledge);
-
-		if(hypothesis)
-			delete hypothesis;
-		hypothesis = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
-		if(!hypothesis) {
-			cout << "generation of hypothesis failed!\n";
-			return -1;
 		}
+
 
 		list<int> counterexample;
 		stats.queries.equivalence++;
-		if(amore_alf_glue::automaton_equivalence_query(*model, *hypothesis, counterexample)) {
+		if(amore_alf_glue::automaton_equivalence_query(*model, cj, counterexample)) {
 			// equivalent
+			cout << "success.\n";
 			success = true;
 			break;
 		}
+		delete cj;
 
 		ot.add_counterexample(counterexample);
 	}
-
-	if(hypothesis)
-		delete hypothesis;
 
 	if(success) {
 //		cout << "success.\n";

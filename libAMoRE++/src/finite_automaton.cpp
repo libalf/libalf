@@ -32,18 +32,44 @@ finite_automaton * construct_amore_automaton(bool is_dfa, int alphabet_size, int
 	else
 		ret = new nondeterministic_finite_automaton;
 
-	if(ret->construct(alphabet_size, state_count, initial, final, transitions))
+	if(ret->construct(is_dfa, alphabet_size, state_count, initial, final, transitions))
 		return ret;
 
 	delete ret;
 	return NULL;
 }}}
 
+finite_automaton * deserialize_amore_automaton(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+{{{
+	finite_automaton * ret;
+
+	basic_string<int32_t>::iterator si;
+	int is_det;
+
+	si = it;
+	if(si == limit) return NULL;
+	si++;
+	if(si == limit) return NULL;
+	is_det = ntohl(*si);
+	if(is_det != 0 && is_det != 1) return NULL;
+
+	if(is_det == 0)
+		ret = new nondeterministic_finite_automaton;
+
+	if(is_det == 1)
+		ret = new deterministic_finite_automaton;
+
+	ret->deserialize(it, limit);
+
+	return ret;
+}}}
+
+
+
 
 
 finite_automaton::~finite_automaton()
 { };
-
 
 set<int> finite_automaton::run(set<int> from, list<int>::iterator word, list<int>::iterator word_limit)
 {{{
@@ -96,6 +122,8 @@ string finite_automaton::generate_dotfile()
 		"\tsize=8;\n\n";
 
 	si++; // skip length field
+
+	si++; // skip deterministic-flag
 
 	si++; // skip alphabet size
 
@@ -190,7 +218,7 @@ string finite_automaton::generate_dotfile()
 // inefficient (as it only wraps another interface), but it works for all automata implementations
 // that implement serialize and deserialize. implementations may provide their own, more performant
 // implementation of construct().
-bool finite_automaton::construct(int alphabet_size, int state_count, set<int> &initial, set<int> &final, multimap<pair<int, int>, int> &transitions)
+bool finite_automaton::construct(bool is_dfa, int alphabet_size, int state_count, set<int> &initial, set<int> &final, multimap<pair<int, int>, int> &transitions)
 {{{
 	basic_string<int32_t> ser;
 	set<int>::iterator sit;
@@ -198,6 +226,8 @@ bool finite_automaton::construct(int alphabet_size, int state_count, set<int> &i
 
 	// serialize that data and call deserialize :)
 	ser += 0;
+
+	ser += htonl( is_dfa ? 1 : 0 );
 
 	ser += htonl(alphabet_size);
 

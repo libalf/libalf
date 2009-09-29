@@ -168,15 +168,18 @@ class finite_automaton {
 		// states are named 0 .. state_count-1,
 		// transition attributes are 0 .. alphabet_size-1,
 		// an epsilon transition is denoted as -1
-		virtual bool construct(int alphabet_size, int state_count, set<int> &initial, set<int> &final, multimap<pair<int,int>, int> &transitions);
+		virtual bool construct(bool is_dfa, int alphabet_size, int state_count, set<int> &initial, set<int> &final, multimap<pair<int,int>, int> &transitions);
 
 		virtual string generate_dotfile();
 };
 
 
-
+// assemble an automaton from compounds:
 finite_automaton * construct_amore_automaton(bool is_dfa, int alphabet_size, int state_count, set<int> &initial, set<int> &final, multimap<pair<int,int>, int> &transitions);
 
+
+// automatically construct the specific automaton (NFA or DFA) during deserialization:
+finite_automaton * deserialize_amore_automaton(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
 
 
 

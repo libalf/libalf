@@ -28,7 +28,7 @@
 #include <amore++/deterministic_finite_automaton.h>
 #include <amore++/finite_automaton.h>
 
-#include "local_amore_alf_glue.h"
+#include "amore_alf_glue.h"
 
 using namespace std;
 using namespace libalf;
@@ -130,7 +130,7 @@ model_too_big:
 					char modelfilename[128];
 					ofstream modelfile;
 
-					snprintf(modelfilename, 128, "model_%08d.dot", model_index);
+					snprintf(modelfilename, 128, "model_%08d_%c.dot", model_index, (method == 2) ? 'R' : (method == 1) ? 'N' : (method == 0) ? 'D' : '?');
 
 					modelfile.open(modelfilename);
 					modelfile << model->generate_dotfile();
@@ -167,33 +167,27 @@ model_too_big:
 							case 2: alg = new NLstar_table<bool>(&base, &log, alphabet_size); break;
 						}
 
-						finite_automaton * hypothesis;
 						bool equal = false;
 						int iteration = 0;
 						while(!equal) {
-							while(! alg->advance(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions) )
+							conjecture * cj;
+							while( NULL == (cj = alg->advance()) )
 								stats[learner].queries.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*model, base);
-
-							hypothesis = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
-							if(!hypothesis) {
-								cout << "failed to construct hypothesis!\n";
-								return 1;
-							}
 
 							list<int> counterexample;
 							stats[learner].queries.equivalence++;
 							stats[learner].queries.membership = base.count_resolved_queries();
 							log(LOGGER_DEBUG, "eq query. \r");
-							if(amore_alf_glue::automaton_equivalence_query(*model, *hypothesis, counterexample)) {
+							if(amore_alf_glue::automaton_equivalence_query(*model, cj, counterexample)) {
 							log(LOGGER_DEBUG, "completed \r");
 								equal = true;
 								if(learner == 2)
-									stat_size_RFSA = hypothesis->get_state_count();
+									stat_size_RFSA = dynamic_cast<simple_automaton*>(cj)->state_count;
 							} else {
 								alg->add_counterexample(counterexample);
 							}
+							delete cj;
 
-							delete hypothesis;
 							iteration++;
 						}
 

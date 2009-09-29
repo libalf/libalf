@@ -414,6 +414,8 @@ std::basic_string<int32_t> deterministic_finite_automaton::serialize()
 	// stream length; will be filled in later
 	ret += 0;
 
+	// is deterministic!
+	ret += htonl(1);
 	// alphabet size
 	ret += htonl(dfa_p->alphabet_size);
 	// state count
@@ -469,7 +471,12 @@ bool deterministic_finite_automaton::deserialize(basic_string<int32_t>::iterator
 
 	dfa_p = newdfa();
 
+	// deterministic flag
+	s = ntohl(*it);
+	if(s != 1) goto dfaa_deserialization_failed;
+
 	// alphabet size
+	size--, it++; if(size <= 0 || limit == it) goto dfaa_deserialization_failed;
 	s = ntohl(*it);
 	if(s < 1)
 		return false;
@@ -582,8 +589,10 @@ dfaa_deserialization_failed_fast:
 	return false;
 }}}
 
-bool deterministic_finite_automaton::construct(int alphabet_size, int state_count, set<int> &initial, set<int> &final, multimap<pair<int, int>, int> &transitions)
+bool deterministic_finite_automaton::construct(bool is_dfa, int alphabet_size, int state_count, set<int> &initial, set<int> &final, multimap<pair<int, int>, int> &transitions)
 {{{
+	if(!is_dfa)
+		return false;
 	dfa a;
 	set<int>::iterator si;
 	multimap<pair<int, int>, int>::iterator ti,tj;

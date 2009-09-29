@@ -57,23 +57,23 @@ int main(int argc, char**argv)
 	knowledge.print(cout);
 	cout << "\n";
 
+	alphabet_size = knowledge.get_alphabet_size();
+
 	RPNI<bool> rumps(&knowledge, &log, alphabet_size);
-	bool f_is_dfa;
-	int f_alphabet_size, f_state_count;
-	set<int> f_initial, f_final;
-	multimap<pair<int, int>, int> f_transitions;
+	conjecture *cj;
 
 	if(!rumps.conjecture_ready()) {
 		log(LOGGER_WARN, "RPNI says that no conjecture is ready! trying anyway...\n");
 	}
 
-	if(!rumps.advance(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
+	if( NULL == (cj = rumps.advance()) ) {
 		log(LOGGER_ERROR, "advance() returned false!\n");
 	} else {
+
 		snprintf(filename, 128, "hypothesis.dot");
 		file.open(filename);
 
-		file << automaton2dotfile(f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
+		file << cj->visualize();
 
 		file.close();
 		printf("\n\nhypothesis saved.\n\n");

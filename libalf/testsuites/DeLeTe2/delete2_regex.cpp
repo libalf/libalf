@@ -109,20 +109,20 @@ int main(int argc, char**argv)
 
 	DeLeTe2<bool> rm(&knowledge, &log, alphabet_size);
 	finite_automaton * hypothesis = NULL;
-	bool f_is_dfa;
-	int f_alphabet_size, f_state_count;
-	set<int> f_initial, f_final;
-	multimap<pair<int, int>, int> f_transitions;
+	conjecture *cj;
+	simple_automaton *ba;
 
 	if(!rm.conjecture_ready()) {
 		log(LOGGER_WARN, "RPNI says that no conjecture is ready! trying anyway...\n");
 	}
 
-	if(!rm.advance(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
+	if( NULL == (cj = rm.advance()) ) {
 		log(LOGGER_ERROR, "advance() returned false!\n");
 	} else {
+		ba = dynamic_cast<simple_automaton*>(cj);
 //		rm.print(cout);
-		hypothesis = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
+		hypothesis = construct_amore_automaton(ba->is_deterministic, ba->alphabet_size, ba->state_count, ba->initial, ba->final, ba->transitions);
+		delete cj;
 
 		snprintf(filename, 128, "hypothesis.dot");
 		file.open(filename); file << hypothesis->generate_dotfile(); file.close();

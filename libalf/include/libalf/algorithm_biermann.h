@@ -251,8 +251,9 @@ class basic_biermann : public learning_algorithm<answer> {
 			// we're offline.
 			return true;
 		}}}
-		// derive an automaton from data structure
-		virtual bool derive_automaton(bool & t_is_dfa, int & t_alphabet_size, int & t_state_count, set<int> & t_initial, set<int> & t_final, multimap<pair<int, int>, int> & t_transitions)
+
+		// derive an automaton and return it
+		virtual conjecture * derive_conjecture()
 		{{{
 			if(this->get_alphabet_size() != this->my_knowledge->get_alphabet_size())
 				(*this->my_logger)(LOGGER_WARN, "RPNI: differing alphabet size between this (%d) and knowledgebase (%d)!\n",
@@ -262,7 +263,7 @@ class basic_biermann : public learning_algorithm<answer> {
 
 			if(this->my_knowledge == NULL) {
 				(*this->my_logger)(LOGGER_ERROR, "biermann: no knowledgebase set!\n");
-				return false;
+				return NULL;
 			}
 
 			// 1) create constraints from LoopFreeDFA (LFDFA = knowledgebase)
@@ -307,7 +308,7 @@ class basic_biermann : public learning_algorithm<answer> {
 						failed_before = true;
 						if(mdfa_size == (int)sources.size()) {
 							(*this->my_logger)(LOGGER_ERROR, "biermann: failed to find mapping with LFDFA size == mDFA size. this will be a serious bug in libalf :-(\n");
-							return false;
+							return NULL;
 						} else {
 							old_size = mdfa_size;
 							mdfa_size++;
@@ -316,8 +317,16 @@ class basic_biermann : public learning_algorithm<answer> {
 				}
 			}
 
+			simple_automaton *ret = new simple_automaton;
+
 			// 3) derive automaton from current_solution and mdfa_size
-			return solution2automaton(t_is_dfa, t_alphabet_size, t_state_count, t_initial, t_final, t_transitions);
+			if(!solution2automaton(ret->is_deterministic, ret->alphabet_size, ret->state_count, ret->initial, ret->final, ret->transitions)) {
+				delete ret;
+				return NULL;
+			} else {
+				ret->valid = true;
+				return ret;
+			}
 		}}}
 
 		virtual void create_constraints()

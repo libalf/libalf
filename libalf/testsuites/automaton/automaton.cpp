@@ -54,19 +54,25 @@ void test_dfa()
 	// serialize raw version
 	ser_dfa = serialize_automaton(f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
 	// create amore automaton from raw version
-	if(!dfa1.construct(f_alphabet_size, f_state_count, f_initial, f_final, f_transitions))
+	if(!dfa1.construct(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions))
 		cout << "construct DFA#1 failed\n";
 	// create amore automaton from serialized raw data
 	si = ser_dfa.begin();
 	if(!dfa2.deserialize(si, ser_dfa.end()))
 		cout << "deser DFA#2 failed\n";
-	if(si != ser_dfa.end())
-		cout << "DFA#2 remainder\n";
+	if(si != ser_dfa.end()) {
+		cout << "DFA#2 remainder:\n";
+		while(si != ser_dfa.end()) {
+			printf("%d, ", ntohl(*si));
+			si++;
+		};
+		printf("\n");
+	};
 	// deserialize serialized version and create amore automaton from this
 	si = ser_dfa.begin();
 	if(!deserialize_automaton(si, ser_dfa.end(), f_alphabet_size, f_state_count, f_initial, f_final, f_transitions))
 		cout << "deser DFA#3 failed\n";
-	if(!dfa3.construct(f_alphabet_size, f_state_count, f_initial, f_final, f_transitions))
+	if(!dfa3.construct(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions))
 		cout << "construct DFA#3 failed\n";
 
 	if(!(dfa1 == dfa2))
@@ -106,7 +112,7 @@ void test_nfa()
 	// serialize raw version
 	ser_nfa = serialize_automaton(f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
 	// create amore automaton from raw version
-	if(!nfa1.construct(f_alphabet_size, f_state_count, f_initial, f_final, f_transitions))
+	if(!nfa1.construct(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions))
 		cout << "construct NFA#1 failed\n";
 	// create amore automaton from serialized raw data
 	si = ser_nfa.begin();
@@ -118,7 +124,7 @@ void test_nfa()
 	si = ser_nfa.begin();
 	if(!deserialize_automaton(si, ser_nfa.end(), f_alphabet_size, f_state_count, f_initial, f_final, f_transitions))
 		cout << "deser NFA#3 failed\n";
-	if(!nfa3.construct(f_alphabet_size, f_state_count, f_initial, f_final, f_transitions))
+	if(!nfa3.construct(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions))
 		cout << "construct NFA#3 failed\n";
 
 	if(!(nfa1 == nfa2))

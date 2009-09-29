@@ -285,9 +285,11 @@ class DeLeTe2 : public learning_algorithm<answer> {
 			}
 		}}}
 
-		// derive an automaton from data structure
-		virtual bool derive_automaton(bool & t_is_dfa, int & t_alphabet_size, int & t_state_count, set<int> & t_initial, set<int> & t_final, multimap<pair<int, int>, int> & t_transitions)
+		// derive an automaton and return it
+		virtual conjecture * derive_conjecture()
 		{{{
+			simple_automaton *ret = new simple_automaton;
+
 			if(this->get_alphabet_size() != this->my_knowledge->get_alphabet_size())
 				(*this->my_logger)(LOGGER_WARN, "DeLeTe2: differing alphabet size between this (%d) and knowledgebase (%d)!\n",
 						this->get_alphabet_size(), this->my_knowledge->get_alphabet_size());
@@ -325,12 +327,9 @@ class DeLeTe2 : public learning_algorithm<answer> {
 			// run DeLeTe2 algorithm
 			typename list<node*>::iterator pi;
 
-			t_is_dfa = false;
-			t_alphabet_size = this->alphabet_size;
-			t_state_count = 0;
-			t_initial.clear();
-			t_final.clear();
-			t_transitions.clear();
+			ret->is_deterministic = false;
+			ret->alphabet_size = this->alphabet_size;
+			ret->state_count = 0;
 
 			list<node*> state_candidates;	// the position in the list gives the numerical state-id. thus, only append new states.
 			int sid = 0;
@@ -375,12 +374,12 @@ class DeLeTe2 : public learning_algorithm<answer> {
 					r1.second = this->my_knowledge->get_rootptr();
 					if(inclusions.find(r1) != inclusions.end()) {
 						(*this->my_logger)(LOGGER_DEBUG, "is initial. ");
-						t_initial.insert(sid);
+						ret->initial.insert(sid);
 					}
 					// check if final
 					if((*pi)->is_answered() && (*pi)->get_answer() == true) {
 						(*this->my_logger)(LOGGER_DEBUG, "is final.");
-						t_final.insert(sid);
+						ret->final.insert(sid);
 					}
 
 					(*this->my_logger)(LOGGER_DEBUG, "\n");
@@ -399,7 +398,7 @@ class DeLeTe2 : public learning_algorithm<answer> {
 							if(inclusions.find(r1) != inclusions.end()) {
 								trid.first = i;
 								trid.second = sigma;
-								t_transitions.insert(pair<pair<int, int>, int>(trid, sid));
+								ret->transitions.insert(pair<pair<int, int>, int>(trid, sid));
 								(*this->my_logger)(LOGGER_DEBUG, "DeLeTe2: incoming transition (q%d,%d,q%d)\n", i, sigma, sid);
 							}
 						}
@@ -415,7 +414,7 @@ class DeLeTe2 : public learning_algorithm<answer> {
 							if(inclusions.find(r1) != inclusions.end()) {
 								trid.first = sid;
 								trid.second = sigma;
-								t_transitions.insert(pair<pair<int, int>, int>(trid, i));
+								ret->transitions.insert(pair<pair<int, int>, int>(trid, i));
 								(*this->my_logger)(LOGGER_DEBUG, "DeLeTe2: outgoing transition (q%d,%d,q%d)\n", sid, sigma, i);
 							}
 						}
@@ -423,10 +422,11 @@ class DeLeTe2 : public learning_algorithm<answer> {
 
 					sid++;
 				}
-				t_state_count = state_candidates.size();
+				ret->state_count = state_candidates.size();
 			}
 
-			return true;
+			ret->valid = true;
+			return ret;
 		}}}
 
 };

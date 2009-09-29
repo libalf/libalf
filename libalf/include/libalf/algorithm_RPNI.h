@@ -324,9 +324,11 @@ class RPNI : public learning_algorithm<answer> {
 		{{{
 			return true;
 		}}}
-		// derive an automaton from data structure
-		virtual bool derive_automaton(bool & t_is_dfa, int & t_alphabet_size, int & t_state_count, set<int> & t_initial, set<int> & t_final, multimap<pair<int, int>, int> & t_transitions)
+		// derive an automaton and return it
+		virtual conjecture * derive_conjecture()
 		{{{
+			simple_automaton *ret = new simple_automaton;
+
 			if(this->get_alphabet_size() != this->my_knowledge->get_alphabet_size())
 				(*this->my_logger)(LOGGER_WARN, "RPNI: differing alphabet size between this (%d) and knowledgebase (%d)!\n",
 						this->get_alphabet_size(), this->my_knowledge->get_alphabet_size());
@@ -336,12 +338,19 @@ class RPNI : public learning_algorithm<answer> {
 			merge_states(eq);
 			(*this->my_logger)(LOGGER_INFO, "RPNI: states merged. constructing automaton...\n");
 			ok = this->my_knowledge->equivalence_relation2automaton(eq.equivalences, false,
-					t_is_dfa, t_alphabet_size, t_state_count,
-					t_initial, t_final, t_transitions);
+					ret->is_deterministic, ret->alphabet_size, ret->state_count,
+					ret->initial, ret->final, ret->transitions);
 
-			t_is_dfa = true;
+			ret->is_deterministic = true;
 
-			return ok;
+			if(!ok) {
+				delete ret;
+				ret = NULL;
+			} else {
+				ret->valid = true;
+			}
+
+			return ret;
 		}}}
 		virtual void merge_states(equivalence_relation & eq)
 		{{{

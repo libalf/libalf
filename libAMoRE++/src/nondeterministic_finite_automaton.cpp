@@ -541,6 +541,8 @@ std::basic_string<int32_t> nondeterministic_finite_automaton::serialize()
 	// stream length; will be filled in later
 	ret += 0;
 
+	// is not deterministic
+	ret += htonl(0);
 	// alphabet size
 	ret += htonl(nfa_p->alphabet_size);
 	// state count
@@ -606,7 +608,12 @@ bool nondeterministic_finite_automaton::deserialize(basic_string<int32_t>::itera
 
 	nfa_p = newnfa();
 
+	// deterministic flag
+	s = ntohl(*it);
+	if(s != 0 && s != 1) goto nfaa_deserialization_failed;
+
 	// alphabet size
+	size--, it++; if(size <= 0 || limit == it) goto nfaa_deserialization_failed;
 	s = ntohl(*it);
 	if(s < 1)
 		return false;

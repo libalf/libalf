@@ -315,10 +315,18 @@ class KVtree: public learning_algorithm<answer> {
 			return sift_pending();
 		}
 
-		virtual bool derive_automaton(bool & is_dfa, int & alphabet_size, int & state_count, set<int> & initial, set<int> & final, multimap<pair<int, int>, int> & transitions)
+		// derive an automaton and return it
+		virtual conjecture * derive_conjecture()
 		{
+			simple_automaton *ret = new simple_automaton;
+
 			
+
+			ret->valid = false;
+
+			return ret;
 		}
+
 
 };
 

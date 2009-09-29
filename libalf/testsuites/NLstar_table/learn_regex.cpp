@@ -92,12 +92,9 @@ int main(int argc, char**argv)
 
 	for(iteration = 1; iteration <= 100; iteration++) {
 		int c = 'a';
-		bool f_is_dfa;
-		int f_alphabet_size, f_state_count;
-		set<int> f_initial, f_final;
-		multimap<pair<int, int>, int> f_transitions;
+		conjecture * cj;
 
-		while( ! ot.advance(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions) ) {
+		while( NULL == (cj = ot.advance()) ) {
 			// resolve missing knowledge:
 
 			snprintf(filename, 128, "knowledgebase%02d%c.dot", iteration, c);
@@ -122,9 +119,11 @@ int main(int argc, char**argv)
 			c++;
 		}
 
+		simple_automaton * ba = dynamic_cast<simple_automaton*>(cj);
 		if(hypothesis)
 			delete hypothesis;
-		hypothesis = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
+		hypothesis = construct_amore_automaton(ba->is_deterministic, ba->alphabet_size, ba->state_count, ba->initial, ba->final, ba->transitions);
+		delete cj;
 		if(!hypothesis) {
 			printf("generation of hypothesis failed!\n");
 			return -1;

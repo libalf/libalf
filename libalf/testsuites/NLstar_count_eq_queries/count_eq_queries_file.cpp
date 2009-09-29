@@ -85,43 +85,29 @@ int main(int argc, char**argv)
 
 	// create NLstar table and teach it the automaton
 	NLstar_table<ANSWERTYPE> ot(&knowledge, &log, alphabet_size);
-	finite_automaton * hypothesis = NULL;
 
 	for(iteration = 1; iteration <= 100; iteration++) {
 		int c = 'a';
-		bool f_is_dfa;
-		int f_alphabet_size, f_state_count;
-		set<int> f_initial, f_final;
-		multimap<pair<int, int>, int> f_transitions;
+		conjecture *cj;
 
-		while( ! ot.advance(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions) ) {
+		while( NULL == (cj = ot.advance()) ) {
 			// resolve missing knowledge:
 			stats.queries.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*nfa, knowledge);
 			c++;
 		}
-
-		if(hypothesis)
-			delete hypothesis;
-		hypothesis = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
-		if(!hypothesis) {
-			printf("generation of hypothesis failed!\n");
-			return -1;
-		}
-
-//		snprintf(filename, 128, "hypothesis%02d.dot", iteration);
-//		file.open(filename); file << hypothesis->generate_dotfile(); file.close();
 
 		// once an automaton is generated, test for equivalence with oracle_automaton
 		// if this test is ok, all worked well
 
 		list<int> counterexample;
 		stats.queries.equivalence++;
-		if(amore_alf_glue::automaton_equivalence_query(*nfa, *hypothesis, counterexample)) {
+		if(amore_alf_glue::automaton_equivalence_query(*nfa, cj, counterexample)) {
 			// equivalent
 			cout << "success.\n";
 			success = true;
 			break;
 		}
+		delete cj;
 
 		/*
 		snprintf(filename, 128, "counterexample%02d.NLstar", iteration);
@@ -150,7 +136,6 @@ int main(int argc, char**argv)
 		ret = 1;
 	}
 
-	delete hypothesis;
 	delete nfa;
 
 	if(success)

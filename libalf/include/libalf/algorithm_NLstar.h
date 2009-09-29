@@ -844,8 +844,11 @@ deserialization_failed:
 			}
 		}}}
 
-		virtual bool derive_automaton(bool & t_is_dfa, int & t_alphabet_size, int & t_state_count, set<int> & t_initial, set<int> & t_final, multimap<pair<int, int>, int> & t_transitions)
+		// derive an automaton and return it
+		virtual conjecture * derive_conjecture()
 		{{{
+			simple_automaton *ret = new simple_automaton;
+
 			// NFA is (Q, Q0, F, delta)
 			// with
 			//	Q =		upper primes
@@ -868,11 +871,11 @@ deserialization_failed:
 
 				// get initial states
 				if(epsilon->covers(*upper_primes[i]))
-					t_initial.insert(i);
+					ret->initial.insert(i);
 
 				// get final states (column 0 is always epsilon)
 				if(upper_primes[i]->acceptance.front() == true)
-					t_final.insert(i);
+					ret->final.insert(i);
 
 				// and all transitions from this state
 				pair<int, int> trid;
@@ -887,18 +890,18 @@ deserialization_failed:
 
 					for(unsigned int dst = 0; dst < upper_primes.size(); dst++)
 						if(successor->covers(*upper_primes[dst]))
-							t_transitions.insert( pair<pair<int, int>, int>( trid, dst) );
+							ret->transitions.insert( pair<pair<int, int>, int>( trid, dst) );
 
 				}
 			}
 
-			t_is_dfa = false;
-			t_alphabet_size = this->get_alphabet_size();
-			t_state_count = upper_primes.size();
+			ret->is_deterministic = false;
+			ret->alphabet_size = this->get_alphabet_size();
+			ret->state_count = upper_primes.size();
+			ret->valid = true;
 
-			return true;
+			return ret;
 		}}}
-
 };
 
 }; // end of namespace libalf

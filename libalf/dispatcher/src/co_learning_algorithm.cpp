@@ -49,14 +49,15 @@ co_learning_algorithm::co_learning_algorithm(enum libalf::learning_algorithm<ext
 //		case learning_algorithm<extended_bool>::ALG_KVTREE:
 //			o = new KVtree<extended_bool>(NULL, NULL, alphabet_size);
 //			break;
-		case learning_algorithm<extended_bool>::ALG_BIERMANN:
-			o = new MiniSat_biermann<extended_bool>(NULL, NULL, alphabet_size);
-			break;
 //		case learning_algorithm<extended_bool>::ALG_BIERMANN_ANGLUIN:
 //			o = new algorithm_biermann_angluin<extended_bool>(NULL, NULL, alphabet_size);
 //			break;
 		case learning_algorithm<extended_bool>::ALG_NL_STAR:
 			o = new NLstar_table<extended_bool>(NULL, NULL, alphabet_size);
+			break;
+
+		case learning_algorithm<extended_bool>::ALG_BIERMANN:
+			o = new MiniSat_biermann<extended_bool>(NULL, NULL, alphabet_size);
 			break;
 		case learning_algorithm<extended_bool>::ALG_RPNI:
 			o = new RPNI<extended_bool>(NULL, NULL, alphabet_size);
@@ -83,6 +84,7 @@ co_learning_algorithm::~co_learning_algorithm()
 
 bool co_learning_algorithm::handle_command(int command, basic_string<int32_t> & command_data)
 {{{
+	conjecture * cj;
 	basic_string<int32_t> serial;
 	basic_string<int32_t>::iterator si;
 	string s;
@@ -241,19 +243,20 @@ bool co_learning_algorithm::handle_command(int command, basic_string<int32_t> & 
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 			if(!this->sv->send_errno(ERR_SUCCESS))
 				return false;
-			{
-				bool is_dfa;
-				int alphabet_size, state_count;
-				set<int> initial, final;
-				multimap<pair<int, int>, int> transitions;
-				if(o->advance(is_dfa, alphabet_size, state_count, initial, final, transitions)) {
-					if(!this->sv->client->stream_send_int(1))
-						return false;
-					serial = serialize_automaton(alphabet_size, state_count, initial, final, transitions);
-					return this->sv->client->stream_send_raw_blob(serial);
-				} else {
-					return this->sv->client->stream_send_int(0);
-				}
+
+			cj = o->advance();
+
+			if(cj == NULL) {
+				return this->sv->client->stream_send_int(0);
+			} else {
+				if(!this->sv->client->stream_send_int(1))
+					return false;
+				if(!this->sv->client->stream_send_int(cj->get_type()))
+					return false;
+
+				serial = cj->serialize();
+				delete cj;
+				return this->sv->client->stream_send_raw_blob(serial);
 			}
 		case LEARNING_ALGORITHM_ADD_COUNTEREXAMPLE:
 			si = command_data.begin();

@@ -29,24 +29,19 @@ bool a2rfsa(finite_automaton *& automaton)
 	bool equal = false;
 
 	while(!equal) {
-		bool f_is_dfa;
-		int f_alphabet_size, f_state_count;
-		set<int> f_initial, f_final;
-		multimap<pair<int, int>, int> f_transitions;
+		conjecture *cj;
 
-		while( ! tbl.advance(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions) )
+		while( NULL == (cj = tbl.advance()) )
 			amore_alf_glue::automaton_answer_knowledgebase(*automaton, base);
 
-		if(hypothesis)
-			delete hypothesis;
-		hypothesis = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
-
 		list<int> cex;
-		if(amore_alf_glue::automaton_equivalence_query(*automaton, *hypothesis, cex)) {
+		if(amore_alf_glue::automaton_equivalence_query(*automaton, cj, cex)) {
 			equal = true;
 		} else {
 			tbl.add_counterexample(cex);
 		}
+
+		delete cj;
 	}
 
 	delete automaton;
