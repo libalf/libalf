@@ -946,6 +946,10 @@ class knowledgebase {
 		{{{
 			return resolved_queries;
 		}}}
+		void reset_resolved_queries()
+		{{{
+			resolved_queries = 0;
+		}}}
 
 		int get_alphabet_size()
 		{{{
