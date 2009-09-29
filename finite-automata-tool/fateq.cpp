@@ -157,6 +157,8 @@ int main(int argc, char**argv)
 			return -1;
 		}
 
+		in = "";
+
 		ifstream f2(secondfile.c_str());
 		while(!f2.eof())
 			if( (i = f2.get()) >= 0 )
