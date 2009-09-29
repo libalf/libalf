@@ -70,6 +70,12 @@ public interface Knowledgebase extends LibALFObject {
 		 * Indicates that the word does not belongs to the language.
 		 */
 		REJECT,
+		
+		/**
+		 * Doesn't matter if the word is accepted or rejected.
+		 */
+		@Deprecated
+		DONTCARE,
 
 		/**
 		 * There is no information about the word.
@@ -166,7 +172,7 @@ public interface Knowledgebase extends LibALFObject {
 	 *         </ul>
 	 * 
 	 */
-	public boolean add_knowledge(int[] word, Acceptance acceptance) throws AlfException;
+	public boolean add_knowledge(int[] word, boolean acceptance) throws AlfException;
 
 	/**
 	 * Removes all data from the knowledgebase, i.e. the knowledgebase is empty.

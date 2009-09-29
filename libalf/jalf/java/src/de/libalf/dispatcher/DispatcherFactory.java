@@ -1,5 +1,7 @@
 package de.libalf.dispatcher;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -44,8 +46,8 @@ public class DispatcherFactory implements LibALFFactory {
 	private void connect() {
 		try {
 			Socket socket = new Socket(this.host, this.port);
-			this.in = new DataInputStream(socket.getInputStream());
-			this.out = new DataOutputStream(socket.getOutputStream());
+			this.in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+			this.out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 		} catch (IOException e) {
 			throw new DispatcherIOException(e);
 		}
@@ -255,21 +257,23 @@ public class DispatcherFactory implements LibALFFactory {
 		return true;
 	}
 
+	@SuppressWarnings("deprecation")
 	public Acceptance readAcceptance() {
 		if (!readBool())
-			return null;
+			return Acceptance.UNKNOWN;
 
 		int i = readInt();
 		switch (i) {
 		case 0:
 			return Acceptance.REJECT;
 		case 1:
-			return Acceptance.UNKNOWN;
+			return Acceptance.DONTCARE;
 		case 2:
 			return Acceptance.ACCEPT;
+		default:
+			throw new DispatcherProtocolException("unknown acceptance type: " + i + " (" + String.format("0x%08X", i) + ")");
 		}
 
-		throw new DispatcherProtocolException("unknown acceptance type: " + i + " (" + String.format("0x%08X", i) + ")");
 	}
 
 	void printRest(int wait) throws Throwable {

@@ -18,6 +18,10 @@ public class DispatcherKnowledgebase extends DispatcherObject implements Knowled
 	}
 
 	@Override
+	public boolean add_knowledge(int[] word, boolean acceptance) throws AlfException {
+		return add_knowledge(word, acceptance ? Acceptance.ACCEPT : Acceptance.REJECT);
+	}
+
 	public boolean add_knowledge(int[] word, Acceptance acceptance) throws AlfException {
 		synchronized (this.factory) {
 			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.KNOWLEDGEBASE_ADD_KNOWLEDGE, word, DispatcherConstants.convertAcceptance(acceptance));

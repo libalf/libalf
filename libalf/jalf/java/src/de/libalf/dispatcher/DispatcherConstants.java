@@ -173,11 +173,12 @@ enum DispatcherConstants implements Sendable {
 
 	;
 
+	@SuppressWarnings("deprecation")
 	static DispatcherConstants convertAcceptance(Acceptance a) {
 		switch (a) {
 		case REJECT:
 			return ACCEPTANCE_REJECT;
-		case UNKNOWN:
+		case DONTCARE:
 			return ACCEPTANCE_UNKNOWN;
 		case ACCEPT:
 			return ACCEPTANCE_ACCEPT;

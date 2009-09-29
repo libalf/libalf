@@ -12,7 +12,6 @@ import de.libalf.Knowledgebase;
 import de.libalf.LearningAlgorithm;
 import de.libalf.LibALFFactory;
 import de.libalf.Logger;
-import de.libalf.Knowledgebase.Acceptance;
 import de.libalf.LibALFFactory.Algorithm;
 import de.libalf.jni.JNIFactory;
 
@@ -30,9 +29,9 @@ public class Test {
 
 			System.out.println(kb);
 			System.out.println(kb.resolve_or_add_query(new int[] { 1, 1, 1, 1, 1 }));
-			kb.add_knowledge(new int[] { 1, 1, 0 }, Acceptance.ACCEPT);
-			kb.add_knowledge(new int[] { 1, 1, 1 }, Acceptance.REJECT);
-			kb.add_knowledge(new int[] { 1, 0, 0 }, Acceptance.UNKNOWN);
+			kb.add_knowledge(new int[] { 1, 1, 0 }, true);
+			kb.add_knowledge(new int[] { 1, 1, 1 }, false);
+			kb.add_knowledge(new int[] { 1, 0, 0 }, true);
 			System.out.println(kb);
 			a.advance();
 			System.out.println(kb);
@@ -51,7 +50,7 @@ public class Test {
 
 				for (int[] word : kb.get_queries()) {
 					System.out.print("? " + Arrays.toString(word));
-					Acceptance b = word.length == 0 ? Acceptance.UNKNOWN : word.length == word[0] ? Acceptance.ACCEPT : Acceptance.REJECT;
+					boolean b = word.length == 0 | word.length == word[0];
 					System.out.println(" ! " + b);
 					kb.add_knowledge(word, b);
 				}
