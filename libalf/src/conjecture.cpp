@@ -397,7 +397,7 @@ bool simple_automaton::read(string input)
 	string line, single, token;
 	while(1) {
 		line = parser_split_line(input);
-		if(input.empty())
+		if(input.empty() && line.empty())
 			break;
 
 		// split semi-colons
@@ -407,11 +407,12 @@ bool simple_automaton::read(string input)
 			single = line.substr(0, p);
 			line = (p == string::npos) ? "" : line = line.substr(p+1, string::npos);
 
+
 			if(single.empty()) {
 				if(line.empty())
 					break;
 			} else {
-//				printf("new single >>%s<<\n", single.c_str());
+				fprintf(stderr, "new single >>%s<<\n", single.c_str());
 				if(single[0] == '[') {
 					if(single[single.size()-1] != ']') {
 						valid = false;
@@ -519,6 +520,7 @@ end:
 
 	return valid;
 }}}
+
 
 string simple_automaton::visualize()
 {{{
