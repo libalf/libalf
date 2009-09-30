@@ -26,8 +26,14 @@
 #include <queue>
 #include <map>
 
+// forward declaration for filter
+namespace libalf {
+	template <class answer> class knowledgebase;
+};
+
 #include <libalf/answer.h>
 #include <libalf/alphabet.h>
+#include <libalf/filter.h>
 
 // the knowledgebase holds membership information about a language
 // (or samples for offline-algorithms). to obtain information about a
@@ -840,6 +846,9 @@ class knowledgebase {
 		// list of all nodes that are required
 		list<node *> required;
 
+		// filter that is tried during resolved_queries() and resolve_or_add_query()
+		filter<answer> * my_filter;
+
 		int nodecount; // number of nodes in tree
 		int answercount; // number of answers stored in this knowledgebase
 		// count_queries is required.size().
@@ -853,6 +862,7 @@ class knowledgebase {
 		knowledgebase()
 		{{{
 			root = NULL;
+			my_filter = NULL;
 			clear();
 		}}}
 
@@ -862,7 +872,7 @@ class knowledgebase {
 		}}}
 
 		void clear()
-		// does not clear stats, only the tree
+		// does not clear stats or filter, only the tree
 		{{{
 			if(root) // check only required so we dont bang in constructors
 				delete root;
@@ -1305,6 +1315,9 @@ class knowledgebase {
 		}}}
 		bool resolve_query(list<int> & word, answer & acceptance)
 		// returns true if known
+		// will also try to apply the filter, if set.
+		// if the filter knows the answer, the answer will not
+		// be stored in the knowledgebase but returned to the user.
 		{{{
 			node * current;
 
@@ -1315,12 +1328,18 @@ class knowledgebase {
 				resolved_queries++;
 				return true;
 			} else {
-				return false;
+				if(my_filter)
+					return my_filter->evaluate(*this, word, acceptance);
+				else
+					return false;
 			}
 		}}}
 		bool resolve_or_add_query(list<int> & word, answer & acceptance)
 		// returns true if known. otherwise marks knowledge as
 		// to-be-acquired and returns false.
+		// will also try to apply the filter, if set.
+		// if the filter knows the answer, it will be stored into the
+		// knowledgebase.
 		{{{
 			node * current;
 
@@ -1331,6 +1350,11 @@ class knowledgebase {
 				resolved_queries++;
 				return true;
 			} else {
+				if(my_filter && my_filter->evaluate(*this, word, acceptance)) {
+					current->set_answer(acceptance);
+					return true;
+				}
+
 				current->mark_required();
 				return false;
 			}
