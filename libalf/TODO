@@ -4,33 +4,33 @@ NOTES
 
 
 
-TODO
+TODO (priority ordered)
 ====
 
 
-Makefile / DPKG krams fuer jalf und insgesamt
 
-filter in knowledgebase, fork-filter (AND: in reihe; OR: parallel; NOT)
+- filter / filter-arrays in knowledgebase (AND: in reihe; OR: parallel; NOT)
 
-set_alphatbet_size
+- set_alphatbet_size
 
-angluin: mealy-machine
-
-
-
-
-
-(priority ordered)
-
-
-- network protocol: define new network protocol
-	(isomorph to JNI, to make switching between JNI and dispatcher easy)
+- DPKG krams / Makefile (auch fuer jalf)
 
 - KVtree: implement
+
+- angluin: mealy-machine
 
 - RPNI: check for correctness
 
 - DeLeTe2: check for correctness
+
+- network code: check network/deserialization code for bugs
+
+- documentation
+
+- THOUGHT: abstract knowledgebase?
+
+- THOUGHT: change knowledgebase-query interface to represent normalizer and remove them
+  from algorithm and into knowledgebase?
 
 - knowledgebase: rewrite / check efficiency of equivalence relation
 
@@ -39,10 +39,6 @@ angluin: mealy-machine
 - DeLeTe2: check efficiency
 
 - angluin: check undo and increase_alphabet_size()
-
-- documentation
-
-- network code: check network/deserialization code for bugs
 
 - NL*: add (de)serialize, normalizer and undo
 
