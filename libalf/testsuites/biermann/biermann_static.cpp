@@ -18,7 +18,6 @@
 #include "libalf/alf.h"
 
 #include <libalf/algorithm_biermann_minisat.h>
-#include <libalf/automaton.h>
 
 using namespace std;
 using namespace libalf;

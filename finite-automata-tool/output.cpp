@@ -16,7 +16,7 @@
 #include "fat.h"
 
 #include <libalf/basic_string.h>
-#include <libalf/automaton.h>
+#include <libalf/conjecture.h>
 
 // for knowledgebase:
 bool leaf_is_non_accepting(knowledgebase<bool>::node* n, list<int> & sample, bool prefix_accepting = false)
@@ -282,12 +282,7 @@ bool write_output(finite_automaton *& automaton, output out, string sampletype)
 	basic_string<int32_t> serial;
 	basic_string<int32_t>::iterator si;
 
-	bool f_is_dfa;
-	int f_alphabet_size;
-	int f_state_count;
-	std::set<int> f_initial;
-	std::set<int> f_final;
-	multimap<pair<int,int>, int> f_transitions;
+	simple_automaton aut;
 
 	switch(out) {
 		case output_serial:
@@ -304,7 +299,7 @@ bool write_output(finite_automaton *& automaton, output out, string sampletype)
 			// nasty...
 			serial = automaton->serialize();
 			si = serial.begin();
-			if(!deserialize_automaton(si, serial.end(), f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
+			if(!aut.deserialize(si, serial.end())) {
 				cerr << "failed to decompose automaton to human readable (garbage inside)\n";
 				return false;
 			}
@@ -312,8 +307,7 @@ bool write_output(finite_automaton *& automaton, output out, string sampletype)
 				cerr << "failed to decompose automaton to human readable (garbage behind)\n";
 				return false;
 			}
-			f_is_dfa = automaton_is_deterministic(f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
-			cout << write_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
+			cout << aut.write();
 
 			return true;
 		case output_sample:

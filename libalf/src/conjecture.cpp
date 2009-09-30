@@ -34,7 +34,7 @@ using namespace std;
 
 
 
-
+// for human-readable automaton parser:
 static string parser_split_line(string & blob)
 {{{
 	int p;
@@ -603,6 +603,36 @@ string simple_automaton::visualize()
 	return ret;
 }}}
 
+bool simple_automaton::calculate_determinism()
+{{{
+	// check transitions for epsilon and double transitions
+	multimap<pair<int, int>, int>::iterator tri;
+
+	if(initial.size() > 1)
+		return false;
+
+	pair<int, int> former;
+	former.first = -1;
+	former.second = -1;
+	for(tri = transitions.begin(); tri != transitions.end(); ++tri) {
+		// two transitions with same (source,label) ?
+		if(former == tri->first) {
+			is_deterministic = false;
+			return false;
+		}
+
+		// epsilon transition?
+		if(tri->first.second == -1) {
+			is_deterministic = false;
+			return false;
+		}
+
+		former = tri->first;
+	}
+
+	is_deterministic = true;
+	return true;
+}}}
 
 } // enf of namespace libalf.
 

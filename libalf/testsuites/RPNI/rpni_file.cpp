@@ -18,7 +18,6 @@
 #include "libalf/alf.h"
 
 #include <libalf/algorithm_RPNI.h>
-#include <libalf/automaton.h>
 
 using namespace std;
 using namespace libalf;

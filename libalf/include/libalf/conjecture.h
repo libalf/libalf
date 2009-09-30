@@ -9,6 +9,9 @@
  * see LICENSE file for licensing information.
  */
 
+#include <set>
+#include <map>
+
 #ifndef __libalf_conjecture_h__
 # define __libalf_conjecture_h__
 
@@ -25,7 +28,7 @@ class conjecture {
 			CONJECTURE_SIMPLE_AUTOMATON = 1,
 
 			// END
-			CONJECTURE_LAST_INVALID = 3
+			CONJECTURE_LAST_INVALID = 2
 		};
 	public: // members
 		virtual ~conjecture()
@@ -75,6 +78,10 @@ class simple_automaton : public conjecture {
 		virtual bool read(string input);
 
 		virtual string visualize();
+
+		// calculate if automaton is deterministic. this function does not rely on is_deterministic,
+		// but sets it.
+		bool calculate_determinism();
 };
 
 

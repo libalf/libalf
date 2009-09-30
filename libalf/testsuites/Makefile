@@ -3,7 +3,7 @@
 
 .PHONY: all clean algorithm_analysis alphabet angluin_col_table angluin_simple_table automaton biermann DeLeTe2 KVtree NLstar_count_eq_queries NLstar_table normalizer RPNI
 
-all: algorithm_analysis alphabet angluin_col_table angluin_simple_table automaton biermann DeLeTe2 NLstar_count_eq_queries NLstar_table normalizer RPNI
+all: algorithm_analysis alphabet angluin_col_table angluin_simple_table biermann DeLeTe2 NLstar_count_eq_queries NLstar_table normalizer RPNI
 
 algorithm_analysis:
 	make -C algorithm_analysis

@@ -135,28 +135,24 @@ int main(int argc, char**argv)
 		string in;
 		int i;
 
-		bool f_is_dfa;
-		int f_alphabet_size;
-		int f_state_count;
-		std::set<int> f_initial;
-		std::set<int> f_final;
-		multimap<pair<int,int>, int> f_transitions;
+		simple_automaton aut;
 
 		ifstream f1(firstfile.c_str());
 		while(!f1.eof())
 			if( (i = f1.get()) >= 0 )
 				in += (char)i;
 		f1.close();
-		if(!read_automaton(in, f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
+		if(!aut.read(in)) {
 			cerr << "failed to read first automaton\n";
 			return -1;
 		}
-		first = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
+		first = construct_amore_automaton(aut.is_deterministic, aut.alphabet_size, aut.state_count, aut.initial, aut.final, aut.transitions);
 		if(!first) {
 			cerr << "failed to construct first automaton\n";
 			return -1;
 		}
 
+		aut.clear();
 		in = "";
 
 		ifstream f2(secondfile.c_str());
@@ -164,11 +160,11 @@ int main(int argc, char**argv)
 			if( (i = f2.get()) >= 0 )
 				in += (char)i;
 		f2.close();
-		if(!read_automaton(in, f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
+		if(!aut.read(in)) {
 			cerr << "failed to read second automaton\n";
 			return -2;
 		}
-		second = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
+		second = construct_amore_automaton(aut.is_deterministic, aut.alphabet_size, aut.state_count, aut.initial, aut.final, aut.transitions);
 		if(!second) {
 			cerr << "failed to construct second automaton\n";
 			return -2;
@@ -235,17 +231,11 @@ int main(int argc, char**argv)
 		serial = difference->serialize();
 
 		if(human_readable_output) {
-			bool f_is_dfa;
-			int f_alphabet_size;
-			int f_state_count;
-			std::set<int> f_initial;
-			std::set<int> f_final;
-			multimap<pair<int,int>, int> f_transitions;
+			simple_automaton aut;
 
 			si = serial.begin();
-			deserialize_automaton(si, serial.end(), f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
-			f_is_dfa = automaton_is_deterministic(f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
-			cout << write_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
+			aut.deserialize(si, serial.end());
+			cout << aut.write();
 		} else {
 			basic_string_to_fd(serial, STDOUT_FILENO);
 		}

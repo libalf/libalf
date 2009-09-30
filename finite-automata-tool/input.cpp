@@ -15,7 +15,7 @@
 #include <unistd.h>
 
 #include <libalf/basic_string.h>
-#include <libalf/automaton.h>
+#include <libalf/conjecture.h>
 
 #include <amore++/nondeterministic_finite_automaton.h>
 
@@ -34,17 +34,12 @@ bool get_input(finite_automaton *& automaton, input in, string gentype)
 
 	string type, asize;
 	size_t pos;
-	int modelsize;
+	int modelsize, alphabet_size;
 
 	string input_string;
 	int i;
 
-	bool f_is_dfa;
-	int f_alphabet_size;
-	int f_state_count;
-	std::set<int> f_initial;
-	std::set<int> f_final;
-	multimap<pair<int,int>, int> f_transitions;
+	simple_automaton aut;
 
 	switch(in) {
 		case input_serial:
@@ -66,12 +61,12 @@ bool get_input(finite_automaton *& automaton, input in, string gentype)
 					input_string += (char)i;
 
 			// transform input to automaton
-			if(!read_automaton(input_string, f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
+			if(!aut.read(input_string)) {
 				cerr << "input of human-readable automaton failed\n";
 				return false;
 			}
 
-			automaton = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
+			automaton = construct_amore_automaton(aut.is_deterministic, aut.alphabet_size, aut.state_count, aut.initial, aut.final, aut.transitions);
 
 			if(!automaton) {
 				cerr << "construct of human-readable automaton failed\n";
@@ -97,10 +92,10 @@ bool get_input(finite_automaton *& automaton, input in, string gentype)
 				return false;
 			};
 
-			f_alphabet_size = atoi(asize.c_str());
+			alphabet_size = atoi(asize.c_str());
 			modelsize = atoi(gentype.c_str());
 
-			if(f_alphabet_size < 1 || modelsize < 1) {
+			if(alphabet_size < 1 || modelsize < 1) {
 				cerr << "bad alphabet or modelsize for generator\n";
 				return false;
 			}
@@ -111,7 +106,7 @@ bool get_input(finite_automaton *& automaton, input in, string gentype)
 				string rex;
 				bool ok;
 
-				rex = regng.generate(f_alphabet_size, modelsize, 0.556, 0.278, 0.166);
+				rex = regng.generate(alphabet_size, modelsize, 0.556, 0.278, 0.166);
 				automaton = new nondeterministic_finite_automaton(rex.c_str(), ok);
 				if(!ok) {
 					cerr << "failed to generate NFA\n";
@@ -120,16 +115,16 @@ bool get_input(finite_automaton *& automaton, input in, string gentype)
 			} else {
 				if(type == "dfa") {
 					dfa_randomgenerator dfarg;
-					if(!dfarg.generate(f_alphabet_size, modelsize,
-						f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
+					if(!dfarg.generate(alphabet_size, modelsize,
+						aut.is_deterministic, aut.alphabet_size, aut.state_count, aut.initial, aut.final, aut.transitions)) {
 						cerr << "failed to generate DFA\n";
 						return false;
 					}
 				} else {
 					if(type == "nfa") {
 						nfa_randomgenerator nfarg;
-						if(!nfarg.generate(f_alphabet_size, modelsize, 2, 0.5, 0.5,
-							f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
+						if(!nfarg.generate(alphabet_size, modelsize, 2, 0.5, 0.5,
+							aut.is_deterministic, aut.alphabet_size, aut.state_count, aut.initial, aut.final, aut.transitions)) {
 							cerr << "failed to generate NFA\n";
 							return false;
 						}
@@ -140,7 +135,7 @@ bool get_input(finite_automaton *& automaton, input in, string gentype)
 					}
 				}
 
-				automaton = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
+				automaton = construct_amore_automaton(aut.is_deterministic, aut.alphabet_size, aut.state_count, aut.initial, aut.final, aut.transitions);
 			}
 			if(automaton)
 				return true;

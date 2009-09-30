@@ -10,7 +10,6 @@
  */
 
 #include <libalf/learning_algorithm.h>
-#include <libalf/automaton.h>
 
 #include <libalf/algorithm_angluin.h>
 //#include <libalf/KVtree.h>
