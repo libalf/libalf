@@ -10,8 +10,6 @@ TODO
 
 Makefile / DPKG krams fuer jalf und insgesamt
 
-conjecture klasse fuer hypothese von algorithmen (damit es nicht nur FAs sein muessen)
-
 filter in knowledgebase, fork-filter (AND: in reihe; OR: parallel; NOT)
 
 set_alphatbet_size
