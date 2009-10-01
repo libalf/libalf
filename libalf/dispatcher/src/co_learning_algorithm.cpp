@@ -172,7 +172,7 @@ bool co_learning_algorithm::handle_command(int command, basic_string<int32_t> & 
 			if(this->sv->objects[i]->get_type() != OBJ_NORMALIZER)
 				return this->sv->send_errno(ERR_BAD_OBJECT);
 
-			this->sv->objects[i]->ref_knowledgebase(this->id);
+			this->sv->objects[i]->ref_learning_algorithm(this->id);
 			this->ref_normalizer(i);
 
 			return this->sv->send_errno(ERR_SUCCESS);
