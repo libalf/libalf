@@ -173,6 +173,11 @@ enum DispatcherConstants implements Sendable {
 	ACCEPTANCE_UNKNOWN(1),
 	ACCEPTANCE_ACCEPT(2),
 
+	// enum conjecture type
+	CONJECTURE_NONE(0),
+	CONJECTURE_SIMPLE_AUTOMATON(1),
+	CONJECTURE_LAST_INVALID(2),
+
 	;
 
 	@SuppressWarnings("deprecation")
@@ -202,5 +207,12 @@ enum DispatcherConstants implements Sendable {
 	@Override
 	public int getInt() {
 		return this.id;
+	}
+
+	static DispatcherConstants getConjectureType(int conType) {
+		for (DispatcherConstants c : DispatcherConstants.values())
+			if (c.id == conType && c.name().startsWith("CONJECTURE_"))
+				return c;
+		return null;
 	}
 }

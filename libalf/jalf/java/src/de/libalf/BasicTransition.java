@@ -18,6 +18,7 @@ import java.io.Serializable;
  * 
  */
 public class BasicTransition implements Serializable {
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * The source state of the transition.

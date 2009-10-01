@@ -40,7 +40,8 @@ import java.util.LinkedList;
  * @version 1.0
  * 
  */
-public class BasicAutomaton implements Serializable {
+public class BasicAutomaton implements Conjecture {
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Is this object representing a deterministic finite automaton?

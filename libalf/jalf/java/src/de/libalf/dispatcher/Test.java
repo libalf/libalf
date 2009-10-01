@@ -8,6 +8,7 @@ import java.io.ObjectOutputStream;
 import java.util.Arrays;
 
 import de.libalf.BasicAutomaton;
+import de.libalf.Conjecture;
 import de.libalf.Knowledgebase;
 import de.libalf.LearningAlgorithm;
 import de.libalf.LibALFFactory;
@@ -43,9 +44,9 @@ public class Test {
 			System.out.println(kb);
 
 			while (true) {
-				BasicAutomaton auto = a.advance();
-				System.out.println(auto);
-				if (auto != null)
+				Conjecture con = a.advance();
+				System.out.println(con);
+				if (con != null)
 					break;
 
 				for (int[] word : kb.get_queries()) {

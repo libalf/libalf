@@ -8,6 +8,7 @@ import java.io.Serializable;
 import de.libalf.AlfException;
 import de.libalf.BasicAutomaton;
 import de.libalf.BasicTransition;
+import de.libalf.Conjecture;
 import de.libalf.Knowledgebase;
 import de.libalf.LearningAlgorithm;
 import de.libalf.Logger;
@@ -46,28 +47,69 @@ public abstract class DispatcherLearningAlgorithm extends DispatcherObject imple
 	}
 
 	@Override
-	public BasicAutomaton advance() throws AlfException {
+	public Conjecture advance() throws AlfException {
 		synchronized (this.factory) {
 			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.LEARNING_ALGORITHM_ADVANCE);
-			return this.factory.readBool() ? getBA(this.factory.readInts()) : null;
+			return this.factory.readBool() ? getConjecture(this.factory.readInt(), this.factory.readInts()) : null;
+		}
+	}
+
+	private/* static */Conjecture getConjecture(int conType, int[] ints) {
+		DispatcherConstants conjType = DispatcherConstants.getConjectureType(conType);
+		switch (conjType) {
+		case CONJECTURE_NONE: // FIXME
+		case CONJECTURE_SIMPLE_AUTOMATON:
+			return getBA(ints);
+			// FIXME:case CONJECTURE_NONE:
+		case CONJECTURE_LAST_INVALID:
+			throw new DispatcherProtocolException(String.format("Conjecture type %d (0x%08X) unsupported!", conType, conType));
+		default:
+			throw new DispatcherProtocolException(String.format("Conjecture type " + conjType + " (%d, 0x%08X) unknown!", conType, conType));
 		}
 	}
 
 	private static BasicAutomaton getBA(int[] ints) {
 		int pos = 0;
 
+		int isDet = ints[pos++];
+		assert isDet >= 0;
+		assert isDet <= 1;
 		int alphabetSize = ints[pos++];
+		assert alphabetSize > 0;
 		int numberOfStates = ints[pos++];
+		assert numberOfStates >= 0;
 		BasicAutomaton auto = new BasicAutomaton(numberOfStates, alphabetSize);
 		int numberOfInitStates = ints[pos++];
-		while (numberOfInitStates-- > 0)
-			auto.addInitialState(ints[pos++]);
+		assert numberOfInitStates >= 0;
+		assert isDet != 1 || numberOfInitStates <= 1;
+		while (numberOfInitStates-- > 0) {
+			int state = ints[pos++];
+			assert state >= 0;
+			assert state < numberOfStates;
+			auto.addInitialState(state);
+		}
 		int numberOfFinalStates = ints[pos++];
-		while (numberOfFinalStates-- > 0)
-			auto.addFinalState(ints[pos++]);
+		assert numberOfFinalStates >= 0;
+		while (numberOfFinalStates-- > 0) {
+			int state = ints[pos++];
+			assert state >= 0;
+			assert state < numberOfStates;
+			auto.addFinalState(state);
+		}
 		int numberOfTransitions = ints[pos++];
-		while (numberOfTransitions-- > 0)
-			auto.addTransition(new BasicTransition(ints[pos++], ints[pos++], ints[pos++]));
+		assert numberOfTransitions >= 0;
+		while (numberOfTransitions-- > 0) {
+			int source = ints[pos++];
+			assert source >= 0;
+			assert source < numberOfStates;
+			int label = ints[pos++];
+			assert label >= 0;
+			assert label < alphabetSize;
+			int destination = ints[pos++];
+			assert destination >= 0;
+			assert destination < numberOfStates;
+			auto.addTransition(new BasicTransition(source, label, destination));
+		}
 
 		return auto;
 	}

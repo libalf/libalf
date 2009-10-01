@@ -126,7 +126,7 @@ public interface LearningAlgorithm extends LibALFObject {
 	 *         <li><code>null</code>, otherwise.</li>
 	 *         </ul>
 	 */
-	public BasicAutomaton advance();
+	public Conjecture advance();
 
 	/**
 	 * <p>
