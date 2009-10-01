@@ -173,10 +173,11 @@ enum DispatcherConstants implements Sendable {
 	ACCEPTANCE_UNKNOWN(1),
 	ACCEPTANCE_ACCEPT(2),
 
-	// enum conjecture type
-	CONJECTURE_NONE(0),
+	// enum conjecture_type
 	CONJECTURE_SIMPLE_AUTOMATON(1),
-	CONJECTURE_LAST_INVALID(2),
+
+	// enum normalizer_type
+	NORMALIZER_MSC(1),
 
 	;
 

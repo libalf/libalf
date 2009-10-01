@@ -7,7 +7,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
 
-import de.libalf.BasicAutomaton;
 import de.libalf.Conjecture;
 import de.libalf.Knowledgebase;
 import de.libalf.LearningAlgorithm;
@@ -20,10 +19,46 @@ import de.libalf.jni.JNIFactory;
 @Deprecated
 public class Test {
 	public static void main(String[] args) throws Throwable {
+		File file = new File("blah.jdat");
+		file.deleteOnExit();
+
 		LibALFFactory factory;
 		factory = new JNIFactory();
 		factory = new DispatcherFactory("127.0.0.1", 24940);
 		try {
+			{
+				Knowledgebase kb = factory.createKnowledgebase();
+				Logger l = factory.createLogger();
+				DispatcherLearningAlgorithm a = (DispatcherLearningAlgorithm) factory.createLearningAlgorithm(Algorithm.ANGLUIN, kb, 2, l);
+
+				DispatcherNormalizer n = new DispatcherNormalizer((DispatcherFactory) factory, DispatcherConstants.NORMALIZER_MSC);
+				a.set_normalizer(n);
+
+				System.exit(0);
+
+				ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
+				out.writeObject(a);
+				out.close();
+
+				a.destroy();
+				kb.destroy();
+				l.destroy();
+				n.destroy();
+				factory.destroy();
+
+				////
+
+				ObjectInputStream in = new ObjectInputStream(new FileInputStream(file));
+				a = (DispatcherLearningAlgorithm) in.readObject();
+				in.close();
+
+				System.out.println(a.get_normalizer());
+
+				System.exit(0);
+			}
+
+			////
+
 			Knowledgebase kb = factory.createKnowledgebase();
 			Logger l = factory.createLogger();
 			LearningAlgorithm a = factory.createLearningAlgorithm(Algorithm.ANGLUIN, kb, 2, l);
@@ -58,9 +93,6 @@ public class Test {
 			}
 
 			////
-
-			File file = new File("blah.jdat");
-			file.deleteOnExit();
 
 			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
 			out.writeObject(a);

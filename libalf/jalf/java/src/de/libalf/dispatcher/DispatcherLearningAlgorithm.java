@@ -18,6 +18,7 @@ public abstract class DispatcherLearningAlgorithm extends DispatcherObject imple
 
 	private DispatcherLogger logger;
 	private DispatcherKnowledgebase base;
+	private DispatcherNormalizer normalizer;
 
 	private DispatcherConstants algo;
 
@@ -57,14 +58,10 @@ public abstract class DispatcherLearningAlgorithm extends DispatcherObject imple
 	private/* static */Conjecture getConjecture(int conType, int[] ints) {
 		DispatcherConstants conjType = DispatcherConstants.getConjectureType(conType);
 		switch (conjType) {
-		case CONJECTURE_NONE: // FIXME
 		case CONJECTURE_SIMPLE_AUTOMATON:
 			return getBA(ints);
-			// FIXME:case CONJECTURE_NONE:
-		case CONJECTURE_LAST_INVALID:
-			throw new DispatcherProtocolException(String.format("Conjecture type %d (0x%08X) unsupported!", conType, conType));
 		default:
-			throw new DispatcherProtocolException(String.format("Conjecture type " + conjType + " (%d, 0x%08X) unknown!", conType, conType));
+			throw new DispatcherProtocolException(String.format("Conjecture type " + conjType + " (%d, 0x%08X) unknown and/or unsupported!", conType, conType));
 		}
 	}
 
@@ -78,7 +75,7 @@ public abstract class DispatcherLearningAlgorithm extends DispatcherObject imple
 		assert alphabetSize > 0;
 		int numberOfStates = ints[pos++];
 		assert numberOfStates >= 0;
-		BasicAutomaton auto = new BasicAutomaton(numberOfStates, alphabetSize);
+		BasicAutomaton auto = new BasicAutomaton(isDet > 0, numberOfStates, alphabetSize);
 		int numberOfInitStates = ints[pos++];
 		assert numberOfInitStates >= 0;
 		assert isDet != 1 || numberOfInitStates <= 1;
@@ -110,6 +107,7 @@ public abstract class DispatcherLearningAlgorithm extends DispatcherObject imple
 			assert destination < numberOfStates;
 			auto.addTransition(new BasicTransition(source, label, destination));
 		}
+		assert pos == ints.length;
 
 		return auto;
 	}
@@ -194,10 +192,40 @@ public abstract class DispatcherLearningAlgorithm extends DispatcherObject imple
 		}
 	}
 
+	// TODO: @Override
 	public void remove_logger() throws AlfException {
 		synchronized (this.factory) {
 			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.LEARNING_ALGORITHM_REMOVE_LOGGER);
 			this.logger = null; // set if above command was successful
+		}
+	}
+
+	// TODO: @Override
+	public void set_normalizer(DispatcherNormalizer normalizer) throws AlfException {
+		synchronized (this.factory) {
+			checkFactory(normalizer);
+			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.LEARNING_ALGORITHM_SET_NORMALIZER, ((DispatcherNormalizer) normalizer));
+			this.normalizer = (DispatcherNormalizer) normalizer; // set if above command was successful
+		}
+	}
+
+	// TODO: @Override
+	public DispatcherNormalizer get_normalizer() throws AlfException {
+		synchronized (this.factory) {
+			if (this.normalizer != null) {
+				this.factory.writeObjectCommandThrowing(this, DispatcherConstants.LEARNING_ALGORITHM_GET_NORMALIZER);
+				if (this.normalizer.getInt() != this.factory.readInt())
+					throw new DispatcherProtocolException("Normalizer changed");
+			}
+			return this.normalizer;
+		}
+	}
+
+	// TODO: @Override
+	public void remove_normalizer() throws AlfException {
+		synchronized (this.factory) {
+			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.LEARNING_ALGORITHM_UNSET_NORMALIZER);
+			this.normalizer = null; // set if above command was successful
 		}
 	}
 
@@ -253,5 +281,7 @@ public abstract class DispatcherLearningAlgorithm extends DispatcherObject imple
 			set_logger(this.logger);
 		if (this.base != null)
 			set_knowledge_source(this.base);
+		if (this.normalizer != null)
+			set_normalizer(this.normalizer);
 	}
 }
