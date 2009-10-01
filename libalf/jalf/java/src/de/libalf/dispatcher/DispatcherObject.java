@@ -120,6 +120,6 @@ public abstract class DispatcherObject implements LibALFObject, Sendable {
 
 	@Override
 	public String toString() {
-		return getClass().getCanonicalName() + " (type=" + this.objType + ", id=" + this.id + ")";
+		return super.toString() + "[type=" + this.objType + ", id=" + this.id + "]";
 	}
 }

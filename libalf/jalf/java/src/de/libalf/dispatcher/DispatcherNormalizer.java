@@ -6,8 +6,9 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import de.libalf.AlfException;
+import de.libalf.Normalizer;
 
-public class DispatcherNormalizer extends DispatcherObject {
+public class DispatcherNormalizer extends DispatcherObject implements Normalizer {
 	private static final long serialVersionUID = 1L;
 
 	public DispatcherNormalizer(DispatcherFactory factory, DispatcherConstants normType) throws AlfException {

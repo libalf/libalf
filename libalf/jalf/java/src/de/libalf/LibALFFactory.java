@@ -34,4 +34,11 @@ public interface LibALFFactory extends LibALFObject {
 	 */
 	public abstract Logger createLogger(Object... args);
 
+	/**
+	 * Creates a new <code>Normalizer</code>.
+	 * 
+	 * @return a new <code>Normalizer</code>.
+	 */
+	public abstract Normalizer createNormalizer(Normalizer.Type normType, Object... args);
+
 }

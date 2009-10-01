@@ -1,10 +1,12 @@
 package de.libalf.jni;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import de.libalf.Knowledgebase;
 import de.libalf.LearningAlgorithm;
 import de.libalf.LibALFFactory;
 import de.libalf.Logger;
 import de.libalf.AlfException;
+import de.libalf.Normalizer;
 
 /**
  * @author Daniel Neider (<a
@@ -99,6 +101,11 @@ public class JNIFactory implements LibALFFactory {
 		default:
 			return null;
 		}
+	}
+
+	@Override
+	public Normalizer createNormalizer(Normalizer.Type normType, Object... args) {
+		throw new NotImplementedException(); // TODO
 	}
 
 	@Override

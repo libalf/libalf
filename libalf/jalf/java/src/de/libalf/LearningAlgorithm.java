@@ -204,10 +204,18 @@ public interface LearningAlgorithm extends LibALFObject {
 	 */
 	public void set_logger(Logger logger);
 
+	public void remove_logger() throws AlfException;
+
 	/**
 	 * Returns a textual representation of the learning algorithm.
 	 * 
 	 * @return a textual representation of the learning algorithm.
 	 */
 	public String toString();
+
+	public void set_normalizer(Normalizer normalizer) throws AlfException;
+
+	public Normalizer get_normalizer() throws AlfException;
+
+	public void remove_normalizer() throws AlfException;
 }

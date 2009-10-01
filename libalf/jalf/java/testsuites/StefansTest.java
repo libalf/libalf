@@ -1,5 +1,3 @@
-package de.libalf.dispatcher;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -12,56 +10,52 @@ import de.libalf.Knowledgebase;
 import de.libalf.LearningAlgorithm;
 import de.libalf.LibALFFactory;
 import de.libalf.Logger;
+import de.libalf.Normalizer;
 import de.libalf.LibALFFactory.Algorithm;
+import de.libalf.dispatcher.DispatcherFactory;
 import de.libalf.jni.JNIFactory;
 
 // TODO: remove class
 @Deprecated
-public class Test {
+public class StefansTest {
 	public static void main(String[] args) throws Throwable {
 		File file = new File("blah.jdat");
 		file.deleteOnExit();
 
-		LibALFFactory factory;
-		factory = new JNIFactory();
-		factory = new DispatcherFactory("127.0.0.1", 24940);
+		LibALFFactory factory = false ? new JNIFactory() : new DispatcherFactory("127.0.0.1", 24940);
 		try {
-			{
-				Knowledgebase kb = factory.createKnowledgebase();
-				Logger l = factory.createLogger();
-				DispatcherLearningAlgorithm a = (DispatcherLearningAlgorithm) factory.createLearningAlgorithm(Algorithm.ANGLUIN, kb, 2, l);
-
-				DispatcherNormalizer n = new DispatcherNormalizer((DispatcherFactory) factory, DispatcherConstants.NORMALIZER_MSC);
-				a.set_normalizer(n);
-
-				System.exit(0);
-
-				ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
-				out.writeObject(a);
-				out.close();
-
-				a.destroy();
-				kb.destroy();
-				l.destroy();
-				n.destroy();
-				factory.destroy();
-
-				////
-
-				ObjectInputStream in = new ObjectInputStream(new FileInputStream(file));
-				a = (DispatcherLearningAlgorithm) in.readObject();
-				in.close();
-
-				System.out.println(a.get_normalizer());
-
-				System.exit(0);
-			}
-
-			////
-
 			Knowledgebase kb = factory.createKnowledgebase();
 			Logger l = factory.createLogger();
 			LearningAlgorithm a = factory.createLearningAlgorithm(Algorithm.ANGLUIN, kb, 2, l);
+
+			Normalizer n = factory.createNormalizer(Normalizer.Type.MSC);
+			a.set_normalizer(n);
+
+			{
+				ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
+				out.writeObject(a);
+				out.close();
+			}
+
+			a.destroy();
+			kb.destroy();
+			l.destroy();
+			n.destroy();
+			factory.destroy();
+
+			////
+
+			{
+				ObjectInputStream in = new ObjectInputStream(new FileInputStream(file));
+				a = (LearningAlgorithm) in.readObject();
+				in.close();
+			}
+
+			System.out.println(a.get_normalizer());
+
+			System.exit(0);
+
+			////
 
 			System.out.println(kb);
 			System.out.println(kb.resolve_or_add_query(new int[] { 1, 1, 1, 1, 1 }));
@@ -154,8 +148,6 @@ public class Test {
 			factory.destroy();
 		} catch (Throwable e) {
 			e.printStackTrace();
-			if (factory instanceof DispatcherFactory)
-				((DispatcherFactory) factory).printRest(500);
 		}
 	}
 }

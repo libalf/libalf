@@ -12,6 +12,7 @@ import de.libalf.Conjecture;
 import de.libalf.Knowledgebase;
 import de.libalf.LearningAlgorithm;
 import de.libalf.Logger;
+import de.libalf.Normalizer;
 
 public abstract class DispatcherLearningAlgorithm extends DispatcherObject implements LearningAlgorithm {
 	private static final long serialVersionUID = 1L;
@@ -55,13 +56,15 @@ public abstract class DispatcherLearningAlgorithm extends DispatcherObject imple
 		}
 	}
 
-	private/* static */Conjecture getConjecture(int conType, int[] ints) {
+	private static Conjecture getConjecture(int conType, int[] ints) {
 		DispatcherConstants conjType = DispatcherConstants.getConjectureType(conType);
+		if (conjType == null)
+			throw new DispatcherProtocolException(String.format("Conjecture type %d (0x%08X) unknown!", conType, conType));
 		switch (conjType) {
 		case CONJECTURE_SIMPLE_AUTOMATON:
 			return getBA(ints);
 		default:
-			throw new DispatcherProtocolException(String.format("Conjecture type " + conjType + " (%d, 0x%08X) unknown and/or unsupported!", conType, conType));
+			throw new DispatcherProtocolException(String.format("Conjecture type " + conjType + " (%d, 0x%08X) unsupported!", conType, conType));
 		}
 	}
 
@@ -142,13 +145,14 @@ public abstract class DispatcherLearningAlgorithm extends DispatcherObject imple
 
 	@Override
 	public DispatcherKnowledgebase get_knowledge_source() throws AlfException {
+		assert check_knowledge_source();
+		return this.base;
+	}
+
+	private boolean check_knowledge_source() {
 		synchronized (this.factory) {
-			if (this.base != null) {
-				this.factory.writeObjectCommandThrowing(this, DispatcherConstants.LEARNING_ALGORITHM_GET_KNOWLEDGE_SOURCE);
-				if (this.base.getInt() != this.factory.readInt())
-					throw new DispatcherProtocolException("Knowledgebase changed");
-			}
-			return this.base;
+			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.LEARNING_ALGORITHM_GET_KNOWLEDGE_SOURCE);
+			return this.base == null ? this.factory.readInt() < 0 : this.factory.readInt() == this.base.getInt();
 		}
 	}
 
@@ -192,7 +196,7 @@ public abstract class DispatcherLearningAlgorithm extends DispatcherObject imple
 		}
 	}
 
-	// TODO: @Override
+	@Override
 	public void remove_logger() throws AlfException {
 		synchronized (this.factory) {
 			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.LEARNING_ALGORITHM_REMOVE_LOGGER);
@@ -200,8 +204,8 @@ public abstract class DispatcherLearningAlgorithm extends DispatcherObject imple
 		}
 	}
 
-	// TODO: @Override
-	public void set_normalizer(DispatcherNormalizer normalizer) throws AlfException {
+	@Override
+	public void set_normalizer(Normalizer normalizer) throws AlfException {
 		synchronized (this.factory) {
 			checkFactory(normalizer);
 			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.LEARNING_ALGORITHM_SET_NORMALIZER, ((DispatcherNormalizer) normalizer));
@@ -209,19 +213,20 @@ public abstract class DispatcherLearningAlgorithm extends DispatcherObject imple
 		}
 	}
 
-	// TODO: @Override
+	@Override
 	public DispatcherNormalizer get_normalizer() throws AlfException {
+		assert check_normalizer();
+		return this.normalizer;
+	}
+
+	private boolean check_normalizer() {
 		synchronized (this.factory) {
-			if (this.normalizer != null) {
-				this.factory.writeObjectCommandThrowing(this, DispatcherConstants.LEARNING_ALGORITHM_GET_NORMALIZER);
-				if (this.normalizer.getInt() != this.factory.readInt())
-					throw new DispatcherProtocolException("Normalizer changed");
-			}
-			return this.normalizer;
+			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.LEARNING_ALGORITHM_GET_NORMALIZER);
+			return this.normalizer == null ? this.factory.readInt() < 0 : this.factory.readInt() == this.normalizer.getInt();
 		}
 	}
 
-	// TODO: @Override
+	@Override
 	public void remove_normalizer() throws AlfException {
 		synchronized (this.factory) {
 			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.LEARNING_ALGORITHM_UNSET_NORMALIZER);

@@ -13,6 +13,7 @@ import de.libalf.AlfException;
 import de.libalf.Knowledgebase;
 import de.libalf.LibALFFactory;
 import de.libalf.Logger;
+import de.libalf.Normalizer;
 import de.libalf.Knowledgebase.Acceptance;
 
 public class DispatcherFactory implements LibALFFactory {
@@ -39,7 +40,7 @@ public class DispatcherFactory implements LibALFFactory {
 		int code = readInt();
 		if (code != 0)
 			throw new DispatcherCommandError(code, DispatcherConstants.CLCMD_REQ_CAPA);
-		String capa = readString(); // TODO
+		String capa = readString(); // TODO what to do with this?!
 		System.out.println(capa);
 	}
 
@@ -276,16 +277,6 @@ public class DispatcherFactory implements LibALFFactory {
 
 	}
 
-	void printRest(int wait) throws Throwable {
-		if (isDestroyed())
-			return;
-
-		Thread.sleep(wait);
-		while (this.in.available() > 0) {
-			System.out.println(this.in.available() < 4 ? String.format("0x%02X", readByte()) : String.format("0x%08X", readInt()));
-		}
-	}
-
 	////////////////////////////////////////////////////////////////
 	// COMMUNICATION
 	// has to be synchronized in order to not interleave requests of concurrent threads.
@@ -315,12 +306,16 @@ public class DispatcherFactory implements LibALFFactory {
 
 	@Override
 	public DispatcherLogger createLogger(Object... args) {
-		return new DispatcherLogger(this); // FIXME: args?!
+		if (args.length == 0)
+			return new DispatcherLogger(this);
+		throw new AlfException("Invalid parameters for creating logger: " + args.length + ".");
 	}
 
 	@Override
 	public DispatcherKnowledgebase createKnowledgebase(Object... args) {
-		return new DispatcherKnowledgebase(this); // FIXME: args?!
+		if (args.length == 0)
+			return new DispatcherKnowledgebase(this);
+		throw new AlfException("Invalid parameters for creating knowledgebase: " + args.length + ".");
 	}
 
 	@Override
@@ -381,6 +376,27 @@ public class DispatcherFactory implements LibALFFactory {
 				return new DispatcherAlgorithmBiermannMiniSAT(this, (Knowledgebase) args[0], (Integer) args[1], (Logger) args[2]);
 			else
 				throw new AlfException("Invalid parameters for creating Biermann (MiniSAT) learning algorithm: " + args.length + ".");
+
+		default:
+			/*
+			 * Default switch: Should never happen.
+			 */
+			return null;
+		}
+	}
+
+	@Override
+	public Normalizer createNormalizer(Normalizer.Type normType, Object... args) {
+		switch (normType) {
+
+		case MSC:
+			/*
+			 * Create Angluin learning algorithm.
+			 */
+			if (args.length == 0)
+				return new DispatcherNormalizer(this, DispatcherConstants.NORMALIZER_MSC);
+			else
+				throw new AlfException("Invalid parameters for creating MSC normalizer: " + args.length + ".");
 
 		default:
 			/*
