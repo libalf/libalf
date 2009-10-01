@@ -9,6 +9,7 @@
  * see LICENSE file for licensing information.
  */
 
+#include <string>
 #include <set>
 #include <map>
 
@@ -38,7 +39,7 @@ class conjecture {
 		{ return false; };
 
 		virtual conjecture::type get_type()
-		{ return CONJECTURE_NONE; };
+		{ return CONJECTURE_NONE; }
 
 		virtual void clear() = 0;
 
