@@ -250,7 +250,7 @@ bool co_learning_algorithm::handle_command(int command, basic_string<int32_t> & 
 			} else {
 				if(!this->sv->client->stream_send_int(1))
 					return false;
-				if(!this->sv->client->stream_send_int(cj->get_type()))
+				if(!this->sv->client->stream_send_int( (int) cj->get_type() ))
 					return false;
 
 				serial = cj->serialize();

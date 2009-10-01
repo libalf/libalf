@@ -37,7 +37,7 @@ class conjecture {
 		virtual bool is_valid()
 		{ return false; };
 
-		virtual bool get_type()
+		virtual conjecture::type get_type()
 		{ return CONJECTURE_NONE; };
 
 		virtual void clear() = 0;
@@ -71,6 +71,8 @@ class simple_automaton : public conjecture {
 		virtual ~simple_automaton();
 		virtual void clear();
 		virtual bool is_valid();
+		virtual conjecture::type get_type()
+		{ return CONJECTURE_SIMPLE_AUTOMATON; }
 
 		virtual basic_string<int32_t> serialize();
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
