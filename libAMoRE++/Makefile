@@ -16,8 +16,8 @@ clean:
 	+make -C testsuites clean
 
 install:
-	make -C include install
-	make -C src install
+	+make -C include install
+	+make -C src install
 
 uninstall:
 	make -C include uninstall
