@@ -73,7 +73,7 @@ public class JNIFactory implements LibALFFactory {
 								+ args.length + ".");
 
 			/*
-			 * Create RPNI learning algorithm.
+			 * Create RPNI inference algorithm.
 			 */
 		case RPNI:
 			if (args.length == 2)
@@ -84,11 +84,11 @@ public class JNIFactory implements LibALFFactory {
 						(Integer) args[1], (JNIBufferedLogger) args[2]);
 			else
 				throw new AlfException(
-						"Invalid parameters for creating RPNI learning algorithm: "
+						"Invalid parameters for creating RPNI inference algorithm: "
 								+ args.length + ".");
 
 			/*
-			 * Create Biermann (MiniSAT) learning algorithm.
+			 * Create Biermann (MiniSAT) inference algorithm.
 			 */
 		case BIERMANN_MINISAT:
 			if (args.length == 2)
@@ -100,7 +100,22 @@ public class JNIFactory implements LibALFFactory {
 						(JNIBufferedLogger) args[2]);
 			else
 				throw new AlfException(
-						"Invalid parameters for creating Biermann (MiniSAT) learning algorithm: "
+						"Invalid parameters for creating Biermann (MiniSAT) inference algorithm: "
+								+ args.length + ".");
+
+			/*
+			 * Create DeLeTe2 inference algorithm.
+			 */
+		case DELETE2:
+			if (args.length == 2)
+				return new JNIAlgorithmDeLeTe2((JNIKnowledgebase) args[0],
+						(Integer) args[1]);
+			else if (args.length == 3)
+				return new JNIAlgorithmDeLeTe2((JNIKnowledgebase) args[0],
+						(Integer) args[1], (JNIBufferedLogger) args[2]);
+			else
+				throw new AlfException(
+						"Invalid parameters for creating DeLeTe2 inference algorithm: "
 								+ args.length + ".");
 
 			/*
