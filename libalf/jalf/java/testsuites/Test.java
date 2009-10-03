@@ -1,4 +1,4 @@
-package de.libalf.test;
+package de.libalf.testsuits;
 
 import de.libalf.BasicAutomaton;
 import de.libalf.Knowledgebase;
@@ -106,7 +106,7 @@ public class Test {
 
 		Automaton learned = null;
 		do {
-			BasicAutomaton aut = alg.advance();
+			BasicAutomaton aut = (BasicAutomaton)alg.advance();
 
 			if (aut == null) {
 				for (int[] query : base.get_queries())
