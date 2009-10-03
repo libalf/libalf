@@ -1,6 +1,5 @@
 package de.libalf.jni;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import de.libalf.AlfException;
 import de.libalf.BasicAutomaton;
 import de.libalf.Knowledgebase;
@@ -37,7 +36,8 @@ import de.libalf.Normalizer;
  *         University
  * @version 1.0
  */
-public abstract class JNILearningAlgorithm extends JNIObject implements LearningAlgorithm {
+public abstract class JNILearningAlgorithm extends JNIObject implements
+		LearningAlgorithm {
 	private static final long serialVersionUID = 2L;
 
 	/**
@@ -48,10 +48,15 @@ public abstract class JNILearningAlgorithm extends JNIObject implements Learning
 	/**
 	 * The logger to log events to.
 	 */
-	public JNIBufferedLogger logger;
+	protected JNIBufferedLogger logger;
+
+	/**
+	 * The normalizer of this learning algorithm.
+	 */
+	protected JNINormalizer normalizer;
 
 	@Override
-	public Knowledgebase get_knowledge_source() {
+	public JNIKnowledgebase get_knowledge_source() {
 		check();
 		return this.knowledgebase;
 	}
@@ -68,8 +73,10 @@ public abstract class JNILearningAlgorithm extends JNIObject implements Learning
 	 * {@link JNILearningAlgorithm#add_counterexample(int[])}.
 	 * </p>
 	 * 
-	 * @param counterexample the new counter-example to add
-	 * @param pointer the pointer to the C++ object.
+	 * @param counterexample
+	 *            the new counter-example to add
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 * @return the result of the JNI call.
 	 */
 	private native void add_counterexample(int[] counterexample, long pointer);
@@ -85,7 +92,8 @@ public abstract class JNILearningAlgorithm extends JNIObject implements Learning
 	 * <em>JNI method call:</em> See {@link JNILearningAlgorithm#advance()}.
 	 * </p>
 	 * 
-	 * @param pointer the pointer to the C++ object.
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 * @return the result of the JNI call.
 	 */
 	private native BasicAutomaton advance(long pointer);
@@ -102,7 +110,8 @@ public abstract class JNILearningAlgorithm extends JNIObject implements Learning
 	 * {@link JNILearningAlgorithm#conjecture_ready()}.
 	 * </p>
 	 * 
-	 * @param pointer the pointer to the C++ object.
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 * @return the result of the JNI call.
 	 */
 	private native boolean conjecture_ready(long pointer);
@@ -119,7 +128,8 @@ public abstract class JNILearningAlgorithm extends JNIObject implements Learning
 	 * {@link JNILearningAlgorithm#get_alphabet_size()}.
 	 * </p>
 	 * 
-	 * @param pointer the pointer to the C++ object.
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 * @return the result of the JNI call.
 	 */
 	private native int get_alphabet_size(long pointer);
@@ -137,8 +147,10 @@ public abstract class JNILearningAlgorithm extends JNIObject implements Learning
 	 * {@link JNILearningAlgorithm#increase_alphabet_size(int)}.
 	 * </p>
 	 * 
-	 * @param new_size the new size of the alphabet
-	 * @param pointer the pointer to the C++ object.
+	 * @param new_size
+	 *            the new size of the alphabet
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 */
 	private native void increase_alphabet_size(int newSize, long pointer);
 
@@ -155,13 +167,14 @@ public abstract class JNILearningAlgorithm extends JNIObject implements Learning
 	 * {@link JNILearningAlgorithm#set_alphabet_size(int)} .
 	 * </p>
 	 * 
-	 * @param alphabet_size the size of the alphabet
-	 * @param pointer the pointer to the C++ object.
+	 * @param alphabet_size
+	 *            the size of the alphabet
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 */
 	private native void set_alphabet_size(int alphabetSize, long pointer);
 
 	@Override
-	// TODO: Change class cast exception policy!
 	public void set_knowledge_source(Knowledgebase base) {
 		check();
 		if (base == null) {
@@ -180,11 +193,13 @@ public abstract class JNILearningAlgorithm extends JNIObject implements Learning
 	 * {@link JNILearningAlgorithm#set_knowledge_source(Knowledgebase)}.
 	 * </p>
 	 * 
-	 * @param knowledgebase_pointer a pointer to the knowledgebase to set or
-	 *            replace.
-	 * @param pointer the pointer to the C++ object.
+	 * @param knowledgebase_pointer
+	 *            a pointer to the knowledgebase to set or replace.
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 */
-	private native void set_knowledge_source(long knowledgebase_pointer, long pointer);
+	private native void set_knowledge_source(long knowledgebase_pointer,
+			long pointer);
 
 	/**
 	 * <p>
@@ -193,7 +208,8 @@ public abstract class JNILearningAlgorithm extends JNIObject implements Learning
 	 * <code>Knowledgebase</code> is <code>null</code>.
 	 * </p>
 	 * 
-	 * @param pointer the pointer to the C++ object.
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 */
 	private native void set_knowledge_source_NULL(long pointer);
 
@@ -209,7 +225,8 @@ public abstract class JNILearningAlgorithm extends JNIObject implements Learning
 	 * {@link JNILearningAlgorithm#sync_to_knowledgebase()}.
 	 * </p>
 	 * 
-	 * @param pointer the pointer to the C++ object.
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 * @return the result of the JNI call.
 	 */
 	private native boolean sync_to_knowledgebase(long pointer);
@@ -226,7 +243,8 @@ public abstract class JNILearningAlgorithm extends JNIObject implements Learning
 	 * {@link JNILearningAlgorithm#supports_sync()}.
 	 * </p>
 	 * 
-	 * @param pointer the pointer to the C++ object.
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 * @return the result of the JNI call.
 	 */
 	private native boolean supports_sync(long pointer);
@@ -242,7 +260,8 @@ public abstract class JNILearningAlgorithm extends JNIObject implements Learning
 	 * <em>JNI method call:</em> See {@link JNILearningAlgorithm#serialize()}.
 	 * </p>
 	 * 
-	 * @param pointer the pointer to the C++ object.
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 * @return the result of the JNI call.
 	 */
 	private native int[] serialize(long pointer);
@@ -259,14 +278,15 @@ public abstract class JNILearningAlgorithm extends JNIObject implements Learning
 	 * {@link JNILearningAlgorithm#deserialize(int[])}.
 	 * </p>
 	 * 
-	 * @param serialization a serialization of a learning algorithm
-	 * @param pointer the pointer to the C++ object.
+	 * @param serialization
+	 *            a serialization of a learning algorithm
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 * @return the result of the JNI call.
 	 */
 	private native boolean deserialize(int[] serialization, long pointer);
 
 	@Override
-	// TODO: Change class cast policy!
 	public void set_logger(Logger logger) {
 		check();
 		this.logger = (JNIBufferedLogger) logger;
@@ -279,9 +299,10 @@ public abstract class JNILearningAlgorithm extends JNIObject implements Learning
 	 * {@link JNILearningAlgorithm#set_logger(BufferedLogger)}.
 	 * </p>
 	 * 
-	 * @param logger_pointer a pointer to a <code>buffered_logger</code> C++
-	 *            object
-	 * @param pointer the pointer to the C++ object.
+	 * @param logger_pointer
+	 *            a pointer to a <code>buffered_logger</code> C++ object
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 */
 	private native void set_logger(long logger_pointer, long pointer);
 
@@ -297,7 +318,8 @@ public abstract class JNILearningAlgorithm extends JNIObject implements Learning
 	 * <em>JNI method call:</em> See {@link JNILearningAlgorithm#destroy()}.
 	 * </p>
 	 * 
-	 * @param pointer the pointer to the C++ object.
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 */
 	private native void destroy(long pointer);
 
@@ -312,28 +334,63 @@ public abstract class JNILearningAlgorithm extends JNIObject implements Learning
 	 * <em>JNI method call:</em> See {@link JNILearningAlgorithm#toString()}.
 	 * </p>
 	 * 
-	 * @param pointer the pointer to the C++ object.
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 * @return the result of the JNI call.
 	 */
 	private native String tostring(long pointer);
 
 	@Override
 	public void remove_logger() throws AlfException {
-		throw new NotImplementedException(); // TODO
+		check();
+		this.logger = null;
 	}
 
 	@Override
 	public void set_normalizer(Normalizer normalizer) throws AlfException {
-		throw new NotImplementedException(); // TODO
+		check();
+		if (normalizer == null) {
+			this.normalizer = null;
+			set_normalizer_NULL(this.pointer);
+		} else {
+			this.normalizer = (JNINormalizer) normalizer;
+			set_normalizer(this.normalizer.getPointer(), this.pointer);
+		}
 	}
 
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See
+	 * {@link JNILearningAlgorithm#set_normalizer(Normalizer)}.
+	 * </p>
+	 * 
+	 * @param normalizer_pointer
+	 *            the pointer to the normalizer C++ object.
+	 * @param pointer
+	 *            the pointer to the learning_algorithm C++ object.
+	 */
+	private native void set_normalizer(long normalizer_pointer, long pointer);
+
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See
+	 * {@link JNILearningAlgorithm#set_normalizer(Normalizer)}.
+	 * </p>
+	 * 
+	 * @param pointer
+	 *            the pointer to the learning_algorithm C++ object.
+	 */
+	private native void set_normalizer_NULL(long pointer);
+
 	@Override
-	public Normalizer get_normalizer() throws AlfException {
-		throw new NotImplementedException(); // TODO
+	public JNINormalizer get_normalizer() throws AlfException {
+		check();
+		return normalizer;
 	}
 
 	@Override
 	public void remove_normalizer() throws AlfException {
-		throw new NotImplementedException(); // TODO
+		check();
+		this.normalizer = null;
 	}
 }

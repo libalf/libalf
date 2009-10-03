@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import de.libalf.AlfException;
 import de.libalf.Knowledgebase;
 
 /**
@@ -18,7 +19,8 @@ import de.libalf.Knowledgebase;
  *         University
  * @version 1.0
  */
-public class JNIKnowledgebase extends JNIObject implements Knowledgebase, Serializable {
+public class JNIKnowledgebase extends JNIObject implements Knowledgebase,
+		Serializable {
 
 	private static final long serialVersionUID = 2L;
 
@@ -57,7 +59,8 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase, Serial
 	 * <em>JNI method call:</em> See {@link Knowledgebase#is_answered()}.
 	 * </p>
 	 * 
-	 * @param pointer the pointer to the C++ object.
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 * @return the result of the JNI call.
 	 */
 	private native boolean is_answered(long pointer);
@@ -73,7 +76,8 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase, Serial
 	 * <em>JNI method call:</em> See {@link Knowledgebase#get_knowledge()}.
 	 * </p>
 	 * 
-	 * @param pointer the pointer to the C++ object.
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 * @return the result of the JNI call.
 	 */
 	private native LinkedList<int[]> get_knowledge(long pointer);
@@ -89,7 +93,8 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase, Serial
 	 * <em>JNI method call:</em> See {@link Knowledgebase#is_empty()}.
 	 * </p>
 	 * 
-	 * @param pointer the pointer to the C++ object.
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 * @return the result of the JNI call.
 	 */
 	private native boolean is_empty(long pointer);
@@ -105,7 +110,8 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase, Serial
 	 * <em>JNI method call:</em> See {@link Knowledgebase#count_queries()}.
 	 * </p>
 	 * 
-	 * @param pointer the pointer to the C++ object.
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 * @return the result of the JNI call.
 	 */
 	private native int count_queries(long pointer);
@@ -118,6 +124,7 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase, Serial
 
 	@Override
 	public void deserialize_query_acceptance(boolean[] acceptances) {
+		check();
 		// FIXME: this is just a workaround ... write native implementation
 		Iterator<int[]> it = get_queries().descendingIterator();
 		int i = acceptances.length;
@@ -130,7 +137,8 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase, Serial
 	 * <em>JNI method call:</em> See {@link Knowledgebase#get_queries()}.
 	 * </p>
 	 * 
-	 * @param pointer the pointer to the C++ object.
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 * @return the result of the JNI call.
 	 */
 	private native LinkedList<int[]> get_queries(long pointer);
@@ -147,7 +155,8 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase, Serial
 		case ACCEPTANCE_UNKNOWN:
 			return Acceptance.UNKNOWN;
 		default:
-			System.err.println("Unknown return value '" + acceptance + "' of native mathod resolve_query! Returning 'UNKNOWN'");
+			System.err.println("Unknown return value '" + acceptance
+					+ "' of native mathod resolve_query! Returning 'UNKNOWN'");
 			return Acceptance.UNKNOWN;
 		}
 	}
@@ -157,8 +166,10 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase, Serial
 	 * <em>JNI method call:</em> See {@link Knowledgebase#resolve_query(int[])}.
 	 * </p>
 	 * 
-	 * @param word the word to look for
-	 * @param pointer the pointer to the C++ object.
+	 * @param word
+	 *            the word to look for
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 * @return the result of the JNI call.
 	 */
 	private native int resolve_query(int[] word, long pointer);
@@ -175,7 +186,10 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase, Serial
 		case ACCEPTANCE_UNKNOWN:
 			return Acceptance.UNKNOWN;
 		default:
-			System.err.println("Unknown return value '" + acceptanceOrExists + "' of native mathod resolve_or_add_query! Returning 'UNKNOWN'");
+			System.err
+					.println("Unknown return value '"
+							+ acceptanceOrExists
+							+ "' of native mathod resolve_or_add_query! Returning 'UNKNOWN'");
 			return Acceptance.UNKNOWN;
 		}
 	}
@@ -186,8 +200,10 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase, Serial
 	 * {@link Knowledgebase#resolve_or_add_query(int[])}.
 	 * </p>
 	 * 
-	 * @param word the word to look for
-	 * @param pointer the pointer to the C++ object.
+	 * @param word
+	 *            the word to look for
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 * @return the result of the JNI call.
 	 */
 	private native int resolve_or_add_query(int[] word, long pointer);
@@ -204,11 +220,14 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase, Serial
 	 * {@link Knowledgebase#add_knowledge(int[], boolean)}.
 	 * </p>
 	 * 
-	 * @param word the word to add to the knowledgebase
-	 * @param pointer the pointer to the C++ object.
+	 * @param word
+	 *            the word to add to the knowledgebase
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 * @return the result of the JNI call.
 	 */
-	private native boolean add_knowledge(int[] word, boolean acceptance, long pointer);
+	private native boolean add_knowledge(int[] word, boolean acceptance,
+			long pointer);
 
 	@Override
 	public void clear() {
@@ -221,7 +240,8 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase, Serial
 	 * <em>JNI method call:</em> See {@link Knowledgebase#clear()}.
 	 * </p>
 	 * 
-	 * @param pointer the pointer to the C++ object.
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 */
 	private native void clear(long pointer);
 
@@ -236,7 +256,8 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase, Serial
 	 * <em>JNI method call:</em> See {@link Knowledgebase#clear_queries()}.
 	 * </p>
 	 * 
-	 * @param pointer the pointer to the C++ object.
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 */
 	private native void clear_queries(long pointer);
 
@@ -251,8 +272,10 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase, Serial
 	 * <em>JNI method call:</em> See {@link Knowledgebase#undo(int)}.
 	 * </p>
 	 * 
-	 * @param count the number of undo operations
-	 * @param pointer the pointer to the C++ object.
+	 * @param count
+	 *            the number of undo operations
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 * @return the result of the JNI call.
 	 */
 	private native boolean undo(int count, long pointer);
@@ -268,7 +291,8 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase, Serial
 	 * <em>JNI method call:</em> See {@link Knowledgebase#get_memory_usage()}.
 	 * </p>
 	 * 
-	 * @param pointer the pointer to the C++ object.
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 * @return the result of the JNI call.
 	 */
 	private native int get_memory_usage(long pointer);
@@ -284,7 +308,8 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase, Serial
 	 * <em>JNI method call:</em> See {@link Knowledgebase#count_answers()}.
 	 * </p>
 	 * 
-	 * @param pointer the pointer to the C++ object.
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 * @return the result of the JNI call.
 	 */
 	private native int count_answers(long pointer);
@@ -300,7 +325,8 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase, Serial
 	 * <em>JNI method call:</em> See {@link Knowledgebase#generate_dotfile()}.
 	 * </p>
 	 * 
-	 * @param pointer the pointer to the C++ object.
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 * @return the result of the JNI call.
 	 */
 	private native String generate_dotfile(long pointer);
@@ -316,13 +342,14 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase, Serial
 	 * <em>JNI method call:</em> See {@link Knowledgebase#generate_dotfile()}.
 	 * </p>
 	 * 
-	 * @param pointer the pointer to the C++ object.
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 * @return the result of the JNI call.
 	 */
 	private native int[] serialize(long pointer);
 
 	@Override
-	public boolean deserialize(int[] serialization) {
+	public boolean deserialize(int[] serialization) throws AlfException {
 		check();
 		return deserialize(serialization, this.pointer);
 	}
@@ -339,7 +366,8 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase, Serial
 	 * <em>JNI method call:</em> See {@link JNILearningAlgorithm#destroy()}.
 	 * </p>
 	 * 
-	 * @param pointer the pointer to the C++ object.
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 */
 	private native void destroy(long pointer);
 
@@ -348,8 +376,10 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase, Serial
 	 * <em>JNI method call:</em> See {@link Knowledgebase#deserialize(int[])}.
 	 * </p>
 	 * 
-	 * @param serialization a serialization of a knowledgebase
-	 * @param pointer the pointer to the C++ object.
+	 * @param serialization
+	 *            a serialization of a knowledgebase
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 * @return the result of the JNI call.
 	 */
 	private native boolean deserialize(int[] serialization, long pointer);
@@ -365,7 +395,8 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase, Serial
 	 * <em>JNI method call:</em> See {@link Knowledgebase#toString()}.
 	 * </p>
 	 * 
-	 * @param pointer the pointer to the C++ object.
+	 * @param pointer
+	 *            the pointer to the C++ object.
 	 * @return the result of the JNI call.
 	 */
 	private native String tostring(long pointer);
@@ -382,7 +413,8 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase, Serial
 	/**
 	 * @see Serializable
 	 */
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+	private void readObject(ObjectInputStream in) throws IOException,
+			ClassNotFoundException {
 		check();
 		in.defaultReadObject();
 		this.pointer = init();
