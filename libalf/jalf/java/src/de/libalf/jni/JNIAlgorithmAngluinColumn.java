@@ -37,7 +37,6 @@ public class JNIAlgorithmAngluinColumn extends JNILearningAlgorithm {
 	 * @param alphabet_size
 	 *            the size of the used alphabet
 	 */
-	// TODO: class cast policy
 	public JNIAlgorithmAngluinColumn(Knowledgebase knowledgebase,
 			int alphabet_size) {
 		this.knowledgebase = (JNIKnowledgebase) knowledgebase;
@@ -71,7 +70,6 @@ public class JNIAlgorithmAngluinColumn extends JNILearningAlgorithm {
 	 * @param logger
 	 *            a logger
 	 */
-	// TODO: class cast policy
 	public JNIAlgorithmAngluinColumn(Knowledgebase knowledgebase,
 			int alphabet_size, Logger logger) {
 		this.knowledgebase = (JNIKnowledgebase) knowledgebase;
@@ -119,8 +117,11 @@ public class JNIAlgorithmAngluinColumn extends JNILearningAlgorithm {
 			ClassNotFoundException {
 		in.defaultReadObject();
 		int alphabet_size = in.readInt();
-		this.pointer = init(this.knowledgebase.getPointer(), alphabet_size,
-				this.logger == null ? 0 : this.logger.getPointer());
+		if (this.logger != null)
+			this.pointer = init(this.knowledgebase.getPointer(), alphabet_size,
+					this.logger.getPointer());
+		else
+			this.pointer = init(this.knowledgebase.getPointer(), alphabet_size);
 		int[] serialization = (int[]) in.readObject();
 		deserialize(serialization);
 	}

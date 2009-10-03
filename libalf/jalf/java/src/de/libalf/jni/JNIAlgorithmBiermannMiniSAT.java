@@ -44,7 +44,6 @@ public class JNIAlgorithmBiermannMiniSAT extends JNILearningAlgorithm {
 	 * @param alphabet_size
 	 *            the size of the used alphabet
 	 */
-	// TODO: class cast policy
 	public JNIAlgorithmBiermannMiniSAT(Knowledgebase knowledgebase,
 			int alphabet_size) {
 		this.knowledgebase = (JNIKnowledgebase) knowledgebase;
@@ -79,7 +78,6 @@ public class JNIAlgorithmBiermannMiniSAT extends JNILearningAlgorithm {
 	 * @param logger
 	 *            a logger
 	 */
-	// TODO: class cast policy
 	public JNIAlgorithmBiermannMiniSAT(Knowledgebase knowledgebase,
 			int alphabet_size, Logger logger) {
 		this.knowledgebase = (JNIKnowledgebase) knowledgebase;
@@ -111,15 +109,16 @@ public class JNIAlgorithmBiermannMiniSAT extends JNILearningAlgorithm {
 
 	/**
 	 * Performs no action and just returns <code>null</code>.
-	 *
-	 * @param data some data.
-	 *
+	 * 
+	 * @param data
+	 *            some data.
+	 * 
 	 * @return <code>null</code>.
 	 */
 	public int[] deserialize_magic(int[] data) {
 		return null;
 	}
-			
+
 	/**
 	 * @see Serializable
 	 */
@@ -127,8 +126,11 @@ public class JNIAlgorithmBiermannMiniSAT extends JNILearningAlgorithm {
 			ClassNotFoundException {
 		in.defaultReadObject();
 		int alphabet_size = in.readInt();
-		this.pointer = init(this.knowledgebase.getPointer(), alphabet_size,
-				this.logger == null ? 0 : this.logger.getPointer());
+		if (this.logger != null)
+			this.pointer = init(this.knowledgebase.getPointer(), alphabet_size,
+					this.logger.getPointer());
+		else
+			this.pointer = init(this.knowledgebase.getPointer(), alphabet_size);
 		int[] serialization = (int[]) in.readObject();
 		deserialize(serialization);
 	}

@@ -37,7 +37,6 @@ public class JNIAlgorithmRPNI extends JNILearningAlgorithm {
 	 * @param alphabet_size
 	 *            the size of the used alphabet
 	 */
-	// TODO: class cast policy
 	public JNIAlgorithmRPNI(Knowledgebase knowledgebase, int alphabet_size) {
 		this.knowledgebase = (JNIKnowledgebase) knowledgebase;
 		this.pointer = init(this.knowledgebase.getPointer(), alphabet_size);
@@ -69,7 +68,6 @@ public class JNIAlgorithmRPNI extends JNILearningAlgorithm {
 	 * @param logger
 	 *            a logger
 	 */
-	// TODO: class cast policy
 	public JNIAlgorithmRPNI(Knowledgebase knowledgebase, int alphabet_size,
 			Logger logger) {
 		this.knowledgebase = (JNIKnowledgebase) knowledgebase;
@@ -116,8 +114,11 @@ public class JNIAlgorithmRPNI extends JNILearningAlgorithm {
 			ClassNotFoundException {
 		in.defaultReadObject();
 		int alphabet_size = in.readInt();
-		this.pointer = init(this.knowledgebase.getPointer(), alphabet_size,
-				this.logger == null ? 0 : this.logger.getPointer());
+		if (this.logger != null)
+			this.pointer = init(this.knowledgebase.getPointer(), alphabet_size,
+					this.logger.getPointer());
+		else
+			this.pointer = init(this.knowledgebase.getPointer(), alphabet_size);
 		int[] serialization = (int[]) in.readObject();
 		deserialize(serialization);
 	}
