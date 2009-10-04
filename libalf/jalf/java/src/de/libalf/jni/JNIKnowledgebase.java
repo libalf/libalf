@@ -125,7 +125,7 @@ public class JNIKnowledgebase extends JNIObject implements Knowledgebase,
 	@Override
 	public void deserialize_query_acceptance(boolean[] acceptances) {
 		check();
-		// FIXME: this is just a workaround ... write native implementation
+		// TODO: this is just a workaround ... write native implementation
 		Iterator<int[]> it = get_queries().descendingIterator();
 		int i = acceptances.length;
 		while (i-- > 0)

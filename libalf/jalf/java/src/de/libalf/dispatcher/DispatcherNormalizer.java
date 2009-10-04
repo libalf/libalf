@@ -20,6 +20,7 @@ public class DispatcherNormalizer extends DispatcherObject implements Normalizer
 		create(new int[] { normType });
 	}
 
+	@Override
 	public boolean deserialize(int[] serialization) throws AlfException {
 		synchronized (this.factory) {
 			try {
@@ -38,6 +39,7 @@ public class DispatcherNormalizer extends DispatcherObject implements Normalizer
 		}
 	}
 
+	@Override
 	public int get_type() throws AlfException {
 		synchronized (this.factory) {
 			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.NORMALIZER_GET_TYPE);

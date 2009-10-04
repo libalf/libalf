@@ -6,4 +6,8 @@ public interface Normalizer extends LibALFObject {
 		MSC;
 	}
 
+	public boolean deserialize(int[] serialization) throws AlfException;
+
+	public int get_type() throws AlfException;
+
 }

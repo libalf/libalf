@@ -105,6 +105,13 @@ public class JNINormalizer extends JNIObject implements Normalizer {
 	 */
 	private native void destroy(long pointer);
 
+	@Override
+	public int get_type() throws AlfException {
+		check();
+		// TODO: this is just a workaround ... write native implementation
+		return serialize()[0];
+	}
+
 	/**
 	 * @see Serializable
 	 */
