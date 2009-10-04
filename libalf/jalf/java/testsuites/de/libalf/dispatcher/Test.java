@@ -1,3 +1,5 @@
+package de.libalf.dispatcher;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -17,7 +19,7 @@ import de.libalf.jni.JNIFactory;
 
 // TODO: remove class
 @Deprecated
-public class StefansTest {
+public class Test {
 	public static void main(String[] args) throws Throwable {
 		File file = new File("blah.jdat");
 		file.deleteOnExit();
@@ -148,6 +150,8 @@ public class StefansTest {
 			factory.destroy();
 		} catch (Throwable e) {
 			e.printStackTrace();
+			if (factory instanceof DispatcherFactory)
+				((DispatcherFactory) factory).printRest(250);
 		}
 	}
 }

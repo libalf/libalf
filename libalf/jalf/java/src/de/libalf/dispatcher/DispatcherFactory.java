@@ -277,6 +277,16 @@ public class DispatcherFactory implements LibALFFactory {
 
 	}
 
+	void printRest(int wait) throws Throwable {
+		if (isDestroyed())
+			return;
+
+		Thread.sleep(wait);
+		while (this.in.available() > 0) {
+			System.out.println(this.in.available() < 4 ? String.format("0x%02X", readByte()) : String.format("0x%08X", readInt()));
+		}
+	}
+
 	////////////////////////////////////////////////////////////////
 	// COMMUNICATION
 	// has to be synchronized in order to not interleave requests of concurrent threads.
