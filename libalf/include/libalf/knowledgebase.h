@@ -436,11 +436,11 @@ class knowledgebase {
 					b = other->get_word();
 					return libalf::is_graded_lex_smaller(a,b);
 				}}}
-				int get_memory_usage()
+				unsigned long long int get_memory_usage()
 				// calculate memory consumption of this
 				// subtree
 				{{{
-					int ret;
+					unsigned long long int ret;
 					typename vector<node*>::iterator ci;
 
 					ret = sizeof(this) + sizeof(node *) * children.size();
@@ -913,9 +913,9 @@ class knowledgebase {
 			return true;
 		}}}
 
-		int get_memory_usage()
+		unsigned long long int get_memory_usage()
 		{{{
-			int ret;
+			unsigned long long int ret;
 
 			ret = sizeof(this);
 			ret += root->get_memory_usage();
