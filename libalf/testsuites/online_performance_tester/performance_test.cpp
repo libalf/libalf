@@ -30,9 +30,10 @@
 #include <libalf/alf.h>
 #include <libalf/statistics.h>
 
-//////
 #include <libalf/algorithm_angluin.h>
 #include <libalf/algorithm_NLstar.h>
+
+//////
 #define ALGORITHM angluin_simple_table
 #define ALGORITHM_NAME "angluin_simple_table"
 //////
