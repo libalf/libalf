@@ -69,18 +69,19 @@ bool learn(finite_automaton * model, unsigned int & membership_queries, unsigned
 	for(unsigned int iteration = 0; iteration < model->get_state_count(); iteration++) {
 		conjecture * cj;
 		simple_automaton * sa;
-		finite_automaton * hypothesis;
 		list<int> counterexample;
 
 		while( NULL == (cj = alg.advance()) )
 			membership_queries += amore_alf_glue::automaton_answer_knowledgebase(*model, kb);
 
 		sa = dynamic_cast<simple_automaton*>(cj);
-		hypothesis = construct_amore_automaton(sa->is_deterministic, sa->alphabet_size, sa->state_count, sa->initial, sa->final, sa->transitions);
 
 		eq_queries++;
-		if(amore_alf_glue::automaton_equivalence_query(*model, cj, counterexample))
+		if(amore_alf_glue::automaton_equivalence_query(*model, cj, counterexample)) {
+			delete cj;
 			break;
+		}
+		delete cj;
 
 		alg.add_counterexample(counterexample);
 	}
@@ -137,9 +138,9 @@ int main(int argc, char**argv)
 	ofstream single_stats;
 	ofstream average_stats;
 
-	snprintf(str, 512, "num%dasize%dmsize%d..%dstep%d.stat", num_testcases, alphabet_size, min_model_size, max_model_size, steps_model_size);
+	snprintf(str, 512, "stats-%s/num%dasize%dmsize%d..%dstep%d.stat", ALGORITHM_NAME, num_testcases, alphabet_size, min_model_size, max_model_size, steps_model_size);
 	single_stats.open(str);
-	snprintf(str, 512, "num%dasize%dmsize%d..%dstep%d-avg.stat", num_testcases, alphabet_size, min_model_size, max_model_size, steps_model_size);
+	snprintf(str, 512, "stats-%s/num%dasize%dmsize%d..%dstep%d-avg.stat", ALGORITHM_NAME, num_testcases, alphabet_size, min_model_size, max_model_size, steps_model_size);
 	average_stats.open(str);
 
 	// learning loop
@@ -212,6 +213,8 @@ create_model:
 	average_stats.close();
 
 	delete log;
+	dfarg.discard_tables();
+
 	return 0;
 }}}
 
