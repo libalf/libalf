@@ -32,6 +32,7 @@
 
 //////
 #include <libalf/algorithm_angluin.h>
+#include <libalf/algorithm_NLstar.h>
 #define ALGORITHM angluin_simple_table
 #define ALGORITHM_NAME "angluin_simple_table"
 //////
@@ -204,6 +205,7 @@ create_model:
 
 		(*log)(LOGGER_INFO, "%s", str);
 		average_stats << str;
+		average_stats.flush();
 	}
 
 	single_stats.close();
