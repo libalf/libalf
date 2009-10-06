@@ -152,7 +152,7 @@ int main(int argc, char**argv)
 		for(unsigned int c = 0; c < num_testcases; c++) {
 			sa.clear();
 			finite_automaton * model;
-create_model:
+		create_model:
 			if(!dfarg.generate(alphabet_size, model_size, sa.is_deterministic, sa.alphabet_size, sa.state_count, sa.initial, sa.final, sa.transitions)) {
 				(*log)(LOGGER_WARN, "DFA random generator failed to construct model (asize %d msize %d)\n", alphabet_size, model_size);
 				goto create_model;
@@ -186,6 +186,7 @@ create_model:
 
 			(*log)(LOGGER_DEBUG, "%s", str);
 			single_stats << str;
+			single_stats.flush();
 
 			avg_membership_queries += membership_queries;
 			avg_eq_queries += eq_queries;
