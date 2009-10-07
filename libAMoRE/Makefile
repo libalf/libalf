@@ -8,8 +8,8 @@ LIBDIR ?= ${PREFIX}/lib
 DOCDIR ?= ${PREFIX}/share/doc
 HEADERDIR ?= ${PREFIX}/include
 
-LOCALCHANGES = $(shell test "`svn status | wc -c`" != "0" && echo "-LocalChanges")
-SVNREVISION = $(shell LC_ALL=POSIX svn info | awk '/^Revision:/ {print $$2}')
+LOCALCHANGES := $(shell test "`svn status | wc -c`" != "0" && echo "-LocalChanges")
+SVNREVISION := $(shell LC_ALL=POSIX svn info | awk '/^Revision:/ {print $$2}')
 VERSION ?= libalf-svn-r${SVNREVISION}${LOCALCHANGES}
 
 CFLAGS += -DDEBUG -DJAVAEXCEPT -DLIBAMORE -DUNIX -DLINUX -DBIT32
@@ -57,7 +57,8 @@ docs/html/index.html:
 doc:
 	doxygen docs/Doxyfile-libAMoRE
 
-install: exportHeaders all
+install: exportHeaders
+	+make all
 	cp libAMoRE.a $(LIBDIR)
 	chmod 644 $(LIBDIR)/libAMoRE.a
 	cp libAMoRE.so $(LIBDIR)
