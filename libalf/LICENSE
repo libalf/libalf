@@ -1,4 +1,18 @@
 
+NOTE: to all MiniSat files, a different license applies. Please see the
+file MiniSat-LICENSE. The files in question are:
+
+include/libalf/minisat_Global.h
+include/libalf/minisat_Heap.h
+include/libalf/minisat_Solver.h
+include/libalf/minisat_SolverTypes.h
+include/libalf/minisat_Sort.h
+include/libalf/minisat_VarOrder.h
+src/minisat_solver.cpp
+
+
+ALL OTHER FILES ARE LICENSED UNDER THE FOLLOWING LICENSE:
+
 this package is not publically released.
 all rights reserved 2008,2009 by David R. Piegdon
 <david-i2@piegdon.de>, i2 Informatik RWTH-Aachen

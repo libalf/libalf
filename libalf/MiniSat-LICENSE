@@ -1,3 +1,18 @@
+
+NOTE: this license only applies to the following files:
+
+include/libalf/minisat_Global.h
+include/libalf/minisat_Heap.h
+include/libalf/minisat_Solver.h
+include/libalf/minisat_SolverTypes.h
+include/libalf/minisat_Sort.h
+include/libalf/minisat_VarOrder.h
+src/minisat_solver.cpp
+
+
+BEGIN LICENSE TEXT
+
+
 MiniSat -- Copyright (c) 2003-2005, Niklas Een, Niklas Sorensson
 
 Permission is hereby granted, free of charge, to any person obtaining a
