@@ -13,7 +13,6 @@
 
 #include "jni_tools.h"
 
-#include <libalf/normalizer.h>
 #include <libalf/normalizer_msc.h>
 
 #include <jni.h>
