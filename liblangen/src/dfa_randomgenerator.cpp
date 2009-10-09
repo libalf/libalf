@@ -1,15 +1,30 @@
 /* $Id$
  * vim: fdm=marker
  *
- * liblangen (LANguageGENerator)
- * dfa_randomgenerator: equally distributedly generates random DFAs.
- * original idea of algorithm is described in
- * "Jean-Marc Champarnaud and Thomas Paranthoen - Random Generation of DFAs"
+ * This file is part of liblangen (LANguageGENerator)
+ *
+ * liblangen is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * liblangen is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with liblangen.  If not, see <http://www.gnu.org/licenses/>.
  *
  * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
  *        <david-i2@piegdon.de>
  *
- * see LICENSE file for licensing information.
+ */
+
+/*
+ * dfa_randomgenerator: equally distributedly generates random DFAs.
+ * original idea of algorithm is described in
+ * "Jean-Marc Champarnaud and Thomas Paranthoen - Random Generation of DFAs"
  */
 
 #include <map>

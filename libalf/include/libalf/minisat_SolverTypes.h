@@ -1,8 +1,8 @@
 /* $Id$
  * vim: fdm=marker
  *
- * MiniSat v1.14
- * only changes are indent, format of sourcecode and namespaces
+ * MiniSat v1.14 + Changes:
+ * changes are indent, format of sourcecode and namespaces
  * 2009-03-21 David R. Piegdon <david-i2@piegdon.de>
  */
 

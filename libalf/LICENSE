@@ -13,7 +13,5 @@ src/minisat_solver.cpp
 
 ALL OTHER FILES ARE LICENSED UNDER THE FOLLOWING LICENSE:
 
-this package is not publically released.
-all rights reserved 2008,2009 by David R. Piegdon
-<david-i2@piegdon.de>, i2 Informatik RWTH-Aachen
+LGPL, as described in lgpl.txt
 

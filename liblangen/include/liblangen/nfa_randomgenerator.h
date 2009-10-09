@@ -1,15 +1,30 @@
 /* $Id$
  * vim: fdm=marker
  *
- * liblangen (LANguageGENerator)
- * nfa_randomgenerator: random generator for NFA
- * original idea of algorithm is described in section 4.2 of
- * "F. Denis, A. Lemay and A. Terlutte - Learning regular languages using RFSAs"
+ * This file is part of liblangen (LANguageGENerator)
+ *
+ * liblangen is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * liblangen is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with liblangen.  If not, see <http://www.gnu.org/licenses/>.
  *
  * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
  *        <david-i2@piegdon.de>
  *
- * see LICENSE file for licensing information.
+ */
+
+/*
+ * nfa_randomgenerator: random generator for NFA
+ * original idea of algorithm is described in section 4.2 of
+ * "F. Denis, A. Lemay and A. Terlutte - Learning regular languages using RFSAs"
  */
 
 #include <set>

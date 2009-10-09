@@ -6,7 +6,7 @@ A verbatim copy of this license is attached below.
 
 AMoRE was developed by many people over a long period of time. The original
 license (as can be verified in 'Potthoff et al.: Report on the Program AMoRE')
-allowed "non-commercial use and modification, provided modifications are 
+allowed "non-commercial use and modification, provided modifications are
 published". However, it did not restrict the modified works, nor did it
 tell licensee to include copyright notices and licenses in derivative works.
 
@@ -14,7 +14,7 @@ For libAMoRE, the library part of the rewritten AMoRE, the LGPL brings remedy
 to this situation, since it is more clear on the intended openness. Note that
 as a side effect, commercial use is now allowed.
 
-However, as before, notifications about use and modifications in research, 
+However, as before, notifications about use and modifications in research,
 education or commercial projects are greatly appreciated !
 
 Burak Emir ( buraq@aegee.org )
