@@ -8,6 +8,8 @@
 extern "C" {
 #endif
 #undef de_libalf_jni_JNILearningAlgorithm_serialVersionUID
+#define de_libalf_jni_JNILearningAlgorithm_serialVersionUID 1LL
+#undef de_libalf_jni_JNILearningAlgorithm_serialVersionUID
 #define de_libalf_jni_JNILearningAlgorithm_serialVersionUID 2LL
 /*
  * Class:     de_libalf_jni_JNILearningAlgorithm
@@ -127,6 +129,22 @@ JNIEXPORT void JNICALL Java_de_libalf_jni_JNILearningAlgorithm_destroy
  * Signature: (J)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNILearningAlgorithm_tostring
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     de_libalf_jni_JNILearningAlgorithm
+ * Method:    set_normalizer
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNILearningAlgorithm_set_1normalizer
+  (JNIEnv *, jobject, jlong, jlong);
+
+/*
+ * Class:     de_libalf_jni_JNILearningAlgorithm
+ * Method:    set_normalizer_NULL
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNILearningAlgorithm_set_1normalizer_1NULL
   (JNIEnv *, jobject, jlong);
 
 #ifdef __cplusplus

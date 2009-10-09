@@ -18,6 +18,7 @@
 
 #include <libalf/knowledgebase.h>
 #include <libalf/learning_algorithm.h>
+#include <libalf/normalizer.h>
 
 #include <jni.h>
 
@@ -184,6 +185,11 @@ JNIEXPORT void JNICALL Java_de_libalf_jni_JNILearningAlgorithm_set_1logger (JNIE
 	algorithm->set_logger(logger);
 }
 
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNILearningAlgorithm_destroy (JNIEnv *env, jobject obj, jlong pointer) {
+	// Kill the learning algorithm
+	delete (learning_algorithm<bool>*)pointer;
+}
+
 JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNILearningAlgorithm_tostring (JNIEnv *env, jobject obj, jlong pointer) {
 	// Get the algorithm object
 	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
@@ -198,7 +204,21 @@ JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNILearningAlgorithm_tostring (JNIE
 	return env->NewStringUTF(c);
 }
 
-JNIEXPORT void JNICALL Java_de_libalf_jni_JNILearningAlgorithm_destroy (JNIEnv *env, jobject obj, jlong pointer) {
-	// Kill the learning algorithm
-	delete (learning_algorithm<bool>*)pointer;
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNILearningAlgorithm_set_1normalizer (JNIEnv *env, jobject obj, jlong normalizer_pointer, jlong pointer) {
+	// Get the normalizer object
+	normalizer* norm = (normalizer*)normalizer_pointer;
+	
+	// Get the algorithm object
+	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
+	
+	// Forward method call
+	algorithm->set_normalizer(norm);
+}
+  
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNILearningAlgorithm_set_1normalizer_1NULL (JNIEnv *env, jobject obj, jlong pointer) {
+	// Get the algorithm object
+	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
+	
+	// Forward method call
+	algorithm->set_normalizer(NULL);
 }
