@@ -392,5 +392,8 @@ public abstract class JNILearningAlgorithm extends JNIObject implements
 	public void remove_normalizer() throws AlfException {
 		check();
 		this.normalizer = null;
+		remove_normalizer(this.pointer);
 	}
+	
+	private native void remove_normalizer(long pointer);
 }

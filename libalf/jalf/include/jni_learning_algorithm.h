@@ -147,6 +147,14 @@ JNIEXPORT void JNICALL Java_de_libalf_jni_JNILearningAlgorithm_set_1normalizer
 JNIEXPORT void JNICALL Java_de_libalf_jni_JNILearningAlgorithm_set_1normalizer_1NULL
   (JNIEnv *, jobject, jlong);
 
+/*
+ * Class:     de_libalf_jni_JNILearningAlgorithm
+ * Method:    remove_normalizer
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNILearningAlgorithm_remove_1normalizer
+  (JNIEnv *, jobject, jlong);
+
 #ifdef __cplusplus
 }
 #endif

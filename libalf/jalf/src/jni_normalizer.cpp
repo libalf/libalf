@@ -33,7 +33,7 @@ JNIEXPORT jlong JNICALL Java_de_libalf_jni_JNINormalizer_init (JNIEnv *env, jobj
 
 JNIEXPORT jintArray JNICALL Java_de_libalf_jni_JNINormalizer_serialize (JNIEnv *env, jobject obj, jlong pointer) {
 	// Get the normalizer object
-	normalizer *norm = (normalizer*)pointer;
+	normalizer_msc *norm = (normalizer_msc*)pointer;
 
 	// Convert
 	jintArray arr = basic_string2jintArray(env, norm->serialize());
@@ -53,7 +53,7 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNINormalizer_deserialize (JNIEnv 
 	env->ReleaseIntArrayElements(serialization, entry, 0);
 
 	// Get the knowledgebase object
-	normalizer *norm = (normalizer*)pointer;
+	normalizer_msc *norm = (normalizer_msc*)pointer;
 
 	// Forward method call
 	basic_string<int32_t>::iterator si;
@@ -63,5 +63,5 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNINormalizer_deserialize (JNIEnv 
 
 JNIEXPORT void JNICALL Java_de_libalf_jni_JNINormalizer_destroy (JNIEnv *env, jobject obj, jlong pointer) {
 	// Kill the normalizer
-	delete (normalizer*)pointer;
+	delete (normalizer_msc*)pointer;
 }

@@ -136,7 +136,10 @@ public class JNIFactory implements LibALFFactory {
 		 * MSC normalize
 		 */
 		case MSC:
-			return new JNINormalizer();
+			if(args.length > 0)
+					throw new AlfException("Daniel is a normalizer fool");
+			//return new JNINormalizer();
+			break;
 
 			/*
 			 * Default switch: Should never happen.

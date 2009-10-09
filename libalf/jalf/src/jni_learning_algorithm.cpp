@@ -19,6 +19,7 @@
 #include <libalf/knowledgebase.h>
 #include <libalf/learning_algorithm.h>
 #include <libalf/normalizer.h>
+#include <libalf/normalizer_msc.h>
 
 #include <jni.h>
 
@@ -206,7 +207,7 @@ JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNILearningAlgorithm_tostring (JNIE
 
 JNIEXPORT void JNICALL Java_de_libalf_jni_JNILearningAlgorithm_set_1normalizer (JNIEnv *env, jobject obj, jlong normalizer_pointer, jlong pointer) {
 	// Get the normalizer object
-	normalizer* norm = (normalizer*)normalizer_pointer;
+	normalizer_msc* norm = (normalizer_msc*)normalizer_pointer;
 	
 	// Get the algorithm object
 	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
@@ -221,4 +222,12 @@ JNIEXPORT void JNICALL Java_de_libalf_jni_JNILearningAlgorithm_set_1normalizer_1
 	
 	// Forward method call
 	algorithm->set_normalizer(NULL);
+}
+
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNILearningAlgorithm_remove_1normalizer (JNIEnv *env, jobject obj, jlong pointer) {
+	// Get the algorithm object
+	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
+	
+	// Forward method call
+	algorithm->unset_normalizer();
 }
