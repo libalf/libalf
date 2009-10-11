@@ -178,14 +178,19 @@ bool nondeterministic_finite_automaton::is_empty()
 }}}
 
 bool nondeterministic_finite_automaton::is_universal()
-// uses ANTICHAIN algorithm, as described in
+// FIXME: very inefficient! instead, implement ANTICHAIN algorithm, as described in
 //    M. De Wulf, L. Doyen, J.-F. Raskin
 //    Antichains: A New Algorithm for Checking Universality of Finite Automata
-{
-	// FIXME: implement
-	fprintf(stderr, "sorry, nondeterministic_finite_automaton::is_universal() is not implemented, yet.\n");
-	return false;
-}
+{{{
+	bool ret;
+	finite_automaton * d;
+
+	d = this->determinize();
+	ret = d->is_universal();
+	delete d;
+
+	return ret;
+}}}
 
 set<int> nondeterministic_finite_automaton::get_initial_states()
 {{{
@@ -324,6 +329,7 @@ list<int> nondeterministic_finite_automaton::get_sample_word(bool & is_empty)
 
 
 bool nondeterministic_finite_automaton::operator==(finite_automaton &other)
+// FIXME: very inefficient! use ANTICHAIN algorithm instead.
 {{{
 	// FIXME efficient equiv-algorithm for NFAs?
 	bool ret;
@@ -337,6 +343,7 @@ bool nondeterministic_finite_automaton::operator==(finite_automaton &other)
 }}}
 
 bool nondeterministic_finite_automaton::lang_subset_of(finite_automaton &other)
+// FIXME: very inefficient! use ANTICHAIN algorithm instead.
 {{{
 	bool ret;
 
@@ -350,6 +357,7 @@ bool nondeterministic_finite_automaton::lang_subset_of(finite_automaton &other)
 }}}
 
 bool nondeterministic_finite_automaton::lang_disjoint_to(finite_automaton &other)
+// FIXME: very inefficient! use ANTICHAIN algorithm instead.
 {{{
 	bool ret;
 

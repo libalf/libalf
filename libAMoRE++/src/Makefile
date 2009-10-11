@@ -32,9 +32,11 @@ install: libAMoRE++.so
 	mkdir -p ${PREFIX}/lib
 	cp libAMoRE++.so ${PREFIX}/lib
 	chmod 755 ${PREFIX}/lib/libAMoRE++.so
+	-/sbin/ldconfig
 
 uninstall:
 	echo removing libAMoRE++.so from ${PREFIX}/lib/
 	rm ${PREFIX}/lib/libAMoRE++.so
+	-/sbin/ldconfig
 
 

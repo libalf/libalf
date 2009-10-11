@@ -35,8 +35,10 @@ install: liblangen.so
 	mkdir -p ${PREFIX}/lib/
 	cp liblangen.so ${PREFIX}/lib/
 	chmod 755 ${PREFIX}/lib/liblangen.so
+	-/sbin/ldconfig
 
 uninstall:
 	echo removing liblangen library from ${PREFIX}/lib/
 	rm ${PREFIX}/lib/liblangen.so
+	-/sbin/ldconfig
 
