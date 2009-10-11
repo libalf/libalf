@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with liblangen.  If not, see <http://www.gnu.org/licenses/>.
  *
- * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
+ * (c) 2008,2009 by David R. Piegdon, i2 Informatik RWTH-Aachen
  *        <david-i2@piegdon.de>
  *
  */

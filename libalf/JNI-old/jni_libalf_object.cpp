@@ -1,12 +1,24 @@
 /* $Id: jni_libalf_object.cpp 490 2009-04-16 20:40:34Z davidpiegdon $
  * vim: fdm=marker
  *
- * libalf JNI - Java Native Interface for Automata Learning Factory
+ * This file is part of libalf.
  *
- * (c) Daniel Neider, i7 Informatik RWTH-Aachen
+ * libalf is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * libalf is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with libalf.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (c) 2009 by Daniel Neider, i7 Informatik RWTH-Aachen
  *     <neider@automata.rwth-aachen.de>
  *
- * see LICENSE file for licensing information.
  */
 
 #include <string>

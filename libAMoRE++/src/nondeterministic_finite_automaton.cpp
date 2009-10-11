@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with libAMoRE++.  If not, see <http://www.gnu.org/licenses/>.
  *
- * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
+ * (c) 2008,2009 by David R. Piegdon, i2 Informatik RWTH-Aachen
  *        <david-i2@piegdon.de>
  *
  */
@@ -176,6 +176,16 @@ bool nondeterministic_finite_automaton::is_empty()
 	get_sample_word(ret);
 	return ret;
 }}}
+
+bool nondeterministic_finite_automaton::is_universal()
+// uses ANTICHAIN algorithm, as described in
+//    M. De Wulf, L. Doyen, J.-F. Raskin
+//    Antichains: A New Algorithm for Checking Universality of Finite Automata
+{
+	// FIXME: implement
+	fprintf(stderr, "sorry, nondeterministic_finite_automaton::is_universal() is not implemented, yet.\n");
+	return false;
+}
 
 set<int> nondeterministic_finite_automaton::get_initial_states()
 {{{

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with libAMoRE++.  If not, see <http://www.gnu.org/licenses/>.
  *
- * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
+ * (c) 2008,2009 by David R. Piegdon, i2 Informatik RWTH-Aachen
  *        <david-i2@piegdon.de>
  *
  */
@@ -114,8 +114,9 @@ class finite_automaton {
 		virtual list<int> get_sample_word(bool & is_empty) = 0;
 
 		// UNARY TESTS
-		// is the language of this automaton empty?
+		// is the language of this automaton empty (resp. universal)?
 		virtual bool is_empty() = 0;
+		virtual bool is_universal() = 0;
 
 		// BINARY TESTS
 		// test if this == other

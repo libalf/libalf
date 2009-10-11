@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with libAMoRE++.  If not, see <http://www.gnu.org/licenses/>.
  *
- * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
+ * (c) 2008,2009 by David R. Piegdon, i2 Informatik RWTH-Aachen
  *        <david-i2@piegdon.de>
  *
  */
@@ -99,10 +99,27 @@ unsigned int deterministic_finite_automaton::get_state_count()
 bool deterministic_finite_automaton::is_empty()
 {{{
 	bool ret;
-	// libAMoRE-1.0 has empty_full_lan(), but it requires
-	// a minimized DFA as input
+	// libAMoRE-1.0 has empty_full_lan(), but it says
+	// that it requires a minimized DFA as input
 	get_sample_word(ret);
 	return ret;
+}}}
+
+bool deterministic_finite_automaton::is_universal()
+// NOTE: checks for emptiness of complement, as complementing DFAs is efficient.
+{{{
+	bool is_uni;
+	dfa c;
+	deterministic_finite_automaton * C;
+
+	c = compldfa(dfa_p);
+	C = new deterministic_finite_automaton(c);
+	is_uni = C->is_empty();
+
+	delete C;
+	// c is deleted by ~C.
+
+	return is_uni;
 }}}
 
 set<int> deterministic_finite_automaton::get_initial_states()

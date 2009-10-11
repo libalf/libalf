@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with libAMoRE++.  If not, see <http://www.gnu.org/licenses/>.
  *
- * (c) by David R. Piegdon, i2 Informatik RWTH-Aachen
+ * (c) 2008,2009 by David R. Piegdon, i2 Informatik RWTH-Aachen
  *        <david-i2@piegdon.de>
  *
  */
@@ -98,6 +98,7 @@ class nondeterministic_finite_automaton : public finite_automaton {
 		virtual bool is_reachable(set<int> &from, set<int> &to);
 		virtual list<int> get_sample_word(bool & is_empty);
 		virtual bool is_empty();
+		virtual bool is_universal();
 		virtual bool operator==(finite_automaton &other);
 		virtual bool lang_subset_of(finite_automaton &other);
 		virtual bool lang_disjoint_to(finite_automaton &other);

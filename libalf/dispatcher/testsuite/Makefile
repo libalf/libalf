@@ -1,4 +1,4 @@
-# $Id: Makefile 848 2009-09-09 00:15:23Z davidpiegdon $
+# $Id$
 # libalf dispatcher testsuite Makefile
 
 .PHONY: all clean
