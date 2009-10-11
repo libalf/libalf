@@ -22,4 +22,5 @@ install:
 	+make -C liblangen install
 	+make -C libalf install
 	+make -C finite-automata-tool install
+	ldconfig
 
