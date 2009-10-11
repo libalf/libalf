@@ -157,7 +157,6 @@ enum DispatcherConstants implements Sendable {
 	NORMALIZER_NORMALIZE_A_WORD_SNF(21),
 
 	// enum algorithm
-	ALG_NONE(0),
 	ALG_ANGLUIN(1),
 	ALG_ANGLUIN_COLUMN(2),
 	ALG_KVTREE(3),
@@ -166,7 +165,6 @@ enum DispatcherConstants implements Sendable {
 	ALG_NL_STAR(6),
 	ALG_RPNI(7),
 	ALG_DELETE2(8),
-	ALG_LAST_INVALID(9),
 
 	// enum acceptance
 	ACCEPTANCE_REJECT(0),

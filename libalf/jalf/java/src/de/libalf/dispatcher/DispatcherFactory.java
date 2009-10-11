@@ -15,6 +15,9 @@ import de.libalf.LibALFFactory;
 import de.libalf.Logger;
 import de.libalf.Normalizer;
 import de.libalf.Knowledgebase.Acceptance;
+import de.libalf.jni.JNIAlgorithmDeLeTe2;
+import de.libalf.jni.JNIBufferedLogger;
+import de.libalf.jni.JNIKnowledgebase;
 
 public class DispatcherFactory implements LibALFFactory {
 	private static final long serialVersionUID = 1L;
@@ -386,6 +389,17 @@ public class DispatcherFactory implements LibALFFactory {
 				return new DispatcherAlgorithmBiermannMiniSAT(this, (Knowledgebase) args[0], (Integer) args[1], (Logger) args[2]);
 			else
 				throw new AlfException("Invalid parameters for creating Biermann (MiniSAT) learning algorithm: " + args.length + ".");
+
+		case DELETE2:
+			/*
+			 * Create DeLeTe2 inference algorithm.
+			 */
+			if (args.length == 2)
+				return new DispatcherAlgorithmDeLeTe2(this, (Knowledgebase) args[0], (Integer) args[1], null);
+			else if (args.length == 3)
+				return new DispatcherAlgorithmDeLeTe2(this, (Knowledgebase) args[0], (Integer) args[1], (Logger) args[2]);
+			else
+				throw new AlfException("Invalid parameters for creating DeLeTe2 inference algorithm: " + args.length + ".");
 
 		default:
 			/*
