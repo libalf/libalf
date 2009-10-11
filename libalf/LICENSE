@@ -1,6 +1,6 @@
 
 NOTE: to all MiniSat files, a different license applies. Please see the
-file MiniSat-LICENSE. The files in question are:
+file LICENSE-MiniSat. The files in question are:
 
 include/libalf/minisat_Global.h
 include/libalf/minisat_Heap.h
