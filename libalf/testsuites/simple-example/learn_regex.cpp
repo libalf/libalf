@@ -50,7 +50,10 @@ int main(int argc, char**argv)
 
 	bool regex_ok;
 	if(argc == 3) {
-		model = new nondeterministic_finite_automaton(atoi(argv[1]), argv[2], regex_ok);
+		finite_automaton *nfa;
+		nfa = new nondeterministic_finite_automaton(atoi(argv[1]), argv[2], regex_ok);
+		model = nfa->determinize();
+		delete nfa;
 		if(!regex_ok) {
 			log(LOGGER_ERROR, "bad REGEX. please stick to AMoRE RegEx syntax.\n");
 			return 1;
