@@ -194,7 +194,6 @@ set<int> nondeterministic_finite_automaton::get_initial_states()
 			ret.insert(i);
 	return ret;
 }}}
-
 set<int> nondeterministic_finite_automaton::get_final_states()
 {{{
 	set<int> ret;
@@ -220,6 +219,100 @@ void nondeterministic_finite_automaton::set_final_states(set<int> &states)
 		else
 			setfinalF(nfa_p->infin[s]);
 }}}
+
+bool nondeterministic_finite_automaton::contains_initial_states(set<int> states)
+{{{
+	set<int>::iterator si;
+
+	epsilon_closure(states);
+
+	for(si = states.begin(); si != states.end(); si++)
+		if(isinit(nfa_p->infin[*si]))
+			return true;
+
+	return false;
+}}}
+bool nondeterministic_finite_automaton::contains_final_states(set<int> states)
+{{{
+	set<int>::iterator si;
+
+	epsilon_closure(states);
+
+	for(si = states.begin(); si != states.end(); si++)
+		if(isfinal(nfa_p->infin[*si]))
+			return true;
+
+	return false;
+}}}
+
+set<int> nondeterministic_finite_automaton::successor_states(set<int> states)
+{{{
+	set<int> ret;
+	set<int>::iterator si;
+	unsigned int sigma;
+	unsigned int dst;
+
+	epsilon_closure(states);
+
+	for(dst = 0; dst <= nfa_p->highest_state; dst++) {
+		for(si = states.begin(); si != states.end(); si++) {
+			for(sigma = 0; sigma < nfa_p->alphabet_size; sigma++) {
+				if(testcon((nfa_p->delta), sigma+1, *si, dst)) {
+					ret.insert(dst);
+					goto abort;
+				}
+			}
+		}
+abort:		;
+	}
+
+	epsilon_closure(ret);
+
+	return ret;
+}}}
+set<int> nondeterministic_finite_automaton::predecessor_states(set<int> states)
+{{{
+	set<int> ret;
+	set<int>::iterator si;
+	unsigned int sigma;
+	unsigned int src;
+
+	inverted_epsilon_closure(states);
+
+	for(src = 0; src <= nfa_p->highest_state; src++) {
+		for(si = states.begin(); si != states.end(); si++) {
+			for(sigma = 0; sigma < nfa_p->alphabet_size; sigma++) {
+				if(testcon((nfa_p->delta), sigma+1, src, *si)) {
+					ret.insert(src);
+					goto abort;
+				}
+			}
+		}
+abort:		;
+	}
+
+	inverted_epsilon_closure(ret);
+
+	return ret;
+}}}
+set<int> nondeterministic_finite_automaton::controllable_predecessor_states(set<int> &states)
+// CPre(states) for antichain algorithms
+{
+	set<int> ret;
+
+	// (inverted) epsilon-closure?
+
+	for(unsigned int i = 0; i < nfa_p->highest_state; i++) {
+		if(states.find(i) != states.end())
+			continue;
+		
+#warning FIXME
+	}
+
+	// (inverted) epsilon-closure?
+
+	return ret;
+}
 
 unsigned int nondeterministic_finite_automaton::get_alphabet_size()
 {{{
@@ -365,6 +458,7 @@ bool nondeterministic_finite_automaton::lang_disjoint_to(finite_automaton &other
 }}}
 
 void nondeterministic_finite_automaton::epsilon_closure(set<int> & states)
+// add states reachable via an epsilon-transition
 {{{
 	if(nfa_p->is_eps == FALSE)
 		return;
@@ -383,7 +477,34 @@ void nondeterministic_finite_automaton::epsilon_closure(set<int> & states)
 		new_states.pop();
 
 		for(unsigned int s = 0; s <= nfa_p->highest_state; s++) // state
-			if(testcon((nfa_p->delta), 0, current, s))
+			if(testcon(nfa_p->delta, 0, current, s))
+				if(states.find(s) == states.end()) {
+					states.insert(s);
+					new_states.push(s);
+				};
+	};
+}}}
+
+void nondeterministic_finite_automaton::inverted_epsilon_closure(set<int> & states)
+// add states from whom these states can be reached via an epsilon-transition
+{{{
+	if(nfa_p->is_eps == FALSE)
+		return;
+
+	queue<int> new_states;
+	set<int>::iterator sti;
+
+	int current;
+
+	for(sti = states.begin(); sti != states.end(); sti++)
+		new_states.push(*sti);
+
+	while(!new_states.empty()) {
+		current = new_states.front();
+		new_states.pop();
+
+		for(unsigned int s = 0; s <= nfa_p->highest_state; s++) // state
+			if(testcon(nfa_p->delta, 0, s, current))
 				if(states.find(s) == states.end()) {
 					states.insert(s);
 					new_states.push(s);

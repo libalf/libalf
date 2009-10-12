@@ -103,6 +103,12 @@ class finite_automaton {
 		virtual void set_initial_states(set<int> &states) = 0;
 		virtual void set_final_states(set<int> &states) = 0;
 
+		virtual bool contains_initial_states(set<int> states) = 0;
+		virtual bool contains_final_states(set<int> states) = 0;
+
+		virtual set<int> successor_states(set<int> states) = 0;
+		virtual set<int> predecessor_states(set<int> states) = 0;
+
 		// get shortest run from a state in <from> to a state in <to>
 		// reachable = false if state is not reachable.
 		virtual list<int> shortest_run(set<int> from, set<int> &to, bool &reachable) = 0;

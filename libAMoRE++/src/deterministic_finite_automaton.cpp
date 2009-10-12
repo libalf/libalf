@@ -128,7 +128,6 @@ set<int> deterministic_finite_automaton::get_initial_states()
 	ret.insert(dfa_p->init);
 	return ret;
 }}}
-
 set<int> deterministic_finite_automaton::get_final_states()
 {{{
 	set<int> ret;
@@ -151,6 +150,52 @@ void deterministic_finite_automaton::set_final_states(set<int> &states)
 			dfa_p->final[s] = TRUE;
 		else
 			dfa_p->final[s] = FALSE;
+}}}
+
+
+bool deterministic_finite_automaton::contains_initial_states(set<int> states)
+{{{
+	return (states.find(dfa_p->init) != states.end());
+}}}
+bool deterministic_finite_automaton::contains_final_states(set<int> states)
+{{{
+	set<int>::iterator si;
+
+	for(si = states.begin(); si != states.end(); si++)
+		if(dfa_p->final[*si])
+			return true;
+
+	return false;
+}}}
+
+set<int> deterministic_finite_automaton::successor_states(set<int> states)
+{{{
+	set<int> ret;
+	set<int>::iterator si;
+	unsigned int sigma;
+
+	for(si = states.begin(); si != states.end(); si++)
+		for(sigma = 0; sigma < dfa_p->alphabet_size; sigma++)
+			ret.insert(dfa_p->delta[sigma+1][*si]);
+
+	return ret;
+}}}
+set<int> deterministic_finite_automaton::predecessor_states(set<int> states)
+{{{
+	set<int> ret;
+	unsigned int state;
+	unsigned int sigma;
+
+	for(state = 0; state <= dfa_p->highest_state; state++) {
+		for(sigma = 0; sigma < dfa_p->alphabet_size; sigma++) {
+			if(states.find(dfa_p->delta[sigma+1][state]) != states.end()) {
+				ret.insert(state);
+				break;
+			}
+		}
+	}
+
+	return ret;
 }}}
 
 unsigned int deterministic_finite_automaton::get_alphabet_size()

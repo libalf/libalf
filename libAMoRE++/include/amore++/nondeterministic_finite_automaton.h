@@ -94,6 +94,10 @@ class nondeterministic_finite_automaton : public finite_automaton {
 		virtual set<int> get_final_states();
 		virtual void set_initial_states(set<int> &states);
 		virtual void set_final_states(set<int> &states);
+		virtual bool contains_initial_states(set<int> states);
+		virtual bool contains_final_states(set<int> states);
+		virtual set<int> successor_states(set<int> states);
+		virtual set<int> predecessor_states(set<int> states);
 		virtual list<int> shortest_run(set<int> from, set<int> &to, bool &reachable);
 		virtual bool is_reachable(set<int> &from, set<int> &to);
 		virtual list<int> get_sample_word(bool & is_empty);
@@ -120,10 +124,15 @@ class nondeterministic_finite_automaton : public finite_automaton {
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
 
 		virtual void epsilon_closure(set<int> & states);
+		virtual void inverted_epsilon_closure(set<int> & states);
+
 	// new
 		virtual void set_nfa(nfa a);
 		virtual nfa get_nfa();
 		virtual string to_regex();
+
+		virtual set<int> controllable_predecessor_states(set<int> &states);
+
 };
 
 
