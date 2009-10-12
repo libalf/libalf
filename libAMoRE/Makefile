@@ -11,9 +11,10 @@ LIBDIR ?= ${PREFIX}/lib
 DOCDIR ?= ${PREFIX}/share/doc
 HEADERDIR ?= ${PREFIX}/include
 
-LOCALCHANGES := $(shell test "`svn status | wc -c`" != "0" && echo "-LocalChanges")
-SVNREVISION := $(shell LC_ALL=POSIX svn info | awk '/^Revision:/ {print $$2}')
-VERSION ?= libalf-svn-r${SVNREVISION}${LOCALCHANGES}
+#LOCALCHANGES := $(shell test "`svn status | wc -c`" != "0" && echo "-LocalChanges")
+#SVNREVISION := $(shell LC_ALL=POSIX svn info | awk '/^Revision:/ {print $$2}')
+#VERSION ?= libalf-svn-r${SVNREVISION}${LOCALCHANGES}
+VERSION := libAMoRE++-branch-v0.1
 
 CFLAGS += -DDEBUG -DJAVAEXCEPT -DLIBAMORE -DUNIX -DLINUX -DBIT32
 CFLAGS += -DVERSION="\"${VERSION}\""

@@ -1,6 +1,7 @@
-/* $Id$
+/* $Id: amore_alf_glue.h 992 2009-10-12 18:59:11Z davidpiegdon $
  * vim: fdm=marker
  *
+ * This file is part of libalf.
  * glue between libalf and libAMoRE++
  * http://libalf.informatik.rwth-aachen.de/
  *
