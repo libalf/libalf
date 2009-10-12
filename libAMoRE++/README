@@ -11,7 +11,7 @@ http://libalf.informatik.rwth-aachen.de/
 libAMoRE++ is a C++ interface to libAMoRE, implementing several extensions
 and additional functionality. most notably:
 
-	* evaluating runs on automata
+	* evaluating runs on automata, calculating predecessor and successor states
 	* creating residual language automata
 	* parsing and dumping automata to binary data
 	  (libalf provides a human-readable converter)
