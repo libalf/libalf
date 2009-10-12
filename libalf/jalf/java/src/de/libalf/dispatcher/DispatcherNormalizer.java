@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with libalf.  If not, see <http://www.gnu.org/licenses/>.
  *
- * (c) 2009 by Stefan Schulz
+ * (c) 2009 by Stefan Schulz, Chair of Computer Science 2 and 7, RWTH-Aachen
  *
  */
 

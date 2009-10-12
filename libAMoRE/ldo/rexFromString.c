@@ -1,7 +1,7 @@
 /*
  *  Copyright (c) ?    - 2000 Lehrstuhl fuer Informatik VII, RWTH Aachen
  *  Copyright (c) 2000 - 2002 Burak Emir
- *  Copyright (c) 2009 - David R. Piegdon <david-i2@piegdon.de>
+ *  Copyright (c) 2008, 2009 - David R. Piegdon <david-i2@piegdon.de>, Chair of Computer Science 2 and 7, RWTH-Aachen
  *  This file is part of the libAMoRE library.
  *
  *  libAMoRE is  free software; you can redistribute it and/or

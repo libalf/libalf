@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with libalf.  If not, see <http://www.gnu.org/licenses/>.
  *
- * (c) 2009 by Daniel Neider, i7 Informatik RWTH-Aachen
+ * (c) 2009 by Daniel Neider, Chair of Computer Science 2 and 7, RWTH-Aachen
  *     <neider@automata.rwth-aachen.de>
  *
  */

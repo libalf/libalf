@@ -3,7 +3,7 @@
  *
  * MiniSat v1.14 + Changes:
  * changes are indent, format of sourcecode and namespaces
- * 2009-03-21 David R. Piegdon <david-i2@piegdon.de>
+ * 2009-03-21 David R. Piegdon <david-i2@piegdon.de>, Chair of Computer Science 2 and 7, RWTH-Aachen
  */
 
 /******************************************************************************************[Sort.h]
