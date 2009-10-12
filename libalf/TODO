@@ -11,9 +11,9 @@ TODO (priority ordered)
 
 - set_alphatbet_size
 
-- DPKG krams / Makefile (auch fuer jalf)
+- create debian packages (including jalf)
 
-- KVtree: implement
+- KVtree: fix/implement new
 
 - angluin: mealy-machine
 

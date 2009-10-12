@@ -26,7 +26,7 @@
 #ifndef __amore_alf_glue_h__
 # define __amore_alf_glue_h__
 
-// this is the glue between libAMoRE(++) and libalf,
+// this is the glue between libAMoRE++ and libalf,
 // it gives everything to teach algorithms from automata (teacher and oracle)
 
 #include <amore++/finite_automaton.h>
