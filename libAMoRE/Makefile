@@ -1,5 +1,8 @@
-#  Makefile         libAMoRE
-#  2008, 2009 David R. Piegdon <david-i2@piegdon.de>
+#
+#  libAMoRE Makefile
+#
+#  Copyright (c) 2008, 2009 - David R. Piegdon <david-i2@piegdon.de>
+#
 ############################################################################
 
 PREFIX ?= /usr/local
