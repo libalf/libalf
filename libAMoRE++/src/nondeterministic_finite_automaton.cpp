@@ -295,19 +295,14 @@ abort:		;
 
 	return ret;
 }}}
-set<int> nondeterministic_finite_automaton::controllable_predecessor_states(set<int> &states)
+set<int> nondeterministic_finite_automaton::controllable_predecessor_states(set<set<int> > &states)
 // CPre(states) for antichain algorithms
 {
 	set<int> ret;
 
 	// (inverted) epsilon-closure?
 
-	for(unsigned int i = 0; i < nfa_p->highest_state; i++) {
-		if(states.find(i) != states.end())
-			continue;
-		
 #warning FIXME
-	}
 
 	// (inverted) epsilon-closure?
 
