@@ -113,12 +113,9 @@ nondeterministic_finite_automaton::nondeterministic_finite_automaton(const char 
 		nfa_p = NULL;
 	} else {
 		nfa_p = rex2nfa(r);
-		if(!nfa_p) {
-			success = false;
-		} else {
-			freerex(r);
-			success = true;
-		}
+		freerex(r);
+		free(r);
+		success = (nfa_p != NULL);
 	}
 }}}
 nondeterministic_finite_automaton::nondeterministic_finite_automaton(int alphabet_size, const char *rex, bool &success)
@@ -136,11 +133,8 @@ nondeterministic_finite_automaton::nondeterministic_finite_automaton(int alphabe
 	} else {
 		nfa_p = rex2nfa(r);
 		freerex(r);
-		if(!nfa_p) {
-			success = false;
-		} else {
-			success = true;
-		}
+		free(r);
+		success = (nfa_p != NULL);
 	}
 }}}
 
@@ -775,6 +769,7 @@ string nondeterministic_finite_automaton::to_regex()
 	}
 
 	freerex(r);
+	free(r);
 
 	return s;
 }}}
