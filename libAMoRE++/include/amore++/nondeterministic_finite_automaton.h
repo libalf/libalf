@@ -131,8 +131,6 @@ class nondeterministic_finite_automaton : public finite_automaton {
 		virtual nfa get_nfa();
 		virtual string to_regex();
 
-		virtual set<int> controllable_predecessor_states(set<set<int> > &states);
-
 };
 
 

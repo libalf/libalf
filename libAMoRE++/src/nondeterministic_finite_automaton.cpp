@@ -295,19 +295,6 @@ abort:		;
 
 	return ret;
 }}}
-set<int> nondeterministic_finite_automaton::controllable_predecessor_states(set<set<int> > &states)
-// CPre(states) for antichain algorithms
-{
-	set<int> ret;
-
-	// (inverted) epsilon-closure?
-
-#warning FIXME
-
-	// (inverted) epsilon-closure?
-
-	return ret;
-}
 
 unsigned int nondeterministic_finite_automaton::get_alphabet_size()
 {{{
