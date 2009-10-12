@@ -10,6 +10,8 @@ all:
 	+make -C finite-automata-tool
 
 clean:
+	-rm *.tar.bz2
+	-rm -Rf release
 	+make -C libAMoRE clean
 	+make -C libAMoRE++ clean
 	+make -C liblangen clean
