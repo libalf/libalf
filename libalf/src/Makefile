@@ -35,10 +35,10 @@ install: libalf.so
 	mkdir -p ${PREFIX}/lib/
 	cp libalf.so ${PREFIX}/lib/
 	chmod 755 ${PREFIX}/lib/libalf.so
-	-/sbin/ldconfig
+	-test `id -u` -eq 0 && /sbin/ldconfig
 
 uninstall:
 	echo removing libalf library from ${PREFIX}/lib/
 	rm ${PREFIX}/lib/libalf.so
-	-/sbin/ldconfig
+	-test `id -u` -eq 0 && /sbin/ldconfig
 
