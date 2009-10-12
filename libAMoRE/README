@@ -23,6 +23,8 @@ most notable changes:
 	* fixed a bug in clonenfa (some pointers were cloned instead of
 	  the referenced data)
 
+	* fixed a memory-leak in ldo/rexFromString.c (pinp->buf->info)
+
 	* rename of some fields in nfauto and dfauto
 	  (highest_state and alphabet_size)
 
@@ -80,4 +82,5 @@ most notable things NOT changed:
 	  but have not fixed it as i do not know if this behaviour is expected
 	  internally. so to get rid of an nfauto, you have to freenfa() it and
 	  then, if you're working with a pointer (which is reasonable), free it.
+	  the same goes for regex and freerex().
 

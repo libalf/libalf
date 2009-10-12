@@ -401,6 +401,7 @@ regex rexFromString(int alphabet_size, char *str)
 			isreg = FALSE;
 	re->grex = (!isreg);
 
+	free(pinp->buf->info);
 	freebuf();
 	return re;
 }
