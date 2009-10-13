@@ -16,8 +16,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with liblangen.  If not, see <http://www.gnu.org/licenses/>.
  *
- * (c) 2008,2009 by David R. Piegdon, Chair of Computer Science 2 and 7, RWTH-Aachen
- *        <david-i2@piegdon.de>
+ * (c) 2008,2009 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
+ *           and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
+ * Author: David R. Piegdon <david-i2@piegdon.de>
  *
  */
 
