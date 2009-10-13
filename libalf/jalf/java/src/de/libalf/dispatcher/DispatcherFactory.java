@@ -14,7 +14,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with libalf.  If not, see <http://www.gnu.org/licenses/>.
  *
- * (c) 2009 by Stefan Schulz, Chair of Computer Science 2 and 7, RWTH-Aachen
+ * (c) 2009 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
+ *           and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
+ * Author: Stefan Schulz
  *
  */
 
