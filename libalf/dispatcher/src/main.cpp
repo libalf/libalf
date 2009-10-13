@@ -120,8 +120,11 @@ char * dispatcher_version()
 		snprintf(version, 1023, "ALF dispatcher version %s\n"
 					"%s\n"
 					"dispatcher protocol version %d\n"
-					"(c) 2008/2009 by David R. Piegdon, Stefan Schulz, Daniel Neider, Carsten Kern and Stefan Rieger\n"
-					"    http://www-i2.cs.rwth-aachen.de/\n",
+
+					"(c) 2008,2009 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University\n"
+					"          and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University"
+					"Authors: Carsten Kern, Daniel Neider, David R. Piegdon, Stefan Rieger and Stefan Schulz\n"
+					"http://libalf.informatik.rwth-aachen.de/\n",
 					VERSION,
 					libalf::libalf_version(),
 					DISPATCHER_PROTOCOL_VERSION);
