@@ -2,7 +2,7 @@
 
 VERSION="v0.1"
 
-svn export https://svn-i2.informatik.rwth-aachen.de/repos/libalf/trunk release
+svn export https://svn-i2.informatik.rwth-aachen.de/repos/libalf/tags/${VERSION} release
 
 cd release
 
