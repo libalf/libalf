@@ -711,7 +711,7 @@ add counterexample (LEARNING_ALGORITHM_ADD_COUNTEREXAMPLE)
 parameters: 2
 	size of word
 	word[]
-server returns: nothing.
+server returns: nothing. (object-command fails if add_counterexample fails.)
 
 
 check if algorithm supports sync (LEARNING_ALGORITHM_SUPPORTS_SYNC)

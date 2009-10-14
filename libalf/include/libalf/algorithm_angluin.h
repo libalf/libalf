@@ -258,21 +258,21 @@ class angluin_table : public learning_algorithm<answer> {
 			return initialized && columns_filled() && is_closed() && is_consistent();
 		}}}
 
-		virtual void add_counterexample(list<int> word)
+		virtual bool add_counterexample(list<int> word)
 		{{{
 			typename table::iterator ti;
 			list<int>::iterator wi;
 
 			if(this->my_knowledge == NULL) {
 				(*this->my_logger)(LOGGER_ERROR, "angluin_table: add_counterexample() without knowledgebase!\n");
-				return;
+				return false;
 			}
 
 			ti = search_tables(word);
 			if(ti != lower_table.end()) {
 				string s = word2string(word);
-				(*this->my_logger)(LOGGER_WARN, "angluin_table: angluin_table: you are trying to add a counterexample (%s) which is already contained in the table. trying to ignore...\n", s.c_str());
-				return;
+				(*this->my_logger)(LOGGER_ERROR, "angluin_table: add_counterexample(): you are trying to add a counterexample (%s) which is already contained in the table. trying to ignore...\n", s.c_str());
+				return false;
 			}
 
 			// check for increase in alphabet size
@@ -285,7 +285,7 @@ class angluin_table : public learning_algorithm<answer> {
 				}
 			}
 			if(asize_changed) {
-				(*this->my_logger)(LOGGER_ALGORITHM, "angluin_table: counterexample: implicit increase of alphabet_size from %d to %d.\nNOTE: it is possible that the next hypothesis does not increase in state-count.\n", this->get_alphabet_size(), new_asize);
+				(*this->my_logger)(LOGGER_ALGORITHM, "angluin_table: add_counterexample(): implicit increase of alphabet_size from %d to %d.\nNOTE: it is possible that the next hypothesis does not increase in state-count.\n", this->get_alphabet_size(), new_asize);
 				increase_alphabet_size(new_asize);
 			}
 
@@ -294,6 +294,8 @@ class angluin_table : public learning_algorithm<answer> {
 				add_word_to_upper_table(word);
 				word.pop_back();
 			}
+
+			return true;
 		}}}
 
 		virtual list< list<int> > *get_columns()
@@ -1377,21 +1379,21 @@ class angluin_col_table : public angluin_simple_table<answer> {
 			this->set_knowledge_source(base);
 		}}}
 
-		virtual void add_counterexample(list<int> word)
+		virtual bool add_counterexample(list<int> word)
 		{{{
 			typename vector< list<int> >::iterator ci;
 			list<int>::iterator wi;
 
 			if(this->my_knowledge == NULL) {
 				(*this->my_logger)(LOGGER_ERROR, "angluin_col_table: add_counterexample() without knowledgebase!\n");
-				return;
+				return false;
 			}
 
 			ci = this->search_columns(word);
 			if(ci != this->column_names.end()) {
 				string s = word2string(word);
-				(*this->my_logger)(LOGGER_WARN, "angluin_col_table: angluin_table: you are trying to add a counterexample (%s) which is already contained in the table. trying to ignore...\n", s.c_str());
-				return;
+				(*this->my_logger)(LOGGER_ERROR, "angluin_col_table: add_counterexample(): you are trying to add a counterexample (%s) which is already contained in the table. trying to ignore...\n", s.c_str());
+				return false;
 			}
 
 			// check for increase in alphabet size
@@ -1404,7 +1406,7 @@ class angluin_col_table : public angluin_simple_table<answer> {
 				}
 			}
 			if(asize_changed) {
-				(*this->my_logger)(LOGGER_ALGORITHM, "angluin_col_table: counterexample: implicit increase of alphabet_size from %d to %d.\nNOTE: it is possible that the next hypothesis does not increase in state-count.\n", this->get_alphabet_size(), new_asize);
+				(*this->my_logger)(LOGGER_ALGORITHM, "angluin_col_table: add_counterexample(): increase of alphabet_size from %d to %d.\nNOTE: it is possible that the next hypothesis does not increase in state-count.\n", this->get_alphabet_size(), new_asize);
 				this->increase_alphabet_size(new_asize);
 			}
 
@@ -1415,6 +1417,7 @@ class angluin_col_table : public angluin_simple_table<answer> {
 				word.pop_front();
 			}
 
+			return true;
 		}}}
 
 	protected:

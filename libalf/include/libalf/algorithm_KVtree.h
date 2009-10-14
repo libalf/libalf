@@ -254,20 +254,20 @@ class KVtree: public learning_algorithm<answer> {
 		{{{
 			return (pending.size() == 0);
 		}}}
-		virtual void add_counterexample(list<int> word)
+		virtual bool add_counterexample(list<int> word)
 		{
 			if(this->my_knowledge == NULL) {
 				(*this->my_logger)(LOGGER_ERROR, "KVtree: add_counterexample() without knowledgebase!\n");
-				return;
+				return false;
 			}
 
 			if(!oh_valid) {
 				(*this->my_logger)(LOGGER_ERROR, "KVtree: trying to give counterexample but there is no old hypothesis! trying to ignore.\n");
-				return;
+				return false;
 			}
 			if(pending.size() != 0) {
 				(*this->my_logger)(LOGGER_ERROR, "KVtree: trying to give counterexample while I am sifting down an old one. trying to ignore.\n");
-				return;
+				return false;
 			}
 
 			// check for increase in alphabet size
@@ -288,6 +288,9 @@ class KVtree: public learning_algorithm<answer> {
 			// prepare sifting of counterexample
 			
 
+
+
+			return true;
 		}
 
 	protected:

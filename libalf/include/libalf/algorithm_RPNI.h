@@ -294,9 +294,10 @@ class RPNI : public learning_algorithm<answer> {
 		}}}
 
 		// stubs for counterexample will throw a warning to the logger
-		virtual void add_counterexample(list<int>)
+		virtual bool add_counterexample(list<int>)
 		{{{
 			(*this->my_logger)(LOGGER_ERROR, "RPNI does not support counter-examples, as it is an offline-algorithm. please add the counter-example directly to the knowledgebase and rerun the algorithm.\n");
+			return false;
 		}}}
 
 	protected:

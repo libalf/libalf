@@ -276,8 +276,10 @@ bool co_learning_algorithm::handle_command(int command, basic_string<int32_t> & 
 				return this->sv->send_errno(ERR_BAD_PARAMETERS);
 			if(si != command_data.end())
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
-			o->add_counterexample(word);
-			return this->sv->send_errno(ERR_SUCCESS);
+			if(o->add_counterexample(word))
+				return this->sv->send_errno(ERR_SUCCESS);
+			else
+				return this->sv->send_errno(ERR_COMMAND_FAILED);
 		case LEARNING_ALGORITHM_SUPPORTS_SYNC:
 			if(command_data.size() != 0)
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);

@@ -376,16 +376,23 @@ deserialization_failed:
 			return initialized && columns_filled() && is_closed() && is_consistent();
 		}}}
 
-		virtual void add_counterexample(list<int> w)
+		virtual bool add_counterexample(list<int> w)
 		{{{
 			if(this->my_knowledge == NULL) {
 				(*this->my_logger)(LOGGER_ERROR, "NLstar_table: add_counterexample() without knowledgebase!\n");
-				return;
+				return false;
 			}
 			// add counterexample and all its suffixes to the columns
 			int sigma = -1;
+			unsigned int wsize = w.size();
 			while(!w.empty()) { // epsilon is always in table
 				if(!add_column(w)) {
+					if(wsize ==  w.size()) {
+						string s;
+						s = word2string(w);
+						(*this->my_logger)(LOGGER_ERROR, "NLstar_table: add_counterexample(): you are trying to add a counterexample (%s) which is already contained in the table. trying to ignore...\n", s.c_str());
+						return false;
+					}
 					// if a prefix is already in, we dont need
 					// to check the other. column_names is prefix-closed.
 					break;
@@ -395,9 +402,11 @@ deserialization_failed:
 				w.pop_front();
 			}
 			if(sigma+1 > this->get_alphabet_size()) {
-				(*this->my_logger)(LOGGER_ALGORITHM, "NLstar_table: counterexample: implicit increase of alphabet_size from %d to %d.\n", this->get_alphabet_size(), sigma+1);
+				(*this->my_logger)(LOGGER_ALGORITHM, "NLstar_table: add_counterexample(): implicit increase of alphabet_size from %d to %d.\n", this->get_alphabet_size(), sigma+1);
 				increase_alphabet_size(sigma+1);
 			}
+
+			return true;
 		}}}
 
 	protected:
