@@ -369,6 +369,12 @@ public abstract class JNILearningAlgorithm extends JNIObject implements
 	}
 
 	@Override
+	public JNIBufferedLogger get_logger() {
+		check();
+		return this.logger;
+	}
+
+	@Override
 	public void set_normalizer(Normalizer normalizer) throws AlfException {
 		check();
 		if (normalizer == null) {

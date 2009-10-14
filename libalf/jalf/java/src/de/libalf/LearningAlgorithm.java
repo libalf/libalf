@@ -226,6 +226,8 @@ public interface LearningAlgorithm extends LibALFObject {
 	 */
 	public void set_logger(Logger logger);
 
+	public Logger get_logger();
+
 	public void remove_logger() throws AlfException;
 
 	/**
