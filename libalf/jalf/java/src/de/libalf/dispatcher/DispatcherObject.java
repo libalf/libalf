@@ -144,4 +144,9 @@ public abstract class DispatcherObject implements LibALFObject, Sendable {
 	public String toString() {
 		return super.toString() + "[type=" + this.objType + ", id=" + this.id + "]";
 	}
+
+	@Override
+	public DispatcherFactory getFactory() {
+		return this.factory;
+	}
 }

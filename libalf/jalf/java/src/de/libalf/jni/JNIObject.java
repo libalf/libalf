@@ -80,6 +80,11 @@ public abstract class JNIObject implements LibALFObject {
 	protected long getPointer() {
 		return this.pointer;
 	}
+	
+	@Override
+	public JNIFactory getFactory() {
+		return new JNIFactory();
+	}
 
 	/**
 	 * Returns the LibALF and JNI binding versions.

@@ -36,6 +36,11 @@ import de.libalf.Normalizer;
  */
 public class JNIFactory implements LibALFFactory {
 	private static final long serialVersionUID = 1L;
+	
+	@Override
+	public JNIFactory getFactory() {
+		return new JNIFactory();
+	}
 
 	@Override
 	public JNIKnowledgebase createKnowledgebase(Object... args) {

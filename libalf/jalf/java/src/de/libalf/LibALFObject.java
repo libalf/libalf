@@ -43,4 +43,6 @@ public interface LibALFObject extends Serializable {
 	 * <p>After an object is dead, no more operations on this object can be performed.</p>
 	 */
 	public void destroy();
+
+	public LibALFFactory getFactory();
 }

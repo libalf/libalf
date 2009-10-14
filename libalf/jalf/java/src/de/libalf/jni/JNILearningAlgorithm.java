@@ -407,7 +407,7 @@ public abstract class JNILearningAlgorithm extends JNIObject implements
 	@Override
 	public JNINormalizer get_normalizer() throws AlfException {
 		check();
-		return normalizer;
+		return this.normalizer;
 	}
 
 	@Override

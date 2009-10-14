@@ -37,9 +37,6 @@ import de.libalf.LibALFFactory;
 import de.libalf.Logger;
 import de.libalf.Normalizer;
 import de.libalf.Knowledgebase.Acceptance;
-import de.libalf.jni.JNIAlgorithmDeLeTe2;
-import de.libalf.jni.JNIBufferedLogger;
-import de.libalf.jni.JNIKnowledgebase;
 
 public class DispatcherFactory implements LibALFFactory {
 	private static final long serialVersionUID = 1L;
@@ -338,6 +335,11 @@ public class DispatcherFactory implements LibALFFactory {
 
 	////////////////////////////////////////////////////////////////
 	// FACTORY STUFF
+	
+	@Override
+	public DispatcherFactory getFactory() {
+		return this;
+	}
 
 	@Override
 	public DispatcherLogger createLogger(Object... args) {

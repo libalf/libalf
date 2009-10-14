@@ -270,7 +270,9 @@ public class BasicAutomaton implements Conjecture {
 		String dot = "digraph Automaton {" + lineSeparator;
 		dot += "  rankdir = LR;" + lineSeparator;
 		for (int i = 0; i < numberOfStates; i++)
-			dot += "  " + i + " [shape="
+			dot += "  " + i + " ["
+					+ (initialStates.contains(i) ? "style=filled," : "")
+					+ "shape="
 					+ (finalStates.contains(i) ? "double" : "")
 					+ "circle, label=\"" + i + "\"];" + lineSeparator;
 		for (BasicTransition t : transitions)
