@@ -236,6 +236,11 @@ class learning_algorithm {
 		{{{
 			conjecture * ret = NULL;
 
+			if(my_knowledge == NULL) {
+				(*my_logger)(LOGGER_ERROR, "learning_algorithm::advance(): no knowledgebase was set!\n");
+				return false;
+			}
+
 			start_timing();
 
 			if(complete()) {

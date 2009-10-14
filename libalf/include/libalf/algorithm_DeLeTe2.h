@@ -303,6 +303,15 @@ class DeLeTe2 : public learning_algorithm<answer> {
 		virtual conjecture * derive_conjecture()
 		{{{
 			simple_automaton *ret = new simple_automaton;
+			if(this->my_knowledge->count_answers() == 0) {
+				(*this->my_logger)(LOGGER_WARN, "DeLeTe2: you started an offline-algorithm with an empty knowledgebase. that does not make very much sense, does it?\n");
+				// return automaton for empty language
+				ret->alphabet_size = 1;
+				ret->state_count = 1;
+				ret->initial.insert(0);
+				ret->valid = true;
+				return ret;
+			}
 
 			if(this->get_alphabet_size() != this->my_knowledge->get_alphabet_size())
 				(*this->my_logger)(LOGGER_WARN, "DeLeTe2: differing alphabet size between this (%d) and knowledgebase (%d)!\n",
