@@ -49,7 +49,8 @@ co_learning_algorithm::co_learning_algorithm(enum libalf::learning_algorithm<ext
 
 	switch(alg) {
 		default:
-			this->sv->clog("somehow bad request reached co_learning_algorithm constructor (bad type of learning algorithm: %d). killing client.\n", (int)alg);
+			// we can't use this->sv->clog here, as sv is not initialized yet.
+			fprintf(stderr, "somehow bad request reached co_learning_algorithm constructor (bad type of learning algorithm: %d). killing client.\n", (int)alg);
 			exit(-1);
 
 		case learning_algorithm<extended_bool>::ALG_ANGLUIN:
@@ -67,7 +68,6 @@ co_learning_algorithm::co_learning_algorithm(enum libalf::learning_algorithm<ext
 		case learning_algorithm<extended_bool>::ALG_NL_STAR:
 			o = new NLstar_table<extended_bool>(NULL, NULL, alphabet_size);
 			break;
-
 		case learning_algorithm<extended_bool>::ALG_BIERMANN:
 			o = new MiniSat_biermann<extended_bool>(NULL, NULL, alphabet_size);
 			break;

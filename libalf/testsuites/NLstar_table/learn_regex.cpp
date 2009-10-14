@@ -100,8 +100,11 @@ int main(int argc, char**argv)
 
 
 	// create NLstar table and teach it the automaton
-	NLstar_table<ANSWERTYPE> ot(&knowledge, &log, alphabet_size);
+	NLstar_table<ANSWERTYPE> ot(NULL, NULL, alphabet_size);
 	finite_automaton * hypothesis = NULL;
+
+	ot.set_knowledge_source(&knowledge);
+	ot.set_logger(&log);
 
 	for(iteration = 1; iteration <= 100; iteration++) {
 		int c = 'a';

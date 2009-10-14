@@ -35,7 +35,9 @@
 #include <stdlib.h>
 
 #include "protocol.h"
-#include "defs.h"
+
+#include <libalf/learning_algorithm.h>
+//#include <libalf/normalizer.h>
 
 using namespace std;
 
@@ -268,7 +270,7 @@ int main()
 	cmd.push_back(CLCMD_CREATE_OBJECT);
 	cmd.push_back(OBJ_LEARNING_ALGORITHM);
 	cmd.push_back(2);
-	cmd.push_back(ALG_ANGLUIN);
+	cmd.push_back(libalf::learning_algorithm<bool>::ALG_NL_STAR);
 	cmd.push_back(2);
 	send_blob(sock, cmd);
 
