@@ -83,7 +83,7 @@ public abstract class JNIObject implements LibALFObject {
 	
 	@Override
 	public JNIFactory getFactory() {
-		return new JNIFactory();
+		return JNIFactory.STATIC;
 	}
 
 	/**

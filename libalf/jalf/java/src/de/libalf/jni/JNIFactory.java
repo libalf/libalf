@@ -34,12 +34,14 @@ import de.libalf.Normalizer;
  *         University
  * @version 0.1
  */
-public class JNIFactory implements LibALFFactory {
+public enum JNIFactory implements LibALFFactory {
+	STATIC;
+	
 	private static final long serialVersionUID = 1L;
 	
 	@Override
 	public JNIFactory getFactory() {
-		return new JNIFactory();
+		return STATIC;
 	}
 
 	@Override
