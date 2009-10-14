@@ -1,23 +1,15 @@
 /*
- * This file is part of libalf.
- *
- * libalf is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * libalf is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with libalf.  If not, see <http://www.gnu.org/licenses/>.
- *
- * (c) 2009 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
- *           and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
- * Author: Stefan Schulz
- *
+ * This file is part of libalf. libalf is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the License,
+ * or (at your option) any later version. libalf is distributed in the hope that
+ * it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. You should have received a
+ * copy of the GNU Lesser General Public License along with libalf. If not, see
+ * <http://www.gnu.org/licenses/>. (c) 2009 Lehrstuhl Softwaremodellierung und
+ * Verifikation (I2), RWTH Aachen University and Lehrstuhl Logik und Theorie
+ * diskreter Systeme (I7), RWTH Aachen University Author: Stefan Schulz
  */
 
 package de.libalf.dispatcher;
@@ -181,12 +173,16 @@ enum DispatcherConstants implements Sendable {
 	// enum algorithm
 	ALG_ANGLUIN(1),
 	ALG_ANGLUIN_COLUMN(2),
-	ALG_KVTREE(3),
-	ALG_BIERMANN(4),
-	ALG_BIERMANN_ANGLUIN(5),
-	ALG_NL_STAR(6),
-	ALG_RPNI(7),
-	ALG_DELETE2(8),
+	ALG_RVA(3),
+	ALG_KVTREE(4),
+	ALG_NL_STAR(5),
+	ALG_BIERMANN_ANGLUIN(6),
+
+	ALG_BIERMANN(7),
+	ALG_RPNI(8),
+	ALG_DELETE2(9),
+	ALG_TB_INFERENCE(10),
+	ALG_HSI(11),
 
 	// enum acceptance
 	ACCEPTANCE_REJECT(0),
