@@ -178,14 +178,16 @@ string finite_automaton::generate_dotfile()
 		ret += ";\n";
 
 	// default
-	ret += "\tnode [shape=circle, style=\"\", color=black];";
-	for(int s = 0; s < state_count; s++){
-		if(final.find(s) == final.end()) {
-			snprintf(buf, 128, " q%d", s);
-			ret += buf;
+	if(final.size() < state_count) {
+		ret += "\tnode [shape=circle, style=\"\", color=black];";
+		for(int s = 0; s < state_count; s++){
+			if(final.find(s) == final.end()) {
+				snprintf(buf, 128, " q%d", s);
+				ret += buf;
+			}
 		}
+		ret += ";\n";
 	}
-	ret += ";\n";
 
 	// add non-visible states for arrows to initial states
 	header_written = false;
