@@ -19,9 +19,19 @@ SONAME=libalf
 
 OBJECTS=alf.o alphabet.o answer.o conjecture.o basic_string.o logger.o minisat_solver.o normalizer_msc.o statistics.o
 
-all:	libalf.so
+ifeq (${OS}, Windows_NT)
+  LDFLAGS += -lws2_32
+  TARGET=libalf.dll
+else
+  TARGET=libalf.so
+endif
+
+all:	${TARGET}
 
 libalf.so: ${OBJECTS}
+	g++ $(OBJECTS) $(LDFLAGS) -o $@ 
+
+libalf.dll: ${OBJECTS}
 	g++ $(OBJECTS) $(LDFLAGS) -o $@ 
 
 libalf.a: ${OBJECTS}

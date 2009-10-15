@@ -13,25 +13,22 @@
 # - set JAVA_INCLUDE (at the top of this file) to your JDK include path
 # - just run "make windows"
 
+LDFLAGS += -L${PREFIX}/lib -lalf
+
 ifeq (${OS}, Windows_NT)
   JAVA_INCLUDE ?= c:\Progra~1\Java\JDK16~1.0_1\include
 
   CPPFLAGS += -I${JAVA_INCLUDE}/win32
 
-  LDFLAGS = -static -lalf -dynamic -L${PREFIX}/lib
   LDFLAGS += -lws2_32
-  LDFLAGS += -L../../src
 
   TARGET=jalf.dll
-  
 else
   # assuming linux
   #JAVA_INCLUDE ?= /usr/lib/jvm/java-6-sun-1.6.0.14/include
   JAVA_INCLUDE ?= ${JAVA_HOME}/include
 
   CPPFLAGS += -I${JAVA_INCLUDE}/linux
-
-  LDFLAGS += -L${PREFIX}/lib -lalf
 
   TARGET=libjalf.so
 endif
@@ -48,8 +45,13 @@ libjalf.so: test_java_dir ${OBJECTS}
 
 jalf.dll: ${OBJECTS}
 	make -C ../../src libalf.a
+	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} ${LDFLAGS} -static -lalf -L../../src -o jalf.dll -Wl,--kill-at
+#	                                                                                         ^^^^^^^^^^^^^ needed for JNI-DLL (http://www.mingw.org/wiki/JNI-MinGW-DLL)
+
+jalf.dll-DYNAMIC: ${OBJECTS}
+	make -C ../../src libalf.dll
 	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} ${LDFLAGS} -o $@ -Wl,--kill-at
-#	                                                         ^^^^^^^^^^^^^ sonst klappt JNI-DLL nicht (http://www.mingw.org/wiki/JNI-MinGW-DLL)
+#	                                                         ^^^^^^^^^^^^^ needed for JNI-DLL (http://www.mingw.org/wiki/JNI-MinGW-DLL)
 
 test_java_dir:
 	@echo
