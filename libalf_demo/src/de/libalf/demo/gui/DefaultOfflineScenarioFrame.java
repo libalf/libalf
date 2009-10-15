@@ -34,7 +34,7 @@ import de.libalf.demo.Sample;
 import de.libalf.demo.Statistics;
 import de.libalf.demo.Scenario;
 import de.libalf.demo.Tools;
-import de.libalf.demo.gui.OnlineSourceCodeLabel.State;
+import de.libalf.demo.gui.SourceCodeLabel.State;
 import de.libalf.dispatcher.DispatcherFactory;
 import de.libalf.jni.JNIFactory;
 import dk.brics.automaton.Automaton;
@@ -198,11 +198,11 @@ public class DefaultOfflineScenarioFrame extends JInternalFrame {
 		addInternalFrameListener(new InternalFrameAdapter() {
 			public void internalFrameClosed(InternalFrameEvent e) {
 				try {
-				// Destroy libalf
-				if (algorithm != null)
-					algorithm.destroy();
-				if (knowledgebase != null)
-					knowledgebase.destroy();
+					// Destroy libalf
+					if (algorithm != null)
+						algorithm.destroy();
+					if (knowledgebase != null)
+						knowledgebase.destroy();
 				} catch (AlfException e1) {
 				}
 			}
@@ -218,7 +218,7 @@ public class DefaultOfflineScenarioFrame extends JInternalFrame {
 			LibALFFactory factory;
 			if (scenario.isJniConnection()) {
 
-				factory = new JNIFactory();
+				factory = JNIFactory.STATIC;
 				log("JNI factory created,");
 			} else {
 				factory = new DispatcherFactory(scenario.getServer(), scenario

@@ -49,8 +49,8 @@ public class Scenario implements Serializable {
 	}
 
 	public Scenario() {
-		this("", "libalf.informatik.rwth-aachen.de", LIBALF_DEFAULT_PORT, 2, Algorithm.ANGLUIN, null,
-				false, false, new LinkedList<Filter>(),
+		this("", "libalf.informatik.rwth-aachen.de", LIBALF_DEFAULT_PORT, 2,
+				Algorithm.ANGLUIN, null, false, true, new LinkedList<Filter>(),
 				new LinkedList<Sample>(), new Statistics());
 	}
 

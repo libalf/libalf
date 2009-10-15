@@ -34,7 +34,7 @@ import de.libalf.LibALFFactory;
 import de.libalf.demo.Statistics;
 import de.libalf.demo.Scenario;
 import de.libalf.demo.Tools;
-import de.libalf.demo.gui.OnlineSourceCodeLabel.State;
+import de.libalf.demo.gui.SourceCodeLabel.State;
 import de.libalf.dispatcher.DispatcherFactory;
 import de.libalf.jni.JNIFactory;
 import dk.brics.automaton.Automaton;
@@ -223,7 +223,7 @@ public class DefaultOnlineScenarioFrame extends JInternalFrame {
 			LibALFFactory factory;
 			if (scenario.isJniConnection()) {
 
-				factory = new JNIFactory();
+				factory = JNIFactory.STATIC;
 				log("JNI factory created,");
 			} else {
 				factory = new DispatcherFactory(scenario.getServer(), scenario

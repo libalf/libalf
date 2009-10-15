@@ -11,6 +11,7 @@ import java.io.ObjectOutputStream;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
@@ -83,7 +84,6 @@ public class ScenarioEditor extends JDialog {
 
 			// JNI Radiobutton
 			JRadioButton jni = new JRadioButton("JNI");
-			jni.setEnabled(false);
 			connectivityPanel.add(jni);
 			bg.add(jni);
 
@@ -202,7 +202,6 @@ public class ScenarioEditor extends JDialog {
 		editor.setText(text);
 		editor.setOpaque(false);
 		editor.setEditable(false);
-		topPanel.add(editor, BorderLayout.SOUTH);
 		editor.addHyperlinkListener(new HyperlinkListener() {
 			public void hyperlinkUpdate(HyperlinkEvent arg0) {
 				if (arg0.getEventType().equals(
@@ -216,10 +215,24 @@ public class ScenarioEditor extends JDialog {
 				}
 			}
 		});
-
+		
+		/*
+		 * Init code window panel
+		 */
+		JCheckBox initCodeBox = new JCheckBox("Show code", false);
+		
+		/*
+		 * More options panel
+		 */
+		JPanel moreOptionsPanel = new JPanel(new BorderLayout());
+		topPanel.add(moreOptionsPanel, BorderLayout.SOUTH);
+		moreOptionsPanel.add(editor, BorderLayout.WEST);
+		moreOptionsPanel.add(initCodeBox, BorderLayout.EAST);
+		
 		/*
 		 * Algorithm Details Panel
-		 */{
+		 */
+		{
 			algorithmDetailsPanel = new JPanel(new BorderLayout());
 			algorithmDetailsPanel.setBorder(new TitledBorder(
 					"Algorithm Details"));
