@@ -308,40 +308,78 @@ class basic_biermann : public learning_algorithm<answer> {
 //			if(mdfa_size < 1)
 //				mdfa_size = 1;
 			mdfa_size = 1;
-			// FIXME: use binary search instead
-			while(!solved) {
-				(*this->my_logger)(LOGGER_INFO, "biermann: trying to solve CSP with %d states.\n", mdfa_size);
-				old_solution = solution;
-
-				if( solve_constraints() ) {
-					(*this->my_logger)(LOGGER_INFO, "biermann: satisfiable.\n");
-					if(failed_before) {
-						// we found the minimal solution
-						solved = true;
-					} else {
-						success_before = true;
-						if(mdfa_size == 1) {
-							solved = true;
-						} else {
-							old_size = mdfa_size;
-							mdfa_size--;
+			if(constraints.size() < 1) {
+				(*this->my_logger)(LOGGER_INFO, "biermann: skipping CSP solver.\n", mdfa_size);
+				// catch case that CSP-solver does not know how to handle
+				bool acceptance = false;
+				bool answered = false;
+				if(this->my_knowledge->count_answers() > 0) {
+					// there will be exactly one answer in the knowledgebase.
+					// we'll just get it and create a one-state-automaton
+					typename knowledgebase<answer>::iterator ki;
+					for(ki = this->my_knowledge->begin(); ki != this->my_knowledge->end(); ki++) {
+						if(ki->is_answered()) {
+							answered = true;
+							acceptance = ki->get_answer();
+							break;
 						}
 					}
-				} else {
-					(*this->my_logger)(LOGGER_INFO, "biermann: unsatisfiable.\n");
-					if(success_before) {
-						// we found the minimal solution in the iteration before.
-						solution = old_solution;
-						mdfa_size = old_size;
-						solved = true;
-					} else {
-						failed_before = true;
-						if(mdfa_size == (int)sources.size()) {
-							(*this->my_logger)(LOGGER_ERROR, "biermann: failed to find mapping with LFDFA size == mDFA size. this will be a serious bug in libalf :-(\n");
-							return NULL;
+				}
+
+				if(!answered)
+					(*this->my_logger)(LOGGER_WARN, "biermann: empty knowledgebase. no CSP to solve, you get a simple automaton.\n", mdfa_size);
+
+				simple_automaton * ret = new simple_automaton;
+				ret->alphabet_size = this->my_knowledge->get_alphabet_size();
+				ret->state_count = 1;
+				ret->initial.insert(0);
+				if(acceptance) {
+					ret->final.insert(0);
+				}
+				pair<int, int> trid;
+				trid.first = 0;
+				for(int sigma = 0; sigma < ret->alphabet_size; sigma++) {
+					trid.second = sigma;
+					ret->transitions.insert(pair<pair<int, int>, int>(trid, 0));
+				}
+				ret->valid = true;
+				return ret;
+			} else {
+				// try to solve CSP with increasing size of automaton
+				while(!solved) {
+					(*this->my_logger)(LOGGER_INFO, "biermann: trying to solve CSP with %d states.\n", mdfa_size);
+					old_solution = solution;
+
+					if( solve_constraints() ) {
+						(*this->my_logger)(LOGGER_INFO, "biermann: satisfiable.\n");
+						if(failed_before) {
+							// we found the minimal solution
+							solved = true;
 						} else {
-							old_size = mdfa_size;
-							mdfa_size++;
+							success_before = true;
+							if(mdfa_size == 1) {
+								solved = true;
+							} else {
+								old_size = mdfa_size;
+								mdfa_size--;
+							}
+						}
+					} else {
+						(*this->my_logger)(LOGGER_INFO, "biermann: unsatisfiable.\n");
+						if(success_before) {
+							// we found the minimal solution in the iteration before.
+							solution = old_solution;
+							mdfa_size = old_size;
+							solved = true;
+						} else {
+							failed_before = true;
+							if(mdfa_size == (int)sources.size()) {
+								(*this->my_logger)(LOGGER_ERROR, "biermann: failed to find mapping with LFDFA size == mDFA size. this will be a serious bug in libalf :-(\n");
+								return NULL;
+							} else {
+								old_size = mdfa_size;
+								mdfa_size++;
+							}
 						}
 					}
 				}
