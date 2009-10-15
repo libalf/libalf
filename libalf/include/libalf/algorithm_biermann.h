@@ -234,7 +234,7 @@ class basic_biermann : public learning_algorithm<answer> {
 		// FIXME: print constraints etc from last run
 		{
 			string ret;
-			ret = "bla bla";
+			ret = "biermann has nothing to print. it's an offline-algorithm.";
 			return ret;
 		}
 
@@ -285,6 +285,11 @@ class basic_biermann : public learning_algorithm<answer> {
 						this->get_alphabet_size(), this->my_knowledge->get_alphabet_size());
 			mapping old_solution;
 			int old_size;
+
+			// clear old data
+			constraints.clear();
+			sources.clear();
+			solution.clear();
 
 			if(this->my_knowledge == NULL) {
 				(*this->my_logger)(LOGGER_ERROR, "biermann: no knowledgebase set!\n");
