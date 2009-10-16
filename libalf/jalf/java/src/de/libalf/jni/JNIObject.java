@@ -91,7 +91,12 @@ public abstract class JNIObject implements LibALFObject {
 	 * 
 	 * @return the LibALF and JNI binding versions.
 	 */
-	public static String getVersion() {
+	@Override
+	public String getVersion() {
+		return getVersionStatic();
+	}
+
+	public static String getVersionStatic() {
 		return getLibALFVersion() + " / " + JNI_BINDING_VERSION;
 	}
 

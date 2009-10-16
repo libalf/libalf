@@ -62,8 +62,9 @@ public class DispatcherFactory implements LibALFFactory {
 		int code = readInt();
 		if (code != 0)
 			throw new DispatcherCommandError(code, DispatcherConstants.CLCMD_REQ_CAPA);
-		String capa = readString(); // TODO what to do with this?!
-		System.out.println(capa);
+		String proto = readString();
+		if (!proto.toLowerCase().equals("protocol-version-1"))
+			throw new DispatcherProtocolException("Dispatcher version mismatch! Need \"protocol-version-1\", got \"" + proto + "\"");
 	}
 
 	private void connect() {
@@ -318,6 +319,7 @@ public class DispatcherFactory implements LibALFFactory {
 		return readString();
 	}
 
+	@Override
 	public synchronized String getVersion() {
 		writeCommandThrowing(DispatcherConstants.CLCMD_REQ_VERSION);
 		return readString();
@@ -335,7 +337,7 @@ public class DispatcherFactory implements LibALFFactory {
 
 	////////////////////////////////////////////////////////////////
 	// FACTORY STUFF
-	
+
 	@Override
 	public DispatcherFactory getFactory() {
 		return this;

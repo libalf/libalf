@@ -44,6 +44,16 @@ public enum JNIFactory implements LibALFFactory {
 		return STATIC;
 	}
 
+	/**
+	 * Returns the LibALF and JNI binding versions.
+	 * 
+	 * @return the LibALF and JNI binding versions.
+	 */
+	@Override
+	public String getVersion() {
+		return JNIObject.getVersionStatic();
+	}
+
 	@Override
 	public JNIKnowledgebase createKnowledgebase(Object... args) {
 		return new JNIKnowledgebase();

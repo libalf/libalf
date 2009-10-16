@@ -36,13 +36,15 @@ public interface LibALFObject extends Serializable {
 	 * <p>Kills the object by freeing the memory occupied by the C++ object.</p>
 	 * <p>After an object is dead, no more operations on this object can be performed.</p>
 	 */
-	public boolean isDestroyed();
+	boolean isDestroyed();
 
 	/**
 	 * <p>Kills the object by freeing the memory occupied by the C++ object.</p>
 	 * <p>After an object is dead, no more operations on this object can be performed.</p>
 	 */
-	public void destroy();
+	void destroy();
 
-	public LibALFFactory getFactory();
+	LibALFFactory getFactory();
+
+	String getVersion();
 }

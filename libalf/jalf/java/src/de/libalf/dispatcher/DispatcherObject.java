@@ -23,7 +23,6 @@
 package de.libalf.dispatcher;
 
 import de.libalf.AlfException;
-import de.libalf.AlfObjectDestroyedException;
 import de.libalf.LibALFObject;
 
 /**
@@ -96,6 +95,12 @@ public abstract class DispatcherObject implements LibALFObject, Sendable {
 	}
 
 	@Override
+	public String getVersion() {
+		checkDestroyed();
+		return this.factory.getVersion();
+	}
+
+	@Override
 	protected void finalize() throws Throwable {
 		destroy();
 		super.finalize();
@@ -117,7 +122,7 @@ public abstract class DispatcherObject implements LibALFObject, Sendable {
 		return this.id < 0 || this.factory.isDestroyed();
 	}
 
-	protected void checkDestroyed() throws AlfObjectDestroyedException {
+	protected void checkDestroyed() throws DispatcherObjectDestroyedException {
 		if (isDestroyed())
 			throw new DispatcherObjectDestroyedException("Object has been destroyed.");
 	}

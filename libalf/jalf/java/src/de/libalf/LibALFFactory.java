@@ -34,8 +34,7 @@ package de.libalf;
  * @version 0.1
  */
 public interface LibALFFactory extends LibALFObject {
-
-	public static enum Algorithm {
+	static enum Algorithm {
 		ANGLUIN, ANGLUIN_COLUMN, NL_STAR, RPNI, BIERMANN_MINISAT, DELETE2;
 	}
 
@@ -44,23 +43,22 @@ public interface LibALFFactory extends LibALFObject {
 	 * 
 	 * @return a new <code>Knowledgebase</code>.
 	 */
-	public abstract Knowledgebase createKnowledgebase(Object... args);
+	abstract Knowledgebase createKnowledgebase(Object... args);
 
 
-	public abstract LearningAlgorithm createLearningAlgorithm(Algorithm algorithm, Object... args);
+	abstract LearningAlgorithm createLearningAlgorithm(Algorithm algorithm, Object... args);
 
 	/**
 	 * Creates a new <code>Logger</code>.
 	 * 
 	 * @return a new <code>Logger</code>.
 	 */
-	public abstract Logger createLogger(Object... args);
+	abstract Logger createLogger(Object... args);
 
 	/**
 	 * Creates a new <code>Normalizer</code>.
 	 * 
 	 * @return a new <code>Normalizer</code>.
 	 */
-	public abstract Normalizer createNormalizer(Normalizer.Type normType, Object... args);
-
+	abstract Normalizer createNormalizer(Normalizer.Type normType, Object... args);
 }
