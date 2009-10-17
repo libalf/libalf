@@ -48,7 +48,7 @@ import de.libalf.Logger;
  * @version 0.1
  * 
  */
-public class JNIAlgorithmRPNI extends JNILearningAlgorithm {
+public class JNIAlgorithmRPNI extends JNILearningAlgorithmOffline {
 	private static final long serialVersionUID = 2L;
 
 	/**

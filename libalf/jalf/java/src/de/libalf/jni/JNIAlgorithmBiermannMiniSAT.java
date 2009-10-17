@@ -54,7 +54,7 @@ import de.libalf.Logger;
  * @version 0.1
  * 
  */
-public class JNIAlgorithmBiermannMiniSAT extends JNILearningAlgorithm {
+public class JNIAlgorithmBiermannMiniSAT extends JNILearningAlgorithmOffline {
 	private static final long serialVersionUID = 2L;
 
 	/**
