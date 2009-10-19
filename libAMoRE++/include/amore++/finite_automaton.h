@@ -51,38 +51,6 @@ class automaton_run {
 		}}}
 };
 
-class transition {
-	public:
-		class comparator { public: bool operator() (transition t1, transition t2) {return t1 < t2;} };
-	public:
-		int source;		// source node
-		int label;		// attribute of transition (epsilon == -1)
-		int destination;	// destination node
-
-		transition() {
-			source = -1;
-			label = -1;
-			destination = -1;
-		}
-
-		bool operator<(const transition & t)
-		{{{
-			if(this->source != t.source)   return (this->source < t.source);
-			if(this->destination != t.destination)   return (this->destination < t.destination);
-			return (this->label < t.label);
-		}}}
-
-		bool operator==(const transition &other)
-		{{{
-			return ((source == other.source) && (label == other.label) && (destination == other.destination));
-		}}}
-};
-
-inline bool deterministic_transitions(const transition & t1, const transition & t2)
-{ return (t1.source != t2.source) || (t1.label != t2.label) || (t1.destination == t2.destination); }
-
-typedef set<transition, transition::comparator> transition_set;
-
 class finite_automaton {
 	public:
 		virtual ~finite_automaton() = 0;
