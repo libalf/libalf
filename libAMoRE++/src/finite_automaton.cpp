@@ -114,8 +114,8 @@ string finite_automaton::generate_dotfile()
 	basic_string<int32_t>::iterator si;
 	int n;
 
-	set<int32_t> initial, final;
-	set<int32_t>::iterator sti;
+	set<int> initial, final, sink;
+	set<int>::iterator sti;
 
 	unsigned int state_count;
 	bool header_written;
@@ -177,8 +177,18 @@ string finite_automaton::generate_dotfile()
 	if(header_written)
 		ret += ";\n";
 
+	sink = negative_sink();
+	if(!sink.empty()) {
+		ret += "\tnode [shape=circle, style=\"filled\", color=grey];";
+		for(sti = sink.begin(); sti != sink.end(); ++sti) {
+			snprintf(buf, 128, " q%d", *sti);
+			ret += buf;
+		}
+		ret += ";\n";
+	}
+
 	// default
-	if(final.size() < state_count) {
+	if(final.size() + sink.size() < state_count) {
 		ret += "\tnode [shape=circle, style=\"\", color=black];";
 		for(unsigned int s = 0; s < state_count; s++){
 			if(final.find(s) == final.end()) {
@@ -231,15 +241,50 @@ string finite_automaton::generate_dotfile()
 }}}
 
 finite_automaton *finite_automaton::co_determinize()
-{
+{{{
 	finite_automaton *r, *rcod, *cod;
 	r = this->reverse_language();
 	rcod = r->determinize();
 	cod = rcod->reverse_language();
 	delete r;
 	delete rcod;
+
 	return cod;
-}
+}}}
+
+set<int> finite_automaton::negative_sink()
+{{{
+	set<int> s, pre, post;
+	set<int>::iterator si;
+
+	// find states that can reach terminal states
+	pre = get_final_states();
+	while(pre != s) {
+		s = pre;
+		pre = predecessor_states(s);
+		for(set<int>::iterator si = s.begin(); si != s.end(); si++)
+			pre.insert(*si);
+	}
+
+	// find states reachable from initial states
+	post = get_initial_states();
+	s.clear();
+	while(post != s) {
+		s = post;
+		post = successor_states(s);
+		for(set<int>::iterator si = s.begin(); si != s.end(); si++)
+			post.insert(*si);
+	}
+
+	s.clear();
+
+	for(int i = get_state_count() - 1; i >= 0; i--)
+		if(pre.find(i) == pre.end() || post.find(i) == post.end())
+			s.insert(i);
+
+	return s;
+}}}
+
 
 // inefficient (as it only wraps another interface), but it works for all automata implementations
 // that implement serialize and deserialize. implementations may provide their own, more performant

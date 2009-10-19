@@ -118,6 +118,8 @@ class finite_automaton {
 
 		// minimize automaton
 		virtual void minimize() = 0;
+		// get all states that may be merged into a negative sink
+		virtual set<int> negative_sink();
 		// get nondeterministic automaton
 		virtual finite_automaton * nondeterminize() = 0;
 		// an automaton is deterministic if it has only one initial state and, for every

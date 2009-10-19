@@ -567,8 +567,11 @@ void nondeterministic_finite_automaton::lang_complement()
 }}}
 
 nondeterministic_finite_automaton * nondeterministic_finite_automaton::reverse_language()
-{
+{{{
 	nfa rev_p;
+
+	// FIXME: we should trim first, so we really reverse the language and not the automaton
+	// (which can be quite different)
 
 	rev_p = newnfa();
 	rev_p->alphabet_size = nfa_p->alphabet_size;
@@ -599,7 +602,7 @@ nondeterministic_finite_automaton * nondeterministic_finite_automaton::reverse_l
 	}
 
 	return new nondeterministic_finite_automaton(rev_p);
-}
+}}}
 
 nondeterministic_finite_automaton * nondeterministic_finite_automaton::lang_union(finite_automaton &other)
 // libAMoRE says: alphabets need to be the same
