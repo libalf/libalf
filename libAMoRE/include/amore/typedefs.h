@@ -51,11 +51,11 @@ typedef boolx *mrkfin;
  *  @memo
  */
 #define setfinal(A,B)	{if ((B)) A |= FINMASK; else A &= ~FINMASK;}
-/** <b> A |= FINMASK
+/** <b> A |= FINMASK (state is final)
  *  @memo
  */
 #define setfinalT(A)     A |= FINMASK
-/** <b> A &= ~FINMASK
+/** <b> A &= ~FINMASK (state is not final)
  *  @memo
  */
 #define setfinalF(A)     A &= ~FINMASK
@@ -63,11 +63,11 @@ typedef boolx *mrkfin;
  *  @memo
  */
 #define isinit(A)	((A) & INMASK)
-/** <b> A |= INMASK
+/** <b> A |= INMASK (state is initial)
  *  @memo
  */
 #define setinit(A)	A |= INMASK
-/** <b> A &= ~INMASK
+/** <b> A &= ~INMASK (state is not initial)
  *  @memo
  */
 #define rminit(A)	A &= ~INMASK
