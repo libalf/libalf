@@ -173,7 +173,7 @@ bool nondeterministic_finite_automaton::is_empty()
 }}}
 
 bool nondeterministic_finite_automaton::is_universal()
-// FIXME: very inefficient! instead, implement ANTICHAIN algorithm, as described in
+// FIXME: very inefficient! use ANTICHAIN algorithm instead, as described in:
 //    M. De Wulf, L. Doyen, J.-F. Raskin
 //    Antichains: A New Algorithm for Checking Universality of Finite Automata
 {{{
@@ -427,7 +427,6 @@ bool nondeterministic_finite_automaton::lang_subset_of(finite_automaton &other)
 }}}
 
 bool nondeterministic_finite_automaton::lang_disjoint_to(finite_automaton &other)
-// FIXME: very inefficient! use ANTICHAIN algorithm instead.
 {{{
 	bool ret;
 
@@ -566,6 +565,41 @@ void nondeterministic_finite_automaton::lang_complement()
 	freedfa(b);
 	free(b);
 }}}
+
+nondeterministic_finite_automaton * nondeterministic_finite_automaton::reverse_language()
+{
+	nfa rev_p;
+
+	rev_p = newnfa();
+	rev_p->alphabet_size = nfa_p->alphabet_size;
+	rev_p->highest_state = nfa_p->highest_state;
+	rev_p->infin = newfinal(nfa_p->highest_state);
+	if(nfa_p->is_eps == TRUE) {
+		rev_p->is_eps = TRUE;
+		rev_p->delta = newendelta(nfa_p->alphabet_size, nfa_p->highest_state);
+	} else {
+		rev_p->is_eps = FALSE;
+		rev_p->delta = newndelta(nfa_p->alphabet_size, nfa_p->highest_state);
+	}
+
+	unsigned int src, sigma, dst;
+
+	for(src = 0; src <= nfa_p->highest_state; src++) {
+		// copy reversed transitions
+		for(sigma = (nfa_p->is_eps == TRUE) ? 0 : 1; sigma <= nfa_p->alphabet_size; sigma++)
+			for(dst = 0; dst <= nfa_p->highest_state; dst++)
+				// add reversed transition if exists.
+				if(testcon(nfa_p->delta, sigma, src, dst))
+					connect(rev_p->delta, sigma, dst, src);
+		// reverse initial and final states
+		if(isinit(nfa_p->infin[src]))
+			setfinalT(rev_p->infin[src]);
+		if(isfinal(nfa_p->infin[src]))
+			setinit(rev_p->infin[src]);
+	}
+
+	return new nondeterministic_finite_automaton(rev_p);
+}
 
 nondeterministic_finite_automaton * nondeterministic_finite_automaton::lang_union(finite_automaton &other)
 // libAMoRE says: alphabets need to be the same

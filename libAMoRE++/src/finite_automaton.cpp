@@ -117,7 +117,7 @@ string finite_automaton::generate_dotfile()
 	set<int32_t> initial, final;
 	set<int32_t>::iterator sti;
 
-	int state_count;
+	unsigned int state_count;
 	bool header_written;
 	char buf[128];
 
@@ -180,7 +180,7 @@ string finite_automaton::generate_dotfile()
 	// default
 	if(final.size() < state_count) {
 		ret += "\tnode [shape=circle, style=\"\", color=black];";
-		for(int s = 0; s < state_count; s++){
+		for(unsigned int s = 0; s < state_count; s++){
 			if(final.find(s) == final.end()) {
 				snprintf(buf, 128, " q%d", s);
 				ret += buf;
@@ -229,6 +229,17 @@ string finite_automaton::generate_dotfile()
 
 	return ret;
 }}}
+
+finite_automaton *finite_automaton::co_determinize()
+{
+	finite_automaton *r, *rcod, *cod;
+	r = this->reverse_language();
+	rcod = r->determinize();
+	cod = rcod->reverse_language();
+	delete r;
+	delete rcod;
+	return cod;
+}
 
 // inefficient (as it only wraps another interface), but it works for all automata implementations
 // that implement serialize and deserialize. implementations may provide their own, more performant

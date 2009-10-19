@@ -67,7 +67,7 @@ install: exportHeaders
 	cp libAMoRE.so $(LIBDIR)
 	#strip $(LIBDIR)/libAMoRE.so
 	chmod 644 $(LIBDIR)/libAMoRE.so
-	-test `id -u` -eq 0 && /sbin/ldconfig
+	-test `id -u` -eq 0 && /sbin/ldconfig; true
 
 install-docs: docs/html/index.html
 	install -d $(DOCDIR)/libAMoRE/html 
@@ -76,7 +76,7 @@ install-docs: docs/html/index.html
 uninstall:
 	rm -f $(LIBDIR)/libAMoRE.a
 	rm -f $(HEADERDIR)/amore/*.h
-	-test `id -u` -eq 0 && /sbin/ldconfig
+	-test `id -u` -eq 0 && /sbin/ldconfig; true
 
 exportHeaders:
 	install -d $(HEADERDIR)/amore

@@ -58,7 +58,15 @@ void usage()
 		"\t-m or --minimize\n"
 		"\t\t\tminimize automaton\n"
 		"\t-d or --determinize\n"
-		"\t\t\tdeterminize automaton\n"
+		"\t\t\tdeterminize automaton (an automaton is det. iff it\n"
+		"\t\t\thas only one initial state and, for every letter, every\n"
+		"\t\t\tstate has at most one successor)\n"
+		"\t-c or --co-determinize\n"
+		"\t\t\tco-determinize automaton (an automaton is co-det. iff it\n"
+		"\t\t\thas only one final state and, for every letter, every\n"
+		"\t\t\tstate has at most one predecessor)\n"
+		"\t-R or --reverse\n"
+		"\t\t\treverse language (reverse all transitions)\n"
 		"\t-r or --rfsa\n"
 		"\t\t\tget minimal RFSA of automaton\n"
 		"\n"
@@ -99,6 +107,8 @@ int main(int argc, char**argv)
 
 		{ "minimize",               no_argument,            NULL, 'm' },	// minimize finite automaton
 		{ "determinize",            no_argument,            NULL, 'd' },	// determinize automaton
+		{ "co-determinize",         no_argument,            NULL, 'c' },	// co-determinize automaton
+		{ "reverse",                no_argument,            NULL, 'R' },	// get reversed language (reverse all transitions)
 		{ "rfsa",                   no_argument,            NULL, 'r' },	// get canonical RFSA of this automaton
 
 		{ "human_readable_output",  no_argument,            NULL, 'H' },	// use text-output (tostring() for knowledgebase, write() for automata)
@@ -115,7 +125,7 @@ int main(int argc, char**argv)
 	enum output out = output_serial;
 
 	int c;
-	while(0 <= (c = getopt_long(argc, argv, "hg:mdrHDS:T:?", server_long_options, NULL)))
+	while(0 <= (c = getopt_long(argc, argv, "hg:mdcRrHDS:T:?", server_long_options, NULL)))
 	{{{ // parse command line
 		switch (c) {
 			case 'h':
@@ -168,6 +178,26 @@ int main(int argc, char**argv)
 					}
 				} else {
 					trans = trans_determinize;
+				}
+
+				break;
+			case 'c':
+				if(trans != trans_none) {
+					cerr << "invalid transformation constellation.\n\n";
+					usage();
+					return -1;
+				} else {
+					trans = trans_co_determinize;
+				}
+
+				break;
+			case 'R':
+				if(trans != trans_none) {
+					cerr << "invalid transformation constellation.\n\n";
+					usage();
+					return -1;
+				} else {
+					trans = trans_reverse;
 				}
 
 				break;

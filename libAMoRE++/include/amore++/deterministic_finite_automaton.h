@@ -88,6 +88,7 @@ class deterministic_finite_automaton : public finite_automaton {
 		virtual bool contains(list<int> &word);
 		virtual void minimize();
 		virtual void lang_complement();
+		virtual finite_automaton * reverse_language();
 		virtual finite_automaton * lang_union(finite_automaton &other);
 		virtual finite_automaton * lang_intersect(finite_automaton &other);
 		virtual deterministic_finite_automaton * lang_difference(finite_automaton &other);

@@ -90,6 +90,18 @@ bool do_transformation(finite_automaton *& automaton, transformation trans)
 			delete automaton;
 			automaton = tmp;
 			break;
+		case trans_co_determinize:
+cerr << "co-determinizing\n";
+			tmp = automaton->co_determinize();
+			delete automaton;
+			automaton = tmp;
+			break;
+		case trans_reverse:
+cerr << "reversing\n";
+			tmp = automaton->reverse_language();
+			delete automaton;
+			automaton = tmp;
+			break;
 		case trans_rfsa:
 			if(!a2rfsa(automaton))
 				return false;

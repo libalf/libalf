@@ -390,6 +390,35 @@ void deterministic_finite_automaton::lang_complement()
 	dfa_p = a;
 }}}
 
+finite_automaton * deterministic_finite_automaton::reverse_language()
+{
+	nfa rev_p;
+
+	rev_p = newnfa();
+	rev_p->alphabet_size = dfa_p->alphabet_size;
+	rev_p->highest_state = dfa_p->highest_state;
+	rev_p->infin = newfinal(dfa_p->highest_state);
+	rev_p->delta = newndelta(dfa_p->alphabet_size, dfa_p->highest_state);
+	rev_p->is_eps = FALSE;
+
+	// make initial state final
+	setfinalT(rev_p->infin[dfa_p->init]);
+
+	// copy reversed transitions
+	unsigned int src, sigma;
+
+	for(src = 0; src <= dfa_p->highest_state; src++) {
+		// copy reversed transitions
+		for(sigma = 1; sigma <= dfa_p->alphabet_size; sigma++)
+			connect(rev_p->delta, sigma, dfa_p->delta[sigma][src], src);
+		// make final states initial
+		if(dfa_p->final[src] == TRUE)
+			setinit(rev_p->infin[src]);
+	}
+
+	return new nondeterministic_finite_automaton(rev_p);
+}
+
 finite_automaton * deterministic_finite_automaton::lang_union(finite_automaton &other)
 // libAMoRE says: alphabets need to be the same
 {{{

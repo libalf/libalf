@@ -40,6 +40,8 @@ enum transformation {
 	trans_none,
 	trans_minimize,
 	trans_determinize,
+	trans_co_determinize,
+	trans_reverse,
 	trans_mdfa,
 	trans_rfsa
 };
