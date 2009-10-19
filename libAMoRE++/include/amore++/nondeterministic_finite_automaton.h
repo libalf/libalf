@@ -108,7 +108,6 @@ class nondeterministic_finite_automaton : public finite_automaton {
 		virtual bool lang_subset_of(finite_automaton &other);
 		virtual bool lang_disjoint_to(finite_automaton &other);
 		virtual set<int> transition(set<int> from, int label);
-		virtual bool contains(list<int> &word);
 		virtual void minimize();
 		virtual void lang_complement();
 		virtual nondeterministic_finite_automaton * reverse_language();
@@ -125,13 +124,16 @@ class nondeterministic_finite_automaton : public finite_automaton {
 		virtual basic_string<int32_t> serialize();
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
 
-		virtual void epsilon_closure(set<int> & states);
-		virtual void inverted_epsilon_closure(set<int> & states);
+		// overloading
+		virtual bool contains(list<int> &word);
 
-	// new
+
+		// new
 		virtual void set_nfa(nfa a);
 		virtual nfa get_nfa();
 		virtual string to_regex();
+		virtual void epsilon_closure(set<int> & states);
+		virtual void inverted_epsilon_closure(set<int> & states);
 
 };
 

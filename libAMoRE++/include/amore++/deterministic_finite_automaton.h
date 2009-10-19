@@ -62,6 +62,9 @@ class deterministic_finite_automaton : public finite_automaton {
 	public:
 		deterministic_finite_automaton();
 		deterministic_finite_automaton(dfa a);
+
+
+
 		virtual ~deterministic_finite_automaton();
 
 		virtual deterministic_finite_automaton * clone();
@@ -85,7 +88,6 @@ class deterministic_finite_automaton : public finite_automaton {
 		virtual bool lang_subset_of(finite_automaton &other);
 		virtual bool lang_disjoint_to(finite_automaton &other);
 		virtual set<int> transition(set<int> from, int label);
-		virtual bool contains(list<int> &word);
 		virtual void minimize();
 		virtual void lang_complement();
 		virtual finite_automaton * reverse_language();
@@ -102,9 +104,11 @@ class deterministic_finite_automaton : public finite_automaton {
 		virtual basic_string<int32_t> serialize();
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
 
+		// overloading
+		virtual bool contains(list<int> &word);
 		virtual bool construct(bool is_dfa, int alphabet_size, int state_count, set<int> &initial, set<int> &final, multimap<pair<int,int>, int> &transitions);
 
-	// new
+		// new
 		virtual void set_dfa(dfa a);
 		virtual dfa get_dfa();
 };
