@@ -91,13 +91,11 @@ bool do_transformation(finite_automaton *& automaton, transformation trans)
 			automaton = tmp;
 			break;
 		case trans_co_determinize:
-cerr << "co-determinizing\n";
 			tmp = automaton->co_determinize();
 			delete automaton;
 			automaton = tmp;
 			break;
 		case trans_reverse:
-cerr << "reversing\n";
 			tmp = automaton->reverse_language();
 			delete automaton;
 			automaton = tmp;
