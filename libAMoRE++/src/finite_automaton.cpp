@@ -240,11 +240,13 @@ string finite_automaton::generate_dotfile()
 	return ret;
 }}}
 
-finite_automaton *finite_automaton::co_determinize()
+finite_automaton *finite_automaton::co_determinize(bool minimize)
 {{{
 	finite_automaton *r, *rcod, *cod;
 	r = this->reverse_language();
 	rcod = r->determinize();
+	if(minimize)
+		rcod->minimize();
 	cod = rcod->reverse_language();
 	delete r;
 	delete rcod;

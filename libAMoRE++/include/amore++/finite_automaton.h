@@ -124,7 +124,7 @@ class finite_automaton {
 		virtual finite_automaton * determinize() = 0;
 		// an automaton is co-deterministic if it has only one final state and, for every
 		// letter, every state has at most one predecessor.
-		virtual finite_automaton * co_determinize();
+		virtual finite_automaton * co_determinize(bool minimize = true);
 
 
 		// BINARY LANGUAGE TESTS
