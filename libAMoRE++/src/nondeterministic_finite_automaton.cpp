@@ -570,9 +570,6 @@ nondeterministic_finite_automaton * nondeterministic_finite_automaton::reverse_l
 {{{
 	nfa rev_p;
 
-	// FIXME: we should trim first, so we really reverse the language and not the automaton
-	// (which can be quite different)
-
 	rev_p = newnfa();
 	rev_p->alphabet_size = nfa_p->alphabet_size;
 	rev_p->highest_state = nfa_p->highest_state;

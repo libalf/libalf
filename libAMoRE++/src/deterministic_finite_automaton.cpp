@@ -394,9 +394,6 @@ finite_automaton * deterministic_finite_automaton::reverse_language()
 {{{
 	nfa rev_p;
 
-	// FIXME: we should trim first, so we really reverse the language and not the automaton
-	// (which can be quite different)
-
 	rev_p = newnfa();
 	rev_p->alphabet_size = dfa_p->alphabet_size;
 	rev_p->highest_state = dfa_p->highest_state;
