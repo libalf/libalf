@@ -59,18 +59,7 @@ namespace amore {
  * the constructor generating an nfa from a regex will "insanitize" your regular expression
  * on the fly, i.e. it will transform any occurence of the commonly used '|' to 'U'
  *
- * you will need a standard itoc[] for this constructor to work (see next paragraph)
-
-
- * instead of numbers, used within libalf to represent characters,
- * the corresponding chars from itoc[] are used, as declared e.g. in <amore/vars.h>. it is possible
- * to declare your own itoc. please note that, if not including <amore/vars.h>, you will have to
- * define
- *	jmp_buf _jmp;
- *	char dummy[7];
- *	char itoc[28] = "@abcdefghijklmnopqrstuvwxyz";
- * or alike, as libAMoRE requires these symbols.
- * (watch out for linker errors with missing symbols like these)
+ * the alphabet is mapped from [a..] to [0..] ([1..] in amore-internal representation)
  */
 
 using namespace std;

@@ -41,18 +41,6 @@
 
 namespace amore {
 
-/*
- * instead of numbers, used within libalf to represent characters,
- * the corresponding chars from itoc[] are used, as declared e.g. in <amore/vars.h>. it is possible
- * to declare your own itoc. please note that, if not including <amore/vars.h>, you will have to
- * define
- *	jmp_buf _jmp;
- *	char dummy[7];
- *	char itoc[28] = "@abcdefghijklmnopqrstuvwxyz";
- * or alike, as libAMoRE requires these symbols.
- * (watch out for linker errors with missing symbols like these)
- */
-
 using namespace std;
 
 class deterministic_finite_automaton : public finite_automaton {

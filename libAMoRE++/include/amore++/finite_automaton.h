@@ -41,15 +41,12 @@ class automaton_run {
 		int state;
 
 		automaton_run()
-		{{{
-			state = 0;
-		}}}
+		{ state = 0; };
 
 		automaton_run(int first_state)
-		{{{
-			state = first_state;
-		}}}
+		{ state = first_state; };
 };
+
 
 class finite_automaton {
 	public:
@@ -192,7 +189,6 @@ finite_automaton * construct_amore_automaton(bool is_dfa, int alphabet_size, int
 
 // automatically construct the specific automaton (NFA or DFA) during deserialization:
 finite_automaton * deserialize_amore_automaton(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
-
 
 
 }; // end namespace amore
