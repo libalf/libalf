@@ -158,14 +158,10 @@ public class DefaultOnlineScenarioFrame extends JInternalFrame {
 							knowledgebaseHasChanged = false;
 							knowledgebasePanel.removeAll();
 
-							String knowledgebaseDot = knowledgebase
-									.generate_dotfile();
-							knowledgebaseDot = knowledgebaseDot.replaceAll(
-									"size=8;", "");
 							knowledgebasePanel
 									.add(
-											GrappaAutomatonVisualizer
-													.createZoomableGrappaPanel(knowledgebaseDot),
+											JGraphVisualizer
+													.createVisualization(knowledgebase),
 											BorderLayout.CENTER);
 							knowledgebasePanel.revalidate();
 							knowledgebasePanel.repaint();
@@ -387,8 +383,8 @@ public class DefaultOnlineScenarioFrame extends JInternalFrame {
 					advanceButton.setEnabled(false);
 					log("Found automaton.");
 					sourceCodeLabel.changeState(State.FINISH);
-					tabbedPane.addTab("Result", GrappaAutomatonVisualizer
-							.createZoomableGrappaPanel(conjecture.toDot()));
+					tabbedPane.addTab("Result", JGraphVisualizer
+							.createVisualization(conjecture));
 					tabbedPane.setSelectedIndex(3);
 				}
 

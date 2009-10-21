@@ -100,7 +100,7 @@ public class FilterEditor extends JDialog {
 		final JButton accPreviewButton = new JButton("Preview");
 		accPreviewButton.setToolTipText("Show a preview of the automaton");
 		accButtonPanel.add(accPreviewButton);
-		accPreviewButton.setEnabled(acceptAutomaton == null ? false: true);
+		accPreviewButton.setEnabled(acceptAutomaton == null ? false : true);
 
 		// Actions
 		accChooseButton.addActionListener(new ActionListener() {
@@ -117,8 +117,8 @@ public class FilterEditor extends JDialog {
 		accPreviewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if (acceptPreviewDialog == null)
-					acceptPreviewDialog = GrappaAutomatonVisualizer
-							.createAutomatonDisplayDialog(acceptAutomaton,
+					acceptPreviewDialog = JGraphVisualizer
+							.createVisualizationDialog(acceptAutomaton,
 									FilterEditor.this);
 				acceptPreviewDialog.setVisible(true);
 
@@ -160,7 +160,7 @@ public class FilterEditor extends JDialog {
 		final JButton rejPreviewButton = new JButton("Preview");
 		rejPreviewButton.setToolTipText("Show a preview of the automaton");
 		rejButtonPanel.add(rejPreviewButton);
-		rejPreviewButton.setEnabled(rejectAutomaton == null ? false: true);
+		rejPreviewButton.setEnabled(rejectAutomaton == null ? false : true);
 
 		// Actions
 		rejChooseButton.addActionListener(new ActionListener() {
@@ -177,8 +177,8 @@ public class FilterEditor extends JDialog {
 		rejPreviewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if (rejectPreviewDialog == null)
-					rejectPreviewDialog = GrappaAutomatonVisualizer
-							.createAutomatonDisplayDialog(rejectAutomaton,
+					rejectPreviewDialog = JGraphVisualizer
+							.createVisualizationDialog(rejectAutomaton,
 									FilterEditor.this);
 				rejectPreviewDialog.setVisible(true);
 

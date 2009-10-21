@@ -125,13 +125,8 @@ public class DefaultOfflineScenarioFrame extends JInternalFrame {
 				if (tabbedPane.getSelectedIndex() == 1) {
 					if (!knowledgebasePainted) {
 						knowledgebasePainted = true;
-						String knowledgebaseDot = knowledgebase
-								.generate_dotfile();
-						knowledgebaseDot = knowledgebaseDot.replaceAll(
-								"size=8;", "");
-
-						knowledgebasePanel.add(GrappaAutomatonVisualizer
-								.createZoomableGrappaPanel(knowledgebaseDot),
+						knowledgebasePanel.add(JGraphVisualizer
+								.createVisualization(knowledgebase),
 								BorderLayout.CENTER);
 						knowledgebasePanel.revalidate();
 						knowledgebasePanel.repaint();
@@ -185,8 +180,8 @@ public class DefaultOfflineScenarioFrame extends JInternalFrame {
 				sourceCodeLabel.changeState(State.FINISH);
 
 				// Display result
-				tabbedPane.addTab("Result", GrappaAutomatonVisualizer
-						.createZoomableGrappaPanel(result.toDot()));
+				tabbedPane.addTab("Result", JGraphVisualizer
+						.createVisualization(result));
 				tabbedPane.setSelectedIndex(3);
 
 			}

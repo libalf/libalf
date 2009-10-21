@@ -35,7 +35,7 @@ import de.libalf.demo.Scenario;
 
 public class DemoDesktop extends JFrame {
 
-	public static final long SPLASH_SCREEN_DISPLAY = 10000;
+	public static final long SPLASH_SCREEN_DISPLAY = 3000;
 	
 	private static final long serialVersionUID = 1L;
 

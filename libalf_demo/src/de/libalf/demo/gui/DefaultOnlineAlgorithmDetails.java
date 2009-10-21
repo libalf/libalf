@@ -144,10 +144,12 @@ public class DefaultOnlineAlgorithmDetails extends JPanel {
 							previewDialog
 									.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 							previewDialog.setLayout(new BorderLayout());
-							previewDialog.getContentPane().add(
-									GrappaAutomatonVisualizer
-											.createZoomableGrappaPanel(scenario
-													.getTeacher().toDot()));
+							previewDialog
+									.getContentPane()
+									.add(
+											JGraphVisualizer
+													.createVisualization(scenario
+															.getTeacher()));
 							previewDialog.setModal(true);
 							previewDialog.setSize(640, 480);
 						}

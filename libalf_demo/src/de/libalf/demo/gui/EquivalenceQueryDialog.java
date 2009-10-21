@@ -128,26 +128,26 @@ public class EquivalenceQueryDialog extends JDialog {
 		 */
 		JTabbedPane tabbedPane = new JTabbedPane();
 		// Conjecture
-		tabbedPane.addTab("Conjecture", GrappaAutomatonVisualizer
-				.createZoomableGrappaPanel(conjecture.toDot()));
+		tabbedPane.addTab("Conjecture", JGraphVisualizer
+				.createVisualization(conjecture));
 
 		if (scenario.isUseTeacher() && scenario.getTeacher() != null) {
 			// Teacher
-			tabbedPane.addTab("Teacher", GrappaAutomatonVisualizer
-					.createZoomableGrappaPanel(scenario.getTeacher().toDot()));
+			tabbedPane.addTab("Teacher", JGraphVisualizer
+					.createVisualization(scenario.getTeacher()));
 
 			// Difference
 			Automaton diff = (scenario.getTeacher().minus(conjecture))
 					.union(conjecture.minus(scenario.getTeacher()));
 			diff.minimize();
-			tabbedPane.addTab("Difference automaton", GrappaAutomatonVisualizer
-					.createZoomableGrappaPanel(diff.toDot()));
+			tabbedPane.addTab("Difference automaton", JGraphVisualizer
+					.createVisualization(diff));
 		}
 
 		/*
 		 * Top panel
 		 */
-		JPanel topPanel = new  JPanel(new GridBagLayout());
+		JPanel topPanel = new JPanel(new GridBagLayout());
 		add(topPanel, BorderLayout.CENTER);
 		// Info panel
 		GridBagConstraints c = new GridBagConstraints();
@@ -162,7 +162,7 @@ public class EquivalenceQueryDialog extends JDialog {
 		c.weighty = 0.75;
 		c.weightx = 1.0;
 		topPanel.add(tabbedPane, c);
-		
+
 		/*
 		 * BottomPanel
 		 */

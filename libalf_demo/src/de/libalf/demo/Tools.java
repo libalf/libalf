@@ -1,13 +1,17 @@
 package de.libalf.demo;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+
+import javax.imageio.ImageIO;
 
 import de.libalf.BasicAutomaton;
 import de.libalf.BasicTransition;
@@ -237,5 +241,21 @@ public class Tools {
 			}
 		}
 		return true;
+	}
+
+	public static BufferedImage loadImage(String location) {
+		try {
+			// Get current classloader
+			ClassLoader cl = Tools.class.getClassLoader();
+			
+			URL imageURL = cl.getResource(location);
+			if (imageURL == null)
+				imageURL = new File(location).toURI().toURL();
+			
+			return ImageIO.read(imageURL);
+		} catch (IOException e) {
+			System.err.println("Could not load '" + location + "'.");
+			return null;
+		}
 	}
 }
