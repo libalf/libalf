@@ -17,7 +17,6 @@ import java.io.ObjectInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.GregorianCalendar;
 
 import javax.imageio.ImageIO;
 import javax.swing.JDesktopPane;
@@ -28,7 +27,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
-import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import de.libalf.demo.Scenario;
@@ -260,48 +258,6 @@ public class DemoDesktop extends JFrame {
 			} catch (PropertyVetoException e) {
 			}
 		}
-	}
-
-	/**
-	 * Starts the demo desktop.
-	 * 
-	 * @param args
-	 *            the command line arguments
-	 */
-	public static void main(String[] args) {
-		SwingWorker<Void, Void> w = new SwingWorker<Void, Void>() {
-			@Override
-			protected Void doInBackground() throws Exception {
-				SplashScreen splash = new SplashScreen();
-				splash.setVisible(true);
-
-				long end = new GregorianCalendar().getTimeInMillis();
-				long start = end;
-				do {
-					Thread.sleep(250);
-					end = new GregorianCalendar().getTimeInMillis();
-				} while (!isCancelled() || (end - start < 3000));
-
-				splash.setVisible(false);
-				return null;
-			}
-		};
-		w.execute();
-
-		long start = new GregorianCalendar().getTimeInMillis();
-		DemoDesktop desktop = new DemoDesktop();
-		long end = new GregorianCalendar().getTimeInMillis();
-		if (end - start < SPLASH_SCREEN_DISPLAY) {
-			try {
-				Thread.sleep(SPLASH_SCREEN_DISPLAY - (end - start));
-			} catch (InterruptedException e) {
-			}
-		}
-		desktop.setVisible(true);
-		desktop.toFront();
-
-		w.cancel(false);
-
 	}
 
 	private class MyPopup extends JPopupMenu {

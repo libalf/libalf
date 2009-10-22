@@ -1,3 +1,24 @@
+/*
+ * This file is part of libalf-demo.
+ *
+ * libalf-demo is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * libalf-demo is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with libalf-demo.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (c) 2009 Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
+ * Author: Daniel Neider <neider@automata.rwth-aachen.de>
+ *
+ */
+
 package de.libalf.demo.gui;
 
 import java.awt.BorderLayout;
@@ -24,7 +45,6 @@ import java.util.Map.Entry;
 import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
@@ -55,13 +75,16 @@ import com.jgraph.layout.hierarchical.JGraphHierarchicalLayout;
 import com.jgraph.layout.tree.JGraphTreeLayout;
 
 import de.libalf.Knowledgebase;
-import de.libalf.LibALFFactory;
 import de.libalf.demo.Tools;
-import de.libalf.jni.JNIFactory;
 import dk.brics.automaton.Automaton;
 import dk.brics.automaton.State;
 import dk.brics.automaton.Transition;
 
+/**
+ * 
+ * @author Daniel Neider
+ * @version 0.1
+ */
 public class JGraphVisualizer extends JPanel {
 
 	private static final long serialVersionUID = 1L;
@@ -456,43 +479,43 @@ public class JGraphVisualizer extends JPanel {
 		return dialog;
 	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		System.setProperty("swing.aatext", "true");
-
-		/*
-		 * create knowledgebase
-		 */
-		LibALFFactory f = JNIFactory.STATIC;
-		Knowledgebase base = f.createKnowledgebase();
-		base.add_knowledge(new int[] { 0, 1 }, true);
-		base.add_knowledge(new int[] { 0, 1, 1 }, false);
-		base.resolve_or_add_query(new int[] { 1 });
-
-		/*
-		 * Create Automaton
-		 */
-		@SuppressWarnings("unused")
-		Automaton a = Automaton.makeString("11").repeat(1);
-
-		/*
-		 * Create graph panel
-		 */
-		JPanel graphPanel = JGraphVisualizer.createVisualization(base);
-
-		/*
-		 * Frame
-		 */
-		JFrame testFrame = new JFrame("JGraph test");
-		testFrame.setLayout(new BorderLayout());
-		testFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		testFrame.getContentPane().add(graphPanel, BorderLayout.CENTER);
-		testFrame.setLocationRelativeTo(null);
-		testFrame.setSize(640, 480);
-		testFrame.setVisible(true);
-	}
+	// /**
+	// * @param args
+	// */
+	// public static void main(String[] args) {
+	// System.setProperty("swing.aatext", "true");
+	//
+	// /*
+	// * create knowledgebase
+	// */
+	// LibALFFactory f = JNIFactory.STATIC;
+	// Knowledgebase base = f.createKnowledgebase();
+	// base.add_knowledge(new int[] { 0, 1 }, true);
+	// base.add_knowledge(new int[] { 0, 1, 1 }, false);
+	// base.resolve_or_add_query(new int[] { 1 });
+	//
+	// /*
+	// * Create Automaton
+	// */
+	// @SuppressWarnings("unused")
+	// Automaton a = Automaton.makeString("11").repeat(1);
+	//
+	// /*
+	// * Create graph panel
+	// */
+	// JPanel graphPanel = JGraphVisualizer.createVisualization(base);
+	//
+	// /*
+	// * Frame
+	// */
+	// JFrame testFrame = new JFrame("JGraph test");
+	// testFrame.setLayout(new BorderLayout());
+	// testFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	// testFrame.getContentPane().add(graphPanel, BorderLayout.CENTER);
+	// testFrame.setLocationRelativeTo(null);
+	// testFrame.setSize(640, 480);
+	// testFrame.setVisible(true);
+	// }
 
 	private class GraphAndRootNode {
 		JGraph graph = null;
