@@ -90,13 +90,20 @@ template <class T>   void powerset_to_inclusion_antichain(set<set<T> > &antichai
 	set<set<T> > included;
 	typename set<set<T> >::iterator si1, si2;
 
-	for(si1 = antichain.begin(); si1 != antichain.end(); ++si1)
-		for(si2 = si1, si2++; si2 != antichain.end(); ++si2)
-			if(set_includes(*si1, *si2))
-				included.insert(*si2);
-			else
-				if(set_includes(*si2, *si1))
-					included.insert(*si1);
+	for(si1 = antichain.begin(); si1 != antichain.end(); ++si1) {
+		set<T> s1 = *si1;
+		for(si2 = si1, si2++; si2 != antichain.end(); ++si2) {
+			set<T> s2 = *si2;
+
+			if(set_includes(s2, s1)) {
+				included.insert(s1);
+				break; // all later subsets of s1 will also be subsets of s1
+			} else {
+				if(set_includes(s1, s2))
+					included.insert(s2);
+			}
+		}
+	}
 
 	for(si1 = included.begin(); si1 != included.end(); ++si1)
 		antichain.erase(*si1);
@@ -134,6 +141,7 @@ template <class T>   set<T> set_subtract(set<T> &s, set<T> &remove)
 
 
 
+
 template <class S, class T>   bool inner_set_includes(multimap< S, set<T> > &superset, multimap< S, set<T> > &subset)
 {{{
 	typename set< pair< S, set<T> > >::iterator si, start, end;
@@ -145,7 +153,7 @@ template <class S, class T>   bool inner_set_includes(multimap< S, set<T> > &sup
 		while(start != end) {
 			// set::size() is O(1)
 			if(start->second.size() == si->second.size())
-				if(start->second == si->second)
+				if(set_includes(start->second, si->second))
 					break;
 			start++;
 		}
@@ -157,18 +165,19 @@ template <class S, class T>   bool inner_set_includes(multimap< S, set<T> > &sup
 }}}
 
 template <class S, class T>   multimap< S, set<T> > inner_set_union(multimap< S, set<T> > s, multimap< S, set<T> > &t)
+// NOTE: this also calls inner_powerset_to_inclusion_antichain() !
 {{{
 	typename multimap< S, set<T> >::iterator ti, start, end;
 
 	for(ti = t.begin(); ti != t.end(); ti++) {
 		start = s.lower_bound(ti->first);
 		end = s.upper_bound(ti->first);
-		// check if element is already in antichain
+		// check if element or superset of it is already in antichain
 		while(start != end) {
-			// set::size() is O(1)
-			if(start->second.size() == ti->second.size())
-				if(start->second == ti->second)
-					break;
+			if(set_includes(start->second, ti->second)) {
+				start = end;
+				break;
+			}
 			start++;
 		}
 		// otherwise add it
@@ -176,11 +185,12 @@ template <class S, class T>   multimap< S, set<T> > inner_set_union(multimap< S,
 			s.insert(*ti);
 	}
 
-	inner_powerset_to_inclusion_antichain(s);
+	inner_powerset_to_inclusion_antichain(s); // FIXME: do we need this here? we check for inclusion, not equality above.
 	return s;
 }}}
 
 template <class S, class T>   multimap< S, set<T> > inner_set_intersect(multimap< S, set<T> > &s, multimap< S, set<T> > &t)
+// NOTE: this also calls inner_powerset_to_inclusion_antichain() !
 {{{
 	multimap< S, set<T> > ret;
 
@@ -189,16 +199,15 @@ template <class S, class T>   multimap< S, set<T> > inner_set_intersect(multimap
 	for(ti = t.begin(); ti != t.end(); ti++) {
 		start = s.lower_bound(ti->first);
 		end = s.upper_bound(ti->first);
-		// check if element is contained in other antichain as well
+
+		pair< S, set<T> > q;
+		q.first = ti->first;
+
 		while(start != end) {
-			// set::size() is O(1)
-			if(start->second.size() == ti->second.size())
-				if(start->second == ti->second)
-					break;
-			start++;
+			q.second = set_intersect(ti->second, start->second);
+			if(!q.second.empty())
+				ret.insert(q);
 		}
-		if(start != end)
-			ret.insert(*ti);
 	}
 
 	inner_powerset_to_inclusion_antichain(ret);

@@ -967,22 +967,43 @@ multimap< int, set<int> > nondeterministic_finite_automaton::antichain_subset_cp
 {
 	multimap< int, set<int> > ret;
 
-	multimap< int, set<int> >::iterator sti;	// stateset iterator
+	multimap< int, set<int> >::iterator sti;	// stateset iterator -- this is (l',s')
 	unsigned int sigma;				// label iterator
-
 
 	for(sti = stateset.begin(); sti != stateset.end(); ++sti) {
 		for(sigma = 0; sigma < this->get_alphabet_size(); sigma++) {
-			
-		}
+			// get all allowed l
+			set<int> l_prime;
+			l_prime.insert(sti->first);
+			l_prime = this->predecessor_states(l_prime, sigma);
 
+			// get all allowed s
+			set< set<int> > s_prime;
+			
+			powerset_to_inclusion_antichain(s_prime); // FIXME: does this perform better? it is not strictly necessary
+
+			// build cartesian product ( l * s )
+			set< set<int> >::iterator spi;
+			set<int>::iterator lpi;
+			for(spi = s_prime.begin(); spi != s_prime.end(); ++spi) {
+				pair<int, set<int> > ls;
+				ls.second = *spi;
+				for(lpi = l_prime.begin(); lpi != l_prime.end(); ++lpi) {
+					ls.first = *lpi;
+					ret.insert(ls);
+				}
+			}
+		}
 	}
 
+	// afaik this is still required, even though we did powerset_to_inclusion_antichain(s_prime) above.
 	inner_powerset_to_inclusion_antichain(ret);
+
 	return ret;
 }
 
 bool nondeterministic_finite_automaton::antichain_subset_test(nondeterministic_finite_automaton &other, list<int> counterexample)
+// check if L(this) is a subset of L(other)
 {
 	
 	// this is not a subset of other iff there exists a
