@@ -298,10 +298,8 @@ list<int> deterministic_finite_automaton::get_sample_word(bool & is_empty)
 }}}
 
 bool deterministic_finite_automaton::operator==(finite_automaton &other)
-// note: calling operator== will minimize() this and other
-// FIXME: avoid this? efficient algorithm?
 {{{
-	bool ret;
+	bool ret = false;
 
 	deterministic_finite_automaton * o_d;
 	bool had_to_determinize = false;
@@ -313,11 +311,20 @@ bool deterministic_finite_automaton::operator==(finite_automaton &other)
 		o_d = dynamic_cast<deterministic_finite_automaton*>(other.determinize());
 	}
 
+#if 0
+	// note: using this will minimize() this and other!
+	// but we don't want changing behaviour!
+
 	minimize();
 	o_d->minimize();
 
 	// equiv REQUIRES minimized DFAs ... (see libAMoRE-1.0 tests/testeBinary.c::equiv
 	ret = equiv(this->dfa_p, o_d->dfa_p);
+#else
+	if(this->lang_subset_of(*o_d))
+		if(o_d->lang_subset_of(*this))
+			ret = true;
+#endif
 
 	if(had_to_determinize)
 		delete o_d;
