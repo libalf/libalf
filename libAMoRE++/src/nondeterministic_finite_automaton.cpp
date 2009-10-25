@@ -50,6 +50,8 @@
 # include <amore/nfa2rex.h>
 # include <amore/nfa2mnfa.h>
 
+# include "antichain.h"
+
 namespace amore {
 
 using namespace std;
@@ -173,9 +175,6 @@ bool nondeterministic_finite_automaton::is_empty()
 }}}
 
 bool nondeterministic_finite_automaton::is_universal()
-// FIXME: very inefficient! use ANTICHAIN algorithm instead, as described in:
-//    M. De Wulf, L. Doyen, J.-F. Raskin
-//    Antichains: A New Algorithm for Checking Universality of Finite Automata
 {{{
 	bool ret;
 	finite_automaton * d;
@@ -271,6 +270,29 @@ abort:		;
 
 	return ret;
 }}}
+set<int> nondeterministic_finite_automaton::successor_states(set<int> states, int label)
+{{{
+	// very much like successor_states
+	set<int> ret;
+	set<int>::iterator si;
+	unsigned int dst;
+
+	epsilon_closure(states);
+
+	for(dst = 0; dst <= nfa_p->highest_state; dst++) {
+		for(si = states.begin(); si != states.end(); si++) {
+			if(testcon((nfa_p->delta), label+1, *si, dst)) {
+				ret.insert(dst);
+				goto abort;
+			}
+		}
+abort:		;
+	}
+
+	epsilon_closure(ret);
+
+	return ret;
+}}}
 set<int> nondeterministic_finite_automaton::predecessor_states(set<int> states)
 {{{
 	set<int> ret;
@@ -287,6 +309,28 @@ set<int> nondeterministic_finite_automaton::predecessor_states(set<int> states)
 					ret.insert(src);
 					goto abort;
 				}
+			}
+		}
+abort:		;
+	}
+
+	inverted_epsilon_closure(ret);
+
+	return ret;
+}}}
+set<int> nondeterministic_finite_automaton::predecessor_states(set<int> states, int label)
+{{{
+	set<int> ret;
+	set<int>::iterator si;
+	unsigned int src;
+
+	inverted_epsilon_closure(states);
+
+	for(src = 0; src <= nfa_p->highest_state; src++) {
+		for(si = states.begin(); si != states.end(); si++) {
+			if(testcon((nfa_p->delta), label+1, src, *si)) {
+				ret.insert(src);
+				goto abort;
 			}
 		}
 abort:		;
@@ -397,11 +441,8 @@ list<int> nondeterministic_finite_automaton::get_sample_word(bool & is_empty)
 	return ret;
 }}}
 
-
 bool nondeterministic_finite_automaton::operator==(finite_automaton &other)
-// FIXME: very inefficient! use ANTICHAIN algorithm instead.
 {{{
-	// FIXME efficient equiv-algorithm for NFAs?
 	bool ret;
 	finite_automaton * d;
 
@@ -413,7 +454,6 @@ bool nondeterministic_finite_automaton::operator==(finite_automaton &other)
 }}}
 
 bool nondeterministic_finite_automaton::lang_subset_of(finite_automaton &other)
-// FIXME: very inefficient! use ANTICHAIN algorithm instead.
 {{{
 	bool ret;
 
@@ -911,6 +951,58 @@ string nondeterministic_finite_automaton::to_regex()
 
 	return s;
 }}}
+
+
+
+
+
+
+
+
+
+// Antichain-based algorithms. See
+//    M. De Wulf, L. Doyen, J.-F. Raskin
+//    Antichains: A New Algorithm for Checking Universality of Finite Automata
+
+/*
+set<set<int> > nondeterministic_finite_automaton::antichain_universality_cpre(set<int> stateset)
+{
+	set<set<int> > ret;
+	
+	return ret;
+}
+bool nondeterministic_finite_automaton::antichain_universality_test(list<int> counterexample)
+{
+	
+}
+*/
+
+bool nondeterministic_finite_automaton::antichain_equivalence_test(nondeterministic_finite_automaton &other, list<int> counterexample)
+{{{
+	if(!this->antichain_subset_test(other, counterexample))
+		return false;
+	return other.antichain_subset_test(*this, counterexample);
+}}}
+
+multimap< int, set<int> > nondeterministic_finite_automaton::antichain_subset_cpre(multimap< int, set<int> > &stateset, nondeterministic_finite_automaton &other)
+{
+	multimap< int, set<int> > ret;
+
+	
+
+	inner_powerset_to_inclusion_antichain(ret);
+	return ret;
+}
+
+bool nondeterministic_finite_automaton::antichain_subset_test(nondeterministic_finite_automaton &other, list<int> counterexample)
+{
+	
+	// this is not a subset of other iff there exists a
+	// state I in this->initial s.t. (l, other->initial)
+	// is in F1
+	
+}
+
 
 } // end namespace amore
 

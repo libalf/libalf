@@ -40,3 +40,7 @@ uninstall:
 	-test `id -u` -eq 0 && /sbin/ldconfig; true
 
 
+# special dependencies:
+
+nondeterministic_finite_automaton.o: antichain.h
+

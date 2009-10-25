@@ -79,6 +79,9 @@ class finite_automaton {
 		// get all successor or predecessor states to a state-set
 		virtual set<int> successor_states(set<int> states) = 0;
 		virtual set<int> predecessor_states(set<int> states) = 0;
+		// get all successor or predecessor states to a state-set via a specifically labelled transition
+		virtual set<int> successor_states(set<int> states, int label) = 0;
+		virtual set<int> predecessor_states(set<int> states, int label) = 0;
 
 		// calculate single-label transition or multiple-label run for a set of starting states
 		virtual set<int> transition(set<int> from, int label) = 0;

@@ -181,6 +181,16 @@ set<int> deterministic_finite_automaton::successor_states(set<int> states)
 
 	return ret;
 }}}
+set<int> deterministic_finite_automaton::successor_states(set<int> states, int label)
+{{{
+	set<int> ret;
+	set<int>::iterator si;
+
+	for(si = states.begin(); si != states.end(); si++)
+		ret.insert(dfa_p->delta[label+1][*si]);
+
+	return ret;
+}}}
 set<int> deterministic_finite_automaton::predecessor_states(set<int> states)
 {{{
 	set<int> ret;
@@ -193,6 +203,20 @@ set<int> deterministic_finite_automaton::predecessor_states(set<int> states)
 				ret.insert(state);
 				break;
 			}
+		}
+	}
+
+	return ret;
+}}}
+set<int> deterministic_finite_automaton::predecessor_states(set<int> states, int label)
+{{{
+	set<int> ret;
+	unsigned int state;
+
+	for(state = 0; state <= dfa_p->highest_state; state++) {
+		if(states.find(dfa_p->delta[label+1][state]) != states.end()) {
+			ret.insert(state);
+			break;
 		}
 	}
 

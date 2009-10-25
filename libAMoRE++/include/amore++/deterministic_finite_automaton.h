@@ -66,7 +66,9 @@ class deterministic_finite_automaton : public finite_automaton {
 		virtual bool contains_initial_states(set<int> states);
 		virtual bool contains_final_states(set<int> states);
 		virtual set<int> successor_states(set<int> states);
+		virtual set<int> successor_states(set<int> states, int label);
 		virtual set<int> predecessor_states(set<int> states);
+		virtual set<int> predecessor_states(set<int> states, int label);
 		virtual list<int> shortest_run(set<int> from, set<int> &to, bool &reachable);
 		virtual bool is_reachable(set<int> &from, set<int> &to);
 		virtual list<int> get_sample_word(bool & is_empty);

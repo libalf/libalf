@@ -87,7 +87,9 @@ class nondeterministic_finite_automaton : public finite_automaton {
 		virtual bool contains_initial_states(set<int> states);
 		virtual bool contains_final_states(set<int> states);
 		virtual set<int> successor_states(set<int> states);
+		virtual set<int> successor_states(set<int> states, int label);
 		virtual set<int> predecessor_states(set<int> states);
+		virtual set<int> predecessor_states(set<int> states, int label);
 		virtual list<int> shortest_run(set<int> from, set<int> &to, bool &reachable);
 		virtual bool is_reachable(set<int> &from, set<int> &to);
 		virtual list<int> get_sample_word(bool & is_empty);
@@ -118,11 +120,27 @@ class nondeterministic_finite_automaton : public finite_automaton {
 
 
 		// new
+	public:
 		virtual void set_nfa(nfa a);
 		virtual nfa get_nfa();
+
+		// get regex for automaton
 		virtual string to_regex();
+
+		// apply epsilon-closure to state-set (i.e. include states that may be reached from those via epsilon)
 		virtual void epsilon_closure(set<int> & states);
+		// apply inverted epsilon-closure to state-set (i.e. include states from whom these states may be reached via epsilon)
 		virtual void inverted_epsilon_closure(set<int> & states);
+
+		// rather efficient algorithm for specific language tests
+//		virtual bool antichain_universality_test(list<int> counterexample);
+		virtual bool antichain_equivalence_test(nondeterministic_finite_automaton &other, list<int> counterexample);
+		virtual bool antichain_subset_test(nondeterministic_finite_automaton &other, list<int> counterexample);
+
+
+	protected:
+//		set<set<int> > antichain_universality_cpre(set<int>);
+		multimap< int, set<int> > antichain_subset_cpre(multimap< int, set<int> > &stateset, nondeterministic_finite_automaton &other);
 
 };
 
