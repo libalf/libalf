@@ -84,7 +84,8 @@ class finite_automaton {
 		virtual set<int> predecessor_states(set<int> states, int label) = 0;
 
 		// calculate single-label transition or multiple-label run for a set of starting states
-		virtual set<int> transition(set<int> from, int label) = 0;
+		virtual set<int> transition(set<int> from, int label)
+		{   return successor_states(from, label);   };
 		virtual set<int> run(set<int> from, list<int>::iterator word, list<int>::iterator word_limit);
 
 		// get shortest run (i.e. word) from a state in <from> to a state in <to>

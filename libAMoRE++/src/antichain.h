@@ -102,6 +102,37 @@ template <class T>   void powerset_to_inclusion_antichain(set<set<T> > &antichai
 		antichain.erase(*si1);
 }}}
 
+template <class T>   set<T> set_subtract(set<T> &s, set<T> &remove)
+{{{
+	set<T> ret;
+	typename set<T>::iterator si, rmi;
+
+	si = s.begin();
+	rmi = remove.begin();
+
+	while( si != s.end() && rmi != remove.end() ) {
+		if(*si < *rmi) {
+			ret.insert(*si);
+			++si;
+		} else {
+			if(*si == *rmi) {
+				++si;
+				++rmi;
+			} else {
+				++rmi;
+			}
+		}
+	}
+	while(si != s.end()) {
+		ret.insert(*si);
+		++si;
+	}
+
+	return ret;
+}}}
+
+
+
 
 template <class S, class T>   bool inner_set_includes(multimap< S, set<T> > &superset, multimap< S, set<T> > &subset)
 {{{
@@ -145,6 +176,7 @@ template <class S, class T>   multimap< S, set<T> > inner_set_union(multimap< S,
 			s.insert(*ti);
 	}
 
+	inner_powerset_to_inclusion_antichain(s);
 	return s;
 }}}
 
@@ -169,6 +201,7 @@ template <class S, class T>   multimap< S, set<T> > inner_set_intersect(multimap
 			ret.insert(*ti);
 	}
 
+	inner_powerset_to_inclusion_antichain(ret);
 	return ret;
 }}}
 

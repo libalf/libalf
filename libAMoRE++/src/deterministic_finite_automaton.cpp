@@ -369,17 +369,6 @@ bool deterministic_finite_automaton::lang_disjoint_to(finite_automaton &other)
 	return ret;
 }}}
 
-set<int> deterministic_finite_automaton::transition(set<int> from, int label)
-{{{
-	set<int> ret;
-	set<int>::iterator si;
-
-	for(si = from.begin(); si != from.end(); si++)
-		ret.insert(dfa_p->delta[label+1][*si]);
-
-	return ret;
-}}}
-
 bool deterministic_finite_automaton::contains(list<int> &word)
 {{{
 	if(dfa_p) {

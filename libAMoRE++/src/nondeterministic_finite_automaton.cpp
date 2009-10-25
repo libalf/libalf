@@ -279,15 +279,10 @@ set<int> nondeterministic_finite_automaton::successor_states(set<int> states, in
 
 	epsilon_closure(states);
 
-	for(dst = 0; dst <= nfa_p->highest_state; dst++) {
-		for(si = states.begin(); si != states.end(); si++) {
-			if(testcon((nfa_p->delta), label+1, *si, dst)) {
+	for(dst = 0; dst <= nfa_p->highest_state; dst++)
+		for(si = states.begin(); si != states.end(); si++)
+			if(testcon((nfa_p->delta), label+1, *si, dst))
 				ret.insert(dst);
-				goto abort;
-			}
-		}
-abort:		;
-	}
 
 	epsilon_closure(ret);
 
@@ -532,22 +527,6 @@ void nondeterministic_finite_automaton::inverted_epsilon_closure(set<int> & stat
 					new_states.push(s);
 				};
 	};
-}}}
-
-set<int> nondeterministic_finite_automaton::transition(set<int> from, int label)
-{{{
-	set<int> ret;
-	set<int>::iterator si;
-
-	this->epsilon_closure(from);
-
-	for(si = from.begin(); si != from.end(); si++)
-		for(unsigned int s = 0; s <= nfa_p->highest_state; s++)
-			if(testcon(nfa_p->delta, label+1, *si, s))
-				ret.insert(s);
-
-	this->epsilon_closure(ret);
-	return ret;
 }}}
 
 bool nondeterministic_finite_automaton::contains(list<int> &word)
@@ -988,7 +967,16 @@ multimap< int, set<int> > nondeterministic_finite_automaton::antichain_subset_cp
 {
 	multimap< int, set<int> > ret;
 
-	
+	multimap< int, set<int> >::iterator sti;	// stateset iterator
+	unsigned int sigma;				// label iterator
+
+
+	for(sti = stateset.begin(); sti != stateset.end(); ++sti) {
+		for(sigma = 0; sigma < this->get_alphabet_size(); sigma++) {
+			
+		}
+
+	}
 
 	inner_powerset_to_inclusion_antichain(ret);
 	return ret;

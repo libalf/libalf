@@ -98,7 +98,6 @@ class nondeterministic_finite_automaton : public finite_automaton {
 		virtual bool operator==(finite_automaton &other);
 		virtual bool lang_subset_of(finite_automaton &other);
 		virtual bool lang_disjoint_to(finite_automaton &other);
-		virtual set<int> transition(set<int> from, int label);
 		virtual void minimize();
 		virtual void lang_complement();
 		virtual nondeterministic_finite_automaton * reverse_language();
