@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="build" name="libalf-demo">
+    <property environment="env"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+    <path id="libalf-demo.classpath">
+        <pathelement location="bin"/>
+        <pathelement location="lib/brics.jar"/>
+        <pathelement location="lib/jalf.jar"/>
+        <pathelement location="lib/jgraph.jar"/>
+    </path>
+    <target name="init">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src" excludes="**/*.launch, **/*.java"/>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="bin"/>
+        <delete file="libalf-demo.jar"/>
+    </target>
+    <target depends="clean" name="cleanall"/>
+    <target depends="build-subprojects,build-project" name="build"/>
+    <target name="build-subprojects">
+        <echo message="Nothing to do."/>
+    </target>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+            <src path="src"/>
+            <exclude name="de/libalf/demo/gui/GrappaAutomatonVisualizer.java"/>
+            <classpath refid="libalf-demo.classpath"/>
+        </javac>
+    </target>
+    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
+    <target name="libalf-demo">
+        <java classname="de.libalf.demo.Starter" failonerror="true" fork="yes">
+            <classpath refid="libalf-demo.classpath"/>
+        </java>
+    </target>
+    <target depends="build" description="Jar the compiled class files." name="jar">
+        <jar destfile="libalf-demo.jar">
+            <fileset dir="bin/"/>
+            <fileset dir=".">
+                <include name="res/"/>
+            </fileset>
+            <filelist dir=".">
+                <file name="gpl.txt"/>
+            </filelist>
+            <manifest>
+                <attribute name="Built-By" value="${user.name}"/>
+                <attribute name="Implementation-Vendor" value="Chair for Computer Science 7, RWTH Aachen University"/>
+                <attribute name="Implementation-Title" value="libalf-demo"/>
+                <attribute name="Implementation-Version" value="0.1"/>
+            </manifest>
+        </jar>
+    </target>
+    <target depends="jar" description="Jar all (source, class and resource) files." name="jar-all">
+        <jar destfile="libalf-demo.jar" update="true">
+            <fileset dir="src/"/>
+        </jar>
+    </target>
+</project>

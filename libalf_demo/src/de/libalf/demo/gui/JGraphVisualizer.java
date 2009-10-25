@@ -32,7 +32,6 @@ import java.awt.event.ActionListener;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -75,7 +74,6 @@ import com.jgraph.layout.hierarchical.JGraphHierarchicalLayout;
 import com.jgraph.layout.tree.JGraphTreeLayout;
 
 import de.libalf.Knowledgebase;
-import de.libalf.demo.Tools;
 import dk.brics.automaton.Automaton;
 import dk.brics.automaton.State;
 import dk.brics.automaton.Transition;
@@ -565,8 +563,6 @@ class StateView extends VertexView {
 	static class StateRenderer extends VertexRenderer {
 		private static final long serialVersionUID = 1L;
 
-		static BufferedImage image = Tools.loadImage("res/state.png");
-
 		public void paint(Graphics g) {
 			super.paint(g);
 			// g.drawImage(image, 0, 0, getWidth(), getHeight(), this);
@@ -603,8 +599,6 @@ class FinalStateView extends VertexView {
 
 	static class FinalStateRenderer extends VertexRenderer {
 		private static final long serialVersionUID = 1L;
-
-		static BufferedImage image = Tools.loadImage("res/final.jpg");
 
 		public void paint(Graphics g) {
 			super.paint(g);
@@ -644,8 +638,6 @@ class InitialStateView extends VertexView {
 
 	static class InitialStateRenderer extends VertexRenderer {
 		private static final long serialVersionUID = 1L;
-
-		static BufferedImage image = Tools.loadImage("res/init.jpg");
 
 		public void paint(Graphics g) {
 			super.paint(g);
@@ -695,8 +687,6 @@ class InitialFinalStateView extends VertexView {
 
 	static class InitialFinalStateRenderer extends VertexRenderer {
 		private static final long serialVersionUID = 1L;
-
-		static BufferedImage image = Tools.loadImage("res/init_final.jpg");
 
 		public void paint(Graphics g) {
 			super.paint(g);
