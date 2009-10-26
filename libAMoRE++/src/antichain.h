@@ -25,6 +25,10 @@
 
 // some templates for antichain-algorithms
 
+// Antichain-based algorithms. See
+//    M. De Wulf, L. Doyen, J.-F. Raskin
+//    Antichains: A New Algorithm for Checking Universality of Finite Automata
+
 #include <set>
 #include <map>
 
@@ -141,12 +145,14 @@ template <class T>   set<T> set_subtract(set<T> &s, set<T> &remove)
 
 
 
+// NOTE that due to non-trivial definitions in the antichain-paper (see above),
+// the below may work quite different than expected at first
 
 template <class S, class T>   bool inner_set_includes(multimap< S, set<T> > &superset, multimap< S, set<T> > &subset)
 {{{
-	typename set< pair< S, set<T> > >::iterator si, start, end;
+	typename multimap< S, set<T> >::iterator si, start, end;
 
-	for(si = subset.begin(); si != subset.end(); si++) {
+	for(si = subset.begin(); si != subset.end(); ++si) {
 		start = superset.lower_bound(si->first);
 		end = superset.upper_bound(si->first);
 		// check if element is contained in antichain
@@ -155,7 +161,7 @@ template <class S, class T>   bool inner_set_includes(multimap< S, set<T> > &sup
 			if(start->second.size() == si->second.size())
 				if(set_includes(start->second, si->second))
 					break;
-			start++;
+			++start;
 		}
 		if(start == end)
 			return false; // element is missing in superset
@@ -169,7 +175,7 @@ template <class S, class T>   multimap< S, set<T> > inner_set_union(multimap< S,
 {{{
 	typename multimap< S, set<T> >::iterator ti, start, end;
 
-	for(ti = t.begin(); ti != t.end(); ti++) {
+	for(ti = t.begin(); ti != t.end(); ++ti) {
 		start = s.lower_bound(ti->first);
 		end = s.upper_bound(ti->first);
 		// check if element or superset of it is already in antichain
@@ -178,7 +184,7 @@ template <class S, class T>   multimap< S, set<T> > inner_set_union(multimap< S,
 				start = end;
 				break;
 			}
-			start++;
+			++start;
 		}
 		// otherwise add it
 		if(start == end)
@@ -230,7 +236,7 @@ template <class S, class T>   void inner_powerset_to_inclusion_antichain(multima
 			if(start != si)
 				if(set_includes(start->second, si->second))
 					break;
-			start++;
+			++start;
 		}
 		if(start != end)
 			superfluous.push_back(*si);
@@ -244,7 +250,7 @@ template <class S, class T>   void inner_powerset_to_inclusion_antichain(multima
 			if(start->second.size() == si->second.size())
 				if(start->second == si->second)
 					break;
-			start++;
+			++start;
 		}
 		antichain.erase(start);
 	}

@@ -973,30 +973,38 @@ multimap< int, set<int> > nondeterministic_finite_automaton::antichain_subset_cp
 	for(sti = stateset.begin(); sti != stateset.end(); ++sti) {
 		for(sigma = 0; sigma < this->get_alphabet_size(); sigma++) {
 			// get all allowed l
-			set<int> l_prime;
+			set<int> l_prime, l;
 			l_prime.insert(sti->first);
-			l_prime = this->predecessor_states(l_prime, sigma);
+			l = this->predecessor_states(l_prime, sigma);
 
-			// get all allowed s
-			set< set<int> > s_prime;
-			
-			powerset_to_inclusion_antichain(s_prime); // FIXME: does this perform better? it is not strictly necessary
+			// get all allowed s -- NOTE that the antichain-paper (see above) has a non-trivial definition of `` $ post_{sigma}^A(s) \subseteq T $ '' (1)
+			//   post_{sigma}^A(s) \subseteq T   :=   \forall l \in s : \delta_A(l,sigma) \subseteq T
+			// thus, (1) means that all states in s have to be a subset of the sigma-predecessor states of all elements of s'.
+			// as we want the maximal subset, we just use the sigma-predecessor states of all elements of s'
+			set< set<int> > s;
+			// here, s_prime := sti->second
+			for(set<int>::iterator spi = sti->second.begin(); spi != sti->second.end(); ++spi) {
+				set<int> state;
+				state.insert(*spi);
+				s.insert( other.predecessor_states(state, sigma) );
+			}
+//			powerset_to_inclusion_antichain(s); // FIXME: does this perform better? it is not strictly necessary
 
 			// build cartesian product ( l * s )
-			set< set<int> >::iterator spi;
-			set<int>::iterator lpi;
-			for(spi = s_prime.begin(); spi != s_prime.end(); ++spi) {
-				pair<int, set<int> > ls;
-				ls.second = *spi;
-				for(lpi = l_prime.begin(); lpi != l_prime.end(); ++lpi) {
-					ls.first = *lpi;
-					ret.insert(ls);
+			set< set<int> >::iterator si;
+			set<int>::iterator li;
+			for(si = s.begin(); si != s.end(); ++si) {
+				pair<int, set<int> > lXs;
+				lXs.second = *si;
+				for(li = l.begin(); li != l.end(); ++li) {
+					lXs.first = *li;
+					ret.insert(lXs);
 				}
 			}
 		}
 	}
 
-	// afaik this is still required, even though we did powerset_to_inclusion_antichain(s_prime) above.
+	// afaik this is still required, even though we did powerset_to_inclusion_antichain(s) above.
 	inner_powerset_to_inclusion_antichain(ret);
 
 	return ret;
@@ -1005,11 +1013,49 @@ multimap< int, set<int> > nondeterministic_finite_automaton::antichain_subset_cp
 bool nondeterministic_finite_automaton::antichain_subset_test(nondeterministic_finite_automaton &other, list<int> counterexample)
 // check if L(this) is a subset of L(other)
 {
-	
+	multimap< int, set<int> > Fn, Fnplus1;
+
+	pair<int, set<int> > f1;
+
+	set<int> our_final = this->get_final_states();
+	set<int> our_initial = this->get_initial_states();
+	set<int> other_nonfinal;
+	set<int> other_final = other.get_final_states();
+
+	set_subtract(other_nonfinal, other_final);
+
+	for(unsigned int i = 0; i < other.get_state_count(); i++)
+		other_nonfinal.insert(i);
+	f1.second = other_nonfinal;
+	for(set<int>::iterator si = our_final.begin(); si != our_final.end(); ++si) {
+		f1.first = *si;
+		Fn.insert(f1);
+	}
+
+	Fnplus1 = antichain_subset_cpre(Fn, other);
+	while( ! inner_set_includes(Fn, Fnplus1)) {
+		Fn = Fnplus1;
+		Fnplus1 = antichain_subset_cpre(Fn, other);
+	}
+
 	// this is not a subset of other iff there exists a
 	// state I in this->initial s.t. (l, other->initial)
-	// is in F1
+	// is in Fn
+	multimap< int, set<int> > initial;
+	f1.second = other.get_initial_states();
+	for(set<int>::iterator si = our_initial.begin(); si != our_initial.end(); ++si) {
+		f1.first = *si;
+		initial.clear();
+		initial.insert(f1);
+		if( inner_set_includes(Fn, initial) )
+			return true;
+	}
+
+
+	// calculate matching counterexample
 	
+
+	return false;
 }
 
 
