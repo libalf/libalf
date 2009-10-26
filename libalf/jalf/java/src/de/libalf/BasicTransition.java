@@ -82,13 +82,13 @@ public class BasicTransition implements Serializable {
 			return false;
 		else {
 			BasicTransition otherTransition = (BasicTransition) obj;
-			return (source == otherTransition.source
-					&& destination == otherTransition.destination && label == otherTransition.label);
+			return (this.source == otherTransition.source
+					&& this.destination == otherTransition.destination && this.label == otherTransition.label);
 		}
 	}
 
 	@Override
 	public String toString() {
-		return "(" + source + ", " + label + ", " + destination + ")";
+		return "(" + this.source + ", " + this.label + ", " + this.destination + ")";
 	}
 }

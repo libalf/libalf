@@ -22,7 +22,6 @@
 
 package de.libalf;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.LinkedList;
 
@@ -125,9 +124,9 @@ public class BasicAutomaton implements Conjecture {
 		this.isDFA = isDFA;
 		this.numberOfStates = numberOfStates;
 		this.alphabetSize = alphabetSize;
-		initialStates = new HashSet<Integer>(numberOfStates);
-		finalStates = new HashSet<Integer>(numberOfStates);
-		transitions = new LinkedList<BasicTransition>();
+		this.initialStates = new HashSet<Integer>(numberOfStates);
+		this.finalStates = new HashSet<Integer>(numberOfStates);
+		this.transitions = new LinkedList<BasicTransition>();
 	}
 
 	/**
@@ -136,7 +135,7 @@ public class BasicAutomaton implements Conjecture {
 	 * @return whether the automaton is deterministic or nondeterministic.
 	 */
 	public boolean isDFA() {
-		return isDFA;
+		return this.isDFA;
 	}
 
 	/**
@@ -145,7 +144,7 @@ public class BasicAutomaton implements Conjecture {
 	 * @return the number of states of the automaton.
 	 */
 	public int getNumberOfStates() {
-		return numberOfStates;
+		return this.numberOfStates;
 	}
 
 	/**
@@ -155,7 +154,7 @@ public class BasicAutomaton implements Conjecture {
 	 * @return the size of the alphabet.
 	 */
 	public int getAlphabetSize() {
-		return alphabetSize;
+		return this.alphabetSize;
 	}
 
 	/**
@@ -164,7 +163,7 @@ public class BasicAutomaton implements Conjecture {
 	 * @return the set of initial states.
 	 */
 	public HashSet<Integer> getInitialStates() {
-		return initialStates;
+		return this.initialStates;
 	}
 
 	/**
@@ -175,8 +174,8 @@ public class BasicAutomaton implements Conjecture {
 	 *            the state to add to the set of initial states
 	 */
 	public void addInitialState(int stateToAdd) {
-		if (stateToAdd >= 0 && stateToAdd < numberOfStates)
-			initialStates.add(stateToAdd);
+		if (stateToAdd >= 0 && stateToAdd < this.numberOfStates)
+			this.initialStates.add(stateToAdd);
 	}
 
 	/**
@@ -186,7 +185,7 @@ public class BasicAutomaton implements Conjecture {
 	 *            the state to remove from the set of initial states
 	 */
 	public void removeInitialState(int stateToRemove) {
-		initialStates.remove(stateToRemove);
+		this.initialStates.remove(stateToRemove);
 	}
 
 	/**
@@ -195,7 +194,7 @@ public class BasicAutomaton implements Conjecture {
 	 * @return the automaton's set of final states.
 	 */
 	public HashSet<Integer> getFinalStates() {
-		return finalStates;
+		return this.finalStates;
 	}
 
 	/**
@@ -206,8 +205,8 @@ public class BasicAutomaton implements Conjecture {
 	 *            the state to add
 	 */
 	public void addFinalState(int stateToAdd) {
-		if (stateToAdd >= 0 && stateToAdd < numberOfStates)
-			finalStates.add(stateToAdd);
+		if (stateToAdd >= 0 && stateToAdd < this.numberOfStates)
+			this.finalStates.add(stateToAdd);
 	}
 
 	/**
@@ -218,7 +217,7 @@ public class BasicAutomaton implements Conjecture {
 	 * @return true if the state is a final state and false otherwise.
 	 */
 	public boolean isFinalState(int state) {
-		return finalStates.contains(state);
+		return this.finalStates.contains(state);
 	}
 
 	/**
@@ -228,7 +227,7 @@ public class BasicAutomaton implements Conjecture {
 	 *            the state to remove
 	 */
 	public void removeFinalState(int stateToRemove) {
-		finalStates.remove(stateToRemove);
+		this.finalStates.remove(stateToRemove);
 	}
 
 	/**
@@ -237,7 +236,7 @@ public class BasicAutomaton implements Conjecture {
 	 * @return the transitions of this automaton.
 	 */
 	public LinkedList<BasicTransition> getTransitions() {
-		return transitions;
+		return this.transitions;
 	}
 
 	/**
@@ -249,10 +248,10 @@ public class BasicAutomaton implements Conjecture {
 	 *            the transition to add
 	 */
 	public void addTransition(BasicTransition transitionToAdd) {
-		if ((transitionToAdd.source >= 0 && transitionToAdd.source < numberOfStates)
-				&& (transitionToAdd.destination >= 0 && transitionToAdd.destination < numberOfStates)
-				&& (transitionToAdd.label >= 0 && transitionToAdd.label <= alphabetSize))
-			transitions.add(transitionToAdd);
+		if ((transitionToAdd.source >= 0 && transitionToAdd.source < this.numberOfStates)
+				&& (transitionToAdd.destination >= 0 && transitionToAdd.destination < this.numberOfStates)
+				&& (transitionToAdd.label >= 0 && transitionToAdd.label <= this.alphabetSize))
+			this.transitions.add(transitionToAdd);
 	}
 
 	/**
@@ -262,20 +261,20 @@ public class BasicAutomaton implements Conjecture {
 	 *            the transition to remove.
 	 */
 	public void removeTransition(BasicTransition transitionToRemove) {
-		transitions.remove(transitionToRemove);
+		this.transitions.remove(transitionToRemove);
 	}
 
 	public String toDot() {
 		String lineSeparator = System.getProperty("line.separator");
 		String dot = "digraph Automaton {" + lineSeparator;
 		dot += "  rankdir = LR;" + lineSeparator;
-		for (int i = 0; i < numberOfStates; i++)
+		for (int i = 0; i < this.numberOfStates; i++)
 			dot += "  " + i + " ["
-					+ (initialStates.contains(i) ? "style=filled," : "")
+					+ (this.initialStates.contains(i) ? "style=filled," : "")
 					+ "shape="
-					+ (finalStates.contains(i) ? "double" : "")
+					+ (this.finalStates.contains(i) ? "double" : "")
 					+ "circle, label=\"" + i + "\"];" + lineSeparator;
-		for (BasicTransition t : transitions)
+		for (BasicTransition t : this.transitions)
 			dot += "  " + t.source + " -> " + t.destination + " [label=\""
 					+ t.label + "\"];" + lineSeparator;
 		dot += "}";
@@ -285,12 +284,12 @@ public class BasicAutomaton implements Conjecture {
 	@Override
 	public String toString() {
 		String output = "LibALF automaton Java impementation\nNumber of States: "
-				+ numberOfStates + "\n";
-		output += "Alphabet size: " + alphabetSize + "\n";
-		output += "Automaton is deterministic: " + isDFA + "\n";
-		output += "Initial states: " + initialStates + "\n";
-		output += "Final states: " + finalStates + "\n";
-		output += "Transitions:" + transitions;
+				+ this.numberOfStates + "\n";
+		output += "Alphabet size: " + this.alphabetSize + "\n";
+		output += "Automaton is deterministic: " + this.isDFA + "\n";
+		output += "Initial states: " + this.initialStates + "\n";
+		output += "Final states: " + this.finalStates + "\n";
+		output += "Transitions:" + this.transitions;
 		return output;
 	}
 }
