@@ -156,8 +156,6 @@ class learning_algorithm {
 
 		virtual void set_normalizer(normalizer * norm)
 		{{{
-			if(this->norm)
-				delete this->norm;
 			this->norm = norm;
 		}}}
 		virtual normalizer * get_normalizer()
@@ -166,8 +164,6 @@ class learning_algorithm {
 		}}}
 		virtual void unset_normalizer()
 		{{{
-			if(norm)
-				delete norm;
 			norm = NULL;
 		}}}
 
