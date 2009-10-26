@@ -964,7 +964,7 @@ bool nondeterministic_finite_automaton::antichain_equivalence_test(nondeterminis
 }}}
 
 multimap< int, set<int> > nondeterministic_finite_automaton::antichain_subset_cpre(multimap< int, set<int> > &stateset, nondeterministic_finite_automaton &other)
-{
+{{{
 	multimap< int, set<int> > ret;
 
 	multimap< int, set<int> >::iterator sti;	// stateset iterator -- this is (l',s')
@@ -1008,12 +1008,24 @@ multimap< int, set<int> > nondeterministic_finite_automaton::antichain_subset_cp
 	inner_powerset_to_inclusion_antichain(ret);
 
 	return ret;
-}
+}}}
+
+void nondeterministic_finite_automaton::antichain_subset_cpreN(multimap< int, set<int> > &Fn, nondeterministic_finite_automaton &other)
+{{{
+	multimap< int, set<int> > Fnplus1;
+
+	Fnplus1 = antichain_subset_cpre(Fn, other);
+
+	while( ! inner_set_includes(Fn, Fnplus1)) {
+		Fn = Fnplus1;
+		Fnplus1 = antichain_subset_cpre(Fn, other);
+	}
+}}}
 
 bool nondeterministic_finite_automaton::antichain_subset_test(nondeterministic_finite_automaton &other, list<int> counterexample)
 // check if L(this) is a subset of L(other)
 {
-	multimap< int, set<int> > Fn, Fnplus1;
+	multimap< int, set<int> > Fn, single;
 
 	pair<int, set<int> > f1;
 
@@ -1022,20 +1034,25 @@ bool nondeterministic_finite_automaton::antichain_subset_test(nondeterministic_f
 	set<int> other_nonfinal;
 	set<int> other_final = other.get_final_states();
 
-	set_subtract(other_nonfinal, other_final);
 
 	for(unsigned int i = 0; i < other.get_state_count(); i++)
 		other_nonfinal.insert(i);
+	set_subtract(other_nonfinal, other_final);
 	f1.second = other_nonfinal;
-	for(set<int>::iterator si = our_final.begin(); si != our_final.end(); ++si) {
-		f1.first = *si;
-		Fn.insert(f1);
-	}
 
-	Fnplus1 = antichain_subset_cpre(Fn, other);
-	while( ! inner_set_includes(Fn, Fnplus1)) {
-		Fn = Fnplus1;
-		Fnplus1 = antichain_subset_cpre(Fn, other);
+	for(set<int>::iterator si = our_final.begin(); si != our_final.end(); ++si) {
+		if(si == our_final.begin()) {
+			// first run: initialize Fn
+			f1.first = *si;
+			Fn.insert(f1);
+			antichain_subset_cpreN(Fn, other);
+		} else {
+			// Nth run: intersect with former Fn
+			f1.first = *si;
+			single.insert(f1);
+			antichain_subset_cpreN(single, other);
+			Fn = inner_set_intersect(Fn, single);
+		}
 	}
 
 	// this is not a subset of other iff there exists a

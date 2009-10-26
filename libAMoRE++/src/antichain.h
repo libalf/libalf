@@ -244,11 +244,11 @@ template <class S, class T>   void inner_powerset_to_inclusion_antichain(multima
 
 	// remove superfluous elements
 	for(sui = superfluous.begin(); sui != superfluous.end(); ++sui) {
-		start = antichain.lower_bound(si->first);
-		end = antichain.upper_bound(si->first);
+		start = antichain.lower_bound(sui->first);
+		end = antichain.upper_bound(sui->first);
 		while(start != end) {
-			if(start->second.size() == si->second.size())
-				if(start->second == si->second)
+			if(start->second.size() == sui->second.size())
+				if(start->second == sui->second)
 					break;
 			++start;
 		}
