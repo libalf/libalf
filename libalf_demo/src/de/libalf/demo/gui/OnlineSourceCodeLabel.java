@@ -60,6 +60,9 @@ public class OnlineSourceCodeLabel extends SourceCodeLabel {
 	}
 
 	public void changeState(State s) {
+		if (s == null)
+			return;
+		
 		String code = "<html><head>" + "<style type=\"text/css\">"
 				+ "#default { line-height: 50; }" + "</style>" + "</head>"
 				+ "<body>";

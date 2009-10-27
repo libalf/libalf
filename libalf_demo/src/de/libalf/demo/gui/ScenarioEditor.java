@@ -22,6 +22,10 @@
 package de.libalf.demo.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -32,15 +36,16 @@ import java.io.ObjectOutputStream;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
@@ -58,7 +63,7 @@ import de.libalf.demo.Tools;
  * 
  * @author Daniel Neider
  * @version 0.1
- *
+ * 
  */
 public class ScenarioEditor extends JDialog {
 
@@ -72,7 +77,7 @@ public class ScenarioEditor extends JDialog {
 
 	private int returnValue = CANCEL;
 
-	private JPanel algorithmDetailsPanel;
+	private JPanel algorithmDetailsPanel, sourceCodePanel;
 
 	public ScenarioEditor() {
 		scenario = Scenario.createDefaultScenario();
@@ -87,7 +92,7 @@ public class ScenarioEditor extends JDialog {
 		/*
 		 * Stuff
 		 */
-		setSize(300, 700);
+		setSize(700, 550);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setTitle("Scenario Editor");
 		setLayout(new BorderLayout());
@@ -102,103 +107,135 @@ public class ScenarioEditor extends JDialog {
 		/*
 		 * Connectivity
 		 */
-		{
-			JPanel connectivityPanel = new JPanel(new GridLayout(3, 1));
-			connectivityPanel
-					.setBorder(new TitledBorder("libalf Connectivity"));
-			topPanel.add(connectivityPanel, BorderLayout.NORTH);
-			ButtonGroup bg = new ButtonGroup();
 
-			// JNI Radiobutton
-			JRadioButton jni = new JRadioButton("JNI");
-			connectivityPanel.add(jni);
-			bg.add(jni);
+		JPanel connectivityPanel = new JPanel(new GridLayout(3, 1));
+		connectivityPanel
+				.setBorder(new TitledBorder("1.  libalf Connectivity"));
+		// topPanel.add(connectivityPanel, BorderLayout.NORTH);
+		ButtonGroup bg = new ButtonGroup();
 
-			// Dispatcher
-			JRadioButton dispatcher = new JRadioButton("Dispatcher", true);
-			connectivityPanel.add(dispatcher);
-			bg.add(dispatcher);
+		// JNI Radiobutton
+		JRadioButton jni = new JRadioButton("JNI");
+		connectivityPanel.add(jni);
+		bg.add(jni);
 
-			// Server textfield and port spinner
-			JPanel dispatcherPanel = new JPanel(new BorderLayout());
-			connectivityPanel.add(dispatcherPanel);
+		// Dispatcher
+		JRadioButton dispatcher = new JRadioButton("Dispatcher", true);
+		connectivityPanel.add(dispatcher);
+		bg.add(dispatcher);
 
-			// Server textfield
-			final JTextField serverField = new JTextField();
-			dispatcherPanel.add(serverField, BorderLayout.CENTER);
-			serverField.setText(scenario.getServer());
-			serverField.addKeyListener(new KeyListener() {
-				public void keyTyped(KeyEvent e) {
-				}
+		// Server textfield and port spinner
+		JPanel dispatcherPanel = new JPanel(new BorderLayout());
+		connectivityPanel.add(dispatcherPanel);
 
-				public void keyReleased(KeyEvent e) {
-					scenario.setServer(serverField.getText());
-				}
-
-				public void keyPressed(KeyEvent e) {
-				}
-			});
-
-			// Port spinner
-			final SpinnerNumberModel model = new SpinnerNumberModel(scenario
-					.getPort(), 1, 65000, 1);
-			final JSpinner portSpinner = new JSpinner(model);
-			dispatcherPanel.add(portSpinner, BorderLayout.EAST);
-			portSpinner.addChangeListener(new ChangeListener() {
-				public void stateChanged(ChangeEvent e) {
-					scenario.setPort((Integer) model.getValue());
-				}
-			});
-
-			if (scenario.isJniConnection()) {
-				jni.setSelected(true);
-				serverField.setEnabled(false);
-				portSpinner.setEnabled(false);
-			} else {
-				dispatcher.setSelected(true);
+		// Server textfield
+		final JTextField serverField = new JTextField();
+		dispatcherPanel.add(serverField, BorderLayout.CENTER);
+		serverField.setText(scenario.getServer());
+		serverField.addKeyListener(new KeyListener() {
+			public void keyTyped(KeyEvent e) {
 			}
 
-			// Actions
-			jni.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent arg0) {
-					serverField.setEnabled(false);
-					portSpinner.setEnabled(false);
-					scenario.setJniConnection(true);
-				}
-			});
+			public void keyReleased(KeyEvent e) {
+				scenario.setServer(serverField.getText());
 
-			dispatcher.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					serverField.setEnabled(true);
-					portSpinner.setEnabled(true);
-					scenario.setJniConnection(false);
-				}
-			});
+				updateScourCodeLabel();
+			}
 
+			public void keyPressed(KeyEvent e) {
+			}
+		});
+
+		// Port spinner
+		final SpinnerNumberModel model = new SpinnerNumberModel(scenario
+				.getPort(), 1, 65000, 1);
+		final JSpinner portSpinner = new JSpinner(model);
+		dispatcherPanel.add(portSpinner, BorderLayout.EAST);
+		portSpinner.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				scenario.setPort((Integer) model.getValue());
+
+				updateScourCodeLabel();
+			}
+		});
+
+		if (scenario.isJniConnection()) {
+			jni.setSelected(true);
+			serverField.setEnabled(false);
+			portSpinner.setEnabled(false);
+		} else {
+			dispatcher.setSelected(true);
 		}
 
-		/*
-		 * Alphabet Size
-		 */
-		JPanel alphabetPanel = new JPanel();
-		final SpinnerNumberModel alphabetModel = new SpinnerNumberModel(
-				scenario.getAlphabetSize(), 1, 10, 1);
-		JSpinner alphabetSpinner = new JSpinner(alphabetModel);
-		alphabetPanel.add(alphabetSpinner);
-		alphabetPanel.setBorder(new TitledBorder("Alphabet size"));
-		alphabetModel.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
-				scenario.setAlphabetSize((Integer) alphabetModel.getValue());
+		// Actions
+		jni.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				serverField.setEnabled(false);
+				portSpinner.setEnabled(false);
+				scenario.setJniConnection(true);
+
+				updateScourCodeLabel();
+			}
+		});
+
+		dispatcher.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				serverField.setEnabled(true);
+				portSpinner.setEnabled(true);
+				scenario.setJniConnection(false);
+
+				updateScourCodeLabel();
 			}
 		});
 
 		/*
+		 * Alphabet Size
+		 */
+		JPanel alphabetPanel = new JPanel(new GridBagLayout());
+		final JPanel alphabetDetailPanel = new JPanel();
+		// Spinner
+		final SpinnerNumberModel alphabetModel = new SpinnerNumberModel(
+				scenario.getAlphabetSize(), 1, 10, 1);
+		JSpinner alphabetSpinner = new JSpinner(alphabetModel);
+		alphabetPanel.setBorder(new TitledBorder("2.  Alphabet size"));
+		alphabetModel.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				scenario.setAlphabetSize((Integer) alphabetModel.getValue());
+
+				JLabel l = new JLabel("Valid symbols: 0"
+						+ (scenario.getAlphabetSize() > 1 ? " ... "
+								+ (scenario.getAlphabetSize() - 1) : ""));
+				alphabetDetailPanel.removeAll();
+				alphabetDetailPanel.add(l);
+				alphabetDetailPanel.revalidate();
+				alphabetDetailPanel.repaint();
+
+				updateScourCodeLabel();
+			}
+		});
+		// More info on alphabetSize
+		JLabel alphabetDetailLabel = new JLabel("Valid symbols: 0"
+				+ (scenario.getAlphabetSize() > 1 ? " ... "
+						+ (scenario.getAlphabetSize() - 1) : ""));
+		alphabetDetailPanel.add(alphabetDetailLabel);
+		// Layout
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx = c.gridy = 0;
+		c.weightx = 1;
+		c.weighty = .33;
+		c.fill = GridBagConstraints.NONE;
+		alphabetPanel.add(alphabetSpinner, c);
+		c.gridy = 1;
+		c.weighty = .66;
+		c.anchor = GridBagConstraints.WEST;
+		alphabetPanel.add(alphabetDetailPanel, c);
+
+		/*
 		 * Algorithm
 		 */
-		final JPanel algorithmPanel = new JPanel();
-		algorithmPanel.setBorder(new TitledBorder("Algorithm"));
-		// topPanel.add(algorithmPanel, BorderLayout.SOUTH);
-
+		final JPanel algorithmPanel = new JPanel(new GridBagLayout());
+		final JPanel algorithmDescriptionPanel = new JPanel();
+		algorithmPanel.setBorder(new TitledBorder("3.  Algorithm"));
 		// JCombobox
 		final JComboBox box = new JComboBox(new Object[] { Algorithm.ANGLUIN,
 				Algorithm.ANGLUIN_COLUMN, Algorithm.BIERMANN_MINISAT,
@@ -206,21 +243,40 @@ public class ScenarioEditor extends JDialog {
 				Algorithm.RPNI });
 		algorithmPanel.add(box);
 		box.setSelectedItem(scenario.getAlgorithm());
-		box.addActionListener(new MyJComboBoxListener(box, scenario
-				.getAlgorithm()));
+		box.addActionListener(new MyJComboBoxListener(box,
+				algorithmDescriptionPanel, scenario.getAlgorithm()));
+		// More info about algorithm
+		String text = (scenario.getAlgorithm().equals(Algorithm.ANGLUIN)
+				|| scenario.getAlgorithm().equals(Algorithm.ANGLUIN_COLUMN)
+				|| scenario.getAlgorithm().equals(Algorithm.NL_STAR) ? "Online"
+				: "Offline")
+				+ " algorithm";
+		algorithmDescriptionPanel.add(new JLabel(text));
+		// Layout
+		c = new GridBagConstraints();
+		c.gridx = c.gridy = 0;
+		c.weightx = 1;
+		c.weighty = .33;
+		c.fill = GridBagConstraints.NONE;
+		algorithmPanel.add(box, c);
+		c.gridy = 1;
+		c.weighty = .66;
+		c.anchor = GridBagConstraints.WEST;
+		algorithmPanel.add(algorithmDescriptionPanel, c);
 
 		/*
 		 * Top-Center-Panel
 		 */
-		JPanel tcPanel = new JPanel(new GridLayout(2, 1));
-		topPanel.add(tcPanel, BorderLayout.CENTER);
+		JPanel tcPanel = new JPanel(new GridLayout(1, 2));
+		topPanel.add(tcPanel, BorderLayout.EAST);
+		topPanel.add(connectivityPanel, BorderLayout.CENTER);
 		tcPanel.add(alphabetPanel);
 		tcPanel.add(algorithmPanel);
 
 		/*
 		 * More options
 		 */
-		String text = "<html>" + "<head>" + "<style>" + "body {"
+		text = "<html>" + "<head>" + "<style>" + "body {"
 				+ "font-family:Calibri,Arial,sans-serif; padding: 5px;}"
 				+ "</style>" + "</head>" + "<body>";
 		text += "<a href=\"more\">More options ...</a><br></body></html>";
@@ -242,50 +298,50 @@ public class ScenarioEditor extends JDialog {
 				}
 			}
 		});
-		
-		/*
-		 * Init code window panel
-		 */
-		JCheckBox initCodeBox = new JCheckBox("Show code", false);
-		
-		/*
-		 * More options panel
-		 */
-		JPanel moreOptionsPanel = new JPanel(new BorderLayout());
-		topPanel.add(moreOptionsPanel, BorderLayout.SOUTH);
-		moreOptionsPanel.add(editor, BorderLayout.WEST);
-		moreOptionsPanel.add(initCodeBox, BorderLayout.EAST);
-		
+		JPanel editorPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		editorPanel.add(editor);
+		topPanel.add(editorPanel, BorderLayout.SOUTH);
+
 		/*
 		 * Algorithm Details Panel
 		 */
-		{
-			algorithmDetailsPanel = new JPanel(new BorderLayout());
-			algorithmDetailsPanel.setBorder(new TitledBorder(
-					"Algorithm Details"));
-			add(algorithmDetailsPanel, BorderLayout.CENTER);
+		algorithmDetailsPanel = new JPanel(new BorderLayout());
+		algorithmDetailsPanel.setBorder(new TitledBorder("Algorithm Details"));
 
-			switch (scenario.getAlgorithm()) {
-			case ANGLUIN:
-			case ANGLUIN_COLUMN:
-			case NL_STAR:
-				algorithmDetailsPanel.add(new DefaultOnlineAlgorithmDetails(
-						scenario));
-				break;
-			case RPNI:
-			case BIERMANN_MINISAT:
-			case DELETE2:
-				algorithmDetailsPanel.add(new DefaultOfflineAlgorithmDetails(
-						scenario), BorderLayout.CENTER);
-				break;
-			default:
-				JOptionPane.showMessageDialog(ScenarioEditor.this,
-						"Unknown learning algorithm",
-						"Unknown learning algorithm",
-						JOptionPane.WARNING_MESSAGE);
-				break;
-			}
+		switch (scenario.getAlgorithm()) {
+		case ANGLUIN:
+		case ANGLUIN_COLUMN:
+		case NL_STAR:
+			algorithmDetailsPanel.add(new DefaultOnlineAlgorithmDetails(
+					scenario));
+			break;
+		case RPNI:
+		case BIERMANN_MINISAT:
+		case DELETE2:
+			algorithmDetailsPanel.add(new DefaultOfflineAlgorithmDetails(
+					scenario), BorderLayout.CENTER);
+			break;
+		default:
+			JOptionPane.showMessageDialog(ScenarioEditor.this,
+					"Unknown learning algorithm", "Unknown learning algorithm",
+					JOptionPane.WARNING_MESSAGE);
+			break;
 		}
+
+		/*
+		 * Source Code panel
+		 */
+		sourceCodePanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
+		sourceCodePanel.setBackground(Color.WHITE);
+		sourceCodePanel.add(new SourceCodeLabel(scenario));
+
+		/*
+		 * JTabbed Pane
+		 */
+		JTabbedPane tabbedPane = new JTabbedPane();
+		add(tabbedPane, BorderLayout.CENTER);
+		tabbedPane.addTab("Algorithm Details", algorithmDetailsPanel);
+		tabbedPane.addTab("Source Code", sourceCodePanel);
 
 		/*
 		 * Buttons at the bottom
@@ -366,7 +422,18 @@ public class ScenarioEditor extends JDialog {
 		/*
 		 * More stuff
 		 */
+		setLocationRelativeTo(null);
 		setVisible(true);
+	}
+
+	private void updateScourCodeLabel() {
+		boolean isZooming = ((SourceCodeLabel) sourceCodePanel.getComponent(0))
+				.isZooming();
+
+		sourceCodePanel.removeAll();
+		sourceCodePanel.add(new SourceCodeLabel(scenario, isZooming));
+		sourceCodePanel.revalidate();
+		sourceCodePanel.repaint();
 	}
 
 	public int showScenarioEditor() {
@@ -382,10 +449,13 @@ public class ScenarioEditor extends JDialog {
 
 		JComboBox box;
 		Algorithm lastChoise;
+		JPanel descriptionPanel;
 
-		public MyJComboBoxListener(JComboBox box, Algorithm current) {
+		public MyJComboBoxListener(JComboBox box, JPanel descriptionPanel,
+				Algorithm current) {
 			this.box = box;
 			lastChoise = current;
+			this.descriptionPanel = descriptionPanel;
 		}
 
 		@Override
@@ -428,6 +498,18 @@ public class ScenarioEditor extends JDialog {
 			algorithmDetailsPanel.revalidate();
 			algorithmDetailsPanel.repaint();
 
+			String text = (scenario.getAlgorithm().equals(Algorithm.ANGLUIN)
+					|| scenario.getAlgorithm().equals(Algorithm.ANGLUIN_COLUMN)
+					|| scenario.getAlgorithm().equals(Algorithm.NL_STAR) ? "Online"
+					: "Offline")
+					+ " algorithm";
+
+			descriptionPanel.removeAll();
+			descriptionPanel.add(new JLabel(text));
+			descriptionPanel.revalidate();
+			descriptionPanel.repaint();
+
+			updateScourCodeLabel();
 		}
 	}
 }

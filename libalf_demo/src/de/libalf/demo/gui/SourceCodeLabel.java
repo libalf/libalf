@@ -41,7 +41,7 @@ import de.libalf.demo.Scenario;
  * 
  * @author Daniel Neider
  * @version 0.1
- *
+ * 
  */
 public class SourceCodeLabel extends JLabel {
 
@@ -63,19 +63,23 @@ public class SourceCodeLabel extends JLabel {
 	MouseMotionListener zoomMouseListener;
 
 	public SourceCodeLabel(Scenario scenario) {
+		this(scenario, false);
+	}
+
+	public SourceCodeLabel(Scenario scenario, boolean doZooming) {
 		super();
 		this.scenario = scenario;
 
 		// Zoom Windows
 		initWindow = new InitWindow();
-		
+
 		// Mouse listener
 		zoomMouseListener = new ZoomMouseListener();
 
 		/*
 		 * Popup menu
 		 */
-		final JPopupMenu popupMenu = new MyPopupMenu();
+		final JPopupMenu popupMenu = new MyPopupMenu(doZooming);
 		addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
 				if (e.getButton() == MouseEvent.BUTTON3) {
@@ -92,6 +96,16 @@ public class SourceCodeLabel extends JLabel {
 		setOpaque(true);
 		setBackground(java.awt.Color.WHITE);
 
+		/*
+		 * Set zooming
+		 */
+		if (doZooming)
+			addMouseMotionListener(zoomMouseListener);
+
+		/*
+		 * Advance
+		 */
+		changeState(null);
 	}
 
 	String color(Color c, String s) {
@@ -110,8 +124,7 @@ public class SourceCodeLabel extends JLabel {
 	String getHTMLHeader() {
 		return "<html>" + "<head>" + "<style>" + "body {"
 				+ "font-family:Calibri,Arial,sans-serif; " + "padding:10px; "
-				+ "font-size: large;" + "}" + "</style>" + "</head>"
-				+ "<body>";
+				+ "font-size: large;" + "}" + "</style>" + "</head>" + "<body>";
 	}
 
 	String getHTMLEnd() {
@@ -119,7 +132,26 @@ public class SourceCodeLabel extends JLabel {
 	}
 
 	public void changeState(State s) {
+		String code = "<html><head>" + "<style type=\"text/css\">"
+				+ "#default { line-height: 50; }" + "</style>" + "</head>"
+				+ "<body>";
 
+		code += "<p>LibALFFactory " + color(Color.BLUE, "factory") + " = new "
+				+ (scenario.isJniConnection() ? "JNI" : "Dispatcher")
+				+ "Factory();<br>";
+
+		code += "Knowledgebase " + color(Color.BLUE, "knowledgebase") + " = "
+				+ color(Color.BLUE, "factory") + ".createKnowledgebase();<br>";
+
+		code += "LearningAlgorithm " + color(Color.BLUE, "algorithm") + " = "
+				+ color(Color.BLUE, "factory") + ".createLearningAlgorithm("
+				+ scenario.getAlgorithm() + ", "
+				+ color(Color.BLUE, "knowledgebase") + ", "
+				+ scenario.getAlphabetSize() + ");</p><br>";
+
+		code += "</body></html>";
+
+		setText(code);
 	}
 
 	void hideAllZoomWindows(JWindow dontHideMe) {
@@ -137,6 +169,7 @@ public class SourceCodeLabel extends JLabel {
 			editor.setEditable(false);
 			editor.setBorder(new EtchedBorder(EtchedBorder.LOWERED));
 			getContentPane().add(editor);
+			setAlwaysOnTop(true);
 		}
 	}
 
@@ -166,6 +199,10 @@ public class SourceCodeLabel extends JLabel {
 
 			pack();
 		}
+	}
+
+	public boolean isZooming() {
+		return getMouseMotionListeners().length > 0;
 	}
 
 	private class ZoomMouseListener extends MouseMotionAdapter {
@@ -199,7 +236,8 @@ public class SourceCodeLabel extends JLabel {
 
 		private boolean zoomEnabled = false;
 
-		public MyPopupMenu() {
+		public MyPopupMenu(boolean doZoom) {
+			this.zoomEnabled = doZoom;
 
 			final JCheckBoxMenuItem box = new JCheckBoxMenuItem("Enable zoom",
 					zoomEnabled);

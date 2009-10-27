@@ -22,6 +22,7 @@
 package de.libalf.demo.gui;
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -93,20 +94,20 @@ public class DefaultOnlineAlgorithmDetails extends JPanel {
 			 * Automaton panel
 			 */
 			{
-				JPanel automatonPanel = new JPanel(new GridLayout());
+				JPanel automatonPanel = new JPanel(new BorderLayout());
 				teacherPanel.add(automatonPanel);
 
 				// Button panel
-				JPanel buttonPanel = new JPanel(new GridLayout(1, 2));
-				automatonPanel.add(buttonPanel, BorderLayout.EAST);
+				JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
+				automatonPanel.add(buttonPanel, BorderLayout.WEST);
 
 				// Choose Button
 				final JButton choose = new JButton("Choose");
-				buttonPanel.add(choose, BorderLayout.WEST);
+				buttonPanel.add(choose);
 
 				// Preview Button
 				final JButton preview = new JButton("Preview");
-				buttonPanel.add(preview, BorderLayout.EAST);
+				buttonPanel.add(preview);
 
 				/*
 				 * Actions

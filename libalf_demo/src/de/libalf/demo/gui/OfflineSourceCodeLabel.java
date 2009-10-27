@@ -33,20 +33,20 @@ import de.libalf.demo.Scenario;
  * 
  * @author Daniel Neider
  * @version 0.1
- *
+ * 
  */
 class OfflineSourceCodeLabel extends SourceCodeLabel {
 
 	private static final long serialVersionUID = 1L;
 
 	JWindow algorithmWindow;
-	
+
 	public OfflineSourceCodeLabel(Scenario scenario) {
 		super(scenario);
 
 		// Zoom Windows
 		algorithmWindow = new AlgorithmWindow();
-		
+
 		// Mouse listener
 		zoomMouseListener = new ZoomMouseListener();
 
@@ -55,6 +55,9 @@ class OfflineSourceCodeLabel extends SourceCodeLabel {
 	}
 
 	public void changeState(State s) {
+		if (s == null)
+			return;
+
 		String code = "<html><head>" + "<style type=\"text/css\">"
 				+ "#default { line-height: 50; }" + "</style>" + "</head>"
 				+ "<body>";
@@ -128,7 +131,7 @@ class OfflineSourceCodeLabel extends SourceCodeLabel {
 				currentlyZooming = null;
 			}
 			hideAllZoomWindows(currentlyZooming);
-			
+
 			if (currentlyZooming != null) {
 				currentlyZooming.setLocation(e.getXOnScreen() + 10, e
 						.getYOnScreen() + 10);
