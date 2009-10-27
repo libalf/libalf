@@ -140,7 +140,7 @@ class nondeterministic_finite_automaton : public finite_automaton {
 	protected:
 //		set<set<int> > antichain_universality_cpre(set<int>);
 		multimap< int, set<int> > antichain_subset_cpre(multimap< int, set<int> > &stateset, nondeterministic_finite_automaton &other);
-		void antichain_subset_cpreN(multimap< int, set<int> > &stateset, nondeterministic_finite_automaton &other);
+		void antichain_subset_cpreN(pair<int, set<int> > &f1, multimap< int, set<int> > &Fn, nondeterministic_finite_automaton &other);
 
 };
 

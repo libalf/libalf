@@ -963,8 +963,26 @@ bool nondeterministic_finite_automaton::antichain_equivalence_test(nondeterminis
 	return other.antichain_subset_test(*this, counterexample);
 }}}
 
+
+static inline void print_set(set<int> &s)
+{{{
+	set<int>::iterator si;
+	for(si = s.begin(); si != s.end(); si++)
+		printf("%d ", *si);
+}}}
+static inline void print_mm(multimap< int, set<int> > &mm)
+{{{
+	multimap< int, set<int> >::iterator mmi;
+	for(mmi = mm.begin(); mmi != mm.end(); mmi++) {
+		printf("\t%2d, { ", mmi->first);
+		print_set(mmi->second);
+		printf("}\n");
+	}
+}}}
+
 multimap< int, set<int> > nondeterministic_finite_automaton::antichain_subset_cpre(multimap< int, set<int> > &stateset, nondeterministic_finite_automaton &other)
 {{{
+printf("cpre\n");
 	multimap< int, set<int> > ret;
 
 	multimap< int, set<int> >::iterator sti;	// stateset iterator -- this is (l',s')
@@ -1010,16 +1028,33 @@ multimap< int, set<int> > nondeterministic_finite_automaton::antichain_subset_cp
 	return ret;
 }}}
 
-void nondeterministic_finite_automaton::antichain_subset_cpreN(multimap< int, set<int> > &Fn, nondeterministic_finite_automaton &other)
+void nondeterministic_finite_automaton::antichain_subset_cpreN(pair<int, set<int> > &f1, multimap< int, set<int> > &Fn, nondeterministic_finite_automaton &other)
 {{{
 	multimap< int, set<int> > Fnplus1;
 
+	Fn.clear();
+	Fn.insert(f1);
+
+printf("cpreN -------\n");
+
 	Fnplus1 = antichain_subset_cpre(Fn, other);
 
-	while( ! inner_set_includes(Fn, Fnplus1)) {
+int i = 1;
+printf("F%d:\n", i);
+print_mm(Fn);
+
+	while( Fn != Fnplus1 ) {
 		Fn = Fnplus1;
+		Fn.insert(f1); // really? or in intermediate?
+		i++;
 		Fnplus1 = antichain_subset_cpre(Fn, other);
+
+printf("F%d:\n", i);
+print_mm(Fnplus1);
+
 	}
+
+printf("\n");
 }}}
 
 bool nondeterministic_finite_automaton::antichain_subset_test(nondeterministic_finite_automaton &other, list<int> counterexample)
@@ -1034,23 +1069,26 @@ bool nondeterministic_finite_automaton::antichain_subset_test(nondeterministic_f
 	set<int> other_nonfinal;
 	set<int> other_final = other.get_final_states();
 
+printf("this->final     { "); print_set(our_final); printf("}\n");
+printf("this->initial   { "); print_set(our_initial); printf("}\n");
+printf("other->final    { "); print_set(other_final); printf("}\n");
 
 	for(unsigned int i = 0; i < other.get_state_count(); i++)
 		other_nonfinal.insert(i);
-	set_subtract(other_nonfinal, other_final);
+	other_nonfinal = set_without(other_nonfinal, other_final);
 	f1.second = other_nonfinal;
 
+printf("other->nonfinal { "); print_set(other_nonfinal); printf("}\n");
+
 	for(set<int>::iterator si = our_final.begin(); si != our_final.end(); ++si) {
+		f1.first = *si;
 		if(si == our_final.begin()) {
 			// first run: initialize Fn
-			f1.first = *si;
-			Fn.insert(f1);
-			antichain_subset_cpreN(Fn, other);
+			antichain_subset_cpreN(f1, Fn, other);
 		} else {
+printf("INTERSECT\n");
 			// Nth run: intersect with former Fn
-			f1.first = *si;
-			single.insert(f1);
-			antichain_subset_cpreN(single, other);
+			antichain_subset_cpreN(f1, single, other);
 			Fn = inner_set_intersect(Fn, single);
 		}
 	}

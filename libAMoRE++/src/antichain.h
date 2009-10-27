@@ -113,7 +113,7 @@ template <class T>   void powerset_to_inclusion_antichain(set<set<T> > &antichai
 		antichain.erase(*si1);
 }}}
 
-template <class T>   set<T> set_subtract(set<T> &s, set<T> &remove)
+template <class T>   set<T> set_without(set<T> &s, set<T> &remove)
 {{{
 	set<T> ret;
 	typename set<T>::iterator si, rmi;
