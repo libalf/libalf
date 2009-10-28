@@ -29,6 +29,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
@@ -233,9 +234,15 @@ public class AutomatonEditor extends JDialog {
 							.showSaveDialog(AutomatonEditor.this);
 					if (returnVal == JFileChooser.APPROVE_OPTION) {
 						try {
+							File to = chooser.getSelectedFile();
+							if (Tools.getFileExtension(to) == null
+									|| !Tools.getFileExtension(to).equals(
+											"automaton"))
+								to = new File(to.getAbsolutePath()
+										+ ".automaton");
+
 							ObjectOutputStream oos = new ObjectOutputStream(
-									new FileOutputStream(chooser
-											.getSelectedFile()));
+									new FileOutputStream(to));
 							oos.writeObject(automaton);
 						} catch (Exception e1) {
 							JOptionPane.showMessageDialog(AutomatonEditor.this,
@@ -375,5 +382,5 @@ public class AutomatonEditor extends JDialog {
 			}
 		}
 	}
-	
+
 }

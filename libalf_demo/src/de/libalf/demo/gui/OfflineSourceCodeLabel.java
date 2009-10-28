@@ -62,9 +62,13 @@ class OfflineSourceCodeLabel extends SourceCodeLabel {
 				+ "#default { line-height: 50; }" + "</style>" + "</head>"
 				+ "<body>";
 
-		code += "<p>LibALFFactory " + color(Color.BLUE, "factory") + " = new "
+		code += "<p>LibALFFactory "
+				+ color(Color.BLUE, "factory")
+				+ " = new "
 				+ (scenario.isJniConnection() ? "JNI" : "Dispatcher")
-				+ "Factory();<br>";
+				+ "Factory("
+				+ (scenario.isJniConnection() ? "" : scenario.getServer()
+						+ ", " + scenario.getPort()) + ");<br>";
 
 		code += "Knowledgebase " + color(Color.BLUE, "knowledgebase") + " = "
 				+ color(Color.BLUE, "factory") + ".createKnowledgebase();<br>";
@@ -74,6 +78,11 @@ class OfflineSourceCodeLabel extends SourceCodeLabel {
 				+ scenario.getAlgorithm() + ", "
 				+ color(Color.BLUE, "knowledgebase") + ", "
 				+ scenario.getAlphabetSize() + ");</p><br>";
+
+		code += "<p>" + "for(int[] " + color(Color.BLUE, "knowledge ")
+				+ " : create_knowledge())" + "<div style=\"margin-left: 60\">"
+				+ color(Color.BLUE, "knowledgebase") + ".add_knowledge("
+				+ color(Color.BLUE, "knowledge") + ");" + "</div><br>" + "</p>";
 
 		if (s.equals(State.ADVANCE)) {
 			code += "<p>"
@@ -124,7 +133,7 @@ class OfflineSourceCodeLabel extends SourceCodeLabel {
 			if (e.getY() <= 50) {
 				if (currentlyZooming != initWindow)
 					currentlyZooming = initWindow;
-			} else if (e.getY() >= 62 && e.getY() <= 110) {
+			} else if (e.getY() >= 62 && e.getY() <= 160) {
 				if (currentlyZooming != algorithmWindow)
 					currentlyZooming = algorithmWindow;
 			} else {
@@ -147,6 +156,12 @@ class OfflineSourceCodeLabel extends SourceCodeLabel {
 			super();
 
 			String code = getHTMLHeader();
+			code += "<p>" + "for(int[] " + color(Color.BLUE, "knowledge ")
+					+ " : create_knowledge())"
+					+ "<div style=\"margin-left: 60\">"
+					+ color(Color.BLUE, "knowledgebase") + ".add_knowledge("
+					+ color(Color.BLUE, "knowledge") + ");" + "</div><br>"
+					+ "</p>";
 			code += "Automaton " + color(Color.BLUE, "result") + " = "
 					+ color(Color.BLUE, "algorithm") + ".advance();<br><br>";
 			code += "return " + color(Color.BLUE, "automaton") + ";";

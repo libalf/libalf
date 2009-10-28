@@ -136,9 +136,13 @@ public class SourceCodeLabel extends JLabel {
 				+ "#default { line-height: 50; }" + "</style>" + "</head>"
 				+ "<body>";
 
-		code += "<p>LibALFFactory " + color(Color.BLUE, "factory") + " = new "
+		code += "<p>LibALFFactory "
+				+ color(Color.BLUE, "factory")
+				+ " = new "
 				+ (scenario.isJniConnection() ? "JNI" : "Dispatcher")
-				+ "Factory();<br>";
+				+ "Factory("
+				+ (scenario.isJniConnection() ? "" : scenario.getServer()
+						+ ", " + scenario.getPort()) + ");<br>";
 
 		code += "Knowledgebase " + color(Color.BLUE, "knowledgebase") + " = "
 				+ color(Color.BLUE, "factory") + ".createKnowledgebase();<br>";
@@ -180,9 +184,13 @@ public class SourceCodeLabel extends JLabel {
 			super();
 
 			String code = getHTMLHeader();
-			code += "LibALFFactory " + color(Color.BLUE, "factory") + " = new "
+			code += "LibALFFactory "
+					+ color(Color.BLUE, "factory")
+					+ " = new "
 					+ (scenario.isJniConnection() ? "JNI" : "Dispatcher")
-					+ "Factory();<br>";
+					+ "Factory("
+					+ (scenario.isJniConnection() ? "" : scenario.getServer()
+							+ ", " + scenario.getPort()) + ");<br>";
 
 			code += "Knowledgebase " + color(Color.BLUE, "knowledgebase")
 					+ " = " + color(Color.BLUE, "factory")

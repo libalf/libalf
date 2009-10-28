@@ -31,6 +31,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 
@@ -223,11 +224,11 @@ public class ScenarioEditor extends JDialog {
 		c.gridx = c.gridy = 0;
 		c.weightx = 1;
 		c.weighty = .33;
-		c.fill = GridBagConstraints.NONE;
+		c.fill = GridBagConstraints.HORIZONTAL;
 		alphabetPanel.add(alphabetSpinner, c);
 		c.gridy = 1;
 		c.weighty = .66;
-		c.anchor = GridBagConstraints.WEST;
+		c.anchor = GridBagConstraints.SOUTHWEST;
 		alphabetPanel.add(alphabetDetailPanel, c);
 
 		/*
@@ -261,7 +262,7 @@ public class ScenarioEditor extends JDialog {
 		algorithmPanel.add(box, c);
 		c.gridy = 1;
 		c.weighty = .66;
-		c.anchor = GridBagConstraints.WEST;
+		c.anchor = GridBagConstraints.SOUTHWEST;
 		algorithmPanel.add(algorithmDescriptionPanel, c);
 
 		/*
@@ -396,9 +397,15 @@ public class ScenarioEditor extends JDialog {
 					int returnVal = chooser.showSaveDialog(ScenarioEditor.this);
 					if (returnVal == JFileChooser.APPROVE_OPTION) {
 						try {
+							File to = chooser.getSelectedFile();
+							if (Tools.getFileExtension(to) == null
+									|| !Tools.getFileExtension(to).equals(
+											"scenario"))
+								to = new File(to.getAbsolutePath()
+										+ ".scenario");
+
 							ObjectOutputStream oos = new ObjectOutputStream(
-									new FileOutputStream(chooser
-											.getSelectedFile()));
+									new FileOutputStream(to));
 							oos.writeObject(scenario);
 						} catch (Exception exception) {
 							JOptionPane.showMessageDialog(ScenarioEditor.this,

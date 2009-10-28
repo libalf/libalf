@@ -26,6 +26,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.util.Collection;
 
@@ -76,7 +77,7 @@ public class DefaultOfflineAlgorithmDetails extends JPanel {
 		final MySampleTableModel model = new MySampleTableModel(scenario);
 		final JTable table = new JTable(model);
 		lPanel.add(new JScrollPane(table), BorderLayout.CENTER);
-		table.getColumnModel().getColumn(0).setPreferredWidth(180);
+		table.getColumnModel().getColumn(0).setPreferredWidth(500);
 
 		/*
 		 * Button panel
@@ -90,8 +91,8 @@ public class DefaultOfflineAlgorithmDetails extends JPanel {
 		JPanel leftBottomPanel = new JPanel(new GridLayout(1, 2));
 		bPanel.add(leftBottomPanel, BorderLayout.WEST);
 		// Load
-		JButton loadButton = new JButton("Load");
-		loadButton.setToolTipText("Load a previously saved sample list");
+		JButton loadButton = new JButton("Import samples");
+		loadButton.setToolTipText("Import a previously exported sample list");
 		leftBottomPanel.add(loadButton);
 		loadButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -108,8 +109,8 @@ public class DefaultOfflineAlgorithmDetails extends JPanel {
 		});
 
 		// Save
-		JButton saveButton = new JButton("Save");
-		saveButton.setToolTipText("Save the sample list");
+		JButton saveButton = new JButton("Export samples");
+		saveButton.setToolTipText("Export the sample list");
 		leftBottomPanel.add(saveButton);
 		saveButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -117,12 +118,18 @@ public class DefaultOfflineAlgorithmDetails extends JPanel {
 				FileNameExtensionFilter filter = new FileNameExtensionFilter(
 						"Sample list", "csv");
 				chooser.setFileFilter(filter);
+
 				int returnVal = chooser
 						.showSaveDialog(DefaultOfflineAlgorithmDetails.this);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					try {
+						File to = chooser.getSelectedFile();
+						if (Tools.getFileExtension(to) == null
+								|| !Tools.getFileExtension(to).equals("csv"))
+							to = new File(to.getAbsolutePath() + ".csv");
+						
 						BufferedWriter writer = new BufferedWriter(
-								new FileWriter(chooser.getSelectedFile()));
+								new FileWriter(to));
 						for (Sample s : scenario.getSamples()) {
 							writer.write(Sample.word2String(s.word) + ","
 									+ (s.acceptance ? "1" : "0"));

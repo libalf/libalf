@@ -33,14 +33,13 @@ import de.libalf.demo.Scenario;
  * 
  * @author Daniel Neider
  * @version 0.1
- *
+ * 
  */
 public class OnlineSourceCodeLabel extends SourceCodeLabel {
 
 	private static final long serialVersionUID = 1L;
 
-	JWindow algorithmWindow, membershipQueryWindow,
-			equivalenceQueryWindow;
+	JWindow algorithmWindow, membershipQueryWindow, equivalenceQueryWindow;
 
 	public OnlineSourceCodeLabel(Scenario scenario) {
 		super(scenario);
@@ -52,7 +51,7 @@ public class OnlineSourceCodeLabel extends SourceCodeLabel {
 
 		// Mouse listener
 		zoomMouseListener = new ZoomMouseListener();
-		
+
 		/*
 		 * Advance
 		 */
@@ -62,14 +61,18 @@ public class OnlineSourceCodeLabel extends SourceCodeLabel {
 	public void changeState(State s) {
 		if (s == null)
 			return;
-		
+
 		String code = "<html><head>" + "<style type=\"text/css\">"
 				+ "#default { line-height: 50; }" + "</style>" + "</head>"
 				+ "<body>";
 
-		code += "<p>LibALFFactory " + color(Color.BLUE, "factory") + " = new "
+		code += "<p>LibALFFactory "
+				+ color(Color.BLUE, "factory")
+				+ " = new "
 				+ (scenario.isJniConnection() ? "JNI" : "Dispatcher")
-				+ "Factory();<br>";
+				+ "Factory("
+				+ (scenario.isJniConnection() ? "" : scenario.getServer()
+						+ ", " + scenario.getPort()) + ");<br>";
 
 		code += "Knowledgebase " + color(Color.BLUE, "knowledgebase") + " = "
 				+ color(Color.BLUE, "factory") + ".createKnowledgebase();<br>";
@@ -222,7 +225,7 @@ public class OnlineSourceCodeLabel extends SourceCodeLabel {
 				currentlyZooming = null;
 			}
 			hideAllZoomWindows(currentlyZooming);
-			
+
 			if (currentlyZooming != null) {
 				currentlyZooming.setLocation(e.getXOnScreen() + 10, e
 						.getYOnScreen() + 10);

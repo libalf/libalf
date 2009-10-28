@@ -53,6 +53,7 @@
                 <attribute name="Implementation-Vendor" value="Chair for Computer Science 7, RWTH Aachen University"/>
                 <attribute name="Implementation-Title" value="libalf-demo"/>
                 <attribute name="Implementation-Version" value="0.1"/>
+				<attribute name="Main-Class" value="de.libalf.demo.Starter"/>
             </manifest>
         </jar>
     </target>

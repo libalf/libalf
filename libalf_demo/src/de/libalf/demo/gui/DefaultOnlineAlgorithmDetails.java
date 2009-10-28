@@ -23,6 +23,8 @@ package de.libalf.demo.gui;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -73,7 +75,7 @@ public class DefaultOnlineAlgorithmDetails extends JPanel {
 		 * Teacher
 		 */
 		{
-			JPanel teacherPanel = new JPanel(new GridLayout(3, 1));
+			JPanel teacherPanel = new JPanel(new GridBagLayout());
 			teacherPanel.setBorder(new TitledBorder("Teacher"));
 			add(teacherPanel, BorderLayout.NORTH);
 			ButtonGroup bg = new ButtonGroup();
@@ -81,25 +83,21 @@ public class DefaultOnlineAlgorithmDetails extends JPanel {
 			// None Button
 			final JRadioButton noneButton = new JRadioButton(
 					"None (user guided)");
-			teacherPanel.add(noneButton);
+
 			bg.add(noneButton);
 
 			// From Automaton
 			final JRadioButton fromAutomaton = new JRadioButton(
 					"From Automaton");
-			teacherPanel.add(fromAutomaton);
 			bg.add(fromAutomaton);
 
 			/*
 			 * Automaton panel
 			 */
 			{
-				JPanel automatonPanel = new JPanel(new BorderLayout());
-				teacherPanel.add(automatonPanel);
-
 				// Button panel
-				JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEADING));
-				automatonPanel.add(buttonPanel, BorderLayout.WEST);
+				JPanel buttonPanel = new JPanel(new FlowLayout(
+						FlowLayout.LEADING));
 
 				// Choose Button
 				final JButton choose = new JButton("Choose");
@@ -171,18 +169,33 @@ public class DefaultOnlineAlgorithmDetails extends JPanel {
 							previewDialog
 									.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 							previewDialog.setLayout(new BorderLayout());
-							previewDialog
-									.getContentPane()
-									.add(
-											JGraphVisualizer
-													.createVisualization(scenario
-															.getTeacher()));
+							previewDialog.getContentPane().add(
+									JGraphVisualizer
+											.createVisualization(scenario
+													.getTeacher()));
 							previewDialog.setModal(true);
 							previewDialog.setSize(640, 480);
 						}
 						previewDialog.setVisible(true);
 					}
 				});
+
+				// Layout
+				GridBagConstraints c = new GridBagConstraints();
+				c.gridx = c.gridy = 0;
+				c.weightx = .1;
+				c.anchor = GridBagConstraints.WEST;
+				c.fill = GridBagConstraints.HORIZONTAL;
+				teacherPanel.add(noneButton, c);
+				c.gridx = 1;
+				c.anchor = GridBagConstraints.WEST;
+				c.weightx = .1;
+				teacherPanel.add(fromAutomaton, c);
+				c.gridx = 2;
+				c.weightx = .8;
+				c.anchor = GridBagConstraints.EAST;
+				teacherPanel.add(buttonPanel, c);
+				// automatonPanel.add(buttonPanel, BorderLayout.WEST);
 			}
 
 			/*
