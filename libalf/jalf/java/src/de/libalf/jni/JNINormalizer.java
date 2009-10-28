@@ -72,6 +72,7 @@ public class JNINormalizer extends JNIObject implements Normalizer {
 	 *             throws the exception if the object has already been
 	 *             destroyed.
 	 */
+	@Override
 	public int[] serialize() throws AlfException {
 		check();
 		return serialize(this.pointer);
@@ -99,6 +100,7 @@ public class JNINormalizer extends JNIObject implements Normalizer {
 	 *             throws the exception if the object has already been
 	 *             destroyed.
 	 */
+	@Override
 	public boolean deserialize(int[] serialization) throws AlfException {
 		check();
 		return deserialize(serialization, this.pointer);

@@ -232,6 +232,18 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 					return false;
 			}
 			return this->sv->client->stream_send_int(-1);
+		case KNOWLEDGEBASE_SERIALIZE_KNOWLEDGE:
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			for(it2 = o->begin(); it2 != o->end(); it2++) {
+				word = it2->get_word();
+				serial = serialize_word(word);
+				if(!this->sv->client->stream_send_raw_blob(serial))
+					return false;
+			}
+			return this->sv->client->stream_send_int(-1);
 		case KNOWLEDGEBASE_BEGIN:
 			if(command_data.size() != 0)
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);

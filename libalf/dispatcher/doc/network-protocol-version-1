@@ -439,6 +439,18 @@ server returns:
 	until size of word is -1
 
 
+get all knowledgebase entries in one chunk (KNOWLEDGEBASE_SERIALIZE_KNOWLEDGE)
+parameters: 0
+server returns:
+	words
+
+
+	where words is a sequence of
+		size of word
+		word[]
+	until size of word is -1
+
+
 get beginning-iterator (KNOWLEDGEBASE_BEGIN)
 parameters: none.
 server returns:

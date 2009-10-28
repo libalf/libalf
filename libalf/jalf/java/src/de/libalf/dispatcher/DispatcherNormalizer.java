@@ -54,6 +54,7 @@ public class DispatcherNormalizer extends DispatcherObject implements Normalizer
 		}
 	}
 
+	@Override
 	public int[] serialize() throws AlfException {
 		synchronized (this.factory) {
 			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.NORMALIZER_SERIALIZE);

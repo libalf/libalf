@@ -31,12 +31,14 @@ package de.libalf;
  */
 public interface Normalizer extends LibALFObject {
 
-	public static enum Type {
+	static enum Type {
 		MSC;
 	}
 
-	public boolean deserialize(int[] serialization) throws AlfException;
+	int[] serialize() throws AlfException;
 
-	public int get_type() throws AlfException;
+	boolean deserialize(int[] serialization) throws AlfException;
+
+	int get_type() throws AlfException;
 
 }
