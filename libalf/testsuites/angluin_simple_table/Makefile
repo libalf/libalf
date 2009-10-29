@@ -9,10 +9,10 @@ CPPFLAGS+=-I../../include -I${PREFIX}/include -Wall -ggdb3
 
 LDFLAGS+=-L../../src -L${PREFIX}/lib -lalf -lAMoRE++
 
-all: learn_regex learn_static
+all: learn_regex learn_static learn_bug
 
 clean: nodata
-	-rm -f *.o learn_regex learn_static
+	-rm -f *.o learn_regex learn_static learn_bug
 
 nodata:
 	-rm -f *.dot *.jpg *.angluin testlog
@@ -26,4 +26,6 @@ jpegs:
 learn_regex: learn_regex.cpp
 
 learn_static: learn_static.cpp
+
+learn_bug: learn_bug.cpp
 
