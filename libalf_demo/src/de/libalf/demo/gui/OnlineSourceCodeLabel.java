@@ -255,7 +255,7 @@ public class OnlineSourceCodeLabel extends SourceCodeLabel {
 			code += "else";
 			code += "</div>";
 			code += "<div style=\"margin-left: 90\">";
-			code += color(Color.GREEN, "// Answer equivalence queriey");
+			code += color(Color.GREEN, "// Answer equivalence query");
 			code += "</div><br>";
 			code += "</div>";
 			code += "} until(" + color(Color.BLUE, "automaton")
