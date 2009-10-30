@@ -265,7 +265,7 @@ list<int> normalizer_msc::prefix_normal_form(list<int> & w, bool & bottom)
 	list<int>::iterator wi;
 	// create MSC
 	for(wi = w.begin(), i = 0; wi != w.end(); wi++, i++) {
-		if(*wi < 0 || *wi > (int)label_bound)
+		if(*wi < 0 || *wi >= (int)label_bound)
 			goto bottom_fast;
 		graph_add_node(i, *wi, true);
 	}
@@ -301,7 +301,7 @@ list<int> normalizer_msc::suffix_normal_form(list<int> & w, bool & bottom)
 	list<int>::reverse_iterator rwi;
 	// create MSC (reversed)
 	for(rwi = w.rbegin(), i = 0; rwi != w.rend(); rwi++, i++) {
-		if(*rwi < 0 || *rwi > (int)label_bound)
+		if(*rwi < 0 || *rwi >= (int)label_bound)
 			goto bottom_fast;
 		graph_add_node(i, *rwi, false);
 	}
