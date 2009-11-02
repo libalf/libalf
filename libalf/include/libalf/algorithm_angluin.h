@@ -260,7 +260,7 @@ class angluin_table : public learning_algorithm<answer> {
 
 		virtual bool add_counterexample(list<int> word)
 		{{{
-printf("new counterexample %s.\n", word2string(word).c_str());
+			(*this->my_logger)(LOGGER_DEBUG, "new counterexample %s.\n", word2string(word).c_str());
 			typename table::iterator ti;
 			list<int>::iterator wi;
 
@@ -643,7 +643,7 @@ printf("new counterexample %s.\n", word2string(word).c_str());
 					}
 				}
 				if(!match_found) {
-printf("closing: moving %s up.\n", word2string(lti->index).c_str());
+					(*this->my_logger)(LOGGER_DEBUG, "closing: moving %s up.\n", word2string(lti->index).c_str());
 					// create entry in upper table
 					add_word_to_upper_table(lti->index, false);
 					return false;
@@ -787,8 +787,8 @@ printf("closing: moving %s up.\n", word2string(lti->index).c_str());
 											// generate and add suffix
 											newsuffix = *ci;
 											newsuffix.push_front(sigma);
-if(add_column(newsuffix))
-	printf("making consistent: new suffix %s\n", word2string(newsuffix).c_str());
+											if(add_column(newsuffix))
+												(*this->my_logger)(LOGGER_DEBUG, "making consistent: new suffix %s\n", word2string(newsuffix).c_str());
 											ci = column_names.begin();
 											// when changing the column list, the last iterator may change.
 											// if so, using the old one results in a segfault.
@@ -826,7 +826,7 @@ if(add_column(newsuffix))
 				if(!make_consistent())
 					return complete();
 
-printf("hypothesis ready.\n");
+				(*this->my_logger)(LOGGER_DEBUG, "hypothesis ready.\n");
 				return true;
 			} else {
 				return false;
@@ -848,6 +848,7 @@ printf("hypothesis ready.\n");
 
 			// list of states of automaton: each different acceptance-row
 			// in the upper table represents one DFA state
+			(*this->my_logger)(LOGGER_DEBUG, "angluin_simple_table: state/row assignment for hypothesis:\n");
 			for(uti = upper_table.begin(); uti != upper_table.end(); uti++) {
 				bool known = false;
 				for(state_it = states.begin(); state_it != states.end(); state_it++) {
@@ -863,6 +864,8 @@ printf("hypothesis ready.\n");
 				state.tableentry = uti;
 
 				states.push_back(state);
+
+				(*this->my_logger)(LOGGER_DEBUG, "angluin_simple_table:    state %d is row %s\n", state.id, word2string(state.tableentry->index).c_str());
 
 				state.id++;
 			}
