@@ -123,8 +123,8 @@ int main(int argc, char**argv)
 			cerr << "garbage at end of normalizer serial\n";
 	}
 
-//	ot.set_normalizer(&norm);
-//	cerr << "NOTE: normalizer installed. this is NOT a default angluin!\n";
+	ot.set_normalizer(&norm);
+	cerr << "NOTE: normalizer installed. this is NOT a default angluin!\n";
 
 	for(iteration = 1; iteration <= 100; iteration++) {
 		int c = 'a';
@@ -194,12 +194,27 @@ int main(int argc, char**argv)
 		// if this test is ok, all worked well
 
 		list<int> counterexample;
+		/*
+		counterexample.push_back(0);
+		counterexample.push_back(1);
+		counterexample.push_back(2);
+		counterexample.push_back(3);
+		counterexample.push_back(4);
+		counterexample.push_back(5);
+		*/
+		counterexample.push_back(2);
+		counterexample.push_back(4);
+		counterexample.push_back(3);
+		counterexample.push_back(5);
+
 		stats.queries.equivalence++;
-		if(amore_alf_glue::automaton_equivalence_query(*nfa, *hypothesis, counterexample)) {
-			// equivalent
-			cout << "success.\n";
-			success = true;
-			break;
+		if(nfa->contains(counterexample) == hypothesis->contains(counterexample)) {
+			if(amore_alf_glue::automaton_equivalence_query(*nfa, *hypothesis, counterexample)) {
+				// equivalent
+				cout << "success.\n";
+				success = true;
+				break;
+			}
 		}
 
 		snprintf(filename, 128, "counterexample%02d.angluin", iteration);

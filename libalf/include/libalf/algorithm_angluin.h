@@ -260,6 +260,7 @@ class angluin_table : public learning_algorithm<answer> {
 
 		virtual bool add_counterexample(list<int> word)
 		{{{
+printf("new counterexample %s.\n", word2string(word).c_str());
 			typename table::iterator ti;
 			list<int>::iterator wi;
 
@@ -642,6 +643,7 @@ class angluin_table : public learning_algorithm<answer> {
 					}
 				}
 				if(!match_found) {
+printf("closing: moving %s up.\n", word2string(lti->index).c_str());
 					// create entry in upper table
 					add_word_to_upper_table(lti->index, false);
 					return false;
@@ -785,7 +787,8 @@ class angluin_table : public learning_algorithm<answer> {
 											// generate and add suffix
 											newsuffix = *ci;
 											newsuffix.push_front(sigma);
-											add_column(newsuffix);
+if(add_column(newsuffix))
+	printf("making consistent: new suffix %s\n", word2string(newsuffix).c_str());
 											ci = column_names.begin();
 											// when changing the column list, the last iterator may change.
 											// if so, using the old one results in a segfault.
@@ -823,6 +826,7 @@ class angluin_table : public learning_algorithm<answer> {
 				if(!make_consistent())
 					return complete();
 
+printf("hypothesis ready.\n");
 				return true;
 			} else {
 				return false;
