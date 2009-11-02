@@ -108,7 +108,7 @@ bool finite_automaton::contains(list<int> & word)
 	return false;
 }}}
 
-string finite_automaton::generate_dotfile()
+string finite_automaton::generate_dotfile(bool exclude_negative_sinks)
 {{{
 	basic_string<int32_t> serialized;
 	basic_string<int32_t>::iterator si;
@@ -191,7 +191,7 @@ string finite_automaton::generate_dotfile()
 	if(final.size() + sink.size() < state_count) {
 		ret += "\tnode [shape=circle, style=\"\", color=black];";
 		for(unsigned int s = 0; s < state_count; s++){
-			if(final.find(s) == final.end()) {
+			if(final.find(s) == final.end() && sink.find(s) == sink.end()) {
 				snprintf(buf, 128, " q%d", s);
 				ret += buf;
 			}
@@ -227,6 +227,10 @@ string finite_automaton::generate_dotfile()
 		si++;
 		dst = ntohl(*si);
 		si++;
+		if(exclude_negative_sinks)
+			if(sink.find(src) != sink.end() || sink.find(dst) != sink.end())
+				continue;
+
 		if(label != -1)
 			snprintf(buf, 128, "\tq%d -> q%d [ label = \"%d\" ];\n", src, dst, label);
 		else
