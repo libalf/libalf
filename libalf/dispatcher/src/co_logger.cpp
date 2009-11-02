@@ -73,6 +73,7 @@ bool co_logger::handle_command(int command, basic_string<int32_t> & command_data
 				return this->sv->send_errno(ERR_BAD_PARAMETERS);
 
 			o->set_minimal_loglevel((enum logger_loglevel) level);
+			return this->sv->send_errno(ERR_SUCCESS);
 		case LOGGER_LOG_ALGORITHM:
 			if(command_data.size() != 0)
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
