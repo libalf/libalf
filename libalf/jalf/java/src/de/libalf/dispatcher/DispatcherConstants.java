@@ -15,6 +15,7 @@
 package de.libalf.dispatcher;
 
 import de.libalf.Knowledgebase.Acceptance;
+import de.libalf.Logger.LoggerLevel;
 
 enum DispatcherConstants implements Sendable {
 	// enum command_error_code
@@ -196,6 +197,12 @@ enum DispatcherConstants implements Sendable {
 	// enum normalizer_type
 	NORMALIZER_MSC(1),
 
+	// enum logger_loglevel
+	LOGGER_ERROR(1),
+	LOGGER_WARN(2),
+	LOGGER_INFO(3),
+	LOGGER_DEBUG(4),
+
 	;
 
 	@SuppressWarnings("deprecation")
@@ -207,6 +214,21 @@ enum DispatcherConstants implements Sendable {
 			return ACCEPTANCE_UNKNOWN;
 		case ACCEPT:
 			return ACCEPTANCE_ACCEPT;
+		default:
+			return null;
+		}
+	}
+
+	static DispatcherConstants convertLoggerLevel(LoggerLevel level) {
+		switch (level) {
+		case LOGGER_ERROR:
+			return LOGGER_ERROR;
+		case LOGGER_WARN:
+			return LOGGER_WARN;
+		case LOGGER_INFO:
+			return LOGGER_INFO;
+		case LOGGER_DEBUG:
+			return LOGGER_DEBUG;
 		default:
 			return null;
 		}

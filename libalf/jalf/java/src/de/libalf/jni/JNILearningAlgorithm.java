@@ -376,15 +376,14 @@ public abstract class JNILearningAlgorithm extends JNIObject implements
 
 	@Override
 	public void set_normalizer(Normalizer normalizer) throws AlfException {
-		// FIXME!!!
-		//check();
-		//if (normalizer == null) {
-		//	this.normalizer = null;
-		//	set_normalizer_NULL(this.pointer);
-		//} else {
-		//	this.normalizer = (JNINormalizer) normalizer;
-		//	set_normalizer(this.normalizer.getPointer(), this.pointer);
-		//}
+		check();
+		if (normalizer == null) {
+			this.normalizer = null;
+			set_normalizer_NULL(this.pointer);
+		} else {
+			this.normalizer = (JNINormalizer) normalizer;
+			set_normalizer(this.normalizer.getPointer(), this.pointer);
+		}
 	}
 
 	/**

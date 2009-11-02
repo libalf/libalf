@@ -33,10 +33,12 @@ import de.libalf.Logger;
 public class DispatcherLogger extends DispatcherObject implements Logger {
 	private static final long serialVersionUID = 1L;
 	private String unread = "";
+	private LoggerLevel level = DEFAULT_LOGGER_LEVEL;
 
 	public DispatcherLogger(DispatcherFactory factory) throws AlfException {
 		super(factory, DispatcherConstants.OBJ_LOGGER);
 		create();
+		set_min_loglevel(this.level);
 	}
 
 	@Override
@@ -49,6 +51,19 @@ public class DispatcherLogger extends DispatcherObject implements Logger {
 		} finally {
 			this.unread = ""; // reset unread
 		}
+	}
+
+	@Override
+	public void set_min_loglevel(Logger.LoggerLevel level) throws AlfException {
+		synchronized (this.factory) {
+			this.factory.writeObjectCommandThrowing(this, DispatcherConstants.LOGGER_SET_MIN_LOGLEVEL, level);
+			this.level = level;
+		}
+	}
+
+	@Override
+	public LoggerLevel get_min_loglevel() throws AlfException {
+		return this.level;
 	}
 
 	/**
@@ -66,5 +81,6 @@ public class DispatcherLogger extends DispatcherObject implements Logger {
 		create();
 		receive_and_flush(); // grab first message
 		in.defaultReadObject();
+		set_min_loglevel(this.level);
 	}
 }

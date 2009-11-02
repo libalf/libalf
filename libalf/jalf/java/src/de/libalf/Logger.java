@@ -54,7 +54,7 @@ public interface Logger extends LibALFObject {
 	 *         University
 	 * @version 1.0
 	 */
-	public static enum LoggerLevel {
+	static enum LoggerLevel {
 
 		/**
 		 * All log messages that describe a non-recoverable error are marked
@@ -96,6 +96,10 @@ public interface Logger extends LibALFObject {
 	 * 
 	 * @return all messages logged since the last method call.
 	 */
-	public abstract String receive_and_flush();
+	String receive_and_flush();
+
+	void set_min_loglevel(LoggerLevel level);
+
+	LoggerLevel get_min_loglevel();
 
 }
