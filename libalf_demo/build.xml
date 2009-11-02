@@ -47,6 +47,7 @@
             </fileset>
             <filelist dir=".">
                 <file name="gpl.txt"/>
+				<file name="readme.txt"/>
             </filelist>
             <manifest>
                 <attribute name="Built-By" value="${user.name}"/>
