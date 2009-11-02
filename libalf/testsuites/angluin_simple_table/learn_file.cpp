@@ -93,13 +93,13 @@ int main(int argc, char**argv)
 	alphabet_size = nfa->get_alphabet_size();
 
 	{{{ /* dump original automata */
-		file.open("original-nfa.dot"); file << nfa->generate_dotfile(); file.close();
+		file.open("original-nfa.dot"); file << nfa->generate_dotfile(true); file.close();
 
 		finite_automaton * dfa;
 		dfa = nfa->determinize();
 		dfa->minimize();
 		mindfa_statecount = dfa->get_state_count();
-		file.open("original-dfa.dot"); file << dfa->generate_dotfile(); file.close();
+		file.open("original-dfa.dot"); file << dfa->generate_dotfile(true); file.close();
 		delete dfa;
 	}}}
 
@@ -127,33 +127,10 @@ int main(int argc, char**argv)
 	cerr << "NOTE: normalizer installed. this is NOT a default angluin!\n";
 
 	for(iteration = 1; iteration <= 100; iteration++) {
-		int c = 'a';
 		conjecture * cj;
 
-		while( NULL == (cj = ot.advance()) ) {
-			// resolve missing knowledge:
-
-			snprintf(filename, 128, "knowledgebase%02d%c.dot", iteration, c);
-			file.open(filename); file << knowledge.generate_dotfile(); file.close();
-
-			// create query-tree
-			knowledgebase<ANSWERTYPE> * query;
-			query = knowledge.create_query_tree();
-
-			snprintf(filename, 128, "knowledgebase%02d%c-q.dot", iteration, c);
-			file.open(filename); file << query->generate_dotfile(); file.close();
-
-			// answer queries
-			stats.queries.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*nfa, *query);
-
-			snprintf(filename, 128, "knowledgebase%02d%c-r.dot", iteration, c);
-			file.open(filename); file << query->generate_dotfile(); file.close();
-
-			// merge answers into knowledgebase
-			knowledge.merge_knowledgebase(*query);
-			delete query;
-			c++;
-		}
+		while( NULL == (cj = ot.advance()) )
+			stats.queries.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*nfa, knowledge);
 
 		simple_automaton * ba = dynamic_cast<simple_automaton*>(cj);
 		if(hypothesis)
@@ -188,20 +165,18 @@ int main(int argc, char**argv)
 		}}}
 
 		snprintf(filename, 128, "hypothesis%02d.dot", iteration);
-		file.open(filename); file << hypothesis->generate_dotfile(); file.close();
+		file.open(filename); file << hypothesis->generate_dotfile(true); file.close();
 
 		// once an automaton is generated, test for equivalence with oracle_automaton
 		// if this test is ok, all worked well
 
 		list<int> counterexample;
-		/*
 		counterexample.push_back(0);
 		counterexample.push_back(1);
 		counterexample.push_back(2);
 		counterexample.push_back(3);
 		counterexample.push_back(4);
 		counterexample.push_back(5);
-		*/
 		counterexample.push_back(2);
 		counterexample.push_back(4);
 		counterexample.push_back(3);
@@ -225,10 +200,6 @@ int main(int argc, char**argv)
 	}
 
 	iteration++;
-	snprintf(filename, 128, "knowledgebase%02d-final.dot", iteration);
-	file.open(filename);
-	file << knowledge.generate_dotfile();
-	file.close();
 
 	stats.memory = ot.get_memory_statistics();
 	stats.queries.membership = knowledge.count_resolved_queries();
