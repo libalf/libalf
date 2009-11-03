@@ -50,6 +50,8 @@ inline bool automaton_equivalence_query(finite_automaton & model, finite_automat
 	finite_automaton * difference;
 	bool is_empty;
 
+	counterexample.clear();
+
 #if 0
 	// variant 1:
 	difference = model.lang_symmetric_difference(hypothesis);
@@ -76,6 +78,8 @@ inline bool automaton_equivalence_query(finite_automaton & model, conjecture *cj
 	simple_automaton *ba;
 	finite_automaton *hypothesis;
 	bool ret;
+
+	counterexample.clear();
 
 	ba = dynamic_cast<simple_automaton*>(cj);
 	if(!ba) {
