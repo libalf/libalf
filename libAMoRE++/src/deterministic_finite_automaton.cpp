@@ -730,6 +730,8 @@ bool deterministic_finite_automaton::construct(bool is_dfa, int alphabet_size, i
 	}
 	// - check if transitions don't contain nondeterministic choices
 	for(ti = transitions.begin(); ti != transitions.end(); ti++) {
+		if(ti->first.second == -1)
+			return false; // epsilon transition
 		if(transitions.count(ti->first) > 2) {
 			tj = ti;
 			for(++tj ; (tj != transitions.end()) && (ti->first == tj->first) ; ++tj)
