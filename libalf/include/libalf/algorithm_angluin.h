@@ -1338,7 +1338,7 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 				this->upper_table.push_back(row);
 			}
 
-			if(bottom) // no suffixed required, they would be bottom again.
+			if(bottom) // no suffixes required, they would be bottom again.
 				return;
 
 			// add all suffixes of word to lower table
@@ -1374,8 +1374,8 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 					if(this->search_upper_table(word) == this->upper_table.end()) {
 						row.index = word;
 						if(this->my_knowledge != NULL) {
-							row.ut_timestamp = 0;
-							row.lt_timestamp = this->my_knowledge->get_timestamp();
+							row.ut_timestamp = this->my_knowledge->get_timestamp();
+							row.lt_timestamp = 0;
 						} else {
 							row.ut_timestamp = 0;
 							row.lt_timestamp = 0;
