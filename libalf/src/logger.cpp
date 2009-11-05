@@ -51,17 +51,23 @@ void logger::operator()(enum logger_loglevel l, string &s)
 	}
 }}}
 
+#define BUFSIZE 4096
+
 void logger::operator()(enum logger_loglevel l, const char * format, ...)
 {{{
 	if( (l<=minimal_loglevel) || (log_algorithm && l==LOGGER_ALGORITHM)) {
 		va_list ap;
-		char buf[1024];
+		char buf[BUFSIZE];
+		int a;
 
 		va_start(ap, format);
-		vsnprintf(buf, 1024, format, ap);
+		a = vsnprintf(buf, BUFSIZE, format, ap);
 		va_end(ap);
+		buf[BUFSIZE-1] = 0;
 
 		log(l, buf);
+		if(a >= BUFSIZE)
+			log(LOGGER_ERROR, "NOTE: the last logging message was oversized and thus truncated.\n");
 	}
 }}}
 
