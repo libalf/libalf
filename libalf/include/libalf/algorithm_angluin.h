@@ -260,7 +260,9 @@ class angluin_table : public learning_algorithm<answer> {
 
 		virtual bool add_counterexample(list<int> word)
 		{{{
+#ifdef DEBUG_ANGLUIN
 			(*this->my_logger)(LOGGER_DEBUG, "angluin_table: new counterexample %s.\n", word2string(word).c_str());
+#endif
 			typename table::iterator ti;
 			list<int>::iterator wi;
 
@@ -399,10 +401,13 @@ class angluin_table : public learning_algorithm<answer> {
 			list<int> nw;
 
 			bool bottom;
-			if(this->norm)
+			if(this->norm) {
 				nw = this->norm->suffix_normal_form(word, bottom);
-			else
+				if(bottom)
+					(*this->my_logger)(LOGGER_ERROR, "angluin_table: add_column() just tried to add a bottom-column (%s). most likely, your normalizer and your teacher are not well-aligned. trying to ignore...\n", word2string(word).c_str());
+			} else {
 				nw = word;
+			}
 
 			for(ci = column_names.begin(); ci != column_names.end(); ci++)
 				if(*ci == nw)
@@ -462,6 +467,7 @@ class angluin_table : public learning_algorithm<answer> {
 							if(!ci->empty() && ci->front() == BOTTOM_CHAR) {
 								answer a;
 								a = false;
+//printf("query for %s::%s: BOTTOM\n", word2string(ti->index).c_str(), word2string(*ci).c_str());
 								ti->acceptance.push_back(a);
 							} else {
 								list<int> *w;
@@ -470,6 +476,7 @@ class angluin_table : public learning_algorithm<answer> {
 								if(this->my_knowledge->resolve_or_add_query(*w, a)) {
 									if(!column_skipped)
 										ti->acceptance.push_back(a);
+//printf("query for %s: %d\n", word2string(*w).c_str(), (int)a);
 								} else {
 									column_skipped = true;
 									complete = false;
@@ -643,7 +650,9 @@ class angluin_table : public learning_algorithm<answer> {
 					}
 				}
 				if(!match_found) {
+#ifdef DEBUG_ANGLUIN
 					(*this->my_logger)(LOGGER_DEBUG, "angluin_table: closing: moving %s up.\n", word2string(lti->index).c_str());
+#endif
 					// create entry in upper table
 					add_word_to_upper_table(lti->index, false);
 					return false;
@@ -720,8 +729,6 @@ class angluin_table : public learning_algorithm<answer> {
 		// returns false if table was changed (and thus needs to be filled)
 		virtual bool make_consistent()
 		{{{
-			bool not_changed = true;
-
 			bool urow_ok[upper_table.size()];
 			typename table::iterator uti_1, uti_2, ut_last_row;
 			unsigned int i,j;
@@ -771,8 +778,6 @@ class angluin_table : public learning_algorithm<answer> {
 							if(*w1_succ != *w2_succ) {
 								if(w1_succ->acceptance.size() == w2_succ->acceptance.size()) {
 									// add suffixes resulting in different states to column_names
-									not_changed = false;
-
 									typename columnlist::iterator ci;
 									int cindex = 0;
 									typename acceptances::iterator w1_acc_it, w2_acc_it;
@@ -787,13 +792,24 @@ class angluin_table : public learning_algorithm<answer> {
 											// generate and add suffix
 											newsuffix = *ci;
 											newsuffix.push_front(sigma);
-											if(add_column(newsuffix))
-												(*this->my_logger)(LOGGER_DEBUG, "angluin_table: making consistent: new suffix %s\n", word2string(newsuffix).c_str());
+											if(add_column(newsuffix)) {
+#ifdef DEBUG_ANGLUIN
+												(*this->my_logger)(LOGGER_DEBUG, "angluin_table: making consistent: new suffix %s to separate %s and %s\n",
+														word2string(newsuffix).c_str(),
+														word2string(word1).c_str(),
+														word2string(word2).c_str()
+															);
+#else
+												/* nothing */
+#endif
+											} else {
+												(*this->my_logger)(LOGGER_ERROR, "angluin_table: adding column %s in make_consistent(), "
+																"but it already existed! trying to ignore.\n",
+																word2string(newsuffix).c_str());
+											}
 											ci = column_names.begin();
-											// when changing the column list, the last iterator may change.
-											// if so, using the old one results in a segfault.
-											for(int j = 0; j < cindex; j++)
-												ci++;
+
+											return false;
 										}
 										w1_acc_it++;
 										w2_acc_it++;
@@ -807,8 +823,7 @@ class angluin_table : public learning_algorithm<answer> {
 				}
 			}
 
-
-			return not_changed;
+			return true;
 		}}}
 
 		// complete table, so an automaton can be derived
@@ -820,13 +835,18 @@ class angluin_table : public learning_algorithm<answer> {
 				initialize_table();
 
 			if(fill_missing_columns(upper_table) && fill_missing_columns(lower_table)) {
+#ifdef DEBUG_ANGLUIN
+				(*this->my_logger)(LOGGER_DEBUG, "angluin_table: contents of table:\n%s\n", this->tostring().c_str());
+#endif
 				if(!close())
 					return complete();
 
 				if(!make_consistent())
 					return complete();
 
+#ifdef DEBUG_ANGLUIN
 				(*this->my_logger)(LOGGER_DEBUG, "angluin_table: hypothesis ready.\n");
+#endif
 				return true;
 			} else {
 				return false;
@@ -848,7 +868,9 @@ class angluin_table : public learning_algorithm<answer> {
 
 			// list of states of automaton: each different acceptance-row
 			// in the upper table represents one DFA state
+#ifdef DEBUG_ANGLUIN
 			(*this->my_logger)(LOGGER_DEBUG, "angluin_table: state/row assignment for hypothesis:\n");
+#endif
 			for(uti = upper_table.begin(); uti != upper_table.end(); uti++) {
 				bool known = false;
 				for(state_it = states.begin(); state_it != states.end(); state_it++) {
@@ -865,7 +887,9 @@ class angluin_table : public learning_algorithm<answer> {
 
 				states.push_back(state);
 
+#ifdef DEBUG_ANGLUIN
 				(*this->my_logger)(LOGGER_DEBUG, "angluin_table:    state %d is row %s\n", state.id, word2string(state.tableentry->index).c_str());
+#endif
 
 				state.id++;
 			}
@@ -1287,6 +1311,7 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 				if(!bottom) {
 					// check if in lower table. if so, move up.
 					typename list< algorithm_angluin::simple_row<answer, vector<answer> > >::iterator ti;
+//printf("scanning for %s in lower.\n", word2string(nw).c_str());
 					ti = this->search_lower_table(nw);
 					if(ti != this->lower_table.end()) {
 						done = true;
