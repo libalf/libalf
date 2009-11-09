@@ -29,6 +29,8 @@
 #include <algorithm>
 
 #include <libalf/alf.h>
+// get extensive debugging from angluin:
+//#define DEBUG_ANGLUIN
 #include <libalf/algorithm_angluin.h>
 #include <libalf/basic_string.h>
 
@@ -46,10 +48,12 @@ using namespace libalf;
 using namespace amore;
 
 
+#ifdef USE_NORMALIZER
 int normalizer_data[] = {
 	1, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 1, 0, 0, 1, 6, 0, 0, 1, 1, 0, 0, 1
 };
 basic_string<int32_t> normalizer_serial;
+#endif
 
 int main(int argc, char**argv)
 {
@@ -108,6 +112,7 @@ int main(int argc, char**argv)
 	angluin_simple_table<ANSWERTYPE> ot(&knowledge, &log, alphabet_size);
 	finite_automaton * hypothesis = NULL;
 
+#ifdef USE_NORMALIZER
 	normalizer_msc norm;
 	{
 		normalizer_serial.push_back(0);
@@ -125,10 +130,13 @@ int main(int argc, char**argv)
 
 	ot.set_normalizer(&norm);
 	cerr << "NOTE: normalizer installed. this is NOT a default angluin!\n";
+#endif
 
 	for(iteration = 1; iteration <= 100; iteration++) {
 		conjecture * cj;
 
+		fflush(stdout);
+		printf("advancing...\n");
 		while( NULL == (cj = ot.advance()) )
 			stats.queries.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*nfa, knowledge);
 
@@ -171,26 +179,31 @@ int main(int argc, char**argv)
 		// if this test is ok, all worked well
 
 		list<int> counterexample;
+
+		stats.queries.equivalence++;
+#ifdef USE_NORMALIZER
 		counterexample.push_back(0);
 		counterexample.push_back(1);
 		counterexample.push_back(2);
 		counterexample.push_back(3);
 		counterexample.push_back(4);
 		counterexample.push_back(5);
-		counterexample.push_back(2);
 		counterexample.push_back(4);
-		counterexample.push_back(3);
+		counterexample.push_back(2);
 		counterexample.push_back(5);
+		counterexample.push_back(3);
 
-		stats.queries.equivalence++;
 		if(nfa->contains(counterexample) == hypothesis->contains(counterexample)) {
+#endif
 			if(amore_alf_glue::automaton_equivalence_query(*nfa, *hypothesis, counterexample)) {
 				// equivalent
 				cout << "success.\n";
 				success = true;
 				break;
 			}
+#ifdef USE_NORMALIZER
 		}
+#endif
 
 		snprintf(filename, 128, "counterexample%02d.angluin", iteration);
 		file.open(filename);
@@ -203,6 +216,10 @@ int main(int argc, char**argv)
 
 	stats.memory = ot.get_memory_statistics();
 	stats.queries.membership = knowledge.count_resolved_queries();
+
+#ifdef USE_NORMALIZER
+	ot.unset_normalizer();
+#endif
 
 	cout << "required membership queries: " << stats.queries.membership << "\n";
 	cout << "required uniq membership queries: " << stats.queries.uniq_membership << "\n";
