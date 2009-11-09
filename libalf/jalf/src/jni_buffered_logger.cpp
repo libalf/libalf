@@ -33,6 +33,36 @@
 using namespace std;
 using namespace libalf;
 
+enum logger_loglevel map_jni_loggerLevel(int loglevel) {
+	switch(loglevel) {
+	case 1:
+		return LOGGER_ERROR;
+	case 2:
+		return LOGGER_WARN;
+	case 3:
+		return LOGGER_INFO;
+	case 4:
+		return LOGGER_DEBUG;
+	default:
+		return LOGGER_ERROR;
+	}
+}
+
+int map_jni_loggerLevel(enum logger_loglevel loglevel) {
+	switch(loglevel) {
+	case LOGGER_ERROR: 
+		return 1;
+	case LOGGER_WARN:
+		return 2;
+	case LOGGER_INFO:
+		return 3;
+	case LOGGER_DEBUG:
+		return 4;
+	default:
+		return 1; 
+	}
+}
+
 JNIEXPORT jlong JNICALL Java_de_libalf_jni_JNIBufferedLogger_init__ (JNIEnv *env, jobject obj) {
 	/*
 	 * Return the new object
@@ -43,25 +73,7 @@ JNIEXPORT jlong JNICALL Java_de_libalf_jni_JNIBufferedLogger_init__ (JNIEnv *env
 
 JNIEXPORT jlong JNICALL Java_de_libalf_jni_JNIBufferedLogger_init__IZ (JNIEnv *env, jobject obj, jint minimal_loglevel, jboolean log_algorithm) {
 	// Select log level
-	enum logger_loglevel loglevel;
-
-	switch(minimal_loglevel) {
-	case 1:
-		loglevel = LOGGER_ERROR;
-		break;
-	case 2:
-		loglevel = LOGGER_WARN;
-		break;
-	case 3:
-		loglevel = LOGGER_INFO;
-		break;
-	case 4:
-		loglevel = LOGGER_DEBUG;
-		break;
-	default:
-		loglevel = LOGGER_DEBUG;
-		break;
-	}
+	enum logger_loglevel loglevel =  map_jni_loggerLevel(minimal_loglevel);
 
 	/*
 	 * Return the new object
@@ -82,6 +94,21 @@ JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNIBufferedLogger_receive_1and_1flu
 	const char* c = str->c_str();
 
 	return env->NewStringUTF(c);
+}
+
+JNIEXPORT jint JNICALL Java_de_libalf_jni_JNIBufferedLogger_get_1min_1loglevel (JNIEnv *env, jobject obj, jlong pointer) {
+	return -1;
+}
+
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNIBufferedLogger_set_1min_1loglevel (JNIEnv *env, jobject obj, jint logLevel, jlong pointer) {
+	// Get the logger object
+	buffered_logger *logger = (buffered_logger*)pointer;
+
+	// Select log level
+	enum logger_loglevel loglevel =  map_jni_loggerLevel(logLevel);
+
+	// Forward method call
+	logger->set_minimal_loglevel(loglevel);
 }
 
 JNIEXPORT void JNICALL Java_de_libalf_jni_JNIBufferedLogger_destroy (JNIEnv *env, jobject obj, jlong pointer) {

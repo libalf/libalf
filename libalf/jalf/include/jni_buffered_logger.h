@@ -8,6 +8,8 @@
 extern "C" {
 #endif
 #undef de_libalf_jni_JNIBufferedLogger_serialVersionUID
+#define de_libalf_jni_JNIBufferedLogger_serialVersionUID 1LL
+#undef de_libalf_jni_JNIBufferedLogger_serialVersionUID
 #define de_libalf_jni_JNIBufferedLogger_serialVersionUID 2LL
 #undef de_libalf_jni_JNIBufferedLogger_ERROR
 #define de_libalf_jni_JNIBufferedLogger_ERROR 1L
@@ -40,6 +42,22 @@ JNIEXPORT jlong JNICALL Java_de_libalf_jni_JNIBufferedLogger_init__IZ
  */
 JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNIBufferedLogger_receive_1and_1flush
   (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     de_libalf_jni_JNIBufferedLogger
+ * Method:    get_min_loglevel
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_de_libalf_jni_JNIBufferedLogger_get_1min_1loglevel
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     de_libalf_jni_JNIBufferedLogger
+ * Method:    set_min_loglevel
+ * Signature: (IJ)V
+ */
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNIBufferedLogger_set_1min_1loglevel
+  (JNIEnv *, jobject, jint, jlong);
 
 /*
  * Class:     de_libalf_jni_JNIBufferedLogger

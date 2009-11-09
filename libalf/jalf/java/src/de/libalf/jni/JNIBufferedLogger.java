@@ -29,6 +29,7 @@ import java.io.Serializable;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import de.libalf.LearningAlgorithm;
 import de.libalf.Logger;
 
 /**
@@ -50,10 +51,10 @@ public class JNIBufferedLogger extends JNIObject implements Logger {
 
 	private static final long serialVersionUID = 2L;
 
-	private Integer minimalLogLevel;
-	
+	private LoggerLevel minimalLogLevel;
+
 	private Boolean logAlgorithm;
-	
+
 	/**
 	 * Mapping for the JNI call.
 	 */
@@ -96,27 +97,9 @@ public class JNIBufferedLogger extends JNIObject implements Logger {
 	 * 
 	 */
 	public JNIBufferedLogger(LoggerLevel minimalLogLevel, boolean logAlgorithm) {
-
-		int ll;
-		switch (minimalLogLevel) {
-		case LOGGER_ERROR:
-			ll = ERROR;
-			break;
-		case LOGGER_WARN:
-			ll = WARN;
-			break;
-		case LOGGER_INFO:
-			ll = INFO;
-			break;
-		case LOGGER_DEBUG:
-			ll = DEBUG;
-			break;
-		default:
-			ll = ERROR;
-			break;
-		}
-
-		this.pointer = init(this.minimalLogLevel = ll,
+		this.minimalLogLevel = minimalLogLevel == null ? LoggerLevel.LOGGER_ERROR
+				: minimalLogLevel;
+		this.pointer = init(mapJNILoggerLevel(this.minimalLogLevel),
 				this.logAlgorithm = logAlgorithm);
 	}
 
@@ -146,7 +129,8 @@ public class JNIBufferedLogger extends JNIObject implements Logger {
 
 	/**
 	 * <p>
-	 * <em>JNI method call:</em> See {@link JNIBufferedLogger#receive_and_flush()}.
+	 * <em>JNI method call:</em> See
+	 * {@link JNIBufferedLogger#receive_and_flush()}.
 	 * </p>
 	 * 
 	 * @param pointer
@@ -156,12 +140,37 @@ public class JNIBufferedLogger extends JNIObject implements Logger {
 	private native String receive_and_flush(long pointer);
 
 	@Override
+	public LoggerLevel get_min_loglevel() {
+		throw new NotImplementedException();
+		//return mapJNILoggerLevel(get_min_loglevel(this.pointer));
+	}
+
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See
+	 * {@link JNIBufferedLogger#get_min_loglevel()}.
+	 * </p>
+	 * 
+	 * @param pointer
+	 *            the pointer to the C++ object.
+	 * @return the result of the JNI call.
+	 */
+	private native int get_min_loglevel(long pointer);
+
+	@Override
+	public void set_min_loglevel(LoggerLevel logLevel) {
+		set_min_loglevel(mapJNILoggerLevel(logLevel), this.pointer);
+	}
+
+	private native void set_min_loglevel(int loglevel, long pointer);
+
+	@Override
 	public void destroy() {
 		check();
 		destroy(this.pointer);
 		this.isAlive = false;
 	}
-	
+
 	/**
 	 * <p>
 	 * <em>JNI method call:</em> See {@link JNILearningAlgorithm#destroy()}.
@@ -171,7 +180,53 @@ public class JNIBufferedLogger extends JNIObject implements Logger {
 	 *            the pointer to the C++ object.
 	 */
 	private native void destroy(long pointer);
-	
+
+	/**
+	 * This method maps a JNI logger level to a Java <code>LoggerLevel</code>.
+	 * 
+	 * @param logLevel
+	 *            the JNI logger level
+	 * @return an equivalent Java <code>LoggerLevel</code>.
+	 */
+	private LoggerLevel mapJNILoggerLevel(int logLevel) {
+		switch (logLevel) {
+		case ERROR:
+			return LoggerLevel.LOGGER_ERROR;
+		case WARN:
+			return LoggerLevel.LOGGER_WARN;
+		case INFO:
+			return LoggerLevel.LOGGER_INFO;
+		case DEBUG:
+			return LoggerLevel.LOGGER_DEBUG;
+		default:
+			return LoggerLevel.LOGGER_ERROR;
+		}
+
+	}
+
+	/**
+	 * This method maps a Java <code>LoggerLevel</code> to an <code>int</code>,
+	 * which is then passed to the JNI.
+	 * 
+	 * @param logLevel
+	 *            the loglevel
+	 * @return the JNI equivalent logger level.
+	 */
+	private int mapJNILoggerLevel(LoggerLevel logLevel) {
+		switch (minimalLogLevel) {
+		case LOGGER_ERROR:
+			return ERROR;
+		case LOGGER_WARN:
+			return WARN;
+		case LOGGER_INFO:
+			return INFO;
+		case LOGGER_DEBUG:
+			return DEBUG;
+		default:
+			return ERROR;
+		}
+	}
+
 	/**
 	 * @see Serializable
 	 */
@@ -187,18 +242,9 @@ public class JNIBufferedLogger extends JNIObject implements Logger {
 			ClassNotFoundException {
 		this.pointer = this.minimalLogLevel == null
 				|| this.logAlgorithm == null ? init() : init(
-				this.minimalLogLevel, this.logAlgorithm);
+				mapJNILoggerLevel(this.minimalLogLevel), this.logAlgorithm);
 		receive_and_flush(); // grab first message
 		in.defaultReadObject();
 	}
 
-	@Override
-	public LoggerLevel get_min_loglevel() {
-		throw new NotImplementedException();
-	}
-
-	@Override
-	public void set_min_loglevel(LoggerLevel level) {
-		throw new NotImplementedException();
-	}
 }
