@@ -27,6 +27,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import de.libalf.Logger;
 
 /**
@@ -188,5 +190,15 @@ public class JNIBufferedLogger extends JNIObject implements Logger {
 				this.minimalLogLevel, this.logAlgorithm);
 		receive_and_flush(); // grab first message
 		in.defaultReadObject();
+	}
+
+	@Override
+	public LoggerLevel get_min_loglevel() {
+		throw new NotImplementedException();
+	}
+
+	@Override
+	public void set_min_loglevel(LoggerLevel level) {
+		throw new NotImplementedException();
 	}
 }
