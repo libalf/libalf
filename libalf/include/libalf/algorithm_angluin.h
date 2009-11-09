@@ -273,9 +273,17 @@ class angluin_table : public learning_algorithm<answer> {
 
 			ti = search_tables(word);
 			if(ti != lower_table.end()) {
-				string s = word2string(word);
-				(*this->my_logger)(LOGGER_ERROR, "angluin_table: add_counterexample(): you are trying to add a counterexample (%s) which is already contained in the table. trying to ignore...\n", s.c_str());
-				return false;
+				if(!this->norm) {
+					(*this->my_logger)(LOGGER_ERROR, "angluin_table: add_counterexample(): you are trying to add a counterexample (%s) "
+							"which is already contained in the table. trying to ignore...\n", word2string(word).c_str());
+					return false;
+				} else {
+					(*this->my_logger)(LOGGER_DEBUG, "angluin_table: add_counterexample(): you are trying to add a counterexample (%s) "
+							"which is already contained in the table. as you are using a normalizer, it is possible that some "
+							"prefixes of it are missing in the table. so i'll check the prefixes anyway. NOTE: this most likely "
+							"happens if you added non-normalized counter-examples (which is allowed).\n", word2string(word).c_str());
+					// fall through and try anyway.
+				}
 			}
 
 			// check for increase in alphabet size
@@ -288,7 +296,9 @@ class angluin_table : public learning_algorithm<answer> {
 				}
 			}
 			if(asize_changed) {
-				(*this->my_logger)(LOGGER_ALGORITHM, "angluin_table: add_counterexample(): implicit increase of alphabet_size from %d to %d.\nNOTE: it is possible that the next hypothesis does not increase in state-count.\n", this->get_alphabet_size(), new_asize);
+				(*this->my_logger)(LOGGER_ALGORITHM, "angluin_table: add_counterexample(): implicit increase of alphabet_size "
+						"from %d to %d.\nNOTE: it is possible that the next hypothesis does not increase in state-count.\n",
+						this->get_alphabet_size(), new_asize);
 				increase_alphabet_size(new_asize);
 			}
 
