@@ -25,12 +25,16 @@
 
 // some templates for antichain-algorithms
 
+
 // Antichain-based algorithms. See
 //    M. De Wulf, L. Doyen, J.-F. Raskin
 //    Antichains: A New Algorithm for Checking Universality of Finite Automata
 
+
 #include <set>
 #include <map>
+
+namespace amore {
 
 using namespace std;
 
@@ -255,4 +259,6 @@ template <class S, class T>   void inner_powerset_to_inclusion_antichain(multima
 		antichain.erase(start);
 	}
 }}}
+
+}; // end of namespace amore
 

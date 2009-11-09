@@ -22,15 +22,27 @@
  *
  */
 
+
+// this file only contains antichain-related functions for the
+// nondeterministic finite automaton.
+
+
+// Antichain-based algorithms. See
+//    M. De Wulf, L. Doyen, J.-F. Raskin
+//    Antichains: A New Algorithm for Checking Universality of Finite Automata
+
+
 #include <list>
 #include <string>
 #include <queue>
 #include <set>
 
 #include <stdio.h>
-
 #include <ostream>
 #include <fstream>
+
+#include <unistd.h>
+#include <stdlib.h>
 
 # include "nondeterministic_finite_automaton_antichain.h"
 
@@ -41,15 +53,6 @@
 namespace amore {
 
 using namespace std;
-
-// this file only contains antichain-related functions for the
-// nondeterministic finite automaton.
-
-
-
-// Antichain-based algorithms. See
-//    M. De Wulf, L. Doyen, J.-F. Raskin
-//    Antichains: A New Algorithm for Checking Universality of Finite Automata
 
 /*
 set<set<int> > nondeterministic_finite_automaton::antichain_universality_cpre(set<int> stateset)
@@ -159,6 +162,8 @@ print_mm(Fn);
 
 printf("F%d:\n", i);
 print_mm(Fnplus1);
+if(i > 100)
+	exit(-1);
 
 	}
 
