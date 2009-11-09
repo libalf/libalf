@@ -17,7 +17,7 @@ LDFLAGS+=-shared -L${PREFIX}/lib -lAMoRE
 
 SONAME=libalf
 
-OBJECTS=amore.o finite_automaton.o nondeterministic_finite_automaton.o deterministic_finite_automaton.o
+OBJECTS=amore.o finite_automaton.o nondeterministic_finite_automaton.o nondeterministic_finite_automaton_antichain.o deterministic_finite_automaton.o
 
 all:	libAMoRE++.so
 
@@ -42,5 +42,5 @@ uninstall:
 
 # special dependencies:
 
-nondeterministic_finite_automaton.o: antichain.h
+nondeterministic_finite_automaton_antichain.o: nondeterministic_finite_automaton_antichain.h
 
