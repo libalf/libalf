@@ -45,14 +45,6 @@ JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNIBufferedLogger_receive_1and_1flu
 
 /*
  * Class:     de_libalf_jni_JNIBufferedLogger
- * Method:    get_min_loglevel
- * Signature: (J)I
- */
-JNIEXPORT jint JNICALL Java_de_libalf_jni_JNIBufferedLogger_get_1min_1loglevel
-  (JNIEnv *, jobject, jlong);
-
-/*
- * Class:     de_libalf_jni_JNIBufferedLogger
  * Method:    set_min_loglevel
  * Signature: (IJ)V
  */

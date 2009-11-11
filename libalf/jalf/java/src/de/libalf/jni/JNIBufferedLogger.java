@@ -27,8 +27,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 import de.libalf.LearningAlgorithm;
 import de.libalf.Logger;
 
@@ -141,27 +139,26 @@ public class JNIBufferedLogger extends JNIObject implements Logger {
 
 	@Override
 	public LoggerLevel get_min_loglevel() {
-		throw new NotImplementedException();
-		//return mapJNILoggerLevel(get_min_loglevel(this.pointer));
+		return minimalLogLevel;
 	}
-
-	/**
-	 * <p>
-	 * <em>JNI method call:</em> See
-	 * {@link JNIBufferedLogger#get_min_loglevel()}.
-	 * </p>
-	 * 
-	 * @param pointer
-	 *            the pointer to the C++ object.
-	 * @return the result of the JNI call.
-	 */
-	private native int get_min_loglevel(long pointer);
 
 	@Override
 	public void set_min_loglevel(LoggerLevel logLevel) {
 		set_min_loglevel(mapJNILoggerLevel(logLevel), this.pointer);
 	}
 
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See
+	 * {@link JNIBufferedLogger#set_min_loglevel(de.libalf.Logger.LoggerLevel)}.
+	 * </p>
+	 * 
+	 * @param loglevel
+	 *            the log level in JNI format
+	 * @param pointer
+	 *            the pointer to the C++ object.
+	 * @return the result of the JNI call.
+	 */
 	private native void set_min_loglevel(int loglevel, long pointer);
 
 	@Override
@@ -182,34 +179,11 @@ public class JNIBufferedLogger extends JNIObject implements Logger {
 	private native void destroy(long pointer);
 
 	/**
-	 * This method maps a JNI logger level to a Java <code>LoggerLevel</code>.
-	 * 
-	 * @param logLevel
-	 *            the JNI logger level
-	 * @return an equivalent Java <code>LoggerLevel</code>.
-	 */
-	private LoggerLevel mapJNILoggerLevel(int logLevel) {
-		switch (logLevel) {
-		case ERROR:
-			return LoggerLevel.LOGGER_ERROR;
-		case WARN:
-			return LoggerLevel.LOGGER_WARN;
-		case INFO:
-			return LoggerLevel.LOGGER_INFO;
-		case DEBUG:
-			return LoggerLevel.LOGGER_DEBUG;
-		default:
-			return LoggerLevel.LOGGER_ERROR;
-		}
-
-	}
-
-	/**
 	 * This method maps a Java <code>LoggerLevel</code> to an <code>int</code>,
 	 * which is then passed to the JNI.
 	 * 
 	 * @param logLevel
-	 *            the loglevel
+	 *            the log level
 	 * @return the JNI equivalent logger level.
 	 */
 	private int mapJNILoggerLevel(LoggerLevel logLevel) {

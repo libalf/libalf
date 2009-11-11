@@ -96,10 +96,6 @@ JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNIBufferedLogger_receive_1and_1flu
 	return env->NewStringUTF(c);
 }
 
-JNIEXPORT jint JNICALL Java_de_libalf_jni_JNIBufferedLogger_get_1min_1loglevel (JNIEnv *env, jobject obj, jlong pointer) {
-	return -1;
-}
-
 JNIEXPORT void JNICALL Java_de_libalf_jni_JNIBufferedLogger_set_1min_1loglevel (JNIEnv *env, jobject obj, jint logLevel, jlong pointer) {
 	// Get the logger object
 	buffered_logger *logger = (buffered_logger*)pointer;
