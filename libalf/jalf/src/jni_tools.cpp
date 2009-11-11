@@ -1,4 +1,4 @@
-/* $Id: jni_tools.cpp 814 2009-09-04 08:28:54Z stefanschulz $
+/* $Id$
  * vim: fdm=marker
  *
  * This file is part of libalf.

@@ -1,4 +1,4 @@
-/* $Id: jni_algorithm_angluin.cpp 492 2009-04-18 17:10:59Z neider $
+/* $Id$
  * vim: fdm=marker
  *
  * This file is part of libalf.

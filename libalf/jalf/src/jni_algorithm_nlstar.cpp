@@ -1,4 +1,4 @@
-/* $Id: jni_algorithm_nlstar.cpp 501 2009-04-20 15:38:54Z neider $
+/* $Id$
  * vim: fdm=marker
  *
  * This file is part of libalf.

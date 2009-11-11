@@ -70,10 +70,14 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNINormalizer_deserialize (JNIEnv 
 	// Forward method call
 	basic_string<int32_t>::iterator si;
 	si = ser.begin();
-	return norm->deserialize(si, ser.end());
+	if(!norm->deserialize(si, ser.end()))
+		return false;
+
+	return (si == ser.end());
 }
 
 JNIEXPORT void JNICALL Java_de_libalf_jni_JNINormalizer_destroy (JNIEnv *env, jobject obj, jlong pointer) {
 	// Kill the normalizer
 	delete (normalizer_msc*)pointer;
 }
+
