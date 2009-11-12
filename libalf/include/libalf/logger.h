@@ -28,6 +28,8 @@
 #include <string>
 #include <istream>
 
+#include <stdio.h>
+
 namespace libalf {
 
 using namespace std;

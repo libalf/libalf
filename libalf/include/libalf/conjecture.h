@@ -26,6 +26,8 @@
 #include <set>
 #include <map>
 
+#include <stdio.h>
+
 #ifndef __libalf_conjecture_h__
 # define __libalf_conjecture_h__
 

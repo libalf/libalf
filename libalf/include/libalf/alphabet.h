@@ -33,6 +33,8 @@
 # include <stdint.h>
 #endif
 
+#include <stdio.h>
+
 namespace libalf {
 
 using namespace std;
