@@ -40,9 +40,7 @@
 
 #include <math.h>
 
-#ifdef _WIN32
 #include <stdio.h>
-#endif
 
 #include <libalf/knowledgebase.h>
 #include <libalf/learning_algorithm.h>

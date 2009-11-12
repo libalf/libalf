@@ -33,9 +33,10 @@
 #include <ostream>
 #include <sstream>
 
+#include <stdio.h>
+
 #ifdef _WIN32
 #include <winsock.h>
-#include <stdio.h>
 #else
 #include <arpa/inet.h>
 #endif
