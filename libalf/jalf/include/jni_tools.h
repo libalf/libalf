@@ -26,6 +26,7 @@
 #include <set>
 #include <string>
 #include <list>
+#include <arpa/inet.h>
 
 #ifdef _WIN32
 # include <stdint.h>

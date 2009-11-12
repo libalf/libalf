@@ -45,8 +45,8 @@ libjalf.so: test_java_dir ${OBJECTS}
 
 jalf.dll: ${OBJECTS}
 	make -C ../../src libalf.a
-	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} ${LDFLAGS} -static -lalf -L../../src -o jalf.dll -Wl,--kill-at
-#	                                                                                         ^^^^^^^^^^^^^ needed for JNI-DLL (http://www.mingw.org/wiki/JNI-MinGW-DLL)
+	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} ${LDFLAGS} -static -L../../src -o jalf.dll -Wl,--kill-at
+#	                                                                                   ^^^^^^^^^^^^^ needed for JNI-DLL (http://www.mingw.org/wiki/JNI-MinGW-DLL)
 
 jalf.dll-DYNAMIC: ${OBJECTS}
 	make -C ../../src libalf.dll

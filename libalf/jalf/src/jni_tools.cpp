@@ -29,6 +29,26 @@
 
 using namespace std;
 
+jintArray basic_string2jintArray_tohl(JNIEnv *env, basic_string<int32_t> str) {
+	// Create new Java int array
+	int strSize = str.size();
+	jintArray arr = env->NewIntArray(strSize);
+
+	// Copy array
+	int intArray[strSize];
+	int i=0;
+	basic_string<int32_t>::iterator si;
+	for(si = str.begin(); si != str.end(); si++) {
+		intArray[i] = ntohl(*si);
+		i++;
+	}
+
+	// Fill Java array
+	env->SetIntArrayRegion(arr, 0, strSize, (jint *)intArray);
+
+	return arr;
+}
+
 jintArray basic_string2jintArray(JNIEnv *env, basic_string<int32_t> str)
 {
 	// Create new Java int array

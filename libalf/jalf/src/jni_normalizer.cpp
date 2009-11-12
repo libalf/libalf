@@ -60,7 +60,7 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNINormalizer_deserialize (JNIEnv 
 	// Copy array
 	int len = (int)length;
 	basic_string<int32_t> ser;
-	for(int i=0; i<len; i++) ser.push_back(((jint)entry[i]));
+	for(int i=0; i<len; i++) ser.push_back(htonl(((jint)entry[i])));
 	// Clean
 	env->ReleaseIntArrayElements(serialization, entry, 0);
 
