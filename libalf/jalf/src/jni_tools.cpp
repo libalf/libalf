@@ -29,7 +29,8 @@
 
 using namespace std;
 
-jintArray basic_string2jintArray_tohl(JNIEnv *env, basic_string<int32_t> str) {
+jintArray basic_string2jintArray_tohl(JNIEnv *env, basic_string<int32_t> str)
+{
 	// Create new Java int array
 	int strSize = str.size();
 	jintArray arr = env->NewIntArray(strSize);

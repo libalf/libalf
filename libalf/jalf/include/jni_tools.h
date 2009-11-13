@@ -36,6 +36,8 @@
 
 using namespace std;
 
+jintArray basic_string2jintArray_tohl(JNIEnv *, basic_string<int32_t>);
+
 jintArray basic_string2jintArray(JNIEnv *, basic_string<int32_t>);
 
 jintArray list_int2jintArray(JNIEnv *, list<int>);

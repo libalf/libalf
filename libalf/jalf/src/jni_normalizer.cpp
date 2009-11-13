@@ -48,7 +48,7 @@ JNIEXPORT jintArray JNICALL Java_de_libalf_jni_JNINormalizer_serialize (JNIEnv *
 	normalizer_msc *norm = (normalizer_msc*)pointer;
 
 	// Convert
-	jintArray arr = basic_string2jintArray(env, norm->serialize());
+	jintArray arr = basic_string2jintArray_tohl(env, norm->serialize());
 
 	return arr;
 }
