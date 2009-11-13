@@ -163,7 +163,7 @@ JNIEXPORT jintArray JNICALL Java_de_libalf_jni_JNILearningAlgorithm_serialize (J
 	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
 
 	// Convert
-	jintArray arr = basic_string2jintArray(env, algorithm->serialize());
+	jintArray arr = basic_string2jintArray_tohl(env, algorithm->serialize());
 
 	return arr;
 }
@@ -175,7 +175,7 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNILearningAlgorithm_deserialize (
 	// Copy array
 	int len = (int)length;
 	basic_string<int32_t> ser;
-	for(int i=0; i<len; i++) ser.push_back(((jint)entry[i]));
+	for(int i=0; i<len; i++) ser.push_back(htonl((jint)entry[i]));
 	// Clean
 	env->ReleaseIntArrayElements(serialization, entry, 0);
 

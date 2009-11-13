@@ -297,7 +297,7 @@ JNIEXPORT jintArray JNICALL Java_de_libalf_jni_JNIKnowledgebase_serialize (JNIEn
 	knowledgebase<bool> *base = (knowledgebase<bool>*)pointer;
 
 	// Convert
-	jintArray arr = basic_string2jintArray(env, base->serialize());
+	jintArray arr = basic_string2jintArray_tohl(env, base->serialize());
 
 	return arr;
 }
@@ -309,7 +309,7 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIKnowledgebase_deserialize (JNIE
 	// Copy array
 	int len = (int)length;
 	basic_string<int32_t> ser;
-	for(int i=0; i<len; i++) ser.push_back(((jint)entry[i]));
+	for(int i=0; i<len; i++) ser.push_back(htonl((jint)entry[i]));
 	// Clean
 	env->ReleaseIntArrayElements(serialization, entry, 0);
 
