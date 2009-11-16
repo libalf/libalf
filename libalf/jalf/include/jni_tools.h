@@ -26,10 +26,12 @@
 #include <set>
 #include <string>
 #include <list>
-#include <arpa/inet.h>
 
 #ifdef _WIN32
-# include <stdint.h>
+#include <winsock.h>
+#include <stdio.h>
+#else
+#include <arpa/inet.h>
 #endif
 
 #include <jni.h>
