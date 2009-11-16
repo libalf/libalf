@@ -143,6 +143,23 @@ public enum JNIFactory implements LibALFFactory {
 								+ args.length + ".");
 
 			/*
+			 * Create Biermann (original) inference algorithm.
+			 */
+		case BIERMANN_ORIGINAL:
+			if (args.length == 3)
+				return new JNIAlgorithmBiermannOriginal(
+						(JNIKnowledgebase) args[0], (Integer) args[1],
+						(Integer) args[2]);
+			else if (args.length == 4)
+				return new JNIAlgorithmBiermannOriginal(
+						(JNIKnowledgebase) args[0], (Integer) args[1],
+						(JNIBufferedLogger) args[2], (Integer) args[3]);
+			else
+				throw new AlfException(
+						"Invalid parameters for creating Biermann (original) inference algorithm: "
+								+ args.length + ".");
+								
+			/*
 			 * Create DeLeTe2 inference algorithm.
 			 */
 		case DELETE2:

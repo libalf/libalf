@@ -96,9 +96,10 @@ class learning_algorithm {
 			ALG_DELETE2 = 9,
 			ALG_TB_INFERENCE = 10,		// Trakhtenbrot and Barzdin
 			ALG_HSI = 11,			// homing sequence inference
-
+			ALG_BIERMANN_ORIGINAL = 12,
+			
 			// END
-			ALG_LAST_INVALID = 12
+			ALG_LAST_INVALID = 13
 		};
 
 	public: // methods

@@ -35,7 +35,8 @@ package de.libalf;
  */
 public interface LibALFFactory extends LibALFObject {
 	static enum Algorithm {
-		ANGLUIN, ANGLUIN_COLUMN, NL_STAR, RPNI, BIERMANN_MINISAT, DELETE2;
+		ANGLUIN, ANGLUIN_COLUMN, NL_STAR, RPNI, BIERMANN_MINISAT,
+		BIERMANN_ORIGINAL, DELETE2;
 	}
 
 	/**
