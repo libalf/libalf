@@ -37,10 +37,10 @@
 
 \begin{figure}[h]
   \centering
-  \subfloat[Algorithms]{\label{fig:alg}\includegraphics[width=0.35\textwidth,scale=0.3]{1.png}}  \hspace{30pt}           
-  \subfloat[Knowledgebase]{\label{fig:base}\includegraphics[width=0.3\textwidth]{2.png}}\\
-  \subfloat[Filter \& Normalizer]{\label{fig:filter}\includegraphics[width=0.27\textwidth]{3.png}} \hspace{30pt}
-  \subfloat[Logger \& Statistics]{\label{fig:logger}\includegraphics[width=0.35\textwidth]{4.png}}
+  \subfloat[Algorithms]{\label{fig:alg}\includegraphics[width=0.35\textwidth,scale=0.3]{Images/1.png}}  \hspace{30pt}           
+  \subfloat[Knowledgebase]{\label{fig:base}\includegraphics[width=0.3\textwidth]{Images/2.png}}\\
+  \subfloat[Filter \& Normalizer]{\label{fig:filter}\includegraphics[width=0.27\textwidth]{Images/3.png}} \hspace{30pt}
+  \subfloat[Logger \& Statistics]{\label{fig:logger}\includegraphics[width=0.35\textwidth]{Images/4.png}}
   \caption{Components of LibALF}
   \label{fig:components}
 \end{figure} 
@@ -52,8 +52,8 @@
 	
 \begin{figure}[h]
 	\centering
-	\subfloat{\label{fig:baseandalg}\includegraphics[width=0.5\textwidth]{combined3.png}}
-	\subfloat{\label{fig:basealgfilt}\includegraphics[width=0.5\textwidth]{combined5.png}}
+	\subfloat{\label{fig:baseandalg}\includegraphics[width=0.5\textwidth]{Images/combined3.png}}
+	\subfloat{\label{fig:basealgfilt}\includegraphics[width=0.5\textwidth]{Images/combined5.png}}
 	\caption{Pictorial Representation of Plug and Play support}
 	\label{fig:plug}
 \end{figure}
@@ -91,7 +91,7 @@ An insight into the working of the two algorithms is given in Section 1.3.
 	
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.5\textwidth]{combined6.png}
+	\includegraphics[width=0.5\textwidth]{images/combined6.png}
 	\caption{Addition of Loggers and Statistics in Plug and Play fashion}
 	\label{fig:loggers}
 \end{figure}
@@ -104,7 +104,7 @@ The primary aspect in describing the working would be to outline the data flow b
 \centering
 \begin{tikzpicture}[rounded corners,ultra thick]
 \draw node[minimum height=2cm,minimum width=2cm,fill=cyan,draw] (la) at (0,5) {Learning Algorithm};
-\draw node[minimum height=2cm,minimum width=2cm,fill = green,draw] (kn) at (7,5) {Knowledgebase};
+\draw node[minimum height=2cm,minimum width=2cm,fill=green,draw] (kn) at (7,5) {Knowledgebase};
 \draw node[minimum height=2cm,minimum width=2cm,fill=gray,draw] (user) at (3.5,0) {User};
 \draw[dashed,ultra thick] (la) -- (kn) node[midway,above] {advane()};
 \draw[<->,ultra thick] (la) -- (user) node[midway,left] {conjecture equivalence} node[near end,left] {counter-example};

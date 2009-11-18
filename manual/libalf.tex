@@ -1,5 +1,6 @@
-\documentclass[11pt,a4paper]{book}
+\documentclass[11pt,a4paper]{scrbook}
 
+%---------- Packages ----------
 \usepackage[latin1]{inputenc}
 \usepackage{xspace}
 \usepackage{hyperref}
@@ -9,14 +10,27 @@
 \usepackage{subfig}
 \usepackage{tikz}
 
+\input{commands}
 
-\title{The LibALF Library}
+%---------- Make index ----------
+\makeindex
 
+%---------- Title & Author ----------
+\title{The \texttt{libalf} Library}
+
+%---------- Document begins ----------
 \begin{document}
+
+%---------- Title ----------
 \maketitle{}
 
-\graphicspath{{images/}}
-\input{commands}
-\input{LibalfDOC}
+
+%---------- Table of Contents ----------
+%\tableofcontents
+%\listoffigures
+%\cleardoublepage
+
+%---------- Content ----------
+\input{introduction}
 
 \end{document}
