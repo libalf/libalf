@@ -139,12 +139,12 @@ printf("cpre\n");
 	return ret;
 }}}
 
-void nondeterministic_finite_automaton::antichain_subset_cpreN(pair<int, set<int> > &f1, multimap< int, set<int> > &Fn, nondeterministic_finite_automaton &other)
+void nondeterministic_finite_automaton::antichain_subset_cpreN(pair<int, set<int> > &target, multimap< int, set<int> > &Fn, nondeterministic_finite_automaton &other)
 {{{
 	multimap< int, set<int> > Fnplus1;
 
 	Fn.clear();
-	Fn.insert(f1);
+	Fn.insert(target);
 
 printf("cpreN -------\n");
 
@@ -156,13 +156,13 @@ print_mm(Fn);
 
 	while( Fn != Fnplus1 ) {
 		Fn = Fnplus1;
-		Fn.insert(f1); // really? or in intermediate?
+		Fnplus1.insert(target);
 		i++;
-		Fnplus1 = antichain_subset_cpre(Fn, other);
+		Fnplus1 = antichain_subset_cpre(Fnplus1, other);
 
 printf("F%d:\n", i);
 print_mm(Fnplus1);
-if(i > 100)
+if(i > 30)
 	exit(-1);
 
 	}
@@ -175,7 +175,7 @@ bool nondeterministic_finite_automaton::antichain_subset_test(nondeterministic_f
 {
 	multimap< int, set<int> > Fn, single;
 
-	pair<int, set<int> > f1;
+	pair<int, set<int> > target;
 
 	set<int> our_final = this->get_final_states();
 	set<int> our_initial = this->get_initial_states();
@@ -189,19 +189,19 @@ printf("other->final    { "); print_set(other_final); printf("}\n");
 	for(unsigned int i = 0; i < other.get_state_count(); i++)
 		other_nonfinal.insert(i);
 	other_nonfinal = set_without(other_nonfinal, other_final);
-	f1.second = other_nonfinal;
+	target.second = other_nonfinal;
 
 printf("other->nonfinal { "); print_set(other_nonfinal); printf("}\n");
 
 	for(set<int>::iterator si = our_final.begin(); si != our_final.end(); ++si) {
-		f1.first = *si;
+		target.first = *si;
 		if(si == our_final.begin()) {
 			// first run: initialize Fn
-			antichain_subset_cpreN(f1, Fn, other);
+			antichain_subset_cpreN(target, Fn, other);
 		} else {
 printf("INTERSECT\n");
 			// Nth run: intersect with former Fn
-			antichain_subset_cpreN(f1, single, other);
+			antichain_subset_cpreN(target, single, other);
 			Fn = inner_set_intersect(Fn, single);
 		}
 	}
@@ -210,11 +210,11 @@ printf("INTERSECT\n");
 	// state I in this->initial s.t. (l, other->initial)
 	// is in Fn
 	multimap< int, set<int> > initial;
-	f1.second = other.get_initial_states();
+	target.second = other.get_initial_states();
 	for(set<int>::iterator si = our_initial.begin(); si != our_initial.end(); ++si) {
-		f1.first = *si;
+		target.first = *si;
 		initial.clear();
-		initial.insert(f1);
+		initial.insert(target);
 		if( inner_set_includes(Fn, initial) )
 			return true;
 	}

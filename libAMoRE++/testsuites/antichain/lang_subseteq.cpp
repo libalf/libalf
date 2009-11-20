@@ -24,6 +24,7 @@
 
 #include <iostream>
 #include <ostream>
+#include <fstream>
 #include <iterator>
 #include <list>
 
@@ -73,6 +74,14 @@ int main(int argc, char**argv)
 		cout << "second regex is invalid.\n";
 		return -1;
 	}
+
+	ofstream file;
+	file.open("r1.dot");
+	file << n1->generate_dotfile(true);
+	file.close();
+	file.open("r2.dot");
+	file << n2->generate_dotfile(true);
+	file.close();
 
 	list<int> counterexample;
 #ifdef SUBSET
