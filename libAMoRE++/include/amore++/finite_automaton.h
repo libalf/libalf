@@ -83,6 +83,13 @@ class finite_automaton {
 		virtual set<int> successor_states(set<int> states, int label) = 0;
 		virtual set<int> predecessor_states(set<int> states, int label) = 0;
 
+		// epsilon-closure functions: (obviously only applicable to automata with epsilon-transitions)
+		// apply epsilon-closure to state-set (i.e. include states that may be reached from those via epsilon)
+		virtual void epsilon_closure(set<int> & states) = 0;
+		// apply inverted epsilon-closure to state-set (i.e. include states from whom these states may be reached via epsilon)
+		virtual void inverted_epsilon_closure(set<int> & states) = 0;
+
+
 		// calculate single-label transition or multiple-label run for a set of starting states
 		virtual set<int> transition(set<int> from, int label)
 		{   return successor_states(from, label);   };
@@ -195,9 +202,9 @@ class finite_automaton {
 		//    M. De Wulf, L. Doyen, J.-F. Raskin
 		//    Antichains: A New Algorithm for Checking Universality of Finite Automata
 
-//		virtual bool antichain_universality_test(list<int> counterexample);
-		virtual bool antichain_equivalence_test(finite_automaton &other, list<int> counterexample);
-		virtual bool antichain_subset_test(finite_automaton &other, list<int> counterexample);
+//		virtual bool antichain__is_universal(list<int> counterexample);
+		virtual bool antichain__is_equal(finite_automaton &other, list<int> counterexample);
+		virtual bool antichain__is_superset_of(finite_automaton &other, list<int> counterexample);
 };
 
 

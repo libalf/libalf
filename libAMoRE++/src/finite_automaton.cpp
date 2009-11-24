@@ -25,6 +25,7 @@
 #include <string>
 #include <stdio.h>
 #include <set>
+#include <map>
 
 #include <arpa/inet.h>
 
@@ -343,23 +344,25 @@ bool finite_automaton::construct(bool is_dfa, int alphabet_size, int state_count
 //    Antichains: A New Algorithm for Checking Universality of Finite Automata
 
 /*
-bool antichain_universality_test(list<int> counterexample)
+bool antichain__is_universal(list<int> counterexample)
 {
 
 }
 */
 
-bool finite_automaton::antichain_equivalence_test(finite_automaton &other, list<int> counterexample)
+bool finite_automaton::antichain__is_equal(finite_automaton &other, list<int> counterexample)
 {{{
-	if(!this->antichain_subset_test(other, counterexample))
+	if(!this->antichain__is_superset_of(other, counterexample))
 		return false;
-	return other.antichain_subset_test(*this, counterexample);
+	return other.antichain__is_superset_of(*this, counterexample);
 }}}
 
-bool finite_automaton::antichain_subset_test(finite_automaton &other, list<int> counterexample)
+bool finite_automaton::antichain__is_superset_of(finite_automaton &other, list<int> counterexample)
 {
 	counterexample.clear();
 
+	// compute initial attractor
+	map<int, set<pair< set<int>, list<int> > > > attr;
 
 
 }

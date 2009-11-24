@@ -90,6 +90,8 @@ class nondeterministic_finite_automaton : public finite_automaton {
 		virtual set<int> successor_states(set<int> states, int label);
 		virtual set<int> predecessor_states(set<int> states);
 		virtual set<int> predecessor_states(set<int> states, int label);
+		virtual void epsilon_closure(set<int> & states);
+		virtual void inverted_epsilon_closure(set<int> & states);
 		virtual list<int> shortest_run(set<int> from, set<int> &to, bool &reachable);
 		virtual bool is_reachable(set<int> &from, set<int> &to);
 		virtual list<int> get_sample_word(bool & is_empty);
@@ -125,11 +127,6 @@ class nondeterministic_finite_automaton : public finite_automaton {
 
 		// get regex for automaton
 		virtual string to_regex();
-
-		// apply epsilon-closure to state-set (i.e. include states that may be reached from those via epsilon)
-		virtual void epsilon_closure(set<int> & states);
-		// apply inverted epsilon-closure to state-set (i.e. include states from whom these states may be reached via epsilon)
-		virtual void inverted_epsilon_closure(set<int> & states);
 
 	protected:
 //		set<set<int> > antichain_universality_cpre(set<int>);
