@@ -130,7 +130,6 @@ class finite_automaton {
 		// letter, every state has at most one predecessor.
 		virtual finite_automaton * co_determinize(bool minimize = true);
 
-
 		// BINARY LANGUAGE TESTS
 
 		// test if this == other
@@ -139,7 +138,6 @@ class finite_automaton {
 		virtual bool lang_subset_of(finite_automaton &other) = 0;
 		// test if this and other are disjoint
 		virtual bool lang_disjoint_to(finite_automaton &other) = 0;
-
 
 		// BINARY LANGUAGE OPERATIONS
 
@@ -186,6 +184,20 @@ class finite_automaton {
 		virtual string generate_dotfile(bool exclude_negative_sinks);
 		virtual string generate_dotfile()
 		{ return generate_dotfile(false); };
+
+	protected:
+		// following are antichain-based algorithms for universality, inclusion and equality-tests for languages.
+		// depending on their performance, once implemented, is_universal(), lang_subset_of() and operator==()
+		// should relay to them.
+		// at least for nondeterministic automata, these will be far more efficient than determinization + test.
+
+		// Antichain-based algorithms. See
+		//    M. De Wulf, L. Doyen, J.-F. Raskin
+		//    Antichains: A New Algorithm for Checking Universality of Finite Automata
+
+//		virtual bool antichain_universality_test(list<int> counterexample);
+		virtual bool antichain_equivalence_test(finite_automaton &other, list<int> counterexample);
+		virtual bool antichain_subset_test(finite_automaton &other, list<int> counterexample);
 };
 
 

@@ -131,12 +131,6 @@ class nondeterministic_finite_automaton : public finite_automaton {
 		// apply inverted epsilon-closure to state-set (i.e. include states from whom these states may be reached via epsilon)
 		virtual void inverted_epsilon_closure(set<int> & states);
 
-		// rather efficient algorithm for specific language tests
-//		virtual bool antichain_universality_test(list<int> counterexample);
-		virtual bool antichain_equivalence_test(nondeterministic_finite_automaton &other, list<int> counterexample);
-		virtual bool antichain_subset_test(nondeterministic_finite_automaton &other, list<int> counterexample);
-
-
 	protected:
 //		set<set<int> > antichain_universality_cpre(set<int>);
 		multimap< int, set<int> > antichain_subset_cpre(multimap< int, set<int> > &stateset, nondeterministic_finite_automaton &other);

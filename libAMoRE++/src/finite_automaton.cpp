@@ -333,5 +333,38 @@ bool finite_automaton::construct(bool is_dfa, int alphabet_size, int state_count
 	return this->deserialize(ser_begin, ser.end());
 }}}
 
+
+
+
+
+
+// Antichain-based algorithms. See
+//    M. De Wulf, L. Doyen, J.-F. Raskin
+//    Antichains: A New Algorithm for Checking Universality of Finite Automata
+
+/*
+bool antichain_universality_test(list<int> counterexample)
+{
+
+}
+*/
+
+bool finite_automaton::antichain_equivalence_test(finite_automaton &other, list<int> counterexample)
+{{{
+	if(!this->antichain_subset_test(other, counterexample))
+		return false;
+	return other.antichain_subset_test(*this, counterexample);
+}}}
+
+bool finite_automaton::antichain_subset_test(finite_automaton &other, list<int> counterexample)
+{
+	counterexample.clear();
+
+
+
+}
+
+
+
 } // end namespace amore
 
