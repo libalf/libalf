@@ -283,9 +283,9 @@ class RPNI : public learning_algorithm<answer> {
 							"you may try anyway, this is just a sidenote.\n", s.c_str());
 				}
 
-				if(this->get_alphabet_size() != this->my_knowledge->get_alphabet_size())
+				if(this->get_alphabet_size() != this->my_knowledge->get_largest_symbol())
 					(*this->my_logger)(LOGGER_WARN, "RPNI: differing alphabet size between this (%d) and knowledgebase (%d)!\n",
-							this->get_alphabet_size(), this->my_knowledge->get_alphabet_size());
+							this->get_alphabet_size(), this->my_knowledge->get_largest_symbol());
 
 				return true;
 			} else {
@@ -352,9 +352,9 @@ class RPNI : public learning_algorithm<answer> {
 				return ret;
 			}
 
-			if(this->get_alphabet_size() != this->my_knowledge->get_alphabet_size())
+			if(this->get_alphabet_size() != this->my_knowledge->get_largest_symbol())
 				(*this->my_logger)(LOGGER_WARN, "RPNI: differing alphabet size between this (%d) and knowledgebase (%d)!\n",
-						this->get_alphabet_size(), this->my_knowledge->get_alphabet_size());
+						this->get_alphabet_size(), this->my_knowledge->get_largest_symbol());
 			bool ok;
 			equivalence_relation eq(this->my_knowledge);
 

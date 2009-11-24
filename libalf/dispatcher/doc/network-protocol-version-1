@@ -348,10 +348,16 @@ server returns:
 	bool (true if empty)
 
 
-get alphabet_size of knowledgebase (KNOWLEDGEBASE_GET_ALPHABET_SIZE)
+get largest symbol in knowledgebase (KNOWLEDGEBASE_GET_LARGEST_SYMBOL)
 parameters: none.
 server returns:
-	alphabet_size
+	largest_symbol
+
+
+check and get largest symbol in knowledgebase (KNOWLEDGEBASE_CHECK_LARGEST_SYMBOL)
+parameters: none.
+server returns:
+	largest_symbol
 
 
 count queries (KNOWLEDGEBASE_COUNT_QUERIES)

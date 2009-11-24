@@ -105,12 +105,18 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 			if(!this->sv->send_errno(ERR_SUCCESS))
 				return false;
 			return this->sv->client->stream_send_int(o->is_empty() ? 1 : 0);
-		case KNOWLEDGEBASE_GET_ALPHABET_SIZE:
+		case KNOWLEDGEBASE_GET_LARGEST_SYMBOL:
 			if(command_data.size() != 0)
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 			if(!this->sv->send_errno(ERR_SUCCESS))
 				return false;
-			return this->sv->client->stream_send_int(o->get_alphabet_size());
+			return this->sv->client->stream_send_int(o->get_largest_symbol());
+		case KNOWLEDGEBASE_CHECK_LARGEST_SYMBOL:
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			return this->sv->client->stream_send_int(o->check_largest_symbol());
 		case KNOWLEDGEBASE_COUNT_QUERIES:
 			if(command_data.size() != 0)
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);

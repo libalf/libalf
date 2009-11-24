@@ -105,7 +105,7 @@ class knowledgebase {
 				answer ans;
 			protected: // internal methods
 				node* get_next(node * current_child)
-				// used during iterator++
+				// used in iterator++
 				{{{
 					typename vector<node *>::iterator ci;
 
@@ -235,9 +235,7 @@ class knowledgebase {
 					else
 						return NULL;
 				}}}
-				node * find_child(list<int>::iterator infix_start, list<int>::iterator infix_limit)
-				// go to node defined by arbitrarily long
-				// suffix
+				node * find_descendant(list<int>::iterator infix_start, list<int>::iterator infix_limit)
 				{{{
 					node * n = this;
 
@@ -267,12 +265,12 @@ class knowledgebase {
 						base->nodecount++;
 					}
 
-					if(label >= base->alphabet_size)
-						base->alphabet_size = label+1;
+					if(label >= base->largest_symbol)
+						base->largest_symbol = label+1;
 
 					return children[label];
 				}}}
-				node * find_or_create_child(list<int>::iterator infix_start, list<int>::iterator infix_limit)
+				node * find_or_create_descendant(list<int>::iterator infix_start, list<int>::iterator infix_limit)
 				{{{
 					node * n = this;
 
@@ -298,6 +296,12 @@ class knowledgebase {
 								return true;
 
 					return false;
+				}}}
+
+				int get_label()
+				// get label of this node (i.e. last letter in word this node represents)
+				{{{
+					return this->label;
 				}}}
 				list<int> get_word()
 				// get word this node represents
@@ -380,10 +384,7 @@ class knowledgebase {
 				// different answer this and other?
 				{{{
 					if(is_answered() && other->is_answered()) {
-						return (
-							(get_answer() == true && other->get_answer() == false)
-						     || (get_answer() == false && other->get_answer() == true)
-						);
+						return ( this->get_answer() != other->get_answer() );
 					} else {
 						return false;
 					}
@@ -408,7 +409,7 @@ class knowledgebase {
 					    ci++, oci++)   {
 						if((*ci) == NULL || (*oci) == NULL)
 							continue;
-						if((*ci)->recursive_different(*oci), depth > 0 ? depth-1 : -1)
+						if((*ci)->recursive_different(*oci, depth > 0 ? depth-1 : -1))
 							return true;
 					}
 
@@ -867,7 +868,9 @@ class knowledgebase {
 		// count_queries is required.size().
 		int resolved_queries; // number of queries that have been resolved from this knowledgebase
 
-		int alphabet_size;
+		int largest_symbol; // largest symbol that ever was stored in knowledgebase.
+			// usually this is only increased. only manually via check_largest_symbol()
+			// you can enforce a check of the complete knowledgebase.
 
 		unsigned int timestamp;
 
@@ -891,7 +894,7 @@ class knowledgebase {
 				delete root;
 
 			timestamp = 1;
-			alphabet_size = 0;
+			largest_symbol = 0;
 
 			required.clear();
 
@@ -974,9 +977,28 @@ class knowledgebase {
 			resolved_queries = 0;
 		}}}
 
-		int get_alphabet_size()
+		int get_largest_symbol()
+		// return largest known symbol ( O(1) ) that was ever
+		// stored in knowledgebase. usually this is only increased.
+		// only in cleanup() or manually via check_largest_symbol()
+		// you can enforce a check of the complete knowledgebase.
+		// NOTE that during a deserialization, this is adjusted as
+		//      well.
 		{{{
-			return alphabet_size;
+			return largest_symbol;
+		}}}
+		int check_largest_symbol()
+		// checks the complete knowledgebase ( O(n) ),
+		// adjusts largest_symbol internally and returns it.
+		{{{
+			iterator it;
+			largest_symbol = 0;
+
+			for(it = this->begin(); it != this->end(); ++it)
+				if(it->get_label() > largest_symbol)
+					largest_symbol = it->get_label();
+
+			return largest_symbol;
 		}}}
 
 		void print(ostream &os)
@@ -1207,7 +1229,15 @@ class knowledgebase {
 			return false;
 		}}}
 		bool deserialize_query_acceptances(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
-		// please see create_query_tree() or get_queries() for the expected order
+		// answer all queries from a single, serialized chunk.
+		// the expected format is:
+		//	int length (i.e. the number of upcoming integers, excluding this one.
+		//			AND ALSO THE EXACT NUMBER OF QUERIES IN THIS KBASE)
+		//	int answer[] (that is for each query, exactly one answer);
+		// NOTE: the expected order of the answers can be obtained in three ways:
+		// 1) you use create_query_tree(). the queries are ordered in expected way
+		// by their timestamps. 2) using get_queries(). 3) by iterating over all
+		// queries (via qbegin() and qend())
 		{{{
 			int size;
 			iterator ki;
@@ -1273,18 +1303,26 @@ class knowledgebase {
 		bool merge_knowledgebase(knowledgebase & other_tree)
 		// only merges answered information, no queries!
 		// returns false if knowledge of the trees is inconsistent.
+		// in this case, no changes are applied.
+		//
 		// all new knowledge will have the same timestamp!
 		{{{
 			iterator ki;
 			int static_timestamp = timestamp; // we want one timestamp for
 			// the whole merge, so we have to keep it static!
 
+			// first, check if both knowledgebases are consistent
+			if(this->get_rootptr()->recursive_different(other_tree.get_rootptr(), -1))
+				return false;
+
 			for(ki = other_tree.begin(); ki != other_tree.end(); ++ki)
 				if(ki->is_answered()) {
 					list<int> w;
 					w = ki->get_word();
 					if(!this->add_knowledge(w, ki->get_answer()))
-						return false;
+						/* this should never happen as we
+						 * already checked for consistency */
+						;
 					timestamp = static_timestamp;
 				}
 			// increment timestamp so we mark one complete merge with a single timestamp
@@ -1298,7 +1336,7 @@ class knowledgebase {
 		// holder is in an inconsistent state and the
 		// knowledgebase will not change itself.
 		{{{
-			return root->find_or_create_child(word.begin(), word.end())->set_answer(acceptance);
+			return root->find_or_create_descendant(word.begin(), word.end())->set_answer(acceptance);
 		}}}
 		int add_query(list<int> & word, int prefix_count = 0)
 		// returns the number of new required nodes (excluding
@@ -1334,7 +1372,7 @@ class knowledgebase {
 		{{{
 			node * current;
 
-			current = root->find_child(word.begin(), word.end());
+			current = root->find_descendant(word.begin(), word.end());
 
 			if(current != NULL && current->is_answered()) {
 				acceptance = current->get_answer();
@@ -1356,7 +1394,7 @@ class knowledgebase {
 		{{{
 			node * current;
 
-			current = root->find_or_create_child(word.begin(), word.end());
+			current = root->find_or_create_descendant(word.begin(), word.end());
 
 			if(current->is_answered()) {
 				acceptance = current->get_answer();

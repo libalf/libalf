@@ -70,7 +70,7 @@ int main(int argc, char**argv)
 	knowledge.print(cout);
 	cout << "\n";
 
-	alphabet_size = knowledge.get_alphabet_size();
+	alphabet_size = knowledge.get_largest_symbol();
 
 	DeLeTe2<bool> rm(&knowledge, &log, alphabet_size);
 	conjecture *cj;

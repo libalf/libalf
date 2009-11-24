@@ -240,9 +240,9 @@ class basic_biermann : public learning_algorithm<answer> {
 		virtual bool conjecture_ready()
 		{{{
 			if((this->my_knowledge != NULL) && (this->my_knowledge->count_answers() > 0)) {
-				if(this->get_alphabet_size() != this->my_knowledge->get_alphabet_size())
+				if(this->get_alphabet_size() != this->my_knowledge->get_largest_symbol())
 					(*this->my_logger)(LOGGER_WARN, "RPNI: differing alphabet size between this (%d) and knowledgebase (%d)!\n",
-							this->get_alphabet_size(), this->my_knowledge->get_alphabet_size());
+							this->get_alphabet_size(), this->my_knowledge->get_largest_symbol());
 
 				return true;
 			} else {
@@ -278,9 +278,9 @@ class basic_biermann : public learning_algorithm<answer> {
 				return ret;
 			}
 
-			if(this->get_alphabet_size() != this->my_knowledge->get_alphabet_size())
+			if(this->get_alphabet_size() != this->my_knowledge->get_largest_symbol())
 				(*this->my_logger)(LOGGER_WARN, "biermann: differing alphabet size between this (%d) and knowledgebase (%d)!\n",
-						this->get_alphabet_size(), this->my_knowledge->get_alphabet_size());
+						this->get_alphabet_size(), this->my_knowledge->get_largest_symbol());
 			mapping old_solution;
 			int old_size;
 
@@ -328,7 +328,7 @@ class basic_biermann : public learning_algorithm<answer> {
 					(*this->my_logger)(LOGGER_WARN, "biermann: empty knowledgebase. no CSP to solve, you get a simple automaton.\n", mdfa_size);
 
 				simple_automaton * ret = new simple_automaton;
-				ret->alphabet_size = this->my_knowledge->get_alphabet_size();
+				ret->alphabet_size = this->my_knowledge->get_largest_symbol();
 				ret->state_count = 1;
 				ret->initial.insert(0);
 				if(acceptance) {
