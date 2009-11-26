@@ -1,0 +1,126 @@
+\chapter{The Knowledgebase}
+
+The knowledgebase is the fundamental repository of information. It is the central database that stores the words and their classification. But we have not designed our knowledgebase to do just that but also to provide extensibility. For instance, the methods used in the knowledgebase can be subdivided into two categories - \textbf{\emph{Methods important for Using \libalf}} and \textbf{\emph{Methods important for expanding \libalf}}. In this section, we will explain the knowledgebase starting from its structure to the important methods used in the above specified categories. This section will also provide an appendix of all the methods and their brief descriptions at the end. 
+
+(A PICTURE OF KNOWLEDGEBASE FROM DEMO HERE)
+
+\section{Represention of a word in knowledgebase}
+
+	Describing the represenation of a word in the knowledgebase prior to it's structure may prove useful in understanding why the knowledgebase organized so. 
+	For an introduction, the knowledgebase can be described as a tree structure with nodes representing the words. Given this description, demo programs in the previous section and also the demo with GUI from the website (which graphically shows the knowledgebase), if asked to imagine a word \texttt{01101} in the knowledgebase, one would tend to think of a node in the tree that contains a \stringtype or \texttt{list of integers} with value ``01101''. However, this is \emph{NOT} the case in the implementation.
+	\paragraph{}
+	The node by itself does \emph{not} contain the complete word, but only contains the i\textsuperscript{th} alphabet of the word starting from the root (an empty string). Let us look at an example to understand this better.
+	Consider a word \texttt{01101}. When this word is added to the knowledgebase, it does not become one single \stringtype stored in a node of a tree, instead the sequence of the word forms a branch of the tree with every node representing exactly one alphabet. This implies, to represent this word in the knowledgebase, the root (which is always an empty string) creates a child node that represtents ``0''. The next alphabet of the above word ``1'' is now represented in a node which is the child of the node representing its previous alphabet (the parent node), ``0''. This shows that a child node represents the succeeding alphabet of parent node from the word.
+	Thus, to retrive the word that is represented in a tree, one has to traverse from the root node to the final child node by accumulating the alphabets that every node represents.
+	\vskip 1pt
+
+	(A PICTURE OF THE ABOVE EXPLAINED TREE HERE)	
+
+	Having known the concept, the description of the structure of the knowledgebase follows in the next section.
+	
+
+	
+\section{Structure of the knowledgebase}
+	
+	The knowledgebase is designed to be a template class so as to provide usage of arbitrary values for storing desired information.
+	The knowledgebase class contains the node class which describes the variables that are necessary for the node. This class also contains some of the internal methods which are important for both using and expanding \libalf.
+	The constructor of the node class creates the Tree (a root node) with the following variables that define the node.
+	\begin{itemize}
+	\item \texttt{parent} \hfill \vskip 1pt A variable of type \node that points to the parent of the node.
+	\item \texttt{label} \hfill \vskip 1pt An \integer variable that contains the alphabet that the node represents. (-1 for root node)
+	\item \texttt{status} \hfill \vskip 1pt This indicates whether the classification of the word (the word is constructed by traversing through the tree) is required, answered or can be ignored. It is an \texttt{enum} type variable with the respective three values ``NODE\_IGNORE'', ``NODE\_REQUIRED'' and ``NODE\_ANSWERED''. 
+	\item \texttt{timestamp} \hfill
+	\end{itemize}
+	
+	After the root node is constructed, the child nodes are constructed with the \vectored type \node variable called \texttt{children}. 
+	Typically, a word in the knowledge
+	These variables can be termed as the building blocks of knowledgebase. The methods employed in the knowledgebase is described in the next section.
+
+\section{Methods in Detail}
+	This section will describe the methods used in the knowledgebase. As introduced above, the methods can be segregated into two categories - \textbf{\emph{Methods important for Using \libalf}} and \textbf{\emph{Methods important for expanding \libalf}}. 
+	If you would like to only use \libalf in your application, knowledge about the working of the methods in the former category would be sufficient. However, if you would like to expand \libalf, it would be important to know the methods in the latter category. 
+	
+	
+\subsection{Methods important for Using \libalf}
+	
+	Having described the structure of the knowledgebase and how node works, the following material gives insight into the internal methods of the nodes. We begin with describing four functions which perform some basic operations on the knowledgebase.
+		
+\paragraph{node* get\_next(node * current\_child)}
+	This internal method is used to get the next node or the next child of the current node (which is passed as an arguement). 
+	
+\paragraph{node * get\_parent()}
+	This method simply returns the parent of the node under use.
+
+\paragraph{list$<$int$>$ get\_word()}
+	This function is used to get the word that the current node represents. The method traverses backwards in the tree (from child to parent) and uses the \texttt{push\_front} function to build the word in the correct order.
+	
+\paragraph{int get\_label()}	
+	This function is used to get the label that the node represents.
+	
+\paragraph{node * find\_child(int label)}
+	This is used to find the child node with the specified label.
+	
+\paragraph{node * find\_descendant(list$<$int$>$ :: iterator infix\_start, list<int>::iterator infix\_limit)}
+	This function is used to find the child node specified by a word. It iterates over the word to traverse through the tree in view of finding the path that finally gives the required word.
+\vskip 1pt \paragraph{}
+
+
+
+The principal feature of a knowledgebase is to store the words and classifications which becomes base for the learning algorithm to construct an automaton. We discuss the following two functions of the node and a method relating to this important aspect.
+\paragraph{node * find\_or\_create\_child(int label)}
+	This function is used to find a child node given the label. However, if it is not found, the function creates the child node with the specified label.
+	
+\paragraph{node * find\_or\_create\_descendant(list<int>::iterator infix\_start, list<int>::iterator infix\_limit)} \hfill
+	This function behaves similar to the previous one. However, the difference is that, it does not operate with a single label but on a word (which is a list of \integer). 
+	
+\paragraph{bool add\_knowledge(list<int> \& word, answer acceptance)} \hfill
+	This is the key function that adds the knowledge about a word to the knowledgebase. The parameter ``word'' represents the sample word and ``acceptance'' represents the classification of the word. 
+	This method simply calls the ``find\_or\_create\_descendant(list$<$int$>$::iterator infix\_start, list$<$int$>$::iterator infix\_limit)'' so that only if an already existing knowledge of the word is absent in the knowledgebase, it will be added.
+	
+
+The next point of discussion would be the part of the knowledgebase that handles queries. For instance, an online algorithm produces queries at every ``advance'' of the algorithm. These queries are stored in the knowledgebase to present to the user.
+
+To understand the implementation of query handling in \libalf knowledgebase, one must first know the functionality of three methods that are consistantly used in methods that handle the queries.
+
+\paragraph{bool mark\_required()} \hfill
+	The method returns a boolean value \true if the acceptance or the classification of the node is requried (i.e, ``status'' is NODE\_REQUIRED) or \false if the classification is already known.
+	
+\paragraph{bool is\_required()} \hfill
+	The method returns the ``status'' as \texttt{NODE\_REQUIRED}. It is used to set this status to a particular node under consideration.
+
+\paragraph{bool is\_answered()} \hfill
+	The method returns the ``status'' as \texttt{NODE\_ANSWERED}. It is used to set this status to a particular node under consideration.
+
+\vskip 2pt
+
+  The following methods describe the operations done associated with queries.
+
+\paragraph{knowledgebase * create\_query\_tree()} \hfill
+	The method is of type \texttt{knowledgebase}. This creates a tree containing the queries to be answered is created in this method.
+It uses the \texttt{get\_word()} method to retrive the word and uses the \texttt{add\_query()} method add it in the tree.
+
+\paragraph{int add\_query(list$<$int$>$ \& word, int prefix\_count = 0)} \hfill
+	The method is primarily used to add the word to the query tree. When the classification of a word has to be known, this method firsst checks if the word already exists with its classification in the knowledgebase (by using the \texttt{find\_or\_create\_child(int label)} method). Hence, if the classification of the word is unknown and does not already exist, the corresponding node will be created and eventually added in the query tree (since this method is used by \texttt{create\_query\_tree()}.
+  
+\paragraph{list$<$list$<$int$>$$>$ get\_queries()} \hfill
+	This method returns the list of all the queries (implying those that are yet to classified). The method naturally uses the \texttt{get\_word()} function to build the word.
+	
+\paragraph{bool resolve\_query(list$<$int$>$ \& word, answer \& acceptance) and bool resolve\_or\_add\_query(list$<$int$>$ \& word, answer & acceptance)}
+	These two methods can be described together as their functionality is almost similar and differ only in one aspect. Both methods return \true if the classification of the word is already known and \false if it is unknown. While ``resolve\_query()'' only returns \false, ``resolve\_or\_add\_query()'' marks the status of this word as required and then returns \false. Naturally, the former uses ``find\_descendant()'' and the latter makes use of ``find\_or\_create\_descendant()''.
+
+\paragraph{void clear\_queries()}
+	This method is used to remove all the nodes that are marked as a query.
+
+
+
+\vskip 1pt
+\vskip 1pt
+
+Iterators!
+
+\textbf{iterator qbegin()}
+	This is the method used to get the query node at which the iterator needs to begin. 
+
+
+
+
