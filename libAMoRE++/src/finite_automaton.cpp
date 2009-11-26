@@ -33,6 +33,8 @@
 #include "amore++/deterministic_finite_automaton.h"
 #include "amore++/nondeterministic_finite_automaton.h"
 
+#include "set.h"
+
 namespace amore {
 
 using namespace std;
@@ -344,30 +346,87 @@ bool finite_automaton::construct(bool is_dfa, int alphabet_size, int state_count
 //    Antichains: A New Algorithm for Checking Universality of Finite Automata
 
 /*
-bool antichain__is_universal(list<int> counterexample)
+bool antichain__is_universal(list<int> & counterexample)
 {
 
 }
 */
 
-bool finite_automaton::antichain__is_equal(finite_automaton &other, list<int> counterexample)
+bool finite_automaton::antichain__is_equal(finite_automaton &other, list<int> & counterexample)
 {{{
 	if(!this->antichain__is_superset_of(other, counterexample))
 		return false;
 	return other.antichain__is_superset_of(*this, counterexample);
 }}}
 
-bool finite_automaton::antichain__is_superset_of(finite_automaton &other, list<int> counterexample)
+bool finite_automaton::antichain__is_superset_of(finite_automaton &other, list<int> & counterexample)
 {
+	set<int> r, s, t; // state-sets
+	set<int>::iterator ri, si, ti; // state-set iterators
+
+	// attractor and helper for single gamestate
+	multimap < int, pair< set<int>, list<int> > > attractor, extension;
+	multimap < int, pair< set<int>, list<int> > >::iterator ati;
+	pair<int, pair< set<int>, list<int> > > gamestate;
+
+	// sets of initial and final states (epsilon closed):
+	set<int> this_initial, this_final;
+	set<int> other_initial, other_final;
+
+	this_initial = this->get_initial_states();	this->epsilon_closure(this_initial);
+	this_final = this->get_final_states();		this->inverted_epsilon_closure(this_final);
+	other_initial = other.get_initial_states();	other.epsilon_closure(other_initial);
+	other_final = other.get_final_states();		other.inverted_epsilon_closure(other_final);
+
+	// compute initial attractor:
+	// attractor := { ( Fb x ( A \ FinA ) | Fb in FinB }
+	for(unsigned int i = 0; i < this->get_state_count(); ++i)
+		t.insert(i);
+	gamestate.second.first = set_without(t, this_final); // A \ FinA
+	for(ri = other_final.begin(); ri != other_final.end(); ++ri) {
+		gamestate.first = *ri;
+		attractor.insert(gamestate);
+	}
+
+	// check if (already) we're not a superset of other
+	for(ati = attractor.begin(); ati != attractor.end(); ++ati)
+		if(antichain__superset_check_winning_condition(this_initial, other_initial, *ati, counterexample))
+			return false;
+
+	// extend attractor until either we reach a winning gamestate or it is no longer extensible
+	extension = attractor;
+	while(!extension.empty()) {
+		multimap < int, pair< set<int>, list<int> > > new_extension;
+		//
+		for(ati = extension.begin(); ati != extension.end(); ++ati) {
+			
+		}
+		
+	}
+
+	// attractor is maximal, no winning gamestate was found.
+	// thus this is really a superset of other.
 	counterexample.clear();
-
-	// compute initial attractor
-	map<int, set<pair< set<int>, list<int> > > > attr;
-
-
+	return true;
 }
 
+// antichain helper functions:
 
+bool finite_automaton::antichain__superset_check_winning_condition(set<int> & this_initial, set<int> & other_initial, pair<const int, pair< set<int>, list<int> > > & gamestate, list<int> & counterexample)
+// checks if the given <gamestate> is a winning state, i.e. <this> can NOT be a superset of <other>.
+// the specific run is copied to <counterexample>.
+{{{
+	// gamestate.first has to be an initial state of other.
+	if(other_initial.find(gamestate.first) == other_initial.end())
+		return false;
+
+	// this_initial has to be subsetEQ of gamestate.second.first
+	if(!set_includes(gamestate.second.first, this_initial))
+		return false;
+
+	counterexample = gamestate.second.second;
+	return true;
+}}}
 
 } // end namespace amore
 

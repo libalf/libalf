@@ -202,9 +202,11 @@ class finite_automaton {
 		//    M. De Wulf, L. Doyen, J.-F. Raskin
 		//    Antichains: A New Algorithm for Checking Universality of Finite Automata
 
-//		virtual bool antichain__is_universal(list<int> counterexample);
-		virtual bool antichain__is_equal(finite_automaton &other, list<int> counterexample);
-		virtual bool antichain__is_superset_of(finite_automaton &other, list<int> counterexample);
+//		virtual bool antichain__is_universal(list<int> & counterexample);
+		virtual bool antichain__is_equal(finite_automaton &other, list<int> & counterexample);
+		virtual bool antichain__is_superset_of(finite_automaton &other, list<int> & counterexample);
+	private:
+		bool antichain__superset_check_winning_condition(set<int> & this_initial, set<int> & other_initial, pair<const int, pair< set<int>, list<int> > > & gamestate, list<int> & counterexample);
 };
 
 

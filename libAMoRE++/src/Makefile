@@ -39,4 +39,4 @@ uninstall:
 	rm ${PREFIX}/lib/libAMoRE++.so
 	-test `id -u` -eq 0 && /sbin/ldconfig; true
 
-
+finite_automaton.cpp: set.h
