@@ -89,6 +89,11 @@ class finite_automaton {
 		// apply inverted epsilon-closure to state-set (i.e. include states from whom these states may be reached via epsilon)
 		virtual void inverted_epsilon_closure(set<int> & states) = 0;
 
+		// get mappings of all transitions. (post-transitions and pre-transitions, useful for fast, recurring calculations)
+		// the mapping works as follows: map[current_state][label] = { predecessor- resp. successor-states }.
+		// epsilon transitions are considered if the underlying automaton resolves epsilon-transitions
+		// in predecessor_states() and successor_states().
+		virtual void get_transition_maps(map<int, map<int, set<int> > > & premap, map<int, map<int, set<int> > > & postmap);
 
 		// calculate single-label transition or multiple-label run for a set of starting states
 		virtual set<int> transition(set<int> from, int label)

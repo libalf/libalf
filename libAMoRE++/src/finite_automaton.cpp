@@ -87,6 +87,23 @@ finite_automaton * deserialize_amore_automaton(basic_string<int32_t>::iterator &
 finite_automaton::~finite_automaton()
 { };
 
+void finite_automaton::get_transition_maps(map<int, map<int, set<int> > > & premap, map<int, map<int, set<int> > > & postmap)
+// mapping: state -> sigma -> stateset
+{{{
+	premap.clear();
+	postmap.clear();
+
+	for(unsigned int state = 0; state < this->get_state_count(); state++) {
+		set<int> stateS;
+		stateS.insert(state);
+		// ( epsilon transitions are automatically included via successor_states() and predecessor_states() )
+		for(unsigned int sigma = 0; sigma < this->get_alphabet_size(); sigma++) {
+			premap[state][sigma] = this->predecessor_states(stateS, sigma);
+			postmap[state][sigma] = this->successor_states(stateS, sigma);
+		}
+	}
+}}}
+
 set<int> finite_automaton::run(set<int> from, list<int>::iterator word, list<int>::iterator word_limit)
 {{{
 	while(word != word_limit) {
@@ -359,32 +376,42 @@ bool finite_automaton::antichain__is_equal(finite_automaton &other, list<int> & 
 	return other.antichain__is_superset_of(*this, counterexample);
 }}}
 
+typedef multimap<int, pair<set<int>, list<int> > >  attractor_t;
+
 bool finite_automaton::antichain__is_superset_of(finite_automaton &other, list<int> & counterexample)
 {
-	set<int> r, s, t; // state-sets
-	set<int>::iterator ri, si, ti; // state-set iterators
-
 	// attractor and helper for single gamestate
-	multimap < int, pair< set<int>, list<int> > > attractor, extension;
-	multimap < int, pair< set<int>, list<int> > >::iterator ati;
+	attractor_t attractor, extension;
+	pair< attractor_t::iterator, attractor_t::iterator > attractor_range;
+	attractor_t::iterator ati;
 	pair<int, pair< set<int>, list<int> > > gamestate;
+	set<int> s; // state-set
+	set<int>::iterator si;
 
-	// sets of initial and final states (epsilon closed):
+
+	// first obtain some static data that is required repeatedly:
+	// sets of initial and final states (epsilon closed) and transition maps
 	set<int> this_initial, this_final;
 	set<int> other_initial, other_final;
+	map<int, map<int, set<int> > > this_premap, this_postmap;
+	map<int, map<int, set<int> > > other_premap, other_postmap;
 
 	this_initial = this->get_initial_states();	this->epsilon_closure(this_initial);
 	this_final = this->get_final_states();		this->inverted_epsilon_closure(this_final);
 	other_initial = other.get_initial_states();	other.epsilon_closure(other_initial);
 	other_final = other.get_final_states();		other.inverted_epsilon_closure(other_final);
 
+	this->get_transition_maps(this_premap, this_postmap);
+	other.get_transition_maps(other_premap, other_postmap);
+
+
 	// compute initial attractor:
 	// attractor := { ( Fb x ( A \ FinA ) | Fb in FinB }
 	for(unsigned int i = 0; i < this->get_state_count(); ++i)
-		t.insert(i);
-	gamestate.second.first = set_without(t, this_final); // A \ FinA
-	for(ri = other_final.begin(); ri != other_final.end(); ++ri) {
-		gamestate.first = *ri;
+		if(this_final.find(i) == this_final.end())
+			gamestate.second.first.insert(i); // A \ FinA
+	for(si = other_final.begin(); si != other_final.end(); ++si) {
+		gamestate.first = *si;
 		attractor.insert(gamestate);
 	}
 
@@ -393,16 +420,29 @@ bool finite_automaton::antichain__is_superset_of(finite_automaton &other, list<i
 		if(antichain__superset_check_winning_condition(this_initial, other_initial, *ati, counterexample))
 			return false;
 
-	// extend attractor until either we reach a winning gamestate or it is no longer extensible
+
+	// extend attractor
+	// until either we reach a winning gamestate or it is no longer extensible
 	extension = attractor;
 	while(!extension.empty()) {
-		multimap < int, pair< set<int>, list<int> > > new_extension;
-		//
+		attractor_t new_extension;
+
+		for(unsigned int current_state = 0; current_state < this->get_state_count(); ++current_state) {
+			attractor_range = extension.equal_range(current_state);
+			while(attractor_range.first != attractor_range.second) {
+				
+
+				++attractor_range.first;
+			}
+		}
+
+
 		for(ati = extension.begin(); ati != extension.end(); ++ati) {
 			
 		}
 		
 	}
+
 
 	// attractor is maximal, no winning gamestate was found.
 	// thus this is really a superset of other.

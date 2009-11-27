@@ -65,6 +65,14 @@ template <class T>   set<T> set_union(set<T> s, set<T> &t)
 	return s;
 }}}
 
+template <class T>   void set_insert(set<T> &into, set<T> &subset)
+{{{
+	typename set<T>::iterator si;
+
+	for(si = subset.begin(); si != subset.end(); ++si)
+		into.insert(*si);
+}}}
+
 template <class T>   set<T> set_intersect(set<T> &s, set<T> &t)
 {{{
 	set<T> ret;
