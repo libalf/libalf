@@ -71,7 +71,7 @@ Apart from the essential functions, the knowledgebase also provides certain feat
 	\item \texttt{parent} \hfill \vskip 1pt A variable of type \node that points to the parent of the node.
 	\item \texttt{label} \hfill \vskip 1pt An \integer variable that contains the alphabet that the node represents. (-1 for root node)
 	\item \texttt{status} \hfill \vskip 1pt This indicates whether the classification of the word (the word is constructed by traversing through the tree) is required, answered or can be ignored. It is an \texttt{enum} type variable with the respective three values ``NODE\_IGNORE'', ``NODE\_REQUIRED'' and ``NODE\_ANSWERED''. 
-	\item \texttt{answer} \hfill \vskip 1pt It is the type of the template class used in the constructing the knowledgbease. 
+	\item \texttt{ans} \hfill \vskip 1pt The variable stores the answer (or the acceptance criteria / classification) of the node. 
 	\end{itemize}
 	
 	After constructing the root node, the child nodes are created with the \vectored type \node variable called \texttt{children}. 
@@ -103,6 +103,12 @@ Apart from the essential functions, the knowledgebase also provides certain feat
 	
 \item \textbf{node * find\_descendant(list$<$int$>$ :: iterator infix\_start, list<int>::iterator infix\_limit)} \hfill \vskip 1pt
 	This function is used to find the child node specified by a word. It traverses through the tree based on the iteration over the word to find the path that generates the required word.
+	
+\item \textbf{node* get\_rootptr()} \hfill \vskip 1pt
+	The function returns the pointer to the root node.
+	
+\item \textbf{node* get\_nodeptr(list$<$int$>$ \& word)} \hfill \vskip 1pt
+	This function returns the pointer to the current node specified by the word as the parameter.
 	
 \end{enumerate}
 
@@ -136,6 +142,10 @@ Apart from the essential functions, the knowledgebase also provides certain feat
 
 \item \textbf{bool is\_answered()} \hfill \vskip 1pt
 	The method returns the ``status'' as \texttt{NODE\_ANSWERED}. It is used to set this status to a particular node under consideration.
+	
+\item \textbf{answer get\_answer()} \hfill \vskip 1pt
+	The method returns the answer (classification of the node) stored for the node. 
+	
 \end{enumerate}
 
 \vskip 1pt
@@ -160,40 +170,62 @@ It uses the \texttt{get\_word()} method to retrive the word and uses the \texttt
 \end{enumerate}
 \vskip 1pt
 \vskip 1pt
+
 \subsection{Alphabets in Knowledgebase}
 	Although we have defined the basic concepts that includes alphabets in this chapter, the knowledgebase does not really store the alphabet size of the automaton specified by the user. The knowledgebase does not construt the tree based on the alphabet size specified by the user and is capable of constructing the tree precisely even if symbols outside the alphabet set are fed in the input (which includes the extra symbols). But, such improper input will lead to the learning algorithm computing a conjecture which might not be the expectation of the user.
 	However, the knowledgebase can at any point of time identify and operate on the alphabet size. This can be regarded as the largest symbol that is processed in the knowledgebase. From Section --, we know that for an alphabet size of 2, the largest symbol would be ``1''.
 One can use the following two methods available.
 \begin{enumerate}
-\item \textbf{get largest symbol} \hfill \vskip 1pt
-	(Text to be added here)
-\item \textbf{check largest symbol} \hfill \vskip 1pt
-	(Text to be added here)
+\item \textbf{int get\_largest\_symbol()} \hfill \vskip 1pt
+	This method returns the largest symbol that exists in the knowledgebase. This is stored in a variable called ``largestsymbol''. This method only returns the variable but does not check the knowledgebase for the largest symbol.
+\item \textbf{int check\_largest\_symbol()} \hfill \vskip 1pt
+	The method performs a check on the knowledgebase and realizes the largest symbol that is currently available. Hence, if there was a change in the size of the alphabet at some point of time, it is automatacially adjusted when this method is called.
+\item \textbf{bool cleanup()} \hfill \vskip 1pt
+	This method is used to clean the knowledgebase by removing all the unnecessary branches i.e, branches that consists only of IGNORE as the status. This is an example for a method that can cause a change in the largest symbol. If only the branches contain a particular symbol and they are removed in the clean up, it subsequentely causes a change in the largest symbol. 
 \end{enumerate}
 
+\subsection{Iterators}
+	It has been explained already that the knowledgebase uses the list of \integer as the type of words. When we consider query handling, we would require ``list of list of \integer'' to store them. The important part is that we need to iterate over these lists to process the words and queries. Hence we require the starting and ending point of the iteration. We use the following four simple methods that help us in this regard.
+\begin{enumerate}
+\item \textbf{iterator begin()} \hfill \vskip 1pt
+	The method always returns the root node of the tree (epsilon).
 
+\item \textbf{iterator end()} \hfill \vskip 1pt
+	The method returns the end of the word or in other words, the end node. 
+	 
+\item \textbf{iterator qbegin()} \hfill \vskip 1pt
+	This is the method used to get the query node at which the iterator needs to begin. That is, it begins at the first node which is marked as ``required''.
+	
+\item \textbf{iterator qend()} \hfill \vskip 1pt
+	It returns the final node which is a query.
+\end{enumerate}
 
-Other Important Methods yet to be used in the document
+\subsection{Displaying the knowledgebase}
+In this section, we will discuss three methods that are used in relevance with displaying the knowledgebase.
+\begin{enumerate}
+\item \textbf{string tostring()} \hfill \vskip 1pt
+(******)
 
-\paragraph{get memory usage}
-\paragraph{to string}
-\paragraph{print} ?
-\paragraph{generate dot file}
-\paragraph{merge knowledgebase}
-\paragraph{get root ptr}
-\paragraph{get node ptr}
+\item \textbf{void print(ostream \&os)} \hfill \vskip 1pt
+	This method is used to print the knowledgebase on screen. It prints the word, its status and the answer of all the words available in the knowledgebase.
 
+\item \textbf{string generate\_dotfile()} \hfill \vskip 1pt
+	The method creates a ``.dot'' file of the entire knowledgebase. This is the method which was made use of in the demo programs explained int he previous chapter. The file can be executed with the GraphViz tool to observe the graphical representation of the knowledgebase. 
+\end {enumerate}
 
+\subsection{Other Important Methods}
+	The following methods offer features which may prove useful in using as well as extending \libalf.
+\begin{enumerate}
+\item \textbf{unsigned long long int get\_memory\_usage()} \hfill \vskip 1pt
+	The method returns the memory used by the knowledgebase on the system. Using this method at some point could be a good way of deciding if cleanup() needs to be called or not. 
+
+\item \textbf{bool recursive\_different(node * other, int depth)} \hfill \vskip 1pt
+	The method can be said as being used to check the consistancy of two nodes. (*******)
+
+\item \textbf{bool merge\_knowledgebase(knowledgebase \& other\_tree)} \hfill \vskip 1pt
+	This method is used to merge two different knowledgebases. In merging the same, it follows some protocols. In the first place, two knowledgebases can be merged only if they are consistant. To check the consistancy, we use the ``recursive\_different()'' condition on the root of both the knowledgebases. If inconsistant, the method returns false. Otherwise, the method moves on to merge them. However, the method merges only all the answered nodes from the two knolwedgebases. Queries do not get merged. 
+\end{enumerate}
+
+\vskip 3pt
 Serialize and deserialize
-
-Iterator
-begin, qbegin, end, qend
-
-Iterator class!
-
-\textbf{iterator qbegin()}
-	This is the method used to get the query node at which the iterator needs to begin. 
-
-
-
 
