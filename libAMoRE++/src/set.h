@@ -23,6 +23,7 @@
  */
 
 #include <set>
+#include <ostream>
 
 namespace amore {
 
@@ -30,7 +31,7 @@ using namespace std;
 
 // the set_*-functions are very generic and may be used for any kind of set
 
-template <class T>   bool set_includes(set<T> &superset, set<T> &subset)
+template <class T>   bool set_includes(const set<T> &superset, const set<T> &subset)
 {{{
 	typename set<T>::iterator Si, si;
 
@@ -45,7 +46,7 @@ template <class T>   bool set_includes(set<T> &superset, set<T> &subset)
 		if(*si == *Si) {
 			++si;
 		} else {
-			if(*si > *Si)
+			if(*si < *Si)
 				return false;
 			else
 				++Si;
@@ -55,7 +56,7 @@ template <class T>   bool set_includes(set<T> &superset, set<T> &subset)
 	return ( Si != superset.end() || si == subset.end() );
 }}}
 
-template <class T>   set<T> set_union(set<T> s, set<T> &t)
+template <class T>   set<T> set_union(set<T> s, const set<T> &t)
 {{{
 	typename set<T>::iterator si;
 
@@ -65,7 +66,7 @@ template <class T>   set<T> set_union(set<T> s, set<T> &t)
 	return s;
 }}}
 
-template <class T>   void set_insert(set<T> &into, set<T> &subset)
+template <class T>   void set_insert(set<T> &into, const set<T> &subset)
 {{{
 	typename set<T>::iterator si;
 
@@ -73,7 +74,7 @@ template <class T>   void set_insert(set<T> &into, set<T> &subset)
 		into.insert(*si);
 }}}
 
-template <class T>   set<T> set_intersect(set<T> &s, set<T> &t)
+template <class T>   set<T> set_intersect(const set<T> &s, const set<T> &t)
 {{{
 	set<T> ret;
 
@@ -90,32 +91,7 @@ template <class T>   set<T> set_intersect(set<T> &s, set<T> &t)
 	return ret;
 }}}
 
-template <class T>   void powerset_to_inclusion_antichain(set<set<T> > &antichain)
-// FIXME: this is rather inefficient
-{{{
-	set<set<T> > included;
-	typename set<set<T> >::iterator si1, si2;
-
-	for(si1 = antichain.begin(); si1 != antichain.end(); ++si1) {
-		set<T> s1 = *si1;
-		for(si2 = si1, si2++; si2 != antichain.end(); ++si2) {
-			set<T> s2 = *si2;
-
-			if(set_includes(s2, s1)) {
-				included.insert(s1);
-				break; // all later subsets of s1 will also be subsets of s1
-			} else {
-				if(set_includes(s1, s2))
-					included.insert(s2);
-			}
-		}
-	}
-
-	for(si1 = included.begin(); si1 != included.end(); ++si1)
-		antichain.erase(*si1);
-}}}
-
-template <class T>   set<T> set_without(set<T> &s, set<T> &remove)
+template <class T>   set<T> set_without(const set<T> &s, const set<T> &remove)
 {{{
 	set<T> ret;
 	typename set<T>::iterator si, rmi;
@@ -142,6 +118,21 @@ template <class T>   set<T> set_without(set<T> &s, set<T> &remove)
 	}
 
 	return ret;
+}}}
+
+template <class T>   void print_set(ostream &con, const set<T> &s)
+{{{
+	typename set<T>::iterator si;
+
+	con << "{ ";
+	si = s.begin();
+	while(si != s.end()) {
+		con << *si;
+		si++;
+		if(si != s.end())
+			con << ", ";
+	}
+	con << " }";
 }}}
 
 } // end namespace amore

@@ -22,6 +22,10 @@
  *
  */
 
+#include <iostream>
+#include <ostream>
+#include <iterator>
+
 #include <string>
 #include <stdio.h>
 #include <set>
@@ -376,21 +380,49 @@ bool finite_automaton::antichain__is_equal(finite_automaton &other, list<int> & 
 	return other.antichain__is_superset_of(*this, counterexample);
 }}}
 
-typedef multimap<int, pair<set<int>, list<int> > >  attractor_t;
+
+static inline void print_word(ostream &os, const list<int> &word)
+{{{
+	ostream_iterator<int> out(os, ".");
+	os << ".";
+	copy(word.begin(), word.end(), out);
+}}}
+
+static inline void print_gamestate(ostream &con, const pair<int, pair< set<int>, list<int> > > gamestate)
+{{{
+	con << "( " << gamestate.first << ", ";
+	print_set(con, gamestate.second.first);
+	con << ", ";
+	print_word(con, gamestate.second.second);
+	con << " )";
+}}}
+
+//#define ANTICHAIN_DEBUG
 
 bool finite_automaton::antichain__is_superset_of(finite_automaton &other, list<int> & counterexample)
+// FIXME: this version does not work for automata with epsilon-transitions.
+// they induce many special cases that need to be taken care of very thoroughly
 {
+	if(this->get_alphabet_size() != other.get_alphabet_size()) {
+		cerr << "libamore++::finite_automaton::antichain__is_superset_of() expects that you only feed automata to it that have the same alphabet size!\n"
+			<< "now i will just return false, without any further checks!\n";
+		counterexample.clear();
+		return false;
+	}
+
+	typedef multimap<int, pair<set<int>, list<int> > >  attractor_t;
+	typedef pair< attractor_t::iterator, attractor_t::iterator > attractor_range_t;
+
 	// attractor and helper for single gamestate
 	attractor_t attractor, extension;
-	pair< attractor_t::iterator, attractor_t::iterator > attractor_range;
-	attractor_t::iterator ati;
+	attractor_t::iterator ati, xti;
 	pair<int, pair< set<int>, list<int> > > gamestate;
 	set<int> s; // state-set
-	set<int>::iterator si;
+	set<int>::iterator si, ti;
 
 
 	// first obtain some static data that is required repeatedly:
-	// sets of initial and final states (epsilon closed) and transition maps
+	// sets of initial and final states and transition maps (epsilon closed)
 	set<int> this_initial, this_final;
 	set<int> other_initial, other_final;
 	map<int, map<int, set<int> > > this_premap, this_postmap;
@@ -400,26 +432,44 @@ bool finite_automaton::antichain__is_superset_of(finite_automaton &other, list<i
 	this_final = this->get_final_states();		this->inverted_epsilon_closure(this_final);
 	other_initial = other.get_initial_states();	other.epsilon_closure(other_initial);
 	other_final = other.get_final_states();		other.inverted_epsilon_closure(other_final);
-
 	this->get_transition_maps(this_premap, this_postmap);
 	other.get_transition_maps(other_premap, other_postmap);
 
 
 	// compute initial attractor:
 	// attractor := { ( Fb x ( A \ FinA ) | Fb in FinB }
+	// FIXME: A \ FinA muss bei epsilon-erweiterungen via der epsilon-transition erzwungen werden.
+	// ( stefans code -> this.epsilonAttr()  -- nur zustaende, die mit epsilon-tr. nicht aus der
+	// menge rauskommen. )
 	for(unsigned int i = 0; i < this->get_state_count(); ++i)
 		if(this_final.find(i) == this_final.end())
 			gamestate.second.first.insert(i); // A \ FinA
+#ifdef ANTICHAIN_DEBUG
+	cout << "initial attractor: {\n";
+#endif
 	for(si = other_final.begin(); si != other_final.end(); ++si) {
 		gamestate.first = *si;
 		attractor.insert(gamestate);
+#ifdef ANTICHAIN_DEBUG
+		cout << "\t"; print_gamestate(cout, gamestate); cout << "\n";
+#endif
 	}
+#ifdef ANTICHAIN_DEBUG
+	cout << "};\n\n";
+#endif
 
 	// check if (already) we're not a superset of other
 	for(ati = attractor.begin(); ati != attractor.end(); ++ati)
 		if(antichain__superset_check_winning_condition(this_initial, other_initial, *ati, counterexample))
 			return false;
 
+	// compute all states in this, that have - for a specific label l - no outgoing transitions.
+	// (the l-successors of these states [the empty set] are always a subset of the current attractor)
+	map<int, set<int> > this_states_without_successors;
+	for(unsigned int sigma = 0; sigma < this->get_alphabet_size(); ++sigma)
+		for(unsigned int state = 0; state < this->get_state_count(); ++state)
+			if(this_postmap[state][sigma].empty())
+				this_states_without_successors[sigma].insert(state);
 
 	// extend attractor
 	// until either we reach a winning gamestate or it is no longer extensible
@@ -427,22 +477,117 @@ bool finite_automaton::antichain__is_superset_of(finite_automaton &other, list<i
 	while(!extension.empty()) {
 		attractor_t new_extension;
 
-		for(unsigned int current_state = 0; current_state < this->get_state_count(); ++current_state) {
-			attractor_range = extension.equal_range(current_state);
-			while(attractor_range.first != attractor_range.second) {
-				
+#ifdef ANTICHAIN_DEBUG
+		cout << "\nNEW CYCLE:\n";
+#endif
 
-				++attractor_range.first;
+		// iterate over all gamestates and extend the attractor
+		for(ati = extension.begin(); ati != extension.end(); ++ati) {
+#ifdef ANTICHAIN_DEBUG
+			cout << "checking attr element ";
+			print_gamestate(cout, *ati);
+			cout << " :\n";
+#endif
+			for(unsigned int sigma = 0; sigma < other.get_alphabet_size(); ++sigma) {
+				if( ! other_premap[ati->first][sigma].empty()) {
+#ifdef ANTICHAIN_DEBUG
+					cout << "\t for label: " << sigma << "\n";
+#endif
+					// get all predecessors
+					set<int> this_pre;
+					for(si = ati->second.first.begin(); si != ati->second.first.end(); ++si)
+						set_insert(this_pre, this_premap[*si][sigma]);
+
+					// check, which of them are controllable
+					set<int> uncontrollable;
+					for(si = this_pre.begin(); si != this_pre.end(); ++si) {
+						if(!set_includes(ati->second.first, this_postmap[*si][sigma]))
+							uncontrollable.insert(*si);
+					}
+
+					// create new gamestate(s)
+					gamestate.second.first = set_without(this_pre, uncontrollable);
+					set_insert(gamestate.second.first, this_states_without_successors[sigma]);
+					gamestate.second.second = ati->second.second;
+					gamestate.second.second.push_front(sigma);
+					ti = other_premap[ati->first][sigma].end(); // for fast access
+					for(si = other_premap[ati->first][sigma].begin(); si != ti; ++si) {
+						gamestate.first = *si;
+#ifdef ANTICHAIN_DEBUG
+						cout << "\t\tnew   ";
+						print_gamestate(cout, gamestate);
+						cout << ": ";
+						// check winning condition for new gamestate
+#endif
+						if(antichain__superset_check_winning_condition(this_initial, other_initial, gamestate, counterexample)) {
+#ifdef ANTICHAIN_DEBUG
+							cout << "is winning.\n";
+#endif
+							return false;
+						}
+
+						// insert it into extension of attractor, so that the extension still is an antichain
+						{{{
+							attractor_range_t nex_range = new_extension.equal_range(*si);
+							list<attractor_t::iterator> obsolete;
+							bool antichain_new_is_obsolete = false;
+
+							for(xti = nex_range.first; xti != nex_range.second; ++xti) {
+								if(set_includes(xti->second.first, gamestate.second.first)) {
+									antichain_new_is_obsolete = true;
+									break;
+								}
+								if(set_includes(gamestate.second.first, xti->second.first))
+									obsolete.push_back(xti);
+							}
+							for(list<attractor_t::iterator>::iterator oi = obsolete.begin(); oi != obsolete.end(); ++oi) {
+								// FIXME: iterators that exist more than once in this list will go mad
+								new_extension.erase(*oi);
+							}
+							if(!antichain_new_is_obsolete) {
+#ifdef ANTICHAIN_DEBUG
+								cout << "was added.\n";
+#endif
+								new_extension.insert(gamestate);
+#ifdef ANTICHAIN_DEBUG
+							} else {
+								cout << "is obsolete.\n";
+#endif
+							}
+						}}}
+					}
+
+				}
 			}
 		}
 
-
-		for(ati = extension.begin(); ati != extension.end(); ++ati) {
-			
+		// now merge with complete attractor and only keep, what was not in attractor already.
+		extension.clear();
+		list<attractor_t::iterator> obsolete;
+		for(unsigned int sigma = 0; sigma < this->get_alphabet_size(); sigma++) {
+			attractor_range_t attr_range, nex_range;
+			attr_range = attractor.equal_range(sigma);
+			nex_range = new_extension.equal_range(sigma);
+			for(xti = nex_range.first; xti != nex_range.second; ++xti) {
+				// check if this element is already supersedet by old attractor or supersedes attractor-elements
+				bool superficial = false;
+				for(ati = attr_range.first; ati != attr_range.second; ++ati) {
+					if(set_includes(ati->second.first, xti->second.first))
+						superficial = true;
+					if(set_includes(xti->second.first, ati->second.first))
+						obsolete.push_back(ati);
+				}
+				if(!superficial) {
+					attractor.insert(*xti);
+					extension.insert(*xti);
+				}
+			}
+			for(list<attractor_t::iterator>::iterator oi = obsolete.begin(); oi != obsolete.end(); ++oi) {
+				// FIXME: iterators that exist more than once in this list will go mad
+//				attractor.erase(*oi);
+			}
 		}
-		
 	}
-
 
 	// attractor is maximal, no winning gamestate was found.
 	// thus this is really a superset of other.
@@ -452,7 +597,7 @@ bool finite_automaton::antichain__is_superset_of(finite_automaton &other, list<i
 
 // antichain helper functions:
 
-bool finite_automaton::antichain__superset_check_winning_condition(set<int> & this_initial, set<int> & other_initial, pair<const int, pair< set<int>, list<int> > > & gamestate, list<int> & counterexample)
+bool finite_automaton::antichain__superset_check_winning_condition(set<int> & this_initial, set<int> & other_initial, const pair<int, pair< set<int>, list<int> > > & gamestate, list<int> & counterexample)
 // checks if the given <gamestate> is a winning state, i.e. <this> can NOT be a superset of <other>.
 // the specific run is copied to <counterexample>.
 {{{

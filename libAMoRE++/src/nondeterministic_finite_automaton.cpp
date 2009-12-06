@@ -275,6 +275,9 @@ set<int> nondeterministic_finite_automaton::successor_states(set<int> states, in
 	set<int>::iterator si;
 	unsigned int dst;
 
+	if(label < 0 || label >= (int)this->get_alphabet_size())
+		return ret;
+
 	epsilon_closure(states);
 
 	for(dst = 0; dst <= nfa_p->highest_state; dst++)
@@ -316,6 +319,9 @@ set<int> nondeterministic_finite_automaton::predecessor_states(set<int> states, 
 	set<int> ret;
 	set<int>::iterator si;
 	unsigned int src;
+
+	if(label < 0 || label >= (int)this->get_alphabet_size())
+		return ret;
 
 	inverted_epsilon_closure(states);
 

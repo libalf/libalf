@@ -197,7 +197,8 @@ class finite_automaton {
 		virtual string generate_dotfile()
 		{ return generate_dotfile(false); };
 
-	protected:
+//	protected:
+	public:
 		// following are antichain-based algorithms for universality, inclusion and equality-tests for languages.
 		// depending on their performance, once implemented, is_universal(), lang_subset_of() and operator==()
 		// should relay to them.
@@ -211,7 +212,7 @@ class finite_automaton {
 		virtual bool antichain__is_equal(finite_automaton &other, list<int> & counterexample);
 		virtual bool antichain__is_superset_of(finite_automaton &other, list<int> & counterexample);
 	private:
-		bool antichain__superset_check_winning_condition(set<int> & this_initial, set<int> & other_initial, pair<const int, pair< set<int>, list<int> > > & gamestate, list<int> & counterexample);
+		bool antichain__superset_check_winning_condition(set<int> & this_initial, set<int> & other_initial, const pair<int, pair< set<int>, list<int> > > & gamestate, list<int> & counterexample);
 };
 
 

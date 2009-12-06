@@ -85,19 +85,25 @@ int main(int argc, char**argv)
 
 	list<int> counterexample;
 #ifdef SUBSET
-	if(n1->antichain_subset_test(*n2, counterexample)) {
-		cout << "R1 is subset of or equal R2.\n";
+	if(n2->antichain__is_superset_of(*n1, counterexample)) {
+		cout << "\nR1 is subset of or equal R2.\n";
 		return 0;
 	} else {
-		cout << "R1 is NOT subset of or equal R2.\n";
+		cout << "\nR1 is NOT subset of or equal R2.\n";
+		cout << "counterexample: ";
+		print_word(cout, counterexample);
+		cout << "\n";
 		return 1;
 	}
 #else
-	if(n1->antichain_equivalence_test(*n2, counterexample)) {
-		cout << "R1 and R2 are equal.\n";
+	if(n1->antichain__is_equal(*n2, counterexample)) {
+		cout << "\nR1 and R2 are equal.\n";
 		return 0;
 	} else {
-		cout << "R1 and R2 are NOT equal.\n";
+		cout << "\nR1 and R2 are NOT equal.\n";
+		cout << "counterexample: ";
+		print_word(cout, counterexample);
+		cout << "\n";
 		return 1;
 	}
 #endif
