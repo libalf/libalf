@@ -547,9 +547,11 @@ bool finite_automaton::antichain__is_superset_of(finite_automaton &other, list<i
 							if(!antichain_new_is_obsolete) {
 #ifdef ANTICHAIN_DEBUG
 								cout << "was added.\n";
+cout << new_extension.size() << " -- ";
 #endif
 								new_extension.insert(gamestate);
 #ifdef ANTICHAIN_DEBUG
+cout << new_extension.size() << "\n.";
 							} else {
 								cout << "is obsolete.\n";
 #endif
@@ -564,20 +566,34 @@ bool finite_automaton::antichain__is_superset_of(finite_automaton &other, list<i
 		// now merge with complete attractor and only keep, what was not in attractor already.
 		extension.clear();
 		list<attractor_t::iterator> obsolete;
-		for(unsigned int sigma = 0; sigma < this->get_alphabet_size(); sigma++) {
+		for(unsigned int other_state = 0; other_state < other.get_state_count(); other_state++) {
 			attractor_range_t attr_range, nex_range;
-			attr_range = attractor.equal_range(sigma);
-			nex_range = new_extension.equal_range(sigma);
+			attr_range = attractor.equal_range(other_state);
+			nex_range = new_extension.equal_range(other_state);
 			for(xti = nex_range.first; xti != nex_range.second; ++xti) {
 				// check if this element is already supersedet by old attractor or supersedes attractor-elements
 				bool superficial = false;
 				for(ati = attr_range.first; ati != attr_range.second; ++ati) {
-					if(set_includes(ati->second.first, xti->second.first))
+					if(set_includes(ati->second.first, xti->second.first)) {
+#ifdef ANTICHAIN_DEBUG
+						cout << "gamestate ";
+						print_gamestate(cout, *xti);
+						cout << " is superficial due to known attractor-state ";
+						print_gamestate(cout, *ati);
+						cout << ".\n";
+#endif
 						superficial = true;
+						break;
+					}
 					if(set_includes(xti->second.first, ati->second.first))
 						obsolete.push_back(ati);
 				}
 				if(!superficial) {
+#ifdef ANTICHAIN_DEBUG
+					cout << "scheduling new state ";
+					print_gamestate(cout, *xti);
+					cout << ".\n";
+#endif
 					attractor.insert(*xti);
 					extension.insert(*xti);
 				}

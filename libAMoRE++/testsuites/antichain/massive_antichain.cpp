@@ -56,7 +56,7 @@ inline bool classic_superset_of(finite_automaton & superset, finite_automaton & 
 
 
 void test_superset(finite_automaton & superset, finite_automaton & subset, int & bad_count)
-{
+{{{
 	bool antichain_is_super;
 	list<int> antichain_counterexample;
 
@@ -108,7 +108,7 @@ void test_superset(finite_automaton & superset, finite_automaton & subset, int &
 
 		bad_count++;
 	}
-}
+}}}
 
 int main()
 {{{
@@ -122,7 +122,7 @@ int main()
 	while(1) {
 		// randomize parameters
 		alphabet_size = prng::random_int(4) + 2;
-		state_count = prng::random_int(3) + 2;
+		state_count = prng::random_int(40) + 2;
 		tr_per_state = prng::random_int(5) + 1;
 		p_initial = prng::random_float();
 		p_final = prng::random_float();
