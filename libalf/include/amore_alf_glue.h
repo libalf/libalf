@@ -42,22 +42,12 @@ using namespace amore;
 
 inline bool automaton_equivalence_query(finite_automaton & model, finite_automaton & hypothesis, list<int> & counterexample)
 {
-	// there are two options:
-	// either get automaton containing the symmetric difference of model and hypothesis (variant 1)
-	// or first get model \ hypothesis and if this is empty, get hypothesis \ model (variant 2).
-	// variant 1 seems more logically, but variant 2 seems to get better result.
-
+#if 0
 	finite_automaton * difference;
 	bool is_empty;
 
 	counterexample.clear();
 
-#if 0
-	// variant 1:
-	difference = model.lang_symmetric_difference(hypothesis);
-	counterexample = difference->get_sample_word(is_empty);
-#else
-	// variant 2:
 	difference = model.lang_difference(hypothesis);
 	counterexample = difference->get_sample_word(is_empty);
 
@@ -66,11 +56,17 @@ inline bool automaton_equivalence_query(finite_automaton & model, finite_automat
 		difference = hypothesis.lang_difference(model);
 		counterexample = difference->get_sample_word(is_empty);
 	}
-#endif
 
 	delete difference;
 
 	return is_empty;
+#else
+	if(!model.antichain__is_superset_of(hypothesis, counterexample))
+		return false;
+	if(!hypothesis.antichain__is_superset_of(model, counterexample))
+		return false;
+	return true;
+#endif
 };
 
 inline bool automaton_equivalence_query(finite_automaton & model, conjecture *cj, list<int> & counterexample)
