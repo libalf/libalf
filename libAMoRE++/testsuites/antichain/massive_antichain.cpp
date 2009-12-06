@@ -27,13 +27,17 @@
 #include <fstream>
 #include <iterator>
 #include <list>
+#include <string>
 
 #include <stdlib.h>
 
 #include <liblangen/nfa_randomgenerator.h>
 #include <liblangen/prng.h>
 
-#include "amore++/nondeterministic_finite_automaton.h"
+#include <amore++/nondeterministic_finite_automaton.h>
+
+#include <libalf/alphabet.h>
+#include <libalf/basic_string.h>
 
 using namespace std;
 using namespace amore;
@@ -50,13 +54,6 @@ inline bool classic_superset_of(finite_automaton & superset, finite_automaton & 
 	return is_empty;
 }}}
 
-void print_word(ostream &os, list<int> &word)
-{{{
-	ostream_iterator<int> out(os, ".");
-	os << ".";
-	copy(word.begin(), word.end(), out);
-}}}
-
 
 void test_superset(finite_automaton & superset, finite_automaton & subset, int & bad_count)
 {
@@ -71,28 +68,40 @@ void test_superset(finite_automaton & superset, finite_automaton & subset, int &
 	classic_is_super = classic_superset_of(superset, subset, classic_counterexample);
 
 	if(antichain_is_super != classic_is_super) {
-		cout << " BAD(" << bad_count << ")\n";
-
 		char filename[128];
 		ofstream file;
+		basic_string<int32_t> serial;
+
+		cout << " BAD(" << bad_count << ")\n";
+
 		snprintf(filename, 128, "cex%04d-superset.dot", bad_count);
 		file.open(filename); file << superset.generate_dotfile(); file.close();
+
+		snprintf(filename, 128, "cex%04d-superset.ser", bad_count);
+		serial = superset.serialize();
+		libalf::basic_string_to_file(serial, filename);
+
 		snprintf(filename, 128, "cex%04d-subset.dot", bad_count);
 		file.open(filename); file << subset.generate_dotfile(); file.close();
+
+		snprintf(filename, 128, "cex%04d-subset.ser", bad_count);
+		serial = subset.serialize();
+		libalf::basic_string_to_file(serial, filename);
+
 		snprintf(filename, 128, "cex%04d-info", bad_count);
 		file.open(filename);
 		if(antichain_is_super) {
 			file << "antichain says: true.\n";
 		} else {
 			file << "antichain says: false. counterexample: ";
-			print_word(file, antichain_counterexample);
+			libalf::print_word(file, antichain_counterexample);
 			file << "\n";
 		}
 		if(classic_is_super) {
 			file << "classic says: true.\n";
 		} else {
 			file << "classic says: false. counterexample: ";
-			print_word(file, classic_counterexample);
+			libalf::print_word(file, classic_counterexample);
 			file << "\n";
 		}
 		file.close();

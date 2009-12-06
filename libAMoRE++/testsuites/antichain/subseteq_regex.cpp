@@ -30,83 +30,68 @@
 
 #include <stdlib.h>
 
-#include "amore++/nondeterministic_finite_automaton.h"
+#include <amore++/nondeterministic_finite_automaton.h>
+
+#include <libalf/alphabet.h>
+#include <libalf/basic_string.h>
 
 using namespace std;
 using namespace amore;
-
-void print_word(ostream &os, list<int> &word)
-{{{
-	ostream_iterator<int> out(os, ".");
-	os << ".";
-	copy(word.begin(), word.end(), out);
-}}}
 
 int main(int argc, char**argv)
 {
 	if(argc != 4) {
 		cout << "please give <alphabet size> <Regex1> <Regex2> as parameters. the program will check if "
-#ifdef SUBSET
 			<< "R1 is subset of or equal R2"
-#else
-			<< "R1 and R2 are equal"
-#endif
 			<<".\n";
 		return -1;
 	}
 
 	nondeterministic_finite_automaton *n1, *n2;
-	bool regex_ok;
 
-	int alphabet_size = atoi(argv[1]);
-	if(alphabet_size < 2) {
-		cout << "invalid alphabet size.\n";
-		return -1;
-	}
+	// construct automata
+	{{{
+		bool regex_ok;
+		int alphabet_size = atoi(argv[1]);
+		if(alphabet_size < 2) {
+			cout << "invalid alphabet size.\n";
+			return -1;
+		}
 
-	n1 = new nondeterministic_finite_automaton(alphabet_size, argv[2], regex_ok);
-	if(!regex_ok) {
-		cout << "first regex is invalid.\n";
-		return -1;
-	}
-	n2 = new nondeterministic_finite_automaton(alphabet_size, argv[3], regex_ok);
-	if(!regex_ok) {
-		cout << "second regex is invalid.\n";
-		return -1;
-	}
+		n1 = new nondeterministic_finite_automaton(alphabet_size, argv[2], regex_ok);
+		if(!regex_ok) {
+			cout << "first regex is invalid.\n";
+			return -1;
+		}
+		n2 = new nondeterministic_finite_automaton(alphabet_size, argv[3], regex_ok);
+		if(!regex_ok) {
+			cout << "second regex is invalid.\n";
+			return -1;
+		}
 
-	ofstream file;
-	file.open("r1.dot");
-	file << n1->generate_dotfile(true);
-	file.close();
-	file.open("r2.dot");
-	file << n2->generate_dotfile(true);
-	file.close();
+		ofstream file;
+		file.open("r1.dot");
+		file << n1->generate_dotfile(true);
+		file.close();
+
+		file.open("r2.dot");
+		file << n2->generate_dotfile(true);
+		file.close();
+	}}}
 
 	list<int> counterexample;
-#ifdef SUBSET
 	if(n2->antichain__is_superset_of(*n1, counterexample)) {
 		cout << "\nR1 is subset of or equal R2.\n";
 		return 0;
 	} else {
 		cout << "\nR1 is NOT subset of or equal R2.\n";
 		cout << "counterexample: ";
-		print_word(cout, counterexample);
+		libalf::print_word(cout, counterexample);
 		cout << "\n";
 		return 1;
 	}
-#else
-	if(n1->antichain__is_equal(*n2, counterexample)) {
-		cout << "\nR1 and R2 are equal.\n";
-		return 0;
-	} else {
-		cout << "\nR1 and R2 are NOT equal.\n";
-		cout << "counterexample: ";
-		print_word(cout, counterexample);
-		cout << "\n";
-		return 1;
-	}
-#endif
 
+	delete n1;
+	delete n2;
 }
 

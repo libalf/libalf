@@ -7,28 +7,24 @@ PREFIX ?= /usr/local
 
 CPPFLAGS+=-I../../include -I${PREFIX}/include -Wall -ggdb3
 
-LDFLAGS+=-L../../src -L${PREFIX}/lib -lAMoRE++
+LDFLAGS+=-L../../src -L${PREFIX}/lib -lAMoRE++ -lalf
 
-all: lang_eq lang_subseteq massive_antichain
-#	lang_universal
+all: subseteq_regex subseteq_file massive_antichain
 
 clean: nodata
-	-rm -f *.o lang_subseteq lang_eq lang_universal massive_antichain
+	-rm -f *.o subseteq_regex subseteq_file massive_antichain
 
 nodata:
-	-rm -f *.dot *.jpg *-info
+	-rm -f *.dot *.jpg *-info *.ser
 
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;
 
-lang_eq: lang_subseteq.cpp
-	g++ ${CPPFLAGS} ${LDFLAGS} lang_subseteq.cpp -o lang_eq
+subseteq_regex: subseteq_regex.cpp
 
-lang_subseteq: lang_subseteq.cpp
-lang_subseteq: CPPFLAGS += -DSUBSET
+subseteq_file: subseteq_file.cpp
 
 massive_antichain: massive_antichain.cpp
 massive_antichain: LDFLAGS += -llangen
 
-#lang_universal: lang_universal.cpp
 
