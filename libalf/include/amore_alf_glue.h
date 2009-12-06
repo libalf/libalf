@@ -42,31 +42,31 @@ using namespace amore;
 
 inline bool automaton_equivalence_query(finite_automaton & model, finite_automaton & hypothesis, list<int> & counterexample)
 {
-#if 0
-	finite_automaton * difference;
-	bool is_empty;
+	if(model.get_state_count() < 10 && hypothesis.get_state_count() < 10) {
+		finite_automaton * difference;
+		bool is_empty;
 
-	counterexample.clear();
+		counterexample.clear();
 
-	difference = model.lang_difference(hypothesis);
-	counterexample = difference->get_sample_word(is_empty);
-
-	if(is_empty) {
-		delete difference;
-		difference = hypothesis.lang_difference(model);
+		difference = model.lang_difference(hypothesis);
 		counterexample = difference->get_sample_word(is_empty);
+
+		if(is_empty) {
+			delete difference;
+			difference = hypothesis.lang_difference(model);
+			counterexample = difference->get_sample_word(is_empty);
+		}
+
+		delete difference;
+
+		return is_empty;
+	} else {
+		if(!model.antichain__is_superset_of(hypothesis, counterexample))
+			return false;
+		if(!hypothesis.antichain__is_superset_of(model, counterexample))
+			return false;
+		return true;
 	}
-
-	delete difference;
-
-	return is_empty;
-#else
-	if(!model.antichain__is_superset_of(hypothesis, counterexample))
-		return false;
-	if(!hypothesis.antichain__is_superset_of(model, counterexample))
-		return false;
-	return true;
-#endif
 };
 
 inline bool automaton_equivalence_query(finite_automaton & model, conjecture *cj, list<int> & counterexample)
