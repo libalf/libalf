@@ -89,6 +89,7 @@ bool fd_to_basic_string(const int fd, basic_string<int32_t> & str)
 	if(fd < 0)
 		return false;
 
+	str.clear();
 	int32_t d;
 	int s;
 	while((s = read(fd, &d, sizeof(d))) == sizeof(d)) {
