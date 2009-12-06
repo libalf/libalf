@@ -30,6 +30,8 @@
 #include <string>
 
 #include <stdlib.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 
 #include <liblangen/nfa_randomgenerator.h>
 #include <liblangen/prng.h>
@@ -63,9 +65,32 @@ void test_superset(finite_automaton & superset, finite_automaton & subset, int &
 	bool classic_is_super;
 	list<int> classic_counterexample;
 
-	antichain_is_super = superset.antichain__is_superset_of(subset, antichain_counterexample);
+	struct rusage ru;
+	struct timeval t1, t2, t3, tmp;
 
+
+
+	gettimeofday(&t1, NULL);
+//	getrusage(RUSAGE_SELF, &ru); t1 = ru.ru_stime;
+	antichain_is_super = superset.antichain__is_superset_of(subset, antichain_counterexample);
+	gettimeofday(&t2, NULL);
+//	getrusage(RUSAGE_SELF, &ru); t2 = ru.ru_stime;
 	classic_is_super = classic_superset_of(superset, subset, classic_counterexample);
+	gettimeofday(&t3, NULL);
+//	getrusage(RUSAGE_SELF, &ru); t3 = ru.ru_stime;
+
+	long long int antichain_time, classic_time;
+	timersub(&t2, &t1, &tmp);
+	antichain_time = ( tmp.tv_sec * 1000000 + tmp.tv_usec );
+	timersub(&t3, &t2, &tmp);
+	classic_time = ( tmp.tv_sec * 1000000 + tmp.tv_usec );
+
+	printf("[a%08llu / c%08llu] delta t: %8lld factor:  %6.2f\n",
+			antichain_time,
+			classic_time,
+			classic_time - antichain_time,
+			(classic_time+1.) / (antichain_time+1.)
+		);
 
 	if(antichain_is_super != classic_is_super) {
 		char filename[128];
@@ -166,12 +191,8 @@ int main()
 				return 2;
 			}
 
-			cout << "(";
-
 			test_superset(*nfa1, *nfa2, bad_count);
-			cout << "+";
 			test_superset(*nfa2, *nfa1, bad_count);
-			cout << "+)";
 
 			delete nfa1;
 			delete nfa2;

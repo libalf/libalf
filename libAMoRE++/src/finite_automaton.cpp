@@ -397,6 +397,27 @@ static inline void print_gamestate(ostream &con, const pair<int, pair< set<int>,
 	con << " )";
 }}}
 
+static inline void antichain_attractor_remove_obsolete(multimap<int, pair<set<int>, list<int> > > & attractor, list< pair<int, pair< set<int>, list<int> > > > obsolete)
+{{{
+	typedef multimap<int, pair<set<int>, list<int> > > attractor_t;
+	typedef pair<int, pair< set<int>, list<int> > > gamestate_t;
+
+	pair<attractor_t::iterator, attractor_t::iterator> atr_range;
+	attractor_t::iterator ati;
+
+	list<gamestate_t>::iterator obsi;
+
+	for(obsi = obsolete.begin(); obsi != obsolete.end(); ++obsi) {
+		atr_range = attractor.equal_range(obsi->first);
+		for(ati = atr_range.first; ati != atr_range.second; ++ati) {
+			if(ati->second == obsi->second) {
+				attractor.erase(ati);
+				break;
+			}
+		}
+	}
+}}}
+
 //#define ANTICHAIN_DEBUG
 
 bool finite_automaton::antichain__is_superset_of(finite_automaton &other, list<int> & counterexample)
@@ -412,11 +433,12 @@ bool finite_automaton::antichain__is_superset_of(finite_automaton &other, list<i
 
 	typedef multimap<int, pair<set<int>, list<int> > >  attractor_t;
 	typedef pair< attractor_t::iterator, attractor_t::iterator > attractor_range_t;
+	typedef pair<int, pair< set<int>, list<int> > > gamestate_t;
 
 	// attractor and helper for single gamestate
 	attractor_t attractor, extension;
 	attractor_t::iterator ati, xti;
-	pair<int, pair< set<int>, list<int> > > gamestate;
+	gamestate_t gamestate;
 	set<int> s; // state-set
 	set<int>::iterator si, ti;
 
@@ -529,7 +551,7 @@ bool finite_automaton::antichain__is_superset_of(finite_automaton &other, list<i
 						// insert it into extension of attractor, so that the extension still is an antichain
 						{{{
 							attractor_range_t nex_range = new_extension.equal_range(*si);
-							list<attractor_t::iterator> obsolete;
+							list<gamestate_t> obsolete;
 							bool antichain_new_is_obsolete = false;
 
 							for(xti = nex_range.first; xti != nex_range.second; ++xti) {
@@ -538,20 +560,16 @@ bool finite_automaton::antichain__is_superset_of(finite_automaton &other, list<i
 									break;
 								}
 								if(set_includes(gamestate.second.first, xti->second.first))
-									obsolete.push_back(xti);
+									obsolete.push_back(*xti);
 							}
-							for(list<attractor_t::iterator>::iterator oi = obsolete.begin(); oi != obsolete.end(); ++oi) {
-								// FIXME: iterators that exist more than once in this list will go mad
-								new_extension.erase(*oi);
-							}
+							obsolete.unique();
+							antichain_attractor_remove_obsolete(new_extension, obsolete);
 							if(!antichain_new_is_obsolete) {
 #ifdef ANTICHAIN_DEBUG
 								cout << "was added.\n";
-cout << new_extension.size() << " -- ";
 #endif
 								new_extension.insert(gamestate);
 #ifdef ANTICHAIN_DEBUG
-cout << new_extension.size() << "\n.";
 							} else {
 								cout << "is obsolete.\n";
 #endif
@@ -565,7 +583,7 @@ cout << new_extension.size() << "\n.";
 
 		// now merge with complete attractor and only keep, what was not in attractor already.
 		extension.clear();
-		list<attractor_t::iterator> obsolete;
+		list<gamestate_t> obsolete;
 		for(unsigned int other_state = 0; other_state < other.get_state_count(); other_state++) {
 			attractor_range_t attr_range, nex_range;
 			attr_range = attractor.equal_range(other_state);
@@ -586,7 +604,7 @@ cout << new_extension.size() << "\n.";
 						break;
 					}
 					if(set_includes(xti->second.first, ati->second.first))
-						obsolete.push_back(ati);
+						obsolete.push_back(*ati);
 				}
 				if(!superficial) {
 #ifdef ANTICHAIN_DEBUG
@@ -598,10 +616,8 @@ cout << new_extension.size() << "\n.";
 					extension.insert(*xti);
 				}
 			}
-			for(list<attractor_t::iterator>::iterator oi = obsolete.begin(); oi != obsolete.end(); ++oi) {
-				// FIXME: iterators that exist more than once in this list will go mad
-//				attractor.erase(*oi);
-			}
+			obsolete.unique();
+			antichain_attractor_remove_obsolete(attractor, obsolete);
 		}
 	}
 

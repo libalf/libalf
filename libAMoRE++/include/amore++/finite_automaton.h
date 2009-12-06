@@ -197,7 +197,6 @@ class finite_automaton {
 		virtual string generate_dotfile()
 		{ return generate_dotfile(false); };
 
-//	protected:
 	public:
 		// following are antichain-based algorithms for universality, inclusion and equality-tests for languages.
 		// depending on their performance, once implemented, is_universal(), lang_subset_of() and operator==()
