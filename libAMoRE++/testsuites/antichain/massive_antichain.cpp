@@ -31,7 +31,6 @@
 
 #include <stdlib.h>
 #include <sys/time.h>
-#include <sys/resource.h>
 
 #include <liblangen/nfa_randomgenerator.h>
 #include <liblangen/prng.h>
@@ -57,7 +56,7 @@ inline bool classic_superset_of(finite_automaton & superset, finite_automaton & 
 }}}
 
 
-void test_superset(finite_automaton & superset, finite_automaton & subset, int & bad_count)
+bool test_superset(finite_automaton & superset, finite_automaton & subset, int & bad_count)
 {{{
 	bool antichain_is_super;
 	list<int> antichain_counterexample;
@@ -65,19 +64,15 @@ void test_superset(finite_automaton & superset, finite_automaton & subset, int &
 	bool classic_is_super;
 	list<int> classic_counterexample;
 
-	struct rusage ru;
 	struct timeval t1, t2, t3, tmp;
 
 
 
 	gettimeofday(&t1, NULL);
-//	getrusage(RUSAGE_SELF, &ru); t1 = ru.ru_stime;
 	antichain_is_super = superset.antichain__is_superset_of(subset, antichain_counterexample);
 	gettimeofday(&t2, NULL);
-//	getrusage(RUSAGE_SELF, &ru); t2 = ru.ru_stime;
 	classic_is_super = classic_superset_of(superset, subset, classic_counterexample);
 	gettimeofday(&t3, NULL);
-//	getrusage(RUSAGE_SELF, &ru); t3 = ru.ru_stime;
 
 	long long int antichain_time, classic_time;
 	timersub(&t2, &t1, &tmp);
@@ -85,11 +80,13 @@ void test_superset(finite_automaton & superset, finite_automaton & subset, int &
 	timersub(&t3, &t2, &tmp);
 	classic_time = ( tmp.tv_sec * 1000000 + tmp.tv_usec );
 
-	printf("[a%08llu / c%08llu] delta t: %8lld factor:  %6.2f\n",
+	printf("t(a): %9llu, t(c): %9llu, delta t: %9lld factor:  %6.2f [%c%c]\n",
 			antichain_time,
 			classic_time,
 			classic_time - antichain_time,
-			(classic_time+1.) / (antichain_time+1.)
+			(classic_time+1.) / (antichain_time+1.),
+			antichain_is_super ? 'A' : 'a',
+			classic_is_super   ? 'C' : 'c'
 		);
 
 	if(antichain_is_super != classic_is_super) {
@@ -133,10 +130,19 @@ void test_superset(finite_automaton & superset, finite_automaton & subset, int &
 
 		bad_count++;
 	}
+
+	return antichain_is_super;
+}}}
+
+bool test_equal(finite_automaton & nfa1, finite_automaton & nfa2, int & bad_count)
+{{{
+	if(!test_superset(nfa1, nfa2, bad_count))
+		return false;
+	return test_superset(nfa2, nfa1, bad_count);
 }}}
 
 int main()
-{{{
+{
 	nfa_randomgenerator rag;
 
 	int alphabet_size, state_count, tr_per_state;
@@ -147,7 +153,7 @@ int main()
 	while(1) {
 		// randomize parameters
 		alphabet_size = prng::random_int(4) + 2;
-		state_count = prng::random_int(40) + 2;
+		state_count = prng::random_int(30) + 20;
 		tr_per_state = prng::random_int(5) + 1;
 		p_initial = prng::random_float();
 		p_final = prng::random_float();
@@ -180,6 +186,13 @@ int main()
 			}
 
 			// generate NFA2
+#ifdef CHECK_EQUALITY_OF_DETERMINISTIC
+			// generate deterministic version of nfa2
+			nfa2 = nfa1->determinize();
+			// and test equality
+			if(!test_equal(*nfa1, *nfa2, bad_count))
+				cout << "\nBAD: equality test was negative!\n\n";
+#else
 			if(!rag.generate(alphabet_size, state_count, tr_per_state, p_initial, p_final,
 					f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
 				cout << "generator 2 return false. bad parameters?\n";
@@ -193,11 +206,12 @@ int main()
 
 			test_superset(*nfa1, *nfa2, bad_count);
 			test_superset(*nfa2, *nfa1, bad_count);
+#endif
 
 			delete nfa1;
 			delete nfa2;
 			fflush(stdout);
 		}
 	}
-}}}
+}
 

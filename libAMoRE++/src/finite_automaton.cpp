@@ -423,7 +423,7 @@ static inline void antichain_attractor_remove_obsolete(multimap<int, pair<set<in
 bool finite_automaton::antichain__is_superset_of(finite_automaton &other, list<int> & counterexample)
 // FIXME: this version does not work for automata with epsilon-transitions.
 // they induce many special cases that need to be taken care of very thoroughly
-{
+{{{
 	if(this->get_alphabet_size() != other.get_alphabet_size()) {
 		cerr << "libamore++::finite_automaton::antichain__is_superset_of() expects that you only feed automata to it that have the same alphabet size!\n"
 			<< "now i will just return false, without any further checks!\n";
@@ -625,7 +625,7 @@ bool finite_automaton::antichain__is_superset_of(finite_automaton &other, list<i
 	// thus this is really a superset of other.
 	counterexample.clear();
 	return true;
-}
+}}}
 
 // antichain helper functions:
 

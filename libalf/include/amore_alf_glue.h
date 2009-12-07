@@ -31,6 +31,7 @@
 // it gives everything to teach algorithms from automata (teacher and oracle)
 
 #include <amore++/finite_automaton.h>
+#include <amore++/nondeterministic_finite_automaton.h>
 #include <libalf/conjecture.h>
 
 namespace amore_alf_glue {
@@ -42,7 +43,13 @@ using namespace amore;
 
 inline bool automaton_equivalence_query(finite_automaton & model, finite_automaton & hypothesis, list<int> & counterexample)
 {
-	if(model.get_state_count() < 10 && hypothesis.get_state_count() < 10) {
+	// use antichain-algorithm, if one of the automata is an NFA with size larger than 7
+	if(    ( dynamic_cast<nondeterministic_finite_automaton*>(&model)      != NULL && model.get_state_count()      >= 8 )
+	    || ( dynamic_cast<nondeterministic_finite_automaton*>(&hypothesis) != NULL && hypothesis.get_state_count() >= 8 ) ) {
+		if(!model.antichain__is_superset_of(hypothesis, counterexample))
+			return false;
+		return hypothesis.antichain__is_superset_of(model, counterexample);
+	} else {
 		finite_automaton * difference;
 		bool is_empty;
 
@@ -60,12 +67,6 @@ inline bool automaton_equivalence_query(finite_automaton & model, finite_automat
 		delete difference;
 
 		return is_empty;
-	} else {
-		if(!model.antichain__is_superset_of(hypothesis, counterexample))
-			return false;
-		if(!hypothesis.antichain__is_superset_of(model, counterexample))
-			return false;
-		return true;
 	}
 };
 
