@@ -4,7 +4,7 @@ The knowledgebase is the central repository of information. It is a database tha
 But we have not designed our knowledgebase to do just that but also to provide extensibility. In this regard, the methods used implementation of knowledgebase can be divided into two categories - \textbf{\emph{Methods important for Using \libalf}} and \textbf{\emph{Methods important for expanding \libalf}}. 
 \paragraph{}
 In this chapter, we shall discuss the knowledgebase from a user's perspective and a developer's perspective. The material will include adequate account of its structure, operations and implementation.  The final section of this chapter will provide an appendix of all the methods used in programming the knowledgebase with a brief description corresponding to it.  
-
+\vskip 1pt
 (A PICTURE OF KNOWLEDGEBASE FROM DEMO HERE)
 
 \section{The knowledgebase - A User's Perspective}
@@ -69,7 +69,7 @@ Apart from the essential functions, the knowledgebase also provides certain feat
 	The constructor of the node class creates the tree, more precisely (a root node) with the following variables that define the node.
 	\begin{itemize}
 	\item \texttt{parent} \hfill \vskip 1pt A variable of type \node that points to the parent of the node.
-	\item \texttt{label} \hfill \vskip 1pt An \integer variable that contains the alphabet that the node represents. (-1 for root node)
+	\item \texttt{label} \hfill \vskip 1pt An \integer variable that contains the alphabet that the node represents. 
 	\item \texttt{status} \hfill \vskip 1pt This indicates whether the classification of the word (the word is constructed by traversing through the tree) is required, answered or can be ignored. It is an \texttt{enum} type variable with the respective three values ``NODE\_IGNORE'', ``NODE\_REQUIRED'' and ``NODE\_ANSWERED''. 
 	\item \texttt{ans} \hfill \vskip 1pt The variable stores the answer (or the acceptance criteria / classification) of the node. 
 	\end{itemize}
@@ -78,13 +78,23 @@ Apart from the essential functions, the knowledgebase also provides certain feat
 	The knowledgebase contains methods that act upon the node for the operations. 
 	These variables and methods form the building blocks of knowledgebase. The methods employed in the knowledgebase is described in the next section.
 
-\section{Methods in Detail}
+\section{Working of the Knowledgebase and its Methods}
 
-	In this section we will discuss the methods used in the knowledgebase. The description given below pertains more to a developer as it offers greater insight into the workflow of the knowledgebase along with particulars of the methods.
-	
+	In this section we will discuss most of the methods used in the knowledgebase. The description given below pertains more to a developer as it is inclined to describe the methods in correspondance to the workflow of the knowledgebase. 
+
+\subsection{Creating the Knowledgebase}
+
+	The knowledgebase is created by the constructor of the class \texttt{node}. It is initialized with the following properties. \vskip 1pt
+\textbf{node(knowledgebase * base)} \hfill \vskip 1pt
+	The constructor of the node creates the root node of the knowledgebase by setting values for the variables as follows.
+	\begin{enumerate}
+	\item parent - NULL ; root node does not have a parent.
+	\item label - -1 ; which is equivalent to epsilon
+	\item status - STATUS\_IGNORE ; the acceptance rule or classification of the root node is initially not necessary.
+	\end{enumerate}
+
 \subsection{Nodes}
-	
-	Having drawn the working of a node, we begin describing some of the functions that concerns the node. These are internal methods and they perform some basic operations as discussed below.
+	Having described how the knowledgebase is created, we describe some of the functions that concerns the node. These are internal methods and they perform some basic operations as discussed below.
 \begin{enumerate}
 \item \textbf{node* get\_next(node * current\_child)} \hfill \vskip 1pt
 	This function returns the next node or the next child of the current node (which is passed as an arguement). 
@@ -204,7 +214,7 @@ One can use the following two methods available.
 In this section, we will discuss three methods that are used in relevance with displaying the knowledgebase.
 \begin{enumerate}
 \item \textbf{string tostring()} \hfill \vskip 1pt
-(******)
+It creates the \stringtype stream to be used by the ``print'' method.
 
 \item \textbf{void print(ostream \&os)} \hfill \vskip 1pt
 	This method is used to print the knowledgebase on screen. It prints the word, its status and the answer of all the words available in the knowledgebase.
@@ -220,12 +230,552 @@ In this section, we will discuss three methods that are used in relevance with d
 	The method returns the memory used by the knowledgebase on the system. Using this method at some point could be a good way of deciding if cleanup() needs to be called or not. 
 
 \item \textbf{bool recursive\_different(node * other, int depth)} \hfill \vskip 1pt
-	The method can be said as being used to check the consistancy of two nodes. (*******)
-
+	The method is used to check the consistancy of two words. Two words are said to be consistant if they have the same answer. 
+	
 \item \textbf{bool merge\_knowledgebase(knowledgebase \& other\_tree)} \hfill \vskip 1pt
-	This method is used to merge two different knowledgebases. In merging the same, it follows some protocols. In the first place, two knowledgebases can be merged only if they are consistant. To check the consistancy, we use the ``recursive\_different()'' condition on the root of both the knowledgebases. If inconsistant, the method returns false. Otherwise, the method moves on to merge them. However, the method merges only all the answered nodes from the two knolwedgebases. Queries do not get merged. 
+	This method is used to merge two different knowledgebases. In merging the same, it follows some protocols. In the first place, two knowledgebases can be merged only if they are consistant, i.e., if they have similar words and answers. If inconsistant, the method returns \false. Otherwise, the method moves on to merge them. However, the method merges only all the answered nodes from the two knolwedgebases. Queries do not get merged. 
 \end{enumerate}
 
-\vskip 3pt
-Serialize and deserialize
+\subsection{Serialize and Deserialize}
+	There are two other important methods that can be very useful when working with \libalf. We will describe the methods now and explain their purpose behind design.
+\begin{enumerate}
+\item \textbf{basic\_string$<$int32\_t$>$ serialize()} \hfill \vskip 1pt
+	This method is used to convert the entire knowledgebase into a \stringtype. 
+\item \textbf{bool deserialize(basic\_string$<$int32\_t$>$::iterator \&it, basic\_string$<$int32\_t$>$ ::iterator limit)} \hfill \vskip 1pt
+	This method is used to convert the \stringtype that represents the knowledgebase into a tree-like structure.
+\end{enumerate}	
+	The main advantages of using these methods is that it offers portability. They allow the user to save their current work done with \libalf. By converting the tree into a single string, it allows the user to save the knowledgebase into the hard disk, share it over the internet, carry and use it another machine and so on. The deserialize method helps in converting back to the tree structure to put the \libalf into use.
+	
+\section{Methods Specifications}
+\subsection{Nodes}
+\begin{enumerate}
+%%%
+\item \begin{detail}
+{get\_next}
+{node* get\_next(node * current\_child)}
+{current\_child - The current child}
+{Returns the next node} 
+\end{detail}
+%%%
+\item \begin{detail}
+{Constructor}
+{node(knowledgebase * base)}
+{base - the name of the knowledgebase}
+{Creates the root node of the knowledgebase and sets its \texttt{parent} to NULL} 
+\end{detail}
+%%%
+\item \begin{detail}
+{get\_parent}
+{node * get\_parent()}
+{--}
+{Returns the parent of the node that calls this function} 
+\end{detail}
+%%%
+\item \begin{detail}
+{find\_child}
+{node * find\_child(int label)}
+{label - the label that the child node must contain}
+{Returns the node that contains the label specified as the parameter} 
+\end{detail}
+%%%
+\item \begin{detail}
+{find\_descendant}
+{node * find\_descendant(list$<$int$>$::iterator infix\_start,\\ list$<$int$>$::iterator infix\_limit)}
+{infix\_start - the word or symbol that is the starting point \\ infix\_limit - the word which is to be found}
+{Returns the node that represents the word infix\_limit} 
+\end{detail}
+%%%
+\item \begin{detail}
+{find\_or\_create\_child}
+{node * find\_or\_create\_child(int label)}
+{label - the label that the child node must contain}
+{Returns the node that contains the label specified as parameter. If not found, it creates such a node and returns it.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{serialize\_subtree}
+{void serialize\_subtree(basic\_string$<$int32\_t$>$ \& into)}
+{\texttt{into} - the string that contains the serialized trees of the knowledgebase}
+{Converts the subtree into \stringtype and appended to \texttt{into}. This method is used during serialization} 
+\end{detail}
+%%%
+\item \begin{detail}
+{deserialize\_subtree**}
+{bool deserialize\_subtree(basic\_string$<$int32\_t$>$::iterator \& it, \\ basic\_string$<$int32\_t$>$::iterator limit, int \& count)}
+{
+\texttt{it} - iterator to iterate over the string containing the word \\
+\texttt{limit} - the last word that the subtree contains
+\texttt{count} - \integer to count the subtrees
+ }
+{Returns \true after deserializing the subtrees. Returns \false if \texttt{it} and \texttt{limit} are equal.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{get\_selfptr}
+{node * get\_selfptr()}
+{--}
+{A self pointer that returns its own node.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{max\_child\_count}
+{int max\_child\_count()}
+{--}
+{Returns the maximum number of children existing in the knolwedgebase. If it returns ``n'', it implies that there may exist [0..n] suffixes.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{has\_specific\_suffix}
+{bool has\_specific\_suffix(answer specific\_answer)}
+{\texttt{specific\_answer} - the answer that needs to be compared}
+{Checks if a specific suffix/word has a specific answer. Returns \true if such a case exists, otherwise returns \false.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{get\_label}
+{int get\_label()}
+{--}
+{Returns the label of this node (which is the last symbol of the word that this node represents).} 
+\end{detail}
+%%%
+\item \begin{detail}
+{get\_word}
+{list<int> get\_word()}
+{--}
+{Returns the word that this node represents.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{mark\_required}
+{bool mark\_required()}
+{--}
+{Returns \true if answer to this node is required. Returns \false if the answer is already known.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{is\_required}
+{bool is\_required()}
+{--}
+{Returns \true if this node is marked unknown and required, \false otherwise.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{is\_answered}
+{bool is\_answered()}
+{--}
+{Returns \true if this node is already answered, \false otherwise.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{set\_answer}
+{bool set\_answer(answer ans)}
+{\texttt{ans} - answer that must be set.}
+{Returns \true if the node is already answered and the answer is same as \texttt{ans}, otherwise \false. If the node is not answered already, then it returns \true after setting \texttt{ans} as the answer.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{get\_answer}
+{answer get\_answer()}
+{--}
+{Returns the answer of this node.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{no\_subqueries}
+{bool no\_subqueries(bool check\_self = true)}
+{\texttt{check\_self} - Set to true. Used to check if the status of this node is marked required. }
+{Returns \true if there are any queries with this node as the prefix, \false otherwise. Also returns \false if this node is not answered and marked required.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{different}
+{bool different(node * other)}
+{\texttt{other} - a node whose answer needs to be compared to the current node. }
+{Returns \true if this node and \texttt{other} node have the same answer, \false otherwise. } 
+\end{detail}
+%%%
+\item \begin{detail}
+{recursive\_different}
+{bool recursive\_different(node * other, int depth)}
+{\texttt{other} - a node whose answer needs to be compared to the current node.
+ \texttt{depth} - the depth of the tree that indiciates the length of the word. }
+{Compares the answers of the two nodes and their children upto a level specified by \texttt{depth}. Returns \true if there are no inconsistancies in the answers, \false otherwise. } 
+\end{detail}
+%%%
+\item \begin{detail}
+{is\_prefix\_of}
+{bool is\_prefix\_of(node*other)}
+{\texttt{other} - a node whose answer needs to be compared to the current node.}
+{Retruns \true if this node is a suffix of the \texttt{other} node. } 
+\end{detail}
+%%%
+\item \begin{detail}
+{is\_suffix\_of}
+{bool is\_suffix\_of(node*other)}
+{\texttt{other} - a node whose answer needs to be compared to the current node.}
+{Retruns \true if this node is a preffix of the \texttt{other} node. } 
+\end{detail}
+%%%
+\item \begin{detail}
+{get\_memory\_usage}
+{unsigned long long int get\_memory\_usage()}
+{--}
+{Retruns the size of the memory used by this subtree. } 
+\end{detail}
+%%%
+\item \begin{detail}
+{ignore}
+{void ignore()}
+{--}
+{Changes the status of this node to NODE\_IGNORE. } 
+\end{detail}
+%%%
+\item \begin{detail}
+{cleanup}
+{bool cleanup()}
+{--}
+{Returns \true after deleting all the branches that has status as NODE\_IGNORE. } 
+\end{detail}
+%%%
+\end{enumerate}
 
+\subsection{Iterator}
+\begin{enumerate}
+\item \begin{detail}
+{iterator}
+{iterator()}
+{--}
+{Sets this node to NULL and initializes an iterator to the last node that is marked required. } 
+\end{detail}
+%%%
+\item \begin{detail}
+{iterator}
+{iterator(const iterator \& other)}
+{--}
+{Sets the values of this node to those of the \texttt{other} node.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{iterator**}
+{iterator(bool queries\_only, typename list$<$node*$>$::iterator currentquery, node * current, knowledgebase * base)}
+{\texttt{queries\_only} - a boolean variable that is \true if queries exist and \false if there are no queries in the knowledebase
+ \texttt{currentquery} - iterator to iterate over queries
+ \texttt{current} - the node under consideration
+ \texttt{base} - the knowledgebase that is being processed.}
+{Sets the values of this node to those specified in the arguement.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{operator++}
+{iterator \& operator++()}
+{--}
+{Operator overloading applied to ``++''. Creates an iterator that points to the next query and returns the node} 
+\end{detail}
+%%%
+\item \begin{detail}
+{operator++ **}
+{iterator operator++(int foo)}
+{--}
+{--} 
+\end{detail}
+%%%
+\item \begin{detail}
+{is\_valid()}
+{bool is\_valid()}
+{--}
+{Returns \true if the current iterator is not NULL, \false otherwise.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{operator*}
+{node \& operator*()}
+{--}
+{Returns the pointer to the current iterator.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{operator-$>$}
+{node * operator-$>$()}
+{--}
+{Returns the current iterator.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{operator=}
+{iterator \& operator=(const iterator \& it)}
+{\texttt{it} - an iterator}
+{Creates an iterator with the values of iterator \texttt{it} and returns this. } 
+\end{detail}
+%%%
+\item \begin{detail}
+{operator==}
+{bool operator==(const iterator \& it)}
+{\texttt{it} - an iterator}
+{Returns \true if the current iterator is same as \texttt{it}, \false otherwise.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{operator!=}
+{bool operator!=(const iterator \& it)}
+{\texttt{it} - an iterator}
+{Returns \true if the current iterator is not equal to \texttt{it}, \false otherwise.} 
+\end{detail}
+\end{enumerate}
+
+
+
+\subsection{Knowledgebase}
+\begin{enumerate}
+%%%
+\item \begin{detail}
+{knowledgebase}
+{knowledgebase()}
+{--}
+{Creates a knowledgebase with root as NULL.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{knowledgebase}
+{\~knowledgebase()}
+{--}
+{Deletes the knowledgebase by deleting the root.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{clear}
+{void clear()}
+{--}
+{Deletes the existing knowledgebase and creates a new knowledgebase containing only the root.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{clear\_queries}
+{void clear\_queries()}
+{--}
+{Deletes all the nodes that are marked as queries.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{undo**}
+{bool undo(unsigned int count)}
+{\texttt{count} - }
+{Used to undo the last operation.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{get\_memory\_usage}
+{unsigned long long int get\_memory\_usage()}
+{--}
+{Returns the memory used by the knowledgebase.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{is\_answered}
+{bool is\_answered()}
+{--}
+{Returns \true if there are no nodes marked required, \false otherwise.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{is\_empty}
+{bool is\_empty()}
+{--}
+{Returns \true if there are no nodes marked required and answered (the tree is empty), \false otherwise.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{count\_nodes}
+{int count\_nodes()}
+{--}
+{Returns the number of nodes present in the knowledgebase.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{count\_answers}
+{int count\_answers()}
+{--}
+{Returns the number of nodes that are already answered in the knowledgebase.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{count\_queries}
+{int count\_queries()}
+{--}
+{Returns the number of nodes that are marked required in the knowledgebase.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{count\_resolved\_queries}
+{int count\_resolved\_queries()}
+{--}
+{Returns the number of answered nodes that were once marked required.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{reset\_resolved\_queries}
+{void reset\_resolved\_queries()}
+{--}
+{Resets the number of resolved queries to zero.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{get\_largest\_symbol}
+{int get\_largest\_symbol()}
+{--}
+{Returns the largest symbol that is present in the knowledgebase. Essentially, this returns the number which is one less than the alphabet size.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{check\_largest\_symbol}
+{int check\_largest\_symbol()}
+{--}
+{Adjusts the largest symbol present in the knowledgebase and returns it.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{print}
+{void print(ostream \&os)}
+{\texttt{os} - an output stream.}
+{Prints the knowledgebase on the screen. Prints the word, status and the answer of all the words stored in the knowledgebase.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{tostring}
+{string tostring()}
+{--}
+{Used to return a string stream for serialization.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{generate\_dotfile}
+{string generate\_dotfile()}
+{--}
+{Generates the ``.dot'' file of the knowledgebase for graphical representation.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{serialize}
+{basic\_string$<$int32\_t$>$ serialize()}
+{--}
+{Returns a string which represents the complete knowledgebase.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{deserialize**}
+{bool deserialize(basic\_string$<$int32\_t$>$::iterator \&it, \\ basic\_string$<$int32\_t$>$::iterator limit)}
+{\texttt{it} - iterator to iterate over the string containing the word.
+ \texttt{limit} - iterator that points to the last word }
+{Returns \true if the string was deserialized to knowledgebase successfully, \false if the deserialization failed.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{deserialize\_query\_acceptances}
+{bool deserialize\_query\_acceptances(basic\_string$<$int32\_t$>$::iterator \&it,\\ basic\_string$<$int32\_t$>$::iterator limit)}
+{\texttt{it} - iterator to iterate over the string containing the word.
+ \texttt{limit} - iterator that points to the last word }
+{Returns \true after answering all the queries in the knowledgebase from a single serialized data. } 
+\end{detail}
+%%%
+\item \begin{detail}
+{create\_query\_tree}
+{knowledgebase * create\_query\_tree()}
+{--}
+{Returns a tree created by adding to this tree, all the words marked as required in the knowledgebase.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{get\_queries}
+{list$<$list$<$int$>$ $>$ get\_queries()}
+{--}
+{Returns a list of list of \integer that consists of all the queries existing in the knowledgebase.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{merge\_knowledgebase}
+{bool merge\_knowledgebase(knowledgebase \& other\_tree)}
+{\texttt{other\_tree} - the tree to be merged.}
+{Returns \true if the current tree could be merged with the \texttt{other\_tree}, \false otherwise. Two trees can be merged only if they are consistant. This method merges only answered information, it does not merge the queries. } 
+\end{detail}
+%%%
+\item \begin{detail}
+{add\_knowledge}
+{bool add\_knowledge(list$<$int$>$ \& word, answer acceptance)}
+{\texttt{word} - the word to be added to the knowledgebase.
+ \texttt{acceptance} - the classification of the word.}
+{Returns \true if the knowledge for this word does not already exist and is successfully added to the knowledgebase, \false otherwise.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{add\_query}
+{int add\_query(list$<$int$>$ \& word, int prefix\_count = 0)}
+{\texttt{word} - the word/query to be added to the knowledgebase.
+ \texttt{prefix\_count} - initialized to zero. It is the count of all the prefixes that can be formed with the word.}
+{Creates the query and the necessary prefixes (which will also be marked as a query) and returns the total number of queries formed.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{resolve\_query}
+{bool resolve\_query(list$<$int$>$ \& word, answer \& acceptance)}
+{\texttt{word} - the word/query to be added to the knowledgebase.
+ \texttt{acceptance} - the classification of the word.}
+{If the word is already known and is answered, then the answer is assigned to \texttt{acceptance} and returns \true, otherwise returns \false.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{resolve\_or\_add\_query}
+{bool resolve\_or\_add\_query(list$<$int$>$ \& word, answer \& acceptance)}
+{\texttt{word} - the word/query to be added to the knowledgebase.
+ \texttt{acceptance} - the classification of the word.}
+{Returns \true if the word is already known and answered, else marks the word as required and returns \false.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{get\_nodeptr}
+{node* get\_nodeptr(list$<$int$>$ \& word)}
+{\texttt{word} - a word.}
+{Returns the node that represents this word.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{get\_rootptr}
+{node* get\_rootptr()}
+{--}
+{Returns the root.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{begin}
+{iterator begin()}
+{--}
+{Returns an iterator that begins at the root node.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{end}
+{iterator end()}
+{--}
+{Returns an iterator which is used to point to the last node.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{qbegin}
+{iterator qbegin()}
+{--}
+{Returns an iterator that begins at the first node that is marked required.} 
+\end{detail}
+%%%
+\item \begin{detail}
+{qend}
+{iterator qend()}
+{--}
+{Returns an iterator which is used to point to the last node that is marked required.} 
+\end{detail}
+\end{enumerate}
+
+\textbf{methods not described} \vskip 1pt
+bool is\_lex\_smaller(node * other) \\
+bool is\_graded\_lex\_smaller(node * other) \\
+unsigned int get\_timestamp() \\
+string generate\_dotfile(equivalence\_relation \& eq) \\
+equivalence relation class\\
+class kIterator\_lex\_graded 

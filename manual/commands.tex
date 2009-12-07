@@ -25,3 +25,39 @@
 \newcommand{\integer}{\texttt{integer}\xspace}
 \newcommand{\true}{\texttt{true}\xspace}
 \newcommand{\false}{\texttt{false}\xspace}
+
+\newenvironment
+%---Name---%
+{detail}
+%---Args---%
+[4]
+%------Before------%
+{
+\newcommand{\heading}{\textbf{#1}} 
+\newcommand{\method}{\textbf{\texttt{#2}}}
+\newcommand{\parameters}{\textbf{parameters:}}
+\newcommand{\paramdesc}{#3}
+\newcommand{\descriptions}{\textbf{description:}}
+\newcommand{\descdesc}{#4}
+}
+%------After-------%
+{
+\vskip 1pt
+\Large \heading \vskip 1pt
+\large \method \vskip 1pt
+\normalsize 
+\hspace*{30pt} \parameters \begin{changemargin} \paramdesc \end{changemargin}
+\hspace*{30pt} \descriptions \begin{changemargin} \descdesc \end{changemargin} 
+}
+
+\newenvironment{changemargin}{%
+\begin{list}{}{%
+%\setlength{\topsep}{0pt}%
+\setlength{\leftmargin}{60pt}%
+%\setlength{\rightmargin}{#2}%
+%\setlength{\listparindent}{\parindent}%
+%\setlength{\itemindent}{\parindent}%
+%\setlength{\parsep}{\parskip}%
+}%
+\item[]}{\end{list}}
+
