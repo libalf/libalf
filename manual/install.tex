@@ -1,0 +1,112 @@
+
+\chapter{Installation}
+The \libalf library contains all functionality to embed different kinds of (offline and/or online algorithms) into your learning application. It can be used as C++ library directly, via JNI (Java Native Interface) or via a dedicated client/server application called the dispatcher. Both may be used from Java interchangable via the generic interface ``jalf''.
+The chapter gives information on how to install \libalf in a user application under Windows and Linux operated systems.
+
+\section{Requirements}
+In general, \libalf is platform independent. It has been tested in both x86 and x64 systems successfully. To use \libalf, your computer must have the following softwares installed.
+\begin{enumerate}
+ \item \textbf{GNU Compiler} \vskip 1pt
+	For windows, we recommend usage of MinGW compiler for using \libalf. Instructions on where to find it and how to install it are given in section --.
+ \item \textbf{Java 1.x} \vskip 1pt
+	This is required to use \libalf via JNI. \libalf can be compiled using \texttt{ant}.
+\end{enumerate}
+\paragraph{Note:}
+The dispatcher can be compiled only under linux since it uses POSIX which is not compatible under windows. 
+
+\section{Installing MinGW compiler in Windows}
+We recommend the usage of MinGW compiler for users who would like to use \libalf in Windows. Instructions on how to install it is given below.
+\subsection*{Where to find it and how to install it}
+The downloadable package and installation instructions of the MinGW compiler can be found in the following website.
+
+\url{http://www.mingw.org/wiki/HOWTO_Install_the_MinGW_GCC_Compiler_Suite}
+
+\textbf{Note:} Installing MinGW compiler on your computer does not automatically set the ``PATH'' variable. You may have to manually update the “PATH” variable of the computer to the ``bin'' folder of MingW. (Usually ``C:\textbackslash MingW\textbackslash bin'', unless you have changed the directory of installation). 
+of \libalf.
+\paragraph{How to edit the environment variables}
+\begin{enumerate}
+ \item Right click \textbf{My Computer}, Click ``Properties''.
+ \item Click the ``Advanced'' tab and click ``Environment Variables''.
+ \item Under the frame ``system variables'', find and click on the variable named \textbf{path} and click edit.
+ \item In the textbox beside ``Variable value'', add ``c:\textbackslash MinGW\textbackslash bin'' (or the location of the ``bin'' folder where you have installed the compiler) by separating it with a semicolon (;) from the existing path. Please make sure that you do not delete the existing paths set in the variable.
+ \item  Click Ok. And click Ok in the window displaying the ``system variables''.
+\end{enumerate}
+As soon as the MinGW compiler is installed, please follow the steps listed below to be able to compile \libalf.
+
+\subsection*{Modification to the MinGW compiler}
+
+As a prerequisite towards compiling the Library a small change is made to the “bin” folder of the MingW.   
+After the installation of the MingW compiler, the ``/bin'' folder will contain an executable file named \textbf{mingw32-make.exe}. It is required that this file is renamed to \textbf{make.exe} since the commands in the makefiles are written as \textbf{make \emph{sourcefilename}} and not as \textbf{mingw32-make \emph{sourcefilename}}.
+
+\section{The \libalf \cpp Library}
+The section describes how to compile the sources and use the \cpp library directly in your application.
+\subsection*{Compiling \libalf}
+A ``makefile'' is provided already to compile \libalf. \vskip 1pt
+To compile the library in linux, use the following command.
+\[
+  PREFIX = <path> make
+\]
+\emph{$<$path$>$} must specifiy the directory where the \libalf sources are located. This is because \texttt{make} searches the \emph{include} directory inside the directory specified by PREFIX for the \libalf's header files. If you do not wish to use gcc compiler or if gcc is not installed in /usr/bin/gcc, you can additionally specify the CC variable pointing to your desired \cpp compiler. \vskip 1pt
+To compile the library in Windows, go to \textbf{Command Prompt} and enter the following command.
+\[
+ make -f <path>/makefile
+\]
+\subsection*{Employing \libalf in an Application}
+To use the installed library in your application, follow the steps given below. \vskip 1pt
+On windows, one of the following methods can be used
+\begin{enumerate}
+ \item Place the compiled library into the directory where your application is located.
+ \item Alternatively, you can add the path containing the \libalf library in to your \textbf{path} variable.
+\end{enumerate}
+On Linux, you use the LD\_LIBRARY\_PATH to point to \libalf's location.
+\[
+  LD\_LIBRARY\_PATH = <path>/bin
+\]
+
+\section{The \libalf Java Library}
+The section describes how to install the Java sources of \libalf and use them in your application.
+\subsection*{Compiling \libalf}
+To compile the Java based \libalf library, you may use ANT (\url{http://ant.apache.org/}). \vskip 1pt
+In both Windows and Linux, the following command can be used.
+\[
+  ant -D PREFIX=<path>
+\]
+Here, the variable \emph{path} specifies the directory where the ``jalf.jar'' is located. The option -D is used to specify variables (in this case it adds the ``jalf.jar'' to Java's classpath). \vskip 1pt
+
+\subsection*{Employing \libalf in an Application}
+To use \libalf in your application, you must make sure that the compiled jalf library and the ``jalf.jar'' can be found. \vskip 1pt
+In both Windows and Linux, you can do this by specifying the following two parameters.
+\begin{enumerate}
+ \item -classpath ``$<$path$>$:.'' \vskip 1pt
+	Use the command to set the classpath to point to ``jalf.jar''. \vskip 1pt
+	\textbf{Note:} The seperator ``:'' must be used on Linux and ``;'' must be used on Windows.
+ \item -D java.library.path = $<$path$>$ \vskip 1pt
+	Use the command to let the java library path variable point to the compiled jalf library. 
+\end{enumerate}
+
+\section{Troubleshooting}
+If you have problems compiling the library using \texttt{make} in windows, it could be because of Linux commands used in the makefiles. Ordinarily, MinGW should not have problems compiling it. But if problems do exist, then download and install \textbf{makeutils} which can be found at \url{http://makeutil.sourceforge.net/#download}. \vskip 1pt
+Please make sure that the ``/bin'' folder of makeutil is added to your \texttt{path} variable. If the installation does not do it automatically, do it manually in the same way as described in -- under ``\textbf{How to edit environment variables}''.
+
+\section{Dependencies}
+\libalf is a stand-alone C++ library and does not depend on any other libraries except the C++ standard library and standard template library (STL). Also, MiniSat v1.14 is fully integrated into libalf, as it is required for the bierman learning algorithm. There are no further dependencies.
+
+However, the following libraries may be of help when developing applications and are partially required for some of the testcases:
+
+\begin{enumerate}
+ \item \textbf{libAMoRE-1.0 / libAMoRE++} : C/C++ automata library for working with finite automata. 
+(Both AMoRE-1.0 with some patches and the C++ interface currently reside in the subversion repository of libalf. the C++ interface has  been written during development of libalf, but we're currently working on integrating it into the original libAMoRE (upstream).)
+ \item \textbf{liblangen} (LANguageGENerator) is a library for generating (regular) languages in the form of automata or regular expressions. It came to existence during the development of libalf and thus has the same interface for automata. it is useful e.g. for generating random automata or regex with specific constraints, so algorithms can automatically massively be tested.
+\end{enumerate}
+
+\section{License Information}
+\libalf is a free software published under the LGPL v3 license.Under this license, you have the complete freedom for the following.
+\begin{enumerate}
+ \item Use the software for any purpose.
+ \item Make copies and redistribute the software.
+\end{enumerate}
+You also gain the complete freedom to modify the software according to your needs and distribute the modified version of the software. However, the modified software must be published with the code under the LGPL v3 (any later version) license. 
+For more information about LGPL license, visit \url{http://www.gnu.org/licenses/lgpl.html}
+
+
+
