@@ -5,7 +5,9 @@ NOTES
 TODO
 ====
 
-- Antichains for checking language inclusion and equivalence ( in libAMoRE++ or even upstream? )
+- VERIFY: Antichains for checking language inclusion and equivalence
+
+- removal of epsilon-transitions in NFA
 
 - check network/deserialization code for bugs
 

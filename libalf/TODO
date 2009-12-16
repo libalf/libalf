@@ -11,11 +11,13 @@ TODO (priority ordered)
 
 - set_alphatbet_size
 
-- create debian packages (including jalf)
+- learning 1-counter automata
+
+- angluin: mealy-machine
 
 - KVtree: fix/implement new
 
-- angluin: mealy-machine
+- create debian packages (including jalf)
 
 - RPNI: check for correctness
 
