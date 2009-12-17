@@ -2,7 +2,7 @@
 #
 
 TEX = /usr/bin/latex
-.PHONY : all final clean
+.PHONY : libalf.pdf all final clean
 
 TEXTS = $(shell echo *.tex)
 
