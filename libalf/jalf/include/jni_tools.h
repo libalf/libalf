@@ -28,10 +28,10 @@
 #include <list>
 
 #ifdef _WIN32
-#include <winsock.h>
-#include <stdio.h>
+# include <stdint.h>
+# include <winsock.h>
 #else
-#include <arpa/inet.h>
+# include <arpa/inet.h>
 #endif
 
 #include <jni.h>
