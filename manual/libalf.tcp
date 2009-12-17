@@ -30,19 +30,19 @@ QuickBuild=
 
 [item:commands.tex]
 archive=true
-column=44
+column=17
 encoding=UTF-8
 highlight=LaTeX
-line=0
+line=1
 open=true
 order=2
 
 [item:install.tex]
 archive=true
-column=245
+column=9
 encoding=UTF-8
 highlight=LaTeX
-line=88
+line=31
 open=true
 order=3
 
@@ -57,19 +57,19 @@ order=1
 
 [item:knowledgebase.tex]
 archive=true
-column=17
+column=14
 encoding=UTF-8
 highlight=LaTeX
-line=118
+line=160
 open=true
 order=4
 
 [item:libalf.tex]
 archive=true
-column=0
+column=33
 encoding=UTF-8
 highlight=LaTeX
-line=35
+line=15
 open=true
 order=0
 
