@@ -94,6 +94,11 @@ int main(int argc, char**argv)
 		dfa = nfa->determinize();
 		dfa->minimize();
 		file.open("original-dfa.dot"); file << dfa->generate_dotfile(); file.close();
+
+		basic_string<int32_t> serial;
+		serial = dfa->serialize();
+		libalf::basic_string_to_file(serial, "original-dfa.ser");
+
 		delete dfa;
 	}}}
 
