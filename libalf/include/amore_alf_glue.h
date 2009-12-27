@@ -40,38 +40,91 @@ using namespace std;
 using namespace libalf;
 using namespace amore;
 
+inline bool automaton_antichain_equivalence_query(finite_automaton & model, finite_automaton & hypothesis, list<int> & counterexample)
+{{{
+	if(!model.antichain__is_superset_of(hypothesis, counterexample))
+		return false;
+	return hypothesis.antichain__is_superset_of(model, counterexample);
+}}};
+
+inline bool automaton_classic_equivalence_query(finite_automaton & model, finite_automaton & hypothesis, list<int> & counterexample)
+{{{
+	finite_automaton * difference;
+	bool is_empty;
+
+	counterexample.clear();
+
+	difference = model.lang_difference(hypothesis);
+	counterexample = difference->get_sample_word(is_empty);
+
+	if(is_empty) {
+		delete difference;
+		difference = hypothesis.lang_difference(model);
+		counterexample = difference->get_sample_word(is_empty);
+	}
+
+	delete difference;
+
+	return is_empty;
+}}};
 
 inline bool automaton_equivalence_query(finite_automaton & model, finite_automaton & hypothesis, list<int> & counterexample)
 {
 	// use antichain-algorithm, if one of the automata is an NFA with size larger than 7
 	if(    ( dynamic_cast<nondeterministic_finite_automaton*>(&model)      != NULL && model.get_state_count()      >= 8 )
 	    || ( dynamic_cast<nondeterministic_finite_automaton*>(&hypothesis) != NULL && hypothesis.get_state_count() >= 8 ) ) {
-		if(!model.antichain__is_superset_of(hypothesis, counterexample))
-			return false;
-		return hypothesis.antichain__is_superset_of(model, counterexample);
+		return automaton_antichain_equivalence_query(model, hypothesis, counterexample);
 	} else {
-		finite_automaton * difference;
-		bool is_empty;
-
-		counterexample.clear();
-
-		difference = model.lang_difference(hypothesis);
-		counterexample = difference->get_sample_word(is_empty);
-
-		if(is_empty) {
-			delete difference;
-			difference = hypothesis.lang_difference(model);
-			counterexample = difference->get_sample_word(is_empty);
-		}
-
-		delete difference;
-
-		return is_empty;
+		return automaton_classic_equivalence_query(model, hypothesis, counterexample);
 	}
 };
 
+inline bool automaton_classic_equivalence_query(finite_automaton & model, conjecture *cj, list<int> & counterexample)
+{{{
+	simple_automaton *ba;
+	finite_automaton *hypothesis;
+	bool ret;
+
+	counterexample.clear();
+
+	ba = dynamic_cast<simple_automaton*>(cj);
+	if(!ba) {
+		fprintf(stderr, "equivalence query: hypothesis is not an automaton!\n");
+		return false;
+	}
+	hypothesis = construct_amore_automaton(ba->is_deterministic, ba->alphabet_size, ba->state_count, ba->initial, ba->final, ba->transitions);
+
+	ret = automaton_classic_equivalence_query(model, *hypothesis, counterexample);
+
+	delete hypothesis;
+
+	return ret;
+}}};
+
+inline bool automaton_antichain_equivalence_query(finite_automaton & model, conjecture *cj, list<int> & counterexample)
+{{{
+	simple_automaton *ba;
+	finite_automaton *hypothesis;
+	bool ret;
+
+	counterexample.clear();
+
+	ba = dynamic_cast<simple_automaton*>(cj);
+	if(!ba) {
+		fprintf(stderr, "equivalence query: hypothesis is not an automaton!\n");
+		return false;
+	}
+	hypothesis = construct_amore_automaton(ba->is_deterministic, ba->alphabet_size, ba->state_count, ba->initial, ba->final, ba->transitions);
+
+	ret = automaton_antichain_equivalence_query(model, *hypothesis, counterexample);
+
+	delete hypothesis;
+
+	return ret;
+}}};
+
 inline bool automaton_equivalence_query(finite_automaton & model, conjecture *cj, list<int> & counterexample)
-{
+{{{
 	simple_automaton *ba;
 	finite_automaton *hypothesis;
 	bool ret;
@@ -90,10 +143,7 @@ inline bool automaton_equivalence_query(finite_automaton & model, conjecture *cj
 	delete hypothesis;
 
 	return ret;
-
-}
-
-
+}}};
 
 inline bool automaton_membership_query(finite_automaton & model, list<int> & word)
 { return model.contains(word); };
