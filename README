@@ -19,6 +19,13 @@ libAMoRE++
 	dependencies: libAMoRE
 	
 
+libmVCA
+	a locally developed C++ library for m-bounded visibly one-counter
+	automata.
+
+	dependencies: none
+
+
 libalf
 	main C++ library of this project, implementation of algorithms,
 	JNI, network protocol et al.
