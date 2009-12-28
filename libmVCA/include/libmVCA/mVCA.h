@@ -31,6 +31,7 @@
 #include <map>
 
 #include <libmVCA/pushdown.h>
+#include <libmVCA/transition_function.h>
 
 namespace libmVCA {
 
@@ -38,24 +39,37 @@ using namespace std;
 
 const char * libmVCA_version();
 
+// NOTE: this implementation DOES NOT SUPPORT epsilon transitions.
+
+template <class delta_f> // delta_f has to implement class the interface defined by class transition_function
 class mVCA {
-	private:
-		
-	public:
+	private: // data
+		int state_count;
+		pushdown_alphabet alphabet;
+		int initial_state;
+		int m; // m-bound (upper bound for delta_function)
+		map<int, delta_f> delta_function;
+		set<int> final_states;
+
+	public: // methods
+		// set alphabet (will be copied, will erase all other information about former automaton)
+		void set_alphabet(pushdown_alphabet & alphabet); // FIXME
+
+
 		// test if word is contained in language of automaton
-		virtual bool contains(list<int> & word);
+		bool contains(list<int> & word);
 
 		// format for serialization:
 		// all values in NETWORK BYTE ORDER!
 		// <serialized automaton>
 		//	FIXME
 		// </serialized automaton>
-		virtual basic_string<int32_t> serialize();
-		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
+		basic_string<int32_t> serialize();
+		bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
 		// construct a new mVCA
-//		virtual bool construct(...); FIXME
+//		bool construct(...); FIXME
 
-		virtual string generate_dotfile();
+		string generate_dotfile();
 };
 
 // automatically construct new automaton

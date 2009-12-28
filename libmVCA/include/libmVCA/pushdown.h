@@ -66,6 +66,9 @@ class pushdown_alphabet {
 		// (will return false if direction was "indefinite" or
 		//  sigma was out of bound)
 		bool set_direction(int sigma, enum pushdown_direction direction);
+
+		basic_string<int32_t> serialize();
+		bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
 };
 
 }; // end of namespace libmVCA.

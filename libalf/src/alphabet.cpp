@@ -28,10 +28,10 @@
 #include <iterator>
 
 #ifdef _WIN32
-#include <winsock.h>
-#include <stdio.h>
+# include <winsock.h>
+# include <stdio.h>
 #else
-#include <arpa/inet.h>
+# include <arpa/inet.h>
 #endif
 
 #include "libalf/alphabet.h"
