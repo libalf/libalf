@@ -51,7 +51,7 @@ void pushdown_alphabet::set_alphabet_size(int alphabet_size)
 		this->directions.erase(sigma);
 	// initialise new direction data
 	for(int sigma = this->alphabet_size; sigma < alphabet_size; sigma++)
-		this->directions[sigma] = dir_stay;
+		this->directions[sigma] = DIR_STAY;
 	this->alphabet_size = alphabet_size;
 }}}
 
@@ -63,12 +63,12 @@ enum pushdown_direction pushdown_alphabet::get_direction(int sigma)
 	if(sigma >= 0 && sigma < alphabet_size)
 		return this->directions[sigma];
 	else
-		return dir_indefinite;
+		return DIR_INDEFINITE;
 }}}
 
 bool pushdown_alphabet::set_direction(int sigma, enum pushdown_direction direction)
 {{{
-	if(sigma >= 0 && sigma < alphabet_size && direction != dir_indefinite) {
+	if(sigma >= 0 && sigma < alphabet_size && direction != DIR_INDEFINITE) {
 		this->directions[sigma] = direction;
 		return true;
 	} else {
@@ -112,7 +112,7 @@ bool pushdown_alphabet::deserialize(basic_string<int32_t>::iterator &it, basic_s
 		if(size <= 0 || limit == it) goto deserialization_failed;
 		enum pushdown_direction d;
 		d = (enum pushdown_direction) ntohl(*it);
-		if(d != dir_up && d != dir_stay && d != dir_down)
+		if(d != DIR_UP && d != DIR_STAY && d != DIR_DOWN)
 			goto deserialization_failed;
 		this->directions[sigma] = d;
 	}

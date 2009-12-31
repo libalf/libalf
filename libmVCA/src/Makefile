@@ -17,7 +17,7 @@ LDFLAGS+=-shared -L${PREFIX}/lib
 
 SONAME=libmVCA
 
-OBJECTS=mVCA.o pushdown.o transition_function.o
+OBJECTS=mVCA.o deterministic_mVCA.o nondeterministic_mVCA.o pushdown.o transition_function.o
 
 ifeq (${OS}, Windows_NT)
   LDFLAGS += -lws2_32

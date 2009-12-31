@@ -40,31 +40,23 @@ using namespace std;
 
 // partial implementation, interface for nondet. and det. transitions
 class transition_function {
-	private:
-		pushdown_alphabet * alphabet;
 	public:
 		transition_function()
-		{ alphabet = NULL; };
-
-		void set_alphabet(pushdown_alphabet & alphabet)
-		{ this->alphabet = &alphabet; };
+		{ /* nothing */};
 
 		virtual ~transition_function()
 		{ /* nothing */ };
 
-		bool test_and_transmute(int &m, set<int> &states, int sigma);
-		pair<int, set<int> > transmute(int m, set<int> &states, int sigma, bool ok);
-		pair<int, set<int> > transmute(int m, set<int> &states, int sigma);
-		pair<int, set<int> > transmute(int m, int state, int sigma, bool ok);
-		pair<int, set<int> > transmute(int m, int state, int sigma);
+		virtual set<int> transmute(const set<int> & states, int sigma) = 0;
+		virtual set<int> transmute(int state, int sigma) = 0;
+
+		virtual void endo_transmute(set<int> & states, int sigma);
 
 		virtual bool is_deterministic() = 0;
 
 		virtual basic_string<int32_t> serialize() = 0;
 		virtual bool deserialize(basic_string<int32_t>::iterator &it,
 					basic_string<int32_t>::iterator limit) = 0;
-	protected:
-		virtual bool single_transmute(set<int> & states, int & sigma) = 0;
 };
 
 
@@ -75,12 +67,14 @@ class deterministic_transition_function : public transition_function {
 	public: // methods
 		virtual ~deterministic_transition_function()
 		{ /* nothing */ };
+
+		virtual set<int> transmute(const set<int> & states, int sigma);
+		virtual set<int> transmute(int state, int sigma);
+
 		virtual basic_string<int32_t> serialize();
 		virtual bool deserialize(basic_string<int32_t>::iterator &it,
 					basic_string<int32_t>::iterator limit);
 		virtual bool is_deterministic();
-	protected: // methods
-		virtual bool single_transmute(set<int> & states, int & sigma);
 };
 
 
@@ -91,12 +85,14 @@ class nondeterministic_transition_function : public transition_function {
 	public: // methods
 		virtual ~nondeterministic_transition_function()
 		{ /* nothing */ };
+
+		virtual set<int> transmute(const set<int> & states, int sigma);
+		virtual set<int> transmute(int state, int sigma);
+
 		virtual basic_string<int32_t> serialize();
 		virtual bool deserialize(basic_string<int32_t>::iterator &it,
 					basic_string<int32_t>::iterator limit);
 		virtual bool is_deterministic();
-	protected: // methods
-		virtual bool single_transmute(set<int> & states, int & sigma);
 };
 
 }; // end of namespace libmVCA.

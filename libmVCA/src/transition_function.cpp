@@ -32,63 +32,34 @@ using namespace std;
 
 // INTERFACE
 
-bool transition_function::test_and_transmute(int &m, set<int> &states, int sigma)
+void transition_function::endo_transmute(set<int> & states,int sigma)
 {{{
-	enum pushdown_direction dm;
-
-	if(m < 0 || !alphabet)
-		goto bad_transmute;
-
-	dm = alphabet->get_direction(sigma);
-
-	if(dm == dir_indefinite)
-		goto bad_transmute;
-
-	m += (int)dm;
-	if(m < 0)
-		goto bad_transmute;
-
-	return this->single_transmute(states, sigma);
-
-bad_transmute:
-	m = -1;
-	states.clear();
-	return false;
-}}}
-pair<int, set<int> > transition_function::transmute(int m, set<int> &states, int sigma, bool ok)
-{{{
-	pair<int, set<int> > ret;
-	ret.first = m;
-	ret.second = states;
-	ok = this->test_and_transmute(ret.first, ret.second, sigma);
-	return ret;
-}}}
-pair<int, set<int> > transition_function::transmute(int m, set<int> &states, int sigma)
-{{{
-	pair<int, set<int> > ret;
-	ret.first = m;
-	ret.second = states;
-	this->test_and_transmute(ret.first, ret.second, sigma);
-	return ret;
-}}}
-pair<int, set<int> > transition_function::transmute(int m, int state, int sigma, bool ok)
-{{{
-	pair<int, set<int> > ret;
-	ret.first = m;
-	ret.second.insert(state);
-	ok = this->test_and_transmute(ret.first, ret.second, sigma);
-	return ret;
-}}}
-pair<int, set<int> > transition_function::transmute(int m, int state, int sigma)
-{{{
-	pair<int, set<int> > ret;
-	ret.first = m;
-	ret.second.insert(state);
-	this->test_and_transmute(ret.first, ret.second, sigma);
-	return ret;
+	set<int> s;
+	s = this->transmute(states, sigma);
+	states.swap(s); // swap is O(1)
 }}}
 
 // DETERMINISTIC
+
+set<int> deterministic_transition_function::transmute(const set<int> & states, int sigma)
+{{{
+	set<int>::iterator si;
+	set<int> dst;
+
+	for(si = states.begin(); si != states.end(); ++si)
+		dst.insert(this->transitions[*si][sigma]);
+
+	return dst;
+}}}
+set<int> deterministic_transition_function::transmute(int state, int sigma)
+{{{
+	set<int>::iterator si;
+	set<int> dst;
+
+	dst.insert(this->transitions[*si][sigma]);
+
+	return dst;
+}}}
 
 basic_string<int32_t> deterministic_transition_function::serialize()
 {
@@ -100,20 +71,28 @@ bool deterministic_transition_function::deserialize(basic_string<int32_t>::itera
 }
 bool deterministic_transition_function::is_deterministic()
 { return true; };
-bool deterministic_transition_function::single_transmute(set<int> & states, int & sigma)
-{{{
-	set<int>::iterator si;
-
-	set<int> s;
-
-	for(si = states.begin(); si != states.end(); ++si)
-		s.insert(this->transitions[*si][sigma]);
-
-	states = s;
-	return true;
-}}}
 
 // NONDETERMINISTIC
+
+set<int> nondeterministic_transition_function::transmute(const set<int> & states, int sigma)
+{{{
+	set<int>::iterator si;
+	set<int> dst;
+
+	for(si = states.begin(); si != states.end(); ++si)
+		set_insert(dst, this->transitions[*si][sigma]);
+
+	return dst;
+}}}
+set<int> nondeterministic_transition_function::transmute(int state, int sigma)
+{{{
+	set<int>::iterator si;
+	set<int> dst;
+
+	set_insert(dst, this->transitions[*si][sigma]);
+
+	return dst;
+}}}
 
 basic_string<int32_t> nondeterministic_transition_function::serialize()
 {
@@ -125,18 +104,6 @@ bool nondeterministic_transition_function::deserialize(basic_string<int32_t>::it
 }
 bool nondeterministic_transition_function::is_deterministic()
 { return false; }; // FIXME: check on the fly
-bool nondeterministic_transition_function::single_transmute(set<int> & states, int & sigma)
-{{{
-	set<int>::iterator si;
-
-	set<int> s;
-
-	for(si = states.begin(); si != states.end(); ++si)
-		set_insert(s, this->transitions[*si][sigma]);
-
-	states = s;
-	return true;
-}}}
 
 } // end of namespace libmVCA
 

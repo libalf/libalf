@@ -35,10 +35,10 @@ namespace libmVCA {
 using namespace std;
 
 enum pushdown_direction {
-	dir_up = +1,			// add to stack
-	dir_stay = 0,			// don't touch stack
-	dir_down = -1,			// remove stack-top
-	dir_indefinite = -100		// out of bounds, etc
+	DIR_UP = +1,			// add to stack
+	DIR_STAY = 0,			// don't touch stack
+	DIR_DOWN = -1,			// remove stack-top
+	DIR_INDEFINITE = -100		// out of bounds, etc
 };
 
 class pushdown_alphabet {
