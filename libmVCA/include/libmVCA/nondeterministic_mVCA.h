@@ -42,16 +42,24 @@ using namespace std;
 
 class nondeterministic_mVCA : public mVCA {
 	protected: // data
-		map<int, nondeterministic_transition_function> delta_function;
+		map<int, nondeterministic_transition_function> transition_function;
 
 	public: // methods
 		virtual set<int> transition(const set<int> & from, int & m, int label);
+		virtual bool endo_transition(set<int> & states, int & m, int label);
+
 		virtual string generate_dotfile();
 		virtual enum mVCA::mVCA_derivate get_derivate_id()
 		{ return mVCA::DERIVATE_NONDETERMINISTIC; };
 	protected:
+		// format for serialization:
+		// all values in NETWORK BYTE ORDER!
+		// <serialized derivate-data>
+		//	m_bound+1 (number of following transition-functions)
+		//	<serialized transition functions>[]
+		// </serialized automaton>
 		virtual basic_string<int32_t> serialize_derivate();
-		virtual bool deserialize_derivate(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
+		virtual bool deserialize_derivate(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress);
 };
 
 }; // end of namespace libmVCA.

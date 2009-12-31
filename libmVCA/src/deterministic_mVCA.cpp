@@ -25,6 +25,13 @@
 #include <libmVCA/mVCA.h>
 #include <libmVCA/deterministic_mVCA.h>
 
+#ifdef _WIN32
+# include <stdio.h>
+# include <winsock.h>
+#else
+# include <arpa/inet.h>
+#endif
+
 namespace libmVCA {
 
 using namespace std;
@@ -37,8 +44,8 @@ set<int> deterministic_mVCA::transition(const set<int> & from, int & m, int labe
 
 	dir = this->alphabet.get_direction(label);
 
-	if(dir != DIR_INDEFINITE) {
-		ret = delta_function[m].transmute(from, label);
+	if(dir != DIR_INDEFINITE && m >= 0) {
+		ret = transition_function[ (m<=this->m_bound)?m:m_bound ].transmute(from, label);
 		m += dir;
 	} else {
 		m = -1;
@@ -47,16 +54,40 @@ set<int> deterministic_mVCA::transition(const set<int> & from, int & m, int labe
 	return ret;
 }}}
 
+bool deterministic_mVCA::endo_transition(set<int> & states, int & m, int label)
+{{{
+	enum pushdown_direction dir;
+
+	dir = this->alphabet.get_direction(label);
+
+	if(dir != DIR_INDEFINITE && m >= 0) {
+		transition_function[ (m<=this->m_bound)?m:m_bound ].endo_transmute(states, label);
+		m += dir;
+		return true;
+	} else {
+		states.clear();
+		m = -1;
+		return false;
+	}
+}}}
+
 string deterministic_mVCA::generate_dotfile()
 {
 	
 }
 
 basic_string<int32_t> deterministic_mVCA::serialize_derivate()
-{
-	
-}
-bool deterministic_mVCA::deserialize_derivate(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+{{{
+	basic_string<int32_t> ret;
+
+	ret += htonl(this->m_bound + 1);
+
+	for(int sigma = 0; sigma <= this->m_bound; ++sigma)
+		ret += transition_function[sigma].serialize();
+
+	return ret;
+}}}
+bool deterministic_mVCA::deserialize_derivate(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress)
 {
 	
 }

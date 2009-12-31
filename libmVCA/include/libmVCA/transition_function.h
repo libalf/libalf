@@ -55,8 +55,7 @@ class transition_function {
 		virtual bool is_deterministic() = 0;
 
 		virtual basic_string<int32_t> serialize() = 0;
-		virtual bool deserialize(basic_string<int32_t>::iterator &it,
-					basic_string<int32_t>::iterator limit) = 0;
+		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress) = 0;
 };
 
 
@@ -72,8 +71,7 @@ class deterministic_transition_function : public transition_function {
 		virtual set<int> transmute(int state, int sigma);
 
 		virtual basic_string<int32_t> serialize();
-		virtual bool deserialize(basic_string<int32_t>::iterator &it,
-					basic_string<int32_t>::iterator limit);
+		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress);
 		virtual bool is_deterministic();
 };
 
@@ -90,8 +88,7 @@ class nondeterministic_transition_function : public transition_function {
 		virtual set<int> transmute(int state, int sigma);
 
 		virtual basic_string<int32_t> serialize();
-		virtual bool deserialize(basic_string<int32_t>::iterator &it,
-					basic_string<int32_t>::iterator limit);
+		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress);
 		virtual bool is_deterministic();
 };
 

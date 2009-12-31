@@ -93,22 +93,23 @@ std::basic_string<int32_t> pushdown_alphabet::serialize()
 	return ret;
 }}}
 
-bool pushdown_alphabet::deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+bool pushdown_alphabet::deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress)
 {{{
 	int size;
 
+	progress = 0;
 	clear();
 
 	if(it == limit) return false;
 	size = ntohl(*it);
-	++it;
+	++it; ++progress;
 	if(size <= 0 || limit == it) return false;
 
 	this->alphabet_size = ntohl(*it);
 	if(this->alphabet_size < 0) goto deserialization_failed;
 
 	for(int sigma = 0; sigma < this->alphabet_size; sigma++) {
-		++it; --size;
+		++it; ++progress; --size;
 		if(size <= 0 || limit == it) goto deserialization_failed;
 		enum pushdown_direction d;
 		d = (enum pushdown_direction) ntohl(*it);

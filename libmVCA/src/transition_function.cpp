@@ -22,6 +22,13 @@
  *
  */
 
+#ifdef _WIN32
+# include <winsock.h>
+# include <stdio.h>
+#else
+# include <arpa/inet.h>
+#endif
+
 #include <libmVCA/transition_function.h>
 
 #include "set.h"
@@ -65,7 +72,7 @@ basic_string<int32_t> deterministic_transition_function::serialize()
 {
 	
 }
-bool deterministic_transition_function::deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+bool deterministic_transition_function::deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress)
 {
 	
 }
@@ -98,7 +105,7 @@ basic_string<int32_t> nondeterministic_transition_function::serialize()
 {
 	
 }
-bool nondeterministic_transition_function::deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+bool nondeterministic_transition_function::deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress)
 {
 	
 }

@@ -27,6 +27,13 @@
 #include <libmVCA/deterministic_mVCA.h>
 #include <libmVCA/nondeterministic_mVCA.h>
 
+#ifdef _WIN32
+# include <stdio.h>
+# include <winsock.h>
+#else
+# include <arpa/inet.h>
+#endif
+
 namespace libmVCA {
 
 using namespace std;
@@ -40,6 +47,39 @@ const char* libmVCA_version()
 
 
 
+// for mVCA_run:
+// NOTE: all comparison-functions don't care about the prefix! this way,
+// we can easily make a breadth-first search and remember visited
+// m/state tuples in a set<mVCA_run> this is used in mVCA::shortest_run
+bool operator<(const mVCA_run first, const mVCA_run second)
+{{{
+	if(first.m < second.m)
+		return true;
+	if(first.m == second.m)
+		return first.state < second.state;
+	return false;
+}}}
+bool operator==(const mVCA_run first, const mVCA_run second)
+{{{
+	return (first.m == second.m && first.state == second.state);
+}}}
+bool operator>(const mVCA_run first, const mVCA_run second)
+{{{
+	if(first.m > second.m)
+		return true;
+	if(first.m == second.m)
+		return first.state > second.state;
+	return false;
+}}}
+
+
+
+mVCA::mVCA()
+{{{
+	state_count = 0;
+	initial_state = -1;
+	m_bound = -1;
+}}}
 void mVCA::set_alphabet(pushdown_alphabet & alphabet)
 {{{
 	this->alphabet = alphabet;
@@ -107,16 +147,83 @@ bool mVCA::contains_final_states(const set<int> & states)
 	return false;
 }}}
 
+set<int> mVCA::transition(int from, int & m, int label)
+{{{
+	set<int> src;
+	src.insert(from);
+	return transition(src, m, label);
+}}}
 
 set<int> mVCA::run(const set<int> & from, int & m, list<int>::iterator word, list<int>::iterator word_limit)
-{
-	
-}
+{{{
+	set<int> current = from;
 
-list<int> mVCA::shortest_run(const set<int> & from, int & m, const set<int> & to, bool &reachable)
-{
-	
-}
+	while(word != word_limit)
+		if(!endo_transition(current, m, *word))
+			break; // current is cleared by endo_transition.
+
+	return current;
+}}}
+
+
+
+list<int> mVCA::shortest_run(const set<int> & from, int m, const set<int> & to, int to_m, bool &reachable)
+{{{
+	// width-first search
+	set<mVCA_run> visited; // NOTE that mVCA_run only discriminates by m/state.
+	set<int>::iterator si;
+	list<mVCA_run> run_fifo;
+	mVCA_run current, next;
+
+	// fill fifo with initial states
+	current.m = m;
+	for(si = from.begin(); si != from.end(); ++si) {
+		current.state = *si;
+		run_fifo.push_back(current);
+	}
+
+	while(!run_fifo.empty()) {
+		current = run_fifo.front();
+		run_fifo.pop_front();
+
+		// skip visited states
+		// (NOTE that mVCA_run comparators only look at m and state, not at prefix!)
+		if(visited.find(current) != visited.end())
+			continue;
+
+		// mark as visited
+		visited.insert(current);
+
+		// check final
+		if((to_m < 0 || to_m == current.m) && to.find(current.state) != to.end()) {
+			reachable = true;
+			return current.prefix;
+		}
+
+		// iterate over all successors
+		for(int sigma = 0; sigma < alphabet.get_alphabet_size(); sigma++) {
+			set<int> src;
+			set<int> dst;
+			src.insert(current.state);
+			next.m = m;
+			dst = this->transition(src, next.m, sigma);
+
+			if(next.m < 0 || dst.empty())
+				continue;
+
+			next.prefix = current.prefix;
+			next.prefix.push_back(sigma);
+
+			for(si = dst.begin(); si != dst.end(); ++si) {
+				next.state = *si;
+				run_fifo.push_back(next);
+			}
+		}
+	}
+	list<int> ret;
+	reachable = false;
+	return ret; // empty word
+}}}
 
 bool mVCA::contains(list<int> & word)
 {{{
@@ -129,7 +236,8 @@ bool mVCA::contains(list<int>::iterator word, list<int>::iterator word_limit)
 	int m = 0;
 	ini = this->get_initial_states();
 	s = this->run(ini, m, word, word_limit);
-	// FIXME: (m == 0) ?
+	if(m != 0)
+		return false;
 	return contains_final_states(s);
 }}}
 // obtain shortest word in language resp. test if language is empty,
@@ -139,9 +247,7 @@ list<int> mVCA::get_sample_word(bool & is_empty)
 	set<int> f = get_final_states();
 	bool reachable;
 	list<int> w;
-	int m = 0;
-	w = shortest_run(i, m, f, reachable);
-	// FIXME: (m == 0) ?
+	w = shortest_run(i, 0, f, 0, reachable);
 	is_empty = ! reachable;
 	return w;
 }}}
@@ -153,20 +259,62 @@ bool mVCA::is_empty()
 }}}
 
 basic_string<int32_t> mVCA::serialize()
-{
-	
-}
+{{{
+	basic_string<int32_t> ret;
+	set<int>::iterator si;
+
+	ret += 0; // size, will be filled in later.
+
+	ret += htonl( (int) this->get_derivate_id() );
+	ret += htonl(state_count);
+	ret += alphabet.serialize();
+	ret += htonl(initial_state);
+	ret += htonl(final_states.size());
+	for(si = final_states.begin(); si != final_states.end(); ++si)
+		ret += htonl(*si);
+	ret += htonl(m_bound);
+	ret += this->serialize_derivate();
+
+	ret[0] = htonl(ret.length() - 1);
+
+	return ret;
+}}}
 bool mVCA::deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 {
 	
 }
 
-
-
 mVCA * deserialize_mVCA(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
-{
-	
-}
+{{{
+	basic_string<int32_t>::iterator adv;
+	if(it == limit) return NULL;
+	if(ntohl(*it) < 1) return NULL;
+	adv = it;
+	adv++;
+	if(adv == limit) return NULL;
+	enum mVCA::mVCA_derivate derivate_type;
+	derivate_type = (enum mVCA::mVCA_derivate)ntohl(*adv);
+
+	mVCA * ret;
+
+	switch(derivate_type) {
+		case mVCA::DERIVATE_DETERMINISTIC:
+			ret = new deterministic_mVCA;
+			break;
+		case mVCA::DERIVATE_NONDETERMINISTIC:
+			ret = new nondeterministic_mVCA;
+			break;
+		default:
+			return NULL;
+	}
+
+	if(!ret->deserialize(it, limit)) {
+		delete ret;
+		return NULL;
+	}
+
+	return ret;
+}}}
 
 
 } // end of namespace libmVCA

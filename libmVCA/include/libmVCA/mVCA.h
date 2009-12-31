@@ -41,6 +41,32 @@ const char * libmVCA_version();
 
 // NOTE: this implementation DOES NOT SUPPORT epsilon transitions.
 
+
+
+class mVCA_run {
+	public:
+		list<int> prefix;
+		int state;
+		int m;
+
+		mVCA_run()
+		{ state = 0; m = 0; };
+
+		mVCA_run(int state, int m)
+		{ this->state = state; this->m = m; };
+};
+
+// for mVCA_run:
+// NOTE: all comparison-functions don't care about the prefix! this way,
+// we can easily make a breadth-first search and remember visited
+// m/state tuples in a set<mVCA_run> this is used in mVCA::shortest_run
+bool operator<(const mVCA_run first, const mVCA_run second);
+bool operator==(const mVCA_run first, const mVCA_run second);
+bool operator>(const mVCA_run first, const mVCA_run second);
+
+
+
+
 // interface and common functions for nondeterministic_mVCA and deterministic_mVCA.
 class mVCA {
 	public: // types
@@ -58,10 +84,11 @@ class mVCA {
 		int initial_state;
 		set<int> final_states;
 
-		int m; // m-bound (upper bound for delta_function)
-//		delta_function :: implemented by deriving classes
+		int m_bound; // there exist m_bound+1 transition_functions
+//		transition_function :: implemented by deriving classes
 
 	public: // methods
+		mVCA();
 
 		// ALPHABET
 		// set alphabet (will be copied, will erase all other information about former automaton)
@@ -83,10 +110,14 @@ class mVCA {
 		// TRANSITIONS
 		// XXX: successor/predecessor/transition maps(?)
 
-		virtual set<int> transition(const set<int> & from, int & m, int label) = 0; // depends on delta function
+		set<int> transition(int from, int & m, int label);
+		virtual set<int> transition(const set<int> & from, int & m, int label) = 0; // depends on transition function
+		virtual bool endo_transition(set<int> & states, int & m, int label) = 0; // depends on transition function
 
 		set<int> run(const set<int> & from, int & m, list<int>::iterator word, list<int>::iterator word_limit);
-		list<int> shortest_run(const set<int> & from, int & m, const set<int> & to, bool &reachable);
+		// get shortest run from a state in <from> to a state in <to>.
+		// if <to_m >= 0>, the run has to result in an <m = to_m>
+		list<int> shortest_run(const set<int> & from, int m, const set<int> & to, int to_m, bool &reachable);
 		// test if word is contained in language of automaton
 		bool contains(list<int> & word);
 		bool contains(list<int>::iterator word, list<int>::iterator word_limit);
@@ -100,7 +131,15 @@ class mVCA {
 		// format for serialization:
 		// all values in NETWORK BYTE ORDER!
 		// <serialized automaton>
-		//	FIXME
+		//	string length (not in bytes but in int32_t; excluding this length field)
+		//	derivate id (enum mVCA_derivate)
+		//	state_count
+		//	<serialized alphabet>
+		//	initial_state
+		//	number of final states
+		//	final_states[]
+		//	m_bound
+		//	<serialized derivate-specific data>
 		// </serialized automaton>
 		basic_string<int> serialize();
 		bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
@@ -110,12 +149,16 @@ class mVCA {
 		virtual string generate_dotfile() = 0;
 	protected:
 		virtual basic_string<int32_t> serialize_derivate() = 0;
-		virtual bool deserialize_derivate(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit) = 0;
+		virtual bool deserialize_derivate(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress) = 0;
 };
+
+
 
 // automatically construct new automaton
 //mVCA * construct_mVCA(...); FIXME
 mVCA * deserialize_mVCA(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
+
+
 
 }; // end of namespace libmVCA.
 

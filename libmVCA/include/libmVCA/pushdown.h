@@ -68,7 +68,7 @@ class pushdown_alphabet {
 		bool set_direction(int sigma, enum pushdown_direction direction);
 
 		basic_string<int32_t> serialize();
-		bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
+		bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress);
 };
 
 }; // end of namespace libmVCA.
