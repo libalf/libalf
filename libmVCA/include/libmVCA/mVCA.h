@@ -79,7 +79,7 @@ class mVCA {
 			DERIVATE_LAST_INVALID = 3
 		};
 	protected: // data
-		int state_count;
+		unsigned int state_count;
 		pushdown_alphabet alphabet;
 		int initial_state;
 		set<int> final_states;
@@ -101,7 +101,7 @@ class mVCA {
 		int get_initial_state();
 		set<int> get_initial_states();
 		set<int> get_final_states();
-		bool set_initial_state(int state);
+		bool set_initial_state(unsigned int state);
 		bool set_final_state(const set<int> & states);
 
 		bool contains_initial_states(const set<int> & states);
@@ -146,10 +146,11 @@ class mVCA {
 		// construct a new mVCA
 		//		bool construct(...); FIXME
 
-		virtual string generate_dotfile() = 0;
+		string generate_dotfile();
 	protected:
 		virtual basic_string<int32_t> serialize_derivate() = 0;
 		virtual bool deserialize_derivate(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress) = 0;
+		virtual string get_transition_dotfile() = 0;
 };
 
 

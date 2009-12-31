@@ -25,6 +25,15 @@
 #include <set>
 #include <ostream>
 
+#include <string>
+
+#ifdef _WIN32
+# include <winsock.h>
+# include <stdio.h>
+#else
+# include <arpa/inet.h>
+#endif
+
 namespace libmVCA {
 
 using namespace std;
@@ -133,6 +142,46 @@ template <class T>   void print_set(ostream &con, const set<T> &s)
 			con << ", ";
 	}
 	con << " }";
+}}}
+
+inline basic_string<int32_t> serialize_integer_set(const set<int> & s)
+{{{
+	set<int>::iterator si;
+	basic_string<int32_t> ret;
+
+	ret += htonl(s.size());
+	for(si = s.begin(); si != s.end(); ++si)
+		ret += htonl(*si);
+
+	return ret;
+}}}
+
+inline bool deserialize_integer_set(set<int> & s, basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress)
+{{{
+	int size;
+
+	s.clear();
+	progress = 0;
+
+	if(it == limit) return false;
+
+	size = ntohl(*it);
+
+	if(size < 0) return false;
+
+	++it; ++progress;
+
+	while(size) {
+		if(it == limit) goto deserialization_failed;
+		s.insert(ntohl(*it));
+		++it; --size; ++progress;
+	}
+
+	return true;
+
+deserialization_failed:
+	s.clear();
+	return false;
 }}}
 
 } // end namespace libmVCA

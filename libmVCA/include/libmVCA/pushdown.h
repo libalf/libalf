@@ -67,6 +67,13 @@ class pushdown_alphabet {
 		//  sigma was out of bound)
 		bool set_direction(int sigma, enum pushdown_direction direction);
 
+		// format for serialization:
+		// all values in NETWORK BYTE ORDER!
+		// <serialized derivate-data>
+		//	string length (not in bytes but in int32_t; excluding this length field)
+		//	alphabet_size
+		//	pushdown-directions[] (alphabet-size times)
+		// </serialized automaton>
 		basic_string<int32_t> serialize();
 		bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress);
 };

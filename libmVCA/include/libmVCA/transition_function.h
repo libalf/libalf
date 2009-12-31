@@ -61,7 +61,7 @@ class transition_function {
 
 class deterministic_transition_function : public transition_function {
 	private: // data
-		// transitions :: state -> sigma -> set<states>
+		// transitions :: state -> sigma -> state
 		map<int, map<int, int > > transitions;
 	public: // methods
 		virtual ~deterministic_transition_function()
@@ -70,6 +70,12 @@ class deterministic_transition_function : public transition_function {
 		virtual set<int> transmute(const set<int> & states, int sigma);
 		virtual set<int> transmute(int state, int sigma);
 
+		// format for serialization:
+		// all values in NETWORK BYTE ORDER!
+		// <serialized derivate-data>
+		//	string length (not in bytes but in int32_t; excluding this length field)
+		//	FIXME
+		// </serialized automaton>
 		virtual basic_string<int32_t> serialize();
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress);
 		virtual bool is_deterministic();
@@ -78,7 +84,7 @@ class deterministic_transition_function : public transition_function {
 
 class nondeterministic_transition_function : public transition_function {
 	private: // data
-		// transitions :: state -> sigma -> state
+		// transitions :: state -> sigma -> set<states>
 		map<int, map<int, set<int> > > transitions;
 	public: // methods
 		virtual ~nondeterministic_transition_function()
@@ -87,6 +93,12 @@ class nondeterministic_transition_function : public transition_function {
 		virtual set<int> transmute(const set<int> & states, int sigma);
 		virtual set<int> transmute(int state, int sigma);
 
+		// format for serialization:
+		// all values in NETWORK BYTE ORDER!
+		// <serialized derivate-data>
+		//	string length (not in bytes but in int32_t; excluding this length field)
+		//	FIXME
+		// </serialized automaton>
 		virtual basic_string<int32_t> serialize();
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress);
 		virtual bool is_deterministic();

@@ -48,7 +48,6 @@ class deterministic_mVCA : public mVCA {
 		virtual set<int> transition(const set<int> & from, int & m, int label);
 		virtual bool endo_transition(set<int> & states, int & m, int label);
 
-		virtual string generate_dotfile();
 		virtual enum mVCA::mVCA_derivate get_derivate_id()
 		{ return mVCA::DERIVATE_DETERMINISTIC; };
 	protected:
@@ -60,6 +59,7 @@ class deterministic_mVCA : public mVCA {
 		// </serialized automaton>
 		virtual basic_string<int32_t> serialize_derivate();
 		virtual bool deserialize_derivate(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress);
+		virtual string get_transition_dotfile();
 };
 
 }; // end of namespace libmVCA.

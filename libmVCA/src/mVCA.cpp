@@ -22,17 +22,19 @@
  *
  */
 
-#include <libmVCA/mVCA.h>
-// for libmVCA::deserialize :
-#include <libmVCA/deterministic_mVCA.h>
-#include <libmVCA/nondeterministic_mVCA.h>
-
 #ifdef _WIN32
 # include <stdio.h>
 # include <winsock.h>
 #else
 # include <arpa/inet.h>
 #endif
+
+#include <libmVCA/mVCA.h>
+// for libmVCA::deserialize :
+#include <libmVCA/deterministic_mVCA.h>
+#include <libmVCA/nondeterministic_mVCA.h>
+
+#include "set.h"
 
 namespace libmVCA {
 
@@ -111,7 +113,7 @@ set<int> mVCA::get_final_states()
 {{{
 	return final_states;
 }}}
-bool mVCA::set_initial_state(int state)
+bool mVCA::set_initial_state(unsigned int state)
 {{{
 	if(state >= 0 && state < state_count) {
 		this->initial_state = state;
@@ -124,7 +126,7 @@ bool mVCA::set_final_state(const set<int> & states)
 {{{
 	set<int>::iterator si;
 	for(si = states.begin(); si != states.end(); ++si)
-		if(*si < 0 || *si >= state_count)
+		if(*si < 0 || *si >= (int)state_count)
 			return false;
 	final_states = states;
 	return true;
@@ -269,9 +271,7 @@ basic_string<int32_t> mVCA::serialize()
 	ret += htonl(state_count);
 	ret += alphabet.serialize();
 	ret += htonl(initial_state);
-	ret += htonl(final_states.size());
-	for(si = final_states.begin(); si != final_states.end(); ++si)
-		ret += htonl(*si);
+	ret += serialize_integer_set(final_states);
 	ret += htonl(m_bound);
 	ret += this->serialize_derivate();
 
@@ -283,6 +283,59 @@ bool mVCA::deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t
 {
 	
 }
+
+string mVCA::generate_dotfile()
+{{{
+	string ret;
+	char buf[128];
+	set<int>::iterator si;
+
+	ret += "digraph m-bounded_1-visible_counter_automaton {\n"
+		"\tgraph[fontsize=8];\n"
+		"\trankdir=LR;\n"
+		"\tsize=8;\n";
+
+	// m-bound as title
+	snprintf(buf, 128, "\tlabel=\"m-bound=%d\";\n\n", m_bound);
+	ret += buf;
+
+	// mark final states with double ring
+	if(!final_states.empty()) {
+		ret += "\tnode [shape=doublecircle];";
+		for(si = final_states.begin(); si != final_states.end(); ++si) {
+			snprintf(buf, 128, " q%d", *si);
+			ret += buf;
+		}
+		ret += ";\n";
+	}
+	// normal states with single ring
+	if(final_states.size() != state_count) {
+		ret += "\tnode [shape=circle];";
+		for(unsigned int i = 0; i < state_count; i++) {
+			if(final_states.find(i) == final_states.end()) {
+				snprintf(buf, 128, " q%d", i);
+				ret += buf;
+			}
+		}
+		ret += ";\n";
+	}
+	// add non-visible state for arrow to initial state
+	ret += "\tnode [shape=plaintext, label=\"\", style=\"\"]; ini;\n";
+	ret += "\n";
+	snprintf(buf, 128, "\tini -> q%d [ color = blue ];\n", initial_state);
+	ret += "\n";
+
+	// and all transitions
+	ret += this->get_transition_dotfile();
+
+	// end
+	ret += "};\n";
+
+	return ret;
+}}}
+
+
+
 
 mVCA * deserialize_mVCA(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 {{{

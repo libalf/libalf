@@ -71,11 +71,6 @@ bool nondeterministic_mVCA::endo_transition(set<int> & states, int & m, int labe
 	}
 }}}
 
-string nondeterministic_mVCA::generate_dotfile()
-{
-	
-}
-
 basic_string<int32_t> nondeterministic_mVCA::serialize_derivate()
 {{{
 	basic_string<int32_t> ret;
@@ -87,11 +82,16 @@ basic_string<int32_t> nondeterministic_mVCA::serialize_derivate()
 
 	return ret;
 }}}
+
 bool nondeterministic_mVCA::deserialize_derivate(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress)
 {
 	
 }
 
+string nondeterministic_mVCA::get_transition_dotfile()
+{
+	
+}
 
 } // end of namespace libmVCA
 
