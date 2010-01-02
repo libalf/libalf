@@ -42,9 +42,10 @@ class conjecture {
 			// BEGIN
 
 			CONJECTURE_SIMPLE_AUTOMATON = 1,
+			CONJECTURE_SIMPLE_M_BOUNDED_VISIBLE_1COUNTER_AUTOMATON = 2,
 
 			// END
-			CONJECTURE_LAST_INVALID = 2
+			CONJECTURE_LAST_INVALID = 3
 		};
 	public: // members
 		virtual ~conjecture()
@@ -85,10 +86,10 @@ class simple_automaton : public conjecture {
 	public:
 		simple_automaton();
 		virtual ~simple_automaton();
-		virtual void clear();
 		virtual bool is_valid();
 		virtual conjecture::type get_type()
 		{ return CONJECTURE_SIMPLE_AUTOMATON; }
+		virtual void clear();
 
 		virtual basic_string<int32_t> serialize();
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
@@ -102,6 +103,40 @@ class simple_automaton : public conjecture {
 		bool calculate_determinism();
 };
 
+class simple_mVCA : public conjecture {
+	public: // YES!
+		bool valid;
+
+		bool is_deterministic;
+
+		unsigned int state_count;
+		// pushdown alphabet:
+		int alphabet_size;
+		set<int> up;
+		set<int> stay;
+		set<int> down;
+		// end pushdown alphabet
+		int initial_state;
+		set<int> final_states;
+		int m_bound;
+		// transition function: m -> state -> sigma -> set<state>
+		// (where set<states> is singleton or empty for deterministic mVCA)
+		map<int, map<int, map<int, set<int> > > > transitions;
+
+	public:
+		simple_mVCA();
+		virtual ~simple_mVCA();
+		virtual void clear();
+
+		virtual basic_string<int32_t> serialize();
+		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
+		virtual string write();
+		virtual bool read(string input);
+
+		virtual string visualize();
+
+		bool calculate_determinism();
+};
 
 }; // end of namespace libalf
 

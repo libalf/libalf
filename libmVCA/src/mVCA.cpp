@@ -80,7 +80,7 @@ mVCA::mVCA()
 {{{
 	state_count = 0;
 	initial_state = -1;
-	m_bound = -1;
+	m_bound = -2;
 }}}
 void mVCA::set_alphabet(pushdown_alphabet & alphabet)
 {{{
@@ -367,6 +367,106 @@ mVCA * deserialize_mVCA(basic_string<int32_t>::iterator &it, basic_string<int32_
 	}
 
 	return ret;
+}}}
+
+
+mVCA * construct_mVCA(	unsigned int state_count,
+			int alphabet_size, set<int> & up, set<int> & stay, set<int> & down,
+			int initial_state,
+			set<int> & final_states,
+			int m_bound,
+			map<int, map<int, map<int, set<int> > > > & transitions
+		)
+{{{
+	set<int>::iterator si;
+	bool is_deterministic = true;
+
+	// do some sanity-checks
+	if(state_count < 1 || alphabet_size < 2 || initial_state < 0 || initial_state >= (int)state_count || m_bound < -1)
+		return NULL;
+
+	// create alphabet
+	pushdown_alphabet alphabet;
+	alphabet.set_alphabet_size(alphabet_size);
+	for(si = up.begin(); si != up.end(); ++si) {
+		if(*si < 0 || *si >= alphabet_size) {
+			return NULL;
+		}
+		alphabet.set_direction(*si, DIR_UP);
+	}
+	for(si = stay.begin(); si != stay.end(); ++si) {
+		if(*si < 0 || *si >= alphabet_size) {
+			return NULL;
+		}
+		alphabet.set_direction(*si, DIR_STAY);
+	}
+	for(si = down.begin(); si != down.end(); ++si) {
+		if(*si < 0 || *si >= alphabet_size) {
+			return NULL;
+		}
+		alphabet.set_direction(*si, DIR_DOWN);
+	}
+
+	map<int, map<int, map<int, set<int> > > >::iterator mmmi;
+	map<int, map<int, set<int> > >::iterator mmi;
+	map<int, set<int> >::iterator mi;
+
+	for(mmmi = transitions.begin(); mmmi != transitions.end(); ++mmmi) {
+		if(mmmi->first < 0 || mmmi->first > m_bound)
+			return NULL;
+		for(mmi = mmmi->second.begin(); mmi != mmmi->second.end(); ++mmi) {
+			if(mmi->first < 0 || mmi->first >= (int)state_count)
+				return NULL;
+			for(mi = mmi->second.begin(); mi != mmi->second.end(); ++mi) {
+				if(mi->first < 0 || mi->first >= alphabet_size)
+					return NULL;
+				if(mi->second.size() > 1)
+					is_deterministic = false;
+				for(si = mi->second.begin(); si != mi->second.end(); ++si) {
+					if(*si < 0 || *si >= (int)state_count)
+						return NULL;
+				}
+			}
+		}
+	}
+
+	if(is_deterministic) {
+		deterministic_mVCA * ret = new deterministic_mVCA;
+
+		ret->alphabet = alphabet;
+		ret->state_count = state_count;
+		ret->initial_state = initial_state;
+		ret->final_states = final_states;
+		ret->m_bound = m_bound;
+
+		for(mmmi = transitions.begin(); mmmi != transitions.end(); ++mmmi) {
+			for(mmi = mmmi->second.begin(); mmi != mmmi->second.end(); ++mmi) {
+				for(mi = mmi->second.begin(); mi != mmi->second.end(); ++mi) {
+					if(!mi->second.empty()) {
+						si = mi->second.begin();
+						ret->transition_function[mmmi->first].transitions[mmi->first][mi->first] = *si;
+					}
+				}
+			}
+		}
+
+		return ret;
+	} else {
+		nondeterministic_mVCA * ret = new nondeterministic_mVCA;
+
+		ret->alphabet = alphabet;
+		ret->state_count = state_count;
+		ret->initial_state = initial_state;
+		ret->final_states = final_states;
+		ret->m_bound = m_bound;
+
+		for(mmmi = transitions.begin(); mmmi != transitions.end(); ++mmmi)
+			for(mmi = mmmi->second.begin(); mmi != mmmi->second.end(); ++mmi)
+				for(mi = mmi->second.begin(); mi != mmi->second.end(); ++mi)
+					ret->transition_function[mmmi->first].transitions[mmi->first][mi->first] = mi->second;
+
+		return ret;
+	}
 }}}
 
 

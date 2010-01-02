@@ -58,7 +58,7 @@ class pushdown_alphabet {
 		int get_alphabet_size();
 
 		void clear()
-		{ this->set_alphabet_size(0); };
+		{ this->set_alphabet_size(0); directions.clear(); };
 
 		enum pushdown_direction get_direction(int sigma);
 

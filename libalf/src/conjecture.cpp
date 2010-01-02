@@ -181,18 +181,10 @@ static bool parser_get_transition(string single, multimap<pair<int, int>, int> &
 
 
 
-
-
-
-
-
-
 simple_automaton::simple_automaton()
 { clear(); }
-
 simple_automaton::~simple_automaton()
 { };
-
 void simple_automaton::clear()
 {{{
 	valid = false;
@@ -203,10 +195,8 @@ void simple_automaton::clear()
 	final.clear();
 	transitions.clear();
 }}}
-
 bool simple_automaton::is_valid()
 { return valid; }
-
 basic_string<int32_t> simple_automaton::serialize()
 {{{
 	basic_string<int32_t> ret;
@@ -236,7 +226,6 @@ basic_string<int32_t> simple_automaton::serialize()
 
 	return ret;
 }}}
-
 bool simple_automaton::deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 {{{
 	int size;
@@ -341,7 +330,6 @@ deserialization_failed_fast:
 	valid = false;
 	return false;
 }}}
-
 string simple_automaton::write()
 {{{
 	string ret;
@@ -390,7 +378,6 @@ string simple_automaton::write()
 
 	return ret;
 }}}
-
 bool simple_automaton::read(string input)
 {{{
 	bool set_is_det = false, set_alphabet_size = false, set_state_count = false;
@@ -533,8 +520,6 @@ end:
 
 	return valid;
 }}}
-
-
 string simple_automaton::visualize()
 {{{
 	string ret;
@@ -617,7 +602,6 @@ string simple_automaton::visualize()
 
 	return ret;
 }}}
-
 bool simple_automaton::calculate_determinism()
 {{{
 	// check transitions for epsilon and double transitions
@@ -648,6 +632,53 @@ bool simple_automaton::calculate_determinism()
 	is_deterministic = true;
 	return true;
 }}}
+
+
+
+simple_mVCA::simple_mVCA()
+{ clear(); }
+simple_mVCA::~simple_mVCA()
+{ };
+void simple_mVCA::clear()
+{{{
+	valid = false;
+	is_deterministic = false;
+	state_count = 0;
+	alphabet_size = 0;
+	up.clear();
+	stay.clear();
+	down.clear();
+	initial_state = -1;
+	final_states.clear();
+	m_bound = -2;
+	transitions.clear();
+}}}
+basic_string<int32_t> simple_mVCA::serialize()
+{
+	
+}
+bool simple_mVCA::deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+{
+	
+}
+string simple_mVCA::write()
+{
+	
+}
+bool simple_mVCA::read(string input)
+{
+	
+}
+string simple_mVCA::visualize()
+{
+	
+}
+bool simple_mVCA::calculate_determinism()
+{
+	
+}
+
+
 
 } // enf of namespace libalf.
 

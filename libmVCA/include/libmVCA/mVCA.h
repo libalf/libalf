@@ -87,6 +87,8 @@ class mVCA {
 		int m_bound; // there exist m_bound+1 transition_functions
 //		transition_function :: implemented by deriving classes
 
+		friend mVCA * construct_mVCA(unsigned int state_count, int alphabet_size, set<int> & up, set<int> & stay, set<int> & down, int initial_state, set<int> & final_states, int m_bound, map<int, map<int, map<int, set<int> > > > & transitions);
+
 	public: // methods
 		mVCA();
 
@@ -157,6 +159,15 @@ class mVCA {
 
 // automatically construct new automaton
 //mVCA * construct_mVCA(...); FIXME
+
+mVCA * construct_mVCA(	unsigned int state_count,
+			int alphabet_size, set<int> & up, set<int> & stay, set<int> & down,
+			int initial_state,
+			set<int> & final_states,
+			int m_bound,
+			map<int, map<int, map<int, set<int> > > > & transitions
+		);
+
 mVCA * deserialize_mVCA(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
 
 
