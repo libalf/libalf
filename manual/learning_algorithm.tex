@@ -1,0 +1,138 @@
+\chapter{Learning Algorithms}
+
+A learning algorithm is a component that retrieves the desired information from the knowledgebase to construct a conjecture. 
+The common objective of all learning algorithms is to generalize knowledge gained throughout a learning process. In such a process, the learning algorithm is confronted with classified examples. They are utilized to derive a hypothesis which is able to classify new examples in conformance with the examples already seen.
+\paragraph{}
+A knowledgebase and a learning algorithm are associated in such a way that queries can be exchanged between them. Unlike other learning libraries, libalf is not restricted to a strict one-to-one relationship between a knowledgebase and a learning algorithm, but
+also features one-to-many relationships. This allows us to experiment with different learning techniques on the same data set with only a minimum of effort. This facilitates the learning algorithms to be used in a plug and play fashion.
+
+\section{The Types of Algorithms - An Overview}
+
+A conventional way to distinguish learning algorithms is to group them into \online and \offline algorithms. Online learning techniques are capable of actively asking queries to some kind of teacher who is able to classify these queries. Offline algorithms, on the other hand, are passively provided with a set of classified examples from which they have to build the conjecture.
+
+\subsection{Online Algorithms}
+
+Online learning algorithms build the conjecture by actively asking queries to a \teacher (or a user). Queries are of two types - membership queries and equivalence queries. The teacher is required to \emph{resolve} the memebership query by providing the classification of the given word.
+Equivalence queries check whether a derived conjecture is an equivalent description of the target language to be inferred.
+The working of such an algorithm can be described in the following steps. An algorithmic workflow is provided later in this chapter.
+\begin{itemize}
+ \item The algorithm runs on iteration which begins at making an \emph{advance} where in the algorithm tries to compute a conjecture with information available in the knowledgebase.
+ \item This leads to the rise of membership queries if no conjecture was created. These queries are resolved by the teacher, answer added to the knowledgebase and the algorithm continues the iteration.
+ \item On the other hand, if a conjecture was computed, it is presented to the teacher. The algorithm terminates if the conjecture is correct. Otherwise, the iteration continues after the teacher renders a counter example.
+\end{itemize}
+
+\subsection{Offline Algorithms}
+
+Offline algorithms, in contrast to the online variant, is an NP complete problem of finding the smallest DFA consistant with a given set of classified words.
+The algorithm is provided with a set S of classified words (called samples) and the algorithm derives a conjecture which conforms to these samples. More precisely, this means that all positive examples from S are recognized (or accepted) and all negative examples are rejected by the conjecture. 
+\paragraph{}
+The working of this algorithm follows a simple two step procedure. 
+\begin{itemize}
+ \item The knowledgebase is furnished with all samples. 
+ \item The algorithm is then made to advance to compute the conjecture conforming to the samples. 
+\end{itemize}
+
+\subsection{List of Algorithms}
+
+As of \today, \libalf implements seven algorithms for both deterministic and non deterministic automata as listed in the table \ref{algtables1}
+
+\begin{table} [h]
+\centering
+\begin{tabular}[c]{lcr}
+\toprule[1pt]
+Online Algorithms & Offline Algorithms \\	
+\midrule
+Angluin's L [2] (two variants) & Biermann [3] \\
+NL [4] & RPNI [13] \\
+Kearns / Vazirani [10] & DeLeTe2 [6]\\
+\bottomrule[1pt]
+\end{tabular}
+\caption{List of Algorithms Implemented}
+\label{algtables1}
+\end{table}
+
+---------------------------------------------------------------------------------------------------
+
+\subsection{Methods}
+
+Constructor used to initialize the learning algorithm. \vskip 1pt
+
+\paragraph{learning\_algorithm()}
+It initializes the essentials for a learning algorithm such as, pointer to the knowledgebase, normalizer and logger. 
+do\_timing - to create timing statistics this has to be set true
+in\_timing - variable to check if the currently timing statistics are being measured.
+alphabet\_size - the alphabet size of the conjecture to be computed.
+
+
+The constructor of all the learning algorithms usually perform three tasks. They set the pointer to the knowledgebase, set the logger and the alphabet size. 
+
+\paragraph{virtual void set\_alphabet\_size(int alphabet\_size)}
+method that sets the alphabet size for computing the conjecture. This method is used only during the initial setting of the learning algorithm. 
+
+\paragraph{virtual void increase\_alphabet\_size(int new\_asize)}
+The method increases the size of the alphabet to a new value.
+
+\paragraph{virtual int get\_alphabet\_size()}
+Returns the alphabet size of the conjecture.
+
+\paragraph{virtual void set\_logger(logger * l)}
+If the value of ``l'' is not NULL, then it is set as the logger. Otherwise, the logger is set to ``ignore'' which implies that no logger exists.
+
+\paragraph{virtual void set\_knowledge\_source(knowledgebase $<$answer$>$ * base)}
+Sets the source (the knowledgebase) which consists of all the membership information to the learning algorithm.
+
+\paragraph{virtual knowledgebase$<$answer$>$ * get\_knowledge\_source()}
+Returns the pointer to the knowledgebase which is currently the source of membership information.
+
+\paragraph{virtual void set\_normalizer(normalizer * norm)}
+Sets the normalizer to the one pointed by the arguement ``norm''.
+
+\paragraph{virtual void unset\_normalizer()}
+Sets the normailizer to NULL. 
+
+\paragraph{virtual memory\_statistics get\_memory\_statistics()}
+Returns the memory statistics.
+
+\paragraph{virtual timing\_statistics get\_timing\_statistics()}
+Returns the timing statistics which is stored in the variable ``current\_stats''.
+
+\paragraph{virtual void enable\_timing()}
+Enables the maintenance of timing statistics by setting the ``do\_timing'' variable to be \true.
+
+\paragraph{virtual void disable\_timing()}
+Disables the maintenance of timing statistics by setting the ``do\_timing'' variable to be \false.
+
+\paragraph{virtual void reset\_timing()}
+The ``current\_stats'' is reset.
+
+\paragraph{virtual bool sync\_to\_knowledgebase()}
+Knowledgebase may support undo operation. In such a case the learning algorithm needs to stay synchronized with the knowledgebase failing to which it may return erroneaous output. The method checks the knowledgebase if there is any knowledge and then checks its internal knowledge, removes the obsolete knowledge, changes its state (delete rows/columns etc.) to be synchronized with the knowledgebase and returns \true. If it returns \false, the algorithm is in undefined state and must not be used anymore. This method should be called after each undo opearation performed in the knowledgebase.
+
+\paragraph{virtual bool supports\_sync()}
+ Checks whether the learning algorithm supports synchronization with the associated Knowledgebase. Returns \true if undo operations on the knowledgebase are allowed. Each undo-operation has to be followed by a call to sync\_to\_knowledgebase(). Otherwise returns \false.
+
+\vskip 1pt
+Building the conjecture \vskip 1pt
+
+\paragraph{virtual bool complete()}
+The method is used by the learning algorithm to complete the table in such a way that a conjecture can be derived from it. Returns true if the table is complete. Returns \false if the table is incomplete due to missing knowledge. 
+
+\paragraph{virtual conjecture * derive\_conjecture()}
+The methodd derives a conjecture from the given data structure available in the knowledgebase. 
+
+\paragraph{virtual bool conjecture\_ready()}
+Returns \true if a conjecture can be constructed without any further queries. Otherwise, returns \false.
+
+\paragraph{virtual conjecture * advance()}
+The most important method of . The method first tries to complete the table. If all knowledge was available, then it tries to derive a conjecture and when a conjecture is ready, it is returned. If the table was unable to be completed, then unknown knowledge is marked required and NULL is returned.
+
+\paragraph{virtual bool add\_counterexample(list$<$int$>$)}
+The method is used by \online algorithms when a computed conjecture is declined by the teacher, i.e. when the equivalence query is answered negative. The counter example provided by the user is first processed by the learning algorithm which marks it as a membership query and is added to the knowledgebase. \\
+This method is used only by an \online algorithm. For \offline algorithms, this method is a stub.
+
+\paragraph{virtual basic\_string$<$int32\_t$>$ serialize()}
+The method returns a \stringtype composed of \integer containing the serialization of the state of the learning algorithm.
+
+\paragraph{virtual bool deserialize(basic\_string$<$int32\_t$>$::iterator \& it, basic\_string$<$int32\_t$>$::iterator limit)}
+Restores the data of a serialized learning algorithm. The current state of the learning algorithms is discarded. \\
+The method returns \true if the deserialization was successfull. Otherwise, returns \false.

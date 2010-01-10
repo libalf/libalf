@@ -1,23 +1,23 @@
 \chapter{The Knowledgebase}
 
-The knowledgebase is the central repository of information. It is a database that stores words and their classification. Apart from this basic functionality, the knowledgebase also offers number of other features thereby increasing the support for extensibility.
-These features are reflected in the implementation of the knowledgebase. The methods used in the knowledgebase can be divided into two categories - \textbf{\emph{Methods important for Using \libalf}} and \textbf{\emph{Methods important for expanding \libalf}}. 
+The knowledgebase is the central repository of membership information. It is a database that stores words and their classifications. Apart from this basic functionality, the knowledgebase also offers number of other features thereby increasing the support for extensibility.
+These features are reflected in its implementation wherein the methods used in the knowledgebase can be divided into two categories - \textbf{\emph{Methods important for Using \libalf}} and \textbf{\emph{Methods important for expanding \libalf}}. 
 \paragraph{}
-The chapter discusses these methods from both a user's perspective and a developer's perspective. The material will include adequate account of its structure, operations and implementation.  The final section of this chapter will provide an appendix of all the methods used in programming the knowledgebase with a brief description corresponding to it.  
+The chapter discusses these methods from both a user and a developer's perspective. The material will include adequate account of its structure, operations and implementation.  The final section of this chapter will provide an appendix of all the methods used in programming the knowledgebase with a brief description corresponding to it.  
 \vskip 1pt
 
 \section{The knowledgebase - A User's Perspective}
 
-\paragraph{} In this section, we describe the basic functionality of the knowledgebase and provide fundamental information that one would have to know to employ \libalf in an application. It will explicate functional practice of the database and some elementary details of methods to better understand how the operations are carried out. This section will not deal with elaboration of the internal structure or methods that can be used to extend the knowledgebase. To discover more about it, you may refer the section on Developer's Perspective and Methods in Detail.
+\paragraph{} This section deals with basic functionality of the knowledgebase and provide fundamental information that one would have to know to employ \libalf in an application. It will explicate functional practice of the database and some elementary details of methods to better understand how all operations are carried out. \\
+To discover more about the internal structure of the knowledgebase and the methods that help to extend it, you may refer to the next section on Developer's Perspective and Methods in Detail.
 
 \subsection*{Basic Concepts}
 	
 Definition of some key terms concerning the underlying concepts are listed below.
 
 \paragraph{Alphabet} An alphabet is a finite set of symbols which is usually denoted by $\Sigma$. 
-Symbols could be numbers (0,1,\ldots) or alphabets(a,b,\ldots) and so on. 
-Alphabet size $\mid$ $\Sigma$ $\mid$ is the size of the set Alphabet. Since \libalf uses integers as symbols, the largest symbol in the alphabet is one less than the alphabet size.
-Thus, when alphabet size of two is specified by the user, \libalf will use the following symbols. 
+Symbols can be numbers (0,1,\ldots) or alphabets(a,b,\ldots) and so on. \\
+Alphabet size $\mid$ $\Sigma$ $\mid$ is the size of the set Alphabet. Since \libalf uses integers as symbols, the largest symbol in the alphabet is one less than the alphabet size. Thus, when alphabet size of two is specified by the user, \libalf uses the following symbols. 
 \[
 \Sigma = \{0,1\}
 \]
@@ -25,56 +25,55 @@ Thus, when alphabet size of two is specified by the user, \libalf will use the f
 \mid \Sigma \mid = 2
 \]
 
-This implies, that an alphabet size of two will result in the largest symbol being ``1''.
+This implies, that an alphabet size of two results in the largest symbol being as ``1''.
 
-\paragraph{Word} A word ( $ w \in \Sigma \textsuperscript{*} $ ) is finite string formed by the concatenation of the symbols from $\Sigma$. Since the symbols used in \libalf are of type \integer, the words are operated as a \texttt{list} of \integer.  
+\paragraph{Word} A word ( $ w \in \Sigma \textsuperscript{*} $ ) is finite string formed by the concatenation of the symbols from $\Sigma$. Since \integer type are used to represent symbols, the words are operated as a \texttt{list} of \integer.  
 
 \paragraph{Language} Language $ L = \Sigma \textsuperscript{*} $ is a set of words formed by symbols, given the alphabet.
 
-Thus, in the context of the previous example, ``01101'' is a word from the given set of alphabet and the L = \{ 01101, 11011\} is a Language.
+In the context of the previous example, ``01101'' is a word from the given set of alphabet and the L = \{ 01101, 11011\} is a Language.
 
 \subsection*{Words and Classifications} 
-The knowledgebase of \libalf is an efficient storage of words and their classifications. Words are represented as \lists of \integer. Classification refers to a set of arbitrary values which that are mapped with the words. For instance, classification for a Finite Automata refers to \true or \false. Since the knowledgebase is a template class, arbitrary values can be used for storing the classification. 
+The knowledgebase of \libalf is an efficient storage of words and their classifications. Words are represented as \lists of \integer. Classification refers to a set of arbitrary values which that are mapped to the words. For instance, classification for a Finite Automata refers to \true or \false. Since the knowledgebase is a template class, arbitrary values can be used for storing the classification. 
 
 \subsection*{Queries and Answers} 
-The next important function of the knowledgebase is to store queries to help the learning algorithm build the conjecture. As mentioned in the Introduction, a query is a word whose classification is unknown and needs to be retrieved from the user or teacher. In other words, the query must be \emph{resolved} by the user. To resolve the query, user provides what is called an \emph{answer}. Thus, given a set of words and classifications, the knowledgebase stores them and when a learning algorithm processes these words to create the conjecture, queries that occur are also stored in the knowledgebase (which is later presented to the user for an answer).
+The next important function of the knowledgebase is to store queries to help the learning algorithm build the conjecture. As mentioned in the Introduction, a query is a word whose classification is unknown and needs to be retrieved from the user or teacher. In other words, the query must be \emph{resolved} by the user. To resolve the query, user provides what is called an \emph{answer}. Thus, when a learning algorithm is processing the membership information from the knowledgebase, it may give rise queries and are stored in the knowledgebase. These are later presented to the user to resolve them.
 
 \subsection*{Serialize and Deserialize} 
-\libalf allows serialization and deserialization of the knowledgebase. The advantages of this feature is it offers portability. Serialization allows the user to save their current work done with \libalf as a linear representation. User can save the knowledgebase into the hard disk, share it over the internet, carry it and use it another machine and so on. Deserialization converts the linear form back to the tree structure for usage by the \libalf tool.
+\libalf allows serialization and deserialization of the knowledgebase. This feature is most advantageous in offering portability. Serialization allows user to save the current work done with \libalf as a linear representation. User can save the knowledgebase into the hard disk, share it over the internet, carry it and use it another machine and so on. Deserialization converts the linear form back to the data structure that can be processed by the learning algorithm.
 
 \subsection*{GraphViz Visualization} 
-The knolwedgebase allows one to generate a GraphViz Visualization of the available information. User can produce a ``.dot'' file of the knowledgebase which can be executed by the GraphViz tool to create the pictorial representation.
+The knolwedgebase allows one to generate a GraphViz Visualization of all available information. User can create a ``.dot'' file of the knowledgebase which can be executed by the GraphViz tool for a pictorial representation.
 
 \subsection*{Merging Knowledgebases} 
-Apart from the essential functions, the knowledgebase can also be merged with another knowledgebase preserving the consistancy. These features are elaborated in forthcoming sections.
+Another essential feature of the knowledgebase is the ability to be merged with another knowledgebase preserving the consistancy. These features are elaborated in forthcoming sections.
 
 \subsection{Methods in Detail}
-The section describes some of the methods to support understanding how the knowledgebase works and how it can be employed in an application. The knowledgebase is built on a class named \knowledgebase. The methods important for using \libalf are discussed below.
+The section describes mostly the methods important for using \libalf. The description pertains to support understanding how the knowledgebase works and how it can be employed in an application. 
 	
 \subsection*{Creating the Knowledgebase}
-
+The knowledgebase is built on a class named \knowledgebase. 
 \begin{itemize}
  \item \textbf{knowledgebase::knowledgebase()} \vskip 1pt
 	The constructor of the \knowledgebase class creates the knowedgebase.
 \end{itemize}
 	
 \subsection*{Adding Knowledge to the Knowledgebase} 
-To add information into the knowledgebase, the following method is used.
 \begin{itemize}
 \item \textbf{knowledgebase::bool add\_knowledge(list$<$int$>$ \& word, answer acceptance)} \vskip 1pt
-This is the key method that adds words and classifications to the knowledgebase. The parameter ``word'' represents the sample word and ``acceptance'' represents the classification of the word. 
+The method is used to add membership information to the knowledebase. The parameter ``word'' represents the sample word and ``acceptance'' represents the classification of the word. \\
+The method returns \true if the knowledge was added successfully. Otherwise, returns \false.
 \end{itemize}	
 
 \subsection*{Handling Queries}
-The next point of discussion is the part of knowledgebase that handles queries. When an online algorithm produces queries, they are stored in the knowledgebase and can be retrieved by the user for classification. To perform these operations, the user application uses the following methods.
+When an \online algorithm produces queries, they are stored in the knowledgebase and can be retrieved and resolved by the user. The following methods are used for related operations.
 
 \begin{enumerate}
 \item \textbf{knowledgebase::knowledgebase * create\_query\_tree()} \vskip 1pt
-The method creates a knowledgebase containing only the queries. Thus, the return type is set as \texttt{knowledgebase}.
+The method creates a knowledgebase containing only the queries. The return type, is therefore, set as \texttt{knowledgebase}.
 	
 \item \textbf{knowledgebase::list$<$list$<$int$>$$>$ get\_queries()} \vskip 1pt
 This method returns the list of all the queries present in the knowledgebase.
-
 \end{enumerate}
 
 \subsection*{Alphabet in Knowledgebase}
@@ -82,15 +81,15 @@ At any point of time, one can retrieve the largest symbol being processed in the
 
 \begin{itemize}
 \item \textbf{knowledgebase::int get\_largest\_symbol()} \vskip 1pt 
-This method returns the largest symbol that exists in the knowledgebase. Since \libalf employs the usage of integers for storage of symbols, the result is not the size of the alphabet but one less than the alphabet size. The method is flexible only to increase in the alphabet size while working with the knowledgebase. If there was a decrease in the alphabet size, the method does reflect it. In such cases, the following method is more useful.
+The method returns the largest symbol that exists in the knowledgebase which is one less than the alphabet size. \libalf uses integers to store symbols. The method, however, recognizes only increment in the alphabet size. A decrease in the size of alphabet is not reflected. 
 
 \item \textbf{knowledgebase::int check\_largest\_symbol()} \hfill \vskip 1pt
-The method performs a check on the knowledgebase and realizes the largest symbol that is currently available. Hence, if there was a decrease in the size of the alphabet at some point of time, it is recorded when this method is called.
+The method performs a check on the knowledgebase and realizes the largest symbol that is currently available. Thus, a decrease in the alphabet size can be recorded by this method.
 \end{itemize}	
 
 \subsection*{Iterators}
 
-The knowledgebase uses the \lists of \integer to represent the words. Subsequently, a \lists of \lists of \integer is used to represent many words in a sequence. This is particularly used when viewing the whole data or all the queries in the knowledgbase. To iterate over these lists and process the words, the following methods are used. 
+The knowledgebase uses the \lists of \integer to represent the words. Consequently, a \lists of \lists of \integer is used to represent many words in a sequence. This particularly is used when viewing the whole data or all the queries present in the knowledgbase. To iterate over these lists and process the words, the following methods are used. 
 
 \begin{enumerate}
 \item \textbf{knowledgebase::iterator begin()} \vskip 1pt
@@ -106,7 +105,7 @@ The knowledgebase uses the \lists of \integer to represent the words. Subsequent
 	It returns the end node for the iterator.
 \end{enumerate}
 
-The iteration over the words is performed by overloading the ``+'' operator. The following example explains the usage of this operator.
+The iteration over the words is performed by overloading the ``+'' operator. Given below is an example of its usage.
 \begin{lstlisting}
 iterator ki;
 list<list<int> > ret;
@@ -116,49 +115,59 @@ for(ki = this->qbegin(); ki != this->qend(); ++ki)
 Here, the iterator begins at the first query present in the knowledgebase and uses the ``get\_word()'' function to retrieve the query and adds it to ``ret''.
 
 \subsection*{Displaying the knowledgebase}
-The following two methods can be used to display the knowledgebase.
+This refers to various types of representation of the knowledgebase.
 
 \begin{enumerate}
 
 \item \textbf{knowledgebase::string tostring()} \vskip 1pt
-It creates a \stringtype representation of the knowledebase.
+The method creates a \stringtype representation of the entire knowledebase.
 
 \item \textbf{knowledgebase::string generate\_dotfile()} \vskip 1pt
-The method creates a GraphViz Visualization of the entire knowledgebase. The \stringtype obtained can be saved as a ``.dot'' file which can be executed by the GraphViz tool to observe the graphical representation of the knowledgebase. 
+The method is used to create a GraphViz Visualization of the entire knowledgebase. The \stringtype returned by the method can be saved as a ``.dot'' file and executed by the GraphViz tool for obtaining a graphical representation of the knowledgebase. 
 
 \end {enumerate}
 
-\subsection*{Serialize and Deserialize}
-The ability to serialize and deserialize increases the portability of \libalf. The description of these two methods are given below.
+\subsection*{Serialization and Deserialization}
+The feature increases the portability of \libalf. It is performed using the following methods.
 	
 \begin{enumerate}
-\item \textbf{knowledgebase::basic\_string$<$int32\_t$>$ serialize()} \hfill \vskip 1pt
-This method is used to convert the entire knowledgebase into a linear representation in the form of a \stringtype which is composed of integers.
-\item \textbf{knowledgebase::bool deserialize(basic\_string$<$int32\_t$>$::iterator \&it, basic\_string$<$int32\_t$>$ ::iterator limit)} \hfill \vskip 1pt
-This method is used to convert linear form that represents the knowledgebase into a tree-like structure.
+\item \textbf{knowledgebase::basic\_string$<$int32\_t$>$ serialize()} \vskip 1pt
+The method converts the entire knowledgebase into a linear representation as a \stringtype composed of integers.
+
+\item \textbf{knowledgebase::bool deserialize(basic\_string$<$int32\_t$>$::iterator \&it, basic\_string$<$int32\_t$>$ ::iterator limit)} \vskip 1pt
+This method converts the serialized linear form of the knowledgebase to the data structure recognized and operable by the learning algorithm.
 \end{enumerate}	
 	
-\subsection*{Other Important Methods}
-The following methods offer features which may prove useful in using as well as extending \libalf.
-\begin{enumerate}
-\item \textbf{unsigned long long int get\_memory\_usage()} \vskip 1pt
-The method returns the memory used by the knowledgebase on the system. Using this method at some point could be a good way of deciding if cleanup() needs to be called or not. 
-		
-\item \textbf{bool merge\_knowledgebase(knowledgebase \& other\_tree)} \vskip 1pt
-The method returns true after merging two consistant knowledgebases. Two knowledgebases are said to be consistant only if they contain similar words and answers. If inconsistant, the method returns \false. However, the method ignores the queries and merges only all the answered words from the two knolwedgebases.
+\subsection*{Merging Knowledgebases}
 
-\end{enumerate}
+\begin{itemize}
 
+  \item \textbf{bool merge\_knowledgebase(knowledgebase \& other\_tree)} \vskip 1pt
+  The method returns \true after merging two consistant knowledgebases. Two knowledgebases are said to be consistant only if they contain similar words and answers. The method returns \false, if the knowledgebases are inconsistant.\\
+  However, the method ignores the queries and merges only all the answered words from the two knolwedgebases.
+
+\end{itemize}
+ 
+\subsection*{Other Methods - Retrieving Memory Usage}
+
+\begin{itemize}
+  \item \textbf{unsigned long long int get\_memory\_usage()} \vskip 1pt
+  As an additional feature, the method returns the memory used by the knowledgebase. 
+\end{itemize}
+
+\subsection*{Concluding Notes}
 
 
 \section{Structure of the Knowledgbase - A Developer's Perspective}
-The data structures used to design the structure of the knowledgebase offers more flexibility and expandability of \libalf. This can be explained as follows.
+The data structure of the knowledgebase is designed to offer flexibility and expandability of \libalf library. 
 
 \subsection{Representation of a word in the Knowledgebase}
 \paragraph{}
-The knowledgebase can be described as a prefix tree with nodes representing words. Consider a word formed by N symbols/characters. In principal, the knowledebase does not \emph{store} the word at the node but stores the i\textsuperscript{th} symbol of the word (where \texttt{i}$>$0 and \texttt{i}$<$N). A pictorial representation of a tree-like structure of the knowedgebase is expressed below.
+The knowledgebase is a prefix tree with nodes representing words. Consider a word formed by N symbols/characters. In principal, the knowledebase does not \emph{store} the word at the node but stores the i\textsuperscript{th} symbol of the word (where \texttt{i}$>$0 and \texttt{i}$<$N). Figure \ref{knowledgebasepic} gives a pictorial representation of how a word is represented in the knowledgebase.
 
-\begin{center}
+
+\begin{figure} [h]
+\centering
 \begin{tikzpicture}
 [
    every node/.style={circle,inner sep=1pt,draw}
@@ -178,34 +187,34 @@ The knowledgebase can be described as a prefix tree with nodes representing word
   }
   child {node {1}};
 \end{tikzpicture}
-\end{center}
+\caption{Representation of a word ``01101'' in knowledgebase}
+\label{knowledgebasepic}
+\end{figure}
 
 
 \paragraph{}	
-Consider the word \texttt{01101} as marked in the tree above. When this word is added to the knowledgebase, it is not stored as a single \stringtype at a node. Every symbol of the word is stored at a node and sequence of these symbols at depth six (starting from the root) constructs the word. Hence we say that the node circled gray \emph{represents} the word \texttt{01101}. Thus, the symbol \texttt{0} is a child of the root, the symbol \texttt{1} is the child of \texttt{0} and so on. One can reach the node representing the word by traversing from the root to the final child and accumulating the symbols that every node contains. Alternatively, one can also retrieve the word by ascending from a node to the root and reversing the word obtained. \libalf uses the latter technique. 
+Consider the word \texttt{01101} as marked in the tree above. When this word is added to the knowledgebase, it is not stored as a single \stringtype at a node but the symbols of the word are stored at consequtive nodes. Sequence of these symbols at depth six (starting from the root) constructs the word. Hence it is termed that the node circled gray \emph{represents} the word \texttt{01101}. In the tree, the symbol \texttt{0} is a child of the root, symbol \texttt{1} is the child of \texttt{0} and so on. The node representing the word can be reached by traversing from the root to the last child and accumulating the symbols that every node contains. Alternatively, the word can also be retrieved by ascending from a node to the root and reversing the word obtained. \libalf uses the latter technique. 
 \vskip 1pt
 	
 \subsection{Description of the Structure}
 	
-The knowledgebase is designed as a template class enabling usage of arbitrary values for storing desired information.
-The knowledgebase class contains the node class which describes the variables that are necessary for the node. This class also contains some of the internal methods which are important for both using and expanding \libalf.
+The knowledgebase is as a template class enabling the use of arbitrary values for storing membership information.
+The class \knowledgebase contains a class \node consisting variables necessary for the node. \node also holds internal methods which are important for both using and expanding \libalf.
+\paragraph{}
 The constructor of the class \node creates the root node with the following values to its attributes.
 \begin{itemize}
-\item \texttt{parent} \hfill \vskip 1pt A variable of type \node that points to the parent of the node.
-\item \texttt{label} \hfill \vskip 1pt An \integer variable that contains the alphabet that the node represents. 
-\item \texttt{status} \hfill \vskip 1pt The variable \textbf{status} indicates whether the classification of the word (the word is constructed by traversing through the tree) is required, answered or can be ignored. Since the knowledgebase is a prefix tree, it contains not only the supplied words but also stores the prefixes of the word. However, the status of these prefixes may not be of interest and can be \emph{ignored}. On the otherhand when the learning algorithm creates more words, it stores them into the knowledgebase for presenting it to the user. Classification to such words are \emph{required}. Thus, the variable differentiates these words. For this purpose, it is an \texttt{enum} type variable that can take one of three values ``NODE\_IGNORE'', ``NODE\_REQUIRED'' and ``NODE\_ANSWERED''. 
-\item \texttt{ans} \hfill \vskip 1pt The variable stores the answer (or the acceptance criteria / classification) of the node. 
-\end{itemize}
-	
-The child nodes that are created after this are referred by the \vectored type \node variable called \texttt{children}. 
-The knowledgebase contains methods that act upon the node for the operations. 
-These variables and methods form the building blocks of the knowledgebase. Some of the methods are described in the next section.
+\item \texttt{parent} \vskip 1pt A pointer variable of type \node that points to the parent of the node.
+\item \texttt{label} \vskip 1pt An \integer variable that stores the symbol represented by the node.
+\item \texttt{status} \vskip 1pt The variable \textbf{status} indicates whether the classification of the word represented by the node is \emph{required}, \emph{answered} or can be \emph{ignored}. \\ Since the knowledgebase is a prefix tree, it stores not only the supplied words but also the prefixes of the word. However, the classification of these prefixes may not be of interest and can be \emph{ignored}. On the otherhand, learning algorithm creates queries that are to be resolved. Status of such words are set as \emph{required}. Hence, the variable differentiates these words. For this purpose, it is an \texttt{enum} type variable that can take one of three values ``NODE\_IGNORE'', ``NODE\_REQUIRED'' and ``NODE\_ANSWERED''. 
+\item \texttt{ans} \vskip 1pt The variable stores the answer (or the acceptance criteria / classification) of the node. 
+\end{itemize}	
+
 
 \subsection{Methods in Detail}
-Having described the methods important for using \libalf in the previous section on user's perspective, this section provides description of few more methods that are useful for extending \libalf. The section will mostly contain the operations that can be performed over the node, methods on handling words, classifications and queries. Nevertheless, a complete list of methods and their explanation is given in the next section.
+This section describes methods that are more useful for extending \libalf. These methods mostly emphasize on operations that can be performed over the node, methods on handling words, classifications and queries. A complete list of methods and their explanation is provided in the next section.
 
 \subsection*{Creating the Root node}
-When the knowledgebase is created, the root node is initialized. Its properties are definied by the constructor of the \node class.
+The root node is initialized when the knowledgebase is created. The constructor of class \node defines the following properties for its attributes.
 \begin{itemize}
 \item \textbf{node::node(knowledgebase * base)} \vskip 1pt
 The method sets the following properties to the root node.
@@ -216,56 +225,56 @@ The method sets the following properties to the root node.
 \end{enumerate}	
 \end{itemize}
 
-	
 \subsection*{Working with Nodes}
-Methods operating on the nodes are mostly internal methods and cannot be accessed publicly.
+The child nodes are structured as \vectored type \node variable called \texttt{children}. Methods operating on the nodes are mostly internal methods and cannot be accessed publicly.
 \begin{enumerate}
 \item \textbf{node::node* get\_next(node * current\_child)} \vskip 1pt
-This function returns the next node or the next child of the current node (which is passed as an arguement). 
+The method returns the next node or the next child of the current node (which is passed as an arguement). 
 	
 \item \textbf{node::node * get\_parent()} \vskip 1pt
-The method returns the parent of the node under use.
+The method returns the parent of the current node.
 
 \item \textbf{node::list$<$int$>$ get\_word()} \vskip 1pt
-This function returns the word that the current node represents. The method traverses backwards in the tree (ascending from child to parent) and reverses the sequence obtained to build the correct word.
+The method returns the word that the current node represents. The method traverses backwards in the tree (ascending from child to parent) and reverses the sequence obtained to build the correct word.
 	
-\item \textbf{node::int get\_label()} \hfill \vskip 1pt
-This function returns the label that the node represents.
+\item \textbf{node::int get\_label()} \vskip 1pt
+The method returns the label of the node.
 	
 \item \textbf{node::node * find\_child(int label)} \hfill \vskip 1pt
-The function is used to find the child node with the specified label.
+The method finds the child node with the specified label.
 	
 \item \textbf{node::node * find\_descendant(list$<$int$>$ :: iterator infix\_start, list<int>::iterator infix\_limit)} \hfill \vskip 1pt
-This function is used to find the child node specified by a word and returns the node. It traverses through the tree based on the iteration over the word to find the path that generates the required word.
+The method finds the child node specified by a word and returns it. It traverses through the tree based on the iteration over the word to find the path that generates the required word.
 	
 \item \textbf{knowledgebase::node* get\_rootptr()} \hfill \vskip 1pt
-The function returns the pointer to the root node of the knowledgebase.
+The method returns the pointer to the root node of the knowledgebase.
 	
 \item \textbf{knowledgebase::node* get\_nodeptr(list$<$int$>$ \& word)} \hfill \vskip 1pt
-This function returns the pointer to the current node specified by the word as the parameter.
+The method returns the pointer to the current node specified by the word as the parameter.
 	
 \end{enumerate}
 
 \subsection*{Words and Classification}
 
-In principal, the primary focus of the knowledgebase is centered on storing words and classifications which constitutes the base for the learning algorithm to compute a conjecture. Methods related to this aspect are discussed below.
+The primary purpose of the knowledgebase is centered on storing words and classifications which constitutes the first source for a learning algorithm to compute a conjecture. Methods related to this function are listed below.
 	
 \begin{enumerate}
 \item \textbf{node::node * find\_or\_create\_child(int label)} \vskip 1pt
-	This function returns the child node given the label. However, if the node does not exist, it creates the child node with the specified label.
+	This function returns the child node given the label. If the node does not exist, it creates the child node with the specified label.
 	
 \item \textbf{node::node * find\_or\_create\_descendant(list$<$int$>$::iterator infix\_start, list$<$int$>$::iterator infix\_limit)} \hfill \vskip 1pt
-	This function behaves almost similar to the previous one. However, the difference being, it does not operate with a single label but on a word (which is a list of \integer). 
+	This function behaves almost similar to the previous one. The difference is that it does not operate on a single label but on a word (which is a list of \integer). 
 \end{enumerate}	
 
- In fact, the method \texttt{add\_knowledge} simply calls the method \texttt{find\_or\_create\_descendant} so that the knowledge will be added only information about the word does not already exist in the knowledgebase.
+ The method \texttt{add\_knowledge} simply calls the method \texttt{find\_or\_create\_descendant} so that the knowledge will be added only information about the word does not already exist in the knowledgebase.
 
 
 \subsection*{Handling Queries}
-Although some of the query handling methods have already been discussed, a few other important methods of interest are explained below. As mentioned previously, query handling depends more on the ``status'' of the word. This directly implies the \texttt{status} variable of the node. Operations made in regard to this is first described below.
+In addition to the already discussed query handling methods, the ones discussed below is of most interest for expanding \libalf. 
+As already mentioned, query handling mainly depends on the \texttt{status} of the word. The following methods operate on this aspect. 
 \begin{enumerate}
 \item \textbf{node::bool mark\_required()} \vskip 1pt
-The method returns a boolean value \true if the acceptance or the classification of the node is requried (i.e, ``status'' is NODE\_REQUIRED) or \false if the classification is already known.
+The method returns \true if the acceptance or the classification of the node is \emph{requried} (i.e, ``status'' is NODE\_REQUIRED). It returns \false if the classification is already known.
 	
 \item \textbf{node::bool is\_required()} \vskip 1pt
 The method returns the ``status'' as \texttt{NODE\_REQUIRED}. It is used to set this status to a particular node under consideration.
@@ -274,7 +283,7 @@ The method returns the ``status'' as \texttt{NODE\_REQUIRED}. It is used to set 
 The method returns the ``status'' as \texttt{NODE\_ANSWERED}. It is used to set this status to a particular node under consideration.
 	
 \item \textbf{node::answer get\_answer()} \vskip 1pt
-The method returns the answer (classification of the node) stored for the node. 
+The method returns the \emph{answer} (classification of the node) stored for the node. 
 \end{enumerate}
 
 \vskip 1pt
@@ -282,8 +291,8 @@ The following methods describe the operations associated with queries.
 
 \begin{enumerate}
 
-\item \textbf{knowledgebase::int add\_query(list$<$int$>$ \& word, int prefix\_count = 0)} \hfill \vskip 1pt
-The method is primarily used to add a query to the knowledgebase. When the classification of a word has to be known, the method first checks if the word already exists with its classification in the knowledgebase (by using the \texttt{find\_or\_create\_child(int label)} method). Hence, if the classification of the word is unknown and does not already exist, the corresponding node will be created and eventually added in the query tree (since this method is used by \texttt{create\_query\_tree(\ldots)}.
+\item \textbf{knowledgebase::int add\_query(list$<$int$>$ \& word, int prefix\_count = 0)} \vskip 1pt
+The method is primarily used to add a query to the knowledgebase. When a query is generated, the method first checks if that word already exists with its classification in the knowledgebase (by using the \texttt{find\_or\_create\_child(int label)} method). Hence, if the classification of the word is unknown and does not already exist, the corresponding node will be created and eventually added in the query tree (since this method is used by \texttt{create\_query\_tree(\ldots)}.
   	
 \item \textbf{knowledgebase::bool resolve\_query(list$<$int$>$ \& word, answer \& acceptance) and bool resolve\_or\_add\_query(list$<$int$>$ \& word, answer \& acceptance)} \hfill \vskip 1pt
 These two methods can be described together as their functionality is almost similar and differ only in one aspect. Both methods return \true if the classification of the word is already known and \false if it is unknown. While ``resolve\_query()'' only returns \false, ``resolve\_or\_add\_query()'' marks the status of this word as required and then returns \false. Naturally, the former uses ``find\_descendant()'' and the latter makes use of ``find\_or\_create\_descendant()''.
@@ -295,25 +304,28 @@ This method is used to remove all the nodes that are identified or marked as a q
 \vskip 1pt
 
 \subsection*{Alphabet in Knowledgebase}
-This section gives an extended view of the concept of alphabet size in the knowledgebase. Although we have defined the basic concepts of alphabets in this chapter, the knowledgebase does not really store the alphabet size of the automaton specified by the user. The knowledgebase does not construt the tree based on the alphabet size specified by the user and is capable of constructing the tree precisely even if symbols outside the alphabet set are fed in the input (which includes the extra symbols). But, such improper input will lead to the learning algorithm computing a conjecture which might not be the expectation of the user.
-However, the knowledgebase can at any point of time identify and operate on the alphabet size. This can be regarded as the largest symbol that is processed in the knowledgebase. Reiterating the fact mentioned already, that an alphabet size of 2 would contain ``1'' as the largest symbol, we discuss the following methods that work on the issue.
+The section gives an extended view of the concept of alphabet size in the knowledgebase. In principal, the knowledgebase does not store the alphabet size of the conjecture specified by the user. The knowledgebase does not work only based on the alphabet size specified by the user and is capable of constructing the tree even if symbols outside the alphabet set are input. The knowledgebase can identify the rise in the alphabet size and record the largest symbol in the tree. But, such improper input will lead the learning algorithm to compute incorrect conjecture.
+
 \begin{enumerate}
 \item \textbf{knowledgebase::int get\_largest\_symbol()} \vskip 1pt
-This is already described in the section on user's perspective. But some secondary information about this would be the fact that the method directly returns what is available in the variable ``largest\_symbol''. It does not check whether the alphabet size has been modified. A good way to do that would be to use the methods listed below.
+The method has already been described in the section on user's perspective. Deepening into the concept behind it, the method simply returns what is available in the variable ``largest\_symbol''. It does not check whether the alphabet size has been modified. A good way to do that would be to use the methods listed below.
 	
 \item \textbf{knowledgebase::int check\_largest\_symbol()} \hfill \vskip 1pt
 The method performs a check on the knowledgebase and realizes the largest symbol that is currently available. Hence, if there was a change in the size of the alphabet at some point of time, it is automatacially adjusted when this method is called.
 	
 \item \textbf{bool cleanup()} \hfill \vskip 1pt
-This method is used to clean the knowledgebase by removing all the unnecessary branches i.e, branches that consists only of IGNORE as the status. This is an example for a method that can cause a change in the largest symbol. If only the branches contain a particular symbol and they are removed in the clean up, it subsequentely causes a change in the largest symbol. 
+The method cleans the knowledgebase by removing all the unnecessary branches i.e, branches that consists only of IGNORE as the status. This is an example for a method that can cause a change in the largest symbol. If the branches containing a particular symbol are removed in the clean up, it subsequentely causes a change in the largest symbol. 
 \end{enumerate}
 
 \subsection*{Displaying the knowledgebase}
-Having described two methods in the previous section on the same topic, what is listed below is one other method which could be useful from the eye of a developer. \vskip 2pt
-\textbf{void print(ostream \&os)} \vskip 1pt
-This method prints the knowledgbase to any kind of an output stream. It prints the word, its status and the answer of all the words available in the knowledgebase.
+Having described two methods in the previous section on the same topic, what is listed below is another method that is mostly of interest to a developer. 
+\begin{itemize}
+ \item \textbf{void print(ostream \&os)} \vskip 1pt
+  This method prints the knowledgbase to any kind of an output stream. It prints the word, its status and the answer of all the words available in the knowledgebase.
+\end{itemize}
+
 \vskip 1pt
-These methods described would summerize the most important methods from the view of a developer.
+The methods described above summerizes the most important methods from the view of a developer.
 	
 \section{Methods Specifications}
 The section supplies a comprehensive list of all the methods used in the knowledgebase along account of their particulars. The section is divided based on on the class that the methods belong to.

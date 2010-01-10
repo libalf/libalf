@@ -59,17 +59,17 @@
 \end{figure}
 
 \subsection{Learning Algorithm}
-	A learning algorithm is a component that retrieves the desired information from the knowledgebase to construct an automaton. As mentioned in the previous section, there exists two types of learning algorithms - \offline and \online algorithm. 
+	A learning algorithm is a component that retrieves the desired information from the knowledgebase to construct a conjecture. As mentioned in the previous section, there exists two types of learning algorithms - \offline and \online algorithm. 
 	\paragraph{}
-	The workflow of the algorithms begins with a common step wherein the algorithm is supplied with information about size of the alphabet for the automaton. Thereafter, the algorithms follow two distinct procedure to compute the automaton.
+	The workflow of the algorithms begins with a common step wherein the algorithm is supplied with information about size of the alphabet for the conjecture. Thereafter, the algorithms follow two separate procedures to compute the conjecture.
 	
 	The \offline algorithm continues as stated below.
 \begin{enumerate}
-	\item The knowledgebase is furnished with the set of words and their classifications (typically provided by the user).
-	\item When all details have been supplied and is available in the knowledgebase, the learning algorithm is made to advance to compute  hypothesis in conformance with the initial input.
+	\item The knowledgebase is furnished with the set of words and their classifications (provided by the user).
+	\item When all details have been supplied and is available in the knowledgebase, the learning algorithm is made to advance to 	compute the conjecture in conformance with the samples.
 \end{enumerate}
 
-	An \online algorithm proceeds in the following manner.
+	An \online algorithm proceeds in the following manner. \\
 	The following two steps are repeated until a correct conjecture is determined.
 \begin{enumerate}
 \item The algorithm is made to advance.
@@ -83,11 +83,10 @@
 An insight into the working of the two algorithms is given in Section 1.3.
 	
 \subsection{Filters and Normalizers}	
-	A knowledgebase can be associated with a number of \filters, which are used for domain-specific optimization. By that, we mean the knowledgebase makes use of domain-specific information to reduce the number of queries to the teacher. Such filters can be composed by logical connectors (and, or, not). In contrast, \normalizers are able to recognize words equivalent in a domain-specific sense to reduce the amount of knowledge that has to be stored. 
+	The knowledgebase can be associated with a number of \filters, which are used for domain-specific optimization. This implies that the knowledgebase makes use of domain-specific information to reduce the number of queries to the teacher. Such filters can be composed by logical connectors (and, or, not). In contrast, \normalizers are able to recognize words equivalent in a domain-specific sense to reduce the amount of knowledge that has to be stored. 
 		
 \subsection{Loggers and Statistics}	
-	The library additionaly features such as means for statistical evaluation or loggers. A logger is an adjustable logging facility that an algorithm can write to, to ease application debugging and development.	
-	The modularity of our approach in developing \libalf facilitates these components to be added in an easy plug and play fashion and that is shown in Figure \ref{fig:plug} and Figure \ref{fig:loggers}.
+	The library additionaly features means for statistical evaluation or loggers. A logger is an adjustable logging facility that an algorithm can write to, to ease application debugging and development. The modularity of our approach in developing \libalf facilitates these components to be added in an easy plug and play fashion and that is shown in Figure \ref{fig:plug} and Figure \ref{fig:loggers}.
 	
 \begin{figure}[h]
 	\centering
@@ -114,7 +113,7 @@ The primary aspect in describing the working would be to outline the data flow b
 \label{communications}
 \end{figure}
 
-	The learning algorithm and the knowledgebase share information with user. The knowledgebase, as stated earlier, is the fundamental information for the learning algorithm to develop an automaton. The learning algorithm advances with whatever knowledge is available. The learning algorithm connects with the user to collect relevant information such as equivalence of a conjecture or to retrive counter-example. When the learning algorithm creates more membership queries, they are stored in the knowledgebase leading to it initiating a communication with the user who is required to answer membership queries (or input sample words in case of an offline algorithm). All such information extended by the user are stored in the knowledgebase. 
+The learning algorithm and the knowledgebase share information with user. The knowledgebase, as stated earlier, is the fundamental information for the learning algorithm to develop an automaton. The learning algorithm advances with whatever knowledge is available. The learning algorithm connects with the user to collect relevant information such as equivalence of a conjecture or to retrive counter-example. When the learning algorithm creates more membership queries, they are stored in the knowledgebase leading to it initiating a communication with the user who is required to answer membership queries (or input sample words in case of an offline algorithm). All such information extended by the user are stored in the knowledgebase. 
 
 \section{Demo Application}
 

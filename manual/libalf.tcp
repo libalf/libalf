@@ -2,11 +2,82 @@
 Type=TeXnicCenterProjectInformation
 Version=4
 
+[General]
+def_graphic_ext=
+img_extIsRegExp=false
+img_extensions=.eps .jpg .jpeg .png .pdf .ps .fig .gif
+kileprversion=2
+kileversion=2.1 beta2
+lastDocument=libalf.tex
+masterDocument=
+name=Project
+pkg_extIsRegExp=false
+pkg_extensions=.cls .sty .bbx .cbx .lbx
+src_extIsRegExp=false
+src_extensions=.tex .ltx .latex .dtx .ins
+
 [ProjectInfo]
+ActiveProfile=LaTeX => PDF
 MainFile=libalf.tex
+ProjectDialect=US
+ProjectLanguage=en
 UseBibTeX=1
 UseMakeIndex=1
-ActiveProfile=LaTeX => PDF
-ProjectLanguage=en
-ProjectDialect=US
 
+[Tools]
+MakeIndex=
+QuickBuild=
+
+[item:commands.tex]
+archive=true
+column=17
+encoding=UTF-8
+highlight=LaTeX
+line=1
+open=true
+order=2
+
+[item:install.tex]
+archive=true
+column=49
+encoding=UTF-8
+highlight=LaTeX
+line=73
+open=true
+order=3
+
+[item:introduction.tex]
+archive=true
+column=1
+encoding=UTF-8
+highlight=LaTeX
+line=184
+open=true
+order=1
+
+[item:knowledgebase.tex]
+archive=true
+column=10
+encoding=UTF-8
+highlight=LaTeX
+line=6
+open=true
+order=4
+
+[item:learning_algorithm.tex]
+archive=true
+column=176
+encoding=UTF-8
+highlight=LaTeX
+line=18
+open=true
+order=5
+
+[item:libalf.tex]
+archive=true
+column=0
+encoding=UTF-8
+highlight=LaTeX
+line=20
+open=true
+order=0
