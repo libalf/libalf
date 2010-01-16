@@ -175,7 +175,7 @@ list<int> mVCA::shortest_run(const set<int> & from, int m, const set<int> & to, 
 	set<mVCA_run> visited; // NOTE that mVCA_run only discriminates by m/state.
 	set<int>::iterator si;
 	list<mVCA_run> run_fifo;
-	mVCA_run current, next;
+	mVCA_run current, next, bounded_current;
 
 	// fill fifo with initial states
 	current.m = m;
@@ -188,13 +188,17 @@ list<int> mVCA::shortest_run(const set<int> & from, int m, const set<int> & to, 
 		current = run_fifo.front();
 		run_fifo.pop_front();
 
+		bounded_current = current;
+		if(bounded_current.m > m_bound)
+			bounded_current.m = m_bound;
+
 		// skip visited states
 		// (NOTE that mVCA_run comparators only look at m and state, not at prefix!)
-		if(visited.find(current) != visited.end())
+		if(visited.find(bounded_current) != visited.end())
 			continue;
 
 		// mark as visited
-		visited.insert(current);
+		visited.insert(bounded_current);
 
 		// check final
 		if((to_m < 0 || to_m == current.m) && to.find(current.state) != to.end()) {

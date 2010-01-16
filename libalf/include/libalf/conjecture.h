@@ -126,6 +126,9 @@ class simple_mVCA : public conjecture {
 	public:
 		simple_mVCA();
 		virtual ~simple_mVCA();
+		virtual bool is_valid();
+		virtual conjecture::type get_type()
+		{ return CONJECTURE_SIMPLE_AUTOMATON; }
 		virtual void clear();
 
 		virtual basic_string<int32_t> serialize();
@@ -134,8 +137,6 @@ class simple_mVCA : public conjecture {
 		virtual bool read(string input);
 
 		virtual string visualize();
-
-		bool calculate_determinism();
 };
 
 }; // end of namespace libalf

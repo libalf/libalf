@@ -639,6 +639,8 @@ simple_mVCA::simple_mVCA()
 { clear(); }
 simple_mVCA::~simple_mVCA()
 { };
+bool simple_mVCA::is_valid()
+{ return valid; };
 void simple_mVCA::clear()
 {{{
 	valid = false;
@@ -670,10 +672,6 @@ bool simple_mVCA::read(string input)
 	
 }
 string simple_mVCA::visualize()
-{
-	
-}
-bool simple_mVCA::calculate_determinism()
 {
 	
 }
