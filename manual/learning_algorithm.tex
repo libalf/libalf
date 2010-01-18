@@ -34,7 +34,28 @@ The working of this algorithm follows a simple two step procedure.
 
 \subsection{List of Algorithms}
 
-As of \today, \libalf implements seven algorithms for both deterministic and non deterministic automata as listed in the table \ref{algtables1}
+As of \today, \libalf implements seven algorithms for both deterministic and non deterministic automata as listed below.
+
+\subsection*{Online Algorithms}
+
+\begin{enumerate}
+ \item \textbf{Angluin L\textsuperscript{*}} \cite{36889-angluin1} \cite{181015-angluin2} \cite{640230-angluin3}
+	(..)
+ \item \textbf{NL\textsuperscript{*}} \cite{DBLP:conf/ijcai/BolligHKL09-nl1} \cite{DBLP:conf/wia/GarciaRCA05-nl2}
+	(..)
+ \item \textbf{Kearns/Vazirani} \cite{DBLP:conf/nips/CrammerKW06-Kearns1} \cite{DBLP:conf/nips/LittmanKS01-kearns2} \cite{200548-kearns3}
+	(..)
+\end{enumerate}
+
+\begin{enumerate}
+ \item \textbf{RPNI} \cite{DBLP:conf/aia/Hoffmann07-rpni1} \cite{599647-rpni2} \cite{655948-rpni3} \cite{1434324-rpni4}
+	(..)
+ \item \textbf{Biermann} \cite{17952-biermann1}
+	(..)
+ \item \textbf{Delete2} \cite{982366-delete1}
+	(..)
+\end{enumerate}
+
 
 \begin{table} [h]
 \centering
@@ -42,9 +63,9 @@ As of \today, \libalf implements seven algorithms for both deterministic and non
 \toprule[1pt]
 Online Algorithms & Offline Algorithms \\	
 \midrule
-Angluin's L [2] (two variants) & Biermann [3] \\
-NL [4] & RPNI [13] \\
-Kearns / Vazirani [10] & DeLeTe2 [6]\\
+Angluin's L (two variants) & Biermann \\
+NL & RPNI \\
+Kearns / Vazirani & DeLeTe2 \\
 \bottomrule[1pt]
 \end{tabular}
 \caption{List of Algorithms Implemented}
@@ -53,86 +74,138 @@ Kearns / Vazirani [10] & DeLeTe2 [6]\\
 
 ---------------------------------------------------------------------------------------------------
 
-\subsection{Methods}
+\subsection{Methods - User Perspective}
 
-Constructor used to initialize the learning algorithm. \vskip 1pt
+In this section, we describe methods that are important for using \libalf. The following material elaborates on initializing the learning algorithm, its association with knolwedgebase and building the conjecture. Like the knowledgebase, learning algorithm also supports serialization and deserialization. Other methods that enable the user to work on the statistics are also described.
 
-\paragraph{learning\_algorithm()}
-It initializes the essentials for a learning algorithm such as, pointer to the knowledgebase, normalizer and logger. 
-do\_timing - to create timing statistics this has to be set true
-in\_timing - variable to check if the currently timing statistics are being measured.
-alphabet\_size - the alphabet size of the conjecture to be computed.
+\subsection*{Initalizing the Learning Algorithm}
+
+\begin{itemize}
+ \item \textbf{learning\_algorithm()} \vskip 1pt
+	It initializes the essentials for a learning algorithm such as, pointer to the knowledgebase, normalizer and logger. 
+	do\_timing - to create timing statistics this has to be set true
+	in\_timing - variable to check if the currently timing statistics are being measured.
+	alphabet\_size - the alphabet size of the conjecture to be computed.
+\end{itemize}
+
+For instance, the constructor of an RPNI algorithm is written as follows. \vskip 1pt
+\textbf{RPNI(knowledgebase$<$answer$>$ * base, logger * log, int alphabet\_size)} \vskip 1pt
+The constructor of all the learning algorithms follow such an initialization. It sets the pointer to the knowledgebase, the logger and the alphabet size. 
+
+\subsection*{Working with Alphabet Size}
+
+\begin{enumerate}
+ \item \textbf{virtual void set\_alphabet\_size(int alphabet\_size)} \vskip 1pt
+	The method sets the alphabet size for computing the conjecture. This method is used only during the initial setting of the learning algorithm. 
+
+ \item \textbf{virtual void increase\_alphabet\_size(int new\_asize)} \vskip 1pt
+	The method increases the size of the alphabet to a new value.
+
+ \item \textbf{virtual int get\_alphabet\_size()} \vskip 1pt
+	Returns the alphabet size of the conjecture.
+\end{enumerate}
+
+\subsection*{Knowledgebase in Learning Algorithm}
+
+\begin{enumerate}
+
+ \item \textbf{virtual void set\_knowledge\_source(knowledgebase $<$answer$>$ * base)} \vskip 1pt
+	The method sets the source (the knowledgebase) which consists of all the membership information to the learning algorithm.
+
+ \item \textbf{virtual knowledgebase$<$answer$>$ * get\_knowledge\_source()} \vskip 1pt
+	Returns the pointer to the knowledgebase which is currently the source of membership information.
+
+ \item \textbf{virtual bool sync\_to\_knowledgebase()} \vskip 1pt
+	Knowledgebase can support undo operation. In such a case the learning algorithm needs to stay synchronized with the knowledgebase failing to which it may return erroneaous output. The method checks the knowledgebase, removes the obsolete knowledge, changes its state (delete rows/columns etc.) to be synchronized with the knowledgebase and returns \true. If it returns \false, the algorithm is in undefined state and must not be used anymore. \\
+	Note: This method should be called after each undo opearation performed in the knowledgebase.
+
+ \item \textbf{virtual bool supports\_sync()} \vskip 1pt
+	The method checks whether the learning algorithm supports synchronization with the associated Knowledgebase. Returns \true if undo operations on the knowledgebase are allowed. Each undo-operation has to be followed by a call to sync\_to\_knowledgebase(). Otherwise returns \false.
+
+\end{enumerate}
 
 
-The constructor of all the learning algorithms usually perform three tasks. They set the pointer to the knowledgebase, set the logger and the alphabet size. 
+\subsection*{Building the Conjecture}
 
-\paragraph{virtual void set\_alphabet\_size(int alphabet\_size)}
-method that sets the alphabet size for computing the conjecture. This method is used only during the initial setting of the learning algorithm. 
+\begin{itemize}
+ \item \textbf{virtual conjecture * advance()} \vskip 1pt
+	The method returns a conjecture if enough information is available in the knolwedgebase to construct one. If not, it returns NULL but produces membership queries that are stored in the knowledgebase.
+\end{itemize}
 
-\paragraph{virtual void increase\_alphabet\_size(int new\_asize)}
-The method increases the size of the alphabet to a new value.
+\subsection*{Adding Counter Example}
 
-\paragraph{virtual int get\_alphabet\_size()}
-Returns the alphabet size of the conjecture.
+\begin{itemize}
+ \item \textbf{virtual bool add\_counterexample(list$<$int$>$)} \vskip 1pt
+	The method is used by \online algorithms when a computed conjecture is declined by the teacher, i.e. when the equivalence query is answered negative. The counter example provided by the user is first processed by the learning algorithm which marks it as a membership query and is added to the knowledgebase. \\
+	This method is used only by an \online algorithm. For \offline algorithms, this method is a stub.
+\end{itemize}
 
-\paragraph{virtual void set\_logger(logger * l)}
-If the value of ``l'' is not NULL, then it is set as the logger. Otherwise, the logger is set to ``ignore'' which implies that no logger exists.
+\subsection*{Loggers and Normalizers}
 
-\paragraph{virtual void set\_knowledge\_source(knowledgebase $<$answer$>$ * base)}
-Sets the source (the knowledgebase) which consists of all the membership information to the learning algorithm.
+\begin{enumerate}
+ \item \textbf{virtual void set\_logger(logger * l)} \vskip 1pt
+	If the value of ``l'' is not NULL, then it is set as the logger. Otherwise, the logger is set to ``ignore'' which implies that no logger exists.
 
-\paragraph{virtual knowledgebase$<$answer$>$ * get\_knowledge\_source()}
-Returns the pointer to the knowledgebase which is currently the source of membership information.
+ \item \textbf{virtual void set\_normalizer(normalizer * norm)} \vskip 1pt
+	Sets the normalizer to the one pointed by the arguement ``norm''.
 
-\paragraph{virtual void set\_normalizer(normalizer * norm)}
-Sets the normalizer to the one pointed by the arguement ``norm''.
+ \item \textbf{virtual void unset\_normalizer()} \vskip 1pt
+	Sets the normailizer to NULL. 
+\end{enumerate}
 
-\paragraph{virtual void unset\_normalizer()}
-Sets the normailizer to NULL. 
+\subsection*{Statistics}
 
-\paragraph{virtual memory\_statistics get\_memory\_statistics()}
-Returns the memory statistics.
+\begin{enumerate}
+ \item \textbf{virtual memory\_statistics get\_memory\_statistics()} \vskip 1pt
+	Returns the memory statistics.
 
-\paragraph{virtual timing\_statistics get\_timing\_statistics()}
-Returns the timing statistics which is stored in the variable ``current\_stats''.
+ \item \textbf{virtual timing\_statistics get\_timing\_statistics()} \vskip 1pt
+	Returns the timing statistics which is stored in the variable ``current\_stats''.
 
-\paragraph{virtual void enable\_timing()}
-Enables the maintenance of timing statistics by setting the ``do\_timing'' variable to be \true.
+ \item \textbf{virtual void enable\_timing()} \vskip 1pt
+	Enables the maintenance of timing statistics by setting the ``do\_timing'' variable to be \true.
 
-\paragraph{virtual void disable\_timing()}
-Disables the maintenance of timing statistics by setting the ``do\_timing'' variable to be \false.
+ \item \textbf{virtual void disable\_timing()} \vskip 1pt
+	Disables the maintenance of timing statistics by setting the ``do\_timing'' variable to be \false.
 
-\paragraph{virtual void reset\_timing()}
-The ``current\_stats'' is reset.
+ \item \textbf{virtual void reset\_timing()} \vskip 1pt
+	The ``current\_stats'' is reset.
+\end{enumerate}
 
-\paragraph{virtual bool sync\_to\_knowledgebase()}
-Knowledgebase may support undo operation. In such a case the learning algorithm needs to stay synchronized with the knowledgebase failing to which it may return erroneaous output. The method checks the knowledgebase if there is any knowledge and then checks its internal knowledge, removes the obsolete knowledge, changes its state (delete rows/columns etc.) to be synchronized with the knowledgebase and returns \true. If it returns \false, the algorithm is in undefined state and must not be used anymore. This method should be called after each undo opearation performed in the knowledgebase.
 
-\paragraph{virtual bool supports\_sync()}
- Checks whether the learning algorithm supports synchronization with the associated Knowledgebase. Returns \true if undo operations on the knowledgebase are allowed. Each undo-operation has to be followed by a call to sync\_to\_knowledgebase(). Otherwise returns \false.
 
-\vskip 1pt
-Building the conjecture \vskip 1pt
+\subsection*{Serialize and Deserialize}
 
-\paragraph{virtual bool complete()}
-The method is used by the learning algorithm to complete the table in such a way that a conjecture can be derived from it. Returns true if the table is complete. Returns \false if the table is incomplete due to missing knowledge. 
+\begin{enumerate}
+ \item \textbf{virtual basic\_string$<$int32\_t$>$ serialize()} \vskip 1pt
+	The method returns a \stringtype composed of \integer containing the serialization of the state of the learning algorithm.
 
-\paragraph{virtual conjecture * derive\_conjecture()}
-The methodd derives a conjecture from the given data structure available in the knowledgebase. 
+ \item \textbf{virtual bool deserialize(basic\_string$<$int32\_t$>$::iterator \& it, basic\_string$<$int32\_t$>$::iterator limit)} \vskip 1pt
+	Restores the data of a serialized learning algorithm. The current state of the learning algorithms is discarded. \\
+	The method returns \true if the deserialization was successfull. Otherwise, returns \false.
+\end{enumerate}
 
-\paragraph{virtual bool conjecture\_ready()}
-Returns \true if a conjecture can be constructed without any further queries. Otherwise, returns \false.
 
-\paragraph{virtual conjecture * advance()}
-The most important method of . The method first tries to complete the table. If all knowledge was available, then it tries to derive a conjecture and when a conjecture is ready, it is returned. If the table was unable to be completed, then unknown knowledge is marked required and NULL is returned.
+\section{Methods - Developer's Perspective}
+A developer's perspective of learning algorithm mainly centers on the how the algorithm advances and builds the conjecture. The section describes ``advance()'' and its associated methods.
 
-\paragraph{virtual bool add\_counterexample(list$<$int$>$)}
-The method is used by \online algorithms when a computed conjecture is declined by the teacher, i.e. when the equivalence query is answered negative. The counter example provided by the user is first processed by the learning algorithm which marks it as a membership query and is added to the knowledgebase. \\
-This method is used only by an \online algorithm. For \offline algorithms, this method is a stub.
+\begin{enumerate}
+ \item \textbf{virtual conjecture * advance()} \vskip 1pt
+	The most important method towards building the conjecture. The method first tries to complete the table of the algorithm. If all knowledge was available, it tries to derive a conjecture and when a conjecture is ready, it is returned. If the table was unable to be completed, then unknown knowledge is marked \emph{required} and NULL is returned. \\
+	The method uses the following methods for its operation.
 
-\paragraph{virtual basic\_string$<$int32\_t$>$ serialize()}
-The method returns a \stringtype composed of \integer containing the serialization of the state of the learning algorithm.
+ \item \textbf{virtual bool complete()} \vskip 1pt
+	The method is used by the learning algorithm to complete the table in such a way that a conjecture can be derived from it. Returns true if the table is complete. Returns \false if the table is incomplete due to missing knowledge. 
 
-\paragraph{virtual bool deserialize(basic\_string$<$int32\_t$>$::iterator \& it, basic\_string$<$int32\_t$>$::iterator limit)}
-Restores the data of a serialized learning algorithm. The current state of the learning algorithms is discarded. \\
-The method returns \true if the deserialization was successfull. Otherwise, returns \false.
+ \item \textbf{virtual conjecture * derive\_conjecture()} \vskip 1pt
+	The methodd derives a conjecture from the given data structure available in the knowledgebase. 
+
+ \item \textbf{virtual bool conjecture\_ready()} \vskip 1pt
+	Returns \true if a conjecture can be constructed without any further queries. Otherwise, returns \false.
+\end{enumerate}
+
+
+
+
+
+

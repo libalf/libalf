@@ -8,7 +8,7 @@ img_extIsRegExp=false
 img_extensions=.eps .jpg .jpeg .png .pdf .ps .fig .gif
 kileprversion=2
 kileversion=2.1 beta2
-lastDocument=libalf.tex
+lastDocument=introduction.tex
 masterDocument=
 name=Project
 pkg_extIsRegExp=false
@@ -39,37 +39,37 @@ order=2
 
 [item:install.tex]
 archive=true
-column=49
+column=0
 encoding=UTF-8
 highlight=LaTeX
-line=73
+line=123
 open=true
 order=3
 
 [item:introduction.tex]
 archive=true
-column=1
+column=455
 encoding=UTF-8
 highlight=LaTeX
-line=184
+line=222
 open=true
 order=1
 
 [item:knowledgebase.tex]
 archive=true
-column=10
+column=51
 encoding=UTF-8
 highlight=LaTeX
-line=6
+line=281
 open=true
 order=4
 
 [item:learning_algorithm.tex]
 archive=true
-column=176
+column=0
 encoding=UTF-8
 highlight=LaTeX
-line=18
+line=206
 open=true
 order=5
 
@@ -78,6 +78,15 @@ archive=true
 column=0
 encoding=UTF-8
 highlight=LaTeX
-line=20
+line=37
 open=true
 order=0
+
+[item:references.bib]
+archive=true
+column=0
+encoding=UTF-8
+highlight=BibTeX
+line=0
+open=true
+order=6
