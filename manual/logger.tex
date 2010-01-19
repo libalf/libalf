@@ -1,0 +1,141 @@
+\chapter{Loggers \& Statistics}
+
+A \textbf{Logger} is an adjustable logging facility that an algorithm can write to. When a learning algorithm is initialized, a logger is associated with it along with the knowledgebase. \libalf provides flexible logger implementations for the user. A learning algorithm can either use an output stream or a buffer as the logger. One may also choose to ignore the logger. \\
+\textbf{Statistics} refers to the statistical data that can be acquired by evaluating the learning procedure. Information about the memory usage, queries produced, time taken for computing conjecture and other details may serve as base for analysing the learning algorithm in various cases. 
+
+\section{Logger Implementation}
+A loglevel marks the state of a particular log message. An \emph{enum} type variable logger\_loglevel is used to define the messages with the following attributes.
+\begin{itemize}
+ \item \textbf{LOGGER\_INTERNAL=0} ; (An internal method)
+ \item \textbf{LOGGER\_ERROR = 1} ; All log messages that describe a non-recoverable error are marked with this.
+ \item \textbf{LOGGER\_WARN = 2} ; Messages describing a state or command that is erroneous but may be ignored under most conditions.
+ \item \textbf{LOGGER\_INFO = 3} ; Any information that does not describe an erroneous condition.
+ \item \textbf{LOGGER\_DEBUG = 4} ; Messages that may help debugging of libalf.( Most likely removed before release version ).
+ \item \textbf{LOGGER\_ALGORITHM = 5} ; (Do not use this as minimal loglevel)
+\end{itemize}
+
+\subsection{class Logger}
+The main class that consists of attributes and methods to implement the logger. 
+
+\subsection*{Attributes} 
+It consists of two attributes that every type of logger makes use of.
+\begin{enumerate}
+ \item \textbf{enum logger\_loglevel minimal\_loglevel} - a minimal setting of the loglevel
+ \item \textbf{bool log\_algorithm} - An boolean variable to indicate if a logger is to be associated with an algorithm or not.
+\end{enumerate}
+
+\subsection*{Methods}
+The following methods are defined in the class.
+\begin{enumerate}
+ \item \textbf{void set\_minimal\_loglevel(enum logger\_loglevel minimal\_loglevel)} \\
+	Sets the minimum logger level using the attributes loglevel attributes.
+ \item \textbf{void set\_log\_algorithm(bool log\_algorithm)} \\
+	The method sets logger for the algorithm based if the arguement is \true. It ignores the logger if the parameter is \false. 
+ \item \textbf{virtual void operator()(enum logger\_loglevel, string\&)} and \textbf{virtual void operator()(enum logger\_loglevel, 	const char* format, ...)} \\
+	The method takes the logger type and message as parameters for entry to the logger. If other variables also need to be used, it can be done so using the second method. 
+\end{enumerate}
+
+\subsection*{Example}
+\begin{lstlisting}
+if(my_knowledge == NULL) 
+{
+(*my_logger)(LOGGER_ERROR, "learning_algorithm::advance()  
+	      no knowledgebase was set!\n");
+return false; 
+}
+\end{lstlisting}
+The above code snipped is an extraction from the ``advance()'' method of the learning algorithm. When no knowledgebase is set to the algorith, it enters the message ``learning\_algorithm::advance(): no knowledgebase was set'' to the log ``my\_logger'' and marks it as an error with ``LOGGER\_ERROR''. 
+\vskip 1pt
+All three types of loggers are implemented with the respective classes, \texttt{ignore\_logger}, \texttt{ostream\_logger} and \texttt{buffered\_logger}. All the classes inherit the \texttt{logger} class. \\
+
+\subsection{class ignore\_logger}
+A class that does not consist of any methods. In this case, the logger is just ignored.
+
+\subsection{class ostream\_logger}
+The class consists of method to write the message to an output stream. 
+\begin{itemize}
+ \item \textbf{ostream\_logger(ostream *out, enum logger\_loglevel minimal\_loglevel, bool log\_algorithm = true, bool use\_color = true)} \vskip 1pt
+	The method creates an output stream for the logger. The parameter \texttt{*out} points to the output stream and the minimal loglevel indicates the initial setting. The parameter \texttt{log\_algorithm} is set to \true since the logger will be used by the algorithm. The parameter \texttt{use\_color} is set to \true so that on a console output, you may view the messages in different colors!
+\end{itemize}
+
+\subsection{class buffered\_logger}
+The class consists of methods for setting a buffer as a log. It should be noted that the messages passed to the buffer will not be available until it is received and flushed explicitly.
+
+\begin{enumerate}
+ \item \textbf{buffered\_logger(enum logger\_loglevel minimal\_loglevel, bool log\_algorithm = true)} \\
+	The method sets the buffered logger with the minimal loglevel. \texttt{log\_algorithm} is set to \true.
+ \item \textbf{string * receive\_and\_flush()} \\
+	The method receives and flushes the buffered stream.
+\end{enumerate}
+
+\section{Statistics}
+The library consists of four classes - \texttt{statistics}, \texttt{timing\_statistics}, \texttt{memory\_statistics} and \texttt{query\_statistics}, each of them defined in the following way. Every class consists of the serialization and deserialization methods. All the methods and attributes of the classes are specified \texttt{public}.
+
+\subsection{class statistics}
+The main class that contains objects of the other three classes to access the methods. 
+\subsection*{Attributes}
+\begin{enumerate}
+ \item \textbf{query\_statistics queries} - Object to retrieve query statistics.
+ \item \textbf{memory\_statistics memory} - Object to retrieve memory statistics.
+ \item \textbf{timing\_statistics time} - Object to retrieve the timing statistics.
+\end{enumerate}
+\subsection*{Methods}
+Along with the serialize and deserialize, the class defines the following method.
+\begin{itemize}
+ \item \textbf{void reset()}
+	The method resets all the statistical information.
+\end{itemize}
+
+\subsection{class timing\_statistics}
+The class consists of methods to obtain timing statistics of the learning procedure.
+\subsection*{Attributes}
+\begin{enumerate}
+ \item \textbf{int32\_t user\_sec} - Variable to store the User time.
+ \item \textbf{int32\_t user\_usec}
+ \item \textbf{int32\_t sys\_sec} - Variable to store the System time.
+ \item \textbf{int32\_t sys\_usec}
+\end{enumerate}
+\subsection*{Methods}
+\begin{enumerate}
+ \item \textbf{timing\_statistics()} \\
+	Constructor that retrieves the timing information.
+ \item \textbf{void reset()}
+	The method resets all the acquired timing statistics.
+\end{enumerate}
+
+\subsection{class memory\_statistics}
+The class consists of methods to obtain statistical information about the memory usage during the learning procedure. 
+\subsection*{Attributes}
+Most of the attributes belonging to this class are used by the Angluin algorithm.
+\begin{enumerate}
+ \item \textbf{int32\_t bytes} - bytes of algorithms data structure
+ \item \textbf{int32\_t members} - number of membership data
+ \item \textbf{int32\_t words} - number of words in table
+ \item \textbf{int32\_t upper\_table} - size of upper table (if appropriate)
+ \item \textbf{int32\_t lower\_table} - size of lower table (if appropriate)
+ \item \textbf{int32\_t columns} - columns (if appropriate)
+\end{enumerate}
+\subsection*{Methods}
+\begin{enumerate}
+ \item \textbf{memory\_statistics()} \\
+	Constructor to retrieve the memory statistics.
+ \item \textbf{void reset()} \\
+        The method resets all the acquired memory statistics.
+\end{enumerate}
+
+\subsection{class query\_statistics}
+The class consists of methods to obtain statistical information about the queries produced during the learning procedure.
+\subsection*{Attributes}
+\begin{enumerate}
+ \item \textbf{int32\_t membership} - Stores the number of membership queries.
+ \item \textbf{int32\_t uniq\_membership}
+ \item \textbf{int32\_t equivalence} - Stores the number of equivalence queries.
+\end{enumerate}
+\subsection*{Methods}
+\begin{enumerate}
+ \item \textbf{query\_statistics()} \\
+	Constructor that retrieves statistics about the all queries produced.
+ \item \textbf{void reset()}
+	The method resets all the acquired statics about queries.
+\end{enumerate}
+

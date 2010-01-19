@@ -8,7 +8,7 @@ img_extIsRegExp=false
 img_extensions=.eps .jpg .jpeg .png .pdf .ps .fig .gif
 kileprversion=2
 kileversion=2.1 beta2
-lastDocument=introduction.tex
+lastDocument=logger.tex
 masterDocument=
 name=Project
 pkg_extIsRegExp=false
@@ -48,7 +48,7 @@ order=3
 
 [item:introduction.tex]
 archive=true
-column=455
+column=177
 encoding=UTF-8
 highlight=LaTeX
 line=222
@@ -78,9 +78,18 @@ archive=true
 column=0
 encoding=UTF-8
 highlight=LaTeX
-line=37
+line=38
 open=true
 order=0
+
+[item:logger.tex]
+archive=true
+column=49
+encoding=UTF-8
+highlight=LaTeX
+line=12
+open=true
+order=7
 
 [item:references.bib]
 archive=true
