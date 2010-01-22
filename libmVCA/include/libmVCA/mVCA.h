@@ -127,6 +127,17 @@ class mVCA {
 		list<int> get_sample_word(bool & is_empty);
 		bool is_empty();
 
+
+		///-----------------------------------
+		
+		bool lang_subset_of(mVCA & other);
+		//bool lang_disjoint_to(mVCA & other);
+		//bool lang_complement();
+
+		//mVCA * determinize();
+		
+		///-----------------------------------
+
 		// obtain id of unique derived class
 		virtual enum mVCA_derivate get_derivate_id() = 0;
 
@@ -145,8 +156,6 @@ class mVCA {
 		// </serialized automaton>
 		basic_string<int> serialize();
 		bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
-		// construct a new mVCA
-		//		bool construct(...); FIXME
 
 		string generate_dotfile();
 	protected:
@@ -157,15 +166,13 @@ class mVCA {
 
 
 
-// automatically construct new automaton
-//mVCA * construct_mVCA(...); FIXME
-
 mVCA * construct_mVCA(	unsigned int state_count,
 			int alphabet_size, set<int> & up, set<int> & stay, set<int> & down,
 			int initial_state,
 			set<int> & final_states,
 			int m_bound,
 			map<int, map<int, map<int, set<int> > > > & transitions
+			// transitions: m -> state -> sigma -> states
 		);
 
 mVCA * deserialize_mVCA(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);

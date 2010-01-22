@@ -160,9 +160,13 @@ set<int> mVCA::run(const set<int> & from, int & m, list<int>::iterator word, lis
 {{{
 	set<int> current = from;
 
-	while(word != word_limit)
-		if(!endo_transition(current, m, *word))
+	while(word != word_limit) {
+		if(!endo_transition(current, m, *word)) {
+			++word;
 			break; // current is cleared by endo_transition.
+		}
+		++word;
+	}
 
 	return current;
 }}}
@@ -170,6 +174,8 @@ set<int> mVCA::run(const set<int> & from, int & m, list<int>::iterator word, lis
 
 
 list<int> mVCA::shortest_run(const set<int> & from, int m, const set<int> & to, int to_m, bool &reachable)
+// FIXME: this will not terminate if language is empty and graph is infinite!
+// this has to use saturation algorithm.
 {{{
 	// width-first search
 	set<mVCA_run> visited; // NOTE that mVCA_run only discriminates by m/state.
@@ -263,6 +269,14 @@ bool mVCA::is_empty()
 	get_sample_word(ret);
 	return ret;
 }}}
+
+bool mVCA::lang_subset_of(mVCA & other)
+// cross-product + Pre* of all states that are final in one automaton, but
+// not final in the other.
+{
+	
+}
+
 
 basic_string<int32_t> mVCA::serialize()
 {{{
