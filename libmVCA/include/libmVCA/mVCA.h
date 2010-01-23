@@ -118,7 +118,7 @@ class mVCA {
 
 		set<int> run(const set<int> & from, int & m, list<int>::iterator word, list<int>::iterator word_limit);
 		// get shortest run from a state in <from> to a state in <to>.
-		// if <to_m >= 0>, the run has to result in an <m = to_m>
+		// the run has to result in a configuration where the current state is a state in <to> and m is <to_m>.
 		list<int> shortest_run(const set<int> & from, int m, const set<int> & to, int to_m, bool &reachable);
 		// test if word is contained in language of automaton
 		bool contains(list<int> & word);

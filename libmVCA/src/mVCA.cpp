@@ -174,68 +174,22 @@ set<int> mVCA::run(const set<int> & from, int & m, list<int>::iterator word, lis
 
 
 list<int> mVCA::shortest_run(const set<int> & from, int m, const set<int> & to, int to_m, bool &reachable)
-// FIXME: this will not terminate if language is empty and graph is infinite!
-// this has to use saturation algorithm.
-{{{
-	// width-first search
-	set<mVCA_run> visited; // NOTE that mVCA_run only discriminates by m/state.
-	set<int>::iterator si;
-	list<mVCA_run> run_fifo;
-	mVCA_run current, next, bounded_current;
+{
+	// using the saturation algorithm to create the regular set Pre*(C),
+	// where C is the regular set of all accepting configurations (c, m) with c in <to> and m = <to_m>.
+	// for a reference on this algorithm, see e.g. the
+	// Lecture on Applied Automata Theory, Chair of Computer Science 7, RWTH Aachen University of Technology.
 
-	// fill fifo with initial states
-	current.m = m;
-	for(si = from.begin(); si != from.end(); ++si) {
-		current.state = *si;
-		run_fifo.push_back(current);
-	}
+	// create normalised P-automaton accepting exactly the accepting configurations.
+	// all states of <this> are initial states in the P-automaton.
+	
 
-	while(!run_fifo.empty()) {
-		current = run_fifo.front();
-		run_fifo.pop_front();
+	// saturate P-automaton to obtain Pre*( (c,m) ).
+	
 
-		bounded_current = current;
-		if(bounded_current.m > m_bound)
-			bounded_current.m = m_bound;
-
-		// skip visited states
-		// (NOTE that mVCA_run comparators only look at m and state, not at prefix!)
-		if(visited.find(bounded_current) != visited.end())
-			continue;
-
-		// mark as visited
-		visited.insert(bounded_current);
-
-		// check final
-		if((to_m < 0 || to_m == current.m) && to.find(current.state) != to.end()) {
-			reachable = true;
-			return current.prefix;
-		}
-
-		// iterate over all successors
-		for(int sigma = 0; sigma < alphabet.get_alphabet_size(); sigma++) {
-			set<int> src;
-			set<int> dst;
-			src.insert(current.state);
-			next.m = m;
-			dst = this->transition(src, next.m, sigma);
-
-			if(next.m < 0 || dst.empty())
-				continue;
-
-			next.prefix = current.prefix;
-			next.prefix.push_back(sigma);
-
-			for(si = dst.begin(); si != dst.end(); ++si) {
-				next.state = *si;
-				run_fifo.push_back(next);
-			}
-		}
-	}
-	list<int> ret;
-	reachable = false;
-	return ret; // empty word
-}}}
+	// check if a final state is reachable from <this.initial>. if so, calculate the run.
+	
+}
 
 bool mVCA::contains(list<int> & word)
 {{{
