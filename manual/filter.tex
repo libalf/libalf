@@ -1,0 +1,94 @@
+\chapter{Filters \& Normalizers}
+A knowledgebase can be associated with \textbf{filters} which can exploit domain specific properties and by that actively reduce the number of queries to the teacher during the learning phase. Such filters can be composed by logical connectors (and, or, not). \\
+In contrast, \textbf{Normalizers} recognize equivalent words in a domain-specific sense to reduce the amount of knowledge that has to be stored.
+
+\section{Implementation of Filters}
+The filter is composed of the main class \texttt{filter} and classes for all logical connectors. They are template classes of type \texttt{answer}. They also implement serialization and deserialization apart from the other methods.
+
+\subsection{Class - filter}
+It is the main class that evaluates the word using the filter.
+
+\subsection*{Attributes}
+An \emph{enum} type variable \texttt{type} is used to define the filter type.
+\begin{itemize}
+ \item \textbf{FILTER\_NONE = 0} ; No filter associated
+ \item \textbf{FILTER\_AND = 1} ; Filter type \emph{and}
+ \item \textbf{FILTER\_OR = 2} ; Filter type \emph{or}
+ \item \textbf{FILTER\_NOT = 3} ; Filter type \emph{not}
+ \item \textbf{FILTER\_ALL\_EQUAL = 4} ; Filter type for equal words
+ \item \textbf{FILTER\_REVERSE = 100} ; Filter type handling reverse of a word.
+ \item \textbf{FILTER\_IDENTITY = 200} ; Identity filter **
+\end{itemize}
+
+\subsection*{Methods}
+\begin{enumerate}
+ \item \textbf{virtual void free\_all\_subfilter()} \\
+	Method to erase all the subfilters (logical connectors) associated with the knowledgebase.
+ \item \textbf{virtual enum type get\_type()} \\
+	The method returns the type of filter. Returns FILTER\_NONE in this class.
+ \item \textbf{virtual bool evaluate(knowledgebase$<$answer$>$ \& base, list$<$int$>$ \& word, answer \& result)} \\
+	The method used to evaluate the world with the associated filter in the knowledgbase. 
+\end{enumerate}
+
+\subsection{Class - filter\_subfilter\_array}
+A class that inherits the filter class to form the array of subfilters.
+\subsection*{Attributes}
+\begin{itemize}
+ \item \textbf{list$<$filter$<$answer$>$*$>$ subfilter\_array} \\
+	A list of all the subfilters associated with the knowledgebase.
+\end{itemize}
+\subsection*{Methods}
+\begin{itemize}
+ \item \textbf{virtual void free\_all\_subfilter()} \\
+	The method to erase all subfilters.
+ \item \textbf{virtual void add(filter$<$answer$>$ *f)} \\
+	Method to add a filter into the array.
+ \item \textbf{virtual void remove(filter$<$answer$>$ *f)} \\
+	Method to remove a filter from the array.
+\end{itemize}
+
+\subsection{class - filter\_and}
+The connector class \texttt{and}. It inherits the class \texttt{filter\_subfilter\_array}. 
+\subsection*{Methods}
+\begin{enumerate}
+ \item \textbf{virtual enum filter$<$answer$>$::type get\_type()}
+	The method returns the filter type which is FILTER\_AND.
+ \item \textbf{virtual bool evaluate(knowledgebase$<$answer$>$ \& base, list$<$int$>$ \& word, answer \& result)}
+	The method evaluates the word using the \texttt{and} operator.
+\end{enumerate}
+
+\subsection{class - filter\_or}
+The connector class \texttt{or}. It inherits the class \texttt{filter\_subfilter\_array}. 
+\subsection*{Methods}
+\begin{enumerate}
+ \item \textbf{virtual enum filter$<$answer$>$::type get\_type()}
+	The method returns the filter type which is FILTER\_OR
+ \item \textbf{virtual bool evaluate(knowledgebase$<$answer$>$ \& base, list$<$int$>$ \& word, answer \& result)}
+	The method evaluates the word using the \texttt{or} operator.
+\end{enumerate}
+
+\subsection{class - filter\_not}
+The connector class \texttt{not}. It inherits the class \texttt{filter\_subfilter\_array}. 
+\subsection*{Attributes}
+\begin{itemize}
+ \item filter$<$answer$>$ * subfilter \\
+\end{itemize}
+\subsection*{Methods}
+\begin{enumerate}
+ \item \textbf{virtual void free\_all\_subfilter()} \\
+	The method removes all the filters from the \texttt{subfilter}
+ \item \textbf{virtual enum filter$<$answer$>$::type get\_type()} \\
+	The method returns the filter type which is FILTER\_NOT.
+ \item \textbf{virtual bool evaluate(knowledgebase$<$answer$>$ \& base, list$<$int$>$ \& word, answer \& result)} \\
+	The method evaluates the word using the \texttt{and} operator.
+ \item \textbf{virtual void set\_subfilter(filter$<$answer$>$ * f)} \\
+	The method sets the \texttt{subfilter} to ``f''.
+ \item \textbf{virtual void remove\_subfilter()}
+	The method sets the \texttt{subfilter} to NULL.
+
+\end{enumerate}
+
+
+\section{Normalizer}
+
+It is employed for learning algorithms using message sequence charts. 
