@@ -34,6 +34,8 @@
 #include <libmVCA/deterministic_mVCA.h>
 #include <libmVCA/nondeterministic_mVCA.h>
 
+#include <libmVCA/p-automaton.h>
+
 #include "set.h"
 
 namespace libmVCA {
@@ -99,6 +101,10 @@ int mVCA::get_alphabet_size()
 	return this->alphabet.get_alphabet_size();
 }}}
 
+int mVCA::get_state_count()
+{{{
+	return state_count;
+}}}
 int mVCA::get_initial_state()
 {{{
 	return initial_state;
@@ -174,22 +180,37 @@ set<int> mVCA::run(const set<int> & from, int & m, list<int>::iterator word, lis
 
 
 list<int> mVCA::shortest_run(const set<int> & from, int m, const set<int> & to, int to_m, bool &reachable)
-{
+{{{
 	// using the saturation algorithm to create the regular set Pre*(C),
 	// where C is the regular set of all accepting configurations (c, m) with c in <to> and m = <to_m>.
 	// for a reference on this algorithm, see e.g. the
-	// Lecture on Applied Automata Theory, Chair of Computer Science 7, RWTH Aachen University of Technology.
+	// Lecture on Applied Automata Theory, Chair of Computer Science 7, RWTH Aachen University of Technology
 
-	// create normalised P-automaton accepting exactly the accepting configurations.
-	// all states of <this> are initial states in the P-automaton.
-	
+	set<int>::iterator si;
 
-	// saturate P-automaton to obtain Pre*( (c,m) ).
-	
+	p_automaton pa(this);
+	for(si = to.begin(); si != to.end(); ++si)
+		pa.add_accepting_configuration(*si, to_m);
 
-	// check if a final state is reachable from <this.initial>. if so, calculate the run.
-	
-}
+	pa.saturate_preSTAR();
+
+	list<int> old_word;
+	list<int> new_word;
+	bool new_word_valid = false;
+	reachable = false;
+
+	for(si = from.begin(); si != from.end(); ++si) {
+		new_word = pa.check_acceptance(*si, m, new_word_valid);
+		if(new_word_valid) {
+			if(!reachable || new_word.size() < old_word.size()) {
+				reachable = true;
+				old_word = new_word;
+			}
+		}
+	}
+
+	return old_word;
+}}}
 
 bool mVCA::contains(list<int> & word)
 {{{

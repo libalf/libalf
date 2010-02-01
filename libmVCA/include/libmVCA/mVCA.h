@@ -99,6 +99,9 @@ class mVCA {
 		pushdown_alphabet get_alphabet();
 		int get_alphabet_size();
 
+		// STATES
+		int get_state_count();
+
 		// INITIAL/FINAL STATES
 		int get_initial_state();
 		set<int> get_initial_states();
