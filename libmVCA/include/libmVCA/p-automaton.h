@@ -34,11 +34,16 @@ namespace libmVCA {
 using namespace std;
 
 // type to store transitions and keep track of some informations
-typedef struct {
-	int dst;
-	bool is_new;
-	vector<int> new_used_transitions;
-} pa_transition_target;
+class pa_transition_target {
+	public:
+		int dst;
+		bool is_new;
+		bool is_stack_bottom
+		vector<int> new_used_transitions;
+	public:
+		pa_transition_target()
+		{ dst = -1; is_new = false; is_stack_bottom = false; };
+};
 
 // so we can have sets of transition_targets:
 bool operator<(const pa_transition_target first, const pa_transition_target second);

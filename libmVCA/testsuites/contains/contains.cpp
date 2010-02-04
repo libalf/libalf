@@ -62,7 +62,6 @@ int main(int argc, char**argv)
 
 	// transitions: m -> state -> sigma -> states
 	transitions[0][0][0].insert(0);
-	transitions[0][1][2].insert(1);
 
 	transitions[1][0][0].insert(0);
 	transitions[1][1][2].insert(1);
