@@ -86,20 +86,22 @@ class learning_algorithm {
 			ALG_ANGLUIN = 1,
 			ALG_ANGLUIN_COLUMN = 2,
 			ALG_RVA = 3,			// Rivest and Shapira: reduced angluin
-			ALG_KVTREE = 4,			// Kearns and Vazirani
-			ALG_NL_STAR = 5,
-			ALG_BIERMANN_ANGLUIN = 6,
+			ALG_NL_STAR = 4,
 
 			// offline
-			ALG_BIERMANN = 7,
-			ALG_RPNI = 8,
-			ALG_DELETE2 = 9,
-			ALG_TB_INFERENCE = 10,		// Trakhtenbrot and Barzdin
-			ALG_HSI = 11,			// homing sequence inference
-			ALG_BIERMANN_ORIGINAL = 12,
-			
+			ALG_BIERMANN = 5,
+			ALG_RPNI = 6,
+			ALG_DELETE2 = 7,
+			ALG_BIERMANN_ORIGINAL = 8,
+
 			// END
-			ALG_LAST_INVALID = 13
+			ALG_LAST_INVALID = 9
+
+//			ALG_KVTREE = ...,		// Kearns and Vazirani
+//			ALG_MVCA_ANGLUINLIKE = ...,	// angluin-style learning of m-bounded visible 1counter automata
+//			ALG_BIERMANN_ANGLUIN = ...,	//
+//			ALG_TB_INFERENCE = ...,		// Trakhtenbrot and Barzdin
+//			ALG_HSI = ...,			// homing sequence inference
 		};
 
 	public: // methods

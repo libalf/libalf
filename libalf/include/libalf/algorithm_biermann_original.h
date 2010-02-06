@@ -19,6 +19,7 @@
  * (c) 2008,2009 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
  *           and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
  * Author: Daniel Neider <neider@automata.rwth-aachen.de>
+ *         David R. Piegdon <david-i2@piegdon.de>
  *
  */
 
@@ -130,7 +131,7 @@ class original_biermann : public learning_algorithm<answer> {
 
 		ret += htonl(2);
 		ret += htonl(learning_algorithm<answer>::ALG_BIERMANN_ORIGINAL);
-		ret += htonl(nondeterminism);
+		ret += htonl(nondeterminism ? 1 : 0);
 
 		return ret;
 	}
@@ -146,9 +147,41 @@ class original_biermann : public learning_algorithm<answer> {
 			return false;
 
 		it++; if(it == limit) return false;
-		if(ntohl(*it) < 1) return false;
+		if(ntohl(*it) < 1) return false; // FIXME: this will only allow nondetermism of true!
 		
 		nondeterminism = ntohl(*it);
+
+		return true;
+	}
+
+	bool deserialize_magic(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, basic_string<int32_t> & result)
+	// the user may set magic to set the value of deserialize:
+	// expected packet:
+	//	bool: set (if this is != 0, we set "nondeterminism" with the following value
+	//	bool: nondeterminism (unused if we don't set)
+	// returns:
+	//	bool: nondeterminism (current value)
+	//
+	// added 2010-02-06 by David R. Piegdon
+	{
+		result.clear();
+
+		if(it == limit) return false;
+
+		int set;
+		int v;
+
+		set = ntohl(*it);
+		++it; if(it == limit) return false;
+		v = ntohl(*it);
+		++it;
+
+		this->set_nondeterminism(v);
+
+		if(nondeterminism)
+			result += htonl(1);
+		else
+			result += htonl(0);
 
 		return true;
 	}

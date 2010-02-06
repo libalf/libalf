@@ -311,8 +311,6 @@ bool servant::reply_create_object()
 			t = ntohl(data[0]); // algorithm type
 			u = ntohl(data[1]); // alphabet_size
 
-			// FIXME: catch not-implemented algorithms!
-
 			if(t <= learning_algorithm<extended_bool>::ALG_NONE || t >= learning_algorithm<extended_bool>::ALG_LAST_INVALID)
 				goto bad_parameters;
 			if(u <= 0)

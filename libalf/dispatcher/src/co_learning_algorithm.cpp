@@ -25,11 +25,12 @@
 #include <libalf/learning_algorithm.h>
 
 #include <libalf/algorithm_angluin.h>
-//#include <libalf/KVtree.h>
 #include <libalf/algorithm_biermann_minisat.h>
 //#include BIERMANN_ANGLUIN
 #include <libalf/algorithm_NLstar.h>
 #include <libalf/algorithm_RPNI.h>
+#include <libalf/algorithm_DeLeTe2.h>
+#include <libalf/algorithm_biermann_original.h>
 #include <libalf/algorithm_DeLeTe2.h>
 
 #include "co_learning_algorithm.h"
@@ -59,12 +60,6 @@ co_learning_algorithm::co_learning_algorithm(enum libalf::learning_algorithm<ext
 		case learning_algorithm<extended_bool>::ALG_ANGLUIN_COLUMN:
 			o = new angluin_col_table<extended_bool>(NULL, NULL, alphabet_size);
 			break;
-//		case learning_algorithm<extended_bool>::ALG_KVTREE:
-//			o = new KVtree<extended_bool>(NULL, NULL, alphabet_size);
-//			break;
-//		case learning_algorithm<extended_bool>::ALG_BIERMANN_ANGLUIN:
-//			o = new algorithm_biermann_angluin<extended_bool>(NULL, NULL, alphabet_size);
-//			break;
 		case learning_algorithm<extended_bool>::ALG_NL_STAR:
 			o = new NLstar_table<extended_bool>(NULL, NULL, alphabet_size);
 			break;
@@ -76,6 +71,9 @@ co_learning_algorithm::co_learning_algorithm(enum libalf::learning_algorithm<ext
 			break;
 		case learning_algorithm<extended_bool>::ALG_DELETE2:
 			o = new DeLeTe2<extended_bool>(NULL, NULL, alphabet_size);
+			break;
+		case learning_algorithm<extended_bool>::ALG_BIERMANN_ORIGINAL:
+			o = new original_biermann<extended_bool>(NULL, NULL, alphabet_size, true);
 			break;
 	}
 }}};

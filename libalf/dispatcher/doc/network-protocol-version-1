@@ -588,7 +588,7 @@ server returns:
 	character-string
 
 
-deserialize algorithm-specific parameters (LEARNING_ALGORITHM_DESERIALIZE_MAGIC)
+deserialize algorithm-specific parameters (LEARNING_ALGORITHM_DESERIALIZE_MAGIC) (see -> MAGICS)
 parameters: 2
 	size,
 	serialized data[]
@@ -798,4 +798,20 @@ only if above was false:
 	word[]
 
 ================================================================================
+
+MAGICS
+
+this is a list of magics of specific algorithms:
+
+ALG_BIERMANN_ORIGINAL:
+
+	parameters: 2
+		bool: set? (0 if this is a query, 1 if this sets the value
+		bool: nondeterminism (only used if above is true)
+
+	return:
+		bool: nondeterminism
+
+	NOTE that after construction of a new ALG_BIERMANN_ORIGINAL,
+	nondeterminism is set to TRUE.
 
