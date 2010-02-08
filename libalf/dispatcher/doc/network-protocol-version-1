@@ -807,11 +807,11 @@ ALG_BIERMANN_ORIGINAL:
 
 	parameters: 2
 		bool: set? (0 if this is a query, 1 if this sets the value
-		bool: nondeterminism (only used if above is true)
+		unsigned int: nondeterminism (only used if above is true)
 
 	return:
-		bool: nondeterminism
+		unsigned int: nondeterminism
 
 	NOTE that after construction of a new ALG_BIERMANN_ORIGINAL,
-	nondeterminism is set to TRUE.
+	nondeterminism is set to 0.
 

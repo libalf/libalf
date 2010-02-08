@@ -158,9 +158,10 @@ class original_biermann : public learning_algorithm<answer> {
 	// the user may set magic to set the value of deserialize:
 	// expected packet:
 	//	bool: set (if this is != 0, we set "nondeterminism" with the following value
-	//	bool: nondeterminism (unused if we don't set)
+	//	unsigned int: nondeterminism (unused if we don't set)
+	//
 	// returns:
-	//	bool: nondeterminism (current value)
+	//	unsigned int: nondeterminism (current value)
 	//
 	// added 2010-02-06 by David R. Piegdon
 	{
@@ -169,19 +170,16 @@ class original_biermann : public learning_algorithm<answer> {
 		if(it == limit) return false;
 
 		int set;
-		int v;
+		unsigned int v;
 
 		set = ntohl(*it);
 		++it; if(it == limit) return false;
-		v = ntohl(*it);
+		v = (unsigned int)ntohl(*it);
 		++it;
 
 		this->set_nondeterminism(v);
 
-		if(nondeterminism)
-			result += htonl(1);
-		else
-			result += htonl(0);
+		result += htonl((int) nondeterminism)
 
 		return true;
 	}
