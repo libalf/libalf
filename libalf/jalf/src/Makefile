@@ -13,7 +13,7 @@
 # - set JAVA_INCLUDE (at the top of this file) to your JDK include path
 # - just run "make windows"
 
-LDFLAGS += -L${PREFIX}/lib -lalf
+LDFLAGS += -L${PREFIX}/lib -L${PREFIX}/src -lalf
 
 ifeq (${OS}, Windows_NT)
   JAVA_INCLUDE ?= c:\Progra~1\Java\JDK16~1.0_1\include

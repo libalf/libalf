@@ -179,7 +179,7 @@ class original_biermann : public learning_algorithm<answer> {
 
 		this->set_nondeterminism(v);
 
-		result += htonl((int) nondeterminism)
+		result += htonl((int) nondeterminism);
 
 		return true;
 	}
