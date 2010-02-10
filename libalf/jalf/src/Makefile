@@ -3,19 +3,15 @@
 
 .PHONY: all test_java_dir clean install windows-deps
 
-#
-# WARNING: Did not yet test windows compiling!!!
-#
-
 # FOR WINDOWS:
 # - use MinGW (tested with MinGW-GCC 3.4)
 # - get LibGMP (e.g. http://progressive-living.com/opensource/gmp/gmp-4.2.2_win_lib_h.zip)
 # - set JAVA_INCLUDE (at the top of this file) to your JDK include path
-# - just run "make windows"
 
-LDFLAGS += -L${PREFIX}/lib -L${PREFIX}/src -lalf
+LDFLAGS += -L${PREFIX}/lib -L${PREFIX}/src -L../../src
 
 ifeq (${OS}, Windows_NT)
+  # assuming Windows
   JAVA_INCLUDE ?= c:\Progra~1\Java\JDK16~1.0_1\include
 
   CPPFLAGS += -I${JAVA_INCLUDE}/win32
@@ -41,16 +37,21 @@ OBJECTS = jni_tools.o jni_object.o jni_knowledgebase.o jni_buffered_logger.o jni
 all:	${TARGET}
 
 libjalf.so: test_java_dir ${OBJECTS}
-	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} -Xlinker -soname=libjalf ${LDFLAGS} -o $@
+	make -C ../../src libalf.a
+	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} -Xlinker -soname=libjalf ${LDFLAGS} -static -lalf -o libjalf.so
+	
+libjalf.so-dynamic: test_java_dir ${OBJECTS}
+	make -C ../../src libalf.so
+	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} -Xlinker -soname=libjalf ${LDFLAGS} -lalf -o libjalf.so
 
 jalf.dll: ${OBJECTS}
 	make -C ../../src libalf.a
-	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} ${LDFLAGS} -static -L../../src -o jalf.dll -Wl,--kill-at
+	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} ${LDFLAGS} -static -lalf -o jalf.dll -Wl,--kill-at
 #	                                                                                   ^^^^^^^^^^^^^ needed for JNI-DLL (http://www.mingw.org/wiki/JNI-MinGW-DLL)
 
-jalf.dll-DYNAMIC: ${OBJECTS}
+jalf.dll-dynamic: ${OBJECTS}
 	make -C ../../src libalf.dll
-	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} ${LDFLAGS} -o $@ -Wl,--kill-at
+	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} ${LDFLAGS} -lalf -o jalf.dll -Wl,--kill-at
 #	                                                         ^^^^^^^^^^^^^ needed for JNI-DLL (http://www.mingw.org/wiki/JNI-MinGW-DLL)
 
 test_java_dir:
