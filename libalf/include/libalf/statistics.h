@@ -25,6 +25,8 @@
 #ifndef __libalf_statistics_h__
 # define __libalf_statistics_h__
 
+#include <sys/types.h>
+
 #include <string>
 #include <iterator>
 
