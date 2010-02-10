@@ -25,6 +25,8 @@
 #ifndef __libalf_normalizer_h__
 # define __libalf_normalizer_h__
 
+#include <stdint.h>
+
 #include <list>
 #include <string>
 
