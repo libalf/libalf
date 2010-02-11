@@ -170,15 +170,17 @@ class original_biermann : public learning_algorithm<answer> {
 		if(it == limit) return false;
 
 		int set;
-		unsigned int v;
 
-		set = ntohl(*it);
-		++it; if(it == limit) return false;
-		v = (unsigned int)ntohl(*it);
-		++it;
+		if(ntohl(*it)) {
+			++it; if(it == limit) return false;
+			unsigned int v;
+			v = (unsigned int)ntohl(*it);
 
-		this->set_nondeterminism(v);
+			this->set_nondeterminism(v);
+		}
+		++it; if(it != limit) return false;
 
+		result += htonl(1);
 		result += htonl((int) nondeterminism);
 
 		return true;
