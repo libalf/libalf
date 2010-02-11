@@ -416,6 +416,17 @@ public class DispatcherFactory implements LibALFFactory {
 			else
 				throw new AlfException("Invalid parameters for creating Biermann (MiniSAT) learning algorithm: " + args.length + ".");
 
+		case BIERMANN_ORIGINAL:
+			/*
+			 * Create Biermann (original) learning algorithm.
+			 */
+			if (args.length == 3)
+				return new DispatcherAlgorithmBiermannOriginal(this, (Knowledgebase) args[0], (Integer) args[1], null, (Integer) args[2]);
+			else if (args.length == 4)
+				return new DispatcherAlgorithmBiermannOriginal(this, (Knowledgebase) args[0], (Integer) args[1], (Logger) args[2], (Integer) args[3]);
+			else
+				throw new AlfException("Invalid parameters for creating Biermann (original) learning algorithm: " + args.length + ".");
+				
 		case DELETE2:
 			/*
 			 * Create DeLeTe2 inference algorithm.
