@@ -131,14 +131,14 @@ class original_biermann : public learning_algorithm<answer> {
 
 		ret += htonl(2);
 		ret += htonl(learning_algorithm<answer>::ALG_BIERMANN_ORIGINAL);
-		ret += htonl(nondeterminism ? 1 : 0);
+		ret += htonl(nondeterminism);
 
 		return ret;
 	}
 
 	bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit) {
 		if(it == limit) return false;
-		
+
 		if(ntohl(*it) != 2)
 			return false;
 
@@ -147,21 +147,27 @@ class original_biermann : public learning_algorithm<answer> {
 			return false;
 
 		it++; if(it == limit) return false;
-		if(ntohl(*it) < 1) return false; // FIXME: this will only allow nondetermism of true!
-		
-		nondeterminism = ntohl(*it);
+		nondeterminism = ntohl(*it)
+		if(val < 1) {
+			nondeterminism = 1;
+			return false;
+		}
+
+		it++;
 
 		return true;
 	}
 
 	bool deserialize_magic(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, basic_string<int32_t> & result)
-	// the user may set magic to set the value of deserialize:
-	// expected packet:
-	//	bool: set (if this is != 0, we set "nondeterminism" with the following value
-	//	unsigned int: nondeterminism (unused if we don't set)
+	// you may use magic to set the value of nondeterminism:
 	//
-	// returns:
-	//	unsigned int: nondeterminism (current value)
+	// expected data:
+	//	bool: set?
+	// only if above was true:
+	//	nondeterminism [unsigned int]
+	//
+	// returns: (always)
+	//	nondeterminism [unsigned int] (current value)
 	//
 	// added 2010-02-06 by David R. Piegdon
 	{
@@ -169,18 +175,21 @@ class original_biermann : public learning_algorithm<answer> {
 
 		if(it == limit) return false;
 
-		int set;
+		bool set = ntohl(*it);
+		unsigned int val;
 
-		if(ntohl(*it)) {
-			++it; if(it == limit) return false;
-			unsigned int v;
-			v = (unsigned int)ntohl(*it);
-
-			this->set_nondeterminism(v);
+		if(set) {
+			it++; if(it == limit) return false;
+			val = ntohl(*it);
+			if(val < 1)
+				this->set_nondeterminism(1);
+			else
+				this->set_nondeterminism(val);
 		}
-		++it; if(it != limit) return false;
 
-		result += htonl(1);
+		it++;
+
+		result += htonl(1); // length
 		result += htonl((int) nondeterminism);
 
 		return true;

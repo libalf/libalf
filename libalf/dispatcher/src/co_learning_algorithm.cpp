@@ -73,7 +73,7 @@ co_learning_algorithm::co_learning_algorithm(enum libalf::learning_algorithm<ext
 			o = new DeLeTe2<extended_bool>(NULL, NULL, alphabet_size);
 			break;
 		case learning_algorithm<extended_bool>::ALG_BIERMANN_ORIGINAL:
-			o = new original_biermann<extended_bool>(NULL, NULL, alphabet_size, 0);
+			o = new original_biermann<extended_bool>(NULL, NULL, alphabet_size, 1);
 			break;
 	}
 }}};

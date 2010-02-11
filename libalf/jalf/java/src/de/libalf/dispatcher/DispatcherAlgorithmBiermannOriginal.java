@@ -28,12 +28,14 @@ import de.libalf.Logger;
 public class DispatcherAlgorithmBiermannOriginal extends DispatcherLearningAlgorithm {
 	private static final long serialVersionUID = 1L;
 	
+	// FIXME: zum setzen, {1, <val>}
 	public DispatcherAlgorithmBiermannOriginal(DispatcherFactory factory, Knowledgebase base, int alphabet_size, Logger logger, int nondeterminism) {
 		super(factory, DispatcherConstants.ALG_BIERMANN_ORIGINAL, base, alphabet_size, logger);
 		if (deserialize_magic(new int[]{nondeterminism}).length != 1)
 			throw new DispatcherProtocolException("unexpected answer length");
 	}
 
+	// FIXME: zum lesen, {0}
 	public int get_nondeterminism() {
 		int[] magic = deserialize_magic(new int[]{});
 		if (magic.length != 1)

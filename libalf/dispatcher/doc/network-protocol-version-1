@@ -805,13 +805,14 @@ this is a list of magics of specific algorithms:
 
 ALG_BIERMANN_ORIGINAL:
 
-	parameters: 2
+	send:
 		bool: set? (0 if this is a query, 1 if this sets the value
-		unsigned int: nondeterminism (only used if above is true)
+	only if above was true:
+		nondeterminism [unsigned int]
 
-	return:
-		unsigned int: nondeterminism
+	always return:
+		nondeterminism [unsigned int] (current value)
 
 	NOTE that after construction of a new ALG_BIERMANN_ORIGINAL,
-	nondeterminism is set to 0.
+	nondeterminism is set to 1.
 
