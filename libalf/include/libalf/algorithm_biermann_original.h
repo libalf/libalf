@@ -147,7 +147,7 @@ class original_biermann : public learning_algorithm<answer> {
 			return false;
 
 		it++; if(it == limit) return false;
-		nondeterminism = ntohl(*it)
+		nondeterminism = ntohl(*it);
 		if(nondeterminism < 1) {
 			nondeterminism = 1;
 			return false;
