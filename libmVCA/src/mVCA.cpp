@@ -96,6 +96,10 @@ pushdown_alphabet mVCA::get_alphabet()
 {{{
 	return this->alphabet;
 }}}
+enum pushdown_direction mVCA::alphabet_get_direction(int sigma)
+{{{
+	return this->alphabet.get_direction(sigma);
+}}}
 int mVCA::get_alphabet_size()
 {{{
 	return this->alphabet.get_alphabet_size();

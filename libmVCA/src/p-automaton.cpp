@@ -145,31 +145,49 @@ bool p_automaton::saturate_preSTAR()
 
 	while(new_transition_added) {
 		new_transition_added = false;
-		// FIXME: iterate over all mVCA transition rules:
-		int from_state, from_m, to_state, to_m, mVCA_label;
-		
-		{
-			// assume a rule <from_state, from_m> -> <to_state, to_m> with mVCA-label <mVCA_label>
-			list<int> to_m_cfg = get_config(to_state, to_m);
-			to_m_cfg.pop_front();
-			if(from_m != 0)
-				to_m_cfg.pop_back(); // we have to keep the bottom symbol if from_m == 0.
+		// iterate over all mVCA transition rules:
+		map<int, map<int, map<int, set<int> > > >::iterator mi; // over all m
+		for(mi = mVCA_postmap.begin(); mi != mVCA_postmap.end(); ++mi) {
+			int from_m = mi->first;
 
-			set<pair<int, list<int> > > destinations;
-			set<pair<int, list<int> > >::iterator di;
+			map<int, map<int, set<int> > >::iterator statei; // over all source states
+			for(statei = mi->second.begin(); statei != mi->second.end(); ++statei) {
+				int from_state = statei->first;
 
-			destinations = run_transition_accumulate(to_state, to_m_cfg);
+				map<int, set<int> >::iterator labeli; // over all labels
+				for(labeli = statei->second.begin(); labeli != statei->second.end(); ++labeli) {
+					int mVCA_label = labeli->first;
+					int to_m = from_m + base_automaton->alphabet_get_direction(mVCA_label);
 
-			for(di = destinations.begin(); di != destinations.end(); ++di) {
-				if(!transition_exists(from_state, from_m, to_state)) {
-					pa_transition_target tr;
+					set<int>::iterator desti; // over all destinations
+					for(desti = labeli->second.begin(); desti != labeli->second.end(); ++desti) {
+						int to_state = *desti;
 
-					tr.dst = to_state;
-					tr.mVCA_word = di->second;
-					tr.mVCA_word.push_back(mVCA_label); // FIXME: push_front(...)?
+						// SATURATE, given the rule
+						// <from_state, from_m> -> <to_state, to_m> with mVCA-label <mVCA_label>
+						list<int> to_m_cfg = get_config(to_state, to_m);
+						to_m_cfg.pop_front();
+						if(from_m != 0)
+							to_m_cfg.pop_back(); // we have to keep the bottom symbol if from_m == 0. FIXME: special case(s) ?!
 
-					transitions[from_state][from_m].insert( tr );
-					new_transition_added = true;
+						set<pair<int, list<int> > > destinations;
+						set<pair<int, list<int> > >::iterator di;
+
+						destinations = run_transition_accumulate(to_state, to_m_cfg);
+
+						for(di = destinations.begin(); di != destinations.end(); ++di) {
+							if(!transition_exists(from_state, from_m, to_state)) {
+								pa_transition_target tr;
+
+								tr.dst = to_state;
+								tr.mVCA_word = di->second;
+								tr.mVCA_word.push_back(mVCA_label); // FIXME: push_front(...)?
+
+								transitions[from_state][from_m].insert( tr );
+								new_transition_added = true;
+							}
+						}
+					}
 				}
 			}
 		}

@@ -97,6 +97,8 @@ class mVCA {
 		void set_alphabet(pushdown_alphabet & alphabet);
 		void unset_alphabet();
 		pushdown_alphabet get_alphabet();
+
+		enum pushdown_direction alphabet_get_direction(int sigma);
 		int get_alphabet_size();
 
 		// STATES
