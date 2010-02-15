@@ -139,7 +139,7 @@ bool p_automaton::saturate_preSTAR()
 	// we calculate states reachable via <to_state, new_m*> and remember the possible mVCA-transitions T required for the configuration.
 	//
 	// then we add a transition from <from_state> with label "top-of-<m*>" and
-	// set the mVCA-transition of this transition to concat( T, mVCA-label ). (FIXME: or concat( mVCA-label, T )? )
+	// set the mVCA-transition of this transition to concat( mVCA-label, T ).
 
 	bool new_transition_added = true;
 
@@ -181,7 +181,7 @@ bool p_automaton::saturate_preSTAR()
 
 								tr.dst = to_state;
 								tr.mVCA_word = di->second;
-								tr.mVCA_word.push_back(mVCA_label); // FIXME: push_front(...)?
+								tr.mVCA_word.push_front(mVCA_label);
 
 								transitions[from_state][from_m].insert( tr );
 								new_transition_added = true;
