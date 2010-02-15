@@ -59,8 +59,7 @@ class p_automaton {
 		bool valid;
 		bool saturated;
 		mVCA * base_automaton;
-		map<int, map<int, map<int, set<int> > > > mVCA_premap; // m -> state -> label -> set<states>
-		map<int, map<int, map<int, set<int> > > > mVCA_postmap;
+		map<int, map<int, map<int, set<int> > > > mVCA_postmap; // m -> state -> label -> set<states>
 
 		// the alphabet is different from the mVCA alphabet, as we operate over the
 		// mVCA configuration, i.e. over <state, m>. the alphabet is m+1 in size.
@@ -101,6 +100,8 @@ class p_automaton {
 
 		list<int> get_valid_run(int state, int m, bool & reachable);
 		list<int> get_shortest_valid_run(int state, int m, bool & reachable);
+
+		string generate_dotfile();
 };
 
 }; // end of namespace libmVCA

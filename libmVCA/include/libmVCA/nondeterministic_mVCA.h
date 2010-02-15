@@ -50,6 +50,8 @@ class nondeterministic_mVCA : public mVCA {
 		virtual set<int> transition(const set<int> & from, int & m, int label);
 		virtual bool endo_transition(set<int> & states, int & m, int label);
 
+		virtual void get_transition_map(map<int, map<int, map<int, set<int> > > > & postmap);
+
 		virtual enum mVCA::mVCA_derivate get_derivate_id()
 		{ return mVCA::DERIVATE_NONDETERMINISTIC; };
 	protected:

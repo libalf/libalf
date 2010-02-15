@@ -93,6 +93,21 @@ string deterministic_mVCA::get_transition_dotfile()
 	
 }
 
+void deterministic_mVCA::get_transition_map(map<int, map<int, map<int, set<int> > > > & postmap)
+{{{
+	// create mappings with:
+	// map[m][current_state][label] = { successor-states }
+	postmap.clear();
+
+	map<int, deterministic_transition_function>::iterator tfi;
+	map<int, map<int, int> >::iterator tfii;
+	map<int, int>::iterator tfiii;
+
+	for(tfi = transition_function.begin(); tfi != transition_function.end(); ++tfi)	// m
+		for(tfii = tfi->second.transitions.begin(); tfii != tfi->second.transitions.end(); ++tfii) // current_state
+			for(tfiii = tfii->second.begin(); tfiii != tfii->second.end(); ++tfiii) // label
+				postmap[tfi->first][tfii->first][tfiii->first].insert(tfiii->second);
+}}}
 
 } // end of namespace libmVCA
 

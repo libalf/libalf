@@ -33,6 +33,7 @@
 #include <libmVCA/mVCA.h>
 #include <libmVCA/deterministic_mVCA.h>
 #include <libmVCA/pushdown.h>
+#include <libmVCA/p-automaton.h>
 
 using namespace std;
 using namespace libmVCA;
@@ -64,15 +65,12 @@ int main(int argc, char**argv)
 	transitions[0][0][0].insert(0);
 
 	transitions[1][0][0].insert(0);
+	transitions[1][0][1].insert(1);
 	transitions[1][1][2].insert(1);
 
-	transitions[2][0][0].insert(0);
-	transitions[2][1][2].insert(1);
-	transitions[2][0][1].insert(1);
+	m = construct_mVCA(2, 3, up, stay, down, 0, final, 1, transitions);
 
-	m = construct_mVCA(2, 3, up, stay, down, 0, final, 2, transitions);
-
-	cout << "this test defines a simple mVCA that should accept the language a^n b c^n with n >= 2.\n\n";
+	cout << "this test defines a simple mVCA that should accept the language a^n b c^n with n >= 1.\n\n";
 
 	cout << "derivate type: " << (int)m->get_derivate_id() << "\n";
 
@@ -100,5 +98,17 @@ int main(int argc, char**argv)
 
 	word.push_back(2);
 	print_word(word); printf(" : %c\n", m->contains(word) ? '+' : '-');
+
+	cout << "\n--\n\n";
+
+	p_automaton pa(m);
+	if( ! pa.add_accepting_configuration(1, 0)) // state=1 m=0 is the final state of this mVCA.
+		cout << "PA: adding of <1, 0> failed.\n";
+	if( ! pa.saturate_preSTAR())
+		cout << "PA: saturation failed.\n";
+
+	cout << "\n";
+	cout << pa.generate_dotfile();
+
 }
 

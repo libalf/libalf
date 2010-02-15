@@ -93,5 +93,19 @@ string nondeterministic_mVCA::get_transition_dotfile()
 	
 }
 
+void nondeterministic_mVCA::get_transition_map(map<int, map<int, map<int, set<int> > > > & postmap)
+{{{
+	// create mappings with:
+	// map[m][current_state][label] = { successor-states }
+
+	// thats easy :)
+	map<int, nondeterministic_transition_function>::iterator tfi;
+
+	postmap.clear();
+
+	for(tfi = transition_function.begin(); tfi != transition_function.end(); ++tfi)
+		postmap[tfi->first] = tfi->second.transitions;
+}}}
+
 } // end of namespace libmVCA
 

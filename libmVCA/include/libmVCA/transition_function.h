@@ -61,11 +61,9 @@ class transition_function {
 class mVCA; // forward decl.
 
 class deterministic_transition_function : public transition_function {
-	protected: // data
+	public: // data
 		// transitions :: state -> sigma -> state
 		map<int, map<int, int > > transitions;
-
-		friend mVCA * construct_mVCA(unsigned int state_count, int alphabet_size, set<int> & up, set<int> & stay, set<int> & down, int initial_state, set<int> & final_states, int m_bound, map<int, map<int, map<int, set<int> > > > & transitions);
 
 	public: // methods
 		virtual ~deterministic_transition_function()
@@ -87,11 +85,9 @@ class deterministic_transition_function : public transition_function {
 
 
 class nondeterministic_transition_function : public transition_function {
-	protected: // data
+	public: // data
 		// transitions :: state -> sigma -> set<states>
 		map<int, map<int, set<int> > > transitions;
-
-		friend mVCA * construct_mVCA(unsigned int state_count, int alphabet_size, set<int> & up, set<int> & stay, set<int> & down, int initial_state, set<int> & final_states, int m_bound, map<int, map<int, map<int, set<int> > > > & transitions);
 
 	public: // methods
 		virtual ~nondeterministic_transition_function()

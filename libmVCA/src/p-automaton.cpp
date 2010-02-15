@@ -22,14 +22,43 @@
  *
  */
 
-#include <libmVCA/p-automaton.h>
-
 #include <list>
 #include <set>
+
+#include <iostream>
+
+#include <libmVCA/p-automaton.h>
 
 namespace libmVCA {
 
 using namespace std;
+
+
+
+// local helper functions
+static inline list<int> operator+(list<int> prefix, list<int> suffix)
+{{{
+	list<int> ret;
+	ret = prefix;
+	for(list<int>::iterator wi = suffix.begin(); wi != suffix.end(); ++wi)
+		ret.push_back(*wi);
+	return ret;
+}}}
+static inline string word2string(list<int> word, char separator = '.')
+{{{
+	string ret;
+	char buf[32];
+
+	ret += separator;
+
+	for(list<int>::iterator wi = word.begin(); wi != word.end(); wi++) {
+		snprintf(buf, 32, "%d%c", *wi, separator);
+		buf[31] = 0;
+		ret += buf;
+	}
+
+	return ret;
+}}}
 
 
 
@@ -58,7 +87,6 @@ void p_automaton::clear()
 	valid = false;
 	saturated = false;
 	base_automaton = NULL;
-	mVCA_premap.clear();
 	mVCA_postmap.clear();
 	state_count = 0;
 	alphabet_size = 0; // this is NOT the alphabet size of the mVCA, but the alphabet size of a PDS modeling the mVCA.
@@ -80,7 +108,7 @@ bool p_automaton::initialize(mVCA * base_automaton)
 	alphabet_size = this->base_automaton->get_m_bound() + 1; // we've got a completely different alphabet here!
 	highest_initial_state = state_count - 1;
 
-	this->base_automaton->get_transition_maps(mVCA_premap, mVCA_postmap);
+	this->base_automaton->get_transition_map(mVCA_postmap);
 
 	valid = true;
 	saturated = false;
@@ -122,7 +150,7 @@ bool p_automaton::add_accepting_configuration(int state, int m)
 }}}
 
 bool p_automaton::saturate_preSTAR()
-{
+{{{
 	if(!valid)
 		return false;
 
@@ -143,7 +171,11 @@ bool p_automaton::saturate_preSTAR()
 
 	bool new_transition_added = true;
 
+//	int run = 0;
+
 	while(new_transition_added) {
+//		cout << "\nrun: " << run << "\n";
+//		run++;
 		new_transition_added = false;
 		// iterate over all mVCA transition rules:
 		map<int, map<int, map<int, set<int> > > >::iterator mi; // over all m
@@ -167,6 +199,10 @@ bool p_automaton::saturate_preSTAR()
 						// <from_state, from_m> -> <to_state, to_m> with mVCA-label <mVCA_label>
 						list<int> to_m_cfg = get_config(to_state, to_m);
 						to_m_cfg.pop_front();
+						// FIXME:
+						// two special cases:
+						// m == 0 and m == m_bound
+						// both caught?
 						if(from_m != 0)
 							to_m_cfg.pop_back(); // we have to keep the bottom symbol if from_m == 0. FIXME: special case(s) ?!
 
@@ -175,16 +211,29 @@ bool p_automaton::saturate_preSTAR()
 
 						destinations = run_transition_accumulate(to_state, to_m_cfg);
 
+/*
+						if(!destinations.empty()) {
+							cout << "possible transition from " << from_state << " label " << from_m << " dst  ";
+							for(di = destinations.begin(); di != destinations.end(); ++di)
+								cout << di->first << " ["<< word2string(di->second) <<"]" << ";  ";
+							cout << "\n";
+						}
+*/
+
 						for(di = destinations.begin(); di != destinations.end(); ++di) {
-							if(!transition_exists(from_state, from_m, to_state)) {
+							if(!transition_exists(from_state, from_m, di->first)) {
 								pa_transition_target tr;
 
-								tr.dst = to_state;
+								tr.dst = di->first;
 								tr.mVCA_word = di->second;
 								tr.mVCA_word.push_front(mVCA_label);
 
 								transitions[from_state][from_m].insert( tr );
 								new_transition_added = true;
+							} else {
+								// check if new one is shorter?
+								// should not be possible as we work in an incrementing way...
+//								cout << "   target " << di->first << " skipped.\n";
 							}
 						}
 					}
@@ -194,7 +243,7 @@ bool p_automaton::saturate_preSTAR()
 	}
 
 	return true;
-}
+}}}
 
 list<int> p_automaton::get_valid_run(int state, int m, bool & reachable)
 {
@@ -226,6 +275,87 @@ list<int> p_automaton::get_shortest_valid_run(int state, int m, bool & reachable
 	// if not reachable, return empty word.
 	
 }
+
+string p_automaton::generate_dotfile()
+{{{
+	string ret;
+	char buf[128];
+	set<int>::iterator si;
+
+	if(!valid)
+		return ret;
+
+	ret += "digraph p_automaton {\n"
+			"\tgraph[fontsize=8]\n"
+			"\trankdir=LR;\n"
+			"\tsize=8;\n"
+			"\n"; // header
+
+	// add initial states
+	if(highest_initial_state >= 0) {
+		ret += "\tnode [shape=circle, color=blue, style=\"filled\"];";
+		for(int i = 0; i <= highest_initial_state; ++i) {
+			snprintf(buf, 128, " p%d", i);
+			ret += buf;
+
+		}
+		ret += ";\n";
+	}
+	// add normal states
+	if(highest_initial_state < state_count) {
+		ret += "\tnode [shape=circle, color=black, style=\"\"];";
+		bool some = false;
+		for(int i = highest_initial_state + 1; i < state_count; ++i) {
+			if(final.find(i) == final.end()) {
+				snprintf(buf, 128, " q%d", i);
+				ret += buf;
+				some = true;
+			}
+		}
+		if(some)
+			ret += ";\n";
+		else
+			ret += "\n";
+	}
+	// add final states
+	if(!final.empty()) {
+		ret += "\tnode [shape=doublecircle, color=black, style=\"\"];";
+		for(si = final.begin(); si != final.end(); ++si) {
+			snprintf(buf, 128, " q%d", *si);
+			ret += buf;
+		}
+		ret += ";\n";
+	}
+
+	ret += "\n";
+
+	// add transitions
+	map<int, map<int, set<pa_transition_target> > >::iterator statei;
+	map<int, set<pa_transition_target> >::iterator labeli;
+	set<pa_transition_target>::iterator dsti;
+	for(statei = transitions.begin(); statei != transitions.end(); ++statei) {
+		for(labeli = statei->second.begin(); labeli != statei->second.end(); ++labeli) {
+			for(dsti = labeli->second.begin(); dsti != labeli->second.end(); ++dsti) {
+				if(dsti->mVCA_word.empty())
+					snprintf(buf, 128, "\t%c%d -> %c%d [ label=\"%d\" ];\n",
+							(statei->first <= highest_initial_state) ? 'p' : 'q', statei->first,
+							(dsti->dst <= highest_initial_state) ? 'p' : 'q', dsti->dst,
+							labeli->first);
+				else
+					snprintf(buf, 128, "\t%c%d -> %c%d [ label=\"%d [%s]\" ];\n",
+							(statei->first <= highest_initial_state) ? 'p' : 'q', statei->first,
+							(dsti->dst <= highest_initial_state) ? 'p' : 'q', dsti->dst,
+							labeli->first, word2string(dsti->mVCA_word).c_str());
+				ret += buf;
+			}
+		}
+	}
+
+
+	ret += "};\n"; // footer
+
+	return ret;
+}}}
 
 
 
@@ -275,16 +405,6 @@ set<int> p_automaton::run_transition(int from_state, int label)
 	set<pa_transition_target>::iterator tri;
 	for(tri = transitions[from_state][label].begin(); tri != transitions[from_state][label].end(); ++tri)
 		ret.insert(tri->dst);
-	return ret;
-}}}
-
-// local helper function for run_transition_accumulate:
-static inline list<int> operator+(list<int> prefix, list<int> suffix)
-{{{
-	list<int> ret;
-	ret = prefix;
-	for(list<int>::iterator wi = suffix.begin(); wi != suffix.end(); ++wi)
-		ret.push_back(*wi);
 	return ret;
 }}}
 
