@@ -1,114 +1,174 @@
 \chapter{Installation}
-The \libalf library contains all functionality to embed different kinds of (offline and/or online algorithms) into your learning application. It can be used as \cpp library directly, via JNI (Java Native Interface) or via a dedicated client/server application called the dispatcher. Both may be used from Java interchangable via the generic interface ``jalf''.
-The chapter gives information on how to compile \libalf and shows how to set up \libalf in your system to use in a user application under Windows and Linux operating systems.
-
-\section{Package Information}
-\begin{enumerate}
- \item \textbf{src}
-	\libalf source files. 
- \item \textbf{include}
-	Include files for all learning algorithms, knowledgebase, loggers and normalizers.
- \item \textbf{jalf}
-	The java implementation consisting of source files, includes and testsuites. 
- \item \textbf{lib}
- 	
- \item \textbf{dispatcher}
- 	Necessary files for implementing dispatcher consisting of the source files, indcludes and testsuites.
- \item \textbf{testsuites}
-        The testsuites for all learning algorithms implemented in \libalf.
-\end{enumerate}
-
-\section{Requirements}
-\libalf is a platform independent, stand-alone \cpp library and does not depend on any other libraries except the \cpp standard library and standard template library (STL). Also, MiniSat v1.14 is fully integrated into libalf, as it is required for the bierman learning algorithm. There are no further dependencies. It has been tested successfully in x86 and x64 systems, under Linux, Windows and Mac Operating Systems. To use \libalf, your computer must have the following softwares installed.
-\begin{enumerate}
- \item \textbf{GNU Compiler} \vskip 1pt
-	For systems running Linux, the gcc compiler available by default is sufficient. \vskip 1pt
-	For Windows, we recommend the use of MinGW compiler. Instructions on where to find it and how to install it are given below.
- \item \textbf{Java 1.6 (or later version)} \vskip 1pt
-	This is required to use \libalf via JNI. \jalf can be compiled using \texttt{ant}.
-\end{enumerate}
-\paragraph{Note:}
-The dispatcher currently compiles only under POSIX compatible systems. 
-
-\section*{Installing MinGW compiler in Windows}
-We recommend the usage of MinGW compiler for users who would like to use \libalf in Windows. 
-
-\subsection*{Where to find it and how to install it}
-The downloadable package and installation instructions of the MinGW compiler can be found in the following website.
-\url{http://www.mingw.org/} \vskip 1pt
-
-\textbf{Note:} Installing MinGW compiler on your computer does not automatically set the ``PATH'' variable. You may have to manually update the ``PATH'' variable of the computer to the ``bin'' folder of MingW. (Usually ``C:\textbackslash MingW\textbackslash bin'', unless you have changed the directory of installation). 
-
-After installing the MinGW compiler, ensure that the following modifications are made to be able to compile \libalf.
-
-\subsection*{Modification to the MinGW compiler}
-
-As a prerequisite towards compiling the library a small change has to be made to the ``bin'' folder of the MingW.   
-After installing MinGW compiler, three files under the ``/bin'' folder are to be renamed as follows.
-\begin{enumerate}
- \item \textbf{mingw32-make.exe} to \textbf{make.exe}
- \item \textbf{mingw32-gcc.exe} to \textbf{gcc.exe}
- \item \textbf{mingw32-ar.exe} to \textbf{ar.exe}
- \item \textbf{mingw32-ld.exe} to \textbf{ld.exe}	
-\end{enumerate}
- 
-\section{The \libalf \cpp Library}
-The section describes how to compile the sources and use the \cpp library directly in your application.
-\subsection*{Compiling \libalf}
-A ``Makefile'' is already provided to compile \libalf.
+This chapter will guide you through installation of libalf on Linux and Windows. 
 \paragraph{}
-To compile the library in linux, use the following command.
-\marginpar{\hspace{55pt} \textbf{Linux}}
-\[
-  PREFIX = <path> make
-\]
-\emph{$<$path$>$} must specifiy the directory where the \libalf sources are located. This is because \texttt{make} searches the \emph{include} directory inside the directory specified by PREFIX for the \libalf's header files. If you do not wish to use gcc compiler or if gcc is not installed in /usr/bin/gcc, you can additionally specify the CC variable pointing to your desired \cpp compiler. \vskip 1pt
-\reversemarginpar
-\marginpar{\hspace{35pt} \textbf{Windows}} To compile the library in Windows, enter the following command in \textbf{Command Prompt}.
+\libalf works on Linux and Windtows on both 32- and 64-bit architectures. However, as libalf has no prerequisites, it is most likely that it also runs on various additional operating systems. If you want to compile libalf for another operating system, e.g. MacOS X, the guidelines for compiling libalf for Linux may be a good reference. 
+\paragraph{}
+This document is organized in seven sections: The first two sections describe how to obtain libalf (if you not already have) and what prerequisites need to be fulfilled. Sections 2.3 to 2.5 show how to compile and use libalf, jalf and dispatcher. The sixth section gives help on troubleshooting and the last section briefs you on the license information.
 
-\[
- make -f <path>/makefile
-\]
-\subsection*{Employing \libalf in an Application}
-To use the installed library in your application, follow the steps given below. \vskip 1pt
+\section{Libalf Package Information}
+The library is available at \libalf website \url{http://libalf.informatik.rwth-aachen.de}. Download the libalf package and extract it to a folder of your choice. The package contains the following components:
+\begin{itemize}
+ \item The \texttt{libalf} C++ library.
+ \item \texttt{jalf}, Java interface for libalf.
+ \item \texttt{dispatcher}, network-based libalf server.
+\end{itemize}
+This guide will demonstrate how to employ and use libalf in user applications through \emph{examples} available at libalf website. We recommend that you download and extract the example sources to a folder of your choice.
 
-On Linux, you use the LD\_LIBRARY\_PATH to point to \libalf's location.
-\marginpar{\hspace{55pt} \textbf{Linux}}
-\[
-  LD\_LIBRARY\_PATH = <path>/bin
-\]
+\section{Prerequisites}
+The \libalf library itself does not have any prerequisites, but some components have. To use the additional components, please ensure that the following requirements are satisfied.
 
-On windows, one of the following methods can be used 
-\marginpar{\hspace{35pt} \textbf{Windows}} 
 \begin{enumerate}
- \item Place the compiled library into the directory where your application is located.
- \item Alternatively, you can add the path containing the \libalf library in to your \textbf{path} variable.
+ \item For compiling and using \jalf you need a Java Development Kit (JDK) Version 6.0 or later installed. Moreover, we recommend using the \textbf{Ant} build tool downloadable from \url{http://ant.apache.org/}.
+ \item The dispatcher requires a POSIX-compliant operating system. While there is no problem under Linux, the dispatcher will not compile under Windows.
 \end{enumerate}
 
-\section{The \jalf Java Library}
-The section describes how to install the Java interface for \libalf and use them in your application.
-\subsection*{Compiling \jalf}
-To compile the Java based \jalf library, you may use ANT (\url{http://ant.apache.org/}). \vskip 1pt
-In both Windows and Linux, the following command can be used.
-\[
-  ant -D PREFIX=<path>
-\]
-Here, the variable ``PREFIX'' specifies the directory where the ``jalf.jar'' is located. The option -D is used to specify variables (in this case it adds the ``jalf.jar'' to Java's classpath). \vskip 1pt
+\subsection*{Linux}
+For compiling the C++ sources in linux, you require the GNU C++ compiler and the make utility which is used to automate the build process. Both tools should be installed by default on every Linux machine.
 
-\subsection*{Employing \jalf in an Application}
-To use \libalf in your application, you must make sure that ``jalf.jar'' can be found. You must also ensure that the compiled \jalf library containing the \libalf sources is also found.  \vskip 1pt
-In both Windows and Linux, you can do this by specifying the following two parameters.
-\begin{enumerate}
- \item -classpath ``$<$path$>$:.'' \vskip 1pt
-	Use the command to set the classpath to point to ``jalf.jar''. \vskip 1pt
-	\textbf{Note:} The seperator ``:'' must be used on Linux and ``;'' must be used on Windows.
- \item -D java.library.path = $<$path$>$ \vskip 1pt
-	Use the command to let the java library path variable point to the compiled jalf library. 
-\end{enumerate}
+\subsection*{Windows}
+To compile the C++ sources on Windows, we recommend using the \textbf{Minimalist GNU for Windows (MinGW)} compiler and \textbf{MSYS}, a Unix-style shell for Windows. Both can be obtained from http://www.mingw.org/. 
+\\
+Please follow the instructions on the website to set up MinGW and MSYS properly. In particular make sure that you install the MSYS make package (if not done automatically). Using MSYS gives you the advantage of following all instructions described in this document no matter whether you use Linux or Windows. However, please be careful with folder names that contain blanks; you may have to enclose them in quotes and replace every blank with a backslash followed by a blank.
+
+\section{The \libalf \cpp Library}
+\label{sec:libalf}
+The section will describe how to compile the library, install the library and compile and run applications that use the library.
+
+\subsection{Compiling libalf}
+You have the choice to compile the libalf library as a \emph{static} or as a \emph{shared} library. If you do not know the difference or if you just want to use the library, you should compile a shared library as described below and follow the respective instructions for running your application.
+
+\subsection*{Compiling a shared library}
+Compiling libalf is easy: simply change into the \texttt{libalf/src} folder and invoke the make utility by typing 
+\\ \\
+\texttt{make}
+\\ \\
+The make utility automatically detects which operating system you are running and compiles the library accordingly. After the compilation you should find the binary file libalf.so (on Linux) or libalf.dll (on Windows) inside the \texttt{libalf/src} folder.
+However, if you experience problems, you can explicitly tell the make utility for which system you want to compile libalf by typing \texttt{make libalf.so} (under Linux) or \texttt{make libalf.dll} (under Windows).
+
+\subsection*{Compiling a static library}
+You can compile a static library using the command (inside libalf/src)
+\\ \\
+\texttt{make libalf.a}
+\\ \\
+on both Linux and Windows. \\ However, make sure that you delete any shared library in the folder before you link your application with libalf as some operating systems (e.g. Linux) always prefer shared libraries if present.
+
+\subsection{Installing Libalf}
+Installing libalf means to copy to the compiled shared library and libalf’s headers to a location where your operating system finds them.
+\subsection*{Installing in Linux}
+To install \libalf in linux, first compile the library and type
+\\ \\
+\texttt{make install}
+\\ \\
+You can uninstall \libalf by using the command
+\\ \\
+\texttt{make uninstall}
+\\ \\
+Please note that you need root privileges for both actions.
+\subsection*{Installing in Windows}
+On Windows, you have to manually copy the compiled shared binary files to your \texttt{windows/system} directory. Unfortunately, there is no common place to put header files in. Thus, you have to specify the header’s location every time you compile an application that uses libalf (see the section below).
+
+\subsection{Compiling Applications that use Libalf}
+When compiling an application that uses \libalf, the compiler needs to find \libalf’s headers and the compiled library. Please note that if you have libalf installed on your system, you are ready. 
+\paragraph{}
+Otherwise, you have to use the GNU C++ compiler’s \texttt{-I} parameter to specify libalf’s header locations (typically \texttt{libalf/include}) and the –L parameter to specify the location for the compiled library (which is \texttt{libalf/src}). You also have to use the \texttt{-l alf} parameter to link the application to \libalf.
+We will consider the online-example to explain the compilation.
+\subsection*{Compiling applications that links to shared library}
+To compile the online example that uses the shared library, type the following command.
+\\ \\
+\texttt{g++ -I path\_to\_headers -L path\_to\_library online.cpp -l alf}
+\subsection*{Compiling applications that links to static library}
+If you want to link libalf statically into your application, you can do so by adding \texttt{-static} as additional parameter just before linking to libalf like below.
+\\ \\
+\texttt{g++ -I path\_to\_headers -L path\_to\_library online.cpp -static -l alf}
+\paragraph{}
+In both cases, it is also a good idea to specify the name of the output file using the \texttt{-o} parameter, e.g. \texttt{-o online}.
+
+\subsection*{Additional Parameter for Windows}
+Please note that on Windows the Winsock2 library has to be linked additionally to every program using libalf. You can do this by adding the parameter \texttt{-l ws2\_32}. Again it is crucial that you add this parameter after all input files.
+
+
+\subsection{Running applications that use libalf}
+An application \textbf{statically} linked to libalf can be executed as usual. However, if you run a program that uses libalf as a \textbf{shared library}, you need to specify where your operating system can find the library (again, you do not need to provide this information if you have installed libalf on your system).
+\subsection{Running the application on Linux}
+On Linux, use the \texttt{LD\_LIBRARY\_PATH} variable to point to the location of the shared library. For instance, you can run the above compiled online-example with the command
+\\ \\
+\texttt{LD\_LIBRARY\_PATH=path\_to\_library ./online}
+
+\subsection{Running the application on Windows}
+Unfortunately, on Windows there is no direct way of telling the system where to find shared libraries. Instead, you have to add their locations to Windows’ \texttt{PATH} variable or copy the library into the folder your application is executed from. For further details please refer to the examples’ Readme and Makefile.
+
+\section{The \jalf \java Library}
+Jalf is the Java interface to libalf. It lets you access \libalf via the dispatcher or via Java’s Native Inter-face JNI. The latter way requires that you compile a second \cpp library (some kind of wrapper), that obeys Java’s naming convention and performs some basic conversions of internal data structures. However, if you want to use \jalf only in connection with the dispatcher, it is enough to compile and use the Java sources.
+In the following we assume that you are familiar with basics of compiling and running Java programs.
+
+\subsection{Compiling jalf’s Java sources}
+In order to compile \jalf’s Java sources, change to the \texttt{libalf/jalf} folder and type \\ \\ \texttt{ant} \\ \\. This invokes the Ant build utility and produces the file jalf.jar containing all compiled class files inside the libalf/jalf folder. If you do not wish to use \jalf via JNI, you can skip the following section. \\
+Note that you can generate \jalf’s JavaDoc also using Ant with the command \\ \\ \texttt{ant doc} \\ \\Thereafter, the JavaDoc can be found inside the \texttt{libalf/jalf/java/doc} folder.
+
+\subsection{Compiling jalf’s C++ sources}
+The \jalf \cpp library needs to be a shared library. However, you have the option to link \libalf either dynamically or statically to \jalf. The latter option is often preferred and enabled by default. Please remember to delete any shared library in \texttt{libalf/src} before you compile jalf’s C++ sources (libalf is recompiled for you). You may use the command. 
+\\ \\ 
+\texttt{make libalf/src clean} 
+\paragraph{}
+Compiling \jalf’s \cpp sources is also automated by means of the make utility. However, as additional information the Java compiler requires the location of Java’s JNI header files, which are contained in every JDK. Their location is passed on to the make utility using the \texttt{JAVA\_INCLUDE} variable. Thus, to compile jalf’s \cpp sources, go to \texttt{libalf/jalf/src} and execute
+\\ \\
+\texttt{JAVA\_INCLUDE=path\_to\_jdk/include make}
+\\ \\
+Again, the make utility should detect your operating system automatically, but you can also use the commands \texttt{make libjalf.so} (for Linux) and \texttt{make jalf.dll} (for Windows) to explicitly compile \jalf for your desired operating system. 
+\\
+After a successful compilation, the binary is located in \texttt{libalf/jalf/src}.
+
+\subsection*{Static and Dynamic Linking}
+As mentioned, \libalf is linked \textbf{statically} by default. If you want link \libalf \textbf{dynamically}, you can use the commands \texttt{make libjalf.so-dynamic} (for Linux) and \texttt{make jalf.dll-dynamic} (for Windows).
+
+\subsection{Compiling Java applications that use \jalf}
+Fortunately, the Java compiler does not need to know anything about the C++ libraries to compile your application and only needs access to \jalf’s Java class files. You specify this information by adding the \texttt{jalf.jar} file to Java’s classpath. Our Java online-example, for instance, can be compiled using the following command (first change into the folder containing the example sources):
+\\ \\
+\texttt{javac -classpath ``path\_to\_jalf/jalf.jar'' Online.java}
+
+\subsection{Running Java applications that use \jalf}
+Besides the location of the \texttt{jalf.jar}, running a Java application that uses \jalf requires telling Java where it can find the compiled \jalf and \libalf library. (If you have installed libalf to your system or if you linked jalf statically to jalf, you do not need to bother about the latter.)
+\paragraph{}
+The place where Java looks for \cpp libraries is controlled by Java’s interval library path variable. This variable can only be changed at the start of the Java VM. You do so by setting the variable named \texttt{java.library.path} to the location of the jalf library (i.e, the \jalf \cpp binary which is typically \texttt{libalf/jalf/src} using the -D parameter. 
+\subsection*{Running the application in Linux}
+To run the online-example on Linux, one has to execute the following command (inside the folder containing the compiled online-example):
+\\ \\ \\
+\texttt{java -classpath ``path\_to\_jalf/jalf.jar:.'' \\ \hspace*{25pt} -Djava.library.path=path\_to\_jalf\_library Online}
+\\ \\
+If necessary, specify the location of the shared \libalf library as described in section \ref{sec:libalf}
+
+\subsection*{Running the application in Windows}
+Please recall that Linux and Windows use different ways of separating folders. While you must use a colon on Linux, you must use a semicolon on Windows. 
+\\ \\
+\texttt{java -classpath ``path\_to\_jalf/jalf.jar;.'' \\ \hspace*{25pt} -Djava.library.path=path\_to\_jalf\_library Online}
+\\ \\
+For further details please refer to the examples’ Readme.
+
+\section{Compiling and using the dispatcher}
+Please recall that the dispatcher only runs on a POSIX-compliant operating system such as Linux, but not on Windows.
+
+\subsection{Compiling the dispatcher}
+To compile the dispatcher, first compile a shared \libalf library as described Section \ref{sec:libalf}.
+\subsection*{Dynamic linking}
+By default, the dispatcher is dynamically linked to \libalf. To create an executable dispatcher, change into the folder \texttt{libalf/dispatcher} and execute \\ \\ \texttt{make} \\ \\. This creates the executable dispatcher in the same directory. 
+\subsection*{Static Linking}
+To link the dispatcher statically to \libalf, change to folder \texttt{libalf/dispatcher} use the following command.
+\\ \\ 
+\texttt{make dispatcher-static}
+\\ \\
+Again, remember to remove any compiled shared library in \texttt{libalf/src} first.
+
+\subsection{Running the dispatcher}
+The dispatcher is executed like any other executable on your system. However, remember to specify the location of the \libalf shared library if necessary.
+
+
+
 
 \section{Troubleshooting}
-If you have problems compiling the library using \texttt{make} in windows, it could be because of Linux commands used in the makefiles. Ordinarily, MinGW should not have problems compiling it. But if problems do exist, then download and install \textbf{makeutils} which can be found at \url{http://makeutil.sourceforge.net/#download}. \vskip 1pt
-Please make sure that the ``/bin'' folder of \textbf{makeutil} is added to your \texttt{path} variable. 
+% If you have problems compiling the library using \texttt{make} in windows, it could be because of Linux commands used in the makefiles. Ordinarily, MinGW should not have problems compiling it. But if problems do exist, then download and install \textbf{makeutils} which can be found at \url{http://makeutil.sourceforge.net/#download}. Please make sure that the ``/bin'' folder of \textbf{makeutil} is added to your \texttt{path} variable. 
+
+When experiencing troubles, the first thing you should try is to execute make clean in the libalf and libalf/jalf folders as well as ant clean in the libalf/jalf folder. This deletes all compiled files and solves most compiler and linker problems. However, if this does not work for you, you may find a solution for your problem in the list below:
+ - There are no known problems.
 
 \section{License Information}
 \libalf is a free software published under the LGPL v3 license.Under this license, you have the complete freedom for the following.

@@ -1,10 +1,35 @@
 \chapter{Loggers \& Statistics}
 
-A \textbf{Logger} is an adjustable logging facility that an algorithm can write to. This eases the application debugging and development. When a learning algorithm is initialized, a logger is associated with it along with the knowledgebase. \libalf provides flexible logger implementations for the user. A learning algorithm can either use an output stream or a buffer as the logger. One may also choose to ignore the logger. \\
+To ease application development and debugging, \libalf provides two components - Loggers and Statistics. 
+
+A \textbf{Logger} is an adjustable logging facility that an algorithm can write to. A logger consists of different types of messages and is of substantial use in application debugging. When a learning algorithm is initialized, a logger is associated with it along with the knowledgebase. \libalf provides flexible logger implementations for the user. A learning algorithm can either use an output stream or a buffer as the logger. On the contrary, One may also choose to ignore the logger. \\
+
 \textbf{Statistics} refers to the statistical data that can be acquired by evaluating the learning procedure. Information about the memory usage, queries produced, time taken for computing conjecture and other details may serve as base for analysing the learning algorithm in various cases. 
 
-\section{Logger Implementation}
-A loglevel marks the state of a particular log message. An \emph{enum} type variable logger\_loglevel is used to define the messages with the following attributes.
+\section{Loggers}
+
+A learning algorithm may different types of messages to the logger. There are different types of loggers that an alogirthm may use. The logger can be an output stream or a buffer. One may also use the output stream logger to print the messages on the screen. They are explained in detail in section \ref{sec:types}.
+
+\subsection*{Example of how to set a logger}
+The following code snippet shows to how to create instance of a logger and associate it with the learning algorithm along with knowledgebase and alphabet size.
+\begin{lstlisting}
+// getting the alphabet size
+int alphabet_size = get_AlphabetSize(); 
+
+// create instance of knowledgebase
+knowledgebase<bool> base; 
+
+// create instance of a buffered logger.
+buffered_logger bufflog; 
+
+// Create learning algorithm (Angluin L*) 
+// with a logger - bufflog and alphabet size - alphabet_size
+angluin_simple_table<bool> algorithm(&base, bufflog, alphabet_size); 
+\end{lstlisting}
+
+To achieve a good organization of these messages written to the logger, every message is distinguished from others by marking it with an appropriate \emph{loglevel}. A loglevel is a marker that indicates the type of messages as a priority for a particular function. For instance, two messages may be marked differently in terms of their importance towards describing a non-recoverable error. \\
+
+The following are the types of loglevel used to categorize a message. It is a \emph{enum} type variable \texttt{logger\_loglevel}.
 \begin{itemize}
  \item \textbf{LOGGER\_INTERNAL=0} ; (An internal method)
  \item \textbf{LOGGER\_ERROR = 1} ; All log messages that describe a non-recoverable error are marked with this.
@@ -20,7 +45,7 @@ The main class that consists of attributes and methods to implement the logger.
 \subsection*{Attributes} 
 It consists of two attributes that every type of logger makes use of.
 \begin{enumerate}
- \item \textbf{enum logger\_loglevel minimal\_loglevel} - a minimal setting of the loglevel
+ \item \textbf{enum logger\_loglevel minimal\_loglevel} - a minimal setting of the loglevel.
  \item \textbf{bool log\_algorithm} - An boolean variable to indicate if a logger is to be associated with an algorithm or not.
 \end{enumerate}
 
@@ -28,63 +53,61 @@ It consists of two attributes that every type of logger makes use of.
 The following methods are defined in the class.
 \begin{enumerate}
  \item \textbf{void set\_minimal\_loglevel(enum logger\_loglevel minimal\_loglevel)} \\
-	Sets the minimum logger level using the attributes loglevel attributes.
+	Sets the minimum logger level using the \texttt{loglevel} attributes.
  \item \textbf{void set\_log\_algorithm(bool log\_algorithm)} \\
-	The method sets logger for the algorithm based if the arguement is \true. It ignores the logger if the parameter is \false. 
+	The method sets logger for the algorithm if the arguement is \true. It ignores the logger if the parameter is \false. 
  \item \textbf{virtual void operator()(enum logger\_loglevel, string\&)} and \textbf{virtual void operator()(enum logger\_loglevel, 	const char* format, ...)} \\
 	The method takes the logger type and message as parameters for entry to the logger. If other variables also need to be used, it can be done so using the second method. 
 \end{enumerate}
 
-\subsection*{Example}
+\subsection*{Example of a learning algorithm writing message to the logger - Developer's View}
 \begin{lstlisting}
 if(my_knowledge == NULL) 
 {
-(*my_logger)(LOGGER_ERROR, "learning_algorithm::advance()  
-	      no knowledgebase was set!\n");
+(*my_logger)(LOGGER_ERROR, ``learning_algorithm::advance() 
+     no knowledgebase was set!\n'');
 return false; 
 }
 \end{lstlisting}
-The above code snipped is an extraction from the ``advance()'' method of the learning algorithm. When no knowledgebase is set to the algorith, it enters the message ``learning\_algorithm::advance(): no knowledgebase was set'' to the log ``my\_logger'' and marks it as an error with ``LOGGER\_ERROR''. 
+The above code snippet is an extraction from the ``advance()'' method of a learning algorithm. When no knowledgebase is set to the algorithm, it enters the message ``learning\_algorithm::advance(): no knowledgebase was set'' to the log ``my\_logger'' and marks it as an error with ``LOGGER\_ERROR''. 
 \vskip 1pt
 All three types of loggers are implemented with the respective classes, \texttt{ignore\_logger}, \texttt{ostream\_logger} and \texttt{buffered\_logger}. All the classes inherit the \texttt{logger} class. \\
 
-\subsection{class ignore\_logger}
-A class that does not consist of any methods. In this case, the logger is just ignored.
+\subsection{Types of Loggers}
+\label{sec:types}
 
-\subsection{class ostream\_logger}
+\subsection*{ignore\_logger}
+A class that does not consist of any methods. In this case, the logger simply discards all messages.
+
+\subsection*{ostream\_logger}
 The class consists of method to write the message to an output stream. 
 \begin{itemize}
- \item \textbf{ostream\_logger(ostream *out, enum logger\_loglevel minimal\_loglevel, bool log\_algorithm = true, bool use\_color = true)} \vskip 1pt
+ \item \textbf{ostream\_logger::ostream\_logger(ostream *out, enum logger\_loglevel minimal\_loglevel, bool log\_algorithm = true, bool use\_color = true)} \vskip 1pt
 	The method creates an output stream for the logger. The parameter \texttt{*out} points to the output stream and the minimal loglevel indicates the initial setting. The parameter \texttt{log\_algorithm} is set to \true since the logger will be used by the algorithm. The parameter \texttt{use\_color} is set to \true so that on a console output, you may view the messages in different colors!
 \end{itemize}
 
-\subsection{class buffered\_logger}
+\subsection*{buffered\_logger}
 The class consists of methods for setting a buffer as a log. It should be noted that the messages passed to the buffer will not be available until it is received and flushed explicitly.
 
 \begin{enumerate}
- \item \textbf{buffered\_logger(enum logger\_loglevel minimal\_loglevel, bool log\_algorithm = true)} \\
+ \item \textbf{buffered\_logger::buffered\_logger(enum logger\_loglevel minimal\_loglevel, bool log\_algorithm = true)} \\
 	The method sets the buffered logger with the minimal loglevel. \texttt{log\_algorithm} is set to \true.
- \item \textbf{string * receive\_and\_flush()} \\
+ \item \textbf{buffered\_logger::string * receive\_and\_flush()} \\
 	The method receives and flushes the buffered stream.
 \end{enumerate}
 
 \section{Statistics}
-The library consists of four classes - \texttt{statistics}, \texttt{timing\_statistics}, \texttt{memory\_statistics} and \texttt{query\_statistics}, each of them defined in the following way. Every class consists of the serialization and deserialization methods. All the methods and attributes of the classes are specified \texttt{public}.
-
-\subsection{class statistics}
-The main class that contains objects of the other three classes to access the methods. 
-\subsection*{Attributes}
-\begin{enumerate}
- \item \textbf{query\_statistics queries} - Object to retrieve query statistics.
- \item \textbf{memory\_statistics memory} - Object to retrieve memory statistics.
- \item \textbf{timing\_statistics time} - Object to retrieve the timing statistics.
-\end{enumerate}
-\subsection*{Methods}
-Along with the serialize and deserialize, the class defines the following method.
+The component is used to obtain three types of statistical information. They are orgainized as three classes namely 
 \begin{itemize}
- \item \textbf{void reset()}
-	The method resets all the statistical information.
+\item \texttt{timing\_statistics} - To retrieve the user time and system time of the learning process.
+\item \texttt{memory\_statistics} - To retrieve information about the memory usage
+\item \texttt{query\_statistics} - To retrieve information about the queries produced during the learning procedure.
 \end{itemize}
+
+For example, memory statistics may be helpful in deciding whether a clean up is required for the knowledgebase. Timing statistics and query statistics help to analyse the performance of the learning algorithm. In addition to their uses, they support serialization and deserialization as another advantage. 
+
+\paragraph{}
+These classes are defined in the following manner.
 
 \subsection{class timing\_statistics}
 The class consists of methods to obtain timing statistics of the learning procedure.
@@ -99,7 +122,7 @@ The class consists of methods to obtain timing statistics of the learning proced
 \begin{enumerate}
  \item \textbf{timing\_statistics()} \\
 	Constructor that retrieves the timing information.
- \item \textbf{void reset()}
+ \item \textbf{void reset()} \\
 	The method resets all the acquired timing statistics.
 \end{enumerate}
 
@@ -139,3 +162,17 @@ The class consists of methods to obtain statistical information about the querie
 	The method resets all the acquired statics about queries.
 \end{enumerate}
 
+\subsection{class statistics}
+The main class that contains objects of the other three classes (the three types of statistics) to access the methods. 
+\subsection*{Attributes}
+\begin{enumerate}
+ \item \textbf{query\_statistics queries} - Object to retrieve query statistics.
+ \item \textbf{memory\_statistics memory} - Object to retrieve memory statistics.
+ \item \textbf{timing\_statistics time} - Object to retrieve the timing statistics.
+\end{enumerate}
+\subsection*{Methods}
+Along with the serialize and deserialize, the class defines the following method.
+\begin{itemize}
+ \item \textbf{void reset()}
+	The method resets all the statistical information.
+\end{itemize}

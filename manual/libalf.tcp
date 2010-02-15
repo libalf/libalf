@@ -8,7 +8,7 @@ img_extIsRegExp=false
 img_extensions=.eps .jpg .jpeg .png .pdf .ps .fig .gif
 kileprversion=2
 kileversion=2.1 beta2
-lastDocument=filter.tex
+lastDocument=logger.tex
 masterDocument=
 name=Project
 pkg_extIsRegExp=false
@@ -39,28 +39,28 @@ order=2
 
 [item:filter.tex]
 archive=true
-column=48
+column=31
 encoding=UTF-8
 highlight=LaTeX
-line=86
+line=23
 open=true
 order=8
 
 [item:install.tex]
 archive=true
-column=0
+column=194
 encoding=UTF-8
 highlight=LaTeX
-line=123
+line=178
 open=true
 order=3
 
 [item:introduction.tex]
 archive=true
-column=177
+column=0
 encoding=UTF-8
 highlight=LaTeX
-line=222
+line=0
 open=true
 order=1
 
@@ -78,13 +78,13 @@ archive=true
 column=0
 encoding=UTF-8
 highlight=LaTeX
-line=206
+line=189
 open=true
 order=5
 
 [item:libalf.tex]
 archive=true
-column=14
+column=1
 encoding=UTF-8
 highlight=LaTeX
 line=39
@@ -93,18 +93,18 @@ order=0
 
 [item:logger.tex]
 archive=true
-column=137
+column=29
 encoding=UTF-8
 highlight=LaTeX
-line=2
+line=66
 open=true
 order=7
 
 [item:references.bib]
 archive=true
-column=0
+column=15
 encoding=UTF-8
 highlight=BibTeX
-line=0
+line=273
 open=true
 order=6
