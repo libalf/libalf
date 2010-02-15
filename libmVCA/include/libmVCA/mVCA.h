@@ -115,7 +115,12 @@ class mVCA {
 		bool contains_final_states(const set<int> & states);
 
 		// TRANSITIONS
-		// XXX: successor/predecessor/transition maps(?)
+
+		// get mappings of all transitions. (post-transitions and pre-transitions, useful for fast, recurring calculations)
+		// the mapping works as follows: map[m][current_state][label] = { predecessor- resp. successor-states }.
+		// epsilon transitions are considered if the underlying automaton resolves epsilon-transitions
+		// in predecessor_states() and successor_states().
+		virtual void get_transition_maps(map<int, map<int, map<int, set<int> > > > & premap, map<int, map<int, map<int, set<int> > > > & postmap);
 
 		set<int> transition(int from, int & m, int label);
 		virtual set<int> transition(const set<int> & from, int & m, int label) = 0; // depends on transition function

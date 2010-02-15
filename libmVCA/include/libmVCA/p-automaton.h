@@ -37,12 +37,10 @@ using namespace std;
 class pa_transition_target {
 	public:
 		int dst;
-		bool is_new;
-		list<int> labels; // normal transitions will have a 1-letter-word, the same as in their label-field in the transition-array.
-		// transitions saturated via other transitions will accumulate their labels in here.
+		list<int> mVCA_word; // accumulated transitions in mVCA (!) that are required for this configuration change
 	public:
 		pa_transition_target()
-		{ dst = -1; is_new = false; };
+		{ dst = -1; };
 };
 
 // so we can have sets of transition_targets:
@@ -61,6 +59,8 @@ class p_automaton {
 		bool valid;
 		bool saturated;
 		mVCA * base_automaton;
+		map<int, map<int, map<int, set<int> > > > mVCA_premap; // m -> state -> label -> set<states>
+		map<int, map<int, map<int, set<int> > > > mVCA_postmap;
 
 		// the alphabet is different from the mVCA alphabet, as we operate over the
 		// mVCA configuration, i.e. over <state, m>. the alphabet is m+1 in size.
@@ -84,6 +84,10 @@ class p_automaton {
 	private: // methods
 		int new_state();
 		list<int> get_config(int state, int m);
+		bool transition_exists(int from_state, int label, int to_state);
+		set<int> run_transition(int from_state, int label);
+		set< pair<int, list<int> > > run_transition_accumulate(int from_state, int label, list<int> current_mVCA_run);
+		set< pair<int, list<int> > > run_transition_accumulate(int from_state, list<int> word);
 
 	public: // methods
 		p_automaton();
