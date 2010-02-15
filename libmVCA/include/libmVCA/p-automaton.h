@@ -38,11 +38,11 @@ class pa_transition_target {
 	public:
 		int dst;
 		bool is_new;
-		bool is_stack_bottom
-		vector<int> new_used_transitions;
+		list<int> labels; // normal transitions will have a 1-letter-word, the same as in their label-field in the transition-array.
+		// transitions saturated via other transitions will accumulate their labels in here.
 	public:
 		pa_transition_target()
-		{ dst = -1; is_new = false; is_stack_bottom = false; };
+		{ dst = -1; is_new = false; };
 };
 
 // so we can have sets of transition_targets:
@@ -62,15 +62,28 @@ class p_automaton {
 		bool saturated;
 		mVCA * base_automaton;
 
+		// the alphabet is different from the mVCA alphabet, as we operate over the
+		// mVCA configuration, i.e. over <state, m>. the alphabet is m+1 in size.
+		// 0 denotes the stack-empty symbol, 1 denotes m=1 and so on.
+		// a special case is <alphabet_size-1>:
+		// in case of m>=m_bound, the configuration looks like this:
+		// <state, ++...+++#!>
+		// where + is the highest label, # is the second highest label and ! is the lowest label (0).
+		// the number <n> of ``+'' denotes that m is <n> more than #. thus removing a + denotes decrementing m.
+
 		int alphabet_size;
 
 		int state_count;
 		// notice that the first <n> state are the initial states,
 		// corresponding to states from the mVCA
-		set<int> initial;
+		int highest_initial_state;
 		set<int> final;
-		// transitions :: state -> set<target>
-		map<int, set<pa_transition_target> > transitions;
+		// transitions :: state -> label -> destinations
+		map<int, map<int, set<pa_transition_target> > > transitions;
+
+	private: // methods
+		int new_state();
+		list<int> get_config(int state, int m);
 
 	public: // methods
 		p_automaton();
@@ -82,7 +95,8 @@ class p_automaton {
 
 		bool saturate_preSTAR();
 
-		list<int> check_acceptance(int state, int m, bool & reachable);
+		list<int> get_valid_run(int state, int m, bool & reachable);
+		list<int> get_shortest_valid_run(int state, int m, bool & reachable);
 };
 
 }; // end of namespace libmVCA

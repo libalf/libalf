@@ -100,6 +100,10 @@ int mVCA::get_alphabet_size()
 {{{
 	return this->alphabet.get_alphabet_size();
 }}}
+int mVCA::get_m_bound()
+{{{
+	return this->m_bound;
+}}}
 
 int mVCA::get_state_count()
 {{{
@@ -200,7 +204,8 @@ list<int> mVCA::shortest_run(const set<int> & from, int m, const set<int> & to, 
 	reachable = false;
 
 	for(si = from.begin(); si != from.end(); ++si) {
-		new_word = pa.check_acceptance(*si, m, new_word_valid);
+		new_word = pa.get_shortest_valid_run(*si, m, new_word_valid);
+		// ensure we use the shortest possible run
 		if(new_word_valid) {
 			if(!reachable || new_word.size() < old_word.size()) {
 				reachable = true;
@@ -209,7 +214,35 @@ list<int> mVCA::shortest_run(const set<int> & from, int m, const set<int> & to, 
 		}
 	}
 
+	if(!reachable)
+		old_word.clear();
 	return old_word;
+}}}
+list<int> mVCA::example_run(const set<int> & from, int m, const set<int> & to, int to_m, bool &reachable)
+{{{
+	// using the saturation algorithm to create the regular set Pre*(C),
+	// where C is the regular set of all accepting configurations (c, m) with c in <to> and m = <to_m>.
+	// for a reference on this algorithm, see e.g. the
+	// Lecture on Applied Automata Theory, Chair of Computer Science 7, RWTH Aachen University of Technology
+
+	set<int>::iterator si;
+
+	p_automaton pa(this);
+	for(si = to.begin(); si != to.end(); ++si)
+		pa.add_accepting_configuration(*si, to_m);
+
+	pa.saturate_preSTAR();
+
+	list<int> word;
+
+	for(si = from.begin(); si != from.end(); ++si) {
+		word = pa.get_valid_run(*si, m, reachable);
+		if(reachable)
+			return word;
+	}
+
+	word.clear();
+	return word;
 }}}
 
 bool mVCA::contains(list<int> & word)
