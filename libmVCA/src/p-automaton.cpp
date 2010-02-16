@@ -275,24 +275,8 @@ bool p_automaton::saturate_preSTAR()
 	return true;
 }}}
 
-list<int> p_automaton::get_valid_mVCA_run(int state, int m, bool & reachable)
-{
-	list<int> ret;
-
-	if(!valid || final.empty()) {
-		reachable = false;
-		return ret;
-	}
-
-	list<int> cfg = get_config(state, m);
-	
-
-	// if not reachable, return empty word.
-	
-}
-
 list<int> p_automaton::get_shortest_valid_mVCA_run(int state, int m, bool & reachable)
-{
+{{{
 	list<int> ret;
 
 	if(!valid || final.empty()) {
@@ -301,13 +285,26 @@ list<int> p_automaton::get_shortest_valid_mVCA_run(int state, int m, bool & reac
 	}
 
 	list<int> cfg = get_config(state, m);
+	int first_state = cfg.front();
+	cfg.pop_front();
 
-	// make sure we get the shortest run
-	
+	set<pair<int, list<int> > > targets = run_transition_accumulate(first_state, cfg);
+	set<pair<int, list<int> > >::iterator ti;
 
-	// if not reachable, return empty word.
-	
-}
+	for(ti = targets.begin(); ti != targets.end(); ++ti) {
+		if(final.find(ti->first) != final.end()) {
+			if(!reachable) {
+				reachable = true;
+				ret = ti->second;
+			} else {
+				if(ret.size() >= ti->second.size())
+					ret = ti->second;
+			}
+		}
+	}
+
+	return ret;
+}}}
 
 string p_automaton::generate_dotfile()
 {{{

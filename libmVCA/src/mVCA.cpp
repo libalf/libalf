@@ -222,32 +222,6 @@ list<int> mVCA::shortest_run(const set<int> & from, int m, const set<int> & to, 
 		old_word.clear();
 	return old_word;
 }}}
-list<int> mVCA::example_run(const set<int> & from, int m, const set<int> & to, int to_m, bool &reachable)
-{{{
-	// using the saturation algorithm to create the regular set Pre*(C),
-	// where C is the regular set of all accepting configurations (c, m) with c in <to> and m = <to_m>.
-	// for a reference on this algorithm, see e.g. the
-	// Lecture on Applied Automata Theory, Chair of Computer Science 7, RWTH Aachen University of Technology
-
-	set<int>::iterator si;
-
-	p_automaton pa(this);
-	for(si = to.begin(); si != to.end(); ++si)
-		pa.add_accepting_configuration(*si, to_m);
-
-	pa.saturate_preSTAR();
-
-	list<int> word;
-
-	for(si = from.begin(); si != from.end(); ++si) {
-		word = pa.get_valid_mVCA_run(*si, m, reachable);
-		if(reachable)
-			return word;
-	}
-
-	word.clear();
-	return word;
-}}}
 
 bool mVCA::contains(list<int> & word)
 {{{

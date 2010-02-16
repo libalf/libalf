@@ -136,7 +136,7 @@ int main(int argc, char**argv)
 	printf("\n\n");
 	list<int> run;
 	bool reachable;
-	run = pa.get_valid_mVCA_run(0, 0, reachable);
+	run = pa.get_shortest_valid_mVCA_run(0, 0, reachable);
 	if(reachable) {
 		printf("<0,0> is in Pre*, reaching set via ");
 		print_word(run);
