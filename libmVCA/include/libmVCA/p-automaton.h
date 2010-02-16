@@ -33,6 +33,38 @@ namespace libmVCA {
 
 using namespace std;
 
+/*
+ * P-automata can be used to calculate Pre* of a regular set of configurations C of the underlying mVCA (or PDS).
+ * The resulting P-automaton recognizes the exact set Pre*(C). With a refinement of the algorithm, it is possible
+ * to find a shortest mVCA run for any of the configurations in Pre*(C).
+ *
+ * To use this, create a p-automaton and initialize it with the underlying mVCA:
+ *
+ *		p_automaton pa(my_mVCA);
+ *
+ * then add configurations that shall be accepted:
+ * (for now, only a finite number of configurations is accepted, not a regular set)
+ *
+ *		pa.add_accepting_configuration( my_accepting_state, my_accepting_countervalue);
+ *
+ * tell the p-automaton to saturate itself, thus calculating Pre*(C).
+ *
+ *		pa.saturate_preSTAR();
+ *
+ * then, for any given mVCA configuration <q, m>, it can be checked if the set C is reachable:
+ *
+ *		bool reachable;
+ *		list<int> run;
+ *
+ *		run = get_shortest_valid_mVCA_run(q, m, reachable);
+ *
+ *		if(reachable) {
+ *			// (q,m) can reach a configuration in C via <run>.
+ *		} else {
+ *			// (q,m) can not reach any configuration in C.
+ *		}
+ */
+
 // type to store transitions and keep track of some informations
 class pa_transition_target {
 	public:
@@ -49,12 +81,7 @@ bool operator==(const pa_transition_target first, const pa_transition_target sec
 bool operator>(const pa_transition_target first, const pa_transition_target second);
 
 
-
-
 class p_automaton {
-	// effectively this is an NFA
-	private: // types
-
 	private: // data
 		bool valid;
 		bool saturated;
