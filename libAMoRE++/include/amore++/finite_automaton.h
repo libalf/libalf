@@ -25,6 +25,8 @@
 #ifndef __amore_finite_automaton_h__
 # define __amore_finite_automaton_h__
 
+#include <stdint.h>
+
 #include <list>
 #include <set>
 #include <map>
