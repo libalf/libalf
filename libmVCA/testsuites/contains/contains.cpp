@@ -62,15 +62,34 @@ int main(int argc, char**argv)
 	final.insert(1);
 
 	// transitions: m -> state -> sigma -> states
+#if 0
 	transitions[0][0][0].insert(0);
 
 	transitions[1][0][0].insert(0);
-	transitions[1][0][1].insert(1);
 	transitions[1][1][2].insert(1);
+	transitions[1][0][1].insert(1);
 
 	m = construct_mVCA(2, 3, up, stay, down, 0, final, 1, transitions);
 
 	cout << "this test defines a simple mVCA that should accept the language a^n b c^n with n >= 1.\n\n";
+#else
+	// m state label -> set<states>
+	transitions[0][0][0].insert(0);
+
+	transitions[1][0][0].insert(0);
+	transitions[1][1][2].insert(1);
+
+	transitions[2][0][0].insert(0);
+	transitions[2][1][2].insert(1);
+
+	transitions[3][0][0].insert(0);
+	transitions[3][1][2].insert(1);
+	transitions[3][0][1].insert(1);
+
+	m = construct_mVCA(2, 3, up, stay, down, 0, final, 3, transitions);
+
+	cout << "this test defines a simple mVCA that should accept the language a^n b c^n with n >= 3.\n\n";
+#endif
 
 	cout << "derivate type: " << (int)m->get_derivate_id() << "\n";
 
@@ -107,8 +126,11 @@ int main(int argc, char**argv)
 	if( ! pa.saturate_preSTAR())
 		cout << "PA: saturation failed.\n";
 
-	cout << "\n";
 	cout << pa.generate_dotfile();
 
+	ofstream file;
+	file.open("p-automaton.dot");
+	file << pa.generate_dotfile();
+	file.close();
 }
 

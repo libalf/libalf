@@ -149,6 +149,48 @@ bool p_automaton::add_accepting_configuration(int state, int m)
 	return true;
 }}}
 
+static inline list<int> get_next_stack_top(int topmost_symbol, int m_bound, enum pushdown_direction dir)
+// given the topmost PDS config symbol from_m and a direction, calculate the successor configuration.
+{{{
+	list<int> ret;
+
+	int next_m;
+
+	next_m = topmost_symbol + dir;
+
+	ret.push_back(next_m);
+
+	// special cases:
+	//
+	// OLD M	NEW M		   NEW STACK TOP
+	// 0		0		-> 0						normal case
+	// 0		1		-> 1,0
+	// 1		0		-> ∅
+	// m_bound-1	m_bound		-> m_bound, m_bound-1
+	// m_bound	m_bound		-> m_bound					normal case
+	// m_bound	m_bound-1	-> ∅
+	// m_bound	m_bound+1	-> m_bound, m_bound
+
+	if(topmost_symbol == 0 && next_m == 1) {
+		ret.push_back(0);
+	} else if(topmost_symbol == 1 && next_m == 0) {
+		ret.pop_back();
+	} else if(topmost_symbol == m_bound-1 && next_m == m_bound) {
+		ret.push_back(m_bound-1);
+	} else if(topmost_symbol == m_bound) {
+		if(next_m == m_bound-1) {
+			ret.pop_front();
+		} else if(next_m == m_bound+1) {
+			ret.push_back(m_bound);
+		}
+	}
+
+//	printf("requested stack top for transition from m=%d to %d is %s\n",
+//			topmost_symbol, next_m, word2string(ret).c_str());
+
+	return ret;
+}}}
+
 bool p_automaton::saturate_preSTAR()
 {{{
 	if(!valid)
@@ -159,8 +201,8 @@ bool p_automaton::saturate_preSTAR()
 
 	// using the transition rules in mVCA_postmap, we saturate the automaton:
 	//
-	// for all given mVCA-rules  (from_state, m, mVCA-label) -> (to_state, new_m) , the change in the PDS-config looks like this:
-	// <from_state, m*> -> <to_state, new_m*>, where m* and new_m* are valid PDS representations of the counter m resp. new_m.
+	// for all given mVCA-rules  (from_state, from_m, mVCA-label) -> (to_state, new_m) , the change in the PDS-config looks like this:
+	// <from_state, from_m*> -> <to_state, new_m*>, where m* and new_m* are valid PDS representations of the counter m resp. new_m.
 	//
 	// for each of these rules we do the following:
 	//
@@ -171,11 +213,11 @@ bool p_automaton::saturate_preSTAR()
 
 	bool new_transition_added = true;
 
-//	int run = 0;
+	int run = 0;
 
 	while(new_transition_added) {
-//		cout << "\nrun: " << run << "\n";
-//		run++;
+		cout << "\nrun: " << run << "\n";
+		run++;
 		new_transition_added = false;
 		// iterate over all mVCA transition rules:
 		map<int, map<int, map<int, set<int> > > >::iterator mi; // over all m
@@ -189,36 +231,21 @@ bool p_automaton::saturate_preSTAR()
 				map<int, set<int> >::iterator labeli; // over all labels
 				for(labeli = statei->second.begin(); labeli != statei->second.end(); ++labeli) {
 					int mVCA_label = labeli->first;
-					int to_m = from_m + base_automaton->alphabet_get_direction(mVCA_label);
+					if(from_m + base_automaton->alphabet_get_direction(mVCA_label) < 0)
+						continue; // skip invalid transitions, where m < 0
+
+					list<int> next_pds_config;
+					next_pds_config = get_next_stack_top(from_m, base_automaton->get_m_bound(),
+							base_automaton->alphabet_get_direction(mVCA_label));
 
 					set<int>::iterator desti; // over all destinations
 					for(desti = labeli->second.begin(); desti != labeli->second.end(); ++desti) {
 						int to_state = *desti;
 
-						// SATURATE, given the rule
-						// <from_state, from_m> -> <to_state, to_m> with mVCA-label <mVCA_label>
-						list<int> to_m_cfg = get_config(to_state, to_m);
-						to_m_cfg.pop_front();
-						// FIXME:
-						// two special cases:
-						// m == 0 and m == m_bound
-						// both caught?
-						if(from_m != 0)
-							to_m_cfg.pop_back(); // we have to keep the bottom symbol if from_m == 0. FIXME: special case(s) ?!
-
 						set<pair<int, list<int> > > destinations;
 						set<pair<int, list<int> > >::iterator di;
 
-						destinations = run_transition_accumulate(to_state, to_m_cfg);
-
-/*
-						if(!destinations.empty()) {
-							cout << "possible transition from " << from_state << " label " << from_m << " dst  ";
-							for(di = destinations.begin(); di != destinations.end(); ++di)
-								cout << di->first << " ["<< word2string(di->second) <<"]" << ";  ";
-							cout << "\n";
-						}
-*/
+						destinations = run_transition_accumulate(to_state, next_pds_config);
 
 						for(di = destinations.begin(); di != destinations.end(); ++di) {
 							if(!transition_exists(from_state, from_m, di->first)) {
@@ -230,10 +257,17 @@ bool p_automaton::saturate_preSTAR()
 
 								transitions[from_state][from_m].insert( tr );
 								new_transition_added = true;
-							} else {
-								// check if new one is shorter?
-								// should not be possible as we work in an incrementing way...
-//								cout << "   target " << di->first << " skipped.\n";
+								{
+									printf("PDS transition <%d, .%d.> -> <%d, %s> label %d: "
+										"induces PA-transition %d -> %d label %d [PDS run %s]\n",
+											from_state,	from_m,
+											to_state,	word2string(next_pds_config).c_str(),
+											mVCA_label,
+											from_state,	di->first, from_m,
+											word2string(tr.mVCA_word).c_str()
+										);
+
+								}
 							}
 						}
 					}
@@ -287,7 +321,7 @@ string p_automaton::generate_dotfile()
 
 	ret += "digraph p_automaton {\n"
 			"\tgraph[fontsize=8]\n"
-			"\trankdir=LR;\n"
+			"\trankdir=TD;\n"
 			"\tsize=8;\n"
 			"\n"; // header
 
@@ -342,7 +376,7 @@ string p_automaton::generate_dotfile()
 							(dsti->dst <= highest_initial_state) ? 'p' : 'q', dsti->dst,
 							labeli->first);
 				else
-					snprintf(buf, 128, "\t%c%d -> %c%d [ label=\"%d [%s]\" ];\n",
+					snprintf(buf, 128, "\t%c%d -> %c%d [ label=\"%d [%s]\", color=\"#00aa00\" ];\n",
 							(statei->first <= highest_initial_state) ? 'p' : 'q', statei->first,
 							(dsti->dst <= highest_initial_state) ? 'p' : 'q', dsti->dst,
 							labeli->first, word2string(dsti->mVCA_word).c_str());

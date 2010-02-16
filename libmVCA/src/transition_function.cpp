@@ -52,18 +52,36 @@ set<int> deterministic_transition_function::transmute(const set<int> & states, i
 {{{
 	set<int>::iterator si;
 	set<int> dst;
+	map<int, map<int, int> >::iterator statei;
+	map<int, int>::iterator labeli;
 
-	for(si = states.begin(); si != states.end(); ++si)
-		dst.insert(this->transitions[*si][sigma]);
+	for(si = states.begin(); si != states.end(); ++si) {
+		statei = transitions.find(*si);
+		if(statei != transitions.end()) {
+			labeli = statei->second.find(sigma);
+			if(labeli != statei->second.end()) {
+				dst.insert(labeli->second);
+			}
+		}
+		//dst.insert(this->transitions[*si][sigma]);
+	}
 
 	return dst;
 }}}
 set<int> deterministic_transition_function::transmute(int state, int sigma)
 {{{
-	set<int>::iterator si;
 	set<int> dst;
+	map<int, map<int, int> >::iterator statei;
+	map<int, int>::iterator labeli;
 
-	dst.insert(this->transitions[*si][sigma]);
+	statei = transitions.find(state);
+	if(statei != transitions.end()) {
+		labeli = statei->second.find(sigma);
+		if(labeli != statei->second.end()) {
+			dst.insert(labeli->second);
+		}
+	}
+	//dst.insert(this->transitions[state][sigma]);
 
 	return dst;
 }}}
