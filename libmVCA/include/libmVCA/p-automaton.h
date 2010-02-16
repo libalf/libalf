@@ -98,8 +98,8 @@ class p_automaton {
 
 		bool saturate_preSTAR();
 
-		list<int> get_valid_run(int state, int m, bool & reachable);
-		list<int> get_shortest_valid_run(int state, int m, bool & reachable);
+		list<int> get_valid_mVCA_run(int state, int m, bool & reachable);
+		list<int> get_shortest_valid_mVCA_run(int state, int m, bool & reachable);
 
 		string generate_dotfile();
 };

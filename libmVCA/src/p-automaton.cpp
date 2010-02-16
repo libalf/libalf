@@ -185,9 +185,6 @@ static inline list<int> get_next_stack_top(int topmost_symbol, int m_bound, enum
 		}
 	}
 
-//	printf("requested stack top for transition from m=%d to %d is %s\n",
-//			topmost_symbol, next_m, word2string(ret).c_str());
-
 	return ret;
 }}}
 
@@ -213,11 +210,11 @@ bool p_automaton::saturate_preSTAR()
 
 	bool new_transition_added = true;
 
-	int run = 0;
+//	int run = 0;
 
 	while(new_transition_added) {
-		cout << "\nrun: " << run << "\n";
-		run++;
+//		cout << "\nrun: " << run << "\n";
+//		run++;
 		new_transition_added = false;
 		// iterate over all mVCA transition rules:
 		map<int, map<int, map<int, set<int> > > >::iterator mi; // over all m
@@ -257,17 +254,16 @@ bool p_automaton::saturate_preSTAR()
 
 								transitions[from_state][from_m].insert( tr );
 								new_transition_added = true;
-								{
-									printf("PDS transition <%d, .%d.> -> <%d, %s> label %d: "
-										"induces PA-transition %d -> %d label %d [PDS run %s]\n",
-											from_state,	from_m,
-											to_state,	word2string(next_pds_config).c_str(),
-											mVCA_label,
-											from_state,	di->first, from_m,
-											word2string(tr.mVCA_word).c_str()
-										);
-
-								}
+								/*
+								printf("PDS transition <%d, .%d.> -> <%d, %s> label %d: "
+									"induces PA-transition %d -> %d label %d [PDS run %s]\n",
+										from_state,	from_m,
+										to_state,	word2string(next_pds_config).c_str(),
+										mVCA_label,
+										from_state,	di->first, from_m,
+										word2string(tr.mVCA_word).c_str()
+									);
+								*/
 							}
 						}
 					}
@@ -279,7 +275,7 @@ bool p_automaton::saturate_preSTAR()
 	return true;
 }}}
 
-list<int> p_automaton::get_valid_run(int state, int m, bool & reachable)
+list<int> p_automaton::get_valid_mVCA_run(int state, int m, bool & reachable)
 {
 	list<int> ret;
 
@@ -288,13 +284,14 @@ list<int> p_automaton::get_valid_run(int state, int m, bool & reachable)
 		return ret;
 	}
 
+	list<int> cfg = get_config(state, m);
 	
 
 	// if not reachable, return empty word.
 	
 }
 
-list<int> p_automaton::get_shortest_valid_run(int state, int m, bool & reachable)
+list<int> p_automaton::get_shortest_valid_mVCA_run(int state, int m, bool & reachable)
 {
 	list<int> ret;
 
@@ -302,6 +299,8 @@ list<int> p_automaton::get_shortest_valid_run(int state, int m, bool & reachable
 		reachable = false;
 		return ret;
 	}
+
+	list<int> cfg = get_config(state, m);
 
 	// make sure we get the shortest run
 	
@@ -403,10 +402,13 @@ int p_automaton::new_state()
 	return n;
 }}}
 list<int> p_automaton::get_config(int state, int m)
+// calculates a PDS configuration for given <state, m>.
+// the result is a list<int> where ret.front() is the state and
+// the rest of the list is the PDS stack (front is top).
 {{{
 	list<int> config;
 
-	if(state>=state_count)
+	if(state < 0 || state >= base_automaton->get_state_count())
 		return config; // invalid config.
 	if(m < 0)
 		return config; // invalid config.
