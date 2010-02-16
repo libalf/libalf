@@ -25,6 +25,8 @@
 #ifndef __libalf_basic_string_h__
 #define __libalf_basic_string_h__
 
+#include <stdint.h>
+
 #include <ostream>
 #include <string>
 
