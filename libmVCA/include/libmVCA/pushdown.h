@@ -76,6 +76,11 @@ class pushdown_alphabet {
 		// </serialized automaton>
 		basic_string<int32_t> serialize();
 		bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress);
+
+		bool operator==(pushdown_alphabet & other)
+		{ return ( (this->alphabet_size == other.alphabet_size) && (this->directions == other.directions) ); };
+		bool operator!=(pushdown_alphabet & other)
+		{ return ! (*this == other); };
 };
 
 }; // end of namespace libmVCA.

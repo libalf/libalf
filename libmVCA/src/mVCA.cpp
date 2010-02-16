@@ -256,13 +256,52 @@ bool mVCA::is_empty()
 	return ret;
 }}}
 
-bool mVCA::lang_subset_of(mVCA & other)
-// cross-product + Pre* of all states that are final in one automaton, but
-// not final in the other.
+/*
+mVCA * mVCA::crossproduct(mVCA & other, bool intersect)
+// if intersect, we build the intersection of both automata. otherwise we build the union.
 {
+	if(this->alphabet != other.alphabet)
+		return NULL;
+
+	mVCA * ret = new nondeterministic_mVCA();
+
+
+	
+
+	return ret;
+}
+int mVCA::crossproduct_state_match(mVCA & other, int this_state, int other_state)
+// in a possible cross-product, get the state representing (this, other)
+{ return this_state * other.get_state_count() + other_state; }
+
+bool mVCA::lang_subset_of(mVCA & other, list<int> & counterexample)
+{
+	// if this is a subset of other, there exists no word s.t. this accepts it and other does not accept it.
+
+	// A) we create the cross-product of both automata.
+	
+	// B) then we calculate Pre* of all configurations C that represent configurations
+	//    that are accepting in this and not accepting in other.
+	
+	// C) then we check if any initial configuration is in Pre*(C).
+	//    if so, this is not a subset of other and the specific run is a sampleword for this.
 	
 }
 
+bool mVCA::lang_disjoint_to(mVCA & other, list<int> & counterexample)
+{
+	// FIXME: check if both are deterministic, otherwise fail somehow
+
+	mVCA * tmp;
+	bool reachable;
+
+	tmp = this->crossproduct(other, true);
+	counterexample = tmp->get_sample_word(reachable);
+	delete tmp;
+
+	return !reachable;
+}
+*/
 
 basic_string<int32_t> mVCA::serialize()
 {{{

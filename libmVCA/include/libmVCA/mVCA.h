@@ -139,13 +139,18 @@ class mVCA {
 
 
 		///-----------------------------------
-		
-		bool lang_subset_of(mVCA & other);
-		//bool lang_disjoint_to(mVCA & other);
-		//bool lang_complement();
 
+/*
+		bool lang_subset_of(mVCA & other, list<int> & counterexample); // both have to be deterministic
+		bool lang_disjoint_to(mVCA & other, list<int> & counterexample); // both have to be deterministic
+
+		mVCA * lang_union(mVCA & other); // both may be nondeterministic
+		mVCA * lang_intersect(mVCA & other); // both have to be deterministic
+*/
+
+		//bool lang_complement();
 		//mVCA * determinize();
-		
+
 		///-----------------------------------
 
 		// obtain id of unique derived class
@@ -172,7 +177,14 @@ class mVCA {
 		virtual basic_string<int32_t> serialize_derivate() = 0;
 		virtual bool deserialize_derivate(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress) = 0;
 		virtual string get_transition_dotfile() = 0;
+
+//		mVCA * crossproduct(mVCA & other, bool intersect);
+//		int crossproduct_state_match(mVCA & other, int this_state, int other_state);
+
 };
+
+
+
 
 
 
