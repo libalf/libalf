@@ -8,8 +8,8 @@ img_extIsRegExp=false
 img_extensions=.eps .jpg .jpeg .png .pdf .ps .fig .gif
 kileprversion=2
 kileversion=2.1 beta2
-lastDocument=logger.tex
-masterDocument=
+lastDocument=libalf.tex
+masterDocument=libalf.tex
 name=Project
 pkg_extIsRegExp=false
 pkg_extensions=.cls .sty .bbx .cbx .lbx
@@ -26,14 +26,14 @@ UseMakeIndex=1
 
 [Tools]
 MakeIndex=
-QuickBuild=
+QuickBuild=PDFLaTeX+ViewPDF
 
 [item:commands.tex]
 archive=true
-column=17
-encoding=UTF-8
+column=0
+encoding=ISO-8859-15
 highlight=LaTeX
-line=1
+line=66
 open=true
 order=2
 
@@ -48,63 +48,63 @@ order=8
 
 [item:install.tex]
 archive=true
-column=194
-encoding=UTF-8
+column=0
+encoding=ISO-8859-15
 highlight=LaTeX
-line=178
+line=183
 open=true
 order=3
 
 [item:introduction.tex]
 archive=true
 column=0
-encoding=UTF-8
+encoding=ISO-8859-15
 highlight=LaTeX
-line=0
+line=232
 open=true
 order=1
 
 [item:knowledgebase.tex]
 archive=true
-column=51
-encoding=UTF-8
+column=0
+encoding=ISO-8859-15
 highlight=LaTeX
-line=281
+line=867
 open=true
 order=4
 
 [item:learning_algorithm.tex]
 archive=true
 column=0
-encoding=UTF-8
+encoding=ISO-8859-15
 highlight=LaTeX
-line=189
+line=212
 open=true
 order=5
 
 [item:libalf.tex]
 archive=true
-column=1
-encoding=UTF-8
+column=14
+encoding=ISO-8859-15
 highlight=LaTeX
-line=39
+line=38
 open=true
 order=0
 
 [item:logger.tex]
 archive=true
-column=29
-encoding=UTF-8
+column=0
+encoding=ISO-8859-15
 highlight=LaTeX
-line=66
+line=178
 open=true
 order=7
 
 [item:references.bib]
 archive=true
-column=15
-encoding=UTF-8
+column=50
+encoding=ISO-8859-15
 highlight=BibTeX
-line=273
+line=201
 open=true
 order=6

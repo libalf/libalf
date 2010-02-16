@@ -53,7 +53,7 @@ You can compile a static library using the command (inside libalf/src)
 on both Linux and Windows. \\ However, make sure that you delete any shared library in the folder before you link your application with libalf as some operating systems (e.g. Linux) always prefer shared libraries if present.
 
 \subsection{Installing Libalf}
-Installing libalf means to copy to the compiled shared library and libalf’s headers to a location where your operating system finds them.
+Installing libalf means to copy to the compiled shared library and libalf?s headers to a location where your operating system finds them.
 \subsection*{Installing in Linux}
 To install \libalf in linux, first compile the library and type
 \\ \\
@@ -65,12 +65,12 @@ You can uninstall \libalf by using the command
 \\ \\
 Please note that you need root privileges for both actions.
 \subsection*{Installing in Windows}
-On Windows, you have to manually copy the compiled shared binary files to your \texttt{windows/system} directory. Unfortunately, there is no common place to put header files in. Thus, you have to specify the header’s location every time you compile an application that uses libalf (see the section below).
+On Windows, you have to manually copy the compiled shared binary files to your \texttt{windows/system} directory. Unfortunately, there is no common place to put header files in. Thus, you have to specify the header?s location every time you compile an application that uses libalf (see the section below).
 
 \subsection{Compiling Applications that use Libalf}
-When compiling an application that uses \libalf, the compiler needs to find \libalf’s headers and the compiled library. Please note that if you have libalf installed on your system, you are ready. 
+When compiling an application that uses \libalf, the compiler needs to find \libalf?s headers and the compiled library. Please note that if you have libalf installed on your system, you are ready. 
 \paragraph{}
-Otherwise, you have to use the GNU C++ compiler’s \texttt{-I} parameter to specify libalf’s header locations (typically \texttt{libalf/include}) and the –L parameter to specify the location for the compiled library (which is \texttt{libalf/src}). You also have to use the \texttt{-l alf} parameter to link the application to \libalf.
+Otherwise, you have to use the GNU C++ compiler?s \texttt{-I} parameter to specify libalf?s header locations (typically \texttt{libalf/include}) and the ?L parameter to specify the location for the compiled library (which is \texttt{libalf/src}). You also have to use the \texttt{-l alf} parameter to link the application to \libalf.
 We will consider the online-example to explain the compilation.
 \subsection*{Compiling applications that links to shared library}
 To compile the online example that uses the shared library, type the following command.
@@ -95,22 +95,22 @@ On Linux, use the \texttt{LD\_LIBRARY\_PATH} variable to point to the location o
 \texttt{LD\_LIBRARY\_PATH=path\_to\_library ./online}
 
 \subsection{Running the application on Windows}
-Unfortunately, on Windows there is no direct way of telling the system where to find shared libraries. Instead, you have to add their locations to Windows’ \texttt{PATH} variable or copy the library into the folder your application is executed from. For further details please refer to the examples’ Readme and Makefile.
+Unfortunately, on Windows there is no direct way of telling the system where to find shared libraries. Instead, you have to add their locations to Windows? \texttt{PATH} variable or copy the library into the folder your application is executed from. For further details please refer to the examples? Readme and Makefile.
 
 \section{The \jalf \java Library}
-Jalf is the Java interface to libalf. It lets you access \libalf via the dispatcher or via Java’s Native Inter-face JNI. The latter way requires that you compile a second \cpp library (some kind of wrapper), that obeys Java’s naming convention and performs some basic conversions of internal data structures. However, if you want to use \jalf only in connection with the dispatcher, it is enough to compile and use the Java sources.
+Jalf is the Java interface to libalf. It lets you access \libalf via the dispatcher or via Java?s Native Inter-face JNI. The latter way requires that you compile a second \cpp library (some kind of wrapper), that obeys Java?s naming convention and performs some basic conversions of internal data structures. However, if you want to use \jalf only in connection with the dispatcher, it is enough to compile and use the Java sources.
 In the following we assume that you are familiar with basics of compiling and running Java programs.
 
-\subsection{Compiling jalf’s Java sources}
-In order to compile \jalf’s Java sources, change to the \texttt{libalf/jalf} folder and type \\ \\ \texttt{ant} \\ \\. This invokes the Ant build utility and produces the file jalf.jar containing all compiled class files inside the libalf/jalf folder. If you do not wish to use \jalf via JNI, you can skip the following section. \\
-Note that you can generate \jalf’s JavaDoc also using Ant with the command \\ \\ \texttt{ant doc} \\ \\Thereafter, the JavaDoc can be found inside the \texttt{libalf/jalf/java/doc} folder.
+\subsection{Compiling jalf?s Java sources}
+In order to compile \jalf?s Java sources, change to the \texttt{libalf/jalf} folder and type \\ \\ \texttt{ant} \\ \\. This invokes the Ant build utility and produces the file jalf.jar containing all compiled class files inside the libalf/jalf folder. If you do not wish to use \jalf via JNI, you can skip the following section. \\
+Note that you can generate \jalf?s JavaDoc also using Ant with the command \\ \\ \texttt{ant doc} \\ \\Thereafter, the JavaDoc can be found inside the \texttt{libalf/jalf/java/doc} folder.
 
-\subsection{Compiling jalf’s C++ sources}
-The \jalf \cpp library needs to be a shared library. However, you have the option to link \libalf either dynamically or statically to \jalf. The latter option is often preferred and enabled by default. Please remember to delete any shared library in \texttt{libalf/src} before you compile jalf’s C++ sources (libalf is recompiled for you). You may use the command. 
+\subsection{Compiling jalf?s C++ sources}
+The \jalf \cpp library needs to be a shared library. However, you have the option to link \libalf either dynamically or statically to \jalf. The latter option is often preferred and enabled by default. Please remember to delete any shared library in \texttt{libalf/src} before you compile jalf?s C++ sources (libalf is recompiled for you). You may use the command. 
 \\ \\ 
 \texttt{make libalf/src clean} 
 \paragraph{}
-Compiling \jalf’s \cpp sources is also automated by means of the make utility. However, as additional information the Java compiler requires the location of Java’s JNI header files, which are contained in every JDK. Their location is passed on to the make utility using the \texttt{JAVA\_INCLUDE} variable. Thus, to compile jalf’s \cpp sources, go to \texttt{libalf/jalf/src} and execute
+Compiling \jalf?s \cpp sources is also automated by means of the make utility. However, as additional information the Java compiler requires the location of Java?s JNI header files, which are contained in every JDK. Their location is passed on to the make utility using the \texttt{JAVA\_INCLUDE} variable. Thus, to compile jalf?s \cpp sources, go to \texttt{libalf/jalf/src} and execute
 \\ \\
 \texttt{JAVA\_INCLUDE=path\_to\_jdk/include make}
 \\ \\
@@ -122,14 +122,14 @@ After a successful compilation, the binary is located in \texttt{libalf/jalf/src
 As mentioned, \libalf is linked \textbf{statically} by default. If you want link \libalf \textbf{dynamically}, you can use the commands \texttt{make libjalf.so-dynamic} (for Linux) and \texttt{make jalf.dll-dynamic} (for Windows).
 
 \subsection{Compiling Java applications that use \jalf}
-Fortunately, the Java compiler does not need to know anything about the C++ libraries to compile your application and only needs access to \jalf’s Java class files. You specify this information by adding the \texttt{jalf.jar} file to Java’s classpath. Our Java online-example, for instance, can be compiled using the following command (first change into the folder containing the example sources):
+Fortunately, the Java compiler does not need to know anything about the C++ libraries to compile your application and only needs access to \jalf?s Java class files. You specify this information by adding the \texttt{jalf.jar} file to Java?s classpath. Our Java online-example, for instance, can be compiled using the following command (first change into the folder containing the example sources):
 \\ \\
 \texttt{javac -classpath ``path\_to\_jalf/jalf.jar'' Online.java}
 
 \subsection{Running Java applications that use \jalf}
 Besides the location of the \texttt{jalf.jar}, running a Java application that uses \jalf requires telling Java where it can find the compiled \jalf and \libalf library. (If you have installed libalf to your system or if you linked jalf statically to jalf, you do not need to bother about the latter.)
 \paragraph{}
-The place where Java looks for \cpp libraries is controlled by Java’s interval library path variable. This variable can only be changed at the start of the Java VM. You do so by setting the variable named \texttt{java.library.path} to the location of the jalf library (i.e, the \jalf \cpp binary which is typically \texttt{libalf/jalf/src} using the -D parameter. 
+The place where Java looks for \cpp libraries is controlled by Java?s interval library path variable. This variable can only be changed at the start of the Java VM. You do so by setting the variable named \texttt{java.library.path} to the location of the jalf library (i.e, the \jalf \cpp binary which is typically \texttt{libalf/jalf/src} using the -D parameter. 
 \subsection*{Running the application in Linux}
 To run the online-example on Linux, one has to execute the following command (inside the folder containing the compiled online-example):
 \\ \\ \\
@@ -142,7 +142,7 @@ Please recall that Linux and Windows use different ways of separating folders. W
 \\ \\
 \texttt{java -classpath ``path\_to\_jalf/jalf.jar;.'' \\ \hspace*{25pt} -Djava.library.path=path\_to\_jalf\_library Online}
 \\ \\
-For further details please refer to the examples’ Readme.
+For further details please refer to the examples? Readme.
 
 \section{Compiling and using the dispatcher}
 Please recall that the dispatcher only runs on a POSIX-compliant operating system such as Linux, but not on Windows.
