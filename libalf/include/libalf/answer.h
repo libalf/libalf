@@ -22,10 +22,12 @@
  *
  */
 
-#include <stdint.h>
-
 #ifndef __libalf_answer_h__
 # define __libalf_answer_h__
+
+#include <stdint.h>
+#include <string>
+#include <libalf/serialize.h>
 
 namespace libalf {
 
@@ -83,6 +85,21 @@ class extended_bool {
 };
 
 bool __attribute__((const)) operator==(extended_bool a, extended_bool b);
+
+inline std::basic_string<int32_t> serialize(extended_bool e)
+{{{
+	std::basic_string<int32_t> ret;
+	ret += htonl((int32_t)e);
+	return ret;
+}}}
+
+inline bool deserialize(extended_bool & e, serial_stretch & serial)
+{{{
+	int i;
+	if(!::deserialize(i, serial)) return false;
+	e = ( (int32_t)i );
+	return true;
+}}}
 
 }; // enf of namespace libalf
 

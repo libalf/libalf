@@ -58,6 +58,7 @@ class  serial_stretch {
 inline                                  std::basic_string<int32_t> serialize(int a);
 inline                                  bool deserialize(int & into, serial_stretch & serial);
 inline                                  bool deserialize(unsigned int & into, serial_stretch & serial);
+inline                                  bool deserialize(bool & into, serial_stretch & serial);
 template <typename S, typename T>       std::basic_string<int32_t> serialize(std::pair<S, T> & p);
 template <typename S, typename T>       bool deserialize(std::pair<S, T> & p, serial_stretch & serial);
 template <typename S>                   std::basic_string<int32_t> serialize(std::list<S> & l);
@@ -73,7 +74,7 @@ template <typename S, typename T>       bool deserialize(std::map<S, T> m, seria
 
 
 // int
-inline					std::basic_string<int32_t> serialize(int a)
+inline					std::basic_string<int32_t> serialize(int a) // works for int, unsinged int and bool.
 {{{
 	std::basic_string<int32_t> ret;
 	ret += htonl(a);
@@ -87,6 +88,13 @@ inline					bool deserialize(int & into, serial_stretch & serial)
 	return true;
 }}}
 inline					bool deserialize(unsigned int & into, serial_stretch & serial)
+{{{
+	if(serial.empty()) return false;
+	into = ntohl(*serial);
+	serial.current++;
+	return true;
+}}}
+inline					bool deserialize(bool & into, serial_stretch & serial)
 {{{
 	if(serial.empty()) return false;
 	into = ntohl(*serial);
@@ -159,14 +167,17 @@ template <typename S>			std::basic_string<int32_t> serialize(std::vector<S> & v)
 template <typename S>			bool deserialize(std::vector<S> & v, serial_stretch & serial)
 {{{
 	int size;
+	S tmp;
 
 	v.clear();
 
 	if(!deserialize(size, serial)) return false;
 	v.reserve(size);
-	for(int i = 0; i < size; ++i)
-		if(!deserialize(v[i], serial))
+	for(int i = 0; i < size; ++i) {
+		if(!deserialize(tmp, serial))
 			return false;
+		v[i] = tmp;
+	}
 	return true;
 }}}
 

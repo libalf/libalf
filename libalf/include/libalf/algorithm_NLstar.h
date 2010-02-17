@@ -36,7 +36,9 @@
 #include <arpa/inet.h>
 #endif
 
+#include <libalf/answer.h>
 #include <libalf/learning_algorithm.h>
+#include <libalf/serialize.h>
 
 namespace libalf {
 
@@ -117,70 +119,14 @@ class NLstar_table : public learning_algorithm<answer> {
 
 				basic_string<int32_t> serialize()
 				{{{
-					basic_string<int32_t> ret;
-					basic_string<int32_t> temp;
-					typename acceptances::iterator acci;
-
-					// length (filled in later)
-					ret += 0;
-
-					// index
-					ret += serialize_word(this->index);
-
-					// accumulate acceptances
-					for(acci = this->acceptance.begin(); acci != this->acceptance.end(); acci++) {
-						temp += htonl((int32_t)(*acci));
-					}
-
-					// number of acceptances
-					ret += htonl(temp.length());
-					// acceptances
-					ret += temp;
-
-					ret[0] = htonl(ret.length() - 1);
-
-					return ret;
+					return ::serialize(index) + ::serialize(acceptance);
 				}}}
-				bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+				bool deserialize(serial_stretch & serial)
 				{{{
-					int size;
-					int count;
-
-					index.clear();
-					acceptance.clear();
-
-					if(it == limit)
-						return false;
-					size = ntohl(*it);
-					it++; if(size <= 0 || it == limit) return false;
-
-					// index
-					if( ! deserialize_word(this->index, it, limit) )
-						goto deserialization_failed;
-					size -= this->index.size() + 1;
-					if(size <= 0 || it == limit) goto deserialization_failed;
-
-					// number of acceptances
-					count = ntohl(*it);
-					it++, size--;
-					if(size != count)
-						goto deserialization_failed;
-
-					// acceptances
-					for(/* -- */; count > 0 && it != limit; count--, it++) {
-						if(it == limit)
-							goto deserialization_failed;
-						answer a;
-						a = (int32_t)(ntohl(*it));
-						acceptance.push_back(a);
-					}
-
-					if(count)
-						goto deserialization_failed;
-
+					if(!::deserialize(index, serial)) goto fail;
+					if(!::deserialize(acceptance, serial)) goto fail;
 					return true;
-
-deserialization_failed:
+fail:
 					index.clear();
 					acceptance.clear();
 					return false;
@@ -294,40 +240,48 @@ deserialization_failed:
 		}}}
 
 		virtual basic_string<int32_t> serialize()
-		{
+		{{{
 			basic_string<int32_t> ret;
 
 			ret += 0; // size - filled in later.
 			ret += htonl(learning_algorithm<answer>::ALG_NL_STAR);
+			ret += htonl(this->get_alphabet_size());
 
-			
+			ret += ::serialize(column_names);
+			ret += serialize_table(upper_table);
+			ret += serialize_table(lower_table);
+			// end of tables.
+			ret += ::serialize(initialized ? 1 : 0);
 
 			ret[0] = htonl(ret.length() - 1);
 
 			return ret;
-		}
+		}}}
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
-		// FIXME: put initialized into serialized stream
-		{
+		{{{
 			int size;
-//			int count;
-			enum learning_algorithm<answer>::algorithm type;
+			int type;
 
-			if(it == limit) return false;
-			size = ntohl(*it);
+			serial_stretch serial;
+			serial.current = it;
+			serial.limit = limit;
 
-			it++; if(size <= 0 || it == limit) return false;
-			type = (enum learning_algorithm<answer>::algorithm) ntohl(*it);
-			if(type != learning_algorithm<answer>::ALG_NL_STAR)
-				goto deserialization_failed;
+			if(!::deserialize(size, serial)) goto deserialization_failed;
+			if(size < 1) goto deserialization_failed;
+			if(!::deserialize(type, serial)) goto deserialization_failed;
+			if(type != learning_algorithm<answer>::ALG_NL_STAR) goto deserialization_failed;
+			if(!::deserialize(size, serial)) goto deserialization_failed;
+			this->set_alphabet_size(size);
 
-			it++; size--; if(size <= 0 || it == limit) return false;
+			if(!::deserialize(column_names, serial)) goto deserialization_failed;
 
-			
+			if(!deserialize_table(upper_table, serial)) goto deserialization_failed;
+			if(!deserialize_table(lower_table, serial)) goto deserialization_failed;
 
-			it++;
+			if(!::deserialize(size, serial)) goto deserialization_failed;
+			initialized = size;
 
-			initialized = false;
+			it = serial.current;
 			return true;
 
 deserialization_failed:
@@ -336,8 +290,9 @@ deserialization_failed:
 			upper_table.clear();
 			lower_table.clear();
 			initialized = false;
+			it = serial.current;
 			return false;
-		}
+		}}}
 
 		virtual void print(ostream &os)
 		{{{
@@ -923,6 +878,34 @@ deserialization_failed:
 			ret->valid = true;
 
 			return ret;
+		}}}
+
+		basic_string<int32_t> serialize_table(table & t)
+		{{{
+			std::basic_string<int32_t> serialized_list;
+			typename table::iterator ti;
+			int size = 0;
+
+			for(ti = t.begin(); ti != t.end(); ++ti) {
+				size++;
+				serialized_list += ti->serialize();
+			}
+
+			return ::serialize(size) + serialized_list;
+
+		}}}
+		bool deserialize_table(table & t, serial_stretch & serial)
+		{{{
+			int size;
+			table_row tmp;
+
+			if(!::deserialize(size, serial)) return false;
+			while(size) {
+				if(!tmp.deserialize(serial)) return false;
+				t.push_back(tmp);
+				--size;
+			}
+			return true;
 		}}}
 };
 
