@@ -39,6 +39,7 @@
 #include <stdlib.h>
 
 #include <libalf/conjecture.h>
+#include <libalf/serialize.h>
 
 namespace libalf {
 
@@ -647,33 +648,136 @@ void simple_mVCA::clear()
 	is_deterministic = false;
 	state_count = 0;
 	alphabet_size = 0;
-	up.clear();
-	stay.clear();
-	down.clear();
+	alphabet_directions.clear();
 	initial_state = -1;
 	final_states.clear();
 	m_bound = -2;
 	transitions.clear();
 }}}
+
 basic_string<int32_t> simple_mVCA::serialize()
-{
-	
-}
+{{{
+	basic_string<int32_t> ret;
+
+	if(!valid) return ret;
+
+	ret += 0; // size, filled in later.
+
+	ret += htonl(is_deterministic ? 1 : 2);
+	ret += ::serialize(state_count);
+	// alphabet
+	ret += ::serialize(alphabet_size);
+	ret += ::serialize(alphabet_directions);
+	// end of alphabet
+	ret += ::serialize(initial_state);
+	ret += ::serialize(final_states);
+	ret += ::serialize(m_bound);
+	// transition function
+	if(is_deterministic) {
+		map<int, map<int, map<int, int> > > deterministic_transitions;
+		map<int, map<int, map<int, set<int> > > >::iterator mmmsi;
+		map<int, map<int, set<int> > >::iterator mmsi;
+		map<int, set<int> >::iterator msi;
+		set<int>::iterator si;
+		for(mmmsi = transitions.begin(); mmmsi != transitions.end(); ++mmmsi)
+			for(mmsi = mmmsi->second.begin(); mmsi != mmmsi->second.end(); ++mmsi)
+				for(msi = mmsi->second.begin(); msi != mmsi->second.end(); ++msi) {
+					bool found_one = false;
+					for(si = msi->second.begin(); si != msi->second.end(); ++si) {
+						if(found_one) {
+							is_deterministic = false;
+							return serialize();
+						} else {
+							found_one = true;
+							deterministic_transitions[mmmsi->first][mmsi->first][msi->first] = *si;
+						}
+					}
+				}
+		ret += ::serialize(deterministic_transitions);
+	} else {
+		ret += ::serialize(transitions);
+	}
+
+	ret[0] = htonl(ret.length() - 1);
+
+	return ret;
+}}}
 bool simple_mVCA::deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
-{
-	
-}
+{{{
+	serial_stretch serial;
+	serial.current = it;
+	serial.limit = limit;
+
+	int size;
+	int type;
+	if(!::deserialize(size, serial)) goto fail;
+	if(size < 1) goto fail;
+	if(!::deserialize(type, serial)) goto fail;
+	switch(type) {
+		case 1:
+			is_deterministic = true;
+			break;
+		case 2:
+			is_deterministic = false;
+			break;
+		default:
+			goto fail;
+	}
+	if(!::deserialize(state_count, serial)) goto fail;
+	if(!::deserialize(alphabet_size, serial)) goto fail;
+	if(!::deserialize(alphabet_directions, serial)) goto fail;
+	if(!::deserialize(initial_state, serial)) goto fail;
+	if(!::deserialize(final_states, serial)) goto fail;
+	if(!::deserialize(m_bound, serial)) goto fail;
+
+	if(is_deterministic) {
+		transitions.clear();
+
+		map<int, map<int, map<int, int> > > deterministic_transitions;
+		if(!::deserialize(deterministic_transitions, serial)) goto fail;
+
+		map<int, map<int, map<int, int > > >::iterator mmmi;
+		map<int, map<int, int > >::iterator mmi;
+		map<int, int >::iterator mi;
+
+		for(mmmi = deterministic_transitions.begin(); mmmi != deterministic_transitions.end(); ++mmmi)
+			for(mmi = mmmi->second.begin(); mmi != mmmi->second.end(); ++mmi)
+				for(mi = mmi->second.begin(); mi != mmi->second.end(); ++mi)
+					transitions[mmmi->first][mmi->first][mi->first].insert(mi->second);
+	} else {
+		if(!::deserialize(transitions, serial)) goto fail;
+	}
+
+	it = serial.current;
+	return true;
+fail:
+	clear();
+	it = serial.current;
+	return false;
+}}}
 string simple_mVCA::write()
 {
+	string ret;
+
+	// FIXME
 	
+
+	return ret;
 }
 bool simple_mVCA::read(string input)
 {
+	// human readable input?
 	
+	return false;
 }
 string simple_mVCA::visualize()
 {
+	string ret;
+
+	// FIXME
 	
+
+	return ret;
 }
 
 

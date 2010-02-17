@@ -78,51 +78,17 @@ bool pushdown_alphabet::set_direction(int sigma, enum pushdown_direction directi
 
 std::basic_string<int32_t> pushdown_alphabet::serialize()
 {{{
-	basic_string<int32_t> ret;
-
-	// stream length, will be filled in later.
-	ret += 0;
-
-	ret += htonl(this->alphabet_size);
-
-	for(int sigma = 0; sigma < this->alphabet_size; sigma++)
-		ret += htonl(this->directions[sigma]);
-
-	ret[0] = htonl(ret.length() - 1);
-
-	return ret;
+	return ::serialize(alphabet_size) + ::serialize(directions);
 }}}
 
-bool pushdown_alphabet::deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress)
+bool pushdown_alphabet::deserialize(::serial_stretch serial)
 {{{
-	int size;
-
-	progress = 0;
 	clear();
 
-	if(it == limit) return false;
-	size = ntohl(*it);
-	++it; ++progress;
-	if(size <= 0 || limit == it) return false;
+	if(!::deserialize(alphabet_size, serial)) return false;
+	if(!::deserialize(directions, serial)) return false;
 
-	this->alphabet_size = ntohl(*it);
-	if(this->alphabet_size < 0) goto deserialization_failed;
-
-	for(int sigma = 0; sigma < this->alphabet_size; sigma++) {
-		++it; ++progress; --size;
-		if(size <= 0 || limit == it) goto deserialization_failed;
-		enum pushdown_direction d;
-		d = (enum pushdown_direction) ntohl(*it);
-		if(d != DIR_UP && d != DIR_STAY && d != DIR_DOWN)
-			goto deserialization_failed;
-		this->directions[sigma] = d;
-	}
-
-	if(size == 0)
-		return true;
-
-deserialization_failed:
-	return false;
+	return true;
 }}}
 
 } // end of namespace libmVCA

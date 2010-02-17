@@ -31,6 +31,8 @@
 
 #include <libmVCA/transition_function.h>
 
+#include <libmVCA/serialize.h>
+
 #include "set.h"
 
 namespace libmVCA {
@@ -88,33 +90,12 @@ set<int> deterministic_transition_function::transmute(int state, int sigma)
 
 basic_string<int32_t> deterministic_transition_function::serialize()
 {{{
-	basic_string<int32_t> ret;
-
-	ret += 0; // size, filled in later.
-
-	// transitions are of type map<int, map<int, int> >, i.e. state -> sigma -> state
-	// but we will serialize to (state, sigma, set<states>), s.t. the format is
-	// compatible with nondeterministic_transition_function.
-	map<int, map<int, int> >::iterator state_iterator;
-	map<int, int>::iterator sigma_iterator;
-
-	for(state_iterator = transitions.begin(); state_iterator != transitions.end(); ++state_iterator) {
-		for(sigma_iterator = state_iterator->second.begin(); sigma_iterator != state_iterator->second.end(); ++sigma_iterator) {
-			ret += htonl(state_iterator->first); // src
-			ret += htonl(sigma_iterator->first); // label
-			ret += htonl(1); // size of dst-set
-			ret += htonl(sigma_iterator->second); // singleton-set of dst
-		}
-	}
-
-	ret[0] = htonl(ret.length()-1);
-
-	return ret;
+	return ::serialize(transitions);
 }}}
-bool deterministic_transition_function::deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress)
-{
-	
-}
+bool deterministic_transition_function::deserialize(::serial_stretch serial)
+{{{
+	return ::deserialize(transitions, serial);
+}}}
 bool deterministic_transition_function::is_deterministic()
 { return true; };
 
@@ -142,29 +123,12 @@ set<int> nondeterministic_transition_function::transmute(int state, int sigma)
 
 basic_string<int32_t> nondeterministic_transition_function::serialize()
 {{{
-	basic_string<int32_t> ret;
-
-	ret += 0; // size, filled in later.
-
-	map<int, map<int, set<int> > >::iterator state_iterator;
-	map<int, set<int> >::iterator sigma_iterator;
-
-	for(state_iterator = transitions.begin(); state_iterator != transitions.end(); ++state_iterator) {
-		for(sigma_iterator = state_iterator->second.begin(); sigma_iterator != state_iterator->second.end(); ++sigma_iterator) {
-			ret += htonl(state_iterator->first); // src
-			ret += htonl(sigma_iterator->first); // label
-			ret += serialize_integer_set(sigma_iterator->second); // dst
-		}
-	}
-
-	ret[0] = htonl(ret.length()-1);
-
-	return ret;
+	return ::serialize(transitions);
 }}}
-bool nondeterministic_transition_function::deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress)
-{
-	
-}
+bool nondeterministic_transition_function::deserialize(::serial_stretch serial)
+{{{
+	return ::deserialize(transitions, serial);
+}}}
 bool nondeterministic_transition_function::is_deterministic()
 { return false; }; // FIXME: check on the fly
 

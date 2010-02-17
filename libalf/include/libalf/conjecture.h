@@ -112,9 +112,12 @@ class simple_mVCA : public conjecture {
 		unsigned int state_count;
 		// pushdown alphabet:
 		int alphabet_size;
-		set<int> up;
-		set<int> stay;
-		set<int> down;
+		map<int, int> alphabet_directions;
+			// maps each member of the alphabet to a direction:
+			// +1 == UP
+			//  0 == STAY
+			// -1 == DOWN
+			// (-100 == undefined)
 		// end pushdown alphabet
 		int initial_state;
 		set<int> final_states;

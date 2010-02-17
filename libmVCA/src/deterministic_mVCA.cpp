@@ -25,6 +25,8 @@
 #include <libmVCA/mVCA.h>
 #include <libmVCA/deterministic_mVCA.h>
 
+#include <libmVCA/serialize.h>
+
 #ifdef _WIN32
 # include <stdio.h>
 # include <winsock.h>
@@ -73,25 +75,13 @@ bool deterministic_mVCA::endo_transition(set<int> & states, int & m, int label)
 
 basic_string<int32_t> deterministic_mVCA::serialize_derivate()
 {{{
-	basic_string<int32_t> ret;
-
-	ret += htonl(this->m_bound + 1);
-
-	for(int sigma = 0; sigma <= this->m_bound; ++sigma)
-		ret += transition_function[sigma].serialize();
-
-	return ret;
+	return ::serialize(transition_function);
 }}}
 
-bool deterministic_mVCA::deserialize_derivate(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress)
-{
-	
-}
-
-string deterministic_mVCA::get_transition_dotfile()
-{
-	
-}
+bool deterministic_mVCA::deserialize_derivate(serial_stretch & serial)
+{{{
+	return ::deserialize(transition_function, serial);
+}}}
 
 void deterministic_mVCA::get_transition_map(map<int, map<int, map<int, set<int> > > > & postmap)
 {{{
@@ -108,6 +98,11 @@ void deterministic_mVCA::get_transition_map(map<int, map<int, map<int, set<int> 
 			for(tfiii = tfii->second.begin(); tfiii != tfii->second.end(); ++tfiii) // label
 				postmap[tfi->first][tfii->first][tfiii->first].insert(tfiii->second);
 }}}
+
+string deterministic_mVCA::get_transition_dotfile()
+{
+	
+}
 
 } // end of namespace libmVCA
 

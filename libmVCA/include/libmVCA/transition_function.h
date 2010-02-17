@@ -31,6 +31,7 @@
 #include <map>
 
 #include <libmVCA/pushdown.h>
+#include <libmVCA/serialize.h>
 
 namespace libmVCA {
 
@@ -55,7 +56,7 @@ class transition_function {
 		virtual bool is_deterministic() = 0;
 
 		virtual basic_string<int32_t> serialize() = 0;
-		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress) = 0;
+		virtual bool deserialize(::serial_stretch serial) = 0;
 };
 
 class mVCA; // forward decl.
@@ -72,17 +73,16 @@ class deterministic_transition_function : public transition_function {
 		virtual set<int> transmute(const set<int> & states, int sigma);
 		virtual set<int> transmute(int state, int sigma);
 
-		// format for serialization:
-		// all values in NETWORK BYTE ORDER!
-		// <serialized derivate-data>
-		//	string length (not in bytes but in int32_t; excluding this length field)
-		//	FIXME
-		// </serialized automaton>
 		virtual basic_string<int32_t> serialize();
-		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress);
+		virtual bool deserialize(::serial_stretch serial);
 		virtual bool is_deterministic();
 };
 
+inline basic_string<int32_t> serialize(deterministic_transition_function & f)
+{ return f.serialize(); };
+
+inline bool deserialize(deterministic_transition_function & f, serial_stretch & serial)
+{ return f.deserialize(serial); };
 
 class nondeterministic_transition_function : public transition_function {
 	public: // data
@@ -96,16 +96,16 @@ class nondeterministic_transition_function : public transition_function {
 		virtual set<int> transmute(const set<int> & states, int sigma);
 		virtual set<int> transmute(int state, int sigma);
 
-		// format for serialization:
-		// all values in NETWORK BYTE ORDER!
-		// <serialized derivate-data>
-		//	string length (not in bytes but in int32_t; excluding this length field)
-		//	FIXME
-		// </serialized automaton>
 		virtual basic_string<int32_t> serialize();
-		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress);
+		virtual bool deserialize(::serial_stretch serial);
 		virtual bool is_deterministic();
 };
+
+inline basic_string<int32_t> serialize(nondeterministic_transition_function & f)
+{ return f.serialize(); };
+
+inline bool deserialize(nondeterministic_transition_function & f, serial_stretch & serial)
+{ return f.deserialize(serial); };
 
 }; // end of namespace libmVCA.
 

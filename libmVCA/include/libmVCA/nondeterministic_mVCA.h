@@ -62,7 +62,7 @@ class nondeterministic_mVCA : public mVCA {
 		//	<serialized transition functions>[]
 		// </serialized automaton>
 		virtual basic_string<int32_t> serialize_derivate();
-		virtual bool deserialize_derivate(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress);
+		virtual bool deserialize_derivate(serial_stretch & serial);
 		virtual string get_transition_dotfile();
 };
 

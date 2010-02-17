@@ -30,6 +30,8 @@
 #include <string>
 #include <map>
 
+#include <libmVCA/serialize.h>
+
 namespace libmVCA {
 
 using namespace std;
@@ -40,6 +42,14 @@ enum pushdown_direction {
 	DIR_DOWN = -1,			// remove stack-top
 	DIR_INDEFINITE = -100		// out of bounds, etc
 };
+
+inline bool deserialize(enum pushdown_direction & into, serial_stretch & serial)
+{{{
+	if(serial.empty()) return false;
+	into = (enum pushdown_direction)ntohl(*serial);
+	serial.current++;
+	return true;
+}}}
 
 class pushdown_alphabet {
 	private:
@@ -75,7 +85,7 @@ class pushdown_alphabet {
 		//	pushdown-directions[] (alphabet-size times)
 		// </serialized automaton>
 		basic_string<int32_t> serialize();
-		bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress);
+		bool deserialize(::serial_stretch serial);
 
 		bool operator==(pushdown_alphabet & other)
 		{ return ( (this->alphabet_size == other.alphabet_size) && (this->directions == other.directions) ); };

@@ -33,6 +33,8 @@
 #include <libmVCA/pushdown.h>
 #include <libmVCA/transition_function.h>
 
+#include <libmVCA/serialize.h>
+
 namespace libmVCA {
 
 using namespace std;
@@ -170,12 +172,12 @@ class mVCA {
 		//	<serialized derivate-specific data>
 		// </serialized automaton>
 		basic_string<int> serialize();
-		bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
+		bool deserialize(serial_stretch & serial);
 
 		string generate_dotfile();
 	protected:
 		virtual basic_string<int32_t> serialize_derivate() = 0;
-		virtual bool deserialize_derivate(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, int & progress) = 0;
+		virtual bool deserialize_derivate(serial_stretch & serial) = 0;
 		virtual string get_transition_dotfile() = 0;
 
 //		mVCA * crossproduct(mVCA & other, bool intersect);
@@ -197,7 +199,7 @@ mVCA * construct_mVCA(	unsigned int state_count,
 			// transitions: m -> state -> sigma -> states
 		);
 
-mVCA * deserialize_mVCA(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
+mVCA * deserialize_mVCA(serial_stretch & serial);
 
 
 

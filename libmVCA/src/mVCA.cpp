@@ -310,22 +310,38 @@ basic_string<int32_t> mVCA::serialize()
 
 	ret += 0; // size, will be filled in later.
 
-	ret += htonl( (int) this->get_derivate_id() );
-	ret += htonl(state_count);
+	ret += ::serialize((int) this->get_derivate_id() );
+	ret += ::serialize(state_count);
 	ret += alphabet.serialize();
-	ret += htonl(initial_state);
-	ret += serialize_integer_set(final_states);
-	ret += htonl(m_bound);
+	ret += ::serialize(initial_state);
+	ret += ::serialize(final_states);
+	ret += ::serialize(m_bound);
 	ret += this->serialize_derivate();
 
 	ret[0] = htonl(ret.length() - 1);
 
 	return ret;
 }}}
-bool mVCA::deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
-{
-	
-}
+bool mVCA::deserialize(serial_stretch & serial)
+{{{
+	int size;
+	int type;
+
+	if(!::deserialize(size, serial)) return false; // we don't care about the size
+	if(!::deserialize(type, serial)) return false;
+	if(type != (int) this->get_derivate_id() ) return false;
+	if(!::deserialize(state_count, serial)) return false;
+	if(state_count < 1) return false;
+	if(!alphabet.deserialize(serial)) return false;
+	if(!::deserialize(initial_state, serial)) return false;
+	if(initial_state < 0 || initial_state >= (int)state_count) return false;
+	if(!::deserialize(final_states, serial)) return false;
+	if(!::deserialize(m_bound, serial)) return false;
+	if(m_bound < 0) return false;
+	if(!this->deserialize_derivate(serial)) return false;
+
+	return true;
+}}}
 
 string mVCA::generate_dotfile()
 {{{
@@ -380,14 +396,14 @@ string mVCA::generate_dotfile()
 
 
 
-mVCA * deserialize_mVCA(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+mVCA * deserialize_mVCA(serial_stretch & serial)
 {{{
 	basic_string<int32_t>::iterator adv;
-	if(it == limit) return NULL;
-	if(ntohl(*it) < 1) return NULL;
-	adv = it;
+	if(serial.empty()) return NULL;
+	adv = serial.current;
+	if(ntohl(*adv) < 1) return NULL;
 	adv++;
-	if(adv == limit) return NULL;
+	if(adv == serial.limit) return NULL;
 	enum mVCA::mVCA_derivate derivate_type;
 	derivate_type = (enum mVCA::mVCA_derivate)ntohl(*adv);
 
@@ -404,7 +420,7 @@ mVCA * deserialize_mVCA(basic_string<int32_t>::iterator &it, basic_string<int32_
 			return NULL;
 	}
 
-	if(!ret->deserialize(it, limit)) {
+	if(!ret->deserialize(serial)) {
 		delete ret;
 		return NULL;
 	}
