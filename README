@@ -47,9 +47,8 @@ finite-automata-tool
 	dependencies: libAMoRE, libAMoRE++, libalf,
 		liblangen, libgmp, libgmpxx
 
-glue
-	glue between different libraries
-
+include
+	generic helpher functions
 
 
 the preferred order of installation is (of course):
