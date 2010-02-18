@@ -44,7 +44,7 @@ class deterministic_mVCA : public mVCA {
 	protected: // data
 		map<int, deterministic_transition_function> transition_function;
 
-		friend mVCA * construct_mVCA(unsigned int state_count, int alphabet_size, set<int> & up, set<int> & stay, set<int> & down, int initial_state, set<int> & final_states, int m_bound, map<int, map<int, map<int, set<int> > > > & transitions);
+		friend mVCA * construct_mVCA(unsigned int state_count, int alphabet_size, map<int, int> & alphabet_directions, int initial_state, set<int> & final_states, int m_bound, map<int, map<int, map<int, set<int> > > > & transitions);
 
 	public: // methods
 		virtual set<int> transition(const set<int> & from, int & m, int label);

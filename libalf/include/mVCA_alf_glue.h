@@ -32,6 +32,7 @@
 
 #include <libmVCA/mVCA.h>
 #include <libalf/conjecture.h>
+#include <libalf/knowledgebase.h>
 
 namespace mVCA_alf_glue {
 
@@ -39,13 +40,12 @@ using namespace std;
 using namespace libalf;
 using namespace libmVCA;
 
-/* FIXME
 inline bool automaton_equivalence_query(mVCA & model, mVCA & hypothesis, list<int> & counterexample)
-{
+{{{
 	counterexample.clear();
-	
-};
-*/
+
+	return model.lang_equal(hypothesis, counterexample);
+}}};
 
 inline bool automaton_equivalence_query(mVCA & model, conjecture *cj, list<int> & counterexample)
 {{{
@@ -54,12 +54,12 @@ inline bool automaton_equivalence_query(mVCA & model, conjecture *cj, list<int> 
 	bool ret;
 
 	a = dynamic_cast<simple_mVCA*>(cj);
-	if(!ba) {
+	if(!a) {
 		fprintf(stderr, "equivalence query: hypothesis is not an m-bounded visible 1-counter automaton!\n");
 		counterexample.clear();
 		return false;
 	}
-	hypothesis = construct_mVCA(cj->state_count, cj->alphabet_size, cj->up, cj->stay, cj->down, cj->initial_state, cj->final_states, cj->m_bound, cj->transitions);
+	hypothesis = construct_mVCA(a->state_count, a->alphabet_size, a->alphabet_directions, a->initial_state, a->final_states, a->m_bound, a->transitions);
 
 	ret = automaton_equivalence_query(model, *hypothesis, counterexample);
 

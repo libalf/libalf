@@ -33,6 +33,7 @@
 #include <amore++/finite_automaton.h>
 #include <amore++/nondeterministic_finite_automaton.h>
 #include <libalf/conjecture.h>
+#include <libalf/knowledgebase.h>
 
 namespace amore_alf_glue {
 

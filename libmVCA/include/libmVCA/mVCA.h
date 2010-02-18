@@ -89,7 +89,7 @@ class mVCA {
 		int m_bound; // there exist m_bound+1 transition_functions
 //		transition_function :: implemented by deriving classes
 
-		friend mVCA * construct_mVCA(unsigned int state_count, int alphabet_size, set<int> & up, set<int> & stay, set<int> & down, int initial_state, set<int> & final_states, int m_bound, map<int, map<int, map<int, set<int> > > > & transitions);
+		friend mVCA * construct_mVCA(unsigned int state_count, int alphabet_size, map<int, int> & alphabet_directions, int initial_state, set<int> & final_states, int m_bound, map<int, map<int, map<int, set<int> > > > & transitions);
 
 	public: // methods
 		mVCA();
@@ -144,10 +144,12 @@ class mVCA {
 
 /*
 		bool lang_subset_of(mVCA & other, list<int> & counterexample); // both have to be deterministic
+		bool lang_equal(mVCA & other, list<int> & counterexample); // both have to be deterministic
 		bool lang_disjoint_to(mVCA & other, list<int> & counterexample); // both have to be deterministic
 
-		mVCA * lang_union(mVCA & other); // both may be nondeterministic
 		mVCA * lang_intersect(mVCA & other); // both have to be deterministic
+		mVCA * lang_union(mVCA & other); // both may be nondeterministic. can be done efficiently.
+						// just take care of transitions from/to initial state and merge both initial states.
 */
 
 		//bool lang_complement();
@@ -191,7 +193,7 @@ class mVCA {
 
 
 mVCA * construct_mVCA(	unsigned int state_count,
-			int alphabet_size, set<int> & up, set<int> & stay, set<int> & down,
+			int alphabet_size, map<int, int> & alphabet_directions,
 			int initial_state,
 			set<int> & final_states,
 			int m_bound,

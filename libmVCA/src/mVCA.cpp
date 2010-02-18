@@ -270,6 +270,7 @@ mVCA * mVCA::crossproduct(mVCA & other, bool intersect)
 
 	return ret;
 }
+
 int mVCA::crossproduct_state_match(mVCA & other, int this_state, int other_state)
 // in a possible cross-product, get the state representing (this, other)
 { return this_state * other.get_state_count() + other_state; }
@@ -285,6 +286,13 @@ bool mVCA::lang_subset_of(mVCA & other, list<int> & counterexample)
 	
 	// C) then we check if any initial configuration is in Pre*(C).
 	//    if so, this is not a subset of other and the specific run is a sampleword for this.
+	
+}
+
+bool mVCA::lang_equal(mVCA & other, list<int> & counterexample)
+{
+	// almost the same as lang_subset_of, except that we check for reachability of ANY state
+	// being final in one and not final in the other automaton.
 	
 }
 
@@ -431,7 +439,7 @@ mVCA * deserialize_mVCA(serial_stretch & serial)
 
 
 mVCA * construct_mVCA(	unsigned int state_count,
-			int alphabet_size, set<int> & up, set<int> & stay, set<int> & down,
+			int alphabet_size, map<int, int> & alphabet_directions,
 			int initial_state,
 			set<int> & final_states,
 			int m_bound,
@@ -448,24 +456,9 @@ mVCA * construct_mVCA(	unsigned int state_count,
 	// create alphabet
 	pushdown_alphabet alphabet;
 	alphabet.set_alphabet_size(alphabet_size);
-	for(si = up.begin(); si != up.end(); ++si) {
-		if(*si < 0 || *si >= alphabet_size) {
-			return NULL;
-		}
-		alphabet.set_direction(*si, DIR_UP);
-	}
-	for(si = stay.begin(); si != stay.end(); ++si) {
-		if(*si < 0 || *si >= alphabet_size) {
-			return NULL;
-		}
-		alphabet.set_direction(*si, DIR_STAY);
-	}
-	for(si = down.begin(); si != down.end(); ++si) {
-		if(*si < 0 || *si >= alphabet_size) {
-			return NULL;
-		}
-		alphabet.set_direction(*si, DIR_DOWN);
-	}
+	map<int, int>::iterator di;
+	for(di = alphabet_directions.begin(); di != alphabet_directions.end(); ++di)
+		alphabet.set_direction(di->first, (enum pushdown_direction)di->second);
 
 	map<int, map<int, map<int, set<int> > > >::iterator mmmi;
 	map<int, map<int, set<int> > >::iterator mmi;
