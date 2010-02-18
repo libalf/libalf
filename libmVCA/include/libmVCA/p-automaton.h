@@ -85,6 +85,7 @@ class p_automaton {
 	private: // data
 		bool valid;
 		bool saturated;
+		set< pair<int, int> > added_configurations;
 		mVCA * base_automaton;
 		map<int, map<int, map<int, set<int> > > > mVCA_postmap; // m -> state -> label -> set<states>
 

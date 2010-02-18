@@ -86,6 +86,7 @@ void p_automaton::clear()
 {{{
 	valid = false;
 	saturated = false;
+	added_configurations.clear();
 	base_automaton = NULL;
 	mVCA_postmap.clear();
 	state_count = 0;
@@ -120,6 +121,14 @@ bool p_automaton::add_accepting_configuration(int state, int m)
 {{{
 	if(!valid)
 		return false;
+
+	pair<int, int> p;
+	p.first = state;
+	p.second = m;
+	if(added_configurations.find(p) != added_configurations.end())
+		return true; // was already added.
+	else
+		added_configurations.insert(p);
 
 	pa_transition_target transition;
 

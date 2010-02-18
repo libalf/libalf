@@ -49,15 +49,15 @@ void print_word(list<int> &word)
 
 int main(int argc, char**argv)
 {
-	set<int> up, stay, down;
 	set<int> final;
 	mVCA * m;
 	map<int, map<int, map<int, set<int> > > > transitions;
 	list<int> word;
 
-	up.insert(0);
-	stay.insert(1);
-	down.insert(2);
+	map<int, int> alphabet_directions;
+	alphabet_directions[0] = 1;
+	alphabet_directions[1] = 0;
+	alphabet_directions[2] = -1;
 
 	final.insert(1);
 
@@ -69,7 +69,7 @@ int main(int argc, char**argv)
 	transitions[1][1][2].insert(1);
 	transitions[1][0][1].insert(1);
 
-	m = construct_mVCA(2, 3, up, stay, down, 0, final, 1, transitions);
+	m = construct_mVCA(2, 3, alphabet_directions, 0, final, 1, transitions);
 
 	cout << "this test defines a simple mVCA that should accept the language a^n b c^n with n >= 1.\n\n";
 #else
@@ -86,7 +86,7 @@ int main(int argc, char**argv)
 	transitions[3][1][2].insert(1);
 	transitions[3][0][1].insert(1);
 
-	m = construct_mVCA(2, 3, up, stay, down, 0, final, 3, transitions);
+	m = construct_mVCA(2, 3, alphabet_directions, 0, final, 3, transitions);
 
 	cout << "this test defines a simple mVCA that should accept the language a^n b c^n with n >= 3.\n\n";
 #endif

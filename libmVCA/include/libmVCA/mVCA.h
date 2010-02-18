@@ -142,15 +142,13 @@ class mVCA {
 
 		///-----------------------------------
 
-/*
 		bool lang_subset_of(mVCA & other, list<int> & counterexample); // both have to be deterministic
 		bool lang_equal(mVCA & other, list<int> & counterexample); // both have to be deterministic
 		bool lang_disjoint_to(mVCA & other, list<int> & counterexample); // both have to be deterministic
 
 		mVCA * lang_intersect(mVCA & other); // both have to be deterministic
-		mVCA * lang_union(mVCA & other); // both may be nondeterministic. can be done efficiently.
+//		mVCA * lang_union(mVCA & other); // both may be nondeterministic. can be done efficiently.
 						// just take care of transitions from/to initial state and merge both initial states.
-*/
 
 		//bool lang_complement();
 		//mVCA * determinize();

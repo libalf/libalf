@@ -260,9 +260,9 @@ mVCA * mVCA::crossproduct(mVCA & other, bool intersect)
 // if intersect, we build the intersection of both automata. otherwise we build the union.
 {
 	unsigned int f_state_count;
-	int f_initial_state = -1;
+	int f_initial_state;
 	set<int> f_final_states;
-	int f_m_bound = -1;
+	int f_m_bound;
 	map<int, map<int, map<int, set<int> > > > f_transitions;
 
 	if(this->alphabet != other.alphabet)
@@ -297,6 +297,11 @@ mVCA * mVCA::crossproduct(mVCA & other, bool intersect)
 	f_m_bound = max(m_bound, other.m_bound);
 
 	// transitions
+	map<int, map<int, map<int, set<int> > > > postmap, other_postmap;
+
+	get_transition_map(postmap);
+	other.get_transition_map(other_postmap);
+
 	
 
 	mVCA * ret;
@@ -308,32 +313,77 @@ int mVCA::crossproduct_state_match(mVCA & other, int this_state, int other_state
 // in a possible cross-product, get the state representing (this, other)
 { return this_state * other.get_state_count() + other_state; }
 
-/*
+
 
 bool mVCA::lang_subset_of(mVCA & other, list<int> & counterexample)
+// NOTE: both this and other have to be deterministic. otherwise, always FALSE will be returned for now!
 {
+	if(this->get_derivate_id() != DERIVATE_DETERMINISTIC || other.get_derivate_id() != DERIVATE_DETERMINISTIC)
+		return false;
+
 	// if this is a subset of other, there exists no word s.t. this accepts it and other does not accept it.
 
 	// A) we create the cross-product of both automata.
-	
+	mVCA * cross;
+	cross = this->crossproduct(other, true);
 	// B) then we calculate Pre* of all configurations C that represent configurations
 	//    that are accepting in this and not accepting in other.
-	
+	p_automaton pa(cross);
+	set<int>::iterator si;
+	for(si = final_states.begin(); si != final_states.end(); ++si)
+		for(unsigned int i = 0; i < other.state_count; ++i)
+			if(other.final_states.find(i) == other.final_states.end())
+				pa.add_accepting_configuration(crossproduct_state_match(other, *si, i), 0);
+	pa.saturate_preSTAR();
 	// C) then we check if any initial configuration is in Pre*(C).
 	//    if so, this is not a subset of other and the specific run is a sampleword for this.
-	
+	bool ret;
+	counterexample = pa.get_shortest_valid_mVCA_run(crossproduct_state_match(other, initial_state, other.initial_state), 0, ret);
+	delete cross;
+	return ret;
 }
 
 bool mVCA::lang_equal(mVCA & other, list<int> & counterexample)
+// NOTE: both this and other have to be deterministic. otherwise, always FALSE will be returned for now!
 {
 	// almost the same as lang_subset_of, except that we check for reachability of ANY state
 	// being final in one and not final in the other automaton.
-	
+
+	if(this->get_derivate_id() != DERIVATE_DETERMINISTIC || other.get_derivate_id() != DERIVATE_DETERMINISTIC)
+		return false;
+
+	// if this is a subset of other, there exists no word s.t. this accepts it and other does not accept it
+	// or other accepts it and this does not accept it.
+
+	// A) we create the cross-product of both automata.
+	mVCA * cross;
+	cross = this->crossproduct(other, true);
+	// B) then we calculate Pre* of all configurations C that represent configurations
+	//    that are accepting in this and not accepting in other.
+	p_automaton pa(cross);
+	set<int>::iterator si;
+	for(si = final_states.begin(); si != final_states.end(); ++si)
+		for(unsigned int i = 0; i < other.state_count; ++i)
+			if(other.final_states.find(i) == other.final_states.end())
+				pa.add_accepting_configuration(crossproduct_state_match(other, *si, i), 0);
+	for(si = other.final_states.begin(); si != other.final_states.end(); ++si)
+		for(unsigned int i = 0; i < state_count; ++i)
+			if(final_states.find(i) == final_states.end())
+				pa.add_accepting_configuration(crossproduct_state_match(other, i, *si), 0);
+	pa.saturate_preSTAR();
+	// C) then we check if any initial configuration is in Pre*(C).
+	//    if so, this is not a subset of other and the specific run is a sampleword for this.
+	bool ret;
+	counterexample = pa.get_shortest_valid_mVCA_run(crossproduct_state_match(other, initial_state, other.initial_state), 0, ret);
+	delete cross;
+	return ret;
 }
 
 bool mVCA::lang_disjoint_to(mVCA & other, list<int> & counterexample)
+// NOTE: both this and other have to be deterministic. otherwise, always FALSE will be returned for now!
 {
-	// FIXME: check if both are deterministic, otherwise fail somehow
+	if(this->get_derivate_id() != DERIVATE_DETERMINISTIC || other.get_derivate_id() != DERIVATE_DETERMINISTIC)
+		return false;
 
 	mVCA * tmp;
 	bool reachable;
@@ -344,7 +394,19 @@ bool mVCA::lang_disjoint_to(mVCA & other, list<int> & counterexample)
 
 	return !reachable;
 }
-*/
+
+mVCA * mVCA::lang_intersect(mVCA & other)
+// NOTE: both this and other have to be deterministic. otherwise, always NULL will be returned for now!
+{
+	if(this->get_derivate_id() != DERIVATE_DETERMINISTIC || other.get_derivate_id() != DERIVATE_DETERMINISTIC)
+		return NULL;
+
+	mVCA * tmp;
+
+	tmp = this->crossproduct(other, true);
+
+	return tmp;
+}
 
 basic_string<int32_t> mVCA::serialize()
 {{{
