@@ -98,6 +98,24 @@ bool deterministic_transition_function::deserialize(::serial_stretch serial)
 }}}
 bool deterministic_transition_function::is_deterministic()
 { return true; };
+string deterministic_transition_function::get_transition_dotfile(int m, int m_bound)
+{{{
+	string ret;
+	char buf[128];
+	map<int, map<int, int> >::iterator mmi;
+	map<int, int>::iterator mi;
+
+	for(mmi = transitions.begin(); mmi != transitions.end(); ++mmi) {
+		for(mi = mmi->second.begin(); mi != mmi->second.end(); ++mi) {
+			snprintf(buf, 128, "\tq%d -> q%d [ label = \"m%da%d\" %s];\n",
+					mmi->first, mi->second, m, mi->first,
+					m == m_bound ? ", color=\"red\" " : ""
+				);
+			ret += buf;
+		}
+	}
+	return ret;
+}}}
 
 // NONDETERMINISTIC
 
@@ -131,6 +149,27 @@ bool nondeterministic_transition_function::deserialize(::serial_stretch serial)
 }}}
 bool nondeterministic_transition_function::is_deterministic()
 { return false; }; // FIXME: check on the fly
+string nondeterministic_transition_function::get_transition_dotfile(int m, int m_bound)
+{{{
+	string ret;
+	char buf[128];
+	map<int, map<int, set<int> > >::iterator mmsi;
+	map<int, set<int> >::iterator msi;
+	set<int>::iterator si;
+
+	for(mmsi = transitions.begin(); mmsi != transitions.end(); ++mmsi) {
+		for(msi = mmsi->second.begin(); msi != mmsi->second.end(); ++msi) {
+			for(si = msi->second.begin(); si != msi->second.end(); ++si) {
+				snprintf(buf, 128, "\tq%d -> q%d [ label = \"m%da%d\" %s];\n",
+						mmsi->first, *si, m, msi->first,
+						m == m_bound ? ", color=\"red\" " : ""
+					);
+				ret += buf;
+			}
+		}
+	}
+	return ret;
+}}}
 
 } // end of namespace libmVCA
 

@@ -57,6 +57,8 @@ class transition_function {
 
 		virtual basic_string<int32_t> serialize() = 0;
 		virtual bool deserialize(::serial_stretch serial) = 0;
+
+		virtual string get_transition_dotfile(int m, int m_bound) = 0;
 };
 
 class mVCA; // forward decl.
@@ -76,6 +78,8 @@ class deterministic_transition_function : public transition_function {
 		virtual basic_string<int32_t> serialize();
 		virtual bool deserialize(::serial_stretch serial);
 		virtual bool is_deterministic();
+
+		virtual string get_transition_dotfile(int m, int m_bound);
 };
 
 inline basic_string<int32_t> serialize(deterministic_transition_function & f)
@@ -99,6 +103,8 @@ class nondeterministic_transition_function : public transition_function {
 		virtual basic_string<int32_t> serialize();
 		virtual bool deserialize(::serial_stretch serial);
 		virtual bool is_deterministic();
+
+		virtual string get_transition_dotfile(int m, int m_bound);
 };
 
 inline basic_string<int32_t> serialize(nondeterministic_transition_function & f)

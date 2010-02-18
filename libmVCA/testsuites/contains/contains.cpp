@@ -144,5 +144,7 @@ int main(int argc, char**argv)
 	} else {
 		printf("<0,0> is not in Pre*.\n");
 	}
+	cout << "\n\n";
+	cout << m->generate_dotfile();
 }
 

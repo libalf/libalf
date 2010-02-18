@@ -100,9 +100,15 @@ void deterministic_mVCA::get_transition_map(map<int, map<int, map<int, set<int> 
 }}}
 
 string deterministic_mVCA::get_transition_dotfile()
-{
-	
-}
+{{{
+	string ret;
+
+	map<int, deterministic_transition_function>::iterator tri;
+	for(tri = transition_function.begin(); tri != transition_function.end(); ++tri)
+		ret += tri->second.get_transition_dotfile(tri->first, this->m_bound);
+
+	return ret;
+}}}
 
 } // end of namespace libmVCA
 

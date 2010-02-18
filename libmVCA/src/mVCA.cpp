@@ -349,7 +349,7 @@ string mVCA::generate_dotfile()
 	char buf[128];
 	set<int>::iterator si;
 
-	ret += "digraph m-bounded_1-visible_counter_automaton {\n"
+	ret += "digraph m_bounded_1_visible_counter_automaton {\n"
 		"\tgraph[fontsize=8];\n"
 		"\trankdir=LR;\n"
 		"\tsize=8;\n";
@@ -382,6 +382,7 @@ string mVCA::generate_dotfile()
 	ret += "\tnode [shape=plaintext, label=\"\", style=\"\"]; ini;\n";
 	ret += "\n";
 	snprintf(buf, 128, "\tini -> q%d [ color = blue ];\n", initial_state);
+	ret += buf;
 	ret += "\n";
 
 	// and all transitions
