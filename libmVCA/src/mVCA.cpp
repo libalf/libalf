@@ -256,24 +256,59 @@ bool mVCA::is_empty()
 	return ret;
 }}}
 
-/*
 mVCA * mVCA::crossproduct(mVCA & other, bool intersect)
 // if intersect, we build the intersection of both automata. otherwise we build the union.
 {
+	unsigned int f_state_count;
+	int f_initial_state = -1;
+	set<int> f_final_states;
+	int f_m_bound = -1;
+	map<int, map<int, map<int, set<int> > > > f_transitions;
+
 	if(this->alphabet != other.alphabet)
 		return NULL;
 
-	mVCA * ret = new nondeterministic_mVCA();
+	// alphabet check
+	if(alphabet != other.alphabet)
+		return NULL;
 
+	// state count
+	f_state_count = this->state_count * other.state_count;
 
+	// initial state
+	f_initial_state = crossproduct_state_match(other, this->initial_state, other.initial_state);
+
+	// final states
+	set<int>::iterator si, di;
+	if(intersect) {
+		for(si = final_states.begin(); si != final_states.end(); ++si)
+			for(di = other.final_states.begin(); di != other.final_states.end(); ++di)
+				f_final_states.insert(crossproduct_state_match(other, *si, *di));
+	} else {
+		for(si = final_states.begin(); si != final_states.end(); ++si)
+			for(unsigned int i = 0; i < state_count; ++i)
+				f_final_states.insert(crossproduct_state_match(other, *si, i));
+		for(di = final_states.begin(); di != final_states.end(); ++di)
+			for(unsigned int i = 0; i < other.state_count; ++i)
+				f_final_states.insert(crossproduct_state_match(other, i, *di));
+	}
+
+	// m_bound
+	f_m_bound = max(m_bound, other.m_bound);
+
+	// transitions
 	
 
+	mVCA * ret;
+	ret = construct_mVCA(f_state_count, alphabet, f_initial_state, f_final_states, f_m_bound, f_transitions);
 	return ret;
 }
 
 int mVCA::crossproduct_state_match(mVCA & other, int this_state, int other_state)
 // in a possible cross-product, get the state representing (this, other)
 { return this_state * other.get_state_count() + other_state; }
+
+/*
 
 bool mVCA::lang_subset_of(mVCA & other, list<int> & counterexample)
 {
@@ -437,9 +472,26 @@ mVCA * deserialize_mVCA(serial_stretch & serial)
 	return ret;
 }}}
 
-
 mVCA * construct_mVCA(	unsigned int state_count,
 			int alphabet_size, map<int, int> & alphabet_directions,
+			int initial_state,
+			set<int> & final_states,
+			int m_bound,
+			map<int, map<int, map<int, set<int> > > > & transitions
+		)
+{{{
+	pushdown_alphabet alphabet;
+	alphabet.set_alphabet_size(alphabet_size);
+	map<int, int>::iterator di;
+	for(di = alphabet_directions.begin(); di != alphabet_directions.end(); ++di)
+		alphabet.set_direction(di->first, (enum pushdown_direction)di->second);
+
+	return construct_mVCA(state_count, alphabet, initial_state, final_states, m_bound, transitions);
+}}}
+
+
+mVCA * construct_mVCA(	unsigned int state_count,
+			pushdown_alphabet & alphabet,
 			int initial_state,
 			set<int> & final_states,
 			int m_bound,
@@ -450,15 +502,8 @@ mVCA * construct_mVCA(	unsigned int state_count,
 	bool is_deterministic = true;
 
 	// do some sanity-checks
-	if(state_count < 1 || alphabet_size < 2 || initial_state < 0 || initial_state >= (int)state_count || m_bound < -1)
+	if(state_count < 1 || initial_state < 0 || initial_state >= (int)state_count || m_bound < -1)
 		return NULL;
-
-	// create alphabet
-	pushdown_alphabet alphabet;
-	alphabet.set_alphabet_size(alphabet_size);
-	map<int, int>::iterator di;
-	for(di = alphabet_directions.begin(); di != alphabet_directions.end(); ++di)
-		alphabet.set_direction(di->first, (enum pushdown_direction)di->second);
 
 	map<int, map<int, map<int, set<int> > > >::iterator mmmi;
 	map<int, map<int, set<int> > >::iterator mmi;
@@ -471,7 +516,7 @@ mVCA * construct_mVCA(	unsigned int state_count,
 			if(mmi->first < 0 || mmi->first >= (int)state_count)
 				return NULL;
 			for(mi = mmi->second.begin(); mi != mmi->second.end(); ++mi) {
-				if(mi->first < 0 || mi->first >= alphabet_size)
+				if(mi->first < 0 || mi->first >= alphabet.get_alphabet_size())
 					return NULL;
 				if(mi->second.size() > 1)
 					is_deterministic = false;

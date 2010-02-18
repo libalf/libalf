@@ -89,7 +89,7 @@ class mVCA {
 		int m_bound; // there exist m_bound+1 transition_functions
 //		transition_function :: implemented by deriving classes
 
-		friend mVCA * construct_mVCA(unsigned int state_count, int alphabet_size, map<int, int> & alphabet_directions, int initial_state, set<int> & final_states, int m_bound, map<int, map<int, map<int, set<int> > > > & transitions);
+		friend mVCA * construct_mVCA(unsigned int state_count, pushdown_alphabet & alphabet, int initial_state, set<int> & final_states, int m_bound, map<int, map<int, map<int, set<int> > > > & transitions);
 
 	public: // methods
 		mVCA();
@@ -182,8 +182,8 @@ class mVCA {
 		virtual bool deserialize_derivate(serial_stretch & serial) = 0;
 		virtual string get_transition_dotfile() = 0;
 
-//		mVCA * crossproduct(mVCA & other, bool intersect);
-//		int crossproduct_state_match(mVCA & other, int this_state, int other_state);
+		mVCA * crossproduct(mVCA & other, bool intersect);
+		int crossproduct_state_match(mVCA & other, int this_state, int other_state);
 
 };
 
@@ -200,6 +200,16 @@ mVCA * construct_mVCA(	unsigned int state_count,
 			map<int, map<int, map<int, set<int> > > > & transitions
 			// transitions: m -> state -> sigma -> states
 		);
+
+mVCA * construct_mVCA(  unsigned int state_count,
+			pushdown_alphabet & alphabet,
+			int initial_state,
+			set<int> & final_states,
+			int m_bound,
+			map<int, map<int, map<int, set<int> > > > & transitions
+			// transitions: m -> state -> sigma -> states
+		);
+
 
 mVCA * deserialize_mVCA(serial_stretch & serial);
 
