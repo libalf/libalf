@@ -1,4 +1,4 @@
-﻿/* $Id: algorithm_biermann_minisat.h 1000 2009-10-13 10:09:11Z davidpiegdon $
+/* $Id:
  * vim: fdm=marker
  *
  * This file is part of libalf.
