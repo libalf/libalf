@@ -1,4 +1,4 @@
-/* $Id$
+/* $Id: learn_regex.cpp 1119 2009-12-18 21:19:54Z davidpiegdon $
  * vim: fdm=marker
  *
  * This file is part of libalf.
@@ -60,37 +60,33 @@ int main(int argc, char**argv)
 	int alphabet_size;
 	unsigned int hypothesis_state_count = 0;
 
-	bool regex_ok;
-	if(argc == 3) {
-		nfa = new nondeterministic_finite_automaton(atoi(argv[1]), argv[2], regex_ok);
-	} else /* find alphabet size or show some example regex */ {{{
-		if(argc == 2) {
-			nfa = new nondeterministic_finite_automaton(argv[1], regex_ok);
-		} else {
-			cout << "either give a sole regex as parameter, or give <alphabet size> <regex>.\n\n";
-			cout << "example regular expressions:\n";
-			cout << "alphabet size, \"regex\":\n";
-			cout << "2 '((a((aa)a))U(((bb))*((((bU(ab))U(bUa)))*)*))'\n";
-			cout << "2 '(((bb)|a)(b(((bb)b)(((aa)a)|a))))'\n";
-			cout << "2 '(((aa)(a)*)(((a((b(b)*)(aUb)))((ba))*))*)'\n";
-			cout << "3 '(cbb(ab(c)*))* U (a((cbb*) U a+b+bc)+)'\n";
-			return 1;
+	{{{ // get automaton from file
+		if(argc != 2) {
+			cout << "please give filename as sole parameter.\n";
+			return -1;
+		};
+		basic_string<int32_t> str;
+		basic_string<int32_t>::iterator si;
+		if(!file_to_basic_string(argv[1], str)) {
+			cout << "failed to load file \"" << argv[1] << "\".\n";
+			return -1;
 		}
+		nfa = new nondeterministic_finite_automaton;
+		si = str.begin();
+		if(!nfa->deserialize(si, str.end())) {
+			cout << "failed to deserialize automaton\n.";
+			return -1;
+		}
+		if(si != str.end())
+			cout << "garbage at end of file? trying to ignore.\n";
 	}}}
-
-	if(regex_ok) {
-		log(LOGGER_INFO, "REGEX ok.\n");
-	} else {
-		log(LOGGER_ERROR, "REGEX failed.\n");
-		return 1;
-	}
 
 	alphabet_size = nfa->get_alphabet_size();
 
+	finite_automaton * dfa;
 	{{{ /* dump original automata */
 		file.open("original-nfa.dot"); file << nfa->generate_dotfile(); file.close();
 
-		finite_automaton * dfa;
 		dfa = nfa->determinize();
 		dfa->minimize();
 		file.open("original-dfa.dot"); file << dfa->generate_dotfile(); file.close();
@@ -99,7 +95,7 @@ int main(int argc, char**argv)
 		serial = dfa->serialize();
 		libalf::basic_string_to_file(serial, "original-dfa.ser");
 
-		delete dfa;
+		//delete dfa;
 	}}}
 
 
@@ -114,21 +110,21 @@ int main(int argc, char**argv)
 		while( NULL == (cj = ot.advance()) ) {
 			// resolve missing knowledge:
 
-			snprintf(filename, 128, "knowledgebase%02d%c.dot", iteration, c);
-			file.open(filename); file << knowledge.generate_dotfile(); file.close();
+			//snprintf(filename, 128, "knowledgebase%02d%c.dot", iteration, c);
+			//file.open(filename); file << knowledge.generate_dotfile(); file.close();
 
 			// create query-tree
 			knowledgebase<ANSWERTYPE> * query;
 			query = knowledge.create_query_tree();
 
-			snprintf(filename, 128, "knowledgebase%02d%c-q.dot", iteration, c);
-			file.open(filename); file << query->generate_dotfile(); file.close();
+			//snprintf(filename, 128, "knowledgebase%02d%c-q.dot", iteration, c);
+			//file.open(filename); file << query->generate_dotfile(); file.close();
 
 			// answer queries
-			stats.queries.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*nfa, *query);
+			stats.queries.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*dfa, *query);
 
-			snprintf(filename, 128, "knowledgebase%02d%c-r.dot", iteration, c);
-			file.open(filename); file << query->generate_dotfile(); file.close();
+			//snprintf(filename, 128, "knowledgebase%02d%c-r.dot", iteration, c);
+			//file.open(filename); file << query->generate_dotfile(); file.close();
 
 			// merge answers into knowledgebase
 			knowledge.merge_knowledgebase(*query);
@@ -141,22 +137,21 @@ int main(int argc, char**argv)
 			delete hypothesis;
 		hypothesis = construct_amore_automaton(ba->is_deterministic, ba->alphabet_size, ba->state_count, ba->initial, ba->final, ba->transitions);
 		delete cj;
+		
 		if(!hypothesis) {
 			printf("generation of hypothesis failed!\n");
 			return -1;
 		}
 
 		{{{ /* dot the tree */
-			basic_string<int32_t> serialized;
-			basic_string<int32_t>::iterator it;
 
-			snprintf(filename, 128, "tree%02d.text.kv", iteration);
-			file.open(filename); ot.print(file); file.close();
+			//snprintf(filename, 128, "tree%02d.dot", iteration);
+			//file.open(filename); ot.print(file); file.close();
 
 		}}}
-
-		snprintf(filename, 128, "hypothesis%02d.dot", iteration);
-		file.open(filename); file << hypothesis->generate_dotfile(); file.close();
+		
+		//snprintf(filename, 128, "hypothesis%02d.dot", iteration);
+		//file.open(filename); file << hypothesis->generate_dotfile(); file.close();
 
 		printf("hypothesis %02d state count %02d\n", iteration, hypothesis->get_state_count());
 		if(hypothesis_state_count >= hypothesis->get_state_count()) {
@@ -170,18 +165,16 @@ int main(int argc, char**argv)
 
 		list<int> counterexample;
 		stats.queries.equivalence++;
-		if(amore_alf_glue::automaton_equivalence_query(*nfa, *hypothesis, counterexample)) {
+		if(amore_alf_glue::automaton_equivalence_query(*dfa, *hypothesis, counterexample)) {
 			// equivalent
-			cout << "success.\n";
 			success = true;
 			break;
 		}
 
-		snprintf(filename, 128, "counterexample%02d.angluin", iteration);
-		file.open(filename);
-		print_word(file, counterexample);
+		//snprintf(filename, 128, "counterexample%02d.angluin", iteration);
+		//file.open(filename); print_word(file, counterexample); file.close();
 		ot.add_counterexample(counterexample);
-		file.close();
+		
 	}
 
 	iteration++;

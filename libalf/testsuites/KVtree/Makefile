@@ -5,11 +5,11 @@
 
 PREFIX ?= /usr/local
 
-CPPFLAGS+=-I../../include -I${PREFIX}/include -Wall -ggdb3
+CPPFLAGS+=-I../../include -I../../../libAMoRE++/include -I${PREFIX}/include -Wall -ggdb3
 
-LDFLAGS+=-L../../src -L${PREFIX}/lib -lalf -lAMoRE++
+LDFLAGS+=-L../../src -L../../../libAMoRE++/src
 
-all: learn_regex
+#all: learn_regex learn_file
 
 clean: nodata
 	-rm -f *.o learn_regex
@@ -24,4 +24,6 @@ jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;
 
 learn_regex: learn_regex.cpp
+	g++ ${CPPFLAGS} ${LDFLAGS} learn_regex.cpp -o learn_regex -static -lAMoRE++ -lalf 
 
+learn_regex: learn_file.cpp
