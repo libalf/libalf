@@ -174,8 +174,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			} while (!current_node->is_leaf());
 			
 			// Set transition
-			leaf_node *leaf;
-			leaf = dynamic_cast<leaf_node*> (current_node);
+			leaf_node *leaf = dynamic_cast<leaf_node*> (current_node);
 			source->transitions[symbol] = leaf;
 			leaf->incoming_transitions.insert(source);
 			
@@ -219,7 +218,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		
 		private:
 		void new_prefix() {
-		
+
 			delete this->prefix;
 			
 			this->prefix = new list<int>;
@@ -711,6 +710,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			
 			// Create automaton
 			simple_automaton *automaton = new simple_automaton;
+			automaton->is_deterministic = true;
 			automaton->alphabet_size = this->alphabet_size;
 			automaton->valid = true;
 
@@ -736,6 +736,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		
 			// Create automaton
 			simple_automaton *automaton = new simple_automaton;
+			automaton->is_deterministic = true;
 			automaton->alphabet_size = this->alphabet_size;
 			automaton->valid = true;
 			automaton->state_count = this->leaf_node_count;
