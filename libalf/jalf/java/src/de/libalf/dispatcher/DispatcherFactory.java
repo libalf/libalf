@@ -438,6 +438,17 @@ public class DispatcherFactory implements LibALFFactory {
 			else
 				throw new AlfException("Invalid parameters for creating DeLeTe2 inference algorithm: " + args.length + ".");
 
+		case KEARNS_VAZIRANI:
+			/*
+			 * Create Kearns-Vazirani learning algorithm.
+			 */
+			if (args.length == 2)
+				return new DispatcherAlgorithmKearnsVazirani(this, (Knowledgebase) args[0], (Integer) args[1], null);
+			else if (args.length == 3)
+				return new DispatcherAlgorithmKearnsVazirani(this, (Knowledgebase) args[0], (Integer) args[1], (Logger) args[2]);
+			else
+				throw new AlfException("Invalid parameters for creating Kearns-Vazirani learning algorithm: " + args.length + ".");
+
 		default:
 			/*
 			 * Default switch: Should never happen.

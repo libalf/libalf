@@ -182,6 +182,7 @@ enum DispatcherConstants implements Sendable {
 	ALG_RPNI(6),
 	ALG_DELETE2(7),
 	ALG_BIERMANN_ORIGINAL(8),
+	ALG_KEARNS_VAZIRANI(9),
 
 	// enum acceptance
 	ACCEPTANCE_REJECT(0),

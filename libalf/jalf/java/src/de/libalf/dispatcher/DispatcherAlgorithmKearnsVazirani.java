@@ -25,20 +25,10 @@ package de.libalf.dispatcher;
 import de.libalf.Knowledgebase;
 import de.libalf.Logger;
 
-public class DispatcherAlgorithmBiermannOriginal extends DispatcherLearningAlgorithm {
+public class DispatcherAlgorithmKearnsVazirani extends DispatcherLearningAlgorithm {
 	private static final long serialVersionUID = 1L;
-	
-	public DispatcherAlgorithmBiermannOriginal(DispatcherFactory factory, Knowledgebase base, int alphabet_size, Logger logger, int nondeterminism) {
-		super(factory, DispatcherConstants.ALG_BIERMANN_ORIGINAL, base, alphabet_size, logger);
-		
-		if (deserialize_magic(new int[]{nondeterminism}).length != 1)
-			throw new DispatcherProtocolException("unexpected answer length");
-	}
 
-	public int get_nondeterminism() {
-		int[] magic = deserialize_magic(new int[]{});
-		if (magic.length != 1)
-			throw new DispatcherProtocolException("unexpected answer length");
-		return magic[0];
+	public DispatcherAlgorithmKearnsVazirani(DispatcherFactory factory, Knowledgebase base, int alphabet_size, Logger logger) {
+		super(factory, DispatcherConstants.ALG_KEARNS_VAZIRANI, base, alphabet_size, logger);
 	}
 }
