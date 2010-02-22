@@ -110,5 +110,8 @@ string deterministic_mVCA::get_transition_dotfile()
 	return ret;
 }}}
 
+void deterministic_mVCA::add_transition(int m, int src, int label, int dst)
+{ transition_function[m].transitions[src][label] = dst; }
+
 } // end of namespace libmVCA
 

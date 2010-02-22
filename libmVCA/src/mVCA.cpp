@@ -321,19 +321,79 @@ mVCA * mVCA::crossproduct(mVCA & other)
 	ret = construct_mVCA(f_state_count, alphabet, f_initial_state, f_final_states, f_m_bound, f_transitions);
 	return ret;
 }}}
-
 int mVCA::crossproduct_state_match(mVCA & other, int this_state, int other_state)
 // in a possible cross-product, get the state representing (this, other)
 { return this_state * other.get_state_count() + other_state; }
+
+void mVCA::complete_automaton()
+// make this mVCA be complete
+// (add sink state, add missing outgoing transitions from any state to sink)
+{{{
+	// check if there exists a negative sink
+	int sink = find_sink();
+	// otherwise add a new one
+	if(sink < 0) {
+		sink = state_count;
+		state_count++;
+	};
+
+	// for any state, if for a (m,label) there is no outgoing transition, add one the negative sink.
+	for(int m = 0; m <= m_bound; ++m) {
+		for(unsigned int src = 0; src < state_count; ++src) {
+			for(int label = 0; label < alphabet.get_alphabet_size(); ++label) {
+				int tmp_m = m;
+				if(transition(src, tmp_m, label).empty()) {
+					if(tmp_m >= 0) {
+						// add transition
+						add_transition(m, src, label, sink);
+					}
+				}
+			}
+		}
+	}
+}}}
+
+int mVCA::find_sink()
+{{{
+	int ret = -1;
+
+	for(unsigned int i = 0; i < state_count; ++i) {
+		if(final_states.find(i) != final_states.end())
+			continue;
+
+		bool valid = true;
+		for(int m = 0; m <= m_bound; ++m) {
+			for(int sigma = 0; sigma <= alphabet.get_alphabet_size(); ++sigma) {
+				int tmp_m = m;
+				set<int> dst = this->transition(i, tmp_m, sigma);
+				if(tmp_m >= 0) {
+					dst.erase(i);
+					if(!dst.empty()) {
+						valid = false;
+						break;
+					}
+				}
+			}
+		}
+		if(valid) {
+			ret = i;
+			break;
+		}
+	}
+
+	return ret;
+}}}
 
 
 
 bool mVCA::lang_subset_of(mVCA & other, list<int> & counterexample)
 // NOTE: both this and other have to be deterministic. otherwise, always FALSE will be returned for now!
-// FIXME: may need implicit negative sink and a complete graph
-{
+// NOTE: this implicitly calls complete_automaton() for this and other!
+{{{
 	if(this->get_derivate_id() != DERIVATE_DETERMINISTIC || other.get_derivate_id() != DERIVATE_DETERMINISTIC)
 		return false;
+	this->complete_automaton();
+	other.complete_automaton();
 
 	// if this is a subset of other, there exists no word s.t. this accepts it and other does not accept it.
 
@@ -347,7 +407,6 @@ bool mVCA::lang_subset_of(mVCA & other, list<int> & counterexample)
 	for(si = final_states.begin(); si != final_states.end(); ++si)
 		for(unsigned int i = 0; i < other.state_count; ++i)
 			if(other.final_states.find(i) == other.final_states.end()) {
-printf("added new bad dst (%d,%d) <%d,0>\n", *si, i, crossproduct_state_match(other, *si, i));
 				pa.add_accepting_configuration(crossproduct_state_match(other, *si, i), 0);
 			}
 	pa.saturate_preSTAR();
@@ -355,20 +414,21 @@ printf("added new bad dst (%d,%d) <%d,0>\n", *si, i, crossproduct_state_match(ot
 	//    if so, this is not a subset of other and the specific run is a sampleword for this.
 	bool bad_state_reachable;
 	counterexample = pa.get_shortest_valid_mVCA_run(crossproduct_state_match(other, initial_state, other.initial_state), 0, bad_state_reachable);
-printf("%s\n", pa.generate_dotfile().c_str());
 	delete cross;
 	return !bad_state_reachable;
-}
+}}}
 
 bool mVCA::lang_equal(mVCA & other, list<int> & counterexample)
 // NOTE: both this and other have to be deterministic. otherwise, always FALSE will be returned for now!
-// FIXME: may need implicit negative sink and a complete graph
-{
+// NOTE: this implicitly calls complete_automaton() for this and other!
+{{{
 	// almost the same as lang_subset_of, except that we check for reachability of ANY state
 	// being final in one and not final in the other automaton.
 
 	if(this->get_derivate_id() != DERIVATE_DETERMINISTIC || other.get_derivate_id() != DERIVATE_DETERMINISTIC)
 		return false;
+	this->complete_automaton();
+	other.complete_automaton();
 
 	// if this is a subset of other, there exists no word s.t. this accepts it and other does not accept it
 	// or other accepts it and this does not accept it.
@@ -383,13 +443,11 @@ bool mVCA::lang_equal(mVCA & other, list<int> & counterexample)
 	for(si = final_states.begin(); si != final_states.end(); ++si)
 		for(unsigned int i = 0; i < other.state_count; ++i)
 			if(other.final_states.find(i) == other.final_states.end()) {
-printf("added new bad dst (%d,%d) <%d,0>\n", *si, i, crossproduct_state_match(other, *si, i));
 				pa.add_accepting_configuration(crossproduct_state_match(other, *si, i), 0);
 			}
 	for(si = other.final_states.begin(); si != other.final_states.end(); ++si)
 		for(unsigned int i = 0; i < state_count; ++i)
 			if(final_states.find(i) == final_states.end()) {
-printf("added new bad dst (%d,%d) <%d,0>\n", i, *si, crossproduct_state_match(other, i, *si));
 				pa.add_accepting_configuration(crossproduct_state_match(other, i, *si), 0);
 			}
 	pa.saturate_preSTAR();
@@ -397,10 +455,9 @@ printf("added new bad dst (%d,%d) <%d,0>\n", i, *si, crossproduct_state_match(ot
 	//    if so, this is not a subset of other and the specific run is a sampleword for this.
 	bool bad_state_reachable;
 	counterexample = pa.get_shortest_valid_mVCA_run(crossproduct_state_match(other, initial_state, other.initial_state), 0, bad_state_reachable);
-printf("%s\n", pa.generate_dotfile().c_str());
 	delete cross;
 	return !bad_state_reachable;
-}
+}}}
 
 bool mVCA::lang_disjoint_to(mVCA & other, list<int> & counterexample)
 // NOTE: both this and other have to be deterministic. otherwise, always FALSE will be returned for now!

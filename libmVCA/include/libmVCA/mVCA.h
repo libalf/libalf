@@ -142,12 +142,12 @@ class mVCA {
 
 		///-----------------------------------
 
-		bool lang_subset_of(mVCA & other, list<int> & counterexample); // both have to be deterministic
-		bool lang_equal(mVCA & other, list<int> & counterexample); // both have to be deterministic
+		bool lang_subset_of(mVCA & other, list<int> & counterexample); // both have to be deterministic. this implicitly calls complete_automaton() for this and other!
+		bool lang_equal(mVCA & other, list<int> & counterexample); // both have to be deterministic. this implicitly calls complete_automaton() for this and other!
 		bool lang_disjoint_to(mVCA & other, list<int> & counterexample); // both have to be deterministic
 
 		mVCA * lang_intersect(mVCA & other); // both have to be deterministic
-//		mVCA * lang_union(mVCA & other); // both may be nondeterministic. can be done efficiently.
+//		mVCA * lang_union(mVCA & other); // FIXME: both may be nondeterministic. can be done efficiently.
 						// just take care of transitions from/to initial state and merge both initial states.
 
 		//bool lang_complement();
@@ -175,13 +175,21 @@ class mVCA {
 		bool deserialize(serial_stretch & serial);
 
 		string generate_dotfile();
+
+		// create a complete automaton from this automaton. i.e. add the implicit sink state
+		// and transitions to it.
+		void complete_automaton();
+		// add (or overwrite, in case of deterministic) a transition
+		virtual void add_transition(int m, int src, int label, int dst) = 0;
 	protected:
 		virtual basic_string<int32_t> serialize_derivate() = 0;
 		virtual bool deserialize_derivate(serial_stretch & serial) = 0;
 		virtual string get_transition_dotfile() = 0;
 
+
 		mVCA * crossproduct(mVCA & other);
 		int crossproduct_state_match(mVCA & other, int this_state, int other_state);
+		int find_sink();
 
 };
 

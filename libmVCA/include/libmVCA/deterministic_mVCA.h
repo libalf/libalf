@@ -54,6 +54,8 @@ class deterministic_mVCA : public mVCA {
 
 		virtual enum mVCA::mVCA_derivate get_derivate_id()
 		{ return mVCA::DERIVATE_DETERMINISTIC; };
+
+		virtual void add_transition(int m, int src, int label, int dst);
 	protected:
 		// format for serialization:
 		// all values in NETWORK BYTE ORDER!
