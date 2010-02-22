@@ -93,11 +93,11 @@ class learning_algorithm {
 			ALG_RPNI = 6,
 			ALG_DELETE2 = 7,
 			ALG_BIERMANN_ORIGINAL = 8,
+			ALG_KEARNS_VAZIRANI = 9,
 
 			// END
-			ALG_LAST_INVALID = 9
+			ALG_LAST_INVALID = 10
 
-//			ALG_KVTREE = ...,		// Kearns and Vazirani
 //			ALG_MVCA_ANGLUINLIKE = ...,	// angluin-style learning of m-bounded visible 1counter automata
 //			ALG_BIERMANN_ANGLUIN = ...,	//
 //			ALG_TB_INFERENCE = ...,		// Trakhtenbrot and Barzdin

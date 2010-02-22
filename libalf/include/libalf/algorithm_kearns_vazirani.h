@@ -779,11 +779,14 @@ class kearns_vazirani : public learning_algorithm<answer> {
 	}
 	
 	bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit) {
+		// FIXME
 		return false;
 	}
 	
 	basic_string<int32_t> serialize() {
-		return NULL;
+		basic_string<int32_t> ret;
+		// FIXME
+		return ret;
 	}
  
 	/*

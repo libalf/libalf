@@ -51,9 +51,9 @@ using namespace std;
 
 template <class answer>
 class mVCL_angluinlike : public learning_algorithm<answer> {
-	protected: // data
-
 	public: // types
+
+	protected: // data
 
 	public: // methods
 		virtual void increase_alphabet_size(int new_asize)
@@ -80,6 +80,10 @@ class mVCL_angluinlike : public learning_algorithm<answer> {
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 		{
 			
+		}
+		bool deserialize_magic(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, basic_string<int32_t> & result)
+		{
+
 		}
 		virtual void print(ostream &os)
 		{

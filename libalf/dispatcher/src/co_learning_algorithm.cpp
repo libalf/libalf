@@ -32,6 +32,7 @@
 #include <libalf/algorithm_DeLeTe2.h>
 #include <libalf/algorithm_biermann_original.h>
 #include <libalf/algorithm_DeLeTe2.h>
+#include <libalf/algorithm_kearns_vazirani.h>
 
 #include "co_learning_algorithm.h"
 #include "co_logger.h"
@@ -74,6 +75,9 @@ co_learning_algorithm::co_learning_algorithm(enum libalf::learning_algorithm<ext
 			break;
 		case learning_algorithm<extended_bool>::ALG_BIERMANN_ORIGINAL:
 			o = new original_biermann<extended_bool>(NULL, NULL, alphabet_size, 1);
+			break;
+		case learning_algorithm<extended_bool>::ALG_KEARNS_VAZIRANI:
+			o = new kearns_vazirani<extended_bool>(NULL, NULL, alphabet_size);
 			break;
 	}
 }}};
