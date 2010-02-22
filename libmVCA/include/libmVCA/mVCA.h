@@ -180,7 +180,7 @@ class mVCA {
 		virtual bool deserialize_derivate(serial_stretch & serial) = 0;
 		virtual string get_transition_dotfile() = 0;
 
-		mVCA * crossproduct(mVCA & other, bool intersect);
+		mVCA * crossproduct(mVCA & other);
 		int crossproduct_state_match(mVCA & other, int this_state, int other_state);
 
 };

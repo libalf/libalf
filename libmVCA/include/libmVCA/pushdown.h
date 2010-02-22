@@ -87,6 +87,8 @@ class pushdown_alphabet {
 		basic_string<int32_t> serialize();
 		bool deserialize(::serial_stretch serial);
 
+		string to_string();
+
 		bool operator==(pushdown_alphabet & other)
 		{ return ( (this->alphabet_size == other.alphabet_size) && (this->directions == other.directions) ); };
 		bool operator!=(pushdown_alphabet & other)

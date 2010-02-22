@@ -263,7 +263,7 @@ bool p_automaton::saturate_preSTAR()
 
 								transitions[from_state][from_m].insert( tr );
 								new_transition_added = true;
-								/*
+					/*
 								printf("PDS transition <%d, .%d.> -> <%d, %s> label %d: "
 									"induces PA-transition %d -> %d label %d [PDS run %s]\n",
 										from_state,	from_m,
@@ -272,7 +272,7 @@ bool p_automaton::saturate_preSTAR()
 										from_state,	di->first, from_m,
 										word2string(tr.mVCA_word).c_str()
 									);
-								*/
+					*/
 							}
 						}
 					}
@@ -288,10 +288,9 @@ list<int> p_automaton::get_shortest_valid_mVCA_run(int state, int m, bool & reac
 {{{
 	list<int> ret;
 
-	if(!valid || final.empty()) {
-		reachable = false;
+	reachable = false;
+	if(!valid || final.empty())
 		return ret;
-	}
 
 	list<int> cfg = get_config(state, m);
 	int first_state = cfg.front();

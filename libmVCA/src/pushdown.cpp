@@ -68,7 +68,7 @@ enum pushdown_direction pushdown_alphabet::get_direction(int sigma)
 
 bool pushdown_alphabet::set_direction(int sigma, enum pushdown_direction direction)
 {{{
-	if(sigma >= 0 && sigma < alphabet_size && direction != DIR_INDEFINITE) {
+	if(sigma >= 0 && sigma < alphabet_size && (direction == DIR_UP || direction == DIR_STAY || direction == DIR_DOWN)) {
 		this->directions[sigma] = direction;
 		return true;
 	} else {
@@ -89,6 +89,24 @@ bool pushdown_alphabet::deserialize(::serial_stretch serial)
 	if(!::deserialize(directions, serial)) return false;
 
 	return true;
+}}}
+
+string pushdown_alphabet::to_string()
+{{{
+	string ret;
+	char buf[128];
+
+	snprintf(buf, 128, "pushdown alphabet of size %d\n", alphabet_size);
+	ret += buf;
+
+	map<int, enum pushdown_direction>::iterator di;
+	for(di = directions.begin(); di != directions.end(); ++di) {
+		snprintf(buf, 128, "  %d :: %d\n", di->first, di->second);
+		ret += buf;
+	}
+	ret += "\n";
+
+	return ret;
 }}}
 
 } // end of namespace libmVCA
