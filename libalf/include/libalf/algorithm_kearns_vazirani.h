@@ -30,12 +30,12 @@
 #include <list>
 #include <set>
 #include <map>
-#include <typeinfo> 
 #include <string>
 #include <sstream>
 #include <stdlib.h>
  
 #include <libalf/knowledgebase.h>
+#include <libalf/logger.h>
 #include <libalf/learning_algorithm.h>
 
 namespace libalf {
@@ -48,24 +48,30 @@ class kearns_vazirani : public learning_algorithm<answer> {
 
 	private:
 	
-	/*
-	 * Definition of nodes
-	 */
+	//========== Definition of nodes ===========================================
 	
 	/*
 	 * Basic class of a node.
 	 */
 	class node {
-		public:
-		list<int> label;
-		node *parent;
-		int level;
 		
+		public:
+		
+		list<int> label;	// The label of the node
+		node *parent;		// Pointer to the node's parent (or NULL if root node)
+		int level;			// The depth of the node in the tree (root has level 0)
+		
+		/* 
+		 * Creates a new node.
+		 */ 
 		node (list<int> label, int level) {
 			this->label = label;
 			this->level = level;
 		}
 		
+		/*
+		 * Checks whether the node is a leaf node.
+		 */
 		virtual bool is_leaf() = 0;
 	};
 
@@ -74,12 +80,25 @@ class kearns_vazirani : public learning_algorithm<answer> {
 	 */ 
 	class inner_node : public node {
 		public:
-		node *left_child, *right_child;
+		node *left_child, *right_child;	// Left and rigt child of this inner node.
 		
+		/*
+		 * Creates a new inner node.
+		 *
+		 * Takes A label, a level and its left and right children as arguments.
+		 */
 		inner_node (list<int> label, int level, node *left_child, node *right_child)
 		: node (label, level) {
 			this->left_child = left_child;
 			this->right_child = right_child;
+		}
+		
+		/*
+		 * Destructor
+		 */
+		~inner_node () {
+			delete left_child;
+			delete right_child;
 		}
 		
 		bool is_leaf() {
@@ -92,11 +111,17 @@ class kearns_vazirani : public learning_algorithm<answer> {
 	 */
 	class leaf_node : public node {
 		public:
-		bool accepting;
-		set<leaf_node*> incoming_transitions;
-		leaf_node** transitions;
-		int id;
+		bool accepting;							// Stores whether the node is in the left or right subtree of the root
+		set<leaf_node*> incoming_transitions;	// Stores all transitions pointing to this node
+		leaf_node** transitions;				// The transitions of this node
+		int id;									// A unique id to identify this equivalence class
 		
+		/*
+		 * Creates a new leaf node.
+		 *
+		 * Takes a label, a level, an id, the accepting condition of the currently
+		 * used alphabet size as parameters.
+		 */
 		leaf_node (list<int> label, int level, int id, bool accepting, int alphabet_size)
 		: node (label, level) {
 			this->id = id;
@@ -106,15 +131,20 @@ class kearns_vazirani : public learning_algorithm<answer> {
 				this->transitions[i] = NULL;
 		}
 		
+		/*
+		 * Descrutor
+		 */
+		~leaf_node() {
+			delete transitions;
+		}
+		
 		bool is_leaf() {
 			return true;
 		}
 	};
 	
-	/*
-	 * Definition of tasks
-	 */
-	
+	//========== Definitions of tasks ==========================================
+
 	/*
 	 * Root class of all tasks
 	 */
@@ -122,47 +152,78 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		public:
 		task *prev, *next;
 		
+		/*
+		 * Performs the task.
+		 *
+		 * Returns true if finished or false if information (i.e. membership queries
+		 * are missing). An additional call to this method resume the operation.
+		 *
+		 * This method needs to be implemented be the specific tasks.
+		 */
 		virtual bool perform() = 0;
+		
+		/*
+		 * Returns a string representation of this task.
+		 */
 		virtual string to_string() = 0;
 	};
 	
 	/*
-	 * Compute transition task
+	 * Compute transition task.
+	 *
+	 * This task computes a transition of a leaf node (i.e. an equivalence class
+	 * of the conjecture). This is done by "sifting the transition down the tree".
 	 */
 	class compute_transition_task : public task {
 		private:
-		leaf_node *source;
-		node *current_node;
-		int symbol;
-		kearns_vazirani *kv;
+		leaf_node *source;				// The source of the transition
+		node *current_node;				// The node currently reached during the sift operation
+		int symbol;						// The transition symbol (i.e. the character)
+		list<int> *transition_label;	// The label to sift down the tree
+		kearns_vazirani *kv;			// Pointer to the learning algorithms (used to access the tree)
 
 		public:
+		
+		/*
+		 * Creates a new compute_transition_task.
+		 *
+		 * The constructor takes the source node, the symbol (i.e. the character)
+		 * of the transition to compute, and a pointer to the learning algorithm
+		 * as parameters.
+		 */
 		compute_transition_task(leaf_node *source, int symbol, kearns_vazirani *kv) {
+			// Store parameter
 			this->source = source;
 			this->symbol = symbol;
 			this->kv = kv;
 			current_node = kv->root;
+			
+			// Create transition label
+			transition_label = new list<int>(source->label.begin(), source->label.end());
+			transition_label->push_back(symbol);
 		}
 		
+		/*
+		 * Destructor
+		 */
+		~compute_transition_task() {
+			delete transition_label;
+		}
+		
+		/*
+		 * Performs the task.
+		 */
 		bool perform() {
-
-			list<int> transition_label (source->label.begin(), source->label.end());
-			transition_label.push_back(symbol);
 		
 			// Sift the transition down the tree
 			do {
 
-				list<int> query(transition_label.begin(), transition_label.end());
+				// Query the 
+				list<int> query(transition_label->begin(), transition_label->end());
 				query.insert(query.end(), current_node->label.begin(), current_node->label.end());
 				answer a;
 				if(!kv->my_knowledge->resolve_or_add_query(query, a))
 					return false;
-				
-				// DEGUB =====
-				
-				
-				
-				// DEGUB END =====
 				
 				inner_node *inner = dynamic_cast<inner_node*> (current_node);
 				
@@ -181,6 +242,9 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			return true;
 		}
 		
+		/*
+		 * Returns a string representation of this task.
+		 */
 		string to_string() {
 			stringstream descr;
 			descr << "\"";
@@ -197,41 +261,50 @@ class kearns_vazirani : public learning_algorithm<answer> {
 	
 	/*
 	 * Add counter-example task
+	 *
+	 * This task adds a counter-example. The counter-example is scanned from the
+	 * beginning and when a "bad prefix" is descovered, the respective node is split.
+	 * Thereto, this task creates a split_node_task.
 	 */
 	class add_counterexample_simple_task : public task {
 		private:
-		list<int> counterexample;
-		list<int> *prefix;
-		node *sift_node;
-		kearns_vazirani *kv;
-		int position;
+		list<int> counterexample;	// The counter-example
+		unsigned int position;		// The length of the prefix
+		list<int> *prefix;			// The currently analyzed prefix of the counter-example
+		node *sift_node;			// The current node reached on sifting the prefix
+		kearns_vazirani *kv;		// Pointer to the learning algorithms (used to access the tree)
+		
 
 		public:
+		
+		/*
+		 * Creates a new add_counterexample_simple_task.
+		 *
+		 * The constructor takes the the counter-example and a pointer to the
+		 * learning algorithm as parameters.
+		 */
 		add_counterexample_simple_task(list<int> counterexample, kearns_vazirani *kv) {
+			// Store and initialize parameters
 			this->counterexample = counterexample;
 			this->sift_node = kv->root;
 			this->kv = kv;
 			position = 1;
 			prefix = NULL;
-			new_prefix();
+			
+			// Compute first prefix to analzye
+			next_prefix();
 		}
-		
-		private:
-		void new_prefix() {
 
-			delete this->prefix;
-			
-			this->prefix = new list<int>;
-			list<int>::iterator it;
-			it = counterexample.begin();
-			for(int i=1; i<=position; i++) {
-				prefix->push_back(*it);
-				it++;
-			}
-			
+		/*
+		 * Descrutor
+		 */
+		~add_counterexample_simple_task() {
+			delete prefix;
 		}
-		
-		public:
+
+		/*
+		 * Performs the task.
+		 */
 		bool perform() {
 			do {
 				
@@ -239,7 +312,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 				if (sift_node->is_leaf()) {
 					sift_node = kv->root;
 					position++;
-					new_prefix();
+					next_prefix();
 				}
 
 				// Get the leaf node that represents the equivalence class of the prefix
@@ -272,7 +345,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 					list<int> next_to_last;
 					list<int>::iterator it;
 					it = counterexample.begin();
-					for(int i=1; i<=position-1; i++) {
+					for(unsigned int i=1; i<=position-1; i++) {
 						next_to_last.push_back(*it);
 						it++;
 					}
@@ -290,15 +363,24 @@ class kearns_vazirani : public learning_algorithm<answer> {
 					
 					kv->tasks.add_last(t);
 
+					delete this->prefix;
+					
 					return true;
 				}
+				
+				delete this->prefix;
 			
 			} while (position < counterexample.size());
-			
-			cout << "Error: Found no Trennpunk!" << endl;
+
+			// No bad prefix found. Log the error!
+			(*kv->my_logger)(LOGGER_WARN, "kearns_vazirani: Found no bad prefix of the counter-example!\n");
+
 			return true;
 		}
 		
+		/*
+		 * Returns a string representation of this task.
+		 */
 		string to_string() {
 			stringstream descr;
 			descr << "Add counter-example task (counter example: \"";
@@ -310,18 +392,49 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			
 			return descr.str();
 		}
+		
+		private:
+	
+		/*
+		 * Computes the next prefix of the counter-example to check.
+		 */
+		void next_prefix() {
+			
+			this->prefix = new list<int>;
+			list<int>::iterator it;
+			it = counterexample.begin();
+			for(unsigned int i=1; i<=position; i++) {
+				prefix->push_back(*it);
+				it++;
+			}
+			
+		}
 	};
 		
 	/*
-	 * split node task
+	 * Split node task
+	 *
+	 * This task splits a leaf node of the tree. Thereby, the node to split is
+	 * "recycled".
+	 *
+	 * To preserve the soundness of the conjecture, the transitions pointing to
+	 * the old node and the transitions of the new node have to be recalculated.
 	 */
 	class split_node_task : public task {
 		private:
-		leaf_node *node_to_split;
-		list<int> new_leaf_node_label, new_inner_node_label;
-		kearns_vazirani *kv;
+		leaf_node *node_to_split;			// The node to split
+		list<int> new_leaf_node_label;		// The new leaf node label
+		list<int> new_inner_node_label;		// The new inner node label
+		kearns_vazirani *kv;				// Pointer to the learning algorithms (used to access the tree)
 
 		public:
+		
+		/*
+		 * Creates a new split_node_task.
+		 *
+		 * Takes a pointer to the node to split, the labels of the new leaf and
+		 * inner nodes, and the pointer to the learning algorithm as arguments.
+		 */
 		split_node_task(leaf_node *node_to_split, list<int> &new_leaf_node_label, list<int> &new_inner_node_label, kearns_vazirani *kv) {
 			this->node_to_split = node_to_split;
 			this->new_leaf_node_label = new_leaf_node_label;
@@ -329,6 +442,16 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			this->kv = kv;
 		}
 
+		/*
+		 * Descructor
+		 */
+		split_node_task() {
+			// Nothing to do
+		}
+		
+		/*
+		 * Performs the task.
+		 */
 		bool perform() {
 			
 			// Query information about where to put the children
@@ -385,6 +508,9 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			return true;
 		}
 		
+		/*
+		 * Returns a string representation of this task.
+		 */
 		string to_string() {
 			stringstream descr;
 			descr << "split_node_task: node to split=\"";
@@ -403,28 +529,43 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		}
 	};
 	
+	//========== List of tasks =================================================
 	
 	/*
-	 * A list of tasks
+	 * This class realizes a list of tasks.
 	 */
 	class task_list {
+	
 		// First and last tasks
 		private:
 		task *first, *last;
 		
 		public:
+		
+		/*
+		 * Create a new empty list.
+		 */
 		task_list () {
 			first = last = NULL;
 		}
 
+		/*
+		 * Chechs whether the list is empty.
+		 */
 		bool is_empty() {
 			return first == NULL;
 		}
 		
+		/*
+		 * Returns the first element of the list.
+		 */
 		task *get_first() {
 			return first;
 		}
 		
+		/*
+		 * Returns the number of elements in the list.
+		 */
 		int size() {
 			int i=0;
 			task *t = first;
@@ -436,6 +577,9 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			return i;
 		}
 		
+		/*
+		 * Adds a new task at the end of the list.
+		 */
 		void add_last(task *t) {
 			if(last == NULL) {
 				first = last = t;
@@ -448,6 +592,9 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			}
 		}
 		
+		/*
+		 * Removes a task from the list.
+		 */
 		void remove(task *t) {
 			if (first == NULL)
 				return;
@@ -475,6 +622,9 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			}
 		}
 		
+		/*
+		 * Returns a string representation of the list.
+		 */
 		string to_string() {
 			stringstream descr;
 			task *t = first;
@@ -488,9 +638,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		
 	};
 	
-	/*
-	 * Variables
-	 */
+	//========== Variables =====================================================
 	
 	// Number of nodes in the tree
 	int leaf_node_count, inner_node_count;
@@ -509,6 +657,9 @@ class kearns_vazirani : public learning_algorithm<answer> {
 	
 	public:
 	
+	/*
+	 * Creates a new Kearns / Vazirani learning algorithm
+	 */
 	kearns_vazirani (knowledgebase<answer> *base, logger *log, int alphabet_size) {
 		// First store the parameters
 		this->set_alphabet_size(alphabet_size);
@@ -524,15 +675,38 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		this->my_knowledge->resolve_or_add_query(epsilon, a);
 	}
 	
-	list<int> concatenate(list<int> &first, list<int> &second) {
-		list<int> concat (first.begin(), first.end());
-		concat.insert(concat.end(), second.begin(), second.end());
-
-		return concat;
+	/*
+	 * Creates a new Kearns / Vazirani learning algorithm
+	 */
+	kearns_vazirani (knowledgebase<answer> *base, int alphabet_size)
+	: kearns_vazirani(base, NULL, alphabet_size) {
 	}
 	
 	/*
-	 * Methods
+	 * Destructor
+	 */ 
+	~kearns_vazirani() {
+		delete root;
+	}
+	
+	//========== Methods =======================================================
+	
+	/*
+	 * Returns the number of leaf node of the tree.
+	 */
+	int get_leaf_node_count() {
+		return leaf_node_count;
+	}
+	
+	/*
+	 * Returns the number of inner node of the tree.
+	 */
+	int get_inner_node_count() {
+		return inner_node_count;
+	}
+	
+	/*
+	 * Advance one step in the algorithm.
 	 */
 	conjecture * advance() {
 		conjecture * ret = NULL;
@@ -586,6 +760,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 	}
 		
 	void increase_alphabet_size(int new_size) {
+		(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: Increasing alphabet size is not supported by this implementation!\n");
 	}
 	
 	memory_statistics get_memory_statistics() {
@@ -594,10 +769,12 @@ class kearns_vazirani : public learning_algorithm<answer> {
 	}
 	
 	bool sync_to_knowledgebase() {
+		(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: syncing to a knowledgebase is not supported by this implementation!\n");
 		return false;
 	}
 	
 	bool supports_sync() {
+		(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: syncing to a knowledgebase is not supported by this implementation!\n");
 		return false;
 	}
 	
@@ -609,14 +786,25 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		return NULL;
 	}
  
+	/*
+	 * Add a counter-example to the algorithm.
+	 */
 	bool add_counterexample(list<int> counter_example) {
 		// If there are tasks to complete, return false
 		if(!tasks.is_empty()) {
+			(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: no counter-example is expected!\n");
 			return false;
 		}
 		
 		// Check counter-example
-				
+		answer a;
+		if(this->my_knowledge->resolve_or_add_query(counter_example, a)) {
+			if(a == simulate_run(counter_example)->accepting) {
+				(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: invalid counter-example!\n");
+				return false;
+			}
+		}
+		
 		/*
 		 * Initial phase
 		 */
@@ -626,7 +814,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			list<int> epsilon;
 			answer a;
 			if(!this->my_knowledge->resolve_or_add_query(epsilon, a)) {
-				cout << "Error: should have the classification of the empty string!" << endl;
+				(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: need the classification of the empty string!\n");
 				return false;
 			}
 			
@@ -675,6 +863,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		 */
 		else {
 			
+			// Create a add_counterexample_task to do the job.
 			add_counterexample_simple_task *t = new add_counterexample_simple_task(counter_example, this);
 			if (t->perform())
 				delete t;
@@ -689,10 +878,16 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		return false;
 	}
 
+	/*
+	 * Checks whether a conjecture is ready.
+	 */
 	bool conjecture_ready() {
-		return false;
+		return this->tasks.is_empty();
 	}
 	
+	/*
+	 * Computes a conjecture.
+	 */
 	conjecture * derive_conjecture() {
 		
 		/*
@@ -704,7 +899,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			list<int> epsilon;
 			answer a;
 			if(!this->my_knowledge->resolve_or_add_query(epsilon, a)) {
-				// cout << "Error: should have the classification of the empty string!" << endl;
+				(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: need the classification of the empty string!\n");
 				return NULL;
 			}
 			
@@ -779,42 +974,10 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		}
 	}
 	
-	node *least_commont_ancestor(node *n, node *another_node) {
-		// First, bring both nodes to the same level: Assume that node is nearer
-		// to the top
-		if (n->level != another_node->level) {
-			if (another_node->level < n->level) {
-				node *tmp = n;
-				n = another_node;
-				another_node = tmp;
-			}
-
-			while (another_node->level > n->level) {
-				another_node = another_node->parent;
-			}
-		}
-
-		// Search for common ancestor
-		while (n != another_node) {
-			n = n->parent;
-			another_node = another_node->parent;
-		}
-
-		return n;
-	}
-	
-	leaf_node* simulate_run(list<int> &input) {
-	
-		leaf_node *current = this->initial_state;
-		list<int>::iterator it;
-	
-		// Simulate run
-		for(it = input.begin(); it != input.end(); it++)
-			current = current->transitions[*it];
-		
-		return current;
-	}
-	
+	/*
+	 * Prints an internal representation of the learning algorithm including its
+	 * tree data structure.
+	 */
 	void print(ostream &os) {
 		
 		/*
@@ -844,7 +1007,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		map<int, stringstream*>::iterator it;
 		dot_tree(root, nodes, id, dot_on_level);
 		os << "  {" << endl << "    node [shape=plaintext];" << endl << "    \"root\" ->";
-		for(int i=1; i<dot_on_level->size(); i++) {
+		for(unsigned int i=1; i<dot_on_level->size(); i++) {
 			os << "\"level " << i << "\"";
 			if(i < dot_on_level->size() - 1)
 				os << " -> ";
@@ -852,8 +1015,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 				os << ";";
 		}
 		os << endl << "  }" << endl;
-		for(int i=0; i<dot_on_level->size(); i++) {
-			//// cout << "i=" << i
+		for(unsigned int i=0; i<dot_on_level->size(); i++) {
 			os << "  node [shape=box]; {" << endl << "    rank = same;" << endl;
 			if(i==0)
 				os << "    \"root\";" << endl;
@@ -871,6 +1033,9 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		os << "};";
 	}
 	
+	/*
+	 * Returns a string representation of the learning algorithm.
+	 */
 	string tostring() {
 
 		stringstream dot;
@@ -879,6 +1044,54 @@ class kearns_vazirani : public learning_algorithm<answer> {
 	}
 	
 	private:
+	
+	/*
+	 * Computes the least common ancestor of two nodes in the tree.
+	 */
+	node *least_commont_ancestor(node *n, node *another_node) {
+	
+		// First, bring both nodes to the same level: Assume that node is nearer
+		// to the top
+		if (n->level != another_node->level) {
+			if (another_node->level < n->level) {
+				node *tmp = n;
+				n = another_node;
+				another_node = tmp;
+			}
+
+			while (another_node->level > n->level) {
+				another_node = another_node->parent;
+			}
+		}
+
+		// Search for common ancestor
+		while (n != another_node) {
+			n = n->parent;
+			another_node = another_node->parent;
+		}
+
+		return n;
+	}
+	
+	/*
+	 * Simulates the run of the hypothesis on the given input and returns the
+	 * reached equivalence class.
+	 */
+	leaf_node* simulate_run(list<int> &input) {
+	
+		leaf_node *current = this->initial_state;
+		list<int>::iterator it;
+	
+		// Simulate run
+		for(it = input.begin(); it != input.end(); it++)
+			current = current->transitions[*it];
+		
+		return current;
+	}
+	
+	/*
+	 * Recursively computes a dot representation of the tree structure.
+	 */
 	void dot_tree(node *n, map<node*, int> *nodes, int *id, map<int, stringstream*> *dot_on_level) {
 	
 		/*
@@ -932,6 +1145,9 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		}
 	}
 	
+	/*
+	 * Dots the transitions of the hypothesis (i.e. represented by the leaf nodes).
+	 */
 	void dot_transitions(node *n, map<node*, int> *nodes, ostream &dot) {
 		/*
 		 * Dot tree connections
