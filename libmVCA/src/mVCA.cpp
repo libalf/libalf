@@ -261,7 +261,7 @@ bool mVCA::is_empty()
 }}}
 
 void mVCA::get_bounded_behaviour_graph(int m_bound, bool & f_is_deterministic, int & f_alphabet_size, int & f_state_count, set<int> & f_initial_states, set<int> & f_final_states, multimap<pair<int,int>, int> & f_transitions)
-{
+{{{
 	// state in new automaton := state + m*state_count
 	f_is_deterministic = (this->get_derivate_id() == DERIVATE_DETERMINISTIC);
 	f_alphabet_size = alphabet.get_alphabet_size();
@@ -289,7 +289,7 @@ void mVCA::get_bounded_behaviour_graph(int m_bound, bool & f_is_deterministic, i
 			}
 		}
 	}
-}
+}}}
 
 mVCA * mVCA::crossproduct(mVCA & other)
 {{{
