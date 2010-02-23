@@ -49,7 +49,7 @@ using namespace libmVCA;
 
 inline bool automaton_partial_equivalence_query(mVCA & model, conjecture * cj, int m_bound, list<int> & counterexample)
 // conjecture is expected to be a simple_automaton.
-{
+{{{
 	bool f_is_deterministic;
 	int f_alphabet_size, f_state_count;
 	set<int> f_initial_states, f_final_states;
@@ -67,10 +67,10 @@ inline bool automaton_partial_equivalence_query(mVCA & model, conjecture * cj, i
 	delete partial_model;
 
 	return ret;
-}
+}}}
 
 inline bool automaton_partial_equivalence_query(mVCA & model, mVCA & hypothesis, int m_bound, list<int> & counterexample)
-{
+{{{
 	bool f_is_deterministic;
 	int f_alphabet_size, f_state_count;
 	set<int> f_initial_states, f_final_states;
@@ -98,7 +98,7 @@ inline bool automaton_partial_equivalence_query(mVCA & model, mVCA & hypothesis,
 	delete partial_hypothesis;
 
 	return ret;
-}
+}}}
 
 inline bool automaton_equivalence_query(mVCA & model, mVCA & hypothesis, list<int> & counterexample)
 {{{
