@@ -38,8 +38,11 @@ using namespace std;
 
 enum pushdown_direction {
 	DIR_UP = +1,			// add to stack
+	DIR_CALL = +1,
 	DIR_STAY = 0,			// don't touch stack
+	DIR_INTERNAL = 0,
 	DIR_DOWN = -1,			// remove stack-top
+	DIR_RETURN = -1,
 	DIR_INDEFINITE = -100		// out of bounds, etc
 };
 
@@ -76,6 +79,9 @@ class pushdown_alphabet {
 		// (will return false if direction was "indefinite" or
 		//  sigma was out of bound)
 		bool set_direction(int sigma, enum pushdown_direction direction);
+
+		// get the countervalue of this prefix. returns -1 for an invalid prefix under this alphabet.
+		int prefix_countervalue(list<int>::iterator word, list<int>::iterator limit);
 
 		// format for serialization:
 		// all values in NETWORK BYTE ORDER!

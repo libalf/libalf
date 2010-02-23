@@ -76,6 +76,23 @@ bool pushdown_alphabet::set_direction(int sigma, enum pushdown_direction directi
 	}
 }}}
 
+int pushdown_alphabet::prefix_countervalue(list<int>::iterator word, list<int>::iterator limit)
+{{{
+	int ret;
+	for(ret = 0; word != limit; ++word) {
+		enum pushdown_direction d = get_direction(*word);
+		if(d != DIR_INDEFINITE) {
+			ret += (int)d;
+			if(ret < 0)
+				break;
+		} else {
+			ret = -1;
+			break;
+		}
+	}
+	return ret;
+}}}
+
 std::basic_string<int32_t> pushdown_alphabet::serialize()
 {{{
 	return ::serialize(alphabet_size) + ::serialize(directions);

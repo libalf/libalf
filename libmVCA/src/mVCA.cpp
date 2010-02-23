@@ -29,6 +29,10 @@
 # include <arpa/inet.h>
 #endif
 
+#include <stdlib.h>
+
+#include <iostream>
+
 #include <libmVCA/mVCA.h>
 // for libmVCA::deserialize :
 #include <libmVCA/deterministic_mVCA.h>
@@ -256,6 +260,37 @@ bool mVCA::is_empty()
 	return ret;
 }}}
 
+void mVCA::get_bounded_behaviour_graph(int m_bound, bool & f_is_deterministic, int & f_alphabet_size, int & f_state_count, set<int> & f_initial_states, set<int> & f_final_states, multimap<pair<int,int>, int> & f_transitions)
+{
+	// state in new automaton := state + m*state_count
+	f_is_deterministic = (this->get_derivate_id() == DERIVATE_DETERMINISTIC);
+	f_alphabet_size = alphabet.get_alphabet_size();
+	f_state_count = state_count * (m_bound+1);
+	f_initial_states.clear();
+	f_initial_states.insert(initial_state);
+	f_final_states = final_states;
+
+	f_transitions.clear();
+	for(int m = 0; m <= m_bound; ++m) {
+		pair<pair<int, int>, int> tr;
+		for(int label = 0; label < alphabet.get_alphabet_size(); ++label) {
+			tr.first.second = label;
+			for(unsigned int src = 0; src < state_count; ++src) {
+				tr.first.first = src + m*state_count;
+
+				int new_m = m;
+				set<int> dst = transition(src, new_m, label);
+				if(new_m < 0 || new_m > m_bound)
+					break;
+				for(set<int>::iterator si = dst.begin(); si != dst.end(); ++si) {
+					tr.second = *si + new_m * state_count;
+					f_transitions.insert(tr);
+				}
+			}
+		}
+	}
+}
+
 mVCA * mVCA::crossproduct(mVCA & other)
 {{{
 	unsigned int f_state_count;
@@ -264,12 +299,11 @@ mVCA * mVCA::crossproduct(mVCA & other)
 	int f_m_bound;
 	map<int, map<int, map<int, set<int> > > > f_transitions;
 
-	if(this->alphabet != other.alphabet)
-		return NULL;
-
 	// alphabet check
-	if(alphabet != other.alphabet)
-		return NULL;
+	if(alphabet != other.alphabet) {
+		cerr << "libmVCA::mVCA::crossproduct(...): given automata do not have the same alphabets. aborting program.\n";
+		exit(-1);
+	}
 
 	// state count
 	f_state_count = this->state_count * other.state_count;
@@ -384,14 +418,14 @@ int mVCA::find_sink()
 	return ret;
 }}}
 
-
-
 bool mVCA::lang_subset_of(mVCA & other, list<int> & counterexample)
-// NOTE: both this and other have to be deterministic. otherwise, always FALSE will be returned for now!
+// NOTE: both this and other have to be deterministic. otherwise, exit().
 // NOTE: this implicitly calls complete_automaton() for this and other!
 {{{
-	if(this->get_derivate_id() != DERIVATE_DETERMINISTIC || other.get_derivate_id() != DERIVATE_DETERMINISTIC)
-		return false;
+	if(this->get_derivate_id() != DERIVATE_DETERMINISTIC || other.get_derivate_id() != DERIVATE_DETERMINISTIC) {
+		cerr << "libmVCA::mVCA::lang_subset_of(...): given automata are not deterministic. aborting program.\n";
+		exit(-1);
+	}
 	this->complete_automaton();
 	other.complete_automaton();
 
@@ -419,14 +453,16 @@ bool mVCA::lang_subset_of(mVCA & other, list<int> & counterexample)
 }}}
 
 bool mVCA::lang_equal(mVCA & other, list<int> & counterexample)
-// NOTE: both this and other have to be deterministic. otherwise, always FALSE will be returned for now!
+// NOTE: both this and other have to be deterministic. otherwise, exit().
 // NOTE: this implicitly calls complete_automaton() for this and other!
 {{{
 	// almost the same as lang_subset_of, except that we check for reachability of ANY state
 	// being final in one and not final in the other automaton.
 
-	if(this->get_derivate_id() != DERIVATE_DETERMINISTIC || other.get_derivate_id() != DERIVATE_DETERMINISTIC)
-		return false;
+	if(this->get_derivate_id() != DERIVATE_DETERMINISTIC || other.get_derivate_id() != DERIVATE_DETERMINISTIC) {
+		cerr << "libmVCA::mVCA::lang_equal(...): given automata are not deterministic. aborting program.\n";
+		exit(-1);
+	}
 	this->complete_automaton();
 	other.complete_automaton();
 
@@ -460,10 +496,12 @@ bool mVCA::lang_equal(mVCA & other, list<int> & counterexample)
 }}}
 
 bool mVCA::lang_disjoint_to(mVCA & other, list<int> & counterexample)
-// NOTE: both this and other have to be deterministic. otherwise, always FALSE will be returned for now!
+// NOTE: both this and other have to be deterministic. otherwise, exit().
 {{{
-	if(this->get_derivate_id() != DERIVATE_DETERMINISTIC || other.get_derivate_id() != DERIVATE_DETERMINISTIC)
-		return false;
+	if(this->get_derivate_id() != DERIVATE_DETERMINISTIC || other.get_derivate_id() != DERIVATE_DETERMINISTIC) {
+		cerr << "libmVCA::mVCA::lang_disjoint_to(...): given automata are not deterministic. aborting program.\n";
+		exit(-1);
+	}
 
 	mVCA * tmp;
 	bool intersect_is_empty;
@@ -476,10 +514,12 @@ bool mVCA::lang_disjoint_to(mVCA & other, list<int> & counterexample)
 }}}
 
 mVCA * mVCA::lang_intersect(mVCA & other)
-// NOTE: both this and other have to be deterministic. otherwise, NULL will be returned for now!
+// NOTE: both this and other have to be deterministic. otherwise, exit().
 {{{
-	if(this->get_derivate_id() != DERIVATE_DETERMINISTIC || other.get_derivate_id() != DERIVATE_DETERMINISTIC)
-		return NULL;
+	if(this->get_derivate_id() != DERIVATE_DETERMINISTIC || other.get_derivate_id() != DERIVATE_DETERMINISTIC) {
+		cerr << "libmVCA::mVCA::lang_intersect(...): given automata are not deterministic. aborting program.\n";
+		exit(-1);
+	}
 
 	mVCA * tmp;
 

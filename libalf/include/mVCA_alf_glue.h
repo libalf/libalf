@@ -30,15 +30,75 @@
 // this is the glue between libAMoRE++ and libalf,
 // it gives everything to teach algorithms from automata (teacher and oracle)
 
+#include <stdlib.h>
+
+#include <iostream>
+
 #include <libmVCA/mVCA.h>
 #include <libalf/conjecture.h>
 #include <libalf/knowledgebase.h>
+
+#include <amore++/finite_automaton.h>
+#include <amore_alf_glue.h>
 
 namespace mVCA_alf_glue {
 
 using namespace std;
 using namespace libalf;
 using namespace libmVCA;
+
+inline bool automaton_partial_equivalence_query(mVCA & model, conjecture * cj, int m_bound, list<int> & counterexample)
+// conjecture is expected to be a simple_automaton.
+{
+	bool f_is_deterministic;
+	int f_alphabet_size, f_state_count;
+	set<int> f_initial_states, f_final_states;
+	multimap<pair<int,int>, int> f_transitions;
+
+	amore::finite_automaton *partial_model;
+
+	model.get_bounded_behaviour_graph(m_bound, f_is_deterministic, f_alphabet_size, f_state_count, f_initial_states, f_final_states, f_transitions);
+	partial_model = amore::construct_amore_automaton(f_is_deterministic, f_alphabet_size, f_state_count, f_initial_states, f_final_states, f_transitions);
+
+	bool ret;
+
+	ret = amore_alf_glue::automaton_equivalence_query(*partial_model, cj, counterexample);
+
+	delete partial_model;
+
+	return ret;
+}
+
+inline bool automaton_partial_equivalence_query(mVCA & model, mVCA & hypothesis, int m_bound, list<int> & counterexample)
+{
+	bool f_is_deterministic;
+	int f_alphabet_size, f_state_count;
+	set<int> f_initial_states, f_final_states;
+	multimap<pair<int,int>, int> f_transitions;
+
+	amore::finite_automaton *partial_model, *partial_hypothesis;
+
+	pushdown_alphabet a = model.get_alphabet();
+	if(hypothesis.get_alphabet() != a) {
+		cerr << "mVCA_alf_glue::automaton_partial_equivalence_query(...): alphabet mismatch for model and hypothesis. aborting program.\n";
+		exit(-1);
+	}
+
+	model.get_bounded_behaviour_graph(m_bound, f_is_deterministic, f_alphabet_size, f_state_count, f_initial_states, f_final_states, f_transitions);
+	partial_model = amore::construct_amore_automaton(f_is_deterministic, f_alphabet_size, f_state_count, f_initial_states, f_final_states, f_transitions);
+
+	hypothesis.get_bounded_behaviour_graph(m_bound, f_is_deterministic, f_alphabet_size, f_state_count, f_initial_states, f_final_states, f_transitions);
+	partial_hypothesis = amore::construct_amore_automaton(f_is_deterministic, f_alphabet_size, f_state_count, f_initial_states, f_final_states, f_transitions);
+
+	bool ret;
+
+	ret = amore_alf_glue::automaton_equivalence_query(*partial_model, *partial_hypothesis, counterexample);
+
+	delete partial_model;
+	delete partial_hypothesis;
+
+	return ret;
+}
 
 inline bool automaton_equivalence_query(mVCA & model, mVCA & hypothesis, list<int> & counterexample)
 {{{
@@ -55,9 +115,8 @@ inline bool automaton_equivalence_query(mVCA & model, conjecture *cj, list<int> 
 
 	a = dynamic_cast<simple_mVCA*>(cj);
 	if(!a) {
-		fprintf(stderr, "equivalence query: hypothesis is not an m-bounded visible 1-counter automaton!\n");
-		counterexample.clear();
-		return false;
+		cerr << "mVCA_alf_glue::automaton_equivalence_query(...): hypothesis is not an m-bounded visible 1-counter automaton. aborting program.\n";
+		exit(-1);
 	}
 	hypothesis = construct_mVCA(a->state_count, a->alphabet_size, a->alphabet_directions, a->initial_state, a->final_states, a->m_bound, a->transitions);
 
