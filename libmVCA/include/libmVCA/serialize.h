@@ -69,6 +69,8 @@ template <typename S>                   std::basic_string<int32_t> serialize(std
 template <typename S>                   bool deserialize(std::set<S> s, serial_stretch & serial);
 template <typename S, typename T>       std::basic_string<int32_t> serialize(std::map<S, T> & m);
 template <typename S, typename T>       bool deserialize(std::map<S, T> m, serial_stretch & serial);
+template <typename S, typename T>	std::basic_string<int32_t> serialize(std::multimap<S, T> & m);
+template <typename S, typename T>	bool deserialize(std::multimap<S, T> m, serial_stretch & serial);
 
 // SERIALIZATION OF BASIC TYPES
 
@@ -233,12 +235,40 @@ template <typename S, typename T>	bool deserialize(std::map<S, T> m, serial_stre
 	if(!deserialize(size, serial)) return false;
 	while(size) {
 		if(!deserialize(tmp, serial)) return false;
-		m[tmp.first] = tmp.second;
+		m.insert(tmp);
 		size--;
 	}
 	return true;
 }}}
 
+
+// multimap<S, T>
+template <typename S, typename T>	std::basic_string<int32_t> serialize(std::multimap<S, T> & m)
+{{{
+	std::basic_string<int32_t> ret;
+	typename std::multimap<S, T>::iterator mi;
+
+	ret += serialize(m.size());
+	for(mi = m.begin(); mi != m.end(); ++mi)
+		ret += serialize(*mi);
+
+	return ret;
+}}}
+template <typename S, typename T>	bool deserialize(std::multimap<S, T> m, serial_stretch & serial)
+{{{
+	int size;
+	std::pair<S, T> tmp;
+
+	m.clear();
+
+	if(!deserialize(size, serial)) return false;
+	while(size) {
+		if(!deserialize(tmp, serial)) return false;
+		m.insert(tmp);
+		size--;
+	}
+	return true;
+}}}
 
 #endif // __helper_serialize_h__
 
