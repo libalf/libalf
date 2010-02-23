@@ -31,12 +31,12 @@ public class DispatcherAlgorithmBiermannOriginal extends DispatcherLearningAlgor
 	public DispatcherAlgorithmBiermannOriginal(DispatcherFactory factory, Knowledgebase base, int alphabet_size, Logger logger, int nondeterminism) {
 		super(factory, DispatcherConstants.ALG_BIERMANN_ORIGINAL, base, alphabet_size, logger);
 		
-		if (deserialize_magic(new int[]{nondeterminism}).length != 1)
+		if (deserialize_magic(new int[]{1, nondeterminism}).length != 1)
 			throw new DispatcherProtocolException("unexpected answer length");
 	}
 
 	public int get_nondeterminism() {
-		int[] magic = deserialize_magic(new int[]{});
+		int[] magic = deserialize_magic(new int[]{0});
 		if (magic.length != 1)
 			throw new DispatcherProtocolException("unexpected answer length");
 		return magic[0];

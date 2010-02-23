@@ -175,10 +175,8 @@ class original_biermann : public learning_algorithm<answer> {
 
 		if(it == limit) return false;
 
-		bool set = ntohl(*it);
-		unsigned int val;
-
-		if(set) {
+		if(ntohl(*it)) {
+			unsigned int val;
 			it++; if(it == limit) return false;
 			val = ntohl(*it);
 			if(val < 1)
@@ -189,7 +187,6 @@ class original_biermann : public learning_algorithm<answer> {
 
 		it++;
 
-		result += htonl(1); // length
 		result += htonl((int) nondeterminism);
 
 		return true;
