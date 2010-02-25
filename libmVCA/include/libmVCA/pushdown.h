@@ -81,7 +81,10 @@ class pushdown_alphabet {
 		bool set_direction(int sigma, enum pushdown_direction direction);
 
 		// get the countervalue of this prefix. returns -1 for an invalid prefix under this alphabet.
-		int prefix_countervalue(list<int>::iterator word, list<int>::iterator limit);
+		int prefix_countervalue(list<int>::const_iterator word, list<int>::const_iterator limit, int initial_countervalue = 0);
+		// get countervalue of this word
+		int countervalue(const list<int> & word)
+		{ return this->prefix_countervalue(word.begin(), word.end(), 0); }
 
 		// format for serialization:
 		// all values in NETWORK BYTE ORDER!
@@ -95,9 +98,9 @@ class pushdown_alphabet {
 
 		string to_string();
 
-		bool operator==(pushdown_alphabet & other)
+		bool operator==(const pushdown_alphabet & other)
 		{ return ( (this->alphabet_size == other.alphabet_size) && (this->directions == other.directions) ); };
-		bool operator!=(pushdown_alphabet & other)
+		bool operator!=(const pushdown_alphabet & other)
 		{ return ! (*this == other); };
 };
 
