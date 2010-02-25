@@ -590,7 +590,6 @@ server returns:
 
 deserialize algorithm-specific parameters (LEARNING_ALGORITHM_DESERIALIZE_MAGIC) (see -> MAGICS)
 parameters: 2
-	size,
 	serialized data[]
 server returns:
 	size

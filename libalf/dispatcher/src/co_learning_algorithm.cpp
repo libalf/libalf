@@ -129,10 +129,6 @@ bool co_learning_algorithm::handle_command(int command, basic_string<int32_t> & 
 			return this->sv->client->stream_send_string(s.c_str());
 		case LEARNING_ALGORITHM_DESERIALIZE_MAGIC:
 			si = command_data.begin();
-			// check size
-			if(*si != ((int)command_data.size()) - 1)
-				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
-			++si;
 			if(!o->deserialize_magic(si, command_data.end(), serial))
 				return this->sv->send_errno(ERR_BAD_PARAMETERS);
 			/*
