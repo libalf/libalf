@@ -203,7 +203,7 @@ class finite_automaton {
 		// following are antichain-based algorithms for universality, inclusion and equality-tests for languages.
 		// depending on their performance, once implemented, is_universal(), lang_subset_of() and operator==()
 		// should relay to them.
-		// at least for nondeterministic automata, these will be far more efficient than determinization + test.
+		// for nondeterministic automata, these are far more efficient than determinization + test.
 
 		// Antichain-based algorithms. See
 		//    M. De Wulf, L. Doyen, J.-F. Raskin

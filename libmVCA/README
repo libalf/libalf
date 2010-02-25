@@ -9,5 +9,9 @@ http://libalf.informatik.rwth-aachen.de/
                and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
 
 
-implementation of m-bounded visibly 1-counter automata
+implementation of m-bounded visibly 1-counter automata, as described e.g. in
+
+ * Daniel Neider, Christof Löding:
+   Learning Visibly One-Counter Automata in Polynomial Time
+   [ http://sunsite.informatik.rwth-aachen.de/Publications/AIB/2010/2010-02.pdf ]
 
