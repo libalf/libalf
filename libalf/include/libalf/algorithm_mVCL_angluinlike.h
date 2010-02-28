@@ -83,7 +83,7 @@ class mVCL_angluinlike : public learning_algorithm<answer> {
 		}
 		bool deserialize_magic(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, basic_string<int32_t> & result)
 		{
-
+			
 		}
 		virtual void print(ostream &os)
 		{
@@ -97,14 +97,46 @@ class mVCL_angluinlike : public learning_algorithm<answer> {
 		{
 			
 		}
-		virtual bool add_counterexample(list<int>)
+		virtual bool indicate_partial_equivalence(int bound)
+		{
+			
+		}
+		virtual bool add_counterexample(list<int> counterexample)
 		{
 			
 		}
 	protected: // methods
-		virtual bool complete()
+		virtual void initialize_table()
 		{
 			
+		}
+		virtual bool fill_missing_columns()
+		{
+			
+		}
+		virtual bool close()
+		{
+			
+		}
+		virtual bool make_consistent()
+		{
+			
+		}
+
+
+		virtual bool complete()
+		{
+			if(!this->initialized)
+				this->initialize_table();
+
+			if(this->fill_missing_columns()) {
+				if(!this->close())
+					return complete();
+
+				return true;
+			} else {
+				return false;
+			}
 		}
 		virtual conjecture * derive_conjecture()
 		{
