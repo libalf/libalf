@@ -199,7 +199,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			current_node = kv->root;
 			
 			// Create transition label
-			transition_label = new list<int>(source->label.begin(), source->label.end());
+			transition_label = new list<int>(source->label);
 			transition_label->push_back(symbol);
 		}
 		
@@ -219,7 +219,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			do {
 
 				// Query the 
-				list<int> query(transition_label->begin(), transition_label->end());
+				list<int> query(*transition_label);
 				query.insert(query.end(), current_node->label.begin(), current_node->label.end());
 				answer a;
 				if(!kv->my_knowledge->resolve_or_add_query(query, a))
@@ -260,14 +260,14 @@ class kearns_vazirani : public learning_algorithm<answer> {
 	};
 	
 	/*
-	 * Add counter-example task
+	 * Add counter-example task using a linar search for a "bad prefix".
 	 *
 	 * This task adds a counter-example. The counter-example is scanned from the
 	 * beginning and when a "bad prefix" is descovered, the respective node is split.
 	 * Thereto, this task creates a split_node_task.
 	 */
-	class add_counterexample_simple_task : public task {
-		private:
+	class add_counterexample_linearsearch_task : public task {
+		protected:
 		list<int> counterexample;	// The counter-example
 		unsigned int position;		// The length of the prefix
 		list<int> *prefix;			// The currently analyzed prefix of the counter-example
@@ -283,22 +283,21 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		 * The constructor takes the the counter-example and a pointer to the
 		 * learning algorithm as parameters.
 		 */
-		add_counterexample_simple_task(list<int> counterexample, kearns_vazirani *kv) {
+		add_counterexample_linearsearch_task(list<int> counterexample, kearns_vazirani *kv) {
 			// Store and initialize parameters
 			this->counterexample = counterexample;
 			this->sift_node = kv->root;
 			this->kv = kv;
 			position = 1;
-			prefix = NULL;
 			
-			// Compute first prefix to analzye
-			next_prefix();
+			// Make initial prefix
+			make_prefix();
 		}
 
 		/*
 		 * Descrutor
 		 */
-		~add_counterexample_simple_task() {
+		~add_counterexample_linearsearch_task() {
 			delete prefix;
 		}
 
@@ -308,18 +307,17 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		bool perform() {
 			do {
 				
-				// If we have finished sifting, we need to check another prefix
+				// If we have finished sifting, we need to check the next prefix
 				if (sift_node->is_leaf()) {
 					sift_node = kv->root;
-					position++;
-					next_prefix();
+					make_prefix();
 				}
 
 				// Get the leaf node that represents the equivalence class of the prefix
 				do {
 					
 					// Perform membership query
-					list<int> query(prefix->begin(), prefix->end());
+					list<int> query (prefix);
 					query.insert(query.end(), sift_node->label.begin(), sift_node->label.end());
 					answer a;
 					if(!kv->my_knowledge->resolve_or_add_query(query, a))
@@ -338,7 +336,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 				// after reading the prefix
 				leaf_node *run_node = kv->simulate_run(*prefix);
 				
-				// Check for Trennpunkt
+				// Check for bad prefix
 				if (run_node != sift_node) {
 
 					// Get next to last state of the run
@@ -370,11 +368,11 @@ class kearns_vazirani : public learning_algorithm<answer> {
 				
 				delete this->prefix;
 			
-			} while (position < counterexample.size());
+			} while (next_position());
 
 			// No bad prefix found. Log the error!
 			(*kv->my_logger)(LOGGER_WARN, "kearns_vazirani: Found no bad prefix of the counter-example!\n");
-
+			
 			return true;
 		}
 		
@@ -383,7 +381,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		 */
 		string to_string() {
 			stringstream descr;
-			descr << "Add counter-example task (counter example: \"";
+			descr << "Add counter-example task linear search (counter example: \"";
 			
 			list<int>::iterator it;
 			for(it = counterexample.begin(); it != counterexample.end(); it++)
@@ -398,19 +396,234 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		/*
 		 * Computes the next prefix of the counter-example to check.
 		 */
-		void next_prefix() {
-			
+		bool next_position() {
+			if(this->position < counterexample.size()) {
+				this->position++;
+				return true;
+			}
+			else
+				return false;
+		}
+		
+		void make_prefix() {
 			this->prefix = new list<int>;
 			list<int>::iterator it;
 			it = counterexample.begin();
-			for(unsigned int i=1; i<=position; i++) {
+			for(unsigned int i=1; i<=this->position; i++) {
 				prefix->push_back(*it);
 				it++;
 			}
-			
 		}
 	};
+	
+	
+	/*
+	 * Add counter-example task using a binary search for a "bad prefix".
+	 *
+	 * This task adds a counter-example. The counter-example is scanned using a
+	 * binary search and when a "bad prefix" is descovered, the respective node
+	 * is split. Thereto, this task creates a split_node_task.
+	 */
+	class add_counterexample_binarysearch_task : public task {
+	
+		private:
+		list<int> counterexample;		// The counter-example
+		unsigned int position;			// The length of the prefix
+		list<int> *prefix;				// The currently analyzed prefix of the counter-example (up to position)
+		list<int> *prefix_m1;			// The prefix up to position  - 1
+		kearns_vazirani *kv;			// Pointer to the learning algorithms (used to access the tree)	
+		unsigned int left, right;		// Left and right bounderies of the prefix
+		node **sift_buffer;				// Buffer to store nodes during a sift operation (and finally the result)
+		leaf_node **run_buffer;			// Buffer to store results of simulations
 		
+	
+		public:
+		
+		/*
+		 * Constructor: 
+		 */
+		add_counterexample_binarysearch_task(list<int> counterexample, kearns_vazirani *kv) {
+			// Store and initialize parameters
+			this->counterexample = counterexample;
+			this->kv = kv;
+			sift_buffer = new node*[counterexample.size() + 1];
+			run_buffer = new leaf_node*[counterexample.size() + 1];
+			for(unsigned int i=1; i<=counterexample.size(); i++) {
+				sift_buffer[i] = kv->root;
+				run_buffer[i] = NULL;
+			}
+			sift_buffer[0] = run_buffer[0] = kv->initial_state;
+			
+			// Set bounderies
+			left = 1;
+			right = counterexample.size();
+			
+			// Compute initial position
+			this->position = (left + right) / 2;
+						
+			// Create initial prefix
+			this->make_prefix();
+		}
+	
+		/*
+		 * Destructor
+		 */
+		~add_counterexample_binarysearch_task() {
+			delete prefix;
+			delete prefix_m1;
+			delete sift_buffer;
+			delete run_buffer;
+		}
+	
+		/*
+		 * Performs the task.
+		 */
+		bool perform() {
+			bool perform_loop = true;
+			do {
+				
+				/*
+				 * Get the leaf nodes that represents the equivalence classes of the prefixes.
+				 */
+				// Position i
+				while(!sift_buffer[position]->is_leaf()) {
+					list<int> query (*prefix);
+					query.insert(query.end(), sift_buffer[position]->label.begin(), sift_buffer[position]->label.end());
+					answer a;
+					
+					if(!kv->my_knowledge->resolve_or_add_query(query, a))
+						break;
+					
+					// Sift it
+					inner_node *inner = dynamic_cast<inner_node*>(sift_buffer[position]);
+					if (a == true)
+						sift_buffer[position] = inner->right_child;
+					else
+						sift_buffer[position] = inner->left_child;
+				}
+				
+				// Position i - 1
+				while(!sift_buffer[position - 1]->is_leaf()) {
+					list<int> query (*prefix_m1);
+					query.insert(query.end(), sift_buffer[position - 1]->label.begin(), sift_buffer[position - 1]->label.end());
+					answer a;
+					
+					if(!kv->my_knowledge->resolve_or_add_query(query, a))
+						break;
+					
+					// Sift it
+					inner_node *inner = dynamic_cast<inner_node*>(sift_buffer[position - 1]);
+					if (a == true)
+						sift_buffer[position - 1] = inner->right_child;
+					else
+						sift_buffer[position - 1] = inner->left_child;
+				}
+
+				// Is all information available
+				if(!(sift_buffer[position]->is_leaf() && sift_buffer[position - 1]->is_leaf()))
+					return false;
+				
+				/*
+				 * Get the leaf node representing the state reached in the hypthesis
+				 * after reading the prefix.
+				 */
+				
+				// Position i
+				if(run_buffer[position] == NULL)
+					run_buffer[position] = kv->simulate_run(*prefix);
+
+				// Position i - 1
+				if(run_buffer[position - 1] == NULL)
+					run_buffer[position - 1] = kv->simulate_run(*prefix_m1);
+
+				/*
+				 * Check for bad prefix.
+				 */
+				if ((run_buffer[position - 1] == sift_buffer[position - 1]) && (run_buffer[position] != sift_buffer[position])) {
+
+					// Create parameter for split node task
+					list<int> inner_node_label;
+					node *lca = kv->least_commont_ancestor(run_buffer[position], sift_buffer[position]);
+					inner_node_label.push_back(*prefix->rbegin());
+					inner_node_label.insert(inner_node_label.end(), lca->label.begin(), lca->label.end());
+					
+					// Create new leaf node label
+					list<int> leaf_node_label(*prefix_m1);
+					
+					// Create and add split node task
+					task *t = new split_node_task(run_buffer[position - 1], leaf_node_label, inner_node_label, kv);
+					kv->tasks.add_last(t);
+
+					delete this->prefix;
+					delete this->prefix_m1;
+					
+					return true;
+				}
+			
+				/*
+				 * No bad prefix found!
+				 */
+				else {
+					// Delete prefixes
+					delete this->prefix;
+					delete this->prefix_m1;
+				
+					// Adjust position
+					
+					if(run_buffer[position] == sift_buffer[position])
+						left = position + 1;
+					else
+						right = position - 1;
+					position = (left + right) / 2;
+					
+					// Create new prefixes
+					make_prefix();
+				}
+			
+			} while (perform_loop);
+
+			// No bad prefix found. Log the error!
+			(*kv->my_logger)(LOGGER_WARN, "kearns_vazirani: Found no bad prefix of the counter-example!\n");
+			
+			return true;
+		}
+	
+		/*
+		 * Returns a string representation of this task.
+		 */
+		string to_string() {
+			stringstream descr;
+			descr << "Add counter-example task linear search (counter example: \"";
+			
+			list<int>::iterator it;
+			for(it = counterexample.begin(); it != counterexample.end(); it++)
+				descr << (*it) << " ";
+			descr << "\")";
+			
+			return descr.str();
+		}
+	
+		private:
+		
+		void make_prefix() {
+			// Create new prefixes
+			this->prefix = new list<int>;
+			this->prefix_m1 = new list<int>;
+			
+			// Create prefix up to position - 1
+			list<int>::iterator it;
+			it = counterexample.begin();
+			for(unsigned int i=1; i<=this->position - 1; i++) {
+				prefix->push_back(*it);
+				prefix_m1->push_back(*it);
+				it++;
+			}
+			
+			// Finish the prefix
+			prefix->push_back(*it);
+		}
+	};
+	
 	/*
 	 * Split node task
 	 *
@@ -779,14 +992,13 @@ class kearns_vazirani : public learning_algorithm<answer> {
 	}
 	
 	bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit) {
-		// FIXME
+		(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: this implementation does not support serialization!\n");
 		return false;
 	}
 	
 	basic_string<int32_t> serialize() {
-		basic_string<int32_t> ret;
-		// FIXME
-		return ret;
+		(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: this implementation does not support serialization!\n");
+		return NULL;
 	}
  
 	/*
@@ -799,7 +1011,15 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			return false;
 		}
 		
-		// Check counter-example
+		/*
+		 * Check counter-example
+		 */
+		// The emnpty string is provided as counter-example
+		if(counter_example.size() == 0) {
+			(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: the empty string cannot be a counter-example!\n");
+			return false;
+		}
+		// Counter-example is not classified incorrectly
 		answer a;
 		if(this->my_knowledge->resolve_or_add_query(counter_example, a)) {
 			if(a == simulate_run(counter_example)->accepting) {
@@ -867,7 +1087,8 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		else {
 			
 			// Create a add_counterexample_task to do the job.
-			add_counterexample_simple_task *t = new add_counterexample_simple_task(counter_example, this);
+			task *t = new add_counterexample_binarysearch_task(counter_example, this);
+			//task *t = new add_counterexample_simple_task(counter_example, this);
 			if (t->perform())
 				delete t;
 			else 
