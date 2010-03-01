@@ -32,27 +32,27 @@ endif
 CPPFLAGS += -I../include -I../../include
 CPPFLAGS += -shared -fPIC -I${PREFIX}/include -I${JAVA_INCLUDE}
 
-OBJECTS = jni_tools.o jni_object.o jni_knowledgebase.o jni_buffered_logger.o jni_normalizer.o jni_learning_algorithm.o jni_algorithm_angluin.o jni_algorithm_angluin_column.o jni_algorithm_nlstar.o jni_algorithm_rpni.o jni_algorithm_biermann_minisat.o jni_algorithm_delete2.o jni_algorithm_biermann_original.o
+OBJECTS = jni_tools.o jni_object.o jni_knowledgebase.o jni_buffered_logger.o jni_normalizer.o jni_learning_algorithm.o jni_algorithm_angluin.o jni_algorithm_angluin_column.o jni_algorithm_nlstar.o jni_algorithm_kearns_vazirani.o jni_algorithm_rpni.o jni_algorithm_biermann_original.o jni_algorithm_biermann_minisat.o jni_algorithm_delete2.o 
 
 all:	${TARGET}
 
 libjalf.so: test_java_dir ${OBJECTS}
 	make -C ../../src libalf.a
-	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} -Xlinker -soname=libjalf ${LDFLAGS} -static -lalf -o libjalf.so
+	g++ ${OBJECTS} ${CPPFLAGS} ${CXXFLAGS} -Xlinker -soname=libjalf ${LDFLAGS} -static -lalf -o libjalf.so
 	
 libjalf.so-dynamic: test_java_dir ${OBJECTS}
 	make -C ../../src libalf.so
-	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} -Xlinker -soname=libjalf ${LDFLAGS} -lalf -o libjalf.so
+	g++ ${OBJECTS} ${CPPFLAGS} ${CXXFLAGS} -Xlinker -soname=libjalf ${LDFLAGS} -lalf -o libjalf.so
 
 jalf.dll: ${OBJECTS}
 	make -C ../../src libalf.a
-	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} ${LDFLAGS} -static -lalf -o jalf.dll -Wl,--kill-at
-#	                                                                                   ^^^^^^^^^^^^^ needed for JNI-DLL (http://www.mingw.org/wiki/JNI-MinGW-DLL)
+	g++ ${OBJECTS} ${CPPFLAGS} ${CXXFLAGS} ${LDFLAGS} -static -lalf -o jalf.dll -Wl,--kill-at
+#	                                                                            ^^^^^^^^^^^^^ needed for JNI-DLL (http://www.mingw.org/wiki/JNI-MinGW-DLL)
 
 jalf.dll-dynamic: ${OBJECTS}
 	make -C ../../src libalf.dll
-	g++ ${OBJECTS}  ${CPPFLAGS} ${CXXFLAGS} ${LDFLAGS} -lalf -o jalf.dll -Wl,--kill-at
-#	                                                         ^^^^^^^^^^^^^ needed for JNI-DLL (http://www.mingw.org/wiki/JNI-MinGW-DLL)
+	g++ ${OBJECTS} ${CPPFLAGS} ${CXXFLAGS} ${LDFLAGS} -lalf -o jalf.dll -Wl,--kill-at
+#	                                                                    ^^^^^^^^^^^^^ needed for JNI-DLL (http://www.mingw.org/wiki/JNI-MinGW-DLL)
 
 test_java_dir:
 	@echo

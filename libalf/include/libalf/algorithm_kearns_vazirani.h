@@ -868,16 +868,22 @@ class kearns_vazirani : public learning_algorithm<answer> {
 	// The task list
 	task_list tasks;
 	
+	// Which technique to use when processing counter-examples?
+	bool use_binary_search;
+	
 	public:
+	
+	//========== Constructors ==================================================
 	
 	/*
 	 * Creates a new Kearns / Vazirani learning algorithm
 	 */
-	kearns_vazirani (knowledgebase<answer> *base, logger *log, int alphabet_size) {
+	kearns_vazirani (knowledgebase<answer> *base, logger *log, int alphabet_size, bool use_binary_search = true) {
 		// First store the parameters
 		this->set_alphabet_size(alphabet_size);
 		this->set_logger(log);
 		this->set_knowledge_source(base);
+		this->use_binary_search = use_binary_search;
 		
 		// Initial variables
 		initial_phase = true;
@@ -891,8 +897,19 @@ class kearns_vazirani : public learning_algorithm<answer> {
 	/*
 	 * Creates a new Kearns / Vazirani learning algorithm
 	 */
-	kearns_vazirani (knowledgebase<answer> *base, int alphabet_size)
-	: kearns_vazirani(base, NULL, alphabet_size) {
+	kearns_vazirani (knowledgebase<answer> *base, int alphabet_size) {
+		// First store the parameters
+		this->set_alphabet_size(alphabet_size);
+		this->set_knowledge_source(base);
+		this->use_binary_search = true;
+		
+		// Initial variables
+		initial_phase = true;
+		
+		// Query the empty word
+		list<int> epsilon;
+		answer a;
+		this->my_knowledge->resolve_or_add_query(epsilon, a);
 	}
 	
 	/*
@@ -903,6 +920,22 @@ class kearns_vazirani : public learning_algorithm<answer> {
 	}
 	
 	//========== Methods =======================================================
+	
+	/*
+	 * Returns whether binary (true) or a linar search (false) is performed to
+	 * find bad prefixes of a counter-example.
+	 */
+	bool uses_binary_search() {
+		return this->use_binary_search;
+	}
+	
+	/*
+	 * Sets whether to use a binary (true) or a linar search (false) to
+	 * find bad prefixes of a counter-example.
+	 */
+	void set_binary_search(bool use_binary_search) {
+		this->use_binary_search = use_binary_search;
+	}
 	
 	/*
 	 * Returns the number of leaf node of the tree.

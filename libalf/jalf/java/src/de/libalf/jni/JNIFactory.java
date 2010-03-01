@@ -44,6 +44,7 @@ public enum JNIFactory implements LibALFFactory {
 		return STATIC;
 	}
 
+	
 	/**
 	 * Returns the LibALF and JNI binding versions.
 	 * 
@@ -111,6 +112,25 @@ public enum JNIFactory implements LibALFFactory {
 						"Invalid parameters for creating NL^* learning algorithm: "
 								+ args.length + ".");
 
+			/*
+			 * Create Kearns / Vazirani learning algorithm.
+			 */
+		case KEARNS_VAZIRANI:
+			if (args.length == 2)
+				return new JNIAlgorithmKearnsVazirani((JNIKnowledgebase) args[0],
+						(Integer) args[1]);
+			else if (args.length == 3)
+				return new JNIAlgorithmKearnsVazirani((JNIKnowledgebase) args[0],
+						(Integer) args[1], (JNIBufferedLogger) args[2]);
+			else if (args.length == 4)
+				return new JNIAlgorithmKearnsVazirani((JNIKnowledgebase) args[0],
+						(Integer) args[1], (JNIBufferedLogger) args[2],
+						(Boolean) args[3]);
+			else
+				throw new AlfException(
+						"Invalid parameters for creating Kearns / Vazirani learning algorithm: "
+								+ args.length + ".");
+								
 			/*
 			 * Create RPNI inference algorithm.
 			 */
