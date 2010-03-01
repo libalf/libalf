@@ -103,7 +103,8 @@ int main(int argc, char**argv)
 	kearns_vazirani<ANSWERTYPE> ot(&knowledge, &log, alphabet_size);
 	finite_automaton * hypothesis = NULL;
 
-	for(iteration = 1; iteration <= 100; iteration++) {
+	while(!success) {
+		iteration++;
 		int c = 'a';
 		conjecture * cj;
 
@@ -154,10 +155,10 @@ int main(int argc, char**argv)
 		//file.open(filename); file << hypothesis->generate_dotfile(); file.close();
 
 		printf("hypothesis %02d state count %02d\n", iteration, hypothesis->get_state_count());
-		if(hypothesis_state_count >= hypothesis->get_state_count()) {
-			log(LOGGER_ERROR, "STATE COUNT DID NOT INCREASE\n");
-			getchar();
-		}
+		//if(hypothesis_state_count >= hypothesis->get_state_count()) {
+		//	log(LOGGER_ERROR, "STATE COUNT DID NOT INCREASE\n");
+		//	getchar();
+		//}
 		hypothesis_state_count = hypothesis->get_state_count();
 
 		// once an automaton is generated, test for equivalence with oracle_automaton
@@ -168,6 +169,11 @@ int main(int argc, char**argv)
 		if(amore_alf_glue::automaton_equivalence_query(*dfa, *hypothesis, counterexample)) {
 			// equivalent
 			success = true;
+			
+			// Print learned automata
+			snprintf(filename, 128, "result.dot");
+			file.open(filename); file << hypothesis->generate_dotfile(); file.close();
+						
 			break;
 		}
 
@@ -177,6 +183,11 @@ int main(int argc, char**argv)
 		
 	}
 
+	snprintf(filename, 128, "tree.dot");
+	file.open(filename); ot.print(file); file.close();
+	
+	
+	
 	iteration++;
 	snprintf(filename, 128, "knowledgebase%02d-final.dot", iteration);
 	file.open(filename);
