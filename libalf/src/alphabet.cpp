@@ -50,10 +50,22 @@ list<int>* concat(list<int> &first, list<int> &second)
 	if(first.size() != 0)
 		l->assign(first.begin(), first.end());
 	if(second.size() != 0)
-		for(li = second.begin(); li != second.end(); li++)
+		for(li = second.begin(); li != second.end(); ++li)
 			l->push_back(*li);
 
 	return l;
+}}}
+
+list<int> operator+(const list<int> & prefix, const list<int> & suffix)
+{{{
+	list<int> ret;
+	list<int>::const_iterator li;
+
+	ret = prefix;
+	for(li = suffix.begin(); li != suffix.end(); ++li)
+		ret.push_back(*li);
+
+	return ret;
 }}}
 
 bool is_prefix_of(list<int> &prefix, list<int> &word)

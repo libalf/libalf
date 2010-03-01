@@ -47,6 +47,8 @@ using namespace std;
 // return ptr to new list with first∙second
 list<int>* concat(list<int> &first, list<int> &second);
 
+list<int> operator+(const list<int> & prefix, const list<int> & suffix);
+
 bool is_prefix_of(list<int> &prefix, list<int> &word);
 
 bool is_suffix_of(list<int> &postfix, list<int> &word);
