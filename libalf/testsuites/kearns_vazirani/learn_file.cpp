@@ -100,7 +100,7 @@ int main(int argc, char**argv)
 
 
 	// create kearns/vazirani learning algorithm and teach it the automaton
-	kearns_vazirani<ANSWERTYPE> ot(&knowledge, &log, alphabet_size);
+	kearns_vazirani<ANSWERTYPE> ot(&knowledge, &log, alphabet_size, true);
 	finite_automaton * hypothesis = NULL;
 
 	while(!success) {
@@ -134,6 +134,10 @@ int main(int argc, char**argv)
 		}
 
 		simple_automaton * ba = dynamic_cast<simple_automaton*>(cj);
+		
+		cout << "Conjecture alphabet size : " << ba->alphabet_size << endl;
+		cout << "Conjecture state count : " << ba->state_count << endl;
+		
 		if(hypothesis)
 			delete hypothesis;
 		hypothesis = construct_amore_automaton(ba->is_deterministic, ba->alphabet_size, ba->state_count, ba->initial, ba->final, ba->transitions);
@@ -198,6 +202,7 @@ int main(int argc, char**argv)
 	stats.queries.membership = knowledge.count_resolved_queries();
 
 	delete nfa;
+	delete dfa;
 
 	cout << "\nrequired membership queries: " << stats.queries.membership << "\n";
 	cout << "required uniq membership queries: " << stats.queries.uniq_membership << "\n";
@@ -208,7 +213,7 @@ int main(int argc, char**argv)
 	cout << "minimal state count: " << hypothesis->get_state_count() << "\n";
 
 	delete hypothesis;
-
+	
 	if(success)
 		return 0;
 	else
