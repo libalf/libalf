@@ -77,6 +77,7 @@ co_learning_algorithm::co_learning_algorithm(enum libalf::learning_algorithm<ext
 			o = new original_biermann<extended_bool>(NULL, NULL, alphabet_size, 1);
 			break;
 		case learning_algorithm<extended_bool>::ALG_KEARNS_VAZIRANI:
+			cerr << "created kearns vazirani.\n";
 			o = new kearns_vazirani<extended_bool>(NULL, NULL, alphabet_size);
 			break;
 	}
