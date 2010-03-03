@@ -771,7 +771,7 @@ bool deterministic_finite_automaton::construct(bool is_dfa, int alphabet_size, i
 			if(a->delta[i][s] > a->highest_state)
 				sink_required = true;
 	if(sink_required) {
-		printf("AMoRE++ deterministic_finite_automaton::construct adding implicit sink\n");
+//		printf("AMoRE++ deterministic_finite_automaton::construct adding implicit sink\n");
 
 		ddelta tmp;
 		tmp = a->delta;
