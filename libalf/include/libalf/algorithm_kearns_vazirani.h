@@ -325,7 +325,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 				do {
 					
 					// Perform membership query
-					list<int> query (prefix);
+					list<int> query (*prefix);
 					query.insert(query.end(), sift_node->label.begin(), sift_node->label.end());
 					answer a;
 					if(!kv->my_knowledge->resolve_or_add_query(query, a))
@@ -1159,8 +1159,12 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		else {
 			
 			// Create a add_counterexample_task to do the job.
-			task *t = new add_counterexample_binarysearch_task(counter_example, this);
-			//task *t = new add_counterexample_simple_task(counter_example, this);
+			task *t;
+			if(this->use_binary_search)
+				t = new add_counterexample_binarysearch_task(counter_example, this);
+			else
+				t = new add_counterexample_linearsearch_task(counter_example, this);
+			
 			if (t->perform())
 				delete t;
 			else 
@@ -1323,9 +1327,13 @@ class kearns_vazirani : public learning_algorithm<answer> {
 
 		dot_transitions(root, nodes, os);
 
-		delete nodes;
+		// Memory cleanup
+		for(it = dot_on_level->begin(); it != dot_on_level->end(); it++)
+			delete it->second;
 		delete dot_on_level;
-		
+		delete nodes;
+		delete id;
+				
 		os << "};";
 	}
 	
