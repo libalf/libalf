@@ -66,6 +66,8 @@ unsigned int servant::store_object(client_object * o)
 {{{
 	unsigned int new_id;
 
+	cerr << "storing object " << o << "\n";
+
 	// try to find free slot
 	for(new_id = 0; new_id < objects.size(); new_id++)
 		if(objects[new_id] == NULL)
@@ -78,6 +80,8 @@ unsigned int servant::store_object(client_object * o)
 	objects[new_id] = o;
 	o->set_servant(this);
 	o->set_id(new_id);
+
+	cerr << "got id " << new_id << "\n";
 
 	return new_id;
 }}}
