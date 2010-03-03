@@ -135,8 +135,14 @@ int main(int argc, char**argv)
 
 		simple_automaton * ba = dynamic_cast<simple_automaton*>(cj);
 		
-		cout << "Conjecture alphabet size : " << ba->alphabet_size << endl;
-		cout << "Conjecture state count : " << ba->state_count << endl;
+		// DEBUG
+#if 0
+		cout << ot.tostring() << endl;
+		cout << ba->visualize() << endl;
+#endif		
+		
+		// END DEBUG
+		
 		
 		if(hypothesis)
 			delete hypothesis;
@@ -164,7 +170,7 @@ int main(int argc, char**argv)
 		//	getchar();
 		//}
 		hypothesis_state_count = hypothesis->get_state_count();
-
+		
 		// once an automaton is generated, test for equivalence with oracle_automaton
 		// if this test is ok, all worked well
 

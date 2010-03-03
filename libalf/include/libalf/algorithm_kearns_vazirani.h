@@ -499,6 +499,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		 */
 		bool perform() {
 			bool perform_loop = true;
+			
 			do {
 				
 				/*
@@ -798,7 +799,12 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		}
 
 		~task_list () {
-			cout << "task size: " << size() << endl;
+			task *t = first;
+			while(t != NULL) {
+				task *tmp = t->next;
+				delete t;
+				t = tmp;
+			}
 		}
 		
 		/*
@@ -957,9 +963,6 @@ class kearns_vazirani : public learning_algorithm<answer> {
 	 * Destructor
 	 */ 
 	~kearns_vazirani() {
-		cout << "Initial phase: " << this->initial_phase << endl;
-		cout << "Root: " << this->root << endl;
-		
 		if(root)
 			delete root;
 	}
@@ -1261,7 +1264,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			automaton->is_deterministic = true;
 			automaton->alphabet_size = this->alphabet_size;
 			automaton->valid = true;
-			automaton->state_count = this->leaf_node_count;
+			automaton->state_count = 0;
 			automaton->initial.insert(0);
 		
 			// Iterate throug all leaf nodes to generate transitions,
@@ -1279,6 +1282,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 				leaf_node *current = to_process.front();
 				to_process.pop_front();
 				visited[current->id] = true;
+				automaton->state_count++;
 				
 				// Add as final state if so
 				if(current->accepting)
@@ -1291,12 +1295,27 @@ class kearns_vazirani : public learning_algorithm<answer> {
 					automaton->transitions.insert(pair<pair<int,int>,int>(source, current->transitions[i]->id));
 				
 					// If the destination is not yet processed, add it to be processed
-					if(!visited[current->transitions[i]->id])
+					if(!visited[current->transitions[i]->id] && find(to_process.begin(), to_process.end(), current->transitions[i]) == to_process.end())
 						to_process.push_back(current->transitions[i]);
 				}
 				
 			}
 
+			
+			// DEBUG
+#if 0
+			int tr_count = 0;
+			multimap<pair<int, int>, int>::iterator it;
+			for(it = automaton->transitions.begin(); it != automaton->transitions.end(); it++) {
+				cout << "(" << it->first.first << ", " << it->first.second << ", " << it->second << ")" << endl;
+			}
+			
+			if(automaton->transitions.size() != automaton->state_count * automaton->alphabet_size)
+				cout << tostring() << endl;
+#endif
+			// END DEBUG
+			
+			
 			return automaton;
 		}
 	}
