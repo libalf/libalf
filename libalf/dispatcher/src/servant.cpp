@@ -26,6 +26,8 @@
 #include <unistd.h>
 #include <stdarg.h>
 
+#include <iostream>
+
 #include <libalf/alf.h>
 #include <libalf/learning_algorithm.h>
 #include <libalf/normalizer.h>
@@ -317,6 +319,7 @@ bool servant::reply_create_object()
 				goto bad_parameters;
 
 			new_id = store_object(new co_learning_algorithm( (enum libalf::learning_algorithm<extended_bool>::algorithm) t, u));
+			cerr << "reply_create_object: ok.\n";
 			break;
 		case OBJ_NORMALIZER:
 			if(data.size() != 1)
@@ -331,12 +334,15 @@ bool servant::reply_create_object()
 			goto bad_parameters;
 	}
 
+	cerr << "reply_create_object: bottom.\n";
 	if(!send_errno(ERR_SUCCESS))
 		return false;
 
 #ifdef VERBOSE_DEBUG
 	clog("created object %d type %s (%d).\n", new_id, obj2string(type), type);
 #endif
+	cerr << "created object " << new_id << " type " << obj2string(type) << " ("<<type<<")\n";
+	clog("created object %d type %s (%d).\n", new_id, obj2string(type), type);
 
 	return (client->stream_send_int(new_id));
 
