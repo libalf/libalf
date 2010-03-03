@@ -66,8 +66,6 @@ unsigned int servant::store_object(client_object * o)
 {{{
 	unsigned int new_id;
 
-	cerr << "storing object " << o << "\n";
-
 	// try to find free slot
 	for(new_id = 0; new_id < objects.size(); new_id++)
 		if(objects[new_id] == NULL)
@@ -80,8 +78,6 @@ unsigned int servant::store_object(client_object * o)
 	objects[new_id] = o;
 	o->set_servant(this);
 	o->set_id(new_id);
-
-	cerr << "got id " << new_id << "\n";
 
 	return new_id;
 }}}
@@ -323,7 +319,6 @@ bool servant::reply_create_object()
 				goto bad_parameters;
 
 			new_id = store_object(new co_learning_algorithm( (enum libalf::learning_algorithm<extended_bool>::algorithm) t, u));
-			cerr << "reply_create_object: ok.\n";
 			break;
 		case OBJ_NORMALIZER:
 			if(data.size() != 1)
@@ -338,14 +333,12 @@ bool servant::reply_create_object()
 			goto bad_parameters;
 	}
 
-	cerr << "reply_create_object: bottom.\n";
 	if(!send_errno(ERR_SUCCESS))
 		return false;
 
 #ifdef VERBOSE_DEBUG
 	clog("created object %d type %s (%d).\n", new_id, obj2string(type), type);
 #endif
-	cerr << "created object " << new_id << " type " << obj2string(type) << " ("<<type<<")\n";
 	clog("created object %d type %s (%d).\n", new_id, obj2string(type), type);
 
 	return (client->stream_send_int(new_id));
