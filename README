@@ -53,5 +53,5 @@ include
 
 the preferred order of installation is (of course):
 
-libAMoRE, libAMoRE++, liblangen, libalf, finite-automata-tool
+libAMoRE, libAMoRE++, libmVCA, liblangen, libalf, finite-automata-tool
 
