@@ -210,12 +210,16 @@ class RPNI : public learning_algorithm<answer> {
 		}}}
 
 		virtual memory_statistics get_memory_statistics()
-		{{{
+		{
 			memory_statistics ret;
-			// FIXME
 			
 			return ret;
-		}}}
+		}
+
+		virtual void receive_generic_statistics(generic_integer_statistics & stat)
+		{
+			
+		}
 
 		virtual bool sync_to_knowledgebase()
 		{{{

@@ -229,6 +229,29 @@ fail:
 			return ret;
 		}}}
 
+		virtual void receive_generic_statistics(generic_integer_statistics & stat)
+		{{{
+			memory_statistics ret;
+			int bytes = 0;
+			int c, ut, lt;
+			// get memory footprint:
+			typename columnlist::iterator ci;
+			typename table::iterator ti;
+
+			bytes = sizeof(this);
+			for(ci = column_names.begin(); ci != column_names.end(); ci++)
+				bytes += sizeof(list<int>) + sizeof(int) * (ci->size());
+			for(ti = upper_table.begin(); ti != upper_table.end(); ti++)
+				bytes += ti->memory_usage();
+			for(ti = lower_table.begin(); ti != lower_table.end(); ti++)
+				bytes += ti->memory_usage();
+			stat["bytes"] = bytes;
+			stat["columns"] = c = column_names.size();
+			stat["upper_table"] = ut = upper_table.size();
+			stat["lower_table"] = lt = lower_table.size();
+			stat["words"] = c * (ut+lt);
+		}}}
+
 		virtual bool sync_to_knowledgebase()
 		{{{
 			(*this->my_logger)(LOGGER_ERROR, "NL* does not support sync-operation (undo) for now.\n");

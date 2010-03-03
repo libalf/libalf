@@ -45,6 +45,10 @@ class  serial_stretch {
 		std::basic_string<int32_t>::iterator current;
 		std::basic_string<int32_t>::iterator limit;
 	public:
+		inline serial_stretch()
+		{ };
+		inline serial_stretch(std::basic_string<int32_t>::iterator current, std::basic_string<int32_t>::iterator limit)
+		{ this->current = current; this->limit = limit; };
 		inline bool empty()
 		{ return (current == limit); };
 		inline void operator++()
@@ -58,6 +62,8 @@ inline                                  std::basic_string<int32_t> serialize(int
 inline                                  bool deserialize(int & into, serial_stretch & serial);
 inline                                  bool deserialize(unsigned int & into, serial_stretch & serial);
 inline                                  bool deserialize(bool & into, serial_stretch & serial);
+inline					bool deserialize(char & into, serial_stretch & serial);
+
 template <typename S, typename T>       std::basic_string<int32_t> serialize(std::pair<S, T> & p);
 template <typename S, typename T>       bool deserialize(std::pair<S, T> & p, serial_stretch & serial);
 template <typename S>                   std::basic_string<int32_t> serialize(std::list<S> & l);
@@ -65,17 +71,19 @@ template <typename S>                   bool deserialize(std::list<S> & l, seria
 template <typename S>                   std::basic_string<int32_t> serialize(std::vector<S> & v);
 template <typename S>                   bool deserialize(std::vector<S> & v, serial_stretch & serial);
 template <typename S>                   std::basic_string<int32_t> serialize(std::set<S> & s);
-template <typename S>                   bool deserialize(std::set<S> s, serial_stretch & serial);
+template <typename S>                   bool deserialize(std::set<S> & s, serial_stretch & serial);
 template <typename S, typename T>       std::basic_string<int32_t> serialize(std::map<S, T> & m);
-template <typename S, typename T>       bool deserialize(std::map<S, T> m, serial_stretch & serial);
+template <typename S, typename T>       bool deserialize(std::map<S, T> & m, serial_stretch & serial);
 template <typename S, typename T>	std::basic_string<int32_t> serialize(std::multimap<S, T> & m);
-template <typename S, typename T>	bool deserialize(std::multimap<S, T> m, serial_stretch & serial);
+template <typename S, typename T>	bool deserialize(std::multimap<S, T> & m, serial_stretch & serial);
+template <typename S>			std::basic_string<int32_t> serialize(const std::basic_string<S> & s);
+template <typename S>			bool deserialize(std::basic_string<S> & s, serial_stretch & serial);
 
 // SERIALIZATION OF BASIC TYPES
 
 
 // int
-inline					std::basic_string<int32_t> serialize(int a) // works for int, unsinged int and bool.
+inline					std::basic_string<int32_t> serialize(int a) // works for int, unsinged int, char and bool.
 {{{
 	std::basic_string<int32_t> ret;
 	ret += htonl(a);
@@ -96,6 +104,13 @@ inline					bool deserialize(unsigned int & into, serial_stretch & serial)
 	return true;
 }}}
 inline					bool deserialize(bool & into, serial_stretch & serial)
+{{{
+	if(serial.empty()) return false;
+	into = ntohl(*serial);
+	serial.current++;
+	return true;
+}}}
+inline					bool deserialize(char & into, serial_stretch & serial)
 {{{
 	if(serial.empty()) return false;
 	into = ntohl(*serial);
@@ -195,7 +210,7 @@ template <typename S>			std::basic_string<int32_t> serialize(std::set<S> & s)
 
 	return ret;
 }}}
-template <typename S>			bool deserialize(std::set<S> s, serial_stretch & serial)
+template <typename S>			bool deserialize(std::set<S> & s, serial_stretch & serial)
 {{{
 	int size;
 	S tmp;
@@ -224,7 +239,7 @@ template <typename S, typename T>	std::basic_string<int32_t> serialize(std::map<
 
 	return ret;
 }}}
-template <typename S, typename T>	bool deserialize(std::map<S, T> m, serial_stretch & serial)
+template <typename S, typename T>	bool deserialize(std::map<S, T> & m, serial_stretch & serial)
 {{{
 	int size;
 	std::pair<S, T> tmp;
@@ -253,7 +268,7 @@ template <typename S, typename T>	std::basic_string<int32_t> serialize(std::mult
 
 	return ret;
 }}}
-template <typename S, typename T>	bool deserialize(std::multimap<S, T> m, serial_stretch & serial)
+template <typename S, typename T>	bool deserialize(std::multimap<S, T> & m, serial_stretch & serial)
 {{{
 	int size;
 	std::pair<S, T> tmp;
@@ -264,6 +279,35 @@ template <typename S, typename T>	bool deserialize(std::multimap<S, T> m, serial
 	while(size) {
 		if(!deserialize(tmp, serial)) return false;
 		m.insert(tmp);
+		size--;
+	}
+	return true;
+}}}
+
+// basic_string<S>
+template <typename S>			std::basic_string<int32_t> serialize(const std::basic_string<S> & s)
+{{{
+	std::basic_string<int32_t> ret;
+	typename std::basic_string<S>::const_iterator si;
+
+	ret += serialize(s.length());
+	for(si = s.begin(); si != s.end(); ++si)
+		ret += serialize(*si);
+
+	return ret;
+}}}
+
+template <typename S>			bool deserialize(std::basic_string<S> & s, serial_stretch & serial)
+{{{
+	int size;
+	S tmp;
+
+	s.clear();
+
+	if(!deserialize(size, serial)) return false;
+	while(size) {
+		if(!deserialize(tmp, serial)) return false;
+		s += tmp;
 		size--;
 	}
 	return true;

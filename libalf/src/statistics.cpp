@@ -30,6 +30,7 @@
 #endif
 
 #include <string>
+#include <sstream>
 #include <iterator>
 
 #include "libalf/statistics.h"
@@ -38,6 +39,85 @@ namespace libalf {
 
 using namespace std;
 
+
+
+string generic_integer_statistics::to_string()
+{{{
+	stringstream s;
+	print(s);
+	return s.str();
+}}}
+
+void generic_integer_statistics::print(ostream & os)
+{{{
+	map<string, int>::iterator si;
+
+	os << "{";
+
+	for(si = this->begin(); si != this->end(); ++si)
+		os << " " << si->first << " = " << si->second << ";";
+
+	os << " }; ";
+}}}
+
+
+
+timing_statistics::timing_statistics()
+{{{
+	reset();
+}}}
+void timing_statistics::reset()
+{{{
+	user_sec = 0;
+	user_usec = 0;
+	sys_sec = 0;
+	sys_usec = 0;
+}}}
+basic_string<int32_t> timing_statistics::serialize()
+{{{
+	basic_string<int32_t> ret;
+
+	ret += htonl(4);
+	ret += htonl(user_sec);
+	ret += htonl(user_usec);
+	ret += htonl(sys_sec);
+	ret += htonl(sys_usec);
+
+	return ret;
+}}}
+bool timing_statistics::deserialize(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator limit)
+{{{
+	int size;
+
+	if(it == limit) goto deserialization_failed;
+
+	// data size
+	size = ntohl(*it);
+	if(size != 4) goto deserialization_failed;
+
+	// user_sec
+	it++; if(limit == it) goto deserialization_failed;
+	user_sec = ntohl(*it);
+	// user_usec
+	it++; if(limit == it) goto deserialization_failed;
+	user_usec = ntohl(*it);
+	// sys_sec
+	it++; if(limit == it) goto deserialization_failed;
+	sys_sec = ntohl(*it);
+	// sys_usec
+	it++; if(limit == it) goto deserialization_failed;
+	sys_usec = ntohl(*it);
+
+	return true;
+
+deserialization_failed:
+	reset();
+	return false;
+}}}
+
+// -------------------------------------------------------------------------------------------------- //
+// EVERYTHING BELOW THIS LINE IS OBSOLETE AND WILL BE REMOVED AFTER ALL INTERFACES HAVE BEEN CHANGED. //
+// -------------------------------------------------------------------------------------------------- //
 
 query_statistics::query_statistics()
 {{{
@@ -143,60 +223,6 @@ bool memory_statistics::deserialize(basic_string<int32_t>::iterator & it, basic_
 	// columns
 	it++; if(limit == it) goto deserialization_failed;
 	columns = ntohl(*it);
-
-	return true;
-
-deserialization_failed:
-	reset();
-	return false;
-}}}
-
-
-timing_statistics::timing_statistics()
-{{{
-	reset();
-}}}
-void timing_statistics::reset()
-{{{
-	user_sec = 0;
-	user_usec = 0;
-	sys_sec = 0;
-	sys_usec = 0;
-}}}
-basic_string<int32_t> timing_statistics::serialize()
-{{{
-	basic_string<int32_t> ret;
-
-	ret += htonl(4);
-	ret += htonl(user_sec);
-	ret += htonl(user_usec);
-	ret += htonl(sys_sec);
-	ret += htonl(sys_usec);
-
-	return ret;
-}}}
-bool timing_statistics::deserialize(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator limit)
-{{{
-	int size;
-
-	if(it == limit) goto deserialization_failed;
-
-	// data size
-	size = ntohl(*it);
-	if(size != 4) goto deserialization_failed;
-
-	// user_sec
-	it++; if(limit == it) goto deserialization_failed;
-	user_sec = ntohl(*it);
-	// user_usec
-	it++; if(limit == it) goto deserialization_failed;
-	user_usec = ntohl(*it);
-	// sys_sec
-	it++; if(limit == it) goto deserialization_failed;
-	sys_sec = ntohl(*it);
-	// sys_usec
-	it++; if(limit == it) goto deserialization_failed;
-	sys_usec = ntohl(*it);
 
 	return true;
 

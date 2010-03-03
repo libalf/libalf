@@ -1013,6 +1013,11 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		memory_statistics ret;
 		return ret;
 	}
+
+	virtual void receive_generic_statistics(generic_integer_statistics & stat)
+	{
+		
+	}
 	
 	bool sync_to_knowledgebase() {
 		(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: syncing to a knowledgebase is not supported by this implementation!\n");

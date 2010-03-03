@@ -205,6 +205,11 @@ class mVCL_angluinlike : public learning_algorithm<answer> {
 			return ret;
 		}
 
+		virtual void receive_generic_statistics(generic_integer_statistics & stat)
+		{
+			
+		}
+
 		virtual bool sync_to_knowledgebase()
 		{{{
 			(*this->my_logger)(LOGGER_ERROR, "mVCL_angluinlike does not support sync-operation.\n");

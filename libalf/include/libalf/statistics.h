@@ -27,12 +27,39 @@
 
 #include <stdint.h>
 
+#include <map>
 #include <string>
 #include <iterator>
+#include <ostream>
 
 namespace libalf {
 
 using namespace std;
+
+
+class generic_integer_statistics : public map<string, int> {
+	public:
+		string to_string();
+		void print(ostream & os);
+};
+
+class timing_statistics {
+	public:	// data
+		int32_t user_sec;
+		int32_t user_usec;
+		int32_t sys_sec;
+		int32_t sys_usec;
+	public: // methods
+		timing_statistics();
+		void reset();
+		basic_string<int32_t> serialize();
+		bool deserialize(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator limit);
+};
+
+// -------------------------------------------------------------------------------------------------- //
+// EVERYTHING BELOW THIS LINE IS OBSOLETE AND WILL BE REMOVED AFTER ALL INTERFACES HAVE BEEN CHANGED. //
+// -------------------------------------------------------------------------------------------------- //
+
 
 class query_statistics {
 	public:	// data
@@ -56,19 +83,6 @@ class memory_statistics {
 		int32_t columns;	// columns (if appropriate)
 	public:	// methods
 		memory_statistics();
-		void reset();
-		basic_string<int32_t> serialize();
-		bool deserialize(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator limit);
-};
-
-class timing_statistics {
-	public:	// data
-		int32_t user_sec;
-		int32_t user_usec;
-		int32_t sys_sec;
-		int32_t sys_usec;
-	public: // methods
-		timing_statistics();
 		void reset();
 		basic_string<int32_t> serialize();
 		bool deserialize(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator limit);

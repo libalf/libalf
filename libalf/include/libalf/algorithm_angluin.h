@@ -1139,6 +1139,36 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 			return ret;
 		}}}
 
+		virtual void receive_generic_statistics(generic_integer_statistics & stat)
+		{
+			int c, ut, lt, bytes;
+
+			typename angluin_table<answer, list< algorithm_angluin::simple_row<answer, vector<answer> > >, vector<answer> >::columnlist::iterator ci;
+			typename list< algorithm_angluin::simple_row<answer, vector<answer> > >::iterator ti;
+
+			stat["columns"] = c = this->column_names.size();
+			stat["upper_table"] = ut = this->upper_table.size();
+			stat["lower_table"] = lt = this->lower_table.size();
+			stat["words"] = c * (ut+lt);
+
+			// approx. memory usage:
+			bytes = sizeof(this);
+			// columns
+			bytes += sizeof(vector<int>);
+			for(ci = this->column_names.begin(); ci != this->column_names.end(); ci++)
+				bytes += sizeof(int) * ci->size() + sizeof(list<int>);
+			// upper table bare rows
+			for(ti = this->upper_table.begin(); ti != this->upper_table.end(); ti++)
+				bytes += sizeof(algorithm_angluin::simple_row<answer, vector<answer> >) + sizeof(int) * ti->index.size();
+			// lower table bare rows
+			for(ti = this->lower_table.begin(); ti != this->lower_table.end(); ti++)
+				bytes += sizeof(algorithm_angluin::simple_row<answer, vector<answer> >) + sizeof(int) * ti->index.size();
+			// table fields
+			bytes += sizeof(answer) * c * (ut+lt);
+
+			stat["bytes"] = bytes;
+		}
+
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 		// FIXME: put initialized into serialized stream
 		{{{
