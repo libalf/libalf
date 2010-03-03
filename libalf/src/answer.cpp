@@ -28,11 +28,6 @@
 
 namespace libalf {
 
-bool __attribute__((const)) extended_bool::operator==(extended_bool &other)
-{{{
-	return this->value == other.value;
-}}}
-
 bool __attribute__((const)) operator==(extended_bool a, extended_bool b)
 {{{
 	return a.value == b.value;

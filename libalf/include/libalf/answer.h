@@ -65,8 +65,6 @@ class extended_bool {
 		enum e_extended_bool value;
 
 
-		bool __attribute__((const)) operator==(extended_bool &other);
-
 		bool __attribute__((const)) operator!=(extended_bool &other);
 
 		void operator=(extended_bool &other);
