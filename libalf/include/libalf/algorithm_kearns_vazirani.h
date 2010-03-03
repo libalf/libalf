@@ -554,8 +554,11 @@ class kearns_vazirani : public learning_algorithm<answer> {
 					task *t = new split_node_task(run_buffer[position - 1], leaf_node_label, inner_node_label, kv);
 					kv->tasks.add_last(t);
 
+					// Memory cleanup
 					delete this->prefix;
 					delete this->prefix_m1;
+					delete[] sift_buffer;
+					delete[] run_buffer;
 					
 					return true;
 				}
@@ -568,20 +571,27 @@ class kearns_vazirani : public learning_algorithm<answer> {
 					delete this->prefix;
 					delete this->prefix_m1;
 				
-					// Adjust position
-					
-					if(run_buffer[position] == sift_buffer[position])
-						left = position + 1;
-					else
-						right = position - 1;
-					position = (left + right) / 2;
-					
-					// Create new prefixes
-					make_prefix();
+					if(left < right) {
+						// Adjust position
+						if(run_buffer[position] == sift_buffer[position])
+							left = position + 1;
+						else
+							right = position - 1;
+						position = (left + right) / 2;
+						
+						// Create new prefixes
+						make_prefix();
+					} else {
+						perform_loop = false;
+					}
 				}
 			
 			} while (perform_loop);
 
+			// Memory cleanup
+			delete[] sift_buffer;
+			delete[] run_buffer;
+			
 			// No bad prefix found. Log the error!
 			(*kv->my_logger)(LOGGER_WARN, "kearns_vazirani: Found no bad prefix of the counter-example!\n");
 			
@@ -1052,17 +1062,33 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		/*
 		 * Check counter-example
 		 */
-		// The emnpty string is provided as counter-example
+		// The empty string is provided as counter-example
 		if(counter_example.size() == 0) {
 			(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: the empty string cannot be a counter-example!\n");
 			return false;
 		}
-		// Counter-example is not classified incorrectly
+		
+		// Counter-example is not classified correctly
 		answer a;
-		if(this->my_knowledge->resolve_or_add_query(counter_example, a)) {
-			if(a == simulate_run(counter_example)->accepting) {
-				(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: invalid counter-example!\n");
-				return false;
+		if(this->my_knowledge->resolve_query(counter_example, a)) {
+			if(initial_phase) {
+				answer b;
+				list<int> empty;
+				
+				if(!this->my_knowledge->resolve_query(empty, b)) {
+					(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: the empty string is not answered. Cannot add a counter-example.\n");
+					return false;
+				} else {
+					if(a == b) {
+						(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: the counter-example is invalid.\n");
+						return false;
+					}
+				}
+			} else {
+				if(a == simulate_run(counter_example)->accepting) {
+					(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: invalid counter-example!\n");
+					return false;
+				}
 			}
 		}
 		
