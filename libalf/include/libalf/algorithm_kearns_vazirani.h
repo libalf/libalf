@@ -131,16 +131,14 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		: node (label, level) {
 			this->id = id;
 			this->accepting = accepting;
-			this->transitions = new leaf_node*[alphabet_size];
-			for(int i=0; i<alphabet_size; i++)
-				this->transitions[i] = NULL;
+			this->transitions = (leaf_node**)calloc(alphabet_size, sizeof(leaf_node*));
 		}
 		
 		/*
 		 * Descrutor
 		 */
 		~leaf_node() {
-			delete transitions;
+			free(transitions);
 		}
 		
 		bool is_leaf() {
@@ -166,6 +164,11 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		 * This method needs to be implemented be the specific tasks.
 		 */
 		virtual bool perform() = 0;
+		
+		/*
+		 * Dummy destructor
+		 */
+		virtual ~task() {}
 		
 		/*
 		 * Returns a string representation of this task.
@@ -246,6 +249,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			
 			// Memory cleanup
 			delete transition_label;
+			transition_label = NULL;
 			
 			return true;
 		}
@@ -291,21 +295,25 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		 * The constructor takes the the counter-example and a pointer to the
 		 * learning algorithm as parameters.
 		 */
-		add_counterexample_linearsearch_task(list<int> counterexample, kearns_vazirani *kv) {
+		add_counterexample_linearsearch_task(const list<int> &ce, kearns_vazirani *kv) {
 			// Store and initialize parameters
-			this->counterexample = counterexample;
+			this->counterexample = ce;
 			this->sift_node = kv->root;
 			this->kv = kv;
 			position = 1;
+			this->prefix = NULL;
 			
 			// Make initial prefix
 			make_prefix();
+			
+			cout << "Constructed " << this << endl;
 		}
 
 		/*
 		 * Descrutor
 		 */
 		~add_counterexample_linearsearch_task() {
+			cout << "Deleted " << this << endl;
 			delete prefix;
 		}
 
@@ -370,11 +378,13 @@ class kearns_vazirani : public learning_algorithm<answer> {
 					kv->tasks.add_last(t);
 
 					delete this->prefix;
+					prefix = NULL;
 					
 					return true;
 				}
 				
 				delete this->prefix;
+				prefix = NULL;
 			
 			} while (next_position());
 
@@ -461,6 +471,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 				run_buffer[i] = NULL;
 			}
 			sift_buffer[0] = run_buffer[0] = kv->initial_state;
+			prefix = prefix_m1 = NULL;
 			
 			// Set bounderies
 			left = 1;
@@ -565,8 +576,11 @@ class kearns_vazirani : public learning_algorithm<answer> {
 					// Memory cleanup
 					delete this->prefix;
 					delete this->prefix_m1;
+					prefix = prefix_m1 = NULL;
 					delete[] sift_buffer;
 					delete[] run_buffer;
+					sift_buffer = NULL;
+					run_buffer = NULL;
 					
 					return true;
 				}
@@ -578,7 +592,8 @@ class kearns_vazirani : public learning_algorithm<answer> {
 					// Delete prefixes
 					delete this->prefix;
 					delete this->prefix_m1;
-				
+					prefix = prefix_m1 = NULL;
+					
 					if(left < right) {
 						// Adjust position
 						if(run_buffer[position] == sift_buffer[position])
@@ -599,6 +614,8 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			// Memory cleanup
 			delete[] sift_buffer;
 			delete[] run_buffer;
+			sift_buffer = NULL;
+			run_buffer = NULL;
 			
 			// No bad prefix found. Log the error!
 			(*kv->my_logger)(LOGGER_WARN, "kearns_vazirani: Found no bad prefix of the counter-example!\n");
@@ -780,6 +797,10 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			first = last = NULL;
 		}
 
+		~task_list () {
+			cout << "task size: " << size() << endl;
+		}
+		
 		/*
 		 * Chechs whether the list is empty.
 		 */
@@ -905,6 +926,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		
 		// Initial variables
 		initial_phase = true;
+		this->root = NULL;
 		
 		// Query the empty word
 		list<int> epsilon;
@@ -923,6 +945,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		
 		// Initial variables
 		initial_phase = true;
+		this->root = NULL;
 		
 		// Query the empty word
 		list<int> epsilon;
@@ -934,7 +957,11 @@ class kearns_vazirani : public learning_algorithm<answer> {
 	 * Destructor
 	 */ 
 	~kearns_vazirani() {
-		delete root;
+		cout << "Initial phase: " << this->initial_phase << endl;
+		cout << "Root: " << this->root << endl;
+		
+		if(root)
+			delete root;
 	}
 	
 	//========== Methods =======================================================
