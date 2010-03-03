@@ -70,6 +70,11 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		}
 		
 		/*
+		 * Dummy destructor
+		 */
+		virtual ~node() {}
+		
+		/*
 		 * Checks whether the node is a leaf node.
 		 */
 		virtual bool is_leaf() = 0;
@@ -238,6 +243,9 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			leaf_node *leaf = dynamic_cast<leaf_node*> (current_node);
 			source->transitions[symbol] = leaf;
 			leaf->incoming_transitions.insert(source);
+			
+			// Memory cleanup
+			delete transition_label;
 			
 			return true;
 		}
@@ -471,8 +479,8 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		~add_counterexample_binarysearch_task() {
 			delete prefix;
 			delete prefix_m1;
-			delete sift_buffer;
-			delete run_buffer;
+			delete[] sift_buffer;
+			delete[] run_buffer;
 		}
 	
 		/*
