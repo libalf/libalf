@@ -1086,7 +1086,46 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: this implementation does not support serialization!\n");
 		return NULL;
 	}
- 
+
+	bool deserialize_magic(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, basic_string<int32_t> & result)
+	{
+		// expects:
+		//	function
+		//			0: get_leaf_node_count()
+		//			1: get_inner_node_count()
+		//			2: set_binary_search()
+		//			3: uses_binary_search()
+		//	if(function==3)
+		//		bool: use_binary_search?
+		// returns:
+		//	if(function == 0 or 1)
+		//		int: value
+		//	if(function == 3)
+		//		bool
+
+		result.clear();
+		if(it == limit) return false;
+		switch(ntohl(*it)) {
+			case 0:
+				result += get_leaf_node_count();
+				break;
+			case 1:
+				result += get_inner_node_count();
+				break;
+			case 2:
+				++it;
+				if(it == limit) return false;
+				set_binary_search(ntohl(*it) != 0);
+				break;
+			case 3:
+				result += uses_binary_search() ? 1 : 0;
+				break;
+			default:
+				return false;
+		}
+		return true;
+	}
+
 	/*
 	 * Add a counter-example to the algorithm.
 	 */
