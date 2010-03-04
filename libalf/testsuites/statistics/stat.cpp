@@ -13,7 +13,7 @@ int main()
 	generic_statistics stat;
 
 	stat["fnord"] = 23;
-	stat["pi"] = 4.;
+	stat["pi"] = 4 * atan(1);
 	stat["x"] = false;
 	stat["y"] = true;
 	stat["z"] = "bla";
