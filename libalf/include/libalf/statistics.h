@@ -16,8 +16,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with libalf.  If not, see <http://www.gnu.org/licenses/>.
  *
- * (c) 2008,2009 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
- *           and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
+ * (c) 2008,2009,2010 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
+ *                and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
  * Author: David R. Piegdon <david-i2@piegdon.de>
  *
  */
@@ -34,6 +34,8 @@
 #include <ostream>
 #include <sstream>
 
+#include <exception>
+
 #include <libalf/serialize.h>
 
 namespace libalf {
@@ -49,9 +51,24 @@ enum statistic_type {
 	STRING = 4
 };
 
+class statistic_data_bad_typecast_e : public exception {
+	private:
+		enum statistic_type vartype;
+		enum statistic_type casttype;
+	public:
+		statistic_data_bad_typecast_e(enum statistic_type vartype, enum statistic_type casttype)
+		{ this->vartype = vartype; this->casttype = casttype; };
+
+		virtual const char * what() const throw();
+
+		string get_type_information();
+};
+
 class statistic_data {
 	// FIXME: overload typecast-operator and throw if typecast to bad type.
 	private:
+
+
 		enum statistic_type type;
 
 		int i;
@@ -70,18 +87,23 @@ class statistic_data {
 		void set_integer(int i);
 		bool get_integer(int & i);
 		inline statistic_data & operator=(const int & i) { set_integer(i); return *this; };
+		inline operator int() throw (statistic_data_bad_typecast_e) { if(type == INTEGER) return i; else throw statistic_data_bad_typecast_e(type, INTEGER); };
 
 		void set_double(double d);
 		bool get_double(double & d);
-		inline statistic_data & operator=(const double & d) {set_double(d); return *this; };
+		inline statistic_data & operator=(const double & d) { set_double(d); return *this; };
+		inline operator double() throw (statistic_data_bad_typecast_e) { if(type == DOUBLE) return d; else throw statistic_data_bad_typecast_e(type, DOUBLE); };
 
 		void set_bool(bool b);
 		bool get_bool(bool & b);
-		inline statistic_data & operator=(const bool & b) {set_bool(b); return *this; };
+		inline statistic_data & operator=(const bool & b) { set_bool(b); return *this; };
+		inline operator bool() throw (statistic_data_bad_typecast_e) { if(type == BOOL) return b; else throw statistic_data_bad_typecast_e(type, BOOL); };
 
 		void set_string(string s);
 		bool get_string(string & s);
-		inline statistic_data & operator=(const string & s) {set_string(s); return *this; };
+		inline statistic_data & operator=(const string & s) { set_string(s); return *this; };
+		inline statistic_data & operator=(const char * c) { set_string(c); return *this; };
+		inline operator string() throw (statistic_data_bad_typecast_e) { if(type == STRING) return s; else throw statistic_data_bad_typecast_e(type, STRING); };
 
 		string to_string();
 		void print(ostream & os);

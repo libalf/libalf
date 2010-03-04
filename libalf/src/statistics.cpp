@@ -16,8 +16,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with libalf.  If not, see <http://www.gnu.org/licenses/>.
  *
- * (c) 2008,2009 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
- *           and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
+ * (c) 2008,2009,2010 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
+ *                and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
  * Author: David R. Piegdon <david-i2@piegdon.de>
  *
  */
@@ -39,6 +39,20 @@ namespace libalf {
 
 using namespace std;
 
+
+const char * statistic_data_bad_typecast_e::what() const throw()
+{ return "bad typecast of generic statistic variable"; };
+
+static const char * typenames[] = {
+	"unset", "integer", "double", "bool", "string"
+};
+
+string statistic_data_bad_typecast_e::get_type_information()
+{{{
+	stringstream str;
+	str << "casting " << typenames[vartype] << " to " << typenames[casttype];
+	return str.str();
+}}}
 
 statistic_data::statistic_data()
 {{{
