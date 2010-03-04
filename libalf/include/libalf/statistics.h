@@ -53,7 +53,7 @@ enum statistic_type {
 
 extern const char * statistic_typenames[];
 
-class statistic_data_bad_typecast_e : public exception {
+class statistic_data_bad_typecast_e : public std::exception {
 	private:
 		enum statistic_type vartype;
 		enum statistic_type casttype;
