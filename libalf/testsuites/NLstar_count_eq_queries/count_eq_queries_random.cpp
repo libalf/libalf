@@ -46,7 +46,7 @@ using namespace libalf;
 using namespace amore;
 using namespace liblangen;
 
-ostream_logger log(&cout, LOGGER_DEBUG);
+ostream_logger my_logger(&cout, LOGGER_DEBUG);
 
 int learn_via_NLstar(int asize, finite_automaton * model)
 {{{
@@ -57,7 +57,7 @@ int learn_via_NLstar(int asize, finite_automaton * model)
 	bool success = false;
 
 	// create NLstar table and teach it the automaton
-	NLstar_table<ANSWERTYPE> ot(&knowledge, &log, asize);
+	NLstar_table<ANSWERTYPE> ot(&knowledge, &my_logger, asize);
 
 	for(iteration = 1; iteration <= 100; iteration++) {
 		conjecture *cj;
@@ -135,7 +135,7 @@ int main(int argc, char**argv)
 				file.open(filename); file << model->generate_dotfile(); file.close();
 				snprintf(filename, 128, "hit-a%d-s%d-%02d.atm", asize, size, num);
 				basic_string_to_file(serialized, filename);
-				log(LOGGER_WARN, "\nmatch found with asize %d, state count %d, eq queries %d. saved as %s.\n",
+				my_logger(LOGGER_WARN, "\nmatch found with asize %d, state count %d, eq queries %d. saved as %s.\n",
 						asize, size, eq_queries, filename);
 				num++;
 			}
