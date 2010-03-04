@@ -10,24 +10,29 @@ using namespace libalf;
 
 int main()
 {
-	generic_integer_statistics stat;
+	generic_statistics stat;
 
 	stat["fnord"] = 23;
-
-	basic_string<int32_t> serial;
-
-	serial = ::serialize(stat);
+	stat["pi"] = 4.;
+	stat["x"] = false;
+	stat["y"] = true;
+	stat["z"] = "bla";
 
 	stat.print(cout);
 
-	cout << "\n";
+
+
+
+	basic_string<int32_t> serial;
+	serial = ::serialize(stat);
+	cout << "\n\n";
 	print_basic_string_2hl(serial, cout);
-	cout << "\n";
+	cout << "\n\n";
 
 
 
 
-	generic_integer_statistics fnord;
+	generic_statistics fnord;
 
 	serial_stretch s(serial.begin(), serial.end());
 

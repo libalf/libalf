@@ -30,17 +30,90 @@
 #include <map>
 #include <string>
 #include <iterator>
+#include <iostream>
 #include <ostream>
+#include <sstream>
+
+#include <libalf/serialize.h>
 
 namespace libalf {
 
 using namespace std;
 
 
-class generic_integer_statistics : public map<string, int> {
+enum statistic_type {
+	UNSET = 0,
+	INTEGER = 1,
+	DOUBLE = 2,
+	BOOL = 3,
+	STRING = 4
+};
+
+class statistic_data {
+	// FIXME: overload typecast-operator and throw if typecast to bad type.
+	private:
+		enum statistic_type type;
+
+		int i;
+		double d;
+		bool b;
+		string s;
+
+	public:
+		statistic_data();
+
+		enum statistic_type get_type();
+		void set_type(enum statistic_type type);
+
+		void unset();
+
+		void set_integer(int i);
+		bool get_integer(int & i);
+		inline statistic_data & operator=(const int & i) { set_integer(i); return *this; };
+
+		void set_double(double d);
+		bool get_double(double & d);
+		inline statistic_data & operator=(const double & d) {set_double(d); return *this; };
+
+		void set_bool(bool b);
+		bool get_bool(bool & b);
+		inline statistic_data & operator=(const bool & b) {set_bool(b); return *this; };
+
+		void set_string(string s);
+		bool get_string(string & s);
+		inline statistic_data & operator=(const string & s) {set_string(s); return *this; };
+
+		string to_string();
+		void print(ostream & os);
+
+		basic_string<int32_t> serialize();
+		bool deserialize(serial_stretch & serial);
+};
+
+// required for generic serialisation:
+inline basic_string<int32_t> serialize(statistic_data & s)			{ return s.serialize(); }
+inline bool deserialize(statistic_data & into, serial_stretch & serial)		{ return into.deserialize(serial); };
+
+class generic_statistics : public map<string, statistic_data> {
 	public:
 		string to_string();
 		void print(ostream & os);
+
+		inline void remove_property(const string & key)					{ this->erase(key); };
+
+		inline void unset_property(const string & key)					{ (*this)[key].unset(); };
+
+		inline void set_integer_property(const string & key, int value)			{ (*this)[key].set_integer(value); }
+		inline bool get_integer_property(const string & key, int & into)		{ return (*this)[key].get_integer(into); }
+
+		inline void set_double_property(const string & key, double value)		{ (*this)[key].set_double(value); }
+		inline bool get_double_property(const string & key, double & into)		{ return (*this)[key].get_double(into); }
+
+		inline void set_bool_property(const string & key, bool value)			{ (*this)[key].set_bool(value); }
+		inline bool get_bool_property(const string & key, bool & into)			{ return (*this)[key].get_bool(into); }
+
+		inline void set_string_property(const string & key, string value)		{ (*this)[key].set_string(value); }
+		inline bool get_string_property(const string & key, string & into)		{ return (*this)[key].get_string(into); }
 };
 
 class timing_statistics {
@@ -59,7 +132,6 @@ class timing_statistics {
 // -------------------------------------------------------------------------------------------------- //
 // EVERYTHING BELOW THIS LINE IS OBSOLETE AND WILL BE REMOVED AFTER ALL INTERFACES HAVE BEEN CHANGED. //
 // -------------------------------------------------------------------------------------------------- //
-
 
 class query_statistics {
 	public:	// data

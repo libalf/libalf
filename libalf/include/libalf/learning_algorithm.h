@@ -171,7 +171,7 @@ class learning_algorithm {
 		}}}
 
 		virtual memory_statistics get_memory_statistics() = 0;
-		virtual void receive_generic_statistics(generic_integer_statistics & stat) = 0;
+		virtual void receive_generic_statistics(generic_statistics & stat) = 0;
 
 		virtual timing_statistics get_timing_statistics()
 		{{{

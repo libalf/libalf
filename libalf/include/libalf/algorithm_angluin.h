@@ -1139,17 +1139,20 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 			return ret;
 		}}}
 
-		virtual void receive_generic_statistics(generic_integer_statistics & stat)
+		virtual void receive_generic_statistics(generic_statistics & stat)
 		{
 			int c, ut, lt, bytes;
 
 			typename angluin_table<answer, list< algorithm_angluin::simple_row<answer, vector<answer> > >, vector<answer> >::columnlist::iterator ci;
 			typename list< algorithm_angluin::simple_row<answer, vector<answer> > >::iterator ti;
 
-			stat["columns"] = c = this->column_names.size();
-			stat["upper_table"] = ut = this->upper_table.size();
-			stat["lower_table"] = lt = this->lower_table.size();
-			stat["words"] = c * (ut+lt);
+			c = this->column_names.size();
+			ut = this->upper_table.size();
+			lt = this->lower_table.size();
+			stat["columns"] = c;
+			stat["upper_table"] = ut;
+			stat["lower_table"] = lt;
+			stat["words"] = c*(ut+lt);
 
 			// approx. memory usage:
 			bytes = sizeof(this);
@@ -1166,6 +1169,7 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 			// table fields
 			bytes += sizeof(answer) * c * (ut+lt);
 
+			stat.set_integer_property("bytes", bytes);
 			stat["bytes"] = bytes;
 		}
 

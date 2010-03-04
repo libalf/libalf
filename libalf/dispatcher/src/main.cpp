@@ -121,8 +121,8 @@ char * dispatcher_version()
 					"%s\n"
 					"dispatcher protocol version %d\n"
 
-					"(c) 2008,2009 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University\n"
-					"          and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University\n"
+					"(c) 2008,2009,2010 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University\n"
+					"               and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University\n"
 					"Authors: Carsten Kern, Daniel Neider, David R. Piegdon, Stefan Rieger and Stefan Schulz\n"
 					"http://libalf.informatik.rwth-aachen.de/\n",
 					VERSION,

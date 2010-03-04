@@ -29,8 +29,8 @@
 #include <arpa/inet.h>
 #endif
 
-#include <string>
 #include <sstream>
+#include <string>
 #include <iterator>
 
 #include "libalf/statistics.h"
@@ -40,24 +40,139 @@ namespace libalf {
 using namespace std;
 
 
-
-string generic_integer_statistics::to_string()
+statistic_data::statistic_data()
 {{{
-	stringstream s;
-	print(s);
-	return s.str();
+	type = UNSET;
+}}}
+enum statistic_type statistic_data::get_type()
+{{{
+	return type;
+}}}
+void statistic_data::set_type(enum statistic_type type)
+{{{
+	this->type = type;
+	switch(type) {
+		case INTEGER: i = 0; break;
+		case DOUBLE: d = 0.; break;
+		case BOOL: b = false; break;
+		case STRING: s.clear(); break;
+		default: break;
+	};
+}}}
+void statistic_data::unset()
+{{{
+	type = UNSET;
+}}}
+void statistic_data::set_integer(int i)
+{{{
+	type = INTEGER; this->i = i;
+}}}
+bool statistic_data::get_integer(int & i)
+{{{
+	i = this->i; return (type == INTEGER);
+}}}
+void statistic_data::set_double(double d)
+{{{
+	type = DOUBLE; this->d = d;
+}}}
+bool statistic_data::get_double(double & d)
+{{{
+	d = this->d; return (type == DOUBLE);
+}}}
+void statistic_data::set_bool(bool b)
+{{{
+	type = BOOL; this->b = b;
+}}}
+bool statistic_data::get_bool(bool & b)
+{{{
+	b = this->b; return (type == BOOL);
+}}}
+void statistic_data::set_string(string s)
+{{{
+	type = STRING; this->s = s;
+}}}
+bool statistic_data::get_string(string & s)
+{{{
+	s = this->s; return (type = STRING);
+}}}
+string statistic_data::to_string()
+{{{
+	stringstream str; print(str); return str.str();
+}}}
+void statistic_data::print(ostream & os)
+{{{
+	switch(type) {
+		case INTEGER: os << i; break;
+		case DOUBLE: os << d; break;
+		case BOOL: os << b; break;
+		case STRING: os << s ; break;
+		default: break;
+	};
+}}}
+basic_string<int32_t> statistic_data::serialize()
+{{{
+	basic_string<int32_t> ret;
+
+	ret += ::serialize((int)type);
+
+	switch(type) {
+		case INTEGER: ret += ::serialize(i); break;
+		case DOUBLE: ret += ::serialize(d); break;
+		case BOOL: ret += ::serialize(b); break;
+		case STRING: ret += ::serialize(s); break;
+		default: break;
+	};
+
+	return ret;
+}}}
+bool statistic_data::deserialize(serial_stretch & serial)
+{{{
+	int t;
+	if(!::deserialize(t, serial)) return false;
+	type = (enum statistic_type) t;
+	switch(type) {
+		case INTEGER: if(!::deserialize(i, serial)) return false; break;
+		case DOUBLE: if(!::deserialize(d, serial)) return false; break;
+		case BOOL: if(!::deserialize(b, serial)) return false; break;
+		case STRING: if(!::deserialize(s, serial)) return false; break;
+		default: break;
+	}
+	return true;
 }}}
 
-void generic_integer_statistics::print(ostream & os)
+string generic_statistics::to_string()
 {{{
-	map<string, int>::iterator si;
+	stringstream str;
+	print(str);
+	return str.str();
+}}}
+void generic_statistics::print(ostream & os)
+{{{
+	map<string, statistic_data>::iterator i;
 
-	os << "{";
+	os << "statistics = { ";
 
-	for(si = this->begin(); si != this->end(); ++si)
-		os << " " << si->first << " = " << si->second << ";";
+	for(i = this->begin(); i != this->end(); ++i) {
+		switch( i->second.get_type() ) {
+			case UNSET: os << "(unset)"; break;
+			case INTEGER: os << "integer"; break;
+			case DOUBLE: os << "double"; break;
+			case BOOL: os << "bool"; break;
+			case STRING: os << "string"; break;
+			default: os << "(bad type)"; break;
+		};
+		os << " \"" << i->first << "\" = ";
+		if(i->second.get_type() == STRING) {
+			os << '"';
+			i->second.print(os);
+			os << '"';
+		} else {
+			i->second.print(os);
+		}
+		os << "; ";
+	}
 
-	os << " }; ";
+	os << "}; ";
 }}}
 
 
@@ -118,6 +233,7 @@ deserialization_failed:
 // -------------------------------------------------------------------------------------------------- //
 // EVERYTHING BELOW THIS LINE IS OBSOLETE AND WILL BE REMOVED AFTER ALL INTERFACES HAVE BEEN CHANGED. //
 // -------------------------------------------------------------------------------------------------- //
+
 
 query_statistics::query_statistics()
 {{{

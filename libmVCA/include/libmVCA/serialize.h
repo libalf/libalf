@@ -31,6 +31,8 @@
 # include <iterator>
 # include <vector>
 
+# include <cmath>
+
 # include <stdint.h>
 
 # ifdef _WIN32
@@ -58,11 +60,13 @@ class  serial_stretch {
 };
 
 // forward declarations
-inline                                  std::basic_string<int32_t> serialize(int a);
+inline                                  std::basic_string<int32_t> serialize(int a); // works for int, unsinged int, char and bool
+inline                                  std::basic_string<int32_t> serialize(double & a); // has to be reference, otherwise it is ambiguous with (int)
 inline                                  bool deserialize(int & into, serial_stretch & serial);
 inline                                  bool deserialize(unsigned int & into, serial_stretch & serial);
 inline                                  bool deserialize(bool & into, serial_stretch & serial);
 inline					bool deserialize(char & into, serial_stretch & serial);
+inline					bool deserialize(double & into, serial_stretch & serial);
 
 template <typename S, typename T>       std::basic_string<int32_t> serialize(std::pair<S, T> & p);
 template <typename S, typename T>       bool deserialize(std::pair<S, T> & p, serial_stretch & serial);
@@ -83,10 +87,27 @@ template <typename S>			bool deserialize(std::basic_string<S> & s, serial_stretc
 
 
 // int
-inline					std::basic_string<int32_t> serialize(int a) // works for int, unsinged int, char and bool.
+inline					std::basic_string<int32_t> serialize(int a) // works for int, unsinged int, char and bool
 {{{
 	std::basic_string<int32_t> ret;
 	ret += htonl(a);
+	return ret;
+}}}
+inline                                  std::basic_string<int32_t> serialize(double & a) // has to be reference, otherwise it is ambiguous with (int). NOTE that serialize/deserialize is not perfect for double. value may change slightly!
+{{{
+	std::basic_string<int32_t> ret;
+
+	int exponent;
+	double significand;
+	int sig2;
+
+	significand = std::frexp(a, &exponent);
+
+	sig2 = significand * (2 << 30);
+
+	ret += serialize(exponent);
+	ret += serialize(sig2);
+
 	return ret;
 }}}
 inline					bool deserialize(int & into, serial_stretch & serial)
@@ -115,6 +136,20 @@ inline					bool deserialize(char & into, serial_stretch & serial)
 	if(serial.empty()) return false;
 	into = ntohl(*serial);
 	serial.current++;
+	return true;
+}}}
+inline					bool deserialize(double & into, serial_stretch & serial)
+{{{
+	int exponent;
+	double significand;
+	int sig2;
+
+	if(!deserialize(exponent, serial)) return false;
+	if(!deserialize(sig2, serial)) return false;
+
+	significand = ((double)sig2) / (2 << 30);
+
+	into = ldexp(significand, exponent);
 	return true;
 }}}
 

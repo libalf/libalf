@@ -205,7 +205,7 @@ class mVCL_angluinlike : public learning_algorithm<answer> {
 			return ret;
 		}
 
-		virtual void receive_generic_statistics(generic_integer_statistics & stat)
+		virtual void receive_generic_statistics(generic_statistics & stat)
 		{
 			
 		}
