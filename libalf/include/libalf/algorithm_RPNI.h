@@ -258,9 +258,9 @@ class RPNI : public learning_algorithm<answer> {
 
 		virtual void print(ostream &os)
 		{{{
-			os << tostring();
+			os << to_string();
 		}}}
-		virtual string tostring()
+		virtual string to_string()
 		{{{
 			string s;
 			return s;
@@ -424,7 +424,7 @@ class RPNI : public learning_algorithm<answer> {
 								ofstream file;
 								snprintf(filename, 128, "eq-classes-%02d.dot", iteration);
 								file.open(filename);
-								file << this->my_knowledge->generate_dotfile(eq.equivalences);
+								file << this->my_knowledge->visualize(eq.equivalences);
 								file.close();
 								iteration++;
 #endif

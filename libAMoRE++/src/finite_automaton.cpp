@@ -132,7 +132,7 @@ bool finite_automaton::contains(list<int> & word)
 	return false;
 }}}
 
-string finite_automaton::generate_dotfile(bool exclude_negative_sinks)
+string finite_automaton::visualize(bool exclude_negative_sinks)
 {{{
 	basic_string<int32_t> serialized;
 	basic_string<int32_t>::iterator si;

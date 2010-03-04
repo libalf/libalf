@@ -93,12 +93,12 @@ int main(int argc, char**argv)
 		return 1;
 	}
 
-	file.open("original-nfa.dot"); file << nfa->generate_dotfile(); file.close();
+	file.open("original-nfa.dot"); file << nfa->visualize(); file.close();
 
 	dfa = nfa->determinize();
 	delete nfa;
 	dfa->minimize();
-	file.open("original-dfa.dot"); file << dfa->generate_dotfile(); file.close();
+	file.open("original-dfa.dot"); file << dfa->visualize(); file.close();
 
 	alphabet_size = dfa->get_alphabet_size();
 
@@ -138,7 +138,7 @@ int main(int argc, char**argv)
 		delete cj;
 
 		snprintf(filename, 128, "hypothesis.dot");
-		file.open(filename); file << hypothesis->generate_dotfile(); file.close();
+		file.open(filename); file << hypothesis->visualize(); file.close();
 
 		finite_automaton * ndifference, * difference;
 		ndifference = dfa->lang_symmetric_difference( *hypothesis );
@@ -147,7 +147,7 @@ int main(int argc, char**argv)
 		difference->minimize();
 
 		snprintf(filename, 128, "difference.dot");
-		file.open(filename); file << difference->generate_dotfile(); file.close();
+		file.open(filename); file << difference->visualize(); file.close();
 
 		delete difference;
 

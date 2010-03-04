@@ -97,14 +97,14 @@ bool test_superset(finite_automaton & superset, finite_automaton & subset, int &
 		cout << " BAD(" << bad_count << ")\n";
 
 		snprintf(filename, 128, "cex%04d-superset.dot", bad_count);
-		file.open(filename); file << superset.generate_dotfile(); file.close();
+		file.open(filename); file << superset.visualize(); file.close();
 
 		snprintf(filename, 128, "cex%04d-superset.ser", bad_count);
 		serial = superset.serialize();
 		libalf::basic_string_to_file(serial, filename);
 
 		snprintf(filename, 128, "cex%04d-subset.dot", bad_count);
-		file.open(filename); file << subset.generate_dotfile(); file.close();
+		file.open(filename); file << subset.visualize(); file.close();
 
 		snprintf(filename, 128, "cex%04d-subset.ser", bad_count);
 		serial = subset.serialize();

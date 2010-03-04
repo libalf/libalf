@@ -175,7 +175,7 @@ class mVCA {
 		basic_string<int> serialize();
 		bool deserialize(serial_stretch & serial);
 
-		string generate_dotfile();
+		string visualize();
 
 		// create a complete automaton from this automaton. i.e. add the implicit sink state
 		// and transitions to it.

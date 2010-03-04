@@ -219,7 +219,7 @@ class learning_algorithm {
 		{ result.clear(); return false; };
 
 		virtual void print(ostream &os) = 0;
-		virtual string tostring() = 0;
+		virtual string to_string() = 0;
 
 		// check if a hypothesis can be constructed without any further queries
 		virtual bool conjecture_ready() = 0;

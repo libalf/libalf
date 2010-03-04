@@ -210,7 +210,7 @@ JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNILearningAlgorithm_tostring (JNIE
 
 	// Get string
 	string str;
-	str = algorithm->tostring();
+	str = algorithm->to_string();
 
 	//Convert string
 	const char* c = str.c_str();

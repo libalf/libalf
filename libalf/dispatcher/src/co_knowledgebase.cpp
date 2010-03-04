@@ -82,14 +82,14 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 		case KNOWLEDGEBASE_TO_DOTFILE:
 			if(command_data.size() != 0)
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
-			s = o->generate_dotfile();
+			s = o->visualize();
 			if(!this->sv->send_errno(ERR_SUCCESS))
 				return false;
 			return this->sv->client->stream_send_string(s.c_str());
 		case KNOWLEDGEBASE_TO_STRING:
 			if(command_data.size() != 0)
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
-			s = o->tostring();
+			s = o->to_string();
 			if(!this->sv->send_errno(ERR_SUCCESS))
 				return false;
 			return this->sv->client->stream_send_string(s.c_str());

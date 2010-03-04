@@ -232,7 +232,7 @@ class basic_biermann : public learning_algorithm<answer> {
 			}
 			os << "}\n";
 		}}}
-		virtual string tostring()
+		virtual string to_string()
 		// FIXME: print constraints etc from last run
 		{
 			string ret;

@@ -284,7 +284,7 @@ JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNIKnowledgebase_generate_1dotfile 
 
 	// Get string
 	string str;
-	str = base->generate_dotfile();
+	str = base->visualize();
 
 	//Convert string
 	const char* c = str.c_str();
@@ -328,7 +328,7 @@ JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNIKnowledgebase_tostring (JNIEnv *
 
 	// Get string
 	string str;
-	str = base->tostring();
+	str = base->to_string();
 
 	//Convert string
 	const char* c = str.c_str();

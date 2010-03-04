@@ -568,7 +568,7 @@ bool mVCA::deserialize(serial_stretch & serial)
 	return true;
 }}}
 
-string mVCA::generate_dotfile()
+string mVCA::visualize()
 {{{
 	string ret;
 	char buf[128];

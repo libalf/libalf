@@ -17,3 +17,4 @@ antichain:
 clean:
 	make -C amore_epsilon_closure clean
 	make -C amore_serialization clean
+	make -C antichain clean

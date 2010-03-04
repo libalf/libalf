@@ -195,9 +195,10 @@ class finite_automaton {
 		// an epsilon transition is denoted as -1
 		virtual bool construct(bool is_dfa, int alphabet_size, int state_count, set<int> &initial, set<int> &final, multimap<pair<int,int>, int> &transitions);
 
-		virtual string generate_dotfile(bool exclude_negative_sinks);
-		virtual string generate_dotfile()
-		{ return generate_dotfile(false); };
+		// create dotfile from automaton:
+		virtual string visualize(bool exclude_negative_sinks);
+		virtual string visualize()
+		{ return visualize(false); };
 
 	public:
 		// following are antichain-based algorithms for universality, inclusion and equality-tests for languages.

@@ -122,14 +122,14 @@ bool check_validity(logger & log, finite_automaton * model)
 				basic_string<int32_t> serialized;
 
 				snprintf(filename, 128, "model-%02d-mdfa.dot", bad);
-				file.open(filename); file << mdfa->generate_dotfile(); file.close();
+				file.open(filename); file << mdfa->visualize(); file.close();
 
 				snprintf(filename, 128, "model-%02d-mdfa.bs", bad);
 				serialized = mdfa->serialize();
 				basic_string_to_file(serialized, filename);
 
 				snprintf(filename, 128, "model-%02d-rpni.dot", bad);
-				file.open(filename); file << res->generate_dotfile(); file.close();
+				file.open(filename); file << res->visualize(); file.close();
 
 				snprintf(filename, 128, "model-%02d-rpni.bs", bad);
 				serialized = res->serialize();
@@ -140,7 +140,7 @@ bool check_validity(logger & log, finite_automaton * model)
 				basic_string_to_file(serialized, filename);
 
 				snprintf(filename, 128, "model-%02d-base.txt", bad);
-				file.open(filename); file << knowledge.tostring(); file.close();
+				file.open(filename); file << knowledge.to_string(); file.close();
 
 				bad++;
 				log(LOGGER_ERROR, "RPNI result differs from model! counterexample %s\n", word2string(cex).c_str());

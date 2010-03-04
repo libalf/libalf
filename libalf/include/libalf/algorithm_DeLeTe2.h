@@ -123,9 +123,9 @@ class DeLeTe2 : public learning_algorithm<answer> {
 
 		virtual void print(ostream &os)
 		{{{
-			os << tostring();
+			os << to_string();
 		}}}
-		virtual string tostring()
+		virtual string to_string()
 		{{{
 			string s;
 			return s;

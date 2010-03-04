@@ -1020,13 +1020,13 @@ class knowledgebase {
 
 			os << "}\n";
 		}}}
-		string tostring()
+		string to_string()
 		{{{
 			stringstream str;
 			this->print(str);
 			return str.str();
 		}}}
-		string generate_dotfile()
+		string visualize()
 		{{{
 			string ret;
 
@@ -1082,7 +1082,7 @@ class knowledgebase {
 			ret += "}\n";
 			return ret;
 		}}}
-		string generate_dotfile(equivalence_relation & eq)
+		string visualize(equivalence_relation & eq)
 		{{{
 			string ret;
 

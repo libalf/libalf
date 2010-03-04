@@ -85,13 +85,13 @@ int main(int argc, char**argv)
 	alphabet_size = nfa->get_alphabet_size();
 
 	{{{ /* dump original automata */
-//		file.open("original-nfa.dot"); file << nfa->generate_dotfile(); file.close();
+//		file.open("original-nfa.dot"); file << nfa->visualize(); file.close();
 
 		finite_automaton * dfa;
 		dfa = nfa->determinize();
 		dfa->minimize();
 		mindfa_statecount = dfa->get_state_count();
-//		file.open("original-dfa.dot"); file << dfa->generate_dotfile(); file.close();
+//		file.open("original-dfa.dot"); file << dfa->visualize(); file.close();
 		delete dfa;
 	}}}
 
@@ -135,7 +135,7 @@ int main(int argc, char**argv)
 	/*
 	snprintf(filename, 128, "knowledgebase%02d-final.dot", iteration);
 	file.open(filename);
-	file << knowledge.generate_dotfile();
+	file << knowledge.visualize();
 	file.close();
 	*/
 

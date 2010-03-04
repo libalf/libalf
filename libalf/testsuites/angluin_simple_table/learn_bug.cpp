@@ -273,7 +273,7 @@ int main(int argc, char**argv)
 	};
 
 
-	cout << knowledge.tostring();
+	cout << knowledge.to_string();
 	ot.print(cout);
 //	exit(0);
 
@@ -288,20 +288,20 @@ int main(int argc, char**argv)
 			// resolve missing knowledge:
 
 			snprintf(filename, 128, "knowledgebase%02d%c.dot", iteration, c);
-			file.open(filename); file << knowledge.generate_dotfile(); file.close();
+			file.open(filename); file << knowledge.visualize(); file.close();
 
 			// create query-tree
 			knowledgebase<ANSWERTYPE> * query;
 			query = knowledge.create_query_tree();
 
 			snprintf(filename, 128, "knowledgebase%02d%c-q.dot", iteration, c);
-			file.open(filename); file << query->generate_dotfile(); file.close();
+			file.open(filename); file << query->visualize(); file.close();
 
 			// answer queries
 			stats.queries.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*nfa, *query);
 
 			snprintf(filename, 128, "knowledgebase%02d%c-r.dot", iteration, c);
-			file.open(filename); file << query->generate_dotfile(); file.close();
+			file.open(filename); file << query->visualize(); file.close();
 
 			// merge answers into knowledgebase
 			knowledge.merge_knowledgebase(*query);
@@ -342,7 +342,7 @@ int main(int argc, char**argv)
 		}}}
 
 		snprintf(filename, 128, "hypothesis%02d.dot", iteration);
-		file.open(filename); file << hypothesis->generate_dotfile(); file.close();
+		file.open(filename); file << hypothesis->visualize(); file.close();
 
 		printf("hypothesis %02d state count %02d\n", iteration, hypothesis->get_state_count());
 		if(hypothesis_state_count >= hypothesis->get_state_count()) {
@@ -373,7 +373,7 @@ int main(int argc, char**argv)
 	iteration++;
 	snprintf(filename, 128, "knowledgebase%02d-final.dot", iteration);
 	file.open(filename);
-	file << knowledge.generate_dotfile();
+	file << knowledge.visualize();
 	file.close();
 
 	stats.memory = ot.get_memory_statistics();

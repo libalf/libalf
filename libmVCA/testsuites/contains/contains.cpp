@@ -126,11 +126,11 @@ int main(int argc, char**argv)
 	if( ! pa.saturate_preSTAR())
 		cout << "PA: saturation failed.\n";
 
-	cout << pa.generate_dotfile();
+	cout << pa.visualize();
 
 	ofstream file;
 	file.open("p-automaton.dot");
-	file << pa.generate_dotfile();
+	file << pa.visualize();
 	file.close();
 
 	printf("\n\n");
@@ -145,6 +145,6 @@ int main(int argc, char**argv)
 		printf("<0,0> is not in Pre*.\n");
 	}
 	cout << "\n\n";
-	cout << m->generate_dotfile();
+	cout << m->visualize();
 }
 

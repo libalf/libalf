@@ -314,7 +314,7 @@ list<int> p_automaton::get_shortest_valid_mVCA_run(int state, int m, bool & reac
 	return ret;
 }}}
 
-string p_automaton::generate_dotfile()
+string p_automaton::visualize()
 {{{
 	string ret;
 	char buf[128];

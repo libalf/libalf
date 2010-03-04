@@ -271,7 +271,7 @@ deserialization_failed:
 		{
 			
 		}
-		virtual string tostring()
+		virtual string to_string()
 		{
 			string ret;
 			

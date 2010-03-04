@@ -1384,7 +1384,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 	/*
 	 * Returns a string representation of the learning algorithm.
 	 */
-	string tostring() {
+	string to_string() {
 
 		stringstream dot;
 		print(dot);

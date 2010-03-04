@@ -88,12 +88,12 @@ int main(int argc, char**argv)
 	alphabet_size = nfa->get_alphabet_size();
 
 	{{{ /* dump original automata */
-		file.open("original-nfa.dot"); file << nfa->generate_dotfile(); file.close();
+		file.open("original-nfa.dot"); file << nfa->visualize(); file.close();
 
 		finite_automaton * dfa;
 		dfa = nfa->determinize();
 		dfa->minimize();
-		file.open("original-dfa.dot"); file << dfa->generate_dotfile(); file.close();
+		file.open("original-dfa.dot"); file << dfa->visualize(); file.close();
 
 		basic_string<int32_t> serial;
 		serial = dfa->serialize();
@@ -115,20 +115,20 @@ int main(int argc, char**argv)
 			// resolve missing knowledge:
 
 			snprintf(filename, 128, "knowledgebase%02d%c.dot", iteration, c);
-			file.open(filename); file << knowledge.generate_dotfile(); file.close();
+			file.open(filename); file << knowledge.visualize(); file.close();
 
 			// create query-tree
 			knowledgebase<ANSWERTYPE> * query;
 			query = knowledge.create_query_tree();
 
 			snprintf(filename, 128, "knowledgebase%02d%c-q.dot", iteration, c);
-			file.open(filename); file << query->generate_dotfile(); file.close();
+			file.open(filename); file << query->visualize(); file.close();
 
 			// answer queries
 			stats.queries.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*nfa, *query);
 
 			snprintf(filename, 128, "knowledgebase%02d%c-r.dot", iteration, c);
-			file.open(filename); file << query->generate_dotfile(); file.close();
+			file.open(filename); file << query->visualize(); file.close();
 
 			// merge answers into knowledgebase
 			knowledge.merge_knowledgebase(*query);
@@ -156,7 +156,7 @@ int main(int argc, char**argv)
 		}}}
 
 		snprintf(filename, 128, "hypothesis%02d.dot", iteration);
-		file.open(filename); file << hypothesis->generate_dotfile(); file.close();
+		file.open(filename); file << hypothesis->visualize(); file.close();
 
 		printf("hypothesis %02d state count %02d\n", iteration, hypothesis->get_state_count());
 		if(hypothesis_state_count >= hypothesis->get_state_count()) {
@@ -187,7 +187,7 @@ int main(int argc, char**argv)
 	iteration++;
 	snprintf(filename, 128, "knowledgebase%02d-final.dot", iteration);
 	file.open(filename);
-	file << knowledge.generate_dotfile();
+	file << knowledge.visualize();
 	file.close();
 
 	stats.memory = ot.get_memory_statistics();

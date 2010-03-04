@@ -127,7 +127,7 @@ int main(int argc, char**argv)
 					ofstream file;
 					basic_string<int32_t> serialized = model->serialize();
 					snprintf(filename, 128, "hit-a%d-s%d-%02d.dot", asize, size, num);
-					file.open(filename); file << model->generate_dotfile(); file.close();
+					file.open(filename); file << model->visualize(); file.close();
 					snprintf(filename, 128, "hit-a%d-s%d-%02d.atm", asize, size, num);
 					basic_string_to_file(serialized, filename);
 					my_logger(LOGGER_WARN, "\nmatch found with asize %d, state count %d, eq queries %d. saved as %s.\n",

@@ -146,7 +146,7 @@ model_too_big:
 					snprintf(modelfilename, 128, "model_%08d_%c.dot", model_index, (method == 2) ? 'R' : (method == 1) ? 'N' : (method == 0) ? 'D' : '?');
 
 					modelfile.open(modelfilename);
-					modelfile << model->generate_dotfile();
+					modelfile << model->visualize();
 					modelfile.close();
 
 					finite_automaton * tmp;

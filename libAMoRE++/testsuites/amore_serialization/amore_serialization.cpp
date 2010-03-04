@@ -71,14 +71,14 @@ int main(int argc, char**argv)
 	}
 
 	file.open("original-nfa.dot");
-	file << nfa->generate_dotfile();
+	file << nfa->visualize();
 	file.close();
 
 	dfa = nfa->determinize();
 	dfa->minimize();
 
 	file.open("original-dfa.dot");
-	file << dfa->generate_dotfile();
+	file << dfa->visualize();
 	file.close();
 
 
@@ -97,7 +97,7 @@ int main(int argc, char**argv)
 			cout << "nfaa serialization failed: not at end of blob.\n";
 		} else {
 			file.open("deserialized-nfa.dot");
-			file << nfa->generate_dotfile();
+			file << nfa->visualize();
 			file.close();
 		}
 	}
@@ -115,7 +115,7 @@ int main(int argc, char**argv)
 			cout << "dfaa serialization failed: not at end of blob.\n";
 		} else {
 			file.open("deserialized-dfa.dot");
-			file << dfa->generate_dotfile();
+			file << dfa->visualize();
 			file.close();
 		}
 	}

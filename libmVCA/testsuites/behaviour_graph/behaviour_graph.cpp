@@ -96,6 +96,6 @@ int main(int argc, char**argv)
 
 	amore::finite_automaton *a;
 	a = amore::construct_amore_automaton(f_is_deterministic, f_alphabet_size, f_state_count, f_initial_states, f_final_states, f_transitions);
-	cout << a->generate_dotfile();
+	cout << a->visualize();
 }
 

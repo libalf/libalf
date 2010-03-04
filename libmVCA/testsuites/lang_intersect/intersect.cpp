@@ -118,9 +118,9 @@ int main(int argc, char**argv)
 	}
 
 	ofstream file;
-	file.open("aNbcN1.dot"); file << aNbcN1->generate_dotfile(); file.close();
-	file.open("aNbcN3.dot"); file << aNbcN3->generate_dotfile(); file.close();
-	file.open("intersect.dot"); file << intersect->generate_dotfile(); file.close();
+	file.open("aNbcN1.dot"); file << aNbcN1->visualize(); file.close();
+	file.open("aNbcN3.dot"); file << aNbcN3->visualize(); file.close();
+	file.open("intersect.dot"); file << intersect->visualize(); file.close();
 
 	list<int> counterexample;
 	if(aNbcN1->lang_subset_of(*aNbcN3, counterexample)) {

@@ -128,7 +128,7 @@ class p_automaton {
 
 		list<int> get_shortest_valid_mVCA_run(int state, int m, bool & reachable);
 
-		string generate_dotfile();
+		string visualize();
 };
 
 

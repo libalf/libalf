@@ -247,7 +247,7 @@ class angluin_table : public learning_algorithm<answer> {
 			os << "}\n";
 		}}}
 
-		virtual string tostring()
+		virtual string to_string()
 		{{{
 			stringstream str;
 			this->print(str);
@@ -847,7 +847,7 @@ class angluin_table : public learning_algorithm<answer> {
 
 			if(fill_missing_columns(upper_table) && fill_missing_columns(lower_table)) {
 #ifdef DEBUG_ANGLUIN
-				(*this->my_logger)(LOGGER_DEBUG, "angluin_table: contents of table:\n%s\n", this->tostring().c_str());
+				(*this->my_logger)(LOGGER_DEBUG, "angluin_table: contents of table:\n%s\n", this->to_string().c_str());
 #endif
 				if(!close())
 					return complete();

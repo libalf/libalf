@@ -306,7 +306,7 @@ bool write_output(finite_automaton *& automaton, output out, string sampletype)
 			}
 			return true;
 		case output_dotfile:
-			cout << automaton->generate_dotfile();
+			cout << automaton->visualize();
 			return true;
 		case output_human_readable:
 			// nasty...
@@ -341,7 +341,7 @@ bool write_output(finite_automaton *& automaton, output out, string sampletype)
 				}
 			} else {
 				if(out == output_sample_text)
-					cout << base.tostring();
+					cout << base.to_string();
 			}
 
 			return true;

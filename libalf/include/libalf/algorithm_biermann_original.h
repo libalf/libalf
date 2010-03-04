@@ -202,7 +202,7 @@ class original_biermann : public learning_algorithm<answer> {
 		os << " Nondeterminism is " + nondeterminism << endl;
 	}
 
-	string tostring() {
+	string to_string() {
 		string ret;
 		ret = "Biermann and Feldmann's offline algorithm. Alphabet size is " + this->alphabet_size;
 		ret += " Nondeterminism is " + nondeterminism;

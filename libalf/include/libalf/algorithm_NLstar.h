@@ -133,7 +133,7 @@ fail:
 
 				}}}
 
-				string tostring()
+				string to_string()
 				{{{
 					string s;
 					typename acceptances::iterator acci;
@@ -324,10 +324,10 @@ deserialization_failed:
 
 		virtual void print(ostream &os)
 		{{{
-			os << this->tostring();
+			os << this->to_string();
 		}}}
 
-		virtual string tostring()
+		virtual string to_string()
 		{{{
 			string s;
 			typename columnlist::iterator ci;
@@ -342,12 +342,12 @@ deserialization_failed:
 			s += " ;\n\tupper table:\n";
 			for(ti = upper_table.begin(); ti != upper_table.end(); ti++) {
 				s += "\t\t";
-				s += ti->tostring();
+				s += ti->to_string();
 			}
 			s += "\n\tlower table:\n";
 			for(ti = lower_table.begin(); ti != lower_table.end(); ti++) {
 				s += "\t\t";
-				s += ti->tostring();
+				s += ti->to_string();
 			}
 			s += "}\n";
 
@@ -431,8 +431,7 @@ deserialization_failed:
 					if(row->covers(*ti)) {
 						merge |= *ti;
 						joined = true;
-//						s = ti->tostring(); t = merge.tostring();
-//						(*this->my_logger)(LOGGER_DEBUG, "\t\tjoining upper %s\t\t\t=> %s", s.c_str(), t.c_str());
+//						s = ti->to_string(); t = merge.to_string(); //						(*this->my_logger)(LOGGER_DEBUG, "\t\tjoining upper %s\t\t\t=> %s", s.c_str(), t.c_str());
 					}
 
 			// quick check if we are done
@@ -445,7 +444,7 @@ deserialization_failed:
 					if(row->covers(*ti)) {
 						joined = true;
 						merge |= *ti;
-//						s = ti->tostring(); t = merge.tostring();
+//						s = ti->to_string(); t = merge.to_string();
 //						(*this->my_logger)(LOGGER_DEBUG, "\t\tjoining lower %s\t\t\t=> %s", s.c_str(), t.c_str());
 					}
 
@@ -707,7 +706,7 @@ deserialization_failed:
 					if(ti->covers(**pri)) {
 						merge |= **pri;
 						joined = true;
-//						s = (*pri)->tostring(); t = merge.tostring();
+//						s = (*pri)->to_string(); t = merge.to_string();
 //						(*this->my_logger)(LOGGER_DEBUG, "\t\tjoining upper %s\t\t\t=> %s", s.c_str(), t.c_str());
 					}
 
@@ -835,7 +834,7 @@ deserialization_failed:
 				initialize_table();
 
 			if(fill_missing_columns(upper_table) && fill_missing_columns(lower_table)) {
-//				string s = this->tostring();
+//				string s = this->to_string();
 //				(*this->my_logger)(LOGGER_DEBUG, "----------------------- \n%s", s.c_str());
 				if(!close())
 					return complete();

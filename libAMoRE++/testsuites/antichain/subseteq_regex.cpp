@@ -71,11 +71,11 @@ int main(int argc, char**argv)
 
 		ofstream file;
 		file.open("r1.dot");
-		file << n1->generate_dotfile(true);
+		file << n1->visualize(true);
 		file.close();
 
 		file.open("r2.dot");
-		file << n2->generate_dotfile(true);
+		file << n2->visualize(true);
 		file.close();
 	}}}
 

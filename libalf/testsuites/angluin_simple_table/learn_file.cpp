@@ -97,13 +97,13 @@ int main(int argc, char**argv)
 	alphabet_size = nfa->get_alphabet_size();
 
 	{{{ /* dump original automata */
-		file.open("original-nfa.dot"); file << nfa->generate_dotfile(true); file.close();
+		file.open("original-nfa.dot"); file << nfa->visualize(true); file.close();
 
 		finite_automaton * dfa;
 		dfa = nfa->determinize();
 		dfa->minimize();
 		mindfa_statecount = dfa->get_state_count();
-		file.open("original-dfa.dot"); file << dfa->generate_dotfile(true); file.close();
+		file.open("original-dfa.dot"); file << dfa->visualize(true); file.close();
 		delete dfa;
 	}}}
 
@@ -173,7 +173,7 @@ int main(int argc, char**argv)
 		}}}
 
 		snprintf(filename, 128, "hypothesis%02d.dot", iteration);
-		file.open(filename); file << hypothesis->generate_dotfile(true); file.close();
+		file.open(filename); file << hypothesis->visualize(true); file.close();
 
 		// once an automaton is generated, test for equivalence with oracle_automaton
 		// if this test is ok, all worked well

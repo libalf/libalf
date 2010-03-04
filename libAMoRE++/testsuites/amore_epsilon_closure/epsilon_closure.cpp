@@ -80,7 +80,7 @@ int main()
 	}
 
 	file.open("original-nfa.dot");
-	file << nfa->generate_dotfile();
+	file << nfa->visualize();
 	file.close();
 
 	states.insert(1);
