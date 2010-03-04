@@ -1097,10 +1097,10 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		if(it == limit) return false;
 		switch(ntohl(*it)) {
 			case 0:
-				result += get_leaf_node_count();
+				result += htonl(get_leaf_node_count());
 				break;
 			case 1:
-				result += get_inner_node_count();
+				result += htonl(get_inner_node_count());
 				break;
 			case 2:
 				++it;
@@ -1108,7 +1108,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 				set_binary_search(ntohl(*it) != 0);
 				break;
 			case 3:
-				result += uses_binary_search() ? 1 : 0;
+				result += htonl(uses_binary_search() ? 1 : 0);
 				break;
 			default:
 				return false;
