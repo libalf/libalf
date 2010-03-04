@@ -67,8 +67,6 @@ class statistic_data_bad_typecast_e : public exception {
 class statistic_data {
 	// FIXME: overload typecast-operator and throw if typecast to bad type.
 	private:
-
-
 		enum statistic_type type;
 
 		int i;
@@ -79,37 +77,37 @@ class statistic_data {
 	public:
 		statistic_data();
 
+		string to_string();
+		void print(ostream & os);
+
+		basic_string<int32_t> serialize();
+		bool deserialize(serial_stretch & serial);
+
 		enum statistic_type get_type();
 		void set_type(enum statistic_type type);
 
 		void unset();
 
 		void set_integer(int i);
-		bool get_integer(int & i);
-		inline statistic_data & operator=(const int & i) { set_integer(i); return *this; };
-		inline operator int() throw (statistic_data_bad_typecast_e) { if(type == INTEGER) return i; else throw statistic_data_bad_typecast_e(type, INTEGER); };
-
 		void set_double(double d);
-		bool get_double(double & d);
-		inline statistic_data & operator=(const double & d) { set_double(d); return *this; };
-		inline operator double() throw (statistic_data_bad_typecast_e) { if(type == DOUBLE) return d; else throw statistic_data_bad_typecast_e(type, DOUBLE); };
-
 		void set_bool(bool b);
-		bool get_bool(bool & b);
-		inline statistic_data & operator=(const bool & b) { set_bool(b); return *this; };
-		inline operator bool() throw (statistic_data_bad_typecast_e) { if(type == BOOL) return b; else throw statistic_data_bad_typecast_e(type, BOOL); };
-
 		void set_string(string s);
+
+		bool get_integer(int & i);
+		bool get_double(double & d);
+		bool get_bool(bool & b);
 		bool get_string(string & s);
+
+		inline statistic_data & operator=(const int & i) { set_integer(i); return *this; };
+		inline statistic_data & operator=(const double & d) { set_double(d); return *this; };
+		inline statistic_data & operator=(const bool & b) { set_bool(b); return *this; };
 		inline statistic_data & operator=(const string & s) { set_string(s); return *this; };
 		inline statistic_data & operator=(const char * c) { set_string(c); return *this; };
+
+		inline operator int() throw (statistic_data_bad_typecast_e) { if(type == INTEGER) return i; else throw statistic_data_bad_typecast_e(type, INTEGER); };
+		inline operator double() throw (statistic_data_bad_typecast_e) { if(type == DOUBLE) return d; else throw statistic_data_bad_typecast_e(type, DOUBLE); };
+		inline operator bool() throw (statistic_data_bad_typecast_e) { if(type == BOOL) return b; else throw statistic_data_bad_typecast_e(type, BOOL); };
 		inline operator string() throw (statistic_data_bad_typecast_e) { if(type == STRING) return s; else throw statistic_data_bad_typecast_e(type, STRING); };
-
-		string to_string();
-		void print(ostream & os);
-
-		basic_string<int32_t> serialize();
-		bool deserialize(serial_stretch & serial);
 };
 
 // required for generic serialisation:

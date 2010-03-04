@@ -46,7 +46,7 @@ int main()
 
 	try {
 		foo = (string)fnord["z"];
-		cout << "got \"" << foo << "\" for >z<.\n";
+		cout << "\ngot \"" << foo << "\" for >z<.\n";
 	}
 	catch (statistic_data_bad_typecast_e & e) {
 		cerr << "\nexception caught: " << e.what() << " : " << e.get_type_information() << "\n";
