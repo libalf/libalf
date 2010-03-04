@@ -39,14 +39,19 @@ namespace libalf {
 
 using namespace std;
 
-
-const char * statistic_data_bad_typecast_e::what() const throw()
-{ return "bad typecast of generic statistic variable"; };
-
-static const char * typenames[] = {
+const char * typenames[] = {
 	"unset", "integer", "double", "bool", "string"
 };
 
+
+statistic_data_bad_typecast_e::statistic_data_bad_typecast_e(enum statistic_type vartype, enum statistic_type casttype)
+{{{
+	this->vartype = vartype; this->casttype = casttype;
+}}}
+const char * statistic_data_bad_typecast_e::what() const throw()
+{{{
+	return "bad typecast of generic statistic variable";
+}}}
 string statistic_data_bad_typecast_e::get_type_information()
 {{{
 	stringstream str;
@@ -167,21 +172,16 @@ void generic_statistics::print(ostream & os)
 	os << "statistics = { ";
 
 	for(i = this->begin(); i != this->end(); ++i) {
-		switch( i->second.get_type() ) {
-			case UNSET: os << "(unset)"; break;
-			case INTEGER: os << "integer"; break;
-			case DOUBLE: os << "double"; break;
-			case BOOL: os << "bool"; break;
-			case STRING: os << "string"; break;
-			default: os << "(bad type)"; break;
-		};
-		os << " \"" << i->first << "\" = ";
-		if(i->second.get_type() == STRING) {
-			os << '"';
-			i->second.print(os);
-			os << '"';
-		} else {
-			i->second.print(os);
+		os << typenames[i->second.get_type()] << " \"" << i->first << "\"";
+		if(i->second.get_type() != UNSET) {
+			os << " = ";
+			if(i->second.get_type() == STRING) {
+				os << '"';
+				i->second.print(os);
+				os << '"';
+			} else {
+				i->second.print(os);
+			}
 		}
 		os << "; ";
 	}

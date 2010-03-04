@@ -51,21 +51,19 @@ enum statistic_type {
 	STRING = 4
 };
 
+extern const char * typenames[];
+
 class statistic_data_bad_typecast_e : public exception {
 	private:
 		enum statistic_type vartype;
 		enum statistic_type casttype;
 	public:
-		statistic_data_bad_typecast_e(enum statistic_type vartype, enum statistic_type casttype)
-		{ this->vartype = vartype; this->casttype = casttype; };
-
+		statistic_data_bad_typecast_e(enum statistic_type vartype, enum statistic_type casttype);
 		virtual const char * what() const throw();
-
 		string get_type_information();
 };
 
 class statistic_data {
-	// FIXME: overload typecast-operator and throw if typecast to bad type.
 	private:
 		enum statistic_type type;
 

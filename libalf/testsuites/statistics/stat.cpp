@@ -17,6 +17,7 @@ int main()
 	stat["x"] = false;
 	stat["y"] = true;
 	stat["z"] = "bla";
+	stat["Asdf"];
 
 	stat.print(cout);
 
