@@ -64,7 +64,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		/* 
 		 * Creates a new node.
 		 */ 
-		node (list<int> label, int level) {
+		node (list<int> &label, int level) {
 			this->label = label;
 			this->level = level;
 		}
@@ -92,7 +92,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		 *
 		 * Takes A label, a level and its left and right children as arguments.
 		 */
-		inner_node (list<int> label, int level, node *left_child, node *right_child)
+		inner_node (list<int> &label, int level, node *left_child, node *right_child)
 		: node (label, level) {
 			this->left_child = left_child;
 			this->right_child = right_child;
@@ -127,7 +127,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		 * Takes a label, a level, an id, the accepting condition of the currently
 		 * used alphabet size as parameters.
 		 */
-		leaf_node (list<int> label, int level, int id, bool accepting, int alphabet_size)
+		leaf_node (list<int> &label, int level, int id, bool accepting, int alphabet_size)
 		: node (label, level) {
 			this->id = id;
 			this->accepting = accepting;
@@ -295,9 +295,9 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		 * The constructor takes the the counter-example and a pointer to the
 		 * learning algorithm as parameters.
 		 */
-		add_counterexample_linearsearch_task(const list<int> &ce, kearns_vazirani *kv) {
+		add_counterexample_linearsearch_task(const list<int> &counterexample, kearns_vazirani *kv) {
 			// Store and initialize parameters
-			this->counterexample = ce;
+			this->counterexample = counterexample;
 			this->sift_node = kv->root;
 			this->kv = kv;
 			position = 1;
@@ -460,7 +460,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		/*
 		 * Constructor: 
 		 */
-		add_counterexample_binarysearch_task(list<int> counterexample, kearns_vazirani *kv) {
+		add_counterexample_binarysearch_task(list<int> &counterexample, kearns_vazirani *kv) {
 			// Store and initialize parameters
 			this->counterexample = counterexample;
 			this->kv = kv;
@@ -933,11 +933,6 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		// Initial variables
 		initial_phase = true;
 		this->root = NULL;
-		
-		// Query the empty word
-		list<int> epsilon;
-		answer a;
-		this->my_knowledge->resolve_or_add_query(epsilon, a);
 	}
 	
 	/*
@@ -952,11 +947,6 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		// Initial variables
 		initial_phase = true;
 		this->root = NULL;
-		
-		// Query the empty word
-		list<int> epsilon;
-		answer a;
-		this->my_knowledge->resolve_or_add_query(epsilon, a);
 	}
 	
 	/*
@@ -1148,20 +1138,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		// Counter-example is not classified correctly
 		answer a;
 		if(this->my_knowledge->resolve_query(counter_example, a)) {
-			if(initial_phase) {
-				answer b;
-				list<int> empty;
-				
-				if(!this->my_knowledge->resolve_query(empty, b)) {
-					(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: the empty string is not answered. Cannot add a counter-example.\n");
-					return false;
-				} else {
-					if(a == b) {
-						(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: the counter-example is invalid.\n");
-						return false;
-					}
-				}
-			} else {
+			if(!initial_phase) {
 				if(a == simulate_run(counter_example)->accepting) {
 					(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: invalid counter-example!\n");
 					return false;
@@ -1339,22 +1316,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 				}
 				
 			}
-
-			
-			// DEBUG
-#if 0
-			int tr_count = 0;
-			multimap<pair<int, int>, int>::iterator it;
-			for(it = automaton->transitions.begin(); it != automaton->transitions.end(); it++) {
-				cout << "(" << it->first.first << ", " << it->first.second << ", " << it->second << ")" << endl;
-			}
-			
-			if(automaton->transitions.size() != automaton->state_count * automaton->alphabet_size)
-				cout << tostring() << endl;
-#endif
-			// END DEBUG
-			
-			
+		
 			return automaton;
 		}
 	}
