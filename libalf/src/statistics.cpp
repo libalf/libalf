@@ -118,7 +118,7 @@ void statistic_data::print(ostream & os)
 	switch(type) {
 		case INTEGER: os << i; break;
 		case DOUBLE: os << d; break;
-		case BOOL: os << b; break;
+		case BOOL: os << (b ? "true" : "false"); break;
 		case STRING: os << s ; break;
 		default: break;
 	};
