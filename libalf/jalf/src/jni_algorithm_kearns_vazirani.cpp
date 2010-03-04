@@ -60,6 +60,17 @@ JNIEXPORT jlong JNICALL Java_de_libalf_jni_JNIAlgorithmKearnsVazirani_init__JIJ 
 	return ((jlong)algorithm);
 }
 
+JNIEXPORT jlong JNICALL Java_de_libalf_jni_JNIAlgorithmKearnsVazirani_init__JIZ (JNIEnv *env, jobject obj, jlong knowledgebase_pointer, jint alphabet_size, jboolean use_binary_search) {
+	// Get the knowledgebase object
+	knowledgebase<bool> *base = (knowledgebase<bool>*) knowledgebase_pointer;
+	
+	/*
+	 * Return the new object
+	 */
+	learning_algorithm<bool>* algorithm = new kearns_vazirani<bool>(base, NULL, alphabet_size, use_binary_search);
+	return ((jlong)algorithm);
+}
+
 JNIEXPORT jlong JNICALL Java_de_libalf_jni_JNIAlgorithmKearnsVazirani_init__JIJZ (JNIEnv *env, jobject obj, jlong knowledgebase_pointer, jint alphabet_size, jlong logger_pointer, jboolean use_binary_search) {
 	// Get the knowledgebase object
 	knowledgebase<bool> *base = (knowledgebase<bool>*) knowledgebase_pointer;

@@ -140,11 +140,40 @@ public class JNIAlgorithmKearnsVazirani extends JNILearningAlgorithm {
 	public JNIAlgorithmKearnsVazirani(Knowledgebase knowledgebase, int alphabet_size,
 			Logger logger, boolean use_binary_search) {
 		this.knowledgebase = (JNIKnowledgebase) knowledgebase;
-		this.logger = (JNIBufferedLogger) logger;
-		this.pointer = init(this.knowledgebase.getPointer(), alphabet_size,
+		if(logger != null) {
+			this.logger = (JNIBufferedLogger) logger;
+			this.pointer = init(this.knowledgebase.getPointer(), alphabet_size,
 				this.logger.getPointer(), use_binary_search);
+		} else {
+			this.logger = null;
+			this.pointer = init(this.knowledgebase.getPointer(), alphabet_size,
+				use_binary_search);
+		}
 	}
 
+	/**
+	 * <p>
+	 * <em>JNI method call:</em>
+	 * </p>
+	 * Invokes the JNI interface to initialize a new C++
+	 * <code>kearns_vazirani</code> object with the pointer to a
+	 * <code>knowledgebase</code>, the size of the alphabet, a pointer to a
+	 * <code>buffered_logger</code>, and whether to use a binary search to analyze
+	 * counter-examples. The pointer to the new created C++ object is returned.
+	 * 
+	 * @param knowledgebase_pointer
+	 *            a pointer to a knowledgebase C++ object
+	 * @param alphabet_size
+	 *            the size of the used alphabet
+	 * @param use_binary_search
+	 *            decides whether to use a binary search <code>true</code>) or
+	 *            a linear search (<code>false</code>) when analyzing counter-
+	 *            examples.
+	 * @return a pointer to the memory location of the new C++ object.
+	 */
+	native long init(long knowledgebase_pointer, int alphabet_size,
+			boolean use_binary_search);
+	
 	/**
 	 * <p>
 	 * <em>JNI method call:</em>

@@ -446,6 +446,8 @@ public class DispatcherFactory implements LibALFFactory {
 				return new DispatcherAlgorithmKearnsVazirani(this, (Knowledgebase) args[0], (Integer) args[1], null);
 			else if (args.length == 3)
 				return new DispatcherAlgorithmKearnsVazirani(this, (Knowledgebase) args[0], (Integer) args[1], (Logger) args[2]);
+			else if (args.length == 4)
+				return new DispatcherAlgorithmKearnsVazirani(this, (Knowledgebase) args[0], (Integer) args[1], (Logger) args[2], (Boolean) args[3]);
 			else
 				throw new AlfException("Invalid parameters for creating Kearns-Vazirani learning algorithm: " + args.length + ".");
 

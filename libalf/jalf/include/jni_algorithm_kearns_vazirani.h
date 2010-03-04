@@ -32,6 +32,14 @@ JNIEXPORT jlong JNICALL Java_de_libalf_jni_JNIAlgorithmKearnsVazirani_init__JIJ
 /*
  * Class:     de_libalf_jni_JNIAlgorithmKearnsVazirani
  * Method:    init
+ * Signature: (JIZ)J
+ */
+JNIEXPORT jlong JNICALL Java_de_libalf_jni_JNIAlgorithmKearnsVazirani_init__JIZ
+  (JNIEnv *, jobject, jlong, jint, jboolean);
+
+/*
+ * Class:     de_libalf_jni_JNIAlgorithmKearnsVazirani
+ * Method:    init
  * Signature: (JIJZ)J
  */
 JNIEXPORT jlong JNICALL Java_de_libalf_jni_JNIAlgorithmKearnsVazirani_init__JIJZ

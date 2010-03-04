@@ -305,15 +305,12 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			
 			// Make initial prefix
 			make_prefix();
-			
-			cout << "Constructed " << this << endl;
 		}
 
 		/*
 		 * Descrutor
 		 */
 		~add_counterexample_linearsearch_task() {
-			cout << "Deleted " << this << endl;
 			delete prefix;
 		}
 

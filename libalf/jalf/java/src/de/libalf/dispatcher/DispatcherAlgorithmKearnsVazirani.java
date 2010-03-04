@@ -31,4 +31,43 @@ public class DispatcherAlgorithmKearnsVazirani extends DispatcherLearningAlgorit
 	public DispatcherAlgorithmKearnsVazirani(DispatcherFactory factory, Knowledgebase base, int alphabet_size, Logger logger) {
 		super(factory, DispatcherConstants.ALG_KEARNS_VAZIRANI, base, alphabet_size, logger);
 	}
+	
+	public DispatcherAlgorithmKearnsVazirani(DispatcherFactory factory, Knowledgebase base, int alphabet_size, Logger logger, boolean use_binary_search) {
+		super(factory, DispatcherConstants.ALG_KEARNS_VAZIRANI, base, alphabet_size, logger);
+		
+		set_binary_search(use_binary_search);
+	}
+	
+	// Commmnd 0
+	public int get_leaf_node_count() {
+		int[] magic = deserialize_magic(new int[]{0});
+		if (magic.length != 1)
+			throw new DispatcherProtocolException("unexpected answer length");
+		return magic[0];
+	}
+	
+	// Commmnd 1
+	public int get_inner_node_count() {
+		int[] magic = deserialize_magic(new int[]{1});
+		if (magic.length != 1)
+			throw new DispatcherProtocolException("unexpected answer length");
+		return magic[0];
+	}
+	
+	// Commmnd 2
+	public void set_binary_search(boolean use_binary_search) {
+		int[] data = new int[2];
+		data[0] = 2;
+		data[1] = use_binary_search ? 1 : 0;
+		
+		int[] magic = deserialize_magic(data);
+	}
+	
+	// Commmnd 3
+	public boolean uses_binary_search() {
+		int[] magic = deserialize_magic(new int[]{3});
+		if (magic.length != 1)
+			throw new DispatcherProtocolException("unexpected answer length");
+		return magic[0] != 0;
+	}
 }

@@ -54,7 +54,7 @@ int main(int argc, char**argv)
 	char filename[128];
 	ofstream file;
 
-	int iteration;
+	int iteration = 0;
 	bool success = false;
 
 	int alphabet_size;
@@ -143,6 +143,7 @@ int main(int argc, char**argv)
 		
 		// END DEBUG
 		
+		ot.tostring();
 		
 		if(hypothesis)
 			delete hypothesis;
