@@ -51,7 +51,7 @@ enum statistic_type {
 	STRING = 4
 };
 
-extern const char * typenames[];
+extern const char * statistic_typenames[];
 
 class statistic_data_bad_typecast_e : public exception {
 	private:
@@ -67,10 +67,12 @@ class statistic_data {
 	private:
 		enum statistic_type type;
 
-		int i;
-		double d;
-		bool b;
-		string s;
+		union {
+			int i;
+			double d;
+			bool b;
+		};
+		string s; // can't put this into the union cause its a class
 
 	public:
 		statistic_data();
@@ -96,21 +98,22 @@ class statistic_data {
 		bool get_bool(bool & b);
 		bool get_string(string & s);
 
-		inline statistic_data & operator=(const int & i) { set_integer(i); return *this; };
-		inline statistic_data & operator=(const double & d) { set_double(d); return *this; };
-		inline statistic_data & operator=(const bool & b) { set_bool(b); return *this; };
-		inline statistic_data & operator=(const string & s) { set_string(s); return *this; };
-		inline statistic_data & operator=(const char * c) { set_string(c); return *this; };
+		inline statistic_data & operator=(const int & i)    { set_integer(i); return *this; };
+		inline statistic_data & operator=(const double & d) { set_double(d);  return *this; };
+		inline statistic_data & operator=(const bool & b)   { set_bool(b);    return *this; };
+		inline statistic_data & operator=(const string & s) { set_string(s);  return *this; };
+		inline statistic_data & operator=(const char * c)   { set_string(c);  return *this; };
 
-		inline operator int() throw (statistic_data_bad_typecast_e) { if(type == INTEGER) return i; else throw statistic_data_bad_typecast_e(type, INTEGER); };
-		inline operator double() throw (statistic_data_bad_typecast_e) { if(type == DOUBLE) return d; else throw statistic_data_bad_typecast_e(type, DOUBLE); };
-		inline operator bool() throw (statistic_data_bad_typecast_e) { if(type == BOOL) return b; else throw statistic_data_bad_typecast_e(type, BOOL); };
-		inline operator string() throw (statistic_data_bad_typecast_e) { if(type == STRING) return s; else throw statistic_data_bad_typecast_e(type, STRING); };
+		inline operator int()	 throw (statistic_data_bad_typecast_e) { if(type == INTEGER) return i; else throw statistic_data_bad_typecast_e(type, INTEGER); };
+		inline operator double() throw (statistic_data_bad_typecast_e) { if(type == DOUBLE)  return d; else throw statistic_data_bad_typecast_e(type, DOUBLE);  };
+		inline operator bool()	 throw (statistic_data_bad_typecast_e) { if(type == BOOL)    return b; else throw statistic_data_bad_typecast_e(type, BOOL);    };
+		inline operator string() throw (statistic_data_bad_typecast_e) { if(type == STRING)  return s; else throw statistic_data_bad_typecast_e(type, STRING);  };
 };
 
 // required for generic serialisation:
 inline basic_string<int32_t> serialize(statistic_data & s)			{ return s.serialize(); }
 inline bool deserialize(statistic_data & into, serial_stretch & serial)		{ return into.deserialize(serial); };
+
 
 class generic_statistics : public map<string, statistic_data> {
 	public:
@@ -133,6 +136,7 @@ class generic_statistics : public map<string, statistic_data> {
 		inline void set_string_property(const string & key, string value)		{ (*this)[key].set_string(value); }
 		inline bool get_string_property(const string & key, string & into)		{ return (*this)[key].get_string(into); }
 };
+
 
 class timing_statistics {
 	public:	// data

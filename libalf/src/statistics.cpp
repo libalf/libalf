@@ -39,7 +39,7 @@ namespace libalf {
 
 using namespace std;
 
-const char * typenames[] = {
+const char * statistic_typenames[] = {
 	"unset", "integer", "double", "bool", "string"
 };
 
@@ -55,7 +55,7 @@ const char * statistic_data_bad_typecast_e::what() const throw()
 string statistic_data_bad_typecast_e::get_type_information()
 {{{
 	stringstream str;
-	str << "casting " << typenames[vartype] << " to " << typenames[casttype];
+	str << "casting " << statistic_typenames[vartype] << " to " << statistic_typenames[casttype];
 	return str.str();
 }}}
 
@@ -172,7 +172,7 @@ void generic_statistics::print(ostream & os)
 	os << "statistics = { ";
 
 	for(i = this->begin(); i != this->end(); ++i) {
-		os << typenames[i->second.get_type()] << " \"" << i->first << "\"";
+		os << statistic_typenames[i->second.get_type()] << " \"" << i->first << "\"";
 		if(i->second.get_type() != UNSET) {
 			os << " = ";
 			if(i->second.get_type() == STRING) {
