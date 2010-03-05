@@ -88,7 +88,6 @@ class mVCL_angluinlike : public learning_algorithm<answer> {
 
 					return (sui == samples.end());
 				}}}
-
 		};
 
 		class equivalence_table : public list<equivalence_approximation> {

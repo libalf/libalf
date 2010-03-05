@@ -55,12 +55,10 @@ extern const char * statistic_typenames[];
 
 class statistic_data_bad_typecast_e : public std::exception {
 	private:
-		enum statistic_type vartype;
-		enum statistic_type casttype;
+		char buf[128];
 	public:
 		statistic_data_bad_typecast_e(enum statistic_type vartype, enum statistic_type casttype);
 		virtual const char * what() const throw();
-		string get_type_information();
 };
 
 class statistic_data {

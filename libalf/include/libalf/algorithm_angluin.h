@@ -1140,7 +1140,7 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 		}}}
 
 		virtual void receive_generic_statistics(generic_statistics & stat)
-		{
+		{{{
 			int c, ut, lt, bytes;
 
 			typename angluin_table<answer, list< algorithm_angluin::simple_row<answer, vector<answer> > >, vector<answer> >::columnlist::iterator ci;
@@ -1171,7 +1171,7 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 
 			stat.set_integer_property("bytes", bytes);
 			stat["bytes"] = bytes;
-		}
+		}}}
 
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
 		// FIXME: put initialized into serialized stream

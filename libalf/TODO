@@ -15,8 +15,6 @@ TODO (priority ordered)
 
 - angluin: mealy-machine
 
-- KVtree: fix/implement new
-
 - create debian packages (including jalf)
 
 - RPNI: check for correctness
@@ -40,7 +38,7 @@ TODO (priority ordered)
 
 - angluin: check undo and increase_alphabet_size()
 
-- NL*: add (de)serialize, normalizer and undo
+- NL*: add normalizer and undo
 
 - NL*: check increase_alphabet_size()
 

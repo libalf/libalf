@@ -39,24 +39,17 @@ namespace libalf {
 
 using namespace std;
 
-const char * statistic_typenames[] = {
-	"unset", "integer", "double", "bool", "string"
-};
+const char * statistic_typenames[] = { "unset", "integer", "double", "bool", "string", NULL };
 
 
 statistic_data_bad_typecast_e::statistic_data_bad_typecast_e(enum statistic_type vartype, enum statistic_type casttype)
 {{{
-	this->vartype = vartype; this->casttype = casttype;
+	snprintf(buf, 128, "bad typecast of generic statistic variable: casting %s to %s.",
+			statistic_typenames[vartype], statistic_typenames[casttype] );
 }}}
 const char * statistic_data_bad_typecast_e::what() const throw()
 {{{
-	return "bad typecast of generic statistic variable";
-}}}
-string statistic_data_bad_typecast_e::get_type_information()
-{{{
-	stringstream str;
-	str << "casting " << statistic_typenames[vartype] << " to " << statistic_typenames[casttype];
-	return str.str();
+	return buf;
 }}}
 
 statistic_data::statistic_data()
@@ -206,11 +199,11 @@ basic_string<int32_t> timing_statistics::serialize()
 {{{
 	basic_string<int32_t> ret;
 
-	ret += htonl(4);
-	ret += htonl(user_sec);
-	ret += htonl(user_usec);
-	ret += htonl(sys_sec);
-	ret += htonl(sys_usec);
+	ret += ::serialize(4);
+	ret += ::serialize(user_sec);
+	ret += ::serialize(user_usec);
+	ret += ::serialize(sys_sec);
+	ret += ::serialize(sys_usec);
 
 	return ret;
 }}}
@@ -218,29 +211,23 @@ bool timing_statistics::deserialize(basic_string<int32_t>::iterator & it, basic_
 {{{
 	int size;
 
-	if(it == limit) goto deserialization_failed;
+	serial_stretch serial;
+	serial.current = it;
+	serial.limit = limit;
 
-	// data size
-	size = ntohl(*it);
+	if(!::deserialize(size, serial)) goto deserialization_failed;
 	if(size != 4) goto deserialization_failed;
+	if(!::deserialize(user_sec, serial)) goto deserialization_failed;
+	if(!::deserialize(user_usec, serial)) goto deserialization_failed;
+	if(!::deserialize(sys_sec, serial)) goto deserialization_failed;
+	if(!::deserialize(sys_usec, serial)) goto deserialization_failed;
 
-	// user_sec
-	it++; if(limit == it) goto deserialization_failed;
-	user_sec = ntohl(*it);
-	// user_usec
-	it++; if(limit == it) goto deserialization_failed;
-	user_usec = ntohl(*it);
-	// sys_sec
-	it++; if(limit == it) goto deserialization_failed;
-	sys_sec = ntohl(*it);
-	// sys_usec
-	it++; if(limit == it) goto deserialization_failed;
-	sys_usec = ntohl(*it);
-
+	it = serial.current;
 	return true;
 
 deserialization_failed:
 	reset();
+	it = serial.current;
 	return false;
 }}}
 
