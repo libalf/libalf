@@ -146,7 +146,6 @@ int main(int argc, char**argv)
 			snprintf(filename, 128, "table%02d.text.NLstar", iteration);
 			file.open(filename); ot.print(file); file.close();
 
-			/*
 			serialized = ot.serialize();
 
 			snprintf(filename, 128, "table%02d.serialized.NLstar", iteration);
@@ -158,7 +157,14 @@ int main(int argc, char**argv)
 			}
 
 			file.close();
-			*/
+
+			serial_stretch ser(serialized);
+			if(!ot.deserialize(ser))
+				cerr << "deser failed.\n";
+			else
+				cerr << "deser ok.\n";
+			if(!ser.empty())
+				cerr << "deser: garbage at end.\n";
 		}}}
 
 		snprintf(filename, 128, "hypothesis%02d.dot", iteration);

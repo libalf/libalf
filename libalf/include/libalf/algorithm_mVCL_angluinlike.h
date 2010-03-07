@@ -232,15 +232,11 @@ class mVCL_angluinlike : public learning_algorithm<answer> {
 
 			return ret;
 		}}}
-		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+		virtual bool deserialize(serial_stretch & serial)
 		{{{
 			int size;
 
 			clear();
-
-			serial_stretch serial;
-			serial.current = it;
-			serial.limit = limit;
 
 			if(!::deserialize(size, serial)) goto deserialization_failed;
 			// total size: we don't care.
@@ -251,15 +247,13 @@ class mVCL_angluinlike : public learning_algorithm<answer> {
 			if(!::deserialize(known_equivalence_bound, serial)) goto deserialization_failed;
 			if(!::deserialize(table, serial)) goto deserialization_failed;
 
-			it = serial.current;
 			return true;
 deserialization_failed:
 			clear();
-			it = serial.current;
 			return false;
 		}}}
 
-		bool deserialize_magic(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, basic_string<int32_t> & result)
+		bool deserialize_magic(serial_stretch & serial, basic_string<int32_t> & result)
 		{
 			// FIXME: setting pushdown-directions of alphabet via this.
 			

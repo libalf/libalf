@@ -227,7 +227,7 @@ basic_string<int32_t> simple_automaton::serialize()
 
 	return ret;
 }}}
-bool simple_automaton::deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+bool simple_automaton::deserialize(serial_stretch & serial)
 {{{
 	int size;
 	int count;
@@ -237,72 +237,72 @@ bool simple_automaton::deserialize(basic_string<int32_t>::iterator &it, basic_st
 	final.clear();
 	transitions.clear();
 
-	if(limit == it)
+	if(serial.empty())
 		goto deserialization_failed_fast;
 
-	size = ntohl(*it);
+	size = ntohl(*serial);
 
 	// deterministic?
-	it++; if(size <= 0 || limit == it) goto deserialization_failed_fast;
-	s = ntohl(*it);
+	++serial; if(size <= 0 || serial.empty()) goto deserialization_failed_fast;
+	s = ntohl(*serial);
 	if(s != 0 && s != 1) goto deserialization_failed_fast;
 	is_deterministic = s;
 
 	// alphabet size
-	size--, it++; if(size <= 0 || limit == it) goto deserialization_failed_fast;
-	alphabet_size = ntohl(*it);
+	size--, ++serial; if(size <= 0 || serial.empty()) goto deserialization_failed_fast;
+	alphabet_size = ntohl(*serial);
 	if(alphabet_size < 1)
 		return false;
 
 	// state count
-	size--, it++; if(size <= 0 || limit == it) goto deserialization_failed_fast;
-	state_count = ntohl(*it);
+	size--, ++serial; if(size <= 0 || serial.empty()) goto deserialization_failed_fast;
+	state_count = ntohl(*serial);
 	if(state_count < 1)
 		return false;
 
 	// initial states
-	size--, it++; if(size <= 0 || limit == it) goto deserialization_failed_fast;
-	count = ntohl(*it);
+	size--, ++serial; if(size <= 0 || serial.empty()) goto deserialization_failed_fast;
+	count = ntohl(*serial);
 	if(count < 0)
 		return false;
 
 	for(s = 0; s < count; s++) {
-		size--, it++; if(size <= 0 || limit == it) goto deserialization_failed;
-		q = ntohl(*it);
+		size--, ++serial; if(size <= 0 || serial.empty()) goto deserialization_failed;
+		q = ntohl(*serial);
 		if(q >= state_count)
 			goto deserialization_failed;
 		initial.insert(q);
 	}
 
 	// final states
-	size--, it++; if(size <= 0 || limit == it) goto deserialization_failed;
-	count = ntohl(*it);
+	size--, ++serial; if(size <= 0 || serial.empty()) goto deserialization_failed;
+	count = ntohl(*serial);
 	if(count < 0)
 		return false;
 
 	for(s = 0; s < count; s++) {
-		size--, it++; if(size <= 0 || limit == it) goto deserialization_failed;
-		q = ntohl(*it);
+		size--, ++serial; if(size <= 0 || serial.empty()) goto deserialization_failed;
+		q = ntohl(*serial);
 		if(q >= state_count)
 			goto deserialization_failed;
 		final.insert(q);
 	}
 
 	// transitions
-	size--, it++; if(size <= 0 || limit == it) goto deserialization_failed;
-	count = ntohl(*it);
+	size--, ++serial; if(size <= 0 || serial.empty()) goto deserialization_failed;
+	count = ntohl(*serial);
 	if(count < 0)
 		return false;
 
 	for(s = 0; s < count; s++) {
 		int32_t src,label,dst;
 
-		size--, it++; if(size <= 0 || limit == it) goto deserialization_failed;
-		src = ntohl(*it);
-		size--, it++; if(size <= 0 || limit == it) goto deserialization_failed;
-		label = ntohl(*it);
-		size--, it++; if(size <= 0 || limit == it) goto deserialization_failed;
-		dst = ntohl(*it);
+		size--, ++serial; if(size <= 0 || serial.empty()) goto deserialization_failed;
+		src = ntohl(*serial);
+		size--, ++serial; if(size <= 0 || serial.empty()) goto deserialization_failed;
+		label = ntohl(*serial);
+		size--, ++serial; if(size <= 0 || serial.empty()) goto deserialization_failed;
+		dst = ntohl(*serial);
 
 		if( (label < -1) || (label >= alphabet_size) || (src < 0) || (src >= state_count) || (dst < 0) || (dst >= state_count) )
 			goto deserialization_failed;
@@ -313,7 +313,7 @@ bool simple_automaton::deserialize(basic_string<int32_t>::iterator &it, basic_st
 		transitions.insert( pair<pair<int, int>, int>( trid, dst ) );
 	}
 
-	size--, it++;
+	size--, ++serial;
 
 	if(size != 0)
 		goto deserialization_failed;
@@ -702,12 +702,8 @@ basic_string<int32_t> simple_mVCA::serialize()
 
 	return ret;
 }}}
-bool simple_mVCA::deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+bool simple_mVCA::deserialize(serial_stretch & serial)
 {{{
-	serial_stretch serial;
-	serial.current = it;
-	serial.limit = limit;
-
 	int size;
 	int type;
 	if(!::deserialize(size, serial)) goto fail;
@@ -748,11 +744,9 @@ bool simple_mVCA::deserialize(basic_string<int32_t>::iterator &it, basic_string<
 		if(!::deserialize(transitions, serial)) goto fail;
 	}
 
-	it = serial.current;
 	return true;
 fail:
 	clear();
-	it = serial.current;
 	return false;
 }}}
 string simple_mVCA::write()

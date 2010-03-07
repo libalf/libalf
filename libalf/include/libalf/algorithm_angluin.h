@@ -16,8 +16,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with libalf.  If not, see <http://www.gnu.org/licenses/>.
  *
- * (c) 2008,2009 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
- *           and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
+ * (c) 2008,2009,2010 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
+ *                and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
  * Author: David R. Piegdon <david-i2@piegdon.de>
  *
  */
@@ -149,6 +149,9 @@ class angluin_table : public learning_algorithm<answer> {
 			// implementation type
 			ret += htonl(learning_algorithm<answer>::ALG_ANGLUIN);
 
+			// initialized
+			ret += ::serialize(initialized);
+
 			// alphabet size
 			ret += htonl(this->get_alphabet_size());
 
@@ -179,7 +182,7 @@ class angluin_table : public learning_algorithm<answer> {
 		}}}
 
 		// (implementation specific)
-		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit) = 0;
+		virtual bool deserialize(serial_stretch & serial) = 0;
 
 		virtual void print(ostream &os)
 		{{{
@@ -996,84 +999,21 @@ class angluin_table : public learning_algorithm<answer> {
 				basic_string<int32_t> serialize()
 				{{{
 					basic_string<int32_t> ret;
-					basic_string<int32_t> temp;
-					typename acceptances::iterator acci;
 
-					// length (filled in later)
-					ret += 0;
-
-					// index
-					ret += serialize_word(this->index);
-
-					// ut timestamp
-					ret += htonl(ut_timestamp);
-
-					// lt timestamp
-					ret += htonl(lt_timestamp);
-
-					// accumulate acceptances
-					for(acci = this->acceptance.begin(); acci != this->acceptance.end(); acci++) {
-						temp += htonl((int32_t)(*acci));
-					}
-
-					// number of acceptances
-					ret += htonl(temp.length());
-					// acceptances
-					ret += temp;
-
-					ret[0] = htonl(ret.length() - 1);
+					ret += ::serialize(index);
+					ret += ::serialize(ut_timestamp);
+					ret += ::serialize(lt_timestamp);
+					ret += ::serialize(acceptance);
 
 					return ret;
 				}}}
 
-				bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+				bool deserialize(serial_stretch & serial)
 				{{{
-					int size;
-					int count;
-
-					index.clear();
-					acceptance.clear();
-
-					if(it == limit)
-						return false;
-					size = ntohl(*it);
-					it++; if(size <= 0 || it == limit) return false;
-
-					// index
-					if( ! deserialize_word(this->index, it, limit) )
-						goto deserialization_failed;
-					size -= this->index.size() + 1;
-					if(size <= 0 || it == limit) goto deserialization_failed;
-
-					// ut timestamp
-					ut_timestamp = ntohl(*it);
-					it++, size--;
-					if(it == limit || size <= 0)
-						goto deserialization_failed;
-
-					// lt timestamp
-					lt_timestamp = ntohl(*it);
-					it++, size--;
-					if(it == limit || size <= 0)
-						goto deserialization_failed;
-
-					// number of acceptances
-					count = ntohl(*it);
-					it++, size--;
-					if(size != count)
-						goto deserialization_failed;
-
-					// acceptances
-					for(/* -- */; count > 0 && it != limit; count--, it++) {
-						if(it == limit)
-							goto deserialization_failed;
-						answer a;
-						a = (int32_t)(ntohl(*it));
-						acceptance.push_back(a);
-					}
-
-					if(count)
-						goto deserialization_failed;
+					if(!::deserialize(index, serial)) goto deserialization_failed;
+					if(!::deserialize(ut_timestamp, serial)) goto deserialization_failed;
+					if(!::deserialize(lt_timestamp, serial)) goto deserialization_failed;
+					if(!::deserialize(acceptance, serial)) goto deserialization_failed;
 
 					return true;
 
@@ -1173,8 +1113,7 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 			stat["bytes"] = bytes;
 		}}}
 
-		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
-		// FIXME: put initialized into serialized stream
+		virtual bool deserialize(serial_stretch & serial)
 		{{{
 			int size;
 			enum learning_algorithm<answer>::algorithm type;
@@ -1184,91 +1123,93 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 			this->upper_table.clear();
 			this->lower_table.clear();
 
-			if(it == limit) goto deserialization_failed;
+			if(serial.current == serial.limit) goto deserialization_failed;
 
 			// size
-			size = ntohl(*it);
+			size = ntohl(*serial.current);
 
 			// check implementation type
-			it++; if(size <= 0 || it == limit) goto deserialization_failed;
-			type = (enum learning_algorithm<answer>::algorithm) ntohl(*it);
+			serial.current++; if(size <= 0 || serial.current == serial.limit) goto deserialization_failed;
+			type = (enum learning_algorithm<answer>::algorithm) ntohl(*serial.current);
 			if(type != learning_algorithm<answer>::ALG_ANGLUIN)
 				goto deserialization_failed;
 
+			// initialized
+			if(!::deserialize(this->initialized, serial)) goto deserialization_failed;
+
 			// alphabet size
-			it++; size--; if(size <= 0 || it == limit) goto deserialization_failed;
-			this->set_alphabet_size(ntohl(*it));
+			serial.current++; size--; if(size <= 0 || serial.current == serial.limit) goto deserialization_failed;
+			this->set_alphabet_size(ntohl(*serial.current));
 			if(this->get_alphabet_size() < 0)
 				goto deserialization_failed;
 
 			// column count
-			it++; size--; if(size <= 0 || it == limit) goto deserialization_failed;
-			count = ntohl(*it);
+			serial.current++; size--; if(size <= 0 || serial.current == serial.limit) goto deserialization_failed;
+			count = ntohl(*serial.current);
 			if(count < 0)
 				goto deserialization_failed;
 
 			// column list
-			it++; size--; if(size <= 0 || it == limit) goto deserialization_failed;
+			serial.current++; size--; if(size <= 0 || serial.current == serial.limit) goto deserialization_failed;
 			for(/* -- */; count > 0; count--) {
 				// column label
 				list<int> column_label;
-				if(!deserialize_word(column_label, it, limit))
+				if(!::deserialize(column_label, serial))
 					goto deserialization_failed;
 				size -= column_label.size();
 				this->column_names.push_back(column_label);
 
 				// column timestamp
-				if(it == limit)
+				if(serial.current == serial.limit)
 					goto deserialization_failed;
-				this->column_timestamps.push_back(ntohl(*it));
-				it++; size--;
+				this->column_timestamps.push_back(ntohl(*serial.current));
+				serial.current++; size--;
 			}
 
 			// upper table
-			if(it == limit)
+			if(serial.current == serial.limit)
 				goto deserialization_failed;
-			count = ntohl(*it);
+			count = ntohl(*serial.current);
 			if(count < 0)
 				goto deserialization_failed;
 			// rows for upper table
-			it++; size--; if(size <= 0 || it == limit) goto deserialization_failed;
+			serial.current++; size--; if(size <= 0 || serial.current == serial.limit) goto deserialization_failed;
 			for(/* -- */; count > 0; count--) {
 				algorithm_angluin::simple_row<answer, vector<answer> > row;
 				// peek size
-				if(it == limit) goto deserialization_failed;
-				size -= ntohl(*it);
+				if(serial.current == serial.limit) goto deserialization_failed;
+				size -= ntohl(*serial.current);
 				if(size < 0) goto deserialization_failed;
 
-				if(!row.deserialize(it, limit))
+				if(!row.deserialize(serial))
 					goto deserialization_failed;
 
 				this->upper_table.push_back(row);
 			}
 
 			// lower table
-			if(it == limit)
+			if(serial.current == serial.limit)
 				goto deserialization_failed;
-			count = ntohl(*it);
+			count = ntohl(*serial.current);
 			if(count < 0)
 				goto deserialization_failed;
 			// rows for lower table
-			it++; size--; if(size <= 0 || it == limit) goto deserialization_failed;
+			serial.current++; size--; if(size <= 0 || serial.current == serial.limit) goto deserialization_failed;
 			for(/* -- */; count > 0; count--) {
 				algorithm_angluin::simple_row<answer, vector<answer> > row;
 				// peek size
-				if(it == limit) goto deserialization_failed;
-				size -= ntohl(*it);
+				if(serial.current == serial.limit) goto deserialization_failed;
+				size -= ntohl(*serial.current);
 				if(size < 0) goto deserialization_failed;
 
-				if(!row.deserialize(it, limit))
+				if(!row.deserialize(serial))
 					goto deserialization_failed;
 
 				this->lower_table.push_back(row);
 			}
 
-			if(it != limit) goto deserialization_failed;
+			if(serial.current != serial.limit) goto deserialization_failed;
 
-			this->initialized = false;
 			return true;
 
 		deserialization_failed:

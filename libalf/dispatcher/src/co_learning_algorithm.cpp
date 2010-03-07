@@ -100,7 +100,7 @@ bool co_learning_algorithm::handle_command(int command, basic_string<int32_t> & 
 {{{
 	conjecture * cj;
 	basic_string<int32_t> serial;
-	basic_string<int32_t>::iterator si;
+	serial_stretch cd(command_data);
 	string s;
 	list<int> word;
 	int i;
@@ -114,10 +114,9 @@ bool co_learning_algorithm::handle_command(int command, basic_string<int32_t> & 
 				return false;
 			return this->sv->client->stream_send_raw_blob(serial);
 		case LEARNING_ALGORITHM_DESERIALIZE:
-			si = command_data.begin();
-			if(!o->deserialize(si, command_data.end()))
+			if(!o->deserialize(cd))
 				return this->sv->send_errno(ERR_BAD_PARAMETERS);
-			if(si != command_data.end())
+			if(!cd.empty())
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 			return this->sv->send_errno(ERR_SUCCESS);
 		case LEARNING_ALGORITHM_TO_STRING:
@@ -128,11 +127,10 @@ bool co_learning_algorithm::handle_command(int command, basic_string<int32_t> & 
 				return false;
 			return this->sv->client->stream_send_string(s.c_str());
 		case LEARNING_ALGORITHM_DESERIALIZE_MAGIC:
-			si = command_data.begin();
-			if(!o->deserialize_magic(si, command_data.end(), serial))
+			if(!o->deserialize_magic(cd, serial))
 				return this->sv->send_errno(ERR_BAD_PARAMETERS);
 			/*
-			if(si != command_data.end())
+			if(!cd.empty())
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 			*/
 			if(!this->sv->send_errno(ERR_SUCCESS))
@@ -277,10 +275,9 @@ bool co_learning_algorithm::handle_command(int command, basic_string<int32_t> & 
 				return this->sv->client->stream_send_raw_blob(serial);
 			}
 		case LEARNING_ALGORITHM_ADD_COUNTEREXAMPLE:
-			si = command_data.begin();
-			if(!deserialize_word(word, si, command_data.end()))
+			if(!::deserialize(word, cd))
 				return this->sv->send_errno(ERR_BAD_PARAMETERS);
-			if(si != command_data.end())
+			if(!cd.empty())
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 			if(o->add_counterexample(word))
 				return this->sv->send_errno(ERR_SUCCESS);

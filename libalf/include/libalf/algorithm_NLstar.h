@@ -16,8 +16,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with libalf.  If not, see <http://www.gnu.org/licenses/>.
  *
- * (c) 2008,2009 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
- *           and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
+ * (c) 2008,2009,2010 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
+ *                and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
  * Author: David R. Piegdon <david-i2@piegdon.de>
  *
  */
@@ -285,14 +285,10 @@ fail:
 
 			return ret;
 		}}}
-		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+		virtual bool deserialize(serial_stretch & serial)
 		{{{
 			int size;
 			int type;
-
-			serial_stretch serial;
-			serial.current = it;
-			serial.limit = limit;
 
 			if(!::deserialize(size, serial)) goto deserialization_failed;
 			if(size < 1) goto deserialization_failed;
@@ -309,7 +305,6 @@ fail:
 			if(!::deserialize(size, serial)) goto deserialization_failed;
 			initialized = size;
 
-			it = serial.current;
 			return true;
 
 deserialization_failed:
@@ -318,7 +313,6 @@ deserialization_failed:
 			upper_table.clear();
 			lower_table.clear();
 			initialized = false;
-			it = serial.current;
 			return false;
 		}}}
 
@@ -914,8 +908,8 @@ deserialization_failed:
 			int size = 0;
 
 			for(ti = t.begin(); ti != t.end(); ++ti) {
-				size++;
 				serialized_list += ti->serialize();
+				++size;
 			}
 
 			return ::serialize(size) + serialized_list;
@@ -924,10 +918,10 @@ deserialization_failed:
 		bool deserialize_table(table & t, serial_stretch & serial)
 		{{{
 			int size;
-			table_row tmp;
 
 			if(!::deserialize(size, serial)) return false;
 			while(size) {
+				table_row tmp;
 				if(!tmp.deserialize(serial)) return false;
 				t.push_back(tmp);
 				--size;

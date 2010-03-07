@@ -1064,17 +1064,18 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		return false;
 	}
 	
-	bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit) {
+	bool deserialize(serial_stretch & serial) {
 		(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: this implementation does not support serialization!\n");
 		return false;
 	}
 	
 	basic_string<int32_t> serialize() {
+		basic_string<int32_t> ret;
 		(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: this implementation does not support serialization!\n");
-		return NULL;
+		return ret;
 	}
 
-	bool deserialize_magic(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, basic_string<int32_t> & result)
+	bool deserialize_magic(serial_stretch & serial, basic_string<int32_t> & result)
 	{
 		// expects:
 		//	function
@@ -1091,8 +1092,8 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		//		bool
 
 		result.clear();
-		if(it == limit) return false;
-		switch(ntohl(*it)) {
+		if(serial.empty()) return false;
+		switch(ntohl(*serial)) {
 			case 0:
 				result += htonl(get_leaf_node_count());
 				break;
@@ -1100,9 +1101,9 @@ class kearns_vazirani : public learning_algorithm<answer> {
 				result += htonl(get_inner_node_count());
 				break;
 			case 2:
-				++it;
-				if(it == limit) return false;
-				set_binary_search(ntohl(*it) != 0);
+				++serial;
+				if(serial.empty()) return false;
+				set_binary_search(ntohl(*serial) != 0);
 				break;
 			case 3:
 				result += htonl(uses_binary_search() ? 1 : 0);

@@ -49,12 +49,25 @@ class  serial_stretch {
 	public:
 		inline serial_stretch()
 		{ };
+
 		inline serial_stretch(std::basic_string<int32_t>::iterator current, std::basic_string<int32_t>::iterator limit)
 		{ this->current = current; this->limit = limit; };
+
+		inline serial_stretch(std::basic_string<int32_t> & serial)
+		{ init(serial); };
+
+		inline void init(std::basic_string<int32_t> & serial)
+		{ this->current = serial.begin(); this->limit = serial.end(); };
+
 		inline bool empty()
 		{ return (current == limit); };
-		inline void operator++()
-		{ current++; };
+
+		inline serial_stretch & operator++()
+		{ current++; return *this; };
+
+		inline serial_stretch operator++(int foo)
+		{ serial_stretch s; s = *this; operator++(); return s; };
+
 		inline int operator*()
 		{ return *current; };
 };

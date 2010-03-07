@@ -30,6 +30,7 @@
 
 #include <libalf/basic_string.h>
 #include <libalf/conjecture.h>
+#include <libalf/serialize.h>
 
 // for knowledgebase:
 bool leaf_is_non_accepting(knowledgebase<bool>::node* n, list<int> & sample, bool prefix_accepting = false)
@@ -293,7 +294,8 @@ bool generate_samples(finite_automaton *& automaton, knowledgebase<bool> & base,
 bool write_output(finite_automaton *& automaton, output out, string sampletype)
 {{{
 	basic_string<int32_t> serial;
-	basic_string<int32_t>::iterator si;
+
+	serial_stretch ser;
 
 	simple_automaton aut;
 
@@ -311,12 +313,12 @@ bool write_output(finite_automaton *& automaton, output out, string sampletype)
 		case output_human_readable:
 			// nasty...
 			serial = automaton->serialize();
-			si = serial.begin();
-			if(!aut.deserialize(si, serial.end())) {
+			ser.init(serial);
+			if(!aut.deserialize(ser)) {
 				cerr << "failed to decompose automaton to human readable (garbage inside)\n";
 				return false;
 			}
-			if(si != serial.end()) {
+			if(!ser.empty()) {
 				cerr << "failed to decompose automaton to human readable (garbage behind)\n";
 				return false;
 			}

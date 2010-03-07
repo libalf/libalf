@@ -30,6 +30,7 @@
 #include <getopt.h>
 
 #include <libalf/alf.h>
+#include <libalf/serialize.h>
 #include <amore++/amore.h>
 #include <amore/global.h>
 
@@ -240,14 +241,14 @@ int main(int argc, char**argv)
 
 	if(give_difference) {{{
 		basic_string<int32_t> serial;
-		basic_string<int32_t>::iterator si;
 		serial = difference->serialize();
 
 		if(human_readable_output) {
 			simple_automaton aut;
+			serial_stretch ser;
+			ser.init(serial);
 
-			si = serial.begin();
-			aut.deserialize(si, serial.end());
+			aut.deserialize(ser);
 			cout << aut.write();
 		} else {
 			basic_string_to_fd(serial, STDOUT_FILENO);

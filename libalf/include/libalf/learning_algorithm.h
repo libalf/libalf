@@ -16,8 +16,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with libalf.  If not, see <http://www.gnu.org/licenses/>.
  *
- * (c) 2008,2009 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
- *           and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
+ * (c) 2008,2009,2010 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
+ *                and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
  * Author: David R. Piegdon <david-i2@piegdon.de>
  *
  */
@@ -212,10 +212,10 @@ class learning_algorithm {
 		 * </serialized learning algorithm data>
 		 */
 		virtual basic_string<int32_t> serialize() = 0;
-		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit) = 0;
+		virtual bool deserialize(serial_stretch & serial) = 0;
 
 		// for algorithm-specific commands (e.g. parameter passing via dispatcher)
-		virtual bool deserialize_magic(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, basic_string<int32_t> & result)
+		virtual bool deserialize_magic(serial_stretch & serial, basic_string<int32_t> & result)
 		{ result.clear(); return false; };
 
 		virtual void print(ostream &os) = 0;

@@ -262,12 +262,12 @@ int main(int argc, char**argv)
 		exit(1);
 	};
 
-	seri = algorithm_serial.begin();
-	if(!ot.deserialize(seri, algorithm_serial.end())) {
+	serial_stretch sd(algorithm_serial);
+	if(!ot.deserialize(sd)) {
 		cerr << "failed to deser ALG.\n";
 		exit(1);
 	};
-	if(seri != algorithm_serial.end()) {
+	if(!sd.empty()) {
 		cerr << "garbage at end of ALG.\n";
 		exit(1);
 	};

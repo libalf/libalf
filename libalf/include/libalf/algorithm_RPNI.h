@@ -16,8 +16,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with libalf.  If not, see <http://www.gnu.org/licenses/>.
  *
- * (c) 2008,2009 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
- *           and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
+ * (c) 2008,2009,2010 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
+ *                and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
  * Author: David R. Piegdon <david-i2@piegdon.de>
  *     and Daniel Neider <neider@automata.rwth-aachen.de>
  *
@@ -236,24 +236,20 @@ class RPNI : public learning_algorithm<answer> {
 			basic_string<int32_t> ret;
 
 			// we don't have any internal, persistent data
-			ret += htonl(1);
-			ret += htonl(learning_algorithm<answer>::ALG_RPNI);
+			ret += ::serialize(1);
+			ret += ::serialize(learning_algorithm<answer>::ALG_RPNI);
 
 			return ret;
 		}}}
-		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+		virtual bool deserialize(serial_stretch & serial)
 		{{{
-			if(it == limit) return false;
-			if(ntohl(*it) != 1)
-				return false;
+			int s;
 
-			it++; if(it == limit) return false;
-			if(ntohl(*it) != learning_algorithm<answer>::ALG_RPNI)
-				return false;
+			if(!::deserialize(s, serial)) return false;
+			if(s != 1) return false;
+			if(!::deserialize(s, serial)) return false;
 
-			it++;
-
-			return true;
+			return (s == learning_algorithm<answer>::ALG_RPNI);
 		}}}
 
 		virtual void print(ostream &os)

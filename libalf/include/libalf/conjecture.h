@@ -16,8 +16,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with libalf.  If not, see <http://www.gnu.org/licenses/>.
  *
- * (c) 2008,2009 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
- *           and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
+ * (c) 2008,2009,2010 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
+ *                and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
  * Author: David R. Piegdon <david-i2@piegdon.de>
  *
  */
@@ -27,6 +27,8 @@
 #include <map>
 
 #include <stdio.h>
+
+#include <libalf/serialize.h>
 
 #ifndef __libalf_conjecture_h__
 # define __libalf_conjecture_h__
@@ -61,7 +63,7 @@ class conjecture {
 
 		// serializer
 		virtual basic_string<int32_t> serialize() = 0;
-		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit) = 0;
+		virtual bool deserialize(serial_stretch & serial) = 0;
 
 		// human readable version
 		virtual string write() = 0;
@@ -92,7 +94,7 @@ class simple_automaton : public conjecture {
 		virtual void clear();
 
 		virtual basic_string<int32_t> serialize();
-		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
+		virtual bool deserialize(serial_stretch & serial);
 		virtual string write();
 		virtual bool read(string input);
 
@@ -135,7 +137,7 @@ class simple_mVCA : public conjecture {
 		virtual void clear();
 
 		virtual basic_string<int32_t> serialize();
-		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
+		virtual bool deserialize(serial_stretch & serial);
 		virtual string write();
 		virtual bool read(string input);
 
