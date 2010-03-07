@@ -69,6 +69,8 @@ class original_biermann : public learning_algorithm<answer> {
 	}
 	
 	memory_statistics get_memory_statistics() {
+		// get_memory_statistics() is obsolete and will be removed in the future.
+		// use receive_generic_statistics() instead.
 		memory_statistics ret;
 		return ret;
 	}

@@ -207,6 +207,8 @@ fail:
 		}}}
 
 		virtual memory_statistics get_memory_statistics()
+		// get_memory_statistics() is obsolete and will be removed in the future.
+		// use receive_generic_statistics() instead.
 		{{{
 			memory_statistics ret;
 			// get memory footprint:
@@ -246,7 +248,7 @@ fail:
 			stat["lower_table"] = lt;
 			stat["words"] = c*(ut+lt);
 
-			bytes = sizeof(this);
+			bytes = sizeof(*this);
 			for(ci = column_names.begin(); ci != column_names.end(); ci++)
 				bytes += sizeof(list<int>) + sizeof(int) * (ci->size());
 			for(ti = upper_table.begin(); ti != upper_table.end(); ti++)

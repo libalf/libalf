@@ -74,12 +74,9 @@ class DeLeTe2 : public learning_algorithm<answer> {
 		}}}
 
 		virtual memory_statistics get_memory_statistics()
-		{
-			memory_statistics ret;
-			// FIXME: maybe keep some stats from last run?
-
-			return ret;
-		}
+		// get_memory_statistics() is obsolete and will be removed in the future.
+		// use receive_generic_statistics() instead.
+		{ memory_statistics ret; return ret; }
 
 		virtual void receive_generic_statistics(generic_statistics & stat)
 		{

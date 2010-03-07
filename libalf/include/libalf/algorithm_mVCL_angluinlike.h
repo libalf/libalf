@@ -196,17 +196,29 @@ class mVCL_angluinlike : public learning_algorithm<answer> {
 		{ this->set_alphabet_size(new_asize); }
 
 		virtual memory_statistics get_memory_statistics()
-		{
+		// get_memory_statistics() is obsolete and will be removed in the future.
+		// use receive_generic_statistics() instead.
+		{{{
+			generic_statistics stat;
 			memory_statistics ret;
 
-			
+			receive_generic_statistics(stat);
+
+			ret.bytes = stat["bytes"];
+			ret.words = stat["words"];
 
 			return ret;
-		}
+		}}}
 
 		virtual void receive_generic_statistics(generic_statistics & stat)
 		{
+			int words = 0; // words that are stored in the tables
+			int bytes = 0; // bytes this algorithm consumes over all
+
 			
+
+			stat["words"] = words;
+			stat["bytes"] = bytes;
 		}
 
 		virtual bool sync_to_knowledgebase()
@@ -254,22 +266,41 @@ deserialization_failed:
 		}}}
 
 		bool deserialize_magic(serial_stretch & serial, basic_string<int32_t> & result)
-		{
-			// FIXME: setting pushdown-directions of alphabet via this.
-			
+		{{{
+			int command;
+
+			result.clear();
+
+			if(!::deserialize(command, serial)) return false;
+
+			switch(command) {
+				case 0: { // indicate pushdown property of alphabet
+						map<int, int> dirs;
+						if(!::deserialize(dirs, serial)) return false;
+						pushdown_directions = dirs;
+						return true;
+					}
+				case 1: { // indicate partial equivalence
+						int bound;
+						if(!::deserialize(bound, serial)) return false;
+						result += ::serialize(indicate_partial_equivalence(bound));
+						return true;
+					}
+			};
+			// bad command?
 			return false;
-		}
+		}}}
 
 		virtual void print(ostream &os)
 		{
 			
 		}
 		virtual string to_string()
-		{
-			string ret;
-			
-			return ret;
-		}
+		{{{
+			stringstream str;
+			print(str);
+			return str.str();
+		}}}
 
 		virtual bool conjecture_ready()
 		{
@@ -331,14 +362,14 @@ deserialization_failed:
 
 		virtual bool complete()
 		{
-			if(!this->initialized)
-				this->initialize_table();
+			if(!initialized)
+				initialize_table();
 
-			if(this->fill_missing_columns()) {
-				if(!this->close())
+			if(fill_missing_columns()) {
+				if(close())
+					return true;
+				else
 					return complete();
-
-				return true;
 			} else {
 				return false;
 			}

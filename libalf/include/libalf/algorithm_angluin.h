@@ -1048,6 +1048,8 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 		}}}
 
 		virtual memory_statistics get_memory_statistics()
+		// get_memory_statistics() is obsolete and will be removed in the future.
+		// use receive_generic_statistics() instead.
 		{{{
 			memory_statistics ret;
 
@@ -1062,7 +1064,7 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 			ret.words = ret.members;
 
 			// approx. memory usage:
-			ret.bytes = sizeof(this);
+			ret.bytes = sizeof(*this);
 			// columns
 			ret.bytes += sizeof(vector<int>);
 			for(ci = this->column_names.begin(); ci != this->column_names.end(); ci++)
