@@ -1097,22 +1097,28 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		if(serial.empty()) return false;
 		switch(ntohl(*serial)) {
 			case 0:
+				cerr << "KV.MAGIC: get_leaf_node_count()\n";
 				result += htonl(get_leaf_node_count());
 				break;
 			case 1:
+				cerr << "KV.MAGIC: get_inner_node_count()\n";
 				result += htonl(get_inner_node_count());
 				break;
 			case 2:
+				cerr << "KV.MAGIC: set_binary_search()\n";
 				++serial;
 				if(serial.empty()) return false;
 				set_binary_search(ntohl(*serial) != 0);
 				break;
 			case 3:
+				cerr << "KV.MAGIC: uses_binary_search()\n";
 				result += htonl(uses_binary_search() ? 1 : 0);
 				break;
 			default:
+				cerr << "KV.MAGIC: unknown command\n";
 				return false;
 		}
+		cerr << "KV.MAGIC: success.\n";
 		return true;
 	}
 
