@@ -129,7 +129,7 @@ bool co_learning_algorithm::handle_command(int command, basic_string<int32_t> & 
 		case LEARNING_ALGORITHM_DESERIALIZE_MAGIC:
 			if(cd.empty()) // at least expect size
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
-			++cd; // eat superficial size.
+			++cd; // eat superfluous size.
 			if(!o->deserialize_magic(cd, serial))
 				return this->sv->send_errno(ERR_BAD_PARAMETERS);
 			if(!this->sv->send_errno(ERR_SUCCESS))
