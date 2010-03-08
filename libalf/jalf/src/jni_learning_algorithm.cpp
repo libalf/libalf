@@ -174,8 +174,8 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNILearningAlgorithm_deserialize (
 	jint *entry = env->GetIntArrayElements(serialization, 0);
 	// Copy array
 	int len = (int)length;
-	basic_string<int32_t> ser;
-	for(int i=0; i<len; i++) ser.push_back(htonl((jint)entry[i]));
+	basic_string<int32_t> serial;
+	for(int i=0; i<len; i++) serial.push_back(htonl((jint)entry[i]));
 	// Clean
 	env->ReleaseIntArrayElements(serialization, entry, 0);
 
@@ -183,9 +183,8 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNILearningAlgorithm_deserialize (
 	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
 
 	// Forward method call
-	basic_string<int32_t>::iterator si;
-	si = ser.begin();
-	return algorithm->deserialize(si, ser.end());
+	serial_stretch ser(serial);
+	return algorithm->deserialize(ser);
 }
 
 JNIEXPORT void JNICALL Java_de_libalf_jni_JNILearningAlgorithm_set_1logger (JNIEnv *env, jobject obj, jlong logger_pointer, jlong pointer) {
