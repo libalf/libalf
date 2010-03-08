@@ -1119,12 +1119,12 @@ class kearns_vazirani : public learning_algorithm<answer> {
 				return false;
 		}
 		cerr << "KV.MAGIC: success.\n";
-		if(serial.emtpy())
+		if(serial.empty())
 			cerr << "    and used all data.\n";
 		else {
 			cerr << "    but the following data remains:\n";
 			while(!serial.empty()) {
-				cerr << ntohl(*serial) << "; "
+				cerr << ntohl(*serial) << "; ";
 				++serial;
 			}
 			cerr << "\n";
