@@ -1,0 +1,11 @@
+$Id$
+
+ideas for the roadmap of all software in this directory
+
+
+libalf:
+	* c++ dispatcher
+	* library / database with sample automata and software to access the db
+
+
+
