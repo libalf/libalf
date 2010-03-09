@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VERSION="v0.1"
+VERSION="INSERT-RELEASE-TAG-HERE"
 
 svn export https://svn-i2.informatik.rwth-aachen.de/repos/libalf/tags/${VERSION} release
 
