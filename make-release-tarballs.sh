@@ -10,6 +10,7 @@ rm -Rf libalf/testsuites/NLstar_count_eq_queries/found libalf/testsuites/online_
 
 tar jcf libalf-${VERSION}.tar.bz2		libalf
 tar jcf "libAMoRE(++)-${VERSION}.tar.bz2"	libAMoRE libAMoRE++ 
+tar jcf libmVCA-${VERSION}.tar.bz2		libmVCA
 tar jcf liblangen-${VERSION}.tar.bz2		liblangen 
 tar jcf finite-automata-tool-${VERSION}.tar.bz2	finite-automata-tool 
 
