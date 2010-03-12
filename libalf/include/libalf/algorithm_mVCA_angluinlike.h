@@ -52,41 +52,74 @@ namespace libalf {
 using namespace std;
 
 template <class answer>
-class mVCL_angluinlike : public learning_algorithm<answer> {
+class mVCA_angluinlike : public learning_algorithm<answer> {
 	public: // types
 
 		class equivalence_approximation : public triple<list<int>, int, vector<answer> > {
-			// where first == prefix, second == cv(prefix), third == acceptances.
 			public: // methods
-				list<int>	& prefix()		{ return this->first; };
-				int		& cv()			{ return this->second; };
-				vector<answer>	& acceptances()		{ return this->third; };
+				inline list<int>	& prefix()		{ return this->first; };
+				inline int		& cv()			{ return this->second; };
+				inline vector<answer>	& acceptances()		{ return this->third; };
 
+				inline equivalence_approximation()
+				{ };
 
-				bool equivalent(equivalence_approximation & other)
-				{ return this->first == other.first && this->second == other.second; };
+				inline equivalence_approximation(const list<int> & prefix, int cv)
+				{ this->prefix() = prefix; this->cv() = cv; };
+
+				inline bool equivalent(equivalence_approximation & other)
+				{ return cv() == other.cv() && acceptances() == other.acceptances(); }
 
 				bool fill(list<list<int> > & samples, knowledgebase<answer> * base)
 				{{{
-					list<int> query_word;
-
 					typename vector<answer>::iterator acci;
 					typename list<list<int> >::iterator sui;
 
 					for(acci = acceptances().begin(), sui = samples.begin(); acci != acceptances().end() && sui != samples.end(); ++acci, ++sui)
 						/* nothing */ ;
 
+					if(sui == samples.end())
+						return true;
+
+					typename knowledgebase<answer>::node *pre, *word;
+
+					pre = base->get_nodeptr(prefix());
+
+					bool full_query = true;
 					while(sui != samples.end()) {
-						answer a;
-						query_word = prefix() + *sui;
-						if(base->resolve_or_add_query(query_word, a))
-							acceptances().push_back(a);
-						else
-							break;
+						word = pre->find_or_create_descendant(sui->begin(), sui->end());
+						if(full_query) {
+							if(word->is_answered()) {
+								acceptances().push_back(word->get_answer());
+							} else {
+								word->mark_required();
+								full_query = false;
+							}
+						} else {
+							word->mark_required();
+						}
 						++sui;
 					}
 
-					return (sui == samples.end());
+					return full_query;
+				}}}
+
+				void print(ostream &os)
+				{{{
+					typename vector<answer>::iterator acci;
+
+					os << "\t     |\t";
+					print_word(os, prefix());
+					os << " (" << cv() << "):";
+					for(acci = acceptances().begin(); acci != acceptances().end(); ++acci) {
+						if(false == (bool)*acci)
+							os << " -";
+						else if(true == (bool)*acci)
+							os << " +";
+						else
+							os << " " << *acci;
+					}
+					os << " ;\n";
 				}}}
 		};
 
@@ -103,16 +136,22 @@ class mVCL_angluinlike : public learning_algorithm<answer> {
 
 					return complete;
 				}}}
+
+				void print(ostream & os)
+				{{{
+					typename list<equivalence_approximation>::iterator it;
+					for(it = this->begin(); it != this->end(); ++it) {
+						it->print(os);
+					}
+				}}}
 		};
 
 		class m_representatives : public pair<list<list<int> >, triple<equivalence_table, equivalence_table, equivalence_table> > {
-			// where first == returning, second == internal and third == calling.
 			public: // methods
-				list<list<int> > & samples()		{ return this->first; };
-				equivalence_table & returning()		{ return this->second.first; };
-				equivalence_table & internal()		{ return this->second.second; };
-				equivalence_table & calling()		{ return this->second.third; };
-
+				inline list<list<int> > & samples()		{ return this->first; };
+				inline equivalence_table & returning()		{ return this->second.first; };
+				inline equivalence_table & internal()		{ return this->second.second; };
+				inline equivalence_table & calling()		{ return this->second.third; };
 		};
 
 		class stratified_observationtable : public vector<m_representatives> {
@@ -152,6 +191,38 @@ class mVCL_angluinlike : public learning_algorithm<answer> {
 
 					return complete;
 				}}}
+
+				void print(ostream & os)
+				{{{
+					int cv;
+					typename vector<m_representatives>::iterator vi;
+
+					os << "stratified_observationtable {\n";
+
+					for(vi = this->begin(), cv = 0; vi != this->end(); ++cv, ++vi) {
+						// samples
+						os << "\tsamples for cv = " << cv << ":";
+						for(list<list<int> >::iterator si = vi->samples().begin(); si != vi->samples().end(); ++si) {
+							os << " ";
+							print_word(os, *si);
+						}
+						os << " ;\n";
+
+						// returning
+						os << "\tcv = " << cv << ", returning representatives (with true cv=" << cv - 1 << "):\n";
+						vi->returning().print(os);
+
+						// internal
+						os << "\tcv = " << cv << ", internal representatives:\n";
+						vi->internal().print(os);
+
+						// calling
+						os << "\tcv = " << cv << ", calling representatives (with true cv=" << cv + 1 << "):\n";
+						vi->calling().print(os);
+					}
+
+					os << "};\n";
+				}}}
 		};
 
 	protected: // data
@@ -165,14 +236,14 @@ class mVCL_angluinlike : public learning_algorithm<answer> {
 		stratified_observationtable table;
 
 	public: // methods
-		mVCL_angluinlike()
+		mVCA_angluinlike()
 		{{{
 			this->set_logger(NULL);
 			this->set_knowledge_source(NULL);
 			clear();
 		}}}
 
-		mVCL_angluinlike(knowledgebase<answer> *base, logger *log, int alphabet_size)
+		mVCA_angluinlike(knowledgebase<answer> *base, logger *log, int alphabet_size)
 		{{{
 			this->set_logger(log);
 			this->set_knowledge_source(base);
@@ -215,6 +286,7 @@ class mVCL_angluinlike : public learning_algorithm<answer> {
 			int words = 0; // words that are stored in the tables
 			int bytes = 0; // bytes this algorithm consumes over all
 
+			// FIXME
 			
 
 			stat["words"] = words;
@@ -223,7 +295,7 @@ class mVCL_angluinlike : public learning_algorithm<answer> {
 
 		virtual bool sync_to_knowledgebase()
 		{{{
-			(*this->my_logger)(LOGGER_ERROR, "mVCL_angluinlike does not support sync-operation.\n");
+			(*this->my_logger)(LOGGER_ERROR, "mVCA_angluinlike does not support sync-operation.\n");
 			return false;
 		}}}
 		virtual bool supports_sync()
@@ -292,9 +364,9 @@ deserialization_failed:
 		}}}
 
 		virtual void print(ostream &os)
-		{
-			
-		}
+		{{{
+			table.print(os);
+		}}}
 		virtual string to_string()
 		{{{
 			stringstream str;
@@ -303,15 +375,22 @@ deserialization_failed:
 		}}}
 
 		virtual bool conjecture_ready()
-		{
-			// what kind of conjecture?
-			
-		}
+		// TODO: implement *efficient* version
+		{{{
+			if(!complete())
+				return false;
+
+			conjecture * cj = derive_conjecture();
+			if(NULL == cj)
+				return false;
+			delete cj;
+			return true;
+		}}}
 
 		virtual bool indicate_partial_equivalence(int bound)
 		{
 			if(bound < known_equivalence_bound) {
-				(*this->my_logger)(LOGGER_ERROR, "mVCL_angluinlike: you indicated a partial equivalence with m=%d, but equivalence was already indicated for m=%d!", bound, known_equivalence_bound);
+				(*this->my_logger)(LOGGER_ERROR, "mVCA_angluinlike: you indicated a partial equivalence with m=%d, but equivalence was already indicated for m=%d!", bound, known_equivalence_bound);
 				return false;
 			} else {
 				known_equivalence_bound = bound;
@@ -321,7 +400,10 @@ deserialization_failed:
 
 		virtual bool add_counterexample(list<int> counterexample)
 		{
+			// check if word is already in table, then return false.
 			
+
+			return true; // FIXME
 		}
 
 	protected: // methods
@@ -343,41 +425,62 @@ deserialization_failed:
 		{ return this->prefix_countervalue(word.begin(), word.end(), 0); }
 
 		virtual void initialize_table()
-		{
-			
-		}
+		{{{
+			if(!initialized) {
+				m_representatives mr;
+				table.push_back(mr);
+				table[0].samples().push_back(list<int>());
+				table[0].internal().push_back(equivalence_approximation(list<int>(), 0));
+
+				initialized = true;
+			}
+		}}}
 
 		virtual bool fill_missing_columns()
 		{ return table.fill(this->my_knowledge); }
 
 		virtual bool close()
 		{
+			bool no_changes = true;
+
 			
+
+			return no_changes; // FIXME
 		}
 
 		virtual bool make_consistent()
 		{
+			bool no_changes = true;
+
 			
+
+			return no_changes; // FIXME
 		}
 
 		virtual bool complete()
-		{
+		{{{
 			if(!initialized)
 				initialize_table();
 
-			if(fill_missing_columns()) {
-				if(close())
-					return true;
-				else
-					return complete();
-			} else {
+			if(!fill_missing_columns())
 				return false;
-			}
-		}
+
+			if(!close())
+				return complete();
+
+			if(!make_consistent())
+				return complete();
+
+			return true;
+		}}}
 
 		virtual conjecture * derive_conjecture()
 		{
+			conjecture * cj = NULL;
+
 			
+
+			return cj; // FIXME
 		}
 };
 

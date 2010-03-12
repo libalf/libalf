@@ -29,16 +29,22 @@
 #include <algorithm>
 
 #include <libalf/alf.h>
-#include <libalf/algorithm_mVCL_angluinlike.h>
+#include <libalf/knowledgebase.h>
+#include <libalf/algorithm_mVCA_angluinlike.h>
 
 using namespace std;
 using namespace libalf;
 
 int main(int argc, char**argv)
 {
-	mVCL_angluinlike<bool> table;
+	knowledgebase<bool> kb;
+	mVCA_angluinlike<bool> table;
 
-	
+	table.set_knowledge_source(&kb);
+
+	table.advance();
+
+	table.print(cout);
 
 	return 0;
 }
