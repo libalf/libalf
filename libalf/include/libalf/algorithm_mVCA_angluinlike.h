@@ -108,7 +108,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 				{{{
 					typename vector<answer>::iterator acci;
 
-					os << "\t     |\t";
+					os << "\t\t";
 					print_word(os, prefix());
 					os << " (" << cv() << "):";
 					for(acci = acceptances().begin(); acci != acceptances().end(); ++acci) {
@@ -125,6 +125,35 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 
 		class equivalence_table : public list<equivalence_approximation> {
 			public:
+				typename list<equivalence_approximation>::iterator find_prefix(const list<int> & prefix)
+				{{{
+					typename list<equivalence_approximation>::iterator r;
+					r = this->begin();
+					while(r != this->end()) {
+						if(r->prefix() == prefix)
+							break;
+					}
+					return r;
+				}}}
+
+				typename list<equivalence_approximation>::iterator find_or_insert_prefix(const list<int> & prefix, int cv)
+				{{{
+					typename list<equivalence_approximation>::iterator r;
+
+					r = find_prefix(prefix);
+					if(r != this->end()) {
+						if(r->cv() != cv)
+							return this->end();
+						else
+							return r;
+					}
+
+					this->push_back(equivalence_approximation(prefix, cv));
+					r = this->end();
+					--r;
+					return r;
+				}}}
+
 				bool fill(list<list<int> > & samples, knowledgebase<answer> * base)
 				{{{
 					typename list<equivalence_approximation>::iterator equi;
@@ -146,12 +175,13 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 				}}}
 		};
 
-		class m_representatives : public pair<list<list<int> >, triple<equivalence_table, equivalence_table, equivalence_table> > {
+		class m_representatives : public triple<list<list<int> >, equivalence_table, triple<equivalence_table, equivalence_table, equivalence_table> > {
 			public: // methods
-				inline list<list<int> > & samples()		{ return this->first; };
-				inline equivalence_table & returning()		{ return this->second.first; };
-				inline equivalence_table & internal()		{ return this->second.second; };
-				inline equivalence_table & calling()		{ return this->second.third; };
+				inline list<list<int> > & samples()		{ return this->first; }; // suffixes
+				inline equivalence_table & representatives()	{ return this->second; }; // prefixes
+				inline equivalence_table & returning_tr()	{ return this->third.first; }; // returning transitions
+				inline equivalence_table & internal_tr()	{ return this->third.second; }; // internal transitions
+				inline equivalence_table & calling_tr()		{ return this->third.third; }; // calling transitions
 		};
 
 		class stratified_observationtable : public vector<m_representatives> {
@@ -169,14 +199,17 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 						++next;
 
 					while(current != this->end()) {
-						// fill all tables of current
+						// fill current table:
+						if(!current->representatives().fill(current->samples(), base))
+							complete = false;
+						// and transition-tables:
 						if(previous != this->end())
-							if(!current->returning().fill(previous->samples(), base))
+							if(!current->returning_tr().fill(previous->samples(), base))
 								complete = false;
-						if(!current->internal().fill(current->samples(), base))
+						if(!current->internal_tr().fill(current->samples(), base))
 							complete = false;
 						if(next != this->end())
-							if(!current->calling().fill(next->samples(), base))
+							if(!current->calling_tr().fill(next->samples(), base))
 								complete = false;
 
 						// increment iterators
@@ -201,24 +234,38 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 
 					for(vi = this->begin(), cv = 0; vi != this->end(); ++cv, ++vi) {
 						// samples
-						os << "\tsamples for cv = " << cv << ":";
+						os << "\tcv = " << cv << ":\n";
+						os << "\t  Samples:";
 						for(list<list<int> >::iterator si = vi->samples().begin(); si != vi->samples().end(); ++si) {
 							os << " ";
 							print_word(os, *si);
 						}
 						os << " ;\n";
 
-						// returning
-						os << "\tcv = " << cv << ", returning representatives (with true cv=" << cv - 1 << "):\n";
-						vi->returning().print(os);
+						// representatives
+						if(!vi->representatives().empty()) {
+							os << "\t  Representatives:\n";
+							vi->representatives().print(os);
+						}
 
-						// internal
-						os << "\tcv = " << cv << ", internal representatives:\n";
-						vi->internal().print(os);
+						os << "\t  Transitions:\n";
+						// returning tr
+						if(!vi->returning_tr().empty()) {
+							os << "\t    returning (with true cv=" << cv - 1 << "):\n";
+							vi->returning_tr().print(os);
+						}
 
-						// calling
-						os << "\tcv = " << cv << ", calling representatives (with true cv=" << cv + 1 << "):\n";
-						vi->calling().print(os);
+						// internal tr
+						if(!vi->internal_tr().empty()) {
+							os << "\t    internal:\n";
+							vi->internal_tr().print(os);
+						}
+
+						// calling tr
+						if(!vi->calling_tr().empty()) {
+							os << "\t    calling (with true cv=" << cv + 1 << "):\n";
+							vi->calling_tr().print(os);
+						}
 					}
 
 					os << "};\n";
@@ -430,7 +477,7 @@ deserialization_failed:
 				m_representatives mr;
 				table.push_back(mr);
 				table[0].samples().push_back(list<int>());
-				table[0].internal().push_back(equivalence_approximation(list<int>(), 0));
+				table[0].representatives().find_or_insert_prefix(list<int>(), 0);
 
 				initialized = true;
 			}

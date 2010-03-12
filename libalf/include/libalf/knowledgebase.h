@@ -48,6 +48,8 @@ namespace libalf {
 #include <libalf/alphabet.h>
 #include <libalf/filter.h>
 
+#include <libalf/serialize.h>
+
 // the knowledgebase holds membership information about a language
 // (or samples for offline-algorithms). to obtain information about a
 // word w, use ::resolve_query(). if the requested information is not
@@ -1543,6 +1545,26 @@ class knowledgebase {
 		}}}
 
 }; // end of knowledgebase
+
+
+template<typename answer>
+basic_string<int32_t> serialize(typename knowledgebase<answer>::node * n)
+// this will ONLY serialize the word, not any information about membership!
+{{{
+	return ::serialize(n->get_word());
+}}}
+
+template<typename answer>
+bool deserialize(typename knowledgebase<answer>::node * & into, knowledgebase<answer> & base, serial_stretch & serial)
+{{{
+	list<int> w;
+
+	into = NULL;
+	if(!::deserialize(w, serial)) return false;
+	into = base.get_rootptr()->find_or_create_descendant(w.begin(), w.end());
+	return true;
+}}}
+
 
 // classes to iterate over a full subtree, in graded lexicographic order:
 // PURE FORWARD ITERATOR
