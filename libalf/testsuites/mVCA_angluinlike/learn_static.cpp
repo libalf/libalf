@@ -35,16 +35,35 @@
 using namespace std;
 using namespace libalf;
 
+ostream_logger my_logger(&cout, LOGGER_DEBUG);
+
 int main(int argc, char**argv)
 {
 	knowledgebase<bool> kb;
-	mVCA_angluinlike<bool> table;
+	mVCA_angluinlike<bool> table(&kb, &my_logger, 1);
+	map<int, int> alphabet_pushdown_directions;
 
-	table.set_knowledge_source(&kb);
+	alphabet_pushdown_directions[0] = 0;
+	table.indicate_pushdown_alphabet_directions(alphabet_pushdown_directions);
 
+
+	// real work with algorithm:
 	table.advance();
 
+
+	// debugging of table:
 	table.print(cout);
+
+	basic_string<int32_t> ser;
+	ser = table.serialize();
+	cout << "\n\n{ ";
+	print_basic_string_2hl(ser, cout);
+	cout << " }\n\n";
+
+	mVCA_angluinlike<bool> table2(&kb, &my_logger, 1);
+	serial_stretch s(ser);
+	if(!table2.deserialize(s))
+		cerr << "failed to deser!\n";
 
 	return 0;
 }
