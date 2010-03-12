@@ -1413,7 +1413,7 @@ class knowledgebase {
 		node* get_nodeptr(list<int> & word)
 		// get node* for a specific word
 		{{{
-			return root->find_or_create_child(word.begin(), word.end());
+			return root->find_or_create_descendant(word.begin(), word.end());
 		}}}
 		node* get_rootptr()
 		// get node* for epsilon
