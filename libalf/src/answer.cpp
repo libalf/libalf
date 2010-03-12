@@ -34,17 +34,17 @@ bool __attribute__((const)) operator==(extended_bool a, extended_bool b)
 }}}
 
 
-bool __attribute__((const)) extended_bool::operator!=(extended_bool &other)
+bool __attribute__((const)) extended_bool::operator!=(const extended_bool & other)
 {{{
 	return this->value != other.value;
 }}}
 
-void extended_bool::operator=(extended_bool &other)
+void extended_bool::operator=(const extended_bool & other)
 {{{
 	value = other.value;
 }}}
 
-bool __attribute__((const)) extended_bool::operator>(extended_bool &other)
+bool __attribute__((const)) extended_bool::operator>(const extended_bool & other)
 {{{
 	return( ((int)this->value) > ((int)other.value));
 }}}
