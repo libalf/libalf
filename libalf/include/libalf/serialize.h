@@ -236,7 +236,7 @@ template <typename S>			bool deserialize(std::vector<S> & v, serial_stretch & se
 	v.clear();
 
 	if(!deserialize(size, serial)) return false;
-	v.reserve(size);
+	v.resize(size);
 	for(int i = 0; i < size; ++i) {
 		if(!deserialize(tmp, serial))
 			return false;
