@@ -67,8 +67,33 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 				inline equivalence_approximation(const list<int> & prefix, int cv)
 				{ this->prefix() = prefix; this->cv() = cv; };
 
+				pair<int, vector<answer> > footprint()
+				{
+					pair<int, vector<answer> > ret;
+					ret.first = cv();
+					ret.second = acceptances();
+					return ret;
+				};
+
 				inline bool equivalent(equivalence_approximation & other)
 				{ return cv() == other.cv() && acceptances() == other.acceptances(); }
+
+				inline bool equivalent(equivalence_approximation & other, typename list<list<int> >::iterator suffix_it)
+				{{{
+					typename vector<answer>::iterator vi1, vi2;
+					vi1 = acceptances().begin();
+					vi2 = other.acceptances().begin();
+
+					while(vi1 != acceptances().end() && vi2 != other.acceptances().end()) {
+						if(*vi1 != *vi2)
+							return false;
+
+						++vi1;
+						++vi2;
+						++suffix_it;
+					}
+					return (vi1 == acceptances().end() && vi2 == other.acceptances().end());
+				}}}
 
 				bool fill(list<list<int> > & samples, knowledgebase<answer> * base)
 				{{{
@@ -121,13 +146,31 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 					}
 					os << " ;\n";
 				}}}
+
+				int get_dynamic_memory_consumption()
+				{{{
+					int ret = 0;
+
+					typename list<int>::iterator li;
+					typename vector<answer>::iterator acci;
+
+					for(li = prefix().begin(); li != prefix().end(); ++li)
+						ret += sizeof(int);
+
+					for(acci = acceptances().begin(); acci != acceptances().end(); ++acci)
+						ret += sizeof(answer);
+
+					return ret;
+				}}}
 		};
 
 		class equivalence_table : public list<equivalence_approximation> {
 			public:
-				typename list<equivalence_approximation>::iterator find_prefix(const list<int> & prefix)
+				typedef typename list<equivalence_approximation>::iterator iterator;
+
+				iterator find_prefix(const list<int> & prefix)
 				{{{
-					typename list<equivalence_approximation>::iterator r;
+					iterator r;
 					r = this->begin();
 					while(r != this->end()) {
 						if(r->prefix() == prefix)
@@ -136,9 +179,9 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 					return r;
 				}}}
 
-				typename list<equivalence_approximation>::iterator find_or_insert_prefix(const list<int> & prefix, int cv)
+				iterator find_or_insert_prefix(const list<int> & prefix, int cv)
 				{{{
-					typename list<equivalence_approximation>::iterator r;
+					iterator r;
 
 					r = find_prefix(prefix);
 					if(r != this->end()) {
@@ -154,9 +197,18 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 					return r;
 				}}}
 
+				iterator find_equivalence_class(equivalence_approximation & representative)
+				{{{
+					iterator equi;
+					for(equi = this->begin(); equi != this->end(); ++equi)
+						if(equi->equivalent(representative))
+							break;
+					return equi;
+				}}}
+
 				bool fill(list<list<int> > & samples, knowledgebase<answer> * base)
 				{{{
-					typename list<equivalence_approximation>::iterator equi;
+					iterator equi;
 					bool complete = true;
 
 					for(equi = this->begin(); equi != this->end(); ++equi)
@@ -168,10 +220,21 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 
 				void print(ostream & os)
 				{{{
-					typename list<equivalence_approximation>::iterator it;
+					iterator it;
 					for(it = this->begin(); it != this->end(); ++it) {
 						it->print(os);
 					}
+				}}}
+
+				int get_dynamic_memory_consumption()
+				{{{
+					int ret = 0;
+					iterator equi;
+					for(equi = this->begin(); equi != this->end(); ++equi) {
+						ret += sizeof(equivalence_approximation);
+						ret += equi->get_dynamic_memory_consumption();
+					}
+					return ret;
 				}}}
 		};
 
@@ -182,14 +245,37 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 				inline equivalence_table & returning_tr()	{ return this->third.first; }; // returning transitions
 				inline equivalence_table & internal_tr()	{ return this->third.second; }; // internal transitions
 				inline equivalence_table & calling_tr()		{ return this->third.third; }; // calling transitions
+
+				int get_dynamic_memory_consumption()
+				{{{
+					int ret;
+
+					list<list<int> >::iterator lli;
+					for(lli = samples().begin(); lli != samples().end(); ++lli) {
+						ret += sizeof(list<int>);
+						list<int>::iterator li;
+						for(li = lli->begin(); li != lli->end(); ++lli)
+							ret += sizeof(int);
+					}
+
+					ret += representatives().get_dynamic_memory_consumption();
+
+					ret += returning_tr().get_dynamic_memory_consumption();
+					ret += internal_tr().get_dynamic_memory_consumption();
+					ret += calling_tr().get_dynamic_memory_consumption();
+
+					return ret;
+				}}}
 		};
 
 		class stratified_observationtable : public vector<m_representatives> {
-			public: // methods
+			public:
+				typedef typename vector<m_representatives>::iterator iterator;
+
 				bool fill(knowledgebase<answer> * base)
 				{{{
 					bool complete = true;
-					typename vector<m_representatives>::iterator previous, current, next;
+					iterator previous, current, next;
 
 					// initialize iterators
 					previous = this->end();
@@ -228,7 +314,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 				void print(ostream & os)
 				{{{
 					int cv;
-					typename vector<m_representatives>::iterator vi;
+					iterator vi;
 
 					os << "stratified_observationtable {\n";
 
@@ -270,6 +356,56 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 
 					os << "};\n";
 				}}}
+
+				int get_dynamic_memory_consumption()
+				{{{
+					int ret = 0;
+					iterator vi;
+
+					for(vi = this->begin(); vi != this->end(); ++vi) {
+						ret += sizeof(m_representatives);
+						ret += vi->get_dynamic_memory_consumption();
+					}
+
+					return ret;
+				}}}
+
+				int count_words()
+				{{{
+					int words = 0;
+
+					iterator previous, current, next;
+
+					// initialize iterators
+					previous = this->end();
+					current = this->begin();
+					next = this->begin();
+					if(next != this->end())
+						++next;
+
+					while(current != this->end()) {
+						// current table:
+						words += current->representatives().size() * current->samples().size();
+
+						// transition-tables:
+						if(previous != this->end())
+							words += current->returning_tr().size() * previous->samples().size();
+						words += current->internal_tr().size() * current->samples().size();
+						if(next != this->end())
+							words += current->calling_tr().size() * next->samples().size();
+
+						// increment iterators
+						if(previous == this->end())
+							previous = this->begin();
+						else
+							++previous;
+						++current;
+						if(next != this->end())
+							++next;
+					}
+
+					return words;
+				}}}
 		};
 
 	protected: // data
@@ -279,6 +415,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 		// -1 == down == return ; 0 == stay == internal ; +1 == up == call
 
 		int known_equivalence_bound; // the m for which the current data is isomorphic to the model
+		int tested_equivalence_bound; // the m for which we tested all corresponding mVCAs
 
 		stratified_observationtable table;
 
@@ -303,6 +440,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 			initialized = false;
 			this->set_alphabet_size(0);
 			known_equivalence_bound = -1;
+			tested_equivalence_bound = -1;
 			pushdown_directions.clear();
 			table.clear();
 		}}}
@@ -329,16 +467,22 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 		}}}
 
 		virtual void receive_generic_statistics(generic_statistics & stat)
-		{
-			int words = 0; // words that are stored in the tables
-			int bytes = 0; // bytes this algorithm consumes over all
+		{{{
+			stat["initialized"] = initialized;
+			if(initialized) {
+				int words = 0; // words that are stored in the tables
+				int bytes = 0; // bytes this algorithm consumes over all
 
-			// FIXME
-			
+				bytes = sizeof(*this);
+				bytes += table.get_dynamic_memory_consumption();
+				words = table.count_words();
 
-			stat["words"] = words;
-			stat["bytes"] = bytes;
-		}
+				stat["words"] = words;
+				stat["bytes"] = bytes;
+				stat["table bound"] = (int)table.size() - 1;
+				stat["known equivalence bound"] = known_equivalence_bound;
+			}
+		}}}
 
 		virtual bool sync_to_knowledgebase()
 		{{{
@@ -357,6 +501,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 			ret += ::serialize(this->get_alphabet_size());
 			ret += ::serialize(pushdown_directions);
 			ret += ::serialize(known_equivalence_bound);
+			ret += ::serialize(tested_equivalence_bound);
 			ret += ::serialize(table);
 
 			ret[0] = htonl(ret.length() - 1);
@@ -376,6 +521,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 			this->set_alphabet_size(size);
 			if(!::deserialize(pushdown_directions, serial)) goto deserialization_failed;
 			if(!::deserialize(known_equivalence_bound, serial)) goto deserialization_failed;
+			if(!::deserialize(tested_equivalence_bound, serial)) goto deserialization_failed;
 			if(!::deserialize(table, serial)) goto deserialization_failed;
 
 			return true;
@@ -471,13 +617,74 @@ deserialization_failed:
 		int countervalue(const list<int> & word)
 		{ return this->prefix_countervalue(word.begin(), word.end(), 0); }
 
+		bool insert_sample(const list<int> & sample, int cv)
+		// TODO: check if already contained?
+		{{{
+			if(cv >= (int)table.size())
+				table.resize(cv);
+			table[cv].samples().push_back(sample);
+			return true;
+		}}}
+
+		bool insert_representative(list<int> & rep)
+		{{{
+			int cv = prefix_countervalue(rep.begin(), rep.end(), 0);
+			if(cv < 0)
+				return false;
+			if(cv >= (int)table.size()) {
+				// FIXME: possibly add prefixes along empty tables?
+				table.resize(cv);
+			}
+
+			// fail if it already is in the table.
+			if(table[cv].representatives().find_prefix(rep) != table[cv].representatives().end())
+				return false;
+
+			// move into rep if the word is already in internal transitions.
+			typename equivalence_table::iterator ti;
+			ti = table[cv].internal_tr().find_prefix(rep);
+			if(ti != table[cv].internal_tr().end()) {
+				// delete superfluous entries
+				table[cv].internal_tr().erase(ti);
+			}
+
+			table[cv].representatives().find_or_insert_prefix(rep, cv);
+
+			for(int sigma = 0; sigma < this->get_alphabet_size(); sigma++) {
+				int ncv = cv;
+				ncv += pushdown_directions[sigma];
+				if(ncv < 0)
+					continue;
+				if(ncv > (int)table.size()) // NOTE: if == we insert so we don't loose the transition if the table is increased at some point.
+					continue;
+				rep.push_back(sigma);
+				switch(pushdown_directions[sigma]) {
+					case -1:
+						table[cv].returning_tr().find_or_insert_prefix(rep, ncv);
+						break;
+					case 0:
+						table[cv].internal_tr().find_or_insert_prefix(rep, ncv);
+						break;
+					case 1:
+						table[cv].calling_tr().find_or_insert_prefix(rep, ncv);
+						break;
+				};
+				rep.pop_back();
+			}
+			return true;
+		}}}
+
 		virtual void initialize_table()
 		{{{
 			if(!initialized) {
 				m_representatives mr;
 				table.push_back(mr);
-				table[0].samples().push_back(list<int>());
-				table[0].representatives().find_or_insert_prefix(list<int>(), 0);
+				list<int> epsilon;
+				insert_sample(epsilon, 0);
+				insert_representative(epsilon);
+
+//				table[0].samples().push_back(list<int>());
+//				table[0].representatives().find_or_insert_prefix(list<int>(), 0);
 
 				initialized = true;
 			}
@@ -487,22 +694,118 @@ deserialization_failed:
 		{ return table.fill(this->my_knowledge); }
 
 		virtual bool close()
-		{
+		// close() checks that all transitions have a corresponding equivalence class in the representatives
+		{{{
 			bool no_changes = true;
 
-			
+			typename stratified_observationtable::iterator vi;
+			int cv;
+			for(cv = 0, vi = table.begin(); vi != table.end(); ++vi, ++cv) {
+				typename equivalence_table::iterator equi, repi;
+				// returning transitions
+				if(cv-1 >= 0) {
+					for(equi = vi->returning_tr().begin(); equi != vi->returning_tr().end(); ++equi) {
+						if(table[equi->cv()].representatives().find_equivalence_class(*equi) == table[equi->cv()].representatives().end()) {
+							table[equi->cv()].representatives().push_back(*equi);
+							no_changes = false;
+							break;
+						}
+					}
+				}
+				// internal transitions
+				for(equi = vi->internal_tr().begin(); equi != vi->internal_tr().end(); ++equi) {
+					if(table[equi->cv()].representatives().find_equivalence_class(*equi) == table[equi->cv()].representatives().end()) {
+						table[equi->cv()].representatives().push_back(*equi);
+						no_changes = false;
+						break;
+					}
+				}
+				// calling transitions
+				if(cv + 1 < (int)table.size()) {
+					for(equi = vi->calling_tr().begin(); equi != vi->calling_tr().end(); ++equi) {
+						if(table[equi->cv()].representatives().find_equivalence_class(*equi) == table[equi->cv()].representatives().end()) {
+							table[equi->cv()].representatives().push_back(*equi);
+							no_changes = false;
+							break;
+						}
+					}
+				}
+			}
 
-			return no_changes; // FIXME
-		}
+			return no_changes;
+		}}}
 
 		virtual bool make_consistent()
-		{
+		// make_consistent() checks that all transitions of two equivalent representatives a, b are equivalent as well
+		{{{
+cout << "make_consistent().\n";
 			bool no_changes = true;
 
-			
+			typename stratified_observationtable::iterator vi;
+			for(vi = table.begin(); vi != table.end(); ++vi) {
+				typename equivalence_table::iterator a, b;
+				for(a = vi->representatives().begin(); a != vi->representatives().end(); ++a) {
+					b = a;
+					++b;
+					while(b != vi->representatives().end()) {
+cout << "make_consistent(): comparing " << word2string(a->prefix()) << " and " << word2string(b->prefix()) << " .\n";
+						if(a->equivalent(*b)) {
+							list<int> wa, wb;
+							wa = a->prefix();
+							wb = b->prefix();
+							// check that all transitions are equivalent as well
+							for(int sigma = 0; sigma < this->get_alphabet_size(); ++sigma) {
+								int ncv;
+								ncv = a->cv();
+								ncv += pushdown_directions[sigma];
+								if(ncv < 0 || ncv >= (int)table.size())
+									continue;
 
-			return no_changes; // FIXME
-		}
+								wa.push_back(sigma);
+								wb.push_back(sigma);
+
+								typename equivalence_table::iterator as, bs;
+								equivalence_table * t;
+								switch(pushdown_directions[sigma]) {
+									case -1:
+										t = & ( table[a->cv()].returning_tr() );
+										break;
+									case 0:
+										t = & ( table[a->cv()].internal_tr() );
+										break;
+									case +1:
+										t = & ( table[a->cv()].calling_tr() );
+										break;
+								}
+								as = t->find_prefix(wa);
+								if(as == t->end())
+									as = table[ncv].representatives().find_prefix(wa);
+
+								bs = t->find_prefix(wb);
+								if(bs == t->end())
+									bs = table[ncv].representatives().find_prefix(wb);
+
+								typename list<list<int> >::iterator bad_suffix;
+								bad_suffix = table[ncv].samples().begin();
+								if(!as->equivalent(*bs, bad_suffix)) {
+									list<int> new_suffix;
+									new_suffix = *bad_suffix;
+									new_suffix.push_front(sigma);
+									table[ncv].samples().push_back(new_suffix);
+									no_changes = false;
+								}
+
+								wa.pop_back();
+								wb.pop_back();
+							}
+						}
+						++b;
+					}
+				}
+			}
+
+			return no_changes;
+		}}}
 
 		virtual bool complete()
 		{{{
@@ -523,11 +826,45 @@ deserialization_failed:
 
 		virtual conjecture * derive_conjecture()
 		{
-			conjecture * cj = NULL;
+			if(tested_equivalence_bound == known_equivalence_bound) {
+				simple_automaton * cj;
+				// do a bounded equivalence query
+				int new_equivalence_bound = known_equivalence_bound + 1;
+cout << "bounded eq query for " << new_equivalence_bound << ".\n";
 
-			
+				cj = new simple_automaton;
+				cj->is_deterministic = true;
+				cj->alphabet_size = this->get_alphabet_size();
+				cj->state_count = 0; // done on the fly
 
-			return cj; // FIXME
+				map<pair<int, vector<answer> >, int> states; // this is not really good. something better anyone?
+
+				// generate statemap and mark initial and final states
+				typename stratified_observationtable::iterator vi;
+				for(vi = table.begin(); vi != table.end(); ++vi) {
+					typename equivalence_table::iterator equi;
+					for(equi = vi->representatives().begin(); equi != vi->representatives().end(); ++equi) {
+						pair<int, vector<answer> > footprint = equi->footprint();
+						if(states.find(footprint) == states.end()) {
+							states[footprint] = cj->state_count;
+							if(equi->prefix().empty())
+								cj->initial.insert(cj->state_count);
+							if((footprint.first == 0) && (true == (bool)(footprint.second[0])))
+								cj->final.insert(cj->state_count);
+							++cj->state_count;
+
+						}
+
+					}
+				}
+
+				// list all transitions
+				
+
+				return cj;
+			}
+
+			return NULL; // FIXME
 		}
 };
 

@@ -7,9 +7,13 @@ PREFIX ?= /usr/local
 
 CPPFLAGS+=-I../../include -I${PREFIX}/include -Wall -ggdb3
 
-LDFLAGS+=-L../../src -L${PREFIX}/lib -lalf -lAMoRE++
+LDFLAGS+=-L../../src -L${PREFIX}/lib -lalf -lAMoRE++ -lmVCA
 
 all: learn_static
+
+full_test: clean all
+	printf "\n\n\n"
+	./learn_static
 
 clean: nodata
 	-rm -f *.o learn_static

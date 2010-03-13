@@ -28,27 +28,87 @@
 #include <fstream>
 #include <algorithm>
 
+#include <libmVCA/mVCA.h>
+#include <libmVCA/deterministic_mVCA.h>
+#include <libmVCA/pushdown.h>
+
 #include <libalf/alf.h>
 #include <libalf/knowledgebase.h>
 #include <libalf/algorithm_mVCA_angluinlike.h>
 
+#include <mVCA_alf_glue.h>
+
 using namespace std;
 using namespace libalf;
+using namespace libmVCA;
 
 ostream_logger my_logger(&cout, LOGGER_DEBUG);
+
+pushdown_alphabet get_alphabet()
+{{{
+	pushdown_alphabet ret(3);
+	ret.set_direction(0, DIR_UP);
+	ret.set_direction(1, DIR_STAY);
+	ret.set_direction(2, DIR_DOWN);
+	return ret;
+}}}
+
+mVCA * get_aNbcN3()
+{{{
+	map<int, map<int, map<int, set<int> > > > transitions;
+
+	pushdown_alphabet al = get_alphabet();
+
+	set<int> final;
+	final.insert(1);
+
+	transitions[0][0][0].insert(0);
+
+	transitions[1][0][0].insert(0);
+	transitions[1][1][2].insert(1);
+
+	transitions[2][0][0].insert(0);
+	transitions[2][1][2].insert(1);
+
+	transitions[3][0][0].insert(0);
+	transitions[3][1][2].insert(1);
+	transitions[3][0][1].insert(1);
+
+	return construct_mVCA(/*state-count*/ 2, al, /*initial state*/ 0, final, /*m_bound*/ 3, transitions);
+}}};
+
 
 int main(int argc, char**argv)
 {
 	knowledgebase<bool> kb;
-	mVCA_angluinlike<bool> table(&kb, &my_logger, 1);
+	mVCA_angluinlike<bool> table(&kb, &my_logger, 3);
 	map<int, int> alphabet_pushdown_directions;
 
-	alphabet_pushdown_directions[0] = 0;
+	alphabet_pushdown_directions[0] = 1;
+	alphabet_pushdown_directions[1] = 0;
+	alphabet_pushdown_directions[2] = -1;
 	table.indicate_pushdown_alphabet_directions(alphabet_pushdown_directions);
 
+	mVCA * teacher;
+	teacher = get_aNbcN3();
 
 	// real work with algorithm:
-	table.advance();
+	while(1) {
+		conjecture * cj;
+
+		int count = 1;
+		while(NULL == (cj = table.advance())) {
+			count = mVCA_alf_glue::automaton_answer_knowledgebase(*teacher, kb);
+			cout << "answered " << count << " membership queries.\n";
+			if(count == 0) break;
+		}
+		if(count == 0) break;
+
+		// FIXME: check conjecture
+		
+		delete cj;
+
+	}
 
 
 	// debugging of table:
@@ -58,12 +118,23 @@ int main(int argc, char**argv)
 	ser = table.serialize();
 	cout << "\n\n{ ";
 	print_basic_string_2hl(ser, cout);
-	cout << " }\n\n";
+	cout << " }\n";
 
 	mVCA_angluinlike<bool> table2(&kb, &my_logger, 1);
 	serial_stretch s(ser);
 	if(!table2.deserialize(s))
 		cerr << "failed to deser!\n";
+
+	ser = table2.serialize();
+	cout << "\n{ ";
+	print_basic_string_2hl(ser, cout);
+	cout << " }\n\n";
+
+	generic_statistics stat;
+	table.receive_generic_statistics(stat);
+	cout << "statistics:\n\t";
+	stat.print(cout);
+	cout << "\n";
 
 	return 0;
 }
