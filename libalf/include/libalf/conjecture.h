@@ -105,6 +105,14 @@ class simple_automaton : public conjecture {
 		bool calculate_determinism();
 };
 
+class bounded_mVCA : public simple_automaton {
+	public:
+		int m_bound;
+	public:
+		bounded_mVCA()
+		{ m_bound = -1; }
+};
+
 class simple_mVCA : public conjecture {
 	public: // YES!
 		bool valid;

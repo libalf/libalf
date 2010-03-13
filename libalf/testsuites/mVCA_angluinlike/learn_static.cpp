@@ -94,7 +94,7 @@ int main(int argc, char**argv)
 
 	// real work with algorithm:
 	while(1) {
-		conjecture * cj;
+		conjecture * cj = NULL;
 
 		int count = 1;
 		while(NULL == (cj = table.advance())) {
@@ -104,10 +104,39 @@ int main(int argc, char**argv)
 		}
 		if(count == 0) break;
 
-		// FIXME: check conjecture
-		
-		delete cj;
+		if(NULL != dynamic_cast<bounded_mVCA*>(cj)) {
+			// partial equivalence query
+			cout << "partial equivalence query\n";
+			list<int> counterexample;
+			int bound = ( dynamic_cast<bounded_mVCA*>(cj) )->m_bound;
+			if(mVCA_alf_glue::automaton_partial_equivalence_query(*teacher, cj, bound, counterexample)) {
+				cout << "indicating equivalence with bound " << bound << ".\n";
+				table.indicate_partial_equivalence(bound);
+			} else {
+				table.add_counterexample(counterexample);
+			}
+		} else if(NULL != dynamic_cast<simple_mVCA*>(cj)) {
+			// full equivalence query
+			cout << "equivalence query\n";
+			list<int> counterexample;
+			if(mVCA_alf_glue::automaton_equivalence_query(*teacher, cj, counterexample)) {
+				cout << "learned automaton should do the trick.\n";
+				break;
+			} else {
+				table.add_counterexample(counterexample);
+			}
+		} else {
+			// bad query!
+			cerr << "bad conjecture from mVCA_angluinlike:\n\n";
+			cerr << cj->write();
+			cerr << "\n\n";
+			cerr << cj->visualize();
+			cerr << "\n\n";
+			delete cj;
+			return -1;
+		}
 
+		delete cj;
 	}
 
 

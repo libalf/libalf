@@ -738,7 +738,6 @@ deserialization_failed:
 		virtual bool make_consistent()
 		// make_consistent() checks that all transitions of two equivalent representatives a, b are equivalent as well
 		{{{
-cout << "make_consistent().\n";
 			bool no_changes = true;
 
 			typename stratified_observationtable::iterator vi;
@@ -748,7 +747,6 @@ cout << "make_consistent().\n";
 					b = a;
 					++b;
 					while(b != vi->representatives().end()) {
-cout << "make_consistent(): comparing " << word2string(a->prefix()) << " and " << word2string(b->prefix()) << " .\n";
 						if(a->equivalent(*b)) {
 							list<int> wa, wb;
 							wa = a->prefix();
@@ -824,48 +822,98 @@ cout << "make_consistent(): comparing " << word2string(a->prefix()) << " and " <
 			return true;
 		}}}
 
-		virtual conjecture * derive_conjecture()
-		{
-			if(tested_equivalence_bound == known_equivalence_bound) {
-				simple_automaton * cj;
-				// do a bounded equivalence query
-				int new_equivalence_bound = known_equivalence_bound + 1;
-cout << "bounded eq query for " << new_equivalence_bound << ".\n";
+		virtual conjecture * create_partial_equivalence_query()
+		{{{
+			bounded_mVCA * cj = new bounded_mVCA;
 
-				cj = new simple_automaton;
-				cj->is_deterministic = true;
-				cj->alphabet_size = this->get_alphabet_size();
-				cj->state_count = 0; // done on the fly
+			cj->valid = true;
+			cj->is_deterministic = true;
+			cj->alphabet_size = this->get_alphabet_size();
+			cj->state_count = 0; // done on the fly
 
-				map<pair<int, vector<answer> >, int> states; // this is not really good. something better anyone?
+			cj->m_bound = known_equivalence_bound + 1;
 
-				// generate statemap and mark initial and final states
-				typename stratified_observationtable::iterator vi;
-				for(vi = table.begin(); vi != table.end(); ++vi) {
-					typename equivalence_table::iterator equi;
-					for(equi = vi->representatives().begin(); equi != vi->representatives().end(); ++equi) {
-						pair<int, vector<answer> > footprint = equi->footprint();
-						if(states.find(footprint) == states.end()) {
-							states[footprint] = cj->state_count;
-							if(equi->prefix().empty())
-								cj->initial.insert(cj->state_count);
-							if((footprint.first == 0) && (true == (bool)(footprint.second[0])))
-								cj->final.insert(cj->state_count);
-							++cj->state_count;
+			map<pair<int, vector<answer> >, int> states; // this is not really good. something better anyone?
 
-						}
+			// generate statemap and mark initial and final states
+			typename stratified_observationtable::iterator vi;
+			typename equivalence_table::iterator equi;
+
+			for(vi = table.begin(); vi != table.end(); ++vi) {
+				for(equi = vi->representatives().begin(); equi != vi->representatives().end(); ++equi) {
+					pair<int, vector<answer> > footprint = equi->footprint();
+					if(states.find(footprint) == states.end()) {
+						states[footprint] = cj->state_count;
+						if(equi->prefix().empty())
+							cj->initial.insert(cj->state_count);
+						if((footprint.first == 0) && (true == (bool)(footprint.second[0])))
+							cj->final.insert(cj->state_count);
+						++cj->state_count;
 
 					}
+
 				}
-
-				// list all transitions
-				
-
-				return cj;
 			}
 
-			return NULL; // FIXME
+			// list all transitions
+			pair<pair<int, int>, int> new_transition; // state, sigma -> state
+			for(vi = table.begin(); vi != table.end(); ++vi) {
+				for(equi = vi->representatives().begin(); equi != vi->representatives().end(); ++equi) {
+					new_transition.first.first = states[equi->footprint()];
+					list<int> rep;
+					rep = equi->prefix();
+					for(int sigma = 0; sigma < this->get_alphabet_size(); ++sigma) {
+						int ncv = equi->cv() + pushdown_directions[sigma];
+						if(ncv < 0 || ncv >= (int)table.size())
+							continue;
+						rep.push_back(sigma);
+						new_transition.first.second = sigma;
+						pair<int, vector<answer> > footprint = equi->footprint();
+						switch(pushdown_directions[sigma]) {
+							case -1:
+								footprint = table[equi->cv()].returning_tr().find_prefix(rep)->footprint();
+								break;
+							case 0:
+								footprint = table[equi->cv()].internal_tr().find_prefix(rep)->footprint();
+								break;
+							case 1:
+								footprint = table[equi->cv()].calling_tr().find_prefix(rep)->footprint();
+								break;
+						}
+						new_transition.second = states[footprint];
+						cj->transitions.insert(new_transition);
+						rep.pop_back();
+					}
+				}
+			}
+
+			return cj;
+		}}}
+
+		virtual conjecture * create_full_equivalence_query()
+		{
+			simple_mVCA * cj = new simple_mVCA;
+
+			cj->valid = true;
+			cj->is_deterministic = true;
+//			cj->state_count =   
+			cj->alphabet_size = this->get_alphabet_size();
+			cj->alphabet_directions = pushdown_directions;
+			cj->initial_state = 0;
+//			cj->final_states   
+//			cj->m_bound =   
+//			cj->transitions   
+
+			return /* cj */ NULL;
 		}
+
+		virtual conjecture * derive_conjecture()
+		{{{
+			if(tested_equivalence_bound == known_equivalence_bound)
+				return create_partial_equivalence_query();
+			else
+				return create_full_equivalence_query();
+		}}}
 };
 
 
