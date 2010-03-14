@@ -55,8 +55,38 @@ template <class answer>
 class mVCA_angluinlike : public learning_algorithm<answer> {
 	public: // types
 
+		class sample_list : public list<list<int> > {
+			// list of all samples (suffixes) for a given cv.
+			public:
+				typedef typename list<list<int> >::iterator iterator;
+
+				bool add_sample(const list<int> & sample)
+				{{{
+					iterator li;
+					for(li = this->begin(); li != this->end(); ++li)
+						if(*li == sample)
+							return false;
+					this->push_back(sample);
+					return true;
+				}}}
+
+				int get_dynamic_memory_consumption()
+				{{{
+					int ret = 0;
+					iterator li;
+					list<int>::iterator i;
+					for(li = this->begin(); li != this->end(); ++li) {
+						ret += sizeof(list<int>);
+						for(i = li->begin(); i != li->end(); ++i)
+							ret += sizeof(int);
+					}
+
+					return ret;
+				}}}
+		};
+
 		class equivalence_approximation : public triple<list<int>, int, vector<answer> > {
-			public: // methods
+			public:
 				inline list<int>	& prefix()		{ return this->first; };
 				inline int		& cv()			{ return this->second; };
 				inline vector<answer>	& acceptances()		{ return this->third; };
@@ -78,7 +108,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 				inline bool equivalent(equivalence_approximation & other)
 				{ return cv() == other.cv() && acceptances() == other.acceptances(); }
 
-				inline bool equivalent(equivalence_approximation & other, typename list<list<int> >::iterator suffix_it)
+				inline bool equivalent(equivalence_approximation & other, typename sample_list::iterator suffix_it)
 				{{{
 					typename vector<answer>::iterator vi1, vi2;
 					vi1 = acceptances().begin();
@@ -95,10 +125,10 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 					return (vi1 == acceptances().end() && vi2 == other.acceptances().end());
 				}}}
 
-				bool fill(list<list<int> > & samples, knowledgebase<answer> * base)
+				bool fill(sample_list & samples, knowledgebase<answer> * base)
 				{{{
 					typename vector<answer>::iterator acci;
-					typename list<list<int> >::iterator sui;
+					typename sample_list::iterator sui;
 
 					for(acci = acceptances().begin(), sui = samples.begin(); acci != acceptances().end() && sui != samples.end(); ++acci, ++sui)
 						/* nothing */ ;
@@ -206,7 +236,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 					return equi;
 				}}}
 
-				bool fill(list<list<int> > & samples, knowledgebase<answer> * base)
+				bool fill(sample_list & samples, knowledgebase<answer> * base)
 				{{{
 					iterator equi;
 					bool complete = true;
@@ -238,9 +268,9 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 				}}}
 		};
 
-		class m_representatives : public triple<list<list<int> >, equivalence_table, triple<equivalence_table, equivalence_table, equivalence_table> > {
+		class m_representatives : public triple<sample_list, equivalence_table, triple<equivalence_table, equivalence_table, equivalence_table> > {
 			public: // methods
-				inline list<list<int> > & samples()		{ return this->first; }; // suffixes
+				inline sample_list & samples()			{ return this->first; }; // suffixes
 				inline equivalence_table & representatives()	{ return this->second; }; // prefixes
 				inline equivalence_table & returning_tr()	{ return this->third.first; }; // returning transitions
 				inline equivalence_table & internal_tr()	{ return this->third.second; }; // internal transitions
@@ -250,13 +280,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 				{{{
 					int ret;
 
-					list<list<int> >::iterator lli;
-					for(lli = samples().begin(); lli != samples().end(); ++lli) {
-						ret += sizeof(list<int>);
-						list<int>::iterator li;
-						for(li = lli->begin(); li != lli->end(); ++lli)
-							ret += sizeof(int);
-					}
+					ret += samples().get_dynamic_memory_consumption();
 
 					ret += representatives().get_dynamic_memory_consumption();
 
@@ -322,7 +346,8 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 						// samples
 						os << "\tcv = " << cv << ":\n";
 						os << "\t  Samples:";
-						for(list<list<int> >::iterator si = vi->samples().begin(); si != vi->samples().end(); ++si) {
+						typename sample_list::iterator si;
+						for(si = vi->samples().begin(); si != vi->samples().end(); ++si) {
 							os << " ";
 							print_word(os, *si);
 						}
@@ -416,6 +441,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 
 		int known_equivalence_bound; // the m for which the current data is isomorphic to the model
 		int tested_equivalence_bound; // the m for which we tested all corresponding mVCAs
+		int full_eq_test_current_m;
 
 		stratified_observationtable table;
 
@@ -441,6 +467,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 			this->set_alphabet_size(0);
 			known_equivalence_bound = -1;
 			tested_equivalence_bound = -1;
+			full_eq_test_current_m = -1;
 			pushdown_directions.clear();
 			table.clear();
 		}}}
@@ -502,6 +529,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 			ret += ::serialize(pushdown_directions);
 			ret += ::serialize(known_equivalence_bound);
 			ret += ::serialize(tested_equivalence_bound);
+			ret += ::serialize(full_eq_test_current_m);
 			ret += ::serialize(table);
 
 			ret[0] = htonl(ret.length() - 1);
@@ -522,6 +550,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 			if(!::deserialize(pushdown_directions, serial)) goto deserialization_failed;
 			if(!::deserialize(known_equivalence_bound, serial)) goto deserialization_failed;
 			if(!::deserialize(tested_equivalence_bound, serial)) goto deserialization_failed;
+			if(!::deserialize(full_eq_test_current_m, serial)) goto deserialization_failed;
 			if(!::deserialize(table, serial)) goto deserialization_failed;
 
 			return true;
@@ -581,7 +610,7 @@ deserialization_failed:
 		}}}
 
 		virtual bool indicate_partial_equivalence(int bound)
-		{
+		{{{
 			if(bound < known_equivalence_bound) {
 				(*this->my_logger)(LOGGER_ERROR, "mVCA_angluinlike: you indicated a partial equivalence with m=%d, but equivalence was already indicated for m=%d!", bound, known_equivalence_bound);
 				return false;
@@ -589,15 +618,18 @@ deserialization_failed:
 				known_equivalence_bound = bound;
 				return true;
 			}
-		}
+		}}}
 
 		virtual bool add_counterexample(list<int> counterexample)
-		{
-			// check if word is already in table, then return false.
-			
-
-			return true; // FIXME
-		}
+		{{{
+			if(tested_equivalence_bound == known_equivalence_bound) {
+				// counterexample is for latest partial equivalence query
+				return add_partial_counterexample(counterexample);
+			} else {
+				// counterexample is for latest full equivalence query
+				return add_full_counterexample(counterexample);
+			}
+		}}}
 
 	protected: // methods
 		int prefix_countervalue(list<int>::const_iterator word, list<int>::const_iterator limit, int initial_countervalue = 0)
@@ -617,18 +649,9 @@ deserialization_failed:
 		int countervalue(const list<int> & word)
 		{ return this->prefix_countervalue(word.begin(), word.end(), 0); }
 
-		bool insert_sample(const list<int> & sample, int cv)
-		// TODO: check if already contained?
-		{{{
-			if(cv >= (int)table.size())
-				table.resize(cv);
-			table[cv].samples().push_back(sample);
-			return true;
-		}}}
-
 		bool insert_representative(list<int> & rep)
 		{{{
-			int cv = prefix_countervalue(rep.begin(), rep.end(), 0);
+			int cv = countervalue(rep);
 			if(cv < 0)
 				return false;
 			if(cv >= (int)table.size()) {
@@ -674,26 +697,74 @@ deserialization_failed:
 			return true;
 		}}}
 
+		bool add_partial_counterexample(list<int> & counterexample)
+		{{{
+			list<int> suffix;
+			int cv = countervalue(counterexample);
+			bool first = true;
+
+			if(cv != 0) {
+				(*this->my_logger)(LOGGER_ERROR, "mVCA_angluinlike: bad counterexample to partial equivalence query:"
+								" %s has countervalue %d. should be 0.\n",
+								word2string(counterexample).c_str(), cv);
+				return false;
+			}
+
+			while(!counterexample.empty()) {
+				if(!insert_representative(counterexample)) {
+					if(first) {
+						(*this->my_logger)(LOGGER_ERROR, "mVCA_angluinlike: counterexample to partial equivalence query"
+										" %s is already contained in tables!\n",
+										word2string(counterexample).c_str());
+						return false;
+					}
+				}
+				table[cv].samples().add_sample(suffix);
+
+				first = false;
+
+				int sigma = counterexample.back();
+				counterexample.pop_back();
+				cv -= pushdown_directions[sigma];
+				suffix.push_front(sigma);
+			}
+
+			table[0].samples().add_sample(suffix);
+
+			return true;
+		}}}
+
+		bool add_full_counterexample(list<int> & counterexample)
+		{
+			if(full_eq_test_current_m < 0) {
+				(*this->my_logger)(LOGGER_ERROR, "mVCA_angluinlike: giving counterexample to full eq query, but the latest m tested was -1 ?!"
+						" either you gave a counterexample right after indicating a new partial equivalence,"
+						" or this is an internal bug. in the latter case, please create a testcase and send it to the developers.\n");
+				return false;
+			}
+
+			// FIXME
+			
+			full_eq_test_current_m = -1;
+			return false;
+		}
+
 		virtual void initialize_table()
 		{{{
 			if(!initialized) {
 				m_representatives mr;
 				table.push_back(mr);
 				list<int> epsilon;
-				insert_sample(epsilon, 0);
+				table[0].samples().add_sample(epsilon);
 				insert_representative(epsilon);
-
-//				table[0].samples().push_back(list<int>());
-//				table[0].representatives().find_or_insert_prefix(list<int>(), 0);
-
 				initialized = true;
 			}
 		}}}
 
-		virtual bool fill_missing_columns()
+		bool fill_missing_columns()
 		{ return table.fill(this->my_knowledge); }
 
-		virtual bool close()
+		bool close()
 		// close() checks that all transitions have a corresponding equivalence class in the representatives
 		{{{
 			bool no_changes = true;
@@ -735,7 +806,7 @@ deserialization_failed:
 			return no_changes;
 		}}}
 
-		virtual bool make_consistent()
+		bool make_consistent()
 		// make_consistent() checks that all transitions of two equivalent representatives a, b are equivalent as well
 		{{{
 			bool no_changes = true;
@@ -783,7 +854,7 @@ deserialization_failed:
 								if(bs == t->end())
 									bs = table[ncv].representatives().find_prefix(wb);
 
-								typename list<list<int> >::iterator bad_suffix;
+								typename sample_list::iterator bad_suffix;
 								bad_suffix = table[ncv].samples().begin();
 								if(!as->equivalent(*bs, bad_suffix)) {
 									list<int> new_suffix;
@@ -822,7 +893,7 @@ deserialization_failed:
 			return true;
 		}}}
 
-		virtual conjecture * create_partial_equivalence_query()
+		conjecture * create_partial_equivalence_query()
 		{{{
 			bounded_mVCA * cj = new bounded_mVCA;
 
@@ -890,8 +961,9 @@ deserialization_failed:
 			return cj;
 		}}}
 
-		virtual conjecture * create_full_equivalence_query()
+		conjecture * create_full_equivalence_query()
 		{
+			// FIXME
 			simple_mVCA * cj = new simple_mVCA;
 
 			cj->valid = true;
