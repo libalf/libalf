@@ -753,9 +753,6 @@ bool deterministic_finite_automaton::construct(bool is_dfa, int alphabet_size, i
 	si = initial.begin();
 	a->init = *si; // initial states
 	a->alphabet_size = alphabet_size; // alphabet size
-	a->final = newfinal(a->highest_state); // final states
-	for(set<int>::iterator i = final.begin(); i != final.end(); i++)
-		setfinal((a->final[*i]), 1);
 	a->delta = newddelta(a->alphabet_size, a->highest_state); // transition function: delta[sigma][source] = destination
 	// currently, delta[n] = 0. thus all undefined transitions would lead to
 	// state 0. we don't want this, thus we reset the value here and add a
@@ -790,6 +787,9 @@ bool deterministic_finite_automaton::construct(bool is_dfa, int alphabet_size, i
 			dispose(tmp[i]);
 		dispose(tmp);
 	}
+	a->final = newfinal(a->highest_state); // final states
+	for(set<int>::iterator i = final.begin(); i != final.end(); i++)
+		setfinal((a->final[*i]), 1);
 
 	a->minimal = FALSE;
 
