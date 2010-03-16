@@ -125,47 +125,43 @@ int main(int argc, char**argv)
 
 		int count = 0;
 		int delta;
-		cout << "membership query cycle.\n";
+		my_logger(LOGGER_DEBUG, "membership-query cycle\n");
 		while(NULL == (cj = table.advance())) {
 			delta = mVCA_alf_glue::automaton_answer_knowledgebase(*teacher, kb);
 			count += delta;
 			if(delta == 0) break;
 		}
-		cout << "answered " << count << " membership queries to receive next conjecture.\n";
+		my_logger(LOGGER_DEBUG, "answered %d membership queries for next conjecture.\n", count);
 		if(delta == 0) break;
 
 		if(NULL != dynamic_cast<bounded_mVCA*>(cj)) {
 			// partial equivalence query
-			cout << "partial equivalence query\n";
-			cout << cj->visualize();
-			list<int> counterexample;
 			int bound = ( dynamic_cast<bounded_mVCA*>(cj) )->m_bound;
+			my_logger(LOGGER_INFO, "partial equivalence query for bound %d.\n", bound);
+//			cout << cj->visualize();
+			list<int> counterexample;
 			if(mVCA_alf_glue::automaton_partial_equivalence_query(*teacher, cj, bound, counterexample)) {
-				cout << "  indicating equivalence with bound " << bound << ".\n";
+				my_logger(LOGGER_INFO, "is equivalent.\n");
 				table.indicate_partial_equivalence(bound);
 			} else {
-				cout << "  got cex " << word2string(counterexample) << "\n";
+				my_logger(LOGGER_INFO, "results in counterexample %s .\n", word2string(counterexample).c_str());
 				table.add_counterexample(counterexample);
 			}
 		} else if(NULL != dynamic_cast<simple_mVCA*>(cj)) {
 			// full equivalence query
-			cout << "full equivalence query\n";
-			cout << cj->visualize();
+			my_logger(LOGGER_INFO, "full equivalence query.\n");
+//			cout << cj->visualize();
 			list<int> counterexample;
 			if(mVCA_alf_glue::automaton_equivalence_query(*teacher, cj, counterexample)) {
-				cout << "  learned automaton should do the trick\n";
+				my_logger(LOGGER_INFO, "is equivalent.\n");
 				break;
 			} else {
-				cout << "  got cex " << word2string(counterexample) << "\n";
+				my_logger(LOGGER_INFO, "results in counterexample %s .\n", word2string(counterexample).c_str());
 				table.add_counterexample(counterexample);
 			}
 		} else {
 			// bad query!
-			cerr << "bad conjecture from mVCA_angluinlike:\n\n";
-			cerr << cj->write();
-			cerr << "\n\n";
-			cerr << cj->visualize();
-			cerr << "\n\n";
+			my_logger(LOGGER_ERROR, "bad conjecture from mVCA_angluinlike:\n\n%s\n\n%s\n\n", cj->write().c_str(), cj->visualize().c_str());
 			delete cj;
 			return -1;
 		}

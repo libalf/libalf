@@ -639,17 +639,7 @@ deserialization_failed:
 		}}}
 
 		virtual bool conjecture_ready()
-		// TODO: implement *efficient* version
-		{{{
-			if(!complete())
-				return false;
-
-			conjecture * cj = derive_conjecture();
-			if(NULL == cj)
-				return false;
-			delete cj;
-			return true;
-		}}}
+		{ return complete(); };
 
 		virtual bool indicate_partial_equivalence(int bound)
 		{{{
@@ -936,13 +926,17 @@ deserialization_failed:
 			if(!fill_missing_columns())
 				return false;
 
-			print(cout);
+			(*this->my_logger)(LOGGER_ALGORITHM, "%s", to_string().c_str());
 
-			if(!close())
+			if(!close()) {
+				(*this->my_logger)(LOGGER_ALGORITHM, "closing...\n");
 				return complete();
+			}
 
-			if(!make_consistent())
+			if(!make_consistent()) {
+				(*this->my_logger)(LOGGER_ALGORITHM, "making consistent...\n");
 				return complete();
+			}
 
 			return true;
 		}}}
@@ -962,7 +956,7 @@ deserialization_failed:
 
 			// generate statemap and mark initial and final states
 			typename stratified_observationtable::iterator vi;
-			typename equivalence_table::iterator equi, equi2;
+			typename equivalence_table::iterator equi;
 
 			for(vi = table.begin(); vi != table.end(); ++vi) {
 				for(equi = vi->representatives().begin(); equi != vi->representatives().end(); ++equi) {
@@ -988,26 +982,19 @@ deserialization_failed:
 					list<int> rep;
 					rep = equi->prefix();
 					for(int sigma = 0; sigma < this->get_alphabet_size(); ++sigma) {
-						int ncv = equi->cv() + pushdown_directions[sigma];
+						int dcv = pushdown_directions[sigma];
+						int ncv = equi->cv() + dcv;
 						if(ncv < 0 || ncv >= (int)table.size())
 							continue;
+
 						rep.push_back(sigma);
 						new_transition.first.second = sigma;
+
 						pair<int, vector<answer> > footprint = equi->footprint();
-						switch(pushdown_directions[sigma]) {
-							case -1:
-								footprint = table[equi->cv()].returning_tr().find_prefix(rep)->footprint();
-								break;
-							case 0:
-								equi2 = table[equi->cv()].internal_tr().find_prefix(rep);
-								if(equi2 == table[equi->cv()].internal_tr().end())
-									equi2 = table[equi->cv()].representatives().find_prefix(rep);
-								footprint = equi2->footprint();
-								break;
-							case 1:
-								footprint = table[equi->cv()].calling_tr().find_prefix(rep)->footprint();
-								break;
-						}
+						bool found;
+
+						footprint = table.find_transition(rep, equi->cv(), dcv, found).second->footprint();
+
 						new_transition.second = states[footprint];
 						cj->transitions.insert(new_transition);
 						rep.pop_back();
