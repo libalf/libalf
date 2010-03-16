@@ -77,6 +77,33 @@ mVCA * get_aNbcN3()
 	return construct_mVCA(/*state-count*/ 2, al, /*initial state*/ 0, final, /*m_bound*/ 3, transitions);
 }}};
 
+mVCA * get_aNbcN3_or_b()
+{{{
+	map<int, map<int, map<int, set<int> > > > transitions;
+	// m->state->sigma->states
+
+	pushdown_alphabet al = get_alphabet();
+
+	set<int> final;
+	final.insert(1);
+	final.insert(2);
+
+	transitions[0][0][0].insert(0);
+	transitions[0][0][1].insert(2);
+
+	transitions[1][0][0].insert(0);
+	transitions[1][1][2].insert(1);
+
+	transitions[2][0][0].insert(0);
+	transitions[2][1][2].insert(1);
+
+	transitions[3][0][0].insert(0);
+	transitions[3][1][2].insert(1);
+	transitions[3][0][1].insert(1);
+
+	return construct_mVCA(/*state-count*/ 3, al, /*initial state*/ 0, final, /*m_bound*/ 3, transitions);
+}}};
+
 
 int main(int argc, char**argv)
 {
@@ -90,39 +117,46 @@ int main(int argc, char**argv)
 	table.indicate_pushdown_alphabet_directions(alphabet_pushdown_directions);
 
 	mVCA * teacher;
-	teacher = get_aNbcN3();
+	teacher = get_aNbcN3_or_b();
 
 	// real work with algorithm:
 	while(1) {
 		conjecture * cj = NULL;
 
-		int count = 1;
+		int count = 0;
+		int delta;
+		cout << "membership query cycle.\n";
 		while(NULL == (cj = table.advance())) {
-			count = mVCA_alf_glue::automaton_answer_knowledgebase(*teacher, kb);
-			cout << "answered " << count << " membership queries.\n";
-			if(count == 0) break;
+			delta = mVCA_alf_glue::automaton_answer_knowledgebase(*teacher, kb);
+			count += delta;
+			if(delta == 0) break;
 		}
-		if(count == 0) break;
+		cout << "answered " << count << " membership queries to receive next conjecture.\n";
+		if(delta == 0) break;
 
 		if(NULL != dynamic_cast<bounded_mVCA*>(cj)) {
 			// partial equivalence query
 			cout << "partial equivalence query\n";
+			cout << cj->visualize();
 			list<int> counterexample;
 			int bound = ( dynamic_cast<bounded_mVCA*>(cj) )->m_bound;
 			if(mVCA_alf_glue::automaton_partial_equivalence_query(*teacher, cj, bound, counterexample)) {
-				cout << "indicating equivalence with bound " << bound << ".\n";
+				cout << "  indicating equivalence with bound " << bound << ".\n";
 				table.indicate_partial_equivalence(bound);
 			} else {
+				cout << "  got cex " << word2string(counterexample) << "\n";
 				table.add_counterexample(counterexample);
 			}
 		} else if(NULL != dynamic_cast<simple_mVCA*>(cj)) {
 			// full equivalence query
-			cout << "equivalence query\n";
+			cout << "full equivalence query\n";
+			cout << cj->visualize();
 			list<int> counterexample;
 			if(mVCA_alf_glue::automaton_equivalence_query(*teacher, cj, counterexample)) {
-				cout << "learned automaton should do the trick.\n";
+				cout << "  learned automaton should do the trick\n";
 				break;
 			} else {
+				cout << "  got cex " << word2string(counterexample) << "\n";
 				table.add_counterexample(counterexample);
 			}
 		} else {
@@ -145,19 +179,19 @@ int main(int argc, char**argv)
 
 	basic_string<int32_t> ser;
 	ser = table.serialize();
-	cout << "\n\n{ ";
-	print_basic_string_2hl(ser, cout);
-	cout << " }\n";
+//	cout << "\n\n{ ";
+//	print_basic_string_2hl(ser, cout);
+//	cout << " }\n";
 
 	mVCA_angluinlike<bool> table2(&kb, &my_logger, 1);
 	serial_stretch s(ser);
 	if(!table2.deserialize(s))
 		cerr << "failed to deser!\n";
 
-	ser = table2.serialize();
-	cout << "\n{ ";
-	print_basic_string_2hl(ser, cout);
-	cout << " }\n\n";
+//	ser = table2.serialize();
+//	cout << "\n{ ";
+//	print_basic_string_2hl(ser, cout);
+//	cout << " }\n\n";
 
 	generic_statistics stat;
 	table.receive_generic_statistics(stat);

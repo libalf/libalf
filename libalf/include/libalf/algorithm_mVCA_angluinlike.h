@@ -59,11 +59,12 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 			// list of all samples (suffixes) for a given cv.
 			public:
 				typedef typename list<list<int> >::iterator iterator;
+				typedef typename list<list<int> >::reverse_iterator reverse_iterator;
 
 				bool add_sample(const list<int> & sample)
 				{{{
-					iterator li;
-					for(li = this->begin(); li != this->end(); ++li)
+					reverse_iterator li;
+					for(li = this->rbegin(); li != this->rend(); ++li)
 						if(*li == sample)
 							return false;
 					this->push_back(sample);
@@ -205,6 +206,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 					while(r != this->end()) {
 						if(r->prefix() == prefix)
 							break;
+						++r;
 					}
 					return r;
 				}}}
@@ -295,6 +297,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 		class stratified_observationtable : public vector<m_representatives> {
 			public:
 				typedef typename vector<m_representatives>::iterator iterator;
+				typedef pair<equivalence_table *, typename equivalence_table::iterator> location;
 
 				bool fill(knowledgebase<answer> * base)
 				{{{
@@ -430,6 +433,45 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 					}
 
 					return words;
+				}}}
+
+				location find_representative(const list<int> & rep, int cv, bool & exists)
+				{{{
+					location ret;
+
+					ret.first = & ( this->operator[](cv).representatives() );
+					ret.second = ret.first->find_prefix(rep);
+					exists = (ret.second != ret.first->end());
+
+					return ret;
+				}}}
+
+				location find_transition(const list<int> & transition, int cv_without_transition, int sigma_direction, bool & exists)
+				{{{
+					location ret;
+
+
+					switch(sigma_direction) {
+						case -1:
+							ret.first = & ( this->operator[](cv_without_transition).returning_tr() );
+							break;
+						case 0:
+							ret.first = & ( this->operator[](cv_without_transition).internal_tr() );
+							break;
+						case +1:
+							ret.first = & ( this->operator[](cv_without_transition).calling_tr() );
+							break;
+					}
+					ret.second = ret.first->find_prefix(transition);
+					exists = (ret.second != ret.first->end());
+
+					if(!exists) {
+						ret.first = & ( this->operator[](cv_without_transition + sigma_direction).representatives() );
+						ret.second = ret.first->find_prefix(transition);
+						exists = (ret.second != ret.first->end());
+					}
+
+					return ret;
 				}}}
 		};
 
@@ -649,29 +691,46 @@ deserialization_failed:
 		int countervalue(const list<int> & word)
 		{ return this->prefix_countervalue(word.begin(), word.end(), 0); }
 
-		bool insert_representative(list<int> & rep)
+		typename equivalence_table::iterator insert_representative(list<int> rep, bool & success)
 		{{{
+			typename equivalence_table::iterator new_rep = table[0].representatives().end();
 			int cv = countervalue(rep);
-			if(cv < 0)
-				return false;
+
+			typename equivalence_table::iterator ti;
+			typename stratified_observationtable::location loc;
+
+			if(cv < 0) {
+				success = false;
+				return new_rep;
+			}
 			if(cv >= (int)table.size()) {
 				// FIXME: possibly add prefixes along empty tables?
-				table.resize(cv);
+				table.resize(cv+1);
 			}
 
 			// fail if it already is in the table.
-			if(table[cv].representatives().find_prefix(rep) != table[cv].representatives().end())
-				return false;
-
-			// move into rep if the word is already in internal transitions.
-			typename equivalence_table::iterator ti;
-			ti = table[cv].internal_tr().find_prefix(rep);
-			if(ti != table[cv].internal_tr().end()) {
-				// delete superfluous entries
-				table[cv].internal_tr().erase(ti);
+			bool found;
+			loc = table.find_representative(rep, cv, found);
+			if(found) {
+				success = false;
+				return new_rep;
 			}
 
-			table[cv].representatives().find_or_insert_prefix(rep, cv);
+			// check if there is a matching transition
+			found = false;
+			if(rep.size() > 0) {
+				int cvd;
+				cvd = pushdown_directions[rep.back()];
+				loc = table.find_transition(rep, cv - cvd, cvd, found);
+			}
+
+			new_rep = table[cv].representatives().find_or_insert_prefix(rep, cv);
+
+			if(found) {
+				// if there is a matching transition, copy data from it and delete it
+				new_rep->acceptances() = loc.second->acceptances();
+				loc.first->erase(loc.second);
+			}
 
 			for(int sigma = 0; sigma < this->get_alphabet_size(); sigma++) {
 				int ncv = cv;
@@ -694,14 +753,16 @@ deserialization_failed:
 				};
 				rep.pop_back();
 			}
-			return true;
+			success = true;
+			return new_rep;
 		}}}
 
 		bool add_partial_counterexample(list<int> & counterexample)
 		{{{
 			list<int> suffix;
 			int cv = countervalue(counterexample);
-			bool first = true;
+			typename stratified_observationtable::location loc;
+			bool success;
 
 			if(cv != 0) {
 				(*this->my_logger)(LOGGER_ERROR, "mVCA_angluinlike: bad counterexample to partial equivalence query:"
@@ -710,26 +771,28 @@ deserialization_failed:
 				return false;
 			}
 
-			while(!counterexample.empty()) {
-				if(!insert_representative(counterexample)) {
-					if(first) {
-						(*this->my_logger)(LOGGER_ERROR, "mVCA_angluinlike: counterexample to partial equivalence query"
-										" %s is already contained in tables!\n",
-										word2string(counterexample).c_str());
-						return false;
-					}
-				}
-				table[cv].samples().add_sample(suffix);
-
-				first = false;
-
-				int sigma = counterexample.back();
-				counterexample.pop_back();
-				cv -= pushdown_directions[sigma];
-				suffix.push_front(sigma);
+			loc = table.find_representative(counterexample, cv, success);
+			if(success) {
+				(*this->my_logger)(LOGGER_ERROR, "mVCA_angluinlike: counterexample to partial equivalence query"
+								" %s is already contained in tables!\n",
+								word2string(counterexample).c_str());
+				return false;
 			}
 
-			table[0].samples().add_sample(suffix);
+			cv = 0;
+			suffix.swap(counterexample); // we have to do this in length-increasing order, otherwise the prefix-closedness is violated
+
+			while(!suffix.empty()) {
+				insert_representative(counterexample, success);
+				table[cv].samples().add_sample(suffix);
+
+				int sigma = suffix.front();
+				suffix.pop_front();
+				cv += pushdown_directions[sigma];
+				counterexample.push_back(sigma);
+			}
+
+			insert_representative(counterexample, success);
 
 			return true;
 		}}}
@@ -756,7 +819,8 @@ deserialization_failed:
 				table.push_back(mr);
 				list<int> epsilon;
 				table[0].samples().add_sample(epsilon);
-				insert_representative(epsilon);
+				bool success;
+				insert_representative(epsilon, success);
 				initialized = true;
 			}
 		}}}
@@ -773,29 +837,32 @@ deserialization_failed:
 			int cv;
 			for(cv = 0, vi = table.begin(); vi != table.end(); ++vi, ++cv) {
 				typename equivalence_table::iterator equi, repi;
+				bool success;
 				// returning transitions
 				if(cv-1 >= 0) {
 					for(equi = vi->returning_tr().begin(); equi != vi->returning_tr().end(); ++equi) {
 						if(table[equi->cv()].representatives().find_equivalence_class(*equi) == table[equi->cv()].representatives().end()) {
-							table[equi->cv()].representatives().push_back(*equi);
+							insert_representative(equi->prefix(), success)->acceptances() = equi->acceptances();
 							no_changes = false;
 							break;
 						}
 					}
 				}
 				// internal transitions
-				for(equi = vi->internal_tr().begin(); equi != vi->internal_tr().end(); ++equi) {
-					if(table[equi->cv()].representatives().find_equivalence_class(*equi) == table[equi->cv()].representatives().end()) {
-						table[equi->cv()].representatives().push_back(*equi);
-						no_changes = false;
-						break;
+				{
+					for(equi = vi->internal_tr().begin(); equi != vi->internal_tr().end(); ++equi) {
+						if(table[equi->cv()].representatives().find_equivalence_class(*equi) == table[equi->cv()].representatives().end()) {
+							insert_representative(equi->prefix(), success)->acceptances() = equi->acceptances();
+							no_changes = false;
+							break;
+						}
 					}
 				}
 				// calling transitions
 				if(cv + 1 < (int)table.size()) {
 					for(equi = vi->calling_tr().begin(); equi != vi->calling_tr().end(); ++equi) {
 						if(table[equi->cv()].representatives().find_equivalence_class(*equi) == table[equi->cv()].representatives().end()) {
-							table[equi->cv()].representatives().push_back(*equi);
+							insert_representative(equi->prefix(), success)->acceptances() = equi->acceptances();
 							no_changes = false;
 							break;
 						}
@@ -824,39 +891,24 @@ deserialization_failed:
 							wb = b->prefix();
 							// check that all transitions are equivalent as well
 							for(int sigma = 0; sigma < this->get_alphabet_size(); ++sigma) {
-								int ncv;
-								ncv = a->cv();
-								ncv += pushdown_directions[sigma];
+								int cvd, ncv;
+								cvd = pushdown_directions[sigma];
+								ncv = a->cv() + cvd;
 								if(ncv < 0 || ncv >= (int)table.size())
 									continue;
 
 								wa.push_back(sigma);
 								wb.push_back(sigma);
 
-								typename equivalence_table::iterator as, bs;
-								equivalence_table * t;
-								switch(pushdown_directions[sigma]) {
-									case -1:
-										t = & ( table[a->cv()].returning_tr() );
-										break;
-									case 0:
-										t = & ( table[a->cv()].internal_tr() );
-										break;
-									case +1:
-										t = & ( table[a->cv()].calling_tr() );
-										break;
-								}
-								as = t->find_prefix(wa);
-								if(as == t->end())
-									as = table[ncv].representatives().find_prefix(wa);
+								typename stratified_observationtable::location as, bs;
 
-								bs = t->find_prefix(wb);
-								if(bs == t->end())
-									bs = table[ncv].representatives().find_prefix(wb);
+								bool success;
+								as = table.find_transition(wa, a->cv(), cvd, success);
+								bs = table.find_transition(wb, b->cv(), cvd, success);
 
 								typename sample_list::iterator bad_suffix;
 								bad_suffix = table[ncv].samples().begin();
-								if(!as->equivalent(*bs, bad_suffix)) {
+								if(!as.second->equivalent(*bs.second, bad_suffix)) {
 									list<int> new_suffix;
 									new_suffix = *bad_suffix;
 									new_suffix.push_front(sigma);
@@ -884,6 +936,8 @@ deserialization_failed:
 			if(!fill_missing_columns())
 				return false;
 
+			print(cout);
+
 			if(!close())
 				return complete();
 
@@ -908,7 +962,7 @@ deserialization_failed:
 
 			// generate statemap and mark initial and final states
 			typename stratified_observationtable::iterator vi;
-			typename equivalence_table::iterator equi;
+			typename equivalence_table::iterator equi, equi2;
 
 			for(vi = table.begin(); vi != table.end(); ++vi) {
 				for(equi = vi->representatives().begin(); equi != vi->representatives().end(); ++equi) {
@@ -945,7 +999,10 @@ deserialization_failed:
 								footprint = table[equi->cv()].returning_tr().find_prefix(rep)->footprint();
 								break;
 							case 0:
-								footprint = table[equi->cv()].internal_tr().find_prefix(rep)->footprint();
+								equi2 = table[equi->cv()].internal_tr().find_prefix(rep);
+								if(equi2 == table[equi->cv()].internal_tr().end())
+									equi2 = table[equi->cv()].representatives().find_prefix(rep);
+								footprint = equi2->footprint();
 								break;
 							case 1:
 								footprint = table[equi->cv()].calling_tr().find_prefix(rep)->footprint();
