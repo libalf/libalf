@@ -1040,7 +1040,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		return ret;
 	}
 		
-	void increase_alphabet_size(int new_size) {
+	void increase_alphabet_size(int __attribute__ ((__unused__)) new_size) {
 		(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: Increasing alphabet size is not supported by this implementation!\n");
 	}
 	
@@ -1066,7 +1066,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		return false;
 	}
 	
-	bool deserialize(serial_stretch & serial) {
+	bool deserialize(serial_stretch __attribute__ ((__unused__)) & serial) {
 		(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: this implementation does not support serialization!\n");
 		return false;
 	}

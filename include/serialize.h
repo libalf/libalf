@@ -65,7 +65,7 @@ class  serial_stretch {
 		inline serial_stretch & operator++()
 		{ current++; return *this; };
 
-		inline serial_stretch operator++(int foo)
+		inline serial_stretch operator++(int __attribute__ ((__unused__)) foo)
 		{ serial_stretch s; s = *this; operator++(); return s; };
 
 		inline int operator*()

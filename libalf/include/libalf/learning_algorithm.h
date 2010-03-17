@@ -216,7 +216,11 @@ class learning_algorithm {
 
 		// for algorithm-specific commands (e.g. parameter passing via dispatcher)
 		virtual bool deserialize_magic(serial_stretch & serial, basic_string<int32_t> & result)
-		{ result.clear(); return false; };
+		{{{
+			serial.empty(); /* <- this is just so we don't get a not-used warning */
+			result.clear();
+			return false;
+		}}};
 
 		virtual void print(ostream &os) = 0;
 		virtual string to_string() = 0;

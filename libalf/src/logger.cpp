@@ -85,7 +85,7 @@ void logger::set_log_algorithm(bool log_algorithm)
 
 ignore_logger::~ignore_logger()
 { /* nothing */ }
-void ignore_logger::log(enum logger_loglevel l, const char* s)
+void ignore_logger::log(enum logger_loglevel __attribute__ ((__unused__)) l, const char __attribute__ ((__unused__)) * s)
 { /* nothing */ }
 
 
@@ -160,7 +160,7 @@ string * buffered_logger::receive_and_flush()
 	return tmp;
 }}}
 
-void buffered_logger::log(enum logger_loglevel l, const char* s)
+void buffered_logger::log(enum logger_loglevel __attribute__ ((__unused__)) l, const char* s)
 {{{
 	buffer->append(s);
 }}}

@@ -105,7 +105,7 @@ mVCA * get_aNbcN3_or_b()
 }}};
 
 
-int main(int argc, char**argv)
+int main()
 {
 	knowledgebase<bool> kb;
 	mVCA_angluinlike<bool> table(&kb, &my_logger, 3);

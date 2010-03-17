@@ -220,7 +220,7 @@ int main(int argc, char**argv)
 
 					servant sv(cl);
 
-					while(sv.serve());
+					while(sv.serve()) ;
 
 					// end child.
 					log("TERMINATING: client %d.\n", getpid());

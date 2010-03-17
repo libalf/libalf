@@ -162,7 +162,7 @@ void co_knowledgebase_iterator::ref_knowledgebase(int oid)
 	referenced_knowledgebase = oid;
 }}};
 
-void co_knowledgebase_iterator::deref_knowledgebase(int oid)
+void co_knowledgebase_iterator::deref_knowledgebase(int __attribute__ ((__unused__)) oid)
 {{{
 	referenced_knowledgebase = -1;
 	invalidate();

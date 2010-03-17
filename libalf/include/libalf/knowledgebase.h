@@ -815,7 +815,7 @@ class knowledgebase {
 					}
 					return *this;
 				}}}
-				iterator operator++(int foo)
+				iterator operator++(int __attribute__ ((__unused__)) foo)
 				{{{
 					iterator tmp = (*this);
 					operator++();
@@ -1324,7 +1324,7 @@ class knowledgebase {
 					if(!this->add_knowledge(w, ki->get_answer()))
 						/* this should never happen as we
 						 * already checked for consistency */
-						;
+						{};
 					timestamp = static_timestamp;
 				}
 			// increment timestamp so we mark one complete merge with a single timestamp
@@ -1608,7 +1608,7 @@ class kIterator_lex_graded {
 
 			return *this;
 		}}}
-		kIterator_lex_graded operator++(int foo)
+		kIterator_lex_graded operator++(int __attribute__ ((__unused__)) foo)
 		{{{
 			kIterator_lex_graded tmp = (*this);
 			operator++();

@@ -133,7 +133,7 @@ set<int> mVCA::get_final_states()
 }}}
 bool mVCA::set_initial_state(unsigned int state)
 {{{
-	if(state >= 0 && state < state_count) {
+	if(state < state_count) {
 		this->initial_state = state;
 		return true;
 	} else {

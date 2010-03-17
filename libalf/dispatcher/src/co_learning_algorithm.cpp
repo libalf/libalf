@@ -314,7 +314,7 @@ void co_learning_algorithm::ref_knowledgebase(int oid)
 	this->o->set_knowledge_source( ( dynamic_cast<co_knowledgebase*>(this->sv->objects[oid]) )->o );
 }}};
 
-void co_learning_algorithm::deref_knowledgebase(int oid)
+void co_learning_algorithm::deref_knowledgebase(int __attribute__ ((__unused__)) oid)
 {{{
 	referenced_knowledgebase = -1;
 	if(o)
@@ -333,7 +333,7 @@ void co_learning_algorithm::ref_logger(int oid)
 	this->o->set_logger( ( dynamic_cast<co_logger*>(this->sv->objects[oid]) )->o );
 }}};
 
-void co_learning_algorithm::deref_logger(int oid)
+void co_learning_algorithm::deref_logger(int __attribute__ ((__unused__)) oid)
 {{{
 	referenced_logger = -1;
 	if(o)
@@ -352,7 +352,7 @@ void co_learning_algorithm::ref_normalizer(int oid)
 	this->o->set_normalizer( ( dynamic_cast<co_normalizer*>(this->sv->objects[oid]) )->o );
 }}};
 
-void co_learning_algorithm::deref_normalizer(int oid)
+void co_learning_algorithm::deref_normalizer(int __attribute__ ((__unused__)) oid)
 {{{
 	referenced_normalizer = -1;
 	if(o)

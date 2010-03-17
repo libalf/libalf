@@ -99,12 +99,12 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 				{ this->prefix() = prefix; this->cv() = cv; };
 
 				pair<int, vector<answer> > footprint()
-				{
+				{{{
 					pair<int, vector<answer> > ret;
 					ret.first = cv();
 					ret.second = acceptances();
 					return ret;
-				};
+				}}};
 
 				inline bool equivalent(equivalence_approximation & other)
 				{ return cv() == other.cv() && acceptances() == other.acceptances(); }
@@ -497,7 +497,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 		int tested_equivalence_bound; // the m for which the latest partial equivalence test was (usually known_equivalence_bound+1)
 		int full_eq_test__current_m; // the current m we are testing
 		int full_eq_test__queried_m; // the m that the last query was for
-		pair<int, list<int> > full_eq_test__counterexample;
+		pair<int, list<int> > full_eq_test__counterexample; // <height, word>
 
 		stratified_observationtable table;
 
@@ -917,7 +917,7 @@ deserialization_failed:
 				// add the picked counterexample and start membership-cycle again.
 
 				if(full_eq_test__counterexample.first < 0) {
-					(*this->my_logger)(LOGGER_ERROR, "mVCA_angluinlike: you did not give a single valid counterexample to any of my full equivalence queries.\n");
+					(*this->my_logger)(LOGGER_ERROR, "mVCA_angluinlike: you did not give a single valid counterexample to any of my full equivalence queries. (i.e. one that has a height higher than the known partial equivalence.)\n");
 					--full_eq_test__current_m;
 					return false;
 				}

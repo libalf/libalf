@@ -394,19 +394,6 @@ class angluin_table : public learning_algorithm<answer> {
 			return search_lower_table(word);
 		}}}
 
-		// this expects a NORMALIZED word!
-		virtual typename table::iterator search_tables(list<int> &word, bool &upper_table, int&index)
-		{{{
-			typename table::iterator it;
-
-			it = search_upper_table(word, index);
-			if(index != -1) {
-				return it;
-			}
-
-			return search_lower_table(word, index);
-		}}}
-
 		virtual bool add_column(list<int> word)
 		// returns true if column was added,
 		// false if column was there earlier
@@ -578,13 +565,13 @@ class angluin_table : public learning_algorithm<answer> {
 				return false;
 			}
 
-			sync_table_acceptances(upper_table, true);
-			sync_table_acceptances(lower_table, false);
+			sync_table_acceptances(upper_table);
+			sync_table_acceptances(lower_table);
 
 			return true;
 		}}}
 
-		virtual void sync_table_acceptances(table & t, bool upper)
+		virtual void sync_table_acceptances(table & t)
 		{{{
 			typename columnlist::iterator ci;
 			typename acceptances::iterator ai;

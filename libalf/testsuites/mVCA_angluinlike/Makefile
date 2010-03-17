@@ -5,7 +5,7 @@
 
 PREFIX ?= /usr/local
 
-CPPFLAGS+=-I../../include -I${PREFIX}/include -Wall -ggdb3
+CPPFLAGS+=-I../../include -I${PREFIX}/include -Wall -Wextra -ggdb3
 
 LDFLAGS+=-L../../src -L${PREFIX}/lib -lalf -lAMoRE++ -lmVCA
 
