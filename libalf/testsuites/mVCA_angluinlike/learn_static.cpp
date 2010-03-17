@@ -142,7 +142,7 @@ int main(int argc, char**argv)
 			list<int> counterexample;
 			if(mVCA_alf_glue::automaton_partial_equivalence_query(*teacher, cj, bound, counterexample)) {
 				my_logger(LOGGER_INFO, "is equivalent.\n");
-				table.indicate_partial_equivalence(bound);
+				table.indicate_partial_equivalence();
 			} else {
 				my_logger(LOGGER_INFO, "results in counterexample %s .\n", word2string(counterexample).c_str());
 				table.add_counterexample(counterexample);

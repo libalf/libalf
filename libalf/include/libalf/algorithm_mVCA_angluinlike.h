@@ -343,8 +343,6 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 					int cv;
 					iterator vi;
 
-					os << "stratified_observationtable {\n";
-
 					for(vi = this->begin(), cv = 0; vi != this->end(); ++cv, ++vi) {
 						// samples
 						os << "\tcv = " << cv << ":\n";
@@ -381,8 +379,6 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 							vi->calling_tr().print(os);
 						}
 					}
-
-					os << "};\n";
 				}}}
 
 				int get_dynamic_memory_consumption()
@@ -439,9 +435,15 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 				{{{
 					location ret;
 
-					ret.first = & ( this->operator[](cv).representatives() );
-					ret.second = ret.first->find_prefix(rep);
-					exists = (ret.second != ret.first->end());
+					if(cv >= (int)this->size()) {
+						ret.first = & ( this->operator[](0).representatives() );
+						ret.second = ret.first->end();
+						exists = false;
+					} else {
+						ret.first = & ( this->operator[](cv).representatives() );
+						ret.second = ret.first->find_prefix(rep);
+						exists = (ret.second != ret.first->end());
+					}
 
 					return ret;
 				}}}
@@ -450,25 +452,33 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 				{{{
 					location ret;
 
-
-					switch(sigma_direction) {
-						case -1:
-							ret.first = & ( this->operator[](cv_without_transition).returning_tr() );
-							break;
-						case 0:
-							ret.first = & ( this->operator[](cv_without_transition).internal_tr() );
-							break;
-						case +1:
-							ret.first = & ( this->operator[](cv_without_transition).calling_tr() );
-							break;
-					}
-					ret.second = ret.first->find_prefix(transition);
-					exists = (ret.second != ret.first->end());
-
-					if(!exists) {
-						ret.first = & ( this->operator[](cv_without_transition + sigma_direction).representatives() );
+					if(cv_without_transition < 0 || cv_without_transition >= (int)this->size()) {
+						exists = false;
+					} else {
+						switch(sigma_direction) {
+							case -1:
+								ret.first = & ( this->operator[](cv_without_transition).returning_tr() );
+								break;
+							case 0:
+								ret.first = & ( this->operator[](cv_without_transition).internal_tr() );
+								break;
+							case +1:
+								ret.first = & ( this->operator[](cv_without_transition).calling_tr() );
+								break;
+						}
 						ret.second = ret.first->find_prefix(transition);
 						exists = (ret.second != ret.first->end());
+					}
+
+					if(!exists) {
+						if(cv_without_transition + sigma_direction < 0 || cv_without_transition + sigma_direction >= (int)this->size()) {
+							ret.first = & ( this->operator[](0).representatives() );
+							ret.second = ret.first->end();
+						} else {
+							ret.first = & ( this->operator[](cv_without_transition + sigma_direction).representatives() );
+							ret.second = ret.first->find_prefix(transition);
+							exists = (ret.second != ret.first->end());
+						}
 					}
 
 					return ret;
@@ -481,9 +491,13 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 		map<int, int> pushdown_directions; // maps a label to its pushdown direction:
 		// -1 == down == return ; 0 == stay == internal ; +1 == up == call
 
+		int mode; // -1: in membership-cycle; 0: partial equivalence; 1: full equivalence;
+
 		int known_equivalence_bound; // the m for which the current data is isomorphic to the model
-		int tested_equivalence_bound; // the m for which we tested all corresponding mVCAs
-		int full_eq_test_current_m;
+		int tested_equivalence_bound; // the m for which the latest partial equivalence test was (usually known_equivalence_bound+1)
+		int full_eq_test__current_m; // the current m we are testing
+		int full_eq_test__queried_m; // the m that the last query was for
+		pair<int, list<int> > full_eq_test__counterexample;
 
 		stratified_observationtable table;
 
@@ -507,9 +521,13 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 		{{{
 			initialized = false;
 			this->set_alphabet_size(0);
+			mode = -1;
 			known_equivalence_bound = -1;
 			tested_equivalence_bound = -1;
-			full_eq_test_current_m = -1;
+			full_eq_test__current_m = -1;
+			full_eq_test__queried_m = -1;
+			full_eq_test__counterexample.first = -1;
+			full_eq_test__counterexample.second.clear();
 			pushdown_directions.clear();
 			table.clear();
 		}}}
@@ -569,9 +587,12 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 			ret += ::serialize(initialized);
 			ret += ::serialize(this->get_alphabet_size());
 			ret += ::serialize(pushdown_directions);
+			ret += ::serialize(mode);
 			ret += ::serialize(known_equivalence_bound);
 			ret += ::serialize(tested_equivalence_bound);
-			ret += ::serialize(full_eq_test_current_m);
+			ret += ::serialize(full_eq_test__current_m);
+			ret += ::serialize(full_eq_test__queried_m);
+			ret += ::serialize(full_eq_test__counterexample);
 			ret += ::serialize(table);
 
 			ret[0] = htonl(ret.length() - 1);
@@ -590,9 +611,12 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 			if(!::deserialize(size, serial)) goto deserialization_failed;
 			this->set_alphabet_size(size);
 			if(!::deserialize(pushdown_directions, serial)) goto deserialization_failed;
+			if(!::deserialize(mode, serial)) goto deserialization_failed;
 			if(!::deserialize(known_equivalence_bound, serial)) goto deserialization_failed;
 			if(!::deserialize(tested_equivalence_bound, serial)) goto deserialization_failed;
-			if(!::deserialize(full_eq_test_current_m, serial)) goto deserialization_failed;
+			if(!::deserialize(full_eq_test__current_m, serial)) goto deserialization_failed;
+			if(!::deserialize(full_eq_test__queried_m, serial)) goto deserialization_failed;
+			if(!::deserialize(full_eq_test__counterexample, serial)) goto deserialization_failed;
 			if(!::deserialize(table, serial)) goto deserialization_failed;
 
 			return true;
@@ -617,9 +641,7 @@ deserialization_failed:
 						return true;
 					}
 				case 1: { // indicate partial equivalence
-						int bound;
-						if(!::deserialize(bound, serial)) return false;
-						result += ::serialize(indicate_partial_equivalence(bound));
+						result += ::serialize(indicate_partial_equivalence());
 						return true;
 					}
 			};
@@ -629,7 +651,32 @@ deserialization_failed:
 
 		virtual void print(ostream &os)
 		{{{
+			os << "stratified_observationtable {\n";
+			os << "\tmode: " << (     (mode == -1) ? "membership query cycle\n"
+						: (mode == 0) ? "partial equivalence query cycle\n"
+						: (mode == 1) ? "full equivalence query cycle\n"
+						:               "UNKNOWN MODE\n"  );
+			os << "\tknown equivalence bound: " << known_equivalence_bound << "\n";
+
+			if(mode == 0 && tested_equivalence_bound != known_equivalence_bound)
+					os << "\ttested equivalence bound: " << tested_equivalence_bound << "\n";
+
+			if(mode == 1) {
+				os << "\tcurrent m for full eq. query: " << full_eq_test__current_m << "\n";
+				os << "\tqueried m for full eq. query: " << full_eq_test__queried_m << "\n";
+				os << "\tsaved counterexample: ";
+				if(full_eq_test__counterexample.first < 0) {
+					os << "none yet.\n";
+				} else {
+					print_word(os, full_eq_test__counterexample.second);
+					os << " (cv=" << full_eq_test__counterexample.first << ")\n";
+				}
+			}
+
+			os << "\n\ttable data:\n";
 			table.print(os);
+
+			os << "};\n";
 		}}}
 		virtual string to_string()
 		{{{
@@ -641,30 +688,39 @@ deserialization_failed:
 		virtual bool conjecture_ready()
 		{ return complete(); };
 
-		virtual bool indicate_partial_equivalence(int bound)
+		virtual bool indicate_partial_equivalence()
 		{{{
-			if(bound < known_equivalence_bound) {
-				(*this->my_logger)(LOGGER_ERROR, "mVCA_angluinlike: you indicated a partial equivalence with m=%d, but equivalence was already indicated for m=%d!", bound, known_equivalence_bound);
+			if(mode != 0) {
+				(*this->my_logger)(LOGGER_ERROR, "mVCA_angluinlike: you indicated a partial equivalence, but i did not expect that now.\n");
 				return false;
-			} else {
-				known_equivalence_bound = bound;
-				return true;
 			}
+
+			known_equivalence_bound = tested_equivalence_bound;
+			full_eq_test__current_m = -1;
+			full_eq_test__queried_m = -1;
+			full_eq_test__counterexample.first = -1;
+			full_eq_test__counterexample.second.clear();
+			mode = 1;
+
+			return true;
 		}}}
 
 		virtual bool add_counterexample(list<int> counterexample)
 		{{{
-			if(tested_equivalence_bound == known_equivalence_bound) {
-				// counterexample is for latest partial equivalence query
-				return add_partial_counterexample(counterexample);
-			} else {
-				// counterexample is for latest full equivalence query
-				return add_full_counterexample(counterexample);
+			switch(mode) {
+				default:
+				case -1:
+					(*this->my_logger)(LOGGER_WARN, "mVCA_angluinlike: you are giving a counterexample but i did not expect one. please complete filling the table until i send you the next equivalence query.\n");
+					return false;
+				case 0:
+					return add_partial_counterexample(counterexample);
+				case 1:
+					return add_full_counterexample(counterexample);
 			}
 		}}}
 
 	protected: // methods
-		int prefix_countervalue(list<int>::const_iterator word, list<int>::const_iterator limit, int initial_countervalue = 0)
+		int countervalue(list<int>::const_iterator word, list<int>::const_iterator limit, int initial_countervalue = 0)
 		{{{
 			for(/* nothing */; word != limit; ++word) {
 				if(*word < 0 || *word >= this->get_alphabet_size()) {
@@ -675,11 +731,37 @@ deserialization_failed:
 				if(initial_countervalue < 0)
 					break;
 			}
+
 			return initial_countervalue;
 		}}}
 
 		int countervalue(const list<int> & word)
-		{ return this->prefix_countervalue(word.begin(), word.end(), 0); }
+		{ return this->countervalue(word.begin(), word.end(), 0); }
+
+		int word_height(list<int>::const_iterator word, list<int>::const_iterator limit, int initial_countervalue = 0)
+		{{{
+			int height = initial_countervalue;
+
+			for(/* nothing */; word != limit; ++word) {
+				if(*word < 0 || *word >= this->get_alphabet_size()) {
+					initial_countervalue = -1;
+					height = -1;
+					break;
+				}
+				initial_countervalue += pushdown_directions[*word];
+				if(initial_countervalue > height)
+					height = initial_countervalue;
+				if(initial_countervalue < 0) {
+					height = -1;
+					break;
+				}
+			}
+
+			return height;
+		}}}
+
+		int word_height(const list<int> & word)
+		{ return this->word_height(word.begin(), word.end(), 0); }
 
 		typename equivalence_table::iterator insert_representative(list<int> rep, bool & success)
 		{{{
@@ -693,10 +775,6 @@ deserialization_failed:
 				success = false;
 				return new_rep;
 			}
-			if(cv >= (int)table.size()) {
-				// FIXME: possibly add prefixes along empty tables?
-				table.resize(cv+1);
-			}
 
 			// fail if it already is in the table.
 			bool found;
@@ -704,6 +782,11 @@ deserialization_failed:
 			if(found) {
 				success = false;
 				return new_rep;
+			}
+
+			if(cv >= (int)table.size()) {
+				// FIXME: possibly add prefixes along empty tables?
+				table.resize(cv+1);
 			}
 
 			// check if there is a matching transition
@@ -751,7 +834,7 @@ deserialization_failed:
 		{{{
 			list<int> suffix;
 			int cv = countervalue(counterexample);
-			typename stratified_observationtable::location loc;
+			int height = word_height(counterexample);
 			bool success;
 
 			if(cv != 0) {
@@ -761,12 +844,18 @@ deserialization_failed:
 				return false;
 			}
 
-			loc = table.find_representative(counterexample, cv, success);
+			table.find_representative(counterexample, cv, success);
 			if(success) {
 				(*this->my_logger)(LOGGER_ERROR, "mVCA_angluinlike: counterexample to partial equivalence query"
 								" %s is already contained in tables!\n",
 								word2string(counterexample).c_str());
 				return false;
+			}
+
+			// increase table-size so we don't incrementally do it if cv is much larger than table.size()
+			if(height >= (int)table.size()) {
+				// giving a counterexample that is outside the skope of this query...
+				table.resize(height+1);
 			}
 
 			cv = 0;
@@ -784,23 +873,84 @@ deserialization_failed:
 
 			insert_representative(counterexample, success);
 
+			mode = -1;
+
 			return true;
 		}}}
 
 		bool add_full_counterexample(list<int> & counterexample)
-		{
-			if(full_eq_test_current_m < 0) {
-				(*this->my_logger)(LOGGER_ERROR, "mVCA_angluinlike: giving counterexample to full eq query, but the latest m tested was -1 ?!"
-						" either you gave a counterexample right after indicating a new partial equivalence,"
-						" or this is an internal bug. in the latter case, please create a testcase and send it to the developers.\n");
+		{{{
+			int cv = countervalue(counterexample);
+			int height = word_height(counterexample);
+			bool success;
+
+			if(cv != 0) {
+				(*this->my_logger)(LOGGER_ERROR, "mVCA_angluinlike: bad counterexample to full equivalence query:"
+								" %s has countervalue %d. should be 0.\n",
+								word2string(counterexample).c_str(), cv);
 				return false;
 			}
 
-			// FIXME
-			
-			full_eq_test_current_m = -1;
-			return false;
-		}
+			table.find_representative(counterexample, cv, success);
+			if(success) {
+				(*this->my_logger)(LOGGER_ERROR, "mVCA_angluinlike: counterexample to full equivalence query"
+								" %s is already contained in tables!\n",
+								word2string(counterexample).c_str());
+				return false;
+			}
+
+			if(full_eq_test__current_m == full_eq_test__queried_m) {
+				++full_eq_test__current_m;
+			} else {
+				(*this->my_logger)(LOGGER_WARN, "mVCA_angluinlike: You are giving multiple counterexamples to a single full equivalence query. That's ok with me, but are you sure that you know, what you are doing?\n");
+			}
+
+			// only remember this cex. if it is going out of the partial-equivalent region.
+			// from these, pick the one with the smallest height.
+			if(height > known_equivalence_bound && height < full_eq_test__counterexample.first) {
+				full_eq_test__counterexample.first = height;
+				full_eq_test__counterexample.second = counterexample;
+			}
+
+			if(full_eq_test__current_m > known_equivalence_bound) {
+				// there are no more m we can test.
+				// add the picked counterexample and start membership-cycle again.
+
+				if(full_eq_test__counterexample.first < 0) {
+					(*this->my_logger)(LOGGER_ERROR, "mVCA_angluinlike: you did not give a single valid counterexample to any of my full equivalence queries.\n");
+					--full_eq_test__current_m;
+					return false;
+				}
+
+				list<int> suffix;
+
+				// increase table-size so we don't incrementally do it if cv is much larger than table.size()
+				if(height >= (int)table.size())
+					table.resize(height+1);
+
+				cv = 0;
+				suffix.swap(counterexample); // we have to do this in length-increasing order, otherwise the prefix-closedness is violated
+
+				while(!suffix.empty()) {
+					insert_representative(counterexample, success);
+					table[cv].samples().add_sample(suffix);
+
+					int sigma = suffix.front();
+					suffix.pop_front();
+					cv += pushdown_directions[sigma];
+					counterexample.push_back(sigma);
+				}
+
+				insert_representative(counterexample, success);
+
+				mode = -1;
+
+				full_eq_test__current_m = full_eq_test__queried_m = full_eq_test__counterexample.first = -1;
+				full_eq_test__counterexample.second.clear();
+			}
+
+			return true;
+		}}}
 
 		virtual void initialize_table()
 		{{{
@@ -923,8 +1073,10 @@ deserialization_failed:
 			if(!initialized)
 				initialize_table();
 
-			if(!fill_missing_columns())
+			if(!fill_missing_columns()) {
+				mode = -1;
 				return false;
+			}
 
 			(*this->my_logger)(LOGGER_ALGORITHM, "%s", to_string().c_str());
 
@@ -938,6 +1090,9 @@ deserialization_failed:
 				return complete();
 			}
 
+			if(mode == -1)
+				mode = 0;
+
 			return true;
 		}}}
 
@@ -950,7 +1105,10 @@ deserialization_failed:
 			cj->alphabet_size = this->get_alphabet_size();
 			cj->state_count = 0; // done on the fly
 
-			cj->m_bound = known_equivalence_bound + 1;
+			if(tested_equivalence_bound == known_equivalence_bound)
+				++tested_equivalence_bound;
+
+			cj->m_bound = tested_equivalence_bound;
 
 			map<pair<int, vector<answer> >, int> states; // this is not really good. something better anyone?
 
@@ -1005,6 +1163,12 @@ deserialization_failed:
 			return cj;
 		}}}
 
+		bool find_next_valid_m()
+		{
+			
+			return false;
+		}
+
 		conjecture * create_full_equivalence_query()
 		{
 			// FIXME
@@ -1020,25 +1184,32 @@ deserialization_failed:
 //			cj->m_bound =   
 //			cj->transitions   
 
-			// try to find a repeating strucure in the BG, i.e. identify an isomorphism between levels
-			
+			if(find_next_valid_m()) {
+				// if there is one, create mVCA
+				
+			} else {
+				// try the whole BG as an automaton without repeating structure
+				
+			}
 
-			// if there is one, create mVCA
-			
-
-			// if there is none, try the whole BG as an automaton without repeating structure
-			
-
-
-			return /* cj */ NULL;
+			delete cj;
+			return NULL;
+			// FIXME
+			return cj;
 		}
 
 		virtual conjecture * derive_conjecture()
 		{{{
-			if(tested_equivalence_bound == known_equivalence_bound)
-				return create_partial_equivalence_query();
-			else
-				return create_full_equivalence_query();
+			switch(mode) {
+				default:
+				case -1:
+					(*this->my_logger)(LOGGER_ERROR, "mVCA_angluinlike: bad mode %d in derive_conjecture()! (INTERNAL ERROR)\n", mode);
+					return NULL;
+				case 0:
+					return create_partial_equivalence_query();
+				case 1:
+					return create_full_equivalence_query();
+			}
 		}}}
 };
 
