@@ -26,5 +26,5 @@ jpegs:
 learn_regex: learn_regex.cpp
 	g++ ${CPPFLAGS} ${LDFLAGS} learn_regex.cpp -o learn_regex -lAMoRE++ -lalf
 
-learn_regex: learn_file.cpp
+learn_file: learn_file.cpp
 	g++ ${CPPFLAGS} ${LDFLAGS} learn_file.cpp -o learn_file -lAMoRE++ -lalf
