@@ -1012,13 +1012,23 @@ deserialization_failed:
 
 			cj->valid = true;
 			cj->is_deterministic = true;
-//			cj->state_count =   
 			cj->alphabet_size = this->get_alphabet_size();
 			cj->alphabet_directions = pushdown_directions;
 			cj->initial_state = 0;
+//			cj->state_count =   
 //			cj->final_states   
 //			cj->m_bound =   
 //			cj->transitions   
+
+			// try to find a repeating strucure in the BG, i.e. identify an isomorphism between levels
+			
+
+			// if there is one, create mVCA
+			
+
+			// if there is none, try the whole BG as an automaton without repeating structure
+			
+
 
 			return /* cj */ NULL;
 		}
