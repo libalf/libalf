@@ -131,10 +131,9 @@ set<int> nondeterministic_transition_function::transmute(const set<int> & states
 }}}
 set<int> nondeterministic_transition_function::transmute(int state, int sigma)
 {{{
-	set<int>::iterator si;
 	set<int> dst;
 
-	set_insert(dst, this->transitions[*si][sigma]);
+	set_insert(dst, this->transitions[state][sigma]);
 
 	return dst;
 }}}
