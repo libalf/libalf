@@ -472,7 +472,7 @@ bool nondeterministic_finite_automaton::lang_disjoint_to(finite_automaton &other
 	finite_automaton * d;
 
 	d = this->determinize();
-	ret = d->lang_disjoint_to(*this);
+	ret = d->lang_disjoint_to(other);
 	delete d;
 
 	return ret;
