@@ -24,6 +24,7 @@
 
 #include <libalf/normalizer.h>
 #include <libalf/normalizer_msc.h>
+#include <libalf/serialize.h>
 
 #include "co_normalizer.h"
 
@@ -57,7 +58,8 @@ co_normalizer::~co_normalizer()
 bool co_normalizer::handle_command(int command, basic_string<int32_t> & command_data)
 {{{
 	basic_string<int32_t> serial;
-	basic_string<int32_t>::iterator si;
+	serial_stretch ser(serial);
+
 	list<int> word, nword;
 	bool bottom;
 
@@ -70,17 +72,15 @@ bool co_normalizer::handle_command(int command, basic_string<int32_t> & command_
 				return false;
 			return this->sv->client->stream_send_raw_blob(serial);
 		case NORMALIZER_DESERIALIZE:
-			si = command_data.begin();
-			if(!o->deserialize(si, command_data.end()))
+			if(!o->deserialize(ser))
 				return this->sv->send_errno(ERR_BAD_PARAMETERS);
-			if(si != command_data.end())
+			if(!ser.empty())
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 			return this->sv->send_errno(ERR_SUCCESS);
 		case NORMALIZER_DESERIALIZE_EXTENSION:
-			si = command_data.begin();
-			if(!o->deserialize_extension(si, command_data.end()))
+			if(!o->deserialize_extension(ser))
 				return this->sv->send_errno(ERR_BAD_PARAMETERS);
-			if(si != command_data.end())
+			if(!ser.empty())
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 			return this->sv->send_errno(ERR_SUCCESS);
 		case NORMALIZER_GET_TYPE:
@@ -90,10 +90,9 @@ bool co_normalizer::handle_command(int command, basic_string<int32_t> & command_
 				return false;
 			return this->sv->client->stream_send_int((int)o->get_type());
 		case NORMALIZER_NORMALIZE_A_WORD_PNF:
-			si = command_data.begin();
-			if(!deserialize_word(word, si, command_data.end()))
+			if(!::deserialize(word, ser))
 				return this->sv->send_errno(ERR_BAD_PARAMETERS);
-			if(si != command_data.end())
+			if(!ser.empty())
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 			if(!this->sv->send_errno(ERR_SUCCESS))
 				return false;
@@ -103,14 +102,13 @@ bool co_normalizer::handle_command(int command, basic_string<int32_t> & command_
 			} else {
 				if(!this->sv->client->stream_send_int(0))
 					return false;
-				serial = serialize_word(nword);
+				serial = ::serialize(word);
 				return this->sv->client->stream_send_raw_blob(serial);
 			}
 		case NORMALIZER_NORMALIZE_A_WORD_SNF:
-			si = command_data.begin();
-			if(!deserialize_word(word, si, command_data.end()))
+			if(!::deserialize(word, ser))
 				return this->sv->send_errno(ERR_BAD_PARAMETERS);
-			if(si != command_data.end())
+			if(!serial.empty())
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 			if(!this->sv->send_errno(ERR_SUCCESS))
 				return false;

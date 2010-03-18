@@ -143,9 +143,9 @@ class normalizer_msc : public normalizer {
 		void clear();
 
 		virtual basic_string<int32_t> serialize();
-		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
+		virtual bool deserialize(serial_stretch & serial);
 
-		virtual bool deserialize_extension(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
+		virtual bool deserialize_extension(serial_stretch & serial);
 
 		virtual list<int> prefix_normal_form(list<int> & w, bool & bottom);
 		virtual list<int> suffix_normal_form(list<int> & w, bool & bottom);

@@ -30,6 +30,8 @@
 #include <list>
 #include <string>
 
+#include <libalf/serialize.h>
+
 namespace libalf {
 
 using namespace std;
@@ -48,9 +50,9 @@ class normalizer {
 		{ return NORMALIZER_NONE; };
 
 		virtual basic_string<int32_t> serialize() = 0;
-		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit) = 0;
+		virtual bool deserialize(serial_stretch & serial) = 0;
 
-		virtual bool deserialize_extension(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit) = 0;
+		virtual bool deserialize_extension(serial_stretch & serial) = 0;
 
 		virtual list<int> prefix_normal_form(list<int> & w, bool &bottom) = 0;
 		virtual list<int> suffix_normal_form(list<int> & w, bool &bottom) = 0;

@@ -38,6 +38,7 @@
 #include <libalf/alphabet.h>
 #include <libalf/normalizer.h>
 #include <libalf/normalizer_msc.h>
+#include <libalf/serialize.h>
 
 namespace libalf {
 
@@ -124,121 +125,80 @@ void normalizer_msc::clear()
 basic_string<int32_t> normalizer_msc::serialize()
 {{{
 	basic_string<int32_t> ret;
-	vector<int>::iterator vi;
 
 	ret += 0; // length field, will be filled in later.
-
-	// type
-	ret += htonl(normalizer::NORMALIZER_MSC);
-
-	// total order
-	ret += htonl(total_order.size());
-	for(vi = total_order.begin(); vi != total_order.end(); vi++)
-		ret += htonl(*vi);
-
-	// message-process-matching
-	ret += htonl(process_match.size());
-	for(vi = process_match.begin(); vi != process_match.end(); vi++)
-		ret += htonl(*vi);
-
-	// message-buffer-matching
-	ret += htonl(buffer_match.size());
-	for(vi = buffer_match.begin(); vi != buffer_match.end(); vi++)
-		ret += htonl(*vi);
-
-	// max buffer length
-	ret += htonl(max_buffer_length);
-
+	ret += ::serialize(normalizer::NORMALIZER_MSC);
+	ret += ::serialize(total_order);
+	ret += ::serialize(process_match);
+	ret += ::serialize(buffer_match);
+	ret += ::serialize(max_buffer_length);
 	ret[0] = htonl(ret.size() - 1);
 
 	return ret;
 }}}
 
-bool normalizer_msc::deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+bool normalizer_msc::deserialize(serial_stretch & serial)
 {{{
-	int size;
-	int count;
-	enum normalizer::type type;
-	int n;
+	int s;
 
-	if(it == limit)
-		goto deserialization_failed;
+	if(!::deserialize(s, serial)) goto deserialization_failed;
+	if(s < 2) goto deserialization_failed;
+	if(!::deserialize(s, serial)) goto deserialization_failed;
+	if(s != normalizer::NORMALIZER_MSC) goto deserialization_failed;
+	if(!::deserialize(total_order, serial)) goto deserialization_failed;
+	if(!::deserialize(process_match, serial)) goto deserialization_failed;
+	if(!::deserialize(buffer_match, serial)) goto deserialization_failed;
 
-	clear();
-
-	// data size
-	size = ntohl(*it);
-
-	// check type
-	it++; if(size <= 0 || limit == it) goto deserialization_failed;
-	type = (enum normalizer::type) ntohl(*it);
-	if(type != NORMALIZER_MSC)
-		goto deserialization_failed;
-
-	// get total order
-	size--; it++; if(size <= 0 || limit == it) goto deserialization_failed;
-	count = ntohl(*it);
-	for(count = ntohl(*it); count > 0; count--) {
-		size--; it++; if(size <= 0 || limit == it) goto deserialization_failed;
-		total_order.push_back(ntohl(*it));
-	}
-
-	// get message-process-matching
-	size--; it++; if(size <= 0 || limit == it) goto deserialization_failed;
-	count = ntohl(*it);
-	for(count = ntohl(*it); count > 0; count--) {
-		size--; it++; if(size <= 0 || limit == it) goto deserialization_failed;
-		process_match.push_back(ntohl(*it));
-	}
-
-	// get message-buffer-matching
-	size--; it++; if(size <= 0 || limit == it) goto deserialization_failed;
-	count = ntohl(*it);
-	for(count = ntohl(*it); count > 0; count--) {
-		size--; it++; if(size <= 0 || limit == it) goto deserialization_failed;
-		n = ntohl(*it);
-		if(n < 0)
-			return false;
-		if(n > (int)buffercount)
-			buffercount = n;
-		buffer_match.push_back(n);
-	}
-	buffercount += 1;
-
-	// get max buffer length
-	size--; it++; if(size <= 0 || limit == it) goto deserialization_failed;
-	max_buffer_length = ntohl(*it);
-
-	size--; it++;
-
-	// FIXME: sanity-check size of vectors. message-buffer-match may be null if max_buffer_size <= 0
-
-	label_bound = total_order.size();
-	if(label_bound > process_match.size())
-		label_bound = process_match.size();
-
-	if(size == 0) {
-		if(max_buffer_length > 0) {
-			buffers = new queue<int>[buffercount];
-			if(label_bound > buffer_match.size())
-				label_bound = buffer_match.size();
-		} else {
-			buffercount = 0;
-		}
-		return true;
-	}
+	return true;
 
 deserialization_failed:
 	clear();
-	max_buffer_length = 0;
 	return false;
 }}}
 
-bool normalizer_msc::deserialize_extension(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
-{
-	// FIXME: implement normalizer_msc::deserialize_extension
+bool normalizer_msc::deserialize_extension(serial_stretch & serial)
+{{{
+	// the expected format:
+	//
+	// int normalizer::NORMALIZER_MSC
+	// int count
+	// {
+	//	int total_order			(is appended to this->total_order)
+	//	int process_match		(is appended to this->process_match)
+	//	int buffer_match		(is appended to this->buffer_match)
+	// } <count> times
+
+	int count;
+	int data;
+
+	if(!::deserialize(data, serial)) goto deserialization_failed;
+	if(data != normalizer::NORMALIZER_MSC) goto deserialization_failed;
+
+	if(!::deserialize(count, serial)) goto deserialization_failed;
+
+	total_order.reserve(total_order.size() + count);
+	process_match.reserve(process_match.size() + count);
+	buffer_match.reserve(buffer_match.size() + count);
+
+	while(count) {
+		if(!::deserialize(data, serial)) goto deserialization_failed;
+		total_order.push_back(data);
+
+		if(!::deserialize(data, serial)) goto deserialization_failed;
+		process_match.push_back(data);
+
+		if(!::deserialize(data, serial)) goto deserialization_failed;
+		buffer_match.push_back(data);
+
+		--count;
+	}
+
+	return true;
+
+deserialization_failed:
+	clear();
 	return false;
-}
+}}}
 
 void normalizer_msc::clear_buffers(list<int> word)
 // clear any buffer that this word may have touched
