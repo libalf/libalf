@@ -64,25 +64,71 @@ class extended_bool {
 
 		enum e_extended_bool value;
 
+		inline extended_bool()
+		{ value = EBOOL_UNKNOWN; };
 
-		bool __attribute__((const)) operator!=(const extended_bool & other);
+		inline extended_bool(bool val)
+		{ value = (val ? EBOOL_TRUE : EBOOL_FALSE); };
 
-		void operator=(const extended_bool & other);
+		inline bool __attribute__((const)) valid()
+		{{{
+			  return (value == EBOOL_FALSE || value == EBOOL_UNKNOWN || value == EBOOL_TRUE);
+		}}}
 
-		bool __attribute__((const)) operator>(const extended_bool & other);
+		inline bool __attribute__((const)) operator!=(const extended_bool & other)
+		{{{
+			return this->value != other.value;
+		}}}
 
-		bool __attribute__((const)) operator==(bool other);
+		inline void operator=(const extended_bool & other)
+		{{{
+			value = other.value;
+		}}}
 
-		bool __attribute__((const)) operator>(bool other);
+		inline bool __attribute__((const)) operator>(const extended_bool & other)
+		{{{
+			return( ((int)this->value) > ((int)other.value));
+		}}}
 
-		void operator=(bool other);
+		inline bool __attribute__((const)) operator==(bool other)
+		{{{
+			  if(other)
+				  return (value == EBOOL_TRUE);
+			  else
+				  return (value == EBOOL_FALSE);
+		}}}
 
-		operator int32_t();
+		inline bool __attribute__((const)) operator>(bool other)
+		{{{
+			  if(other)
+				  return false;
+			  else
+				  return (value > EBOOL_FALSE);
+		}}}
 
-		void operator=(int32_t other);
+		inline void operator=(bool other)
+		{{{
+			if(other)
+				value = EBOOL_TRUE;
+			else
+				value = EBOOL_FALSE;
+		}}}
+
+		inline operator int32_t()
+		{{{
+			return (int32_t)value;
+		}}}
+
+		inline void operator=(int32_t other)
+		{{{
+			value = (enum e_extended_bool)other;
+		}}}
 };
 
-bool __attribute__((const)) operator==(extended_bool a, extended_bool b);
+inline bool __attribute__((const)) operator==(extended_bool a, extended_bool b)
+{{{
+	return a.value == b.value;
+}}}
 
 inline std::basic_string<int32_t> serialize(extended_bool e)
 {{{

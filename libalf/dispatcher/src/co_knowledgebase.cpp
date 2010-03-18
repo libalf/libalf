@@ -182,7 +182,7 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 			if(si == command_data.end())
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 			acceptance = (int32_t)ntohl(*si);
-			if(acceptance != extended_bool::EBOOL_FALSE && acceptance != extended_bool::EBOOL_UNKNOWN && acceptance != extended_bool::EBOOL_TRUE)
+			if(!acceptance.valid())
 				return this->sv->send_errno(ERR_BAD_PARAMETERS);
 			si++;
 			if(si != command_data.end())

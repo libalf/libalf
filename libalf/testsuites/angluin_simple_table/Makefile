@@ -15,7 +15,7 @@ clean: nodata
 	-rm -f *.o learn_regex learn_static learn_bug learn_file
 
 nodata:
-	-rm -f *.dot *.jpg *.angluin testlog
+	-rm -f *.dot *.jpg *.angluin testlog *.ser
 
 run:
 	LD_LIBRARY_PATH=../../src ./learn_regex
