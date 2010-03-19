@@ -1,30 +1,48 @@
 \chapter{Learning Algorithms}
 
 A learning algorithm is a component that retrieves the desired information from the knowledgebase to construct a conjecture. 
-The common objective of all learning algorithms is to generalize knowledge gained throughout a learning process. In such a process, the learning algorithm is confronted with classified examples. They are utilized to derive a hypothesis which is able to classify new examples in conformance with the examples already seen.
-\paragraph{}
-A knowledgebase and a learning algorithm are associated in such a way that queries can be exchanged between them. Unlike other learning libraries, libalf is not restricted to a strict one-to-one relationship between a knowledgebase and a learning algorithm, but
-also features one-to-many relationships. This allows us to experiment with different learning techniques on the same data set with only a minimum of effort. This facilitates the learning algorithms to be used in a plug and play fashion.
-
-\section{The Types of Algorithms - An Overview}
-
 A conventional way to distinguish learning algorithms is to group them into \online and \offline algorithms. Online learning techniques are capable of actively asking queries to some kind of teacher who is able to classify these queries. Offline algorithms, on the other hand, are passively provided with a set of classified examples from which they have to build the conjecture.
 
-\subsection{Online Algorithms}
+\subsection*{Online Algorithms}
 
-Online learning algorithms build the conjecture by actively asking queries to a \teacher (or a user). Queries are of two types - membership queries and equivalence queries. The teacher is required to \emph{resolve} the memebership query by providing the classification of the given word.
-Equivalence queries check whether a derived conjecture is an equivalent description of the target language to be inferred.
-The working of such an algorithm can be described in the following steps. An algorithmic workflow is provided later in this chapter.
+ The online learning process is based on the model of Minimally Adequate Teacher (MAT) wherein the technique invloves two types of queries, namely, \emph{membership queries} and \emph{equivalence queries}. Online learning algorithms build the conjecture by actively asking queries to a \teacher (i.e.\ a user application). \\ The teacher is required to \emph{resolve} the memebership query by providing the classification of the given word. Equivalence queries check whether a derived conjecture is an equivalent description of the target language to be inferred.
+\subsection*{Example Code}
+
+\lstset{language=c++, numbers=left, numberstyle=\tiny, stepnumber=1, numbersep=5pt}
+\begin{lstlisting}[frame=single]
+void main(int argc, char**argv) {
+int alphabetsize = get_AlphabetSize();
+knowledgebase<bool> base;
+angluin_simple_table<bool> algorithm(&base,
+NULL,alphabetsize);
+do {
+ conjecture * cj = algorithm.advance();
+ if (cj == NULL) 
+ {
+    // Get queries from the knowledgebase and 
+    // present it to the user to resolve.
+ }
+ else 
+ {
+    // Get the conjecture and present it to the user. 
+    // If conjecture incorrect, get counter example
+ }
+}while (result == NULL);
+}
+\end{lstlisting}
+
+
 \begin{itemize}
  \item The algorithm runs on iteration which begins at making an \emph{advance} where in the algorithm tries to compute a conjecture with information available in the knowledgebase.
  \item This leads to the rise of membership queries if no conjecture was created. These queries are resolved by the teacher, answer added to the knowledgebase and the algorithm continues the iteration.
  \item On the other hand, if a conjecture was computed, it is presented to the teacher. The algorithm terminates if the conjecture is correct. Otherwise, the iteration continues after the teacher renders a counter example.
 \end{itemize}
 
-\subsection{Offline Algorithms}
+\subsection*{Offline Algorithms}
 
 Offline algorithms, in contrast to the online variant, is an NP complete problem of finding the smallest DFA consistant with a given set of classified words.
-The algorithm is provided with a set S of classified words (called samples) and the algorithm derives a conjecture which conforms to these samples. More precisely, this means that all positive examples from S are recognized (or accepted) and all negative examples are rejected by the conjecture. 
+The algorithm is provided with a set S of classified words (called samples) and the algorithm derives a conjecture which conforms to these samples. 
+
 \paragraph{}
 The working of this algorithm follows a simple two step procedure. 
 \begin{itemize}
@@ -32,11 +50,11 @@ The working of this algorithm follows a simple two step procedure.
  \item The algorithm is then made to advance to compute the conjecture conforming to the samples. 
 \end{itemize}
 
-\subsection{List of Algorithms}
+\subsection*{List of Algorithms}
 
 As of \today, \libalf implements seven algorithms for both deterministic and non deterministic automata as listed below.
 
-\subsection*{Online Algorithms}
+\paragraph{Online Algorithms}
 
 \begin{enumerate}
  \item \textbf{Angluin L\textsuperscript{*}} \cite{36889-angluin1} \cite{181015-angluin2} \cite{640230-angluin3}
@@ -47,6 +65,8 @@ As of \today, \libalf implements seven algorithms for both deterministic and non
 	(..)
 \end{enumerate}
 
+\paragraph{Offline Algorithms}
+
 \begin{enumerate}
  \item \textbf{RPNI} \cite{DBLP:conf/aia/Hoffmann07-rpni1} \cite{599647-rpni2} \cite{655948-rpni3} \cite{1434324-rpni4}
 	(..)
@@ -56,52 +76,34 @@ As of \today, \libalf implements seven algorithms for both deterministic and non
 	(..)
 \end{enumerate}
 
-
-\begin{table} [h]
-\centering
-\begin{tabular}[c]{lcr}
-\toprule[1pt]
-Online Algorithms & Offline Algorithms \\	
-\midrule
-Angluin's L (two variants) & Biermann \\
-NL & RPNI \\
-Kearns / Vazirani & DeLeTe2 \\
-\bottomrule[1pt]
-\end{tabular}
-\caption{List of Algorithms Implemented}
-\label{algtables1}
-\end{table}
-
----------------------------------------------------------------------------------------------------
-
-\subsection{Methods - User Perspective}
+\section{Methods - User Perspective}
 
 In this section, we describe methods that are important for using \libalf. The following material elaborates on initializing the learning algorithm, its association with knolwedgebase and building the conjecture. Like the knowledgebase, learning algorithm also supports serialization and deserialization. Other methods that enable the user to work on the statistics are also described.
 
 \subsection*{Initalizing the Learning Algorithm}
 
 \begin{itemize}
- \item \textbf{learning\_algorithm()} \vskip 1pt
-	It initializes the essentials for a learning algorithm such as, pointer to the knowledgebase, normalizer and logger. 
-	do\_timing - to create timing statistics this has to be set true
-	in\_timing - variable to check if the currently timing statistics are being measured.
-	alphabet\_size - the alphabet size of the conjecture to be computed.
+ \item \textbf{learning\_algorithm(\emph{parameters})} \vskip 1pt
+	It initializes the essentials for a learning algorithm such as, pointer to the knowledgebase, setting the alphabet size, normalizer and logger. \\ Furthermore, the features associated with following variables may prove useful. \\
+	do\_timing - to create timing statistics this has to be set true \\
+	in\_timing - variable to check if the currently timing statistics are being measured. \\
 \end{itemize}
 
 For instance, the constructor of an RPNI algorithm is written as follows. \vskip 1pt
 \textbf{RPNI(knowledgebase$<$answer$>$ * base, logger * log, int alphabet\_size)} \vskip 1pt
-The constructor of all the learning algorithms follow such an initialization. It sets the pointer to the knowledgebase, the logger and the alphabet size. 
+The constructor of all the learning algorithms follow such an initialization. It sets the pointer to the knowledgebase, the logger and the alphabet size. \\
+Note: Other algorithms may need more than the above mentioned arguements since it depends on the working of the algorithm itself. However, the above example shows the minimal set of arguements required for any learning algorithm. 
 
 \subsection*{Working with Alphabet Size}
 
 \begin{enumerate}
- \item \textbf{virtual void set\_alphabet\_size(int alphabet\_size)} \vskip 1pt
+ \item \textbf{learning\_algorithm::void set\_alphabet\_size(int alphabet\_size)} \vskip 1pt
 	The method sets the alphabet size for computing the conjecture. This method is used only during the initial setting of the learning algorithm. 
 
- \item \textbf{virtual void increase\_alphabet\_size(int new\_asize)} \vskip 1pt
+ \item \textbf{learning\_algorithm::void increase\_alphabet\_size(int new\_asize)} \vskip 1pt
 	The method increases the size of the alphabet to a new value.
 
- \item \textbf{virtual int get\_alphabet\_size()} \vskip 1pt
+ \item \textbf{learning\_algorithm::int get\_alphabet\_size()} \vskip 1pt
 	Returns the alphabet size of the conjecture.
 \end{enumerate}
 
@@ -109,34 +111,47 @@ The constructor of all the learning algorithms follow such an initialization. It
 
 \begin{enumerate}
 
- \item \textbf{virtual void set\_knowledge\_source(knowledgebase $<$answer$>$ * base)} \vskip 1pt
+ \item \textbf{learning\_algorithm::void set\_knowledge\_source(knowledgebase $<$answer$>$ * base)} \vskip 1pt
 	The method sets the source (the knowledgebase) which consists of all the membership information to the learning algorithm.
 
- \item \textbf{virtual knowledgebase$<$answer$>$ * get\_knowledge\_source()} \vskip 1pt
+ \item \textbf{learning\_algorithm::knowledgebase$<$answer$>$ * get\_knowledge\_source()} \vskip 1pt
 	Returns the pointer to the knowledgebase which is currently the source of membership information.
 
- \item \textbf{virtual bool sync\_to\_knowledgebase()} \vskip 1pt
-	Knowledgebase can support undo operation. In such a case the learning algorithm needs to stay synchronized with the knowledgebase failing to which it may return erroneaous output. The method checks the knowledgebase, removes the obsolete knowledge, changes its state (delete rows/columns etc.) to be synchronized with the knowledgebase and returns \true. If it returns \false, the algorithm is in undefined state and must not be used anymore. \\
+\end{enumerate}
+
+\subsection*{Synchronization with Knowledgebas}
+
+As discussed in the previous chapter, the knowledgebase supports \emph{undo} operation. When an undo operation has been performed, the learning alogirthm must be synchronized to the knowledgebase failing to which may generate erroneaous output. We use the following method to synchronize the learning algorithm with the knowledgebase. This method must be called after each undo operation.
+
+\begin{itemize}
+
+ \item \textbf{learning\_algorithm::bool sync\_to\_knowledgebase()} \\
+	The method checks the knowledgebase, removes the obsolete knowledge, changes its internal data to be synchronized with the knowledgebase and returns \true. If it returns \false, the algorithm is in undefined state and must not be used antymore. \\
 	Note: This method should be called after each undo opearation performed in the knowledgebase.
 
- \item \textbf{virtual bool supports\_sync()} \vskip 1pt
-	The method checks whether the learning algorithm supports synchronization with the associated Knowledgebase. Returns \true if undo operations on the knowledgebase are allowed. Each undo-operation has to be followed by a call to sync\_to\_knowledgebase(). Otherwise returns \false.
+\end{itemize}
 
-\end{enumerate}
+On the other hand, the knowledgebase need not necessarily allow the undo operation. Hence we use the following method to check the same.
+\begin{itemize}
+ 
+ \item \textbf{learning\_algorithm::bool supports\_sync()} \\
+	 Returns \true if undo operations on the knowledgebase are allowed, otherwise returns \false.
+
+\end{itemize}
 
 
 \subsection*{Building the Conjecture}
 
 \begin{itemize}
- \item \textbf{virtual conjecture * advance()} \vskip 1pt
-	The method returns a conjecture if enough information is available in the knolwedgebase to construct one. If not, it returns NULL but produces membership queries that are stored in the knowledgebase.
+ \item \textbf{learning\_algorithm::conjecture * advance()} \vskip 1pt
+	The method returns a conjecture if enough information is available in the knowledgebase to construct one. If not, it returns NULL but produces membership queries that are stored in the knowledgebase.
 \end{itemize}
 
-\subsection*{Adding Counter Example}
+\subsection*{Adding Counter-example}
 
 \begin{itemize}
  \item \textbf{virtual bool add\_counterexample(list$<$int$>$)} \vskip 1pt
-	The method is used by \online algorithms when a computed conjecture is declined by the teacher, i.e. when the equivalence query is answered negative. The counter example provided by the user is first processed by the learning algorithm which marks it as a membership query and is added to the knowledgebase. \\
+	The method is used by \online algorithms when a computed conjecture is declined by the teacher, i.e.\ when the equivalence query is answered negative. The counter example provided is first processed by the learning algorithm which marks it as a membership query and is added to the knowledgebase. \\
 	This method is used only by an \online algorithm. For \offline algorithms, this method is a stub.
 \end{itemize}
 
@@ -192,7 +207,7 @@ A developer's perspective of learning algorithm mainly centers on the how the al
 
 \begin{enumerate}
  \item \textbf{virtual conjecture * advance()} \vskip 1pt
-	The most important method towards building the conjecture. The method first tries to complete the table of the algorithm. If all knowledge was available, it tries to derive a conjecture and when a conjecture is ready, it is returned. If the table was unable to be completed, then unknown knowledge is marked \emph{required} and NULL is returned. \\
+	The most important method towards building the conjecture. The method first gathers all knowledge available and tries to derive a conjecture. If a conjecture is formulated, it is returned. If a conjecture was not produced, the knowledge having unknown classification is marked \emph{required} and NULL is returned. \\
 	The method uses the following methods for its operation.
 
  \item \textbf{virtual bool complete()} \vskip 1pt

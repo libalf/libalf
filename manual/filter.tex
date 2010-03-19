@@ -4,10 +4,11 @@ In contrast, \textbf{Normalizers} recognize equivalent words in a domain-specifi
 Both components can be serialized and deserialized.
 
 \section{Filters}
-The filter is organized of the main class \texttt{filter} and classes for all logical connectors. They are template classes of type \texttt{answer}. 
+
+A knowledgebase can be associated with more than one filter through the logical connectors. It is organized in a class called \texttt{filter}.
 
 \subsection{Class - filter}
-It is the main class that defines the types of fileters and the 
+It is the main class that defines the types of filter.
 
 \subsection*{Attributes - filter types}
 An \emph{enum} type variable \texttt{type} is used to define the filter type.
@@ -21,18 +22,8 @@ An \emph{enum} type variable \texttt{type} is used to define the filter type.
  \item \textbf{FILTER\_IDENTITY = 200} ; Identity filter **
 \end{itemize}
 
-\subsection*{Important Methods}
-\begin{enumerate}
- \item \textbf{filter::virtual void free\_all\_subfilter()} \\
-	Method to erase all the subfilters (logical connectors) associated with the knowledgebase.
- \item \textbf{filter::virtual enum type get\_type()} \\
-	The method returns the type of filter. Returns FILTER\_NONE in this class.
- \item \textbf{filter::virtual bool evaluate(knowledgebase$<$answer$>$ \& base, list$<$int$>$ \& word, answer \& result)} \\
-	The method to evaluate the word with the associated filter.
-\end{enumerate}
-
 \subsection{Class - filter\_subfilter\_array}
-A class that inherits the filter class to form the array of subfilters.
+The subfilter is an array of filters that is used to associate more than one filter to the knowledgebae. The class inherits the filter class.
 \subsection*{Attributes}
 \begin{itemize}
  \item \textbf{list$<$filter$<$answer$>$*$>$ subfilter\_array} \\
@@ -48,89 +39,42 @@ A class that inherits the filter class to form the array of subfilters.
 	Method to remove a filter from the array.
 \end{itemize}
 
+\subsection{Important Methods of all Filters}
+
+All the filters (including the logical connectors) are associated with the following important methods that execute its feature.
+
+\begin{enumerate}
+ 
+\item \textbf{filter::void free\_all\_subfilter()} \\
+	Method to erase all the subfilters (logical connectors) associated with the knowledgebase.
+ \item \textbf{filter::virtual enum type get\_type()} \\
+	The method returns the type of filter. 
+ \item \textbf{filter::virtual bool evaluate(knowledgebase$<$answer$>$ \& base, list$<$int$>$ \& word, answer \& result)} \\
+	The main method to evaluate the word with the associated filter. It returns \true if the word was evaluated successfuly and the answer is stored in the parameter \texttt{result}. It returns \false otherwsie.
+\end{enumerate}
+
+
 \subsection{Types of Filters}
-\subsection*{filter\_and}
-Filter for the logical connector \texttt{and}.
 \begin{enumerate}
- \item \textbf{filter\_and::virtual enum filter$<$answer$>$::type get\_type()}
-	The method returns the filter type which is FILTER\_AND.
- \item \textbf{filter\_and::virtual bool evaluate(knowledgebase$<$answer$>$ \& base, list$<$int$>$ \& word, answer \& result)}
-	The method evaluates the word using the \texttt{and} operator. Returns \true if the \texttt{result} is \false.
+ 
+\item \textbf{filter\_and} \\
+It is the logical connector \texttt{and} that can be associated with any two filters. The \texttt{evaluate} method returns \true only if the answer of the word can be determined by both the associated filters and the answer obtained is the same.
+
+\item \textbf{filter\_or}  \\
+It is the logical connector \texttt{or} that can be associated with any two filters. It returns \true if the word if at least one of the filters provide an answer for the word.
+
+\item \textbf{filter\_not} \\
+It is the logical connector \texttt{not} that can be associated with a filter. It returns \true if the word was answered by the filter and sets the \texttt{result} to the \texttt{not} of the derived answer.
+
+\item \textbf{filter\_all\_equal} \\
+Filter to check if the result is the same in all filters. Returns \true if the subfilter array is non-empty, and if all filters can evaluate a word and produce the same answer. 
+
+\item \textbf{filter\_reverse} \\
+The filter reverses the word and sends to all subfilters. Returns \true if the reversed word can be evaluated by the subfilters and the answer is stored to the \texttt{result}.
+
+\item \textbf{filter\_identity} \\
+This is a filter that tries to identify if the answer to the word is already available in the knowledgebase. It returns \true if it exists and is answered already (after setting the answer to \texttt{result}), \false otherwise.
+
 \end{enumerate}
-
-\subsection*{filter\_or}
-Filter for the logical connector \texttt{or}. 
-\begin{enumerate}
- \item \textbf{filter\_or::virtual enum filter$<$answer$>$::type get\_type()}
-	The method returns the filter type which is FILTER\_OR
- \item \textbf{filter\_or::virtual bool evaluate(knowledgebase$<$answer$>$ \& base, list$<$int$>$ \& word, answer \& result)}
-	The method evaluates the word using the \texttt{or} operator. Returns \true if the result is also \true. 
-\end{enumerate}
-
-\subsection*{filter\_not}
-Filter for the logical connector \texttt{not}. 
-\begin{enumerate}
- \item \textbf{filter\_not::virtual enum filter$<$answer$>$::type get\_type()} \\
-	The method returns the filter type which is FILTER\_NOT.
- \item \textbf{filter\_not::virtual bool evaluate(knowledgebase$<$answer$>$ \& base, list$<$int$>$ \& word, answer \& result)} \\
-	The method evaluates the word using the \texttt{and} operator. Returns \true after setting the result to the \texttt{not} of the itself. 
-\end{enumerate}
-
-\subsection*{filter\_all\_equal}
-Filter to check if the result is the same in all filters.
-\begin{enumerate}
- \item \textbf{filter\_all\_equal::virtual enum filter$<$answer$>$::type get\_type()} \\
-	The method returns the filter type which is FILTER\_ALL\_EQUAL.
- \item \textbf{filter\_all\_equal::virtual bool evaluate(knowledgebase$<$answer$>$ \& base, list$<$int$>$ \& word, answer \& result)} \\
-	Returns \true if the subfilter array is non-empty, and if all filters can evaluate a word and produce the same answer. 
-\end{enumerate}
-
-\subsection*{filter\_reverse}
-The filter reverses the word and sends to all subfilters.
-\begin{enumerate}
- \item \textbf{filter\_reverse::virtual enum filter$<$answer$>$::type get\_type()} \\
-	The method returns the filter type which is FILTER\_NOT (because of the reversal).
- \item \textbf{filter\_reverse::virtual bool evaluate(knowledgebase$<$answer$>$ \& base, list$<$int$>$ \& word, answer \& result)} \\
-	Returns \true if the reversed word can be evaluated by the subfilters and the answer is stored to the \texttt{result}.
-\end{enumerate}
-
-\subsection*{filter\_identity}
-This is a filter that tries to identify if the answer to the word is already available in the knowledgebase.
-\begin{enumerate}
- \item \textbf{filter\_identity::virtual enum filter$<$answer$>$::type get\_type()} \\
-	The method returns the filter type which is FILTER\_IDENTITY.
- \item \textbf{filter\_identity::virtual bool evaluate(knowledgebase$<$answer$>$ \& base, list$<$int$>$ \& word, answer \& result)} \\
-	The method tries to find the such a child corresponding to this word exists in the knowledgebase. It returns \true if it exists and is answered already (after setting the answer to \texttt{result}), \false otherwise.
-\end{enumerate}
-
-\section{Normalizer}
-
-A \emph{Normalizer} performs the task of reducing memory consumption during the learning phase by using domain specific knowledge.
-The component identifies equivalent words by the domain specific equivalence relation 
-\[ 
-  \sim \subseteq \Sigma ^{\ast} \times \Sigma ^{\ast}
-\]
-and stores only one representative of the equivalent class. This means that data for equivalent words/queries is stored and queried only once. This reduces memory consumption and also recduces the number of queries produced. The user can optimize the domain specific sense by subtyping the respective interface.
-
-\subsection{User Perspective and Methods}
-how to use it
-
-The Normalizer creates message sequence charts and realizes the MSC language through the \texttt{send} and \texttt{receive} events between the processes. The message is a symbol of a word that needs to be normalized or checked if it can be normalized. 
-This is organized in the class \texttt{normalizer\_msc} and the constructor defines the initial setting of the normalizer.
-
-\textbf{normalizer\_msc(vector$<$int$>$ \&total\_order, vector$<$int$>$ \&process\_match, vector$<$int$>$ \&buffer\_match, int max\_buffer\_length)}
-total order is the order of all the messages.
-process match specifies process that corresponds to the event. 
-buffer match -  buffer consists of all the messages and the buffer match specifies which event matches to which buffer. There can be more than one buffer. 
-max buffer length - maximum number of messages in the buffer. 
-
-normalization performed with two main methonds
-normal forms
-the normal form is the one representative of set of similar or equivalent words on the domain. The normal form is obtained b 
-
-prefix normal form 
-\textbf{virtual list$<$int$>$ prefix\_normal\_form(list$<$int$>$ \& w, bool \& bottom)}
-
-it creates the MSC using all the available information of the process, buffers and events starting from the send. ormalizes the words complying to the MSC language. Words that do not appear in the MSC's langauge are set to bottom. Which implies that all the words 
 
 

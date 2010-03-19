@@ -2,16 +2,16 @@
 
 To ease application development and debugging, \libalf provides two components - Loggers and Statistics. 
 
-A \textbf{Logger} is an adjustable logging facility that an algorithm can write to. A logger consists of different types of messages and is of substantial use in application debugging. When a learning algorithm is initialized, a logger is associated with it along with the knowledgebase. \libalf provides flexible logger implementations for the user. A learning algorithm can either use an output stream or a buffer as the logger. On the contrary, One may also choose to ignore the logger. \\
+A \textbf{Logger} is an adjustable logging facility that an algorithm can write to. One may insert different category of messages in the logger and is of substantial use in application debugging. When a learning algorithm is initialized, a logger is associated with it along with the knowledgebase. \libalf provides flexible logger implementations for the user. A learning algorithm can either use an output stream or a buffer as the logger. On the contrary, one may also choose to work without a logger.
 
 \textbf{Statistics} refers to the statistical data that can be acquired by evaluating the learning procedure. Information about the memory usage, queries produced, time taken for computing conjecture and other details may serve as base for analysing the learning algorithm in various cases. 
 
 \section{Loggers}
 
-A learning algorithm may different types of messages to the logger. There are different types of loggers that an alogirthm may use. The logger can be an output stream or a buffer. One may also use the output stream logger to print the messages on the screen. They are explained in detail in section \ref{sec:types}.
+A learning algorithm may write different types of messages to the logger. This logger is to to be associated with the knowledgebase during the intialization of the learning algorithm. 
 
 \subsection*{Example of how to set a logger}
-The following code snippet shows to how to create instance of a logger and associate it with the learning algorithm along with knowledgebase and alphabet size.
+The following code snippet shows to how to create an instance of a logger and associate it with the learning algorithm along with knowledgebase and alphabet size.
 \begin{lstlisting}
 // getting the alphabet size
 int alphabet_size = get_AlphabetSize(); 
@@ -27,9 +27,11 @@ buffered_logger bufflog;
 angluin_simple_table<bool> algorithm(&base, bufflog, alphabet_size); 
 \end{lstlisting}
 
-To achieve a good organization of these messages written to the logger, every message is distinguished from others by marking it with an appropriate \emph{loglevel}. A loglevel is a marker that indicates the type of messages as a priority for a particular function. For instance, two messages may be marked differently in terms of their importance towards describing a non-recoverable error. \\
+\subsection{The concept of Loglevel}
 
-The following are the types of loglevel used to categorize a message. It is a \emph{enum} type variable \texttt{logger\_loglevel}.
+To achieve a good organization of these messages written to the logger, the messages are categorized with different labels. A  \texttt{loglevel} is a marker indicating the priority of types of messages to be written into the logger. Setting up a \texttt{loglevel} ensures only messages having priorty of that level and higher are written to the logger while messages having lower priortiy are discarded or skipped.
+\paragraph{}
+The category of messages is initialized with a \emph{enum} type variable \texttt{logger\_loglevel}.
 \begin{itemize}
  \item \textbf{LOGGER\_INTERNAL=0} ; (An internal method)
  \item \textbf{LOGGER\_ERROR = 1} ; All log messages that describe a non-recoverable error are marked with this.
@@ -38,8 +40,9 @@ The following are the types of loglevel used to categorize a message. It is a \e
  \item \textbf{LOGGER\_DEBUG = 4} ; Messages that may help debugging of libalf.( Most likely removed before release version ).
  \item \textbf{LOGGER\_ALGORITHM = 5} ; (Do not use this as minimal loglevel)
 \end{itemize}
+For instance, setting up a \texttt{loglevel} of ``2'' will make the learning algorithm write warning and error messages (level 1 and 2) to the logger while messages labelled with lower priority (3 and 4) and discarded.
 
-\subsection{class Logger}
+\subsection{The Logger class}
 The main class that consists of attributes and methods to implement the logger. 
 
 \subsection*{Attributes} 
@@ -83,11 +86,11 @@ A class that does not consist of any methods. In this case, the logger simply di
 The class consists of method to write the message to an output stream. 
 \begin{itemize}
  \item \textbf{ostream\_logger::ostream\_logger(ostream *out, enum logger\_loglevel minimal\_loglevel, bool log\_algorithm = true, bool use\_color = true)} \vskip 1pt
-	The method creates an output stream for the logger. The parameter \texttt{*out} points to the output stream and the minimal loglevel indicates the initial setting. The parameter \texttt{log\_algorithm} is set to \true since the logger will be used by the algorithm. The parameter \texttt{use\_color} is set to \true so that on a console output, you may view the messages in different colors!
+	The method creates an output stream for the logger. The parameter \texttt{*out} points to the output stream and the minimal loglevel indicates the initial setting. The parameter \texttt{log\_algorithm} is set to \true by default since the logger will be used by the algorithm. The parameter \texttt{use\_color} is set to \true so that on a console output, you may view the messages in different colors!
 \end{itemize}
 
 \subsection*{buffered\_logger}
-The class consists of methods for setting a buffer as a log. It should be noted that the messages passed to the buffer will not be available until it is received and flushed explicitly.
+The class consists of methods for setting a buffer as a log (typically a string). It should be noted that the messages passed to the buffer will not be available until it is received and flushed explicitly.
 
 \begin{enumerate}
  \item \textbf{buffered\_logger::buffered\_logger(enum logger\_loglevel minimal\_loglevel, bool log\_algorithm = true)} \\

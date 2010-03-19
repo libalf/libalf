@@ -1,0 +1,243 @@
+\chapter{Quick Tour of Libalf}
+This document is a quick guide for understanding \libalf. In the following sections we present a brief description of the library and important features. 
+
+\section{Introduction}
+The libALF library is an actively developed, stable, and extensively-tested library for learning finite state machines. It unifes different kinds of learning techniques into a single flexible, easy-to-extend, open source library with a clear and easy-to-understand
+user interface. 
+\paragraph{}
+\libalf offers wide range of \offline and \online learning algorithms. Online algorithms build the hypothesis by actively asking queries to a \teacher and offline algorithms build same with a classified set of examples. 
+
+\section{Libalf Package}
+The \libalf package contains the following items.
+\begin{itemize}
+  \item The \libalf \cpp library.
+  \item \jalf (\libalf's Java interface).
+  \item The dispatcher (a network-based \libalf server).
+\end{itemize}
+
+\section{Terminologies, their Definitions and \libalf Components}
+In this section, we look at the important components of \libalf and the key terminilogies associated with it. \\
+The main two components of \libalf are the knowledgebase and the learning algorithms.
+\paragraph{Knowledgebase} - The central repository of all knowledge required for the learning process in \libalf.
+\begin{enumerate}
+ \item \textbf{word} - refers to a concatenation of symbols from the alphabet set. Libalf does not contrain you from setting any alphabet size (of course, it cannot be 0!). Symbols are represented as \integer in \libalf. Hence an alphabet size of 2 will consist of symbols {0,1}. Since word is a concatenation of these symbols, \libalf uses \texttt{list of integers} to represent words. 
+
+ \item \textbf{classification} - refers to a set of arbitrary values that are mapped to the words. For instance, classification for a Finite Automata refers to \true or \false. \\
+Note: The knowledgebase of \cpp library of \libalf is a template class and hence allows arbitrary values for storing the classification. However, the \jalf java library and the dispatcher allows only boolean values to store the same. 
+\end{enumerate}
+\paragraph{Learning Algorithm} - The learning technique/algorithm for learning DFA or NDFA that can be either \online or \offline.
+\begin{enumerate}
+ \item \textbf{example/sample} - refers to a set of words with their classifications.
+ \item \textbf{membership query} - refers to a word that has unknown classification.
+ \item \textbf{teacher} - refers to the user application (or the \emph{user} himself when simply using the libalf as it is) that classifies a query presented to it.
+ \item \textbf{conjecture} - refers to a hypothesis produced by the learning algorithm. 
+ \item \textbf{equivalence query} - refers to a conjecture that is needed to be classified correct or incorrect by the teacher.
+ \item \textbf{resolve query} - refers to the act of classifying a word or a conjecture. 
+ \item \textbf{counter-example} - refers to an example to be supplied by the user when a conjecture is incorrect. \\
+Let us understand the conjecture with a little more detail. A conjecture is built progressively by a learning algorithm. The algorithm creates a \emph{simple automaton} when it is initialized and builds it to a final conjecture by adding \emph{state transitions}. This implies that a word classified as \true will reach the end state through the state transitions. 
+
+\end{enumerate}
+\paragraph{The learning techniques}
+\begin{enumerate}
+ \item \textbf{Online Algorithm} - The learning technique that actively asks queries to a teacher and builds the conjecture.
+ \item \textbf{Offline Algorithm} - The learning technique that builds the conjecture from a given set of examples.
+\end{enumerate}
+
+\paragraph{Other Componenets of \libalf}
+\begin{enumerate}
+ \item \textbf{Loggers} - A logging facility that an algorithm can write to. It is mainly useful for application debugging.
+ \item \textbf{Statistics} - Statistical data of the learning algorithm with respect to memory usage, query production (for online algorithms) and timing.
+ \item \textbf{Filters} - Reduces the number of queries asked to a teacher by exploiting domain specific properties when associated with a knowledgebase.
+ \item \textbf{Normalizers} - Recognizes equivalent words in a domain-specific sense to reduce the amount of knowledge that has to be stored.
+\end{enumerate}
+
+
+\section{The Learnign Algorithms}
+In this section, we will describe in detail the working of the two types of learning algorithms - \online and \offline. Here is a list of algorithms supported by \libalf.
+
+\begin{table} [h]
+\centering
+\begin{tabular}[c]{lcr}
+\toprule[1pt]
+Online Algorithms & Offline Algorithms \\	
+\midrule
+Angluin's L [2] (two variants) & Biermann [3] \\
+NL [4] & RPNI [13] \\
+Kearns / Vazirani [10] & DeLeTe2 [6]\\
+\bottomrule[1pt]
+\end{tabular}
+\caption{List of Algorithms Implemented}
+\label{algtables1}
+\end{table}
+
+\subsection{General Information}
+Both the learning algorithms communicate with the knowledgebase for getting information about words and their classification. The learning algorithm builds the conjecture by performing an \emph{advance}, wherein it takes information from the knowledgebase and tries to construct a conjecture out of it. The difference between the \online and \offline algorithms comes from this aspect. While an \offline algorithm performs an \emph{advance} only once, the \online algorithm would typically perform that more than once. Lets explore that!
+
+\subsection{Online learning algorithm}
+The online learning algorithm computes the conjecture by iteration of advance followed by queries asked to the teacher. The workflow of such an algorithm is as follows. \\
+
+\begin{enumerate}
+ \item The algorithm is furnished with the pointer to the knowledgebase and the alphabet size.
+ \item The following two steps are repeated until a correct conjecture is determined.
+	\begin{enumerate}
+	    \item The algorithm is made to advance. In this step, the algorithm checks if there is enough information available in the knowledgebase to formulate a conjecture.
+	    \item Here one of the following two possibile events may occur.
+	    \begin{enumerate}
+	    \item If no conjecture was created, typically membership queries are produced and added to the knowledgebase. These queries are then presented to the teacher to resolve it.
+	    \item On the other hand, if a conjecture was created, the equivalence query is answered by the teacher. If the conjecture was incorrect a counter example is rendered by the teacher.
+	    \end{enumerate}
+	\end{enumerate}
+\end{enumerate}
+\paragraph{}
+In the online technique, the algorithm produces queries from an empty string to possible words out of the alphabet size until a conjecture can be evaluated. This implies that examples are provided to the learning algorithm on-the-fly. This is the major difference  from the offline technique.
+
+% why should the alphabet size be given first in offline?
+
+\subsection{Offline learning algorithm}
+On contrary to the the online technique, the offline algorithm computes the conjecture by performing an advance only once from an already provided set of examples available in the knowledgebase. The user must provide the knolwedgebase with examples which will be referred by the algorithm during the advance and will compute the conjecture. \\
+Note: While an offline algorithm guarantees that the provided examples are satisfied by the conjecture, it does not guarantee that the conjecture either satisfacties or dissatisfacties of any other non-provided examples.
+\paragraph{}
+The online algorithm works as follows.
+\begin{enumerate}
+ \item The alphabet size is provided.
+ \item The knowledgebase is furnished with the a set of examples.
+ \item The learning algorithm is made to advance to compute the conjecture in conformance with the examples.
+\end{enumerate}
+\paragraph{}
+
+\section{Loggers}
+Libalf's logger allows the learning algorithm to write information that may be relevant for application debugging. In fact, you may choose to make the learning algorithm write only those type of messages that is of interest to you. On the contrary, you may even choose to work without a logger by not associating any logger with learning algorithm during its initialization. 
+\paragraph{}
+\libalf essentially offers three types of loggers. 
+\begin{enumerate}
+ \item OutputStream Logger - The algorithm can be associated with any output stream.
+ \item Buffered Logger - The algorithm can be associated with a buffer that can be used as a logger. In this case, the messages have to received (essentially to a string) and flushed.
+\end{enumerate}
+\paragraph{Types of Messages}
+Every category or type of message has a priority associated with it. This is called a \texttt{loglevel}. The minimal loglevel defines the priority that is set. The following is the loglevel list. 
+\begin{itemize}
+ \item \textbf{LOGGER\_INTERNAL=0} ; (An internal method)
+ \item \textbf{LOGGER\_ERROR = 1} ; All log messages that describe a non-recoverable error are marked with this.
+ \item \textbf{LOGGER\_WARN = 2} ; Messages describing a state or command that is erroneous but may be ignored under most conditions.
+ \item \textbf{LOGGER\_INFO = 3} ; Any information that does not describe an erroneous condition.
+ \item \textbf{LOGGER\_DEBUG = 4} ; Messages that may help debugging of libalf.( Most likely removed before release version ).
+ \item \textbf{LOGGER\_ALGORITHM = 5} ; (Do not use this as minimal loglevel)
+\end{itemize}
+For instance, setting up a \texttt{loglevel} of ``2'' will make the learning algorithm write warning and error messages (level 1 and 2) to the logger while messages labelled with lower priority (3 and 4) and discarded.
+
+\section{Features of \libalf}
+The library also offers other features as listed below.
+\begin{enumerate}
+ \item \textbf{GraphViz visualization} \\
+       \libalf can create a ``.dot'' file of the knowledgebase and the conjecture which can be executed by the GraphViz tool for a pictorial representation.
+ \item \textbf{Serialization and Deserialization} \\
+	At any point of time, the state of the knowledgebase, learning algorithms and other componenets can be serialized to a linear representation which you may store locally, share it in the internet or deserialize it in other machine for use.
+ \item \textbf{Merging knowledgebases} \\
+	\libalf also allows you to merge your knowledgebase with another one with certain constraints.
+\end{enumerate}
+Please refer to the main documentation to know more about these features.
+
+\section{How to emply \libalf in your application}
+Let's look at a small example of how to employ \libalf in your application. \\
+In the following \cpp example, we will deal with Angluin online algorithm. The code is pretty much self explanatory supported by the comments in the code.
+\lstset{language=c++, numbers=left, numberstyle=\tiny, stepnumber=1, numbersep=5pt}
+\begin{lstlisting}[frame=single]
+// Used to define the libalf name space.
+#include <libalf/alf.h>
+// The L* algorithm
+#include <libalf/algorithm_angluin.h>
+
+void main(int argc, char**argv) {
+
+//Input the alphabet size
+int alphabetsize = get_AlphabetSize();
+
+//Create a knowledgebase. Observe that we choose 'bool' 
+as its type.
+knowledgebase<bool> base;
+
+//Creating a learning algorithm with the knowledgebase, a
+ buffered logger and the obtained alphabet size.
+angluin_simple_table<bool> algorithm(&base,
+buffered_logger bufflog,alphabetsize);
+
+// The iteration of 'advance' followed by resolving of queries
+do {
+ conjecture * cj = algorithm.advance();
+
+ // resolve membership queries
+ if (cj == NULL) 
+ {
+   list<list<int> > queries = base.get_queries();
+   list<list<int> >::iterator li;
+   for(li = queries.begin(); li != queries.end(); li++) 
+   {
+      bool a = answer_Membership(*li);
+      base.add_knowledge(*li, a);
+   }
+ }
+
+ // resolve equivalence query
+ else 
+ {
+   bool is_equivalent = check_Equivalence(cj);
+   if (is_equivalent) result = cj; 
+   else 
+   {	
+      list<int> ce = get_CounterExample(alphabetsize);
+      algorithm.add_counterexample(ce);
+   }
+ }
+}while (result == NULL);
+
+//Display the ".dot" code on the screen.
+cout<<result->visualize();
+}
+\end{lstlisting}
+
+The following \java example deals with RPNI offline algorithm.
+
+\lstset{language=java, numbers=left, numberstyle=\tiny, stepnumber=1, numbersep=5pt}
+\begin{lstlisting}[frame=single]
+public static void main(String[] args) throws 
+NumberFormatException,IOException 
+{
+// A LibALFFactory called "factory" is created and 
+set to be STATIC.
+ LibALFFactory factory = JNIFactory.STATIC;
+
+// A Knowledgebase under the name of "base" is created in the factory.
+Knowledgebase base = factory.createKnowledgebase();
+
+// Information about the size of the alphabet is obtained 
+from the user.
+alphabetsize = get_AlphabetSize();
+
+// Samples collected from the user
+while (input.equals("y")) {
+
+words = get_Samples(); 
+
+classification = get_Classification(); 
+
+// The sample is added to the knowledgebase.
+base.add_knowledge(words, classification); 
+
+// Information whether user wants to add more samples or
+ not is obtained.
+input = enough_Samples();
+}
+
+// Learning algorithm is initialized 
+LearningAlgorithm algorithm = factory.createLearningAlgorithm(
+Algorithm.RPNI, base, alphabetsize);
+
+// Algorithm made to advance
+BasicAutomaton automaton = (BasicAutomaton) algorithm.advance();
+
+//produces the ".dot" code
+make_OutputFile(automaton.toDot());
+}
+}
+\end{lstlisting}
+
