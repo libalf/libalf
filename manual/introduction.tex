@@ -1,10 +1,10 @@
 
 \chapter{Introduction}
 
-\section{LibALF Basics}
+\section{\libalf Basics}
 		The \libalf library is an actively developed, stable, and extensively-tested library for learning finite state machines. It unifies different kinds of learning techniques into a single flexible, easy-to-extend, open source library with a clear and easy-to-understand user interface.
 		\paragraph{}	
-		The \libalf Library provides a wide range of \online and \offline algorithms for learning Deterministic (DFA) and Non Determinisitc Finite Automaton (NFA). \online algorithm is a technique where the hypothesis is built by understanding the classification (whether accepted or rejected) of queries asked to some kind of a \teacher.  While, an \offline algorithm builds an apposite hypothesis from a set of classified examples that were passively provided to it. As of \today, the library contains seven such algorithms implemented in it which are listed in Table \ref{algtables}.
+		The \libalf Library provides a wide range of \online and \offline algorithms for learning Deterministic (DFA) and Nondeterministic Finite Automata (NFA). \online algorithm is a technique where the hypothesis is built by understanding the classification (whether accepted or rejected) of queries asked to some kind of a \teacher.  While, an \offline algorithm builds an apposite hypothesis from a set of classified examples that were passively provided to it. As of \today, the library contains seven such algorithms implemented in it which are listed in Table \ref{algtables}.
 
 		\begin{table}
 		\centering
@@ -33,7 +33,7 @@
 		
 \section{Conceptual Details}
 
-	The \libalf consists of four main components, the Learning Algorithm, the Knowledgebase, Filters \& Normalizers and Logger \& Statistics. Figure \ref{fig:components} shows a characteristic view of the these components. Our implemention of these components allows for plug and play usage.
+	The \libalf consists of four main components, the Learning Algorithm, the Knowledgebase, Filters \& Normalizers and Logger \& Statistics. Figure \ref{fig:components} shows a characteristic view of the these components. Our implementation of these components allows for plug and play usage.
 
 \begin{figure}[h]
   \centering
@@ -41,7 +41,7 @@
   \subfloat[Knowledgebase]{\label{fig:base}\includegraphics[width=0.3\textwidth]{Images/2.png}}\\
   \subfloat[Filter \& Normalizer]{\label{fig:filter}\includegraphics[width=0.27\textwidth]{Images/3.png}} \hspace{30pt}
   \subfloat[Logger \& Statistics]{\label{fig:logger}\includegraphics[width=0.35\textwidth]{Images/4.png}}
-  \caption{Components of LibALF}
+  \caption{Components of \libalf}
   \label{fig:components}
 \end{figure} 
 	
@@ -73,7 +73,7 @@
 	The following two steps are repeated until a correct conjecture is determined.
 \begin{enumerate}
 \item The algorithm is made to advance.
-\item Here one of the following two possibile events may occur.
+\item Here one of the following two possible events may occur.
 \begin{enumerate}
 \item If no hypothesis is created, ``membership queries'' that require associated classification are resolved (by the \teacher) and added to the knowledgebase.
 \item If a hypothesis was created, the ``equivalence query'' is answered by the teacher. If the conjecture is incorrect a counter example is rendered by the teacher.
@@ -86,7 +86,7 @@ An insight into the working of the two algorithms is given in Section 1.3.
 	The knowledgebase can be associated with a number of \filters, which are used for domain-specific optimization. This implies that the knowledgebase makes use of domain-specific information to reduce the number of queries to the teacher. Such filters can be composed by logical connectors (and, or, not). In contrast, \normalizers are able to recognize words equivalent in a domain-specific sense to reduce the amount of knowledge that has to be stored. 
 		
 \subsection{Loggers and Statistics}	
-	The library additionaly features means for statistical evaluation or loggers. A logger is an adjustable logging facility that an algorithm can write to, to ease application debugging and development. The modularity of our approach in developing \libalf facilitates these components to be added in an easy plug and play fashion and that is shown in Figure \ref{fig:plug} and Figure \ref{fig:loggers}.
+	The library additionally features means for statistical evaluation or loggers. A logger is an adjustable logging facility that an algorithm can write to, to ease application debugging and development. The modularity of our approach in developing \libalf facilitates these components to be added in an easy plug and play fashion and that is shown in Figure \ref{fig:plug} and Figure \ref{fig:loggers}.
 	
 \begin{figure}[h]
 	\centering
@@ -105,7 +105,7 @@ The primary aspect in describing the working would be to outline the data flow b
 \draw node[minimum height=2cm,minimum width=2cm,fill=cyan,draw] (la) at (0,5) {Learning Algorithm};
 \draw node[minimum height=2cm,minimum width=2cm,fill=green,draw] (kn) at (7,5) {Knowledgebase};
 \draw node[minimum height=2cm,minimum width=2cm,fill=gray,draw] (user) at (3.5,0) {User};
-\draw[dashed,ultra thick] (la) -- (kn) node[midway,above] {advane()};
+\draw[dashed,ultra thick] (la) -- (kn) node[midway,above] {advance()};
 \draw[<->,ultra thick] (la) -- (user) node[midway,left] {conjecture equivalence} node[near end,left] {counter-example};
 \draw[<->,ultra thick] (kn) -- (user) node[midway,right] {membership queries} node[near end,right] {sample words};
 \end{tikzpicture}
@@ -113,7 +113,7 @@ The primary aspect in describing the working would be to outline the data flow b
 \label{communications}
 \end{figure}
 
-The learning algorithm and the knowledgebase share information with user. The knowledgebase, as stated earlier, is the fundamental information for the learning algorithm to develop an automaton. The learning algorithm advances with whatever knowledge is available. The learning algorithm connects with the user to collect relevant information such as equivalence of a conjecture or to retrive counter-example. When the learning algorithm creates more membership queries, they are stored in the knowledgebase leading to it initiating a communication with the user who is required to answer membership queries (or input sample words in case of an offline algorithm). All such information extended by the user are stored in the knowledgebase. 
+The learning algorithm and the knowledgebase share information with user. The knowledgebase, as stated earlier, is the fundamental information for the learning algorithm to develop an automaton. The learning algorithm advances with whatever knowledge is available. The learning algorithm connects with the user to collect relevant information such as equivalence of a conjecture or to retrieve counter-example. When the learning algorithm creates more membership queries, they are stored in the knowledgebase leading to it initiating a communication with the user who is required to answer membership queries (or input sample words in case of an offline algorithm). All such information extended by the user are stored in the knowledgebase. 
 
 \section{Demo Application}
 
@@ -122,8 +122,8 @@ In this section we describe the working of the \offline and \online algorithms w
 The following code snippet briefly demonstrates how to employ the \libalf library in a user application. It is important that you become familiar with the auxilliary methods used in the program and hence their operations are explained first.
 
 \begin{itemize}
-\item \textbf{\emph{get\_AlphabetSize()}} - Promts the user to provide information about the size of alphabet and stores it as an \texttt{Integer}.
-\item \textbf{\emph{answer\_Membership(\*li)}} - Takes the list of queries as an arguement and presents it to the user to classify them. It returns \texttt{true} when the word is to be accepted and returns \texttt{false} when it is to be rejected.
+\item \textbf{\emph{get\_AlphabetSize()}} - Prompts the user to provide information about the size of alphabet and stores it as an \texttt{Integer}.
+\item \textbf{\emph{answer\_Membership(\*li)}} - Takes the list of queries as an argument and presents it to the user to classify them. It returns \texttt{true} when the word is to be accepted and returns \texttt{false} when it is to be rejected.
 \item \textbf{\emph{check\_Equivalence(cj)}} - Presents the computed conjecture to the user who marks it as correct or incorrect. Returns \texttt{true} or \texttt{false} respectively.
 \item \textbf{\emph{get\_CounterExample(alphabetsize)}} - Requests the user to input the counter-example and returns the word as a list (array in \java implementation) of integers. It takes the alphabetsize as a parameter for validation purposes.
 \item \textbf{\emph{get\_Samples(alphabetsize)}} - Retrieves the sample word from the user. The alphabetsize is passed as a parameter for validation purposes.
@@ -172,8 +172,8 @@ cout<<result->visualize();
 The workflow of the program is as described below:
 
 \begin{enumerate}
-	\item At line 2, the program promts the user to input the \alphsize of the Automaton.
-	\item An empty knowledgebase is now intialized at line 3. (The knowledgebase stores the words as a list of \texttt{Integers})
+	\item At line 2, the program prompts the user to input the \alphsize of the Automaton.
+	\item An empty knowledgebase is now initialized at line 3. (The knowledgebase stores the words as a list of \texttt{Integers})
 	\item Now, a learning algorithm is created by providing three parameters - the knowledgebase, NULL for a logger, the Alphabet Size.
 	\item After having initialized the learning algorithm, the program is subjected to a loop where the algorithm is made to \advanced (Line 7). The result of this is stored in a \conjecture type variable \cj.
 	
@@ -188,7 +188,7 @@ The workflow of the program is as described below:
 	\item If it is not equivalent, the user is now prompted to provide a counter example (line 27) and the program continues with the iteration. Typically, the counter example would influence the learning algorithm to invoke more \memque that is to be resolved during the next \advanced of the algorithm.
 \end{enumerate}
 
-\subsection{Offine Algorithm}
+\subsection{Offline Algorithm}
 
 An \offline algorithm, as mentioned in the previous section, computes a conjecture from a set of passively provided input samples with their classifications.
 

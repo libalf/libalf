@@ -23,7 +23,7 @@ An \emph{enum} type variable \texttt{type} is used to define the filter type.
 \end{itemize}
 
 \subsection{Class - filter\_subfilter\_array}
-The subfilter is an array of filters that is used to associate more than one filter to the knowledgebae. The class inherits the filter class.
+The subfilter is an array of filters that is used to associate more than one filter to the knowledgebase. The class inherits the filter class.
 \subsection*{Attributes}
 \begin{itemize}
  \item \textbf{list$<$filter$<$answer$>$*$>$ subfilter\_array} \\
@@ -50,7 +50,7 @@ All the filters (including the logical connectors) are associated with the follo
  \item \textbf{filter::virtual enum type get\_type()} \\
 	The method returns the type of filter. 
  \item \textbf{filter::virtual bool evaluate(knowledgebase$<$answer$>$ \& base, list$<$int$>$ \& word, answer \& result)} \\
-	The main method to evaluate the word with the associated filter. It returns \true if the word was evaluated successfuly and the answer is stored in the parameter \texttt{result}. It returns \false otherwsie.
+	The main method to evaluate the word with the associated filter. It returns \true if the word was evaluated successfully and the answer is stored in the parameter \texttt{result}. It returns \false otherwise.
 \end{enumerate}
 
 

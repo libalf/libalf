@@ -5,7 +5,7 @@ A conventional way to distinguish learning algorithms is to group them into \onl
 
 \subsection*{Online Algorithms}
 
- The online learning process is based on the model of Minimally Adequate Teacher (MAT) wherein the technique invloves two types of queries, namely, \emph{membership queries} and \emph{equivalence queries}. Online learning algorithms build the conjecture by actively asking queries to a \teacher (i.e.\ a user application). \\ The teacher is required to \emph{resolve} the memebership query by providing the classification of the given word. Equivalence queries check whether a derived conjecture is an equivalent description of the target language to be inferred.
+ The online learning process is based on the model of Minimally Adequate Teacher (MAT) wherein the technique involves two types of queries, namely, \emph{membership queries} and \emph{equivalence queries}. Online learning algorithms build the conjecture by actively asking queries to a \teacher (i.e.\ a user application). \\ The teacher is required to \emph{resolve} the membership query by providing the classification of the given word. Equivalence queries check whether a derived conjecture is an equivalent description of the target language to be inferred.
 \subsection*{Example Code}
 
 \lstset{language=c++, numbers=left, numberstyle=\tiny, stepnumber=1, numbersep=5pt}
@@ -40,7 +40,7 @@ do {
 
 \subsection*{Offline Algorithms}
 
-Offline algorithms, in contrast to the online variant, is an NP complete problem of finding the smallest DFA consistant with a given set of classified words.
+Offline algorithms, in contrast to the online variant, is an NP complete problem of finding the smallest DFA consistent with a given set of classified words.
 The algorithm is provided with a set S of classified words (called samples) and the algorithm derives a conjecture which conforms to these samples. 
 
 \paragraph{}
@@ -72,15 +72,15 @@ As of \today, \libalf implements seven algorithms for both deterministic and non
 	(..)
  \item \textbf{Biermann} \cite{17952-biermann1}
 	(..)
- \item \textbf{Delete2} \cite{982366-delete1}
+ \item \textbf{DeLeTe2} \cite{982366-delete1}
 	(..)
 \end{enumerate}
 
 \section{Methods - User Perspective}
 
-In this section, we describe methods that are important for using \libalf. The following material elaborates on initializing the learning algorithm, its association with knolwedgebase and building the conjecture. Like the knowledgebase, learning algorithm also supports serialization and deserialization. Other methods that enable the user to work on the statistics are also described.
+In this section, we describe methods that are important for using \libalf. The following material elaborates on initializing the learning algorithm, its association with knowledgebase and building the conjecture. Like the knowledgebase, learning algorithm also supports serialization and deserialization. Other methods that enable the user to work on the statistics are also described.
 
-\subsection*{Initalizing the Learning Algorithm}
+\subsection*{Initializing the Learning Algorithm}
 
 \begin{itemize}
  \item \textbf{learning\_algorithm(\emph{parameters})} \vskip 1pt
@@ -92,7 +92,7 @@ In this section, we describe methods that are important for using \libalf. The f
 For instance, the constructor of an RPNI algorithm is written as follows. \vskip 1pt
 \textbf{RPNI(knowledgebase$<$answer$>$ * base, logger * log, int alphabet\_size)} \vskip 1pt
 The constructor of all the learning algorithms follow such an initialization. It sets the pointer to the knowledgebase, the logger and the alphabet size. \\
-Note: Other algorithms may need more than the above mentioned arguements since it depends on the working of the algorithm itself. However, the above example shows the minimal set of arguements required for any learning algorithm. 
+Note: Other algorithms may need more than the above mentioned arguments since it depends on the working of the algorithm itself. However, the above example shows the minimal set of arguments required for any learning algorithm. 
 
 \subsection*{Working with Alphabet Size}
 
@@ -119,15 +119,15 @@ Note: Other algorithms may need more than the above mentioned arguements since i
 
 \end{enumerate}
 
-\subsection*{Synchronization with Knowledgebas}
+\subsection*{Synchronization with Knowledgebase}
 
-As discussed in the previous chapter, the knowledgebase supports \emph{undo} operation. When an undo operation has been performed, the learning alogirthm must be synchronized to the knowledgebase failing to which may generate erroneaous output. We use the following method to synchronize the learning algorithm with the knowledgebase. This method must be called after each undo operation.
+As discussed in the previous chapter, the knowledgebase supports \emph{undo} operation. When an undo operation has been performed, the learning algorithm must be synchronized to the knowledgebase failing to which may generate erroneous output. We use the following method to synchronize the learning algorithm with the knowledgebase. This method must be called after each undo operation.
 
 \begin{itemize}
 
  \item \textbf{learning\_algorithm::bool sync\_to\_knowledgebase()} \\
-	The method checks the knowledgebase, removes the obsolete knowledge, changes its internal data to be synchronized with the knowledgebase and returns \true. If it returns \false, the algorithm is in undefined state and must not be used antymore. \\
-	Note: This method should be called after each undo opearation performed in the knowledgebase.
+	The method checks the knowledgebase, removes the obsolete knowledge, changes its internal data to be synchronized with the knowledgebase and returns \true. If it returns \false, the algorithm is in an undefined state and must not be used anymore. \\
+	Note: This method should be called after each undo operation performed in the knowledgebase.
 
 \end{itemize}
 
@@ -162,10 +162,10 @@ On the other hand, the knowledgebase need not necessarily allow the undo operati
 	If the value of ``l'' is not NULL, then it is set as the logger. Otherwise, the logger is set to ``ignore'' which implies that no logger exists.
 
  \item \textbf{virtual void set\_normalizer(normalizer * norm)} \vskip 1pt
-	Sets the normalizer to the one pointed by the arguement ``norm''.
+	Sets the normalizer to the one pointed by the argument ``norm''.
 
  \item \textbf{virtual void unset\_normalizer()} \vskip 1pt
-	Sets the normailizer to NULL. 
+	Sets the normalizer to NULL. 
 \end{enumerate}
 
 \subsection*{Statistics}
@@ -197,7 +197,7 @@ On the other hand, the knowledgebase need not necessarily allow the undo operati
 
  \item \textbf{virtual bool deserialize(basic\_string$<$int32\_t$>$::iterator \& it, basic\_string$<$int32\_t$>$::iterator limit)} \vskip 1pt
 	Restores the data of a serialized learning algorithm. The current state of the learning algorithms is discarded. \\
-	The method returns \true if the deserialization was successfull. Otherwise, returns \false.
+	The method returns \true if the deserialization was successful. Otherwise, returns \false.
 \end{enumerate}
 
 
@@ -214,7 +214,7 @@ A developer's perspective of learning algorithm mainly centers on the how the al
 	The method is used by the learning algorithm to complete the table in such a way that a conjecture can be derived from it. Returns true if the table is complete. Returns \false if the table is incomplete due to missing knowledge. 
 
  \item \textbf{virtual conjecture * derive\_conjecture()} \vskip 1pt
-	The methodd derives a conjecture from the given data structure available in the knowledgebase. 
+	The method derives a conjecture from the given data structure available in the knowledgebase. 
 
  \item \textbf{virtual bool conjecture\_ready()} \vskip 1pt
 	Returns \true if a conjecture can be constructed without any further queries. Otherwise, returns \false.

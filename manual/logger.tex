@@ -8,7 +8,7 @@ A \textbf{Logger} is an adjustable logging facility that an algorithm can write 
 
 \section{Loggers}
 
-A learning algorithm may write different types of messages to the logger. This logger is to to be associated with the knowledgebase during the intialization of the learning algorithm. 
+A learning algorithm may write different types of messages to the logger. This logger is to to be associated with the knowledgebase during the initialization of the learning algorithm. 
 
 \subsection*{Example of how to set a logger}
 The following code snippet shows to how to create an instance of a logger and associate it with the learning algorithm along with knowledgebase and alphabet size.
@@ -29,7 +29,7 @@ angluin_simple_table<bool> algorithm(&base, bufflog, alphabet_size);
 
 \subsection{The concept of Loglevel}
 
-To achieve a good organization of these messages written to the logger, the messages are categorized with different labels. A  \texttt{loglevel} is a marker indicating the priority of types of messages to be written into the logger. Setting up a \texttt{loglevel} ensures only messages having priorty of that level and higher are written to the logger while messages having lower priortiy are discarded or skipped.
+To achieve a good organization of these messages written to the logger, the messages are categorized with different labels. A  \texttt{loglevel} is a marker indicating the priority of types of messages to be written into the logger. Setting up a \texttt{loglevel} ensures only messages having priority of that level and higher are written to the logger while messages having lower priority are discarded or skipped.
 \paragraph{}
 The category of messages is initialized with a \emph{enum} type variable \texttt{logger\_loglevel}.
 \begin{itemize}
@@ -58,7 +58,7 @@ The following methods are defined in the class.
  \item \textbf{void set\_minimal\_loglevel(enum logger\_loglevel minimal\_loglevel)} \\
 	Sets the minimum logger level using the \texttt{loglevel} attributes.
  \item \textbf{void set\_log\_algorithm(bool log\_algorithm)} \\
-	The method sets logger for the algorithm if the arguement is \true. It ignores the logger if the parameter is \false. 
+	The method sets logger for the algorithm if the argument is \true. It ignores the logger if the parameter is \false. 
  \item \textbf{virtual void operator()(enum logger\_loglevel, string\&)} and \textbf{virtual void operator()(enum logger\_loglevel, 	const char* format, ...)} \\
 	The method takes the logger type and message as parameters for entry to the logger. If other variables also need to be used, it can be done so using the second method. 
 \end{enumerate}
@@ -100,7 +100,7 @@ The class consists of methods for setting a buffer as a log (typically a string)
 \end{enumerate}
 
 \section{Statistics}
-The component is used to obtain three types of statistical information. They are orgainized as three classes namely 
+The component is used to obtain three types of statistical information. They are organized as three classes namely 
 \begin{itemize}
 \item \texttt{timing\_statistics} - To retrieve the user time and system time of the learning process.
 \item \texttt{memory\_statistics} - To retrieve information about the memory usage

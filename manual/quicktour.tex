@@ -2,12 +2,12 @@
 This document is a quick guide for understanding \libalf. In the following sections we present a brief description of the library and important features. 
 
 \section{Introduction}
-The libALF library is an actively developed, stable, and extensively-tested library for learning finite state machines. It unifes different kinds of learning techniques into a single flexible, easy-to-extend, open source library with a clear and easy-to-understand
+The \libalf library is an actively developed, stable, and extensively-tested library for learning finite state machines. It unifies different kinds of learning techniques into a single flexible, easy-to-extend, open source library with a clear and easy-to-understand
 user interface. 
 \paragraph{}
 \libalf offers wide range of \offline and \online learning algorithms. Online algorithms build the hypothesis by actively asking queries to a \teacher and offline algorithms build same with a classified set of examples. 
 
-\section{Libalf Package}
+\section{\libalf Package}
 The \libalf package contains the following items.
 \begin{itemize}
   \item The \libalf \cpp library.
@@ -16,16 +16,16 @@ The \libalf package contains the following items.
 \end{itemize}
 
 \section{Terminologies, their Definitions and \libalf Components}
-In this section, we look at the important components of \libalf and the key terminilogies associated with it. \\
+In this section, we look at the important components of \libalf and the key terminologies associated with it. \\
 The main two components of \libalf are the knowledgebase and the learning algorithms.
 \paragraph{Knowledgebase} - The central repository of all knowledge required for the learning process in \libalf.
 \begin{enumerate}
- \item \textbf{word} - refers to a concatenation of symbols from the alphabet set. Libalf does not contrain you from setting any alphabet size (of course, it cannot be 0!). Symbols are represented as \integer in \libalf. Hence an alphabet size of 2 will consist of symbols {0,1}. Since word is a concatenation of these symbols, \libalf uses \texttt{list of integers} to represent words. 
+ \item \textbf{word} - refers to a concatenation of symbols from the alphabet set. Libalf does not constrain you from setting any alphabet size (of course, it cannot be 0!). Symbols are represented as \integer in \libalf. Hence an alphabet size of 2 will consist of symbols {0,1}. Since word is a concatenation of these symbols, \libalf uses \texttt{list of integers} to represent words. 
 
  \item \textbf{classification} - refers to a set of arbitrary values that are mapped to the words. For instance, classification for a Finite Automata refers to \true or \false. \\
-Note: The knowledgebase of \cpp library of \libalf is a template class and hence allows arbitrary values for storing the classification. However, the \jalf java library and the dispatcher allows only boolean values to store the same. 
+Note: The knowledgebase of \cpp library of \libalf is a template class and hence allows arbitrary values for storing the classification. However, the \jalf Java library and the dispatcher allows only boolean values to store the same. 
 \end{enumerate}
-\paragraph{Learning Algorithm} - The learning technique/algorithm for learning DFA or NDFA that can be either \online or \offline.
+\paragraph{Learning Algorithm} - The learning technique/algorithm for learning DFA or NFA that can be either \online or \offline.
 \begin{enumerate}
  \item \textbf{example/sample} - refers to a set of words with their classifications.
  \item \textbf{membership query} - refers to a word that has unknown classification.
@@ -43,7 +43,7 @@ Let us understand the conjecture with a little more detail. A conjecture is buil
  \item \textbf{Offline Algorithm} - The learning technique that builds the conjecture from a given set of examples.
 \end{enumerate}
 
-\paragraph{Other Componenets of \libalf}
+\paragraph{Other Components of \libalf}
 \begin{enumerate}
  \item \textbf{Loggers} - A logging facility that an algorithm can write to. It is mainly useful for application debugging.
  \item \textbf{Statistics} - Statistical data of the learning algorithm with respect to memory usage, query production (for online algorithms) and timing.
@@ -52,7 +52,7 @@ Let us understand the conjecture with a little more detail. A conjecture is buil
 \end{enumerate}
 
 
-\section{The Learnign Algorithms}
+\section{The Learning Algorithms}
 In this section, we will describe in detail the working of the two types of learning algorithms - \online and \offline. Here is a list of algorithms supported by \libalf.
 
 \begin{table} [h]
@@ -81,7 +81,7 @@ The online learning algorithm computes the conjecture by iteration of advance fo
  \item The following two steps are repeated until a correct conjecture is determined.
 	\begin{enumerate}
 	    \item The algorithm is made to advance. In this step, the algorithm checks if there is enough information available in the knowledgebase to formulate a conjecture.
-	    \item Here one of the following two possibile events may occur.
+	    \item Here one of the following two possible events may occur.
 	    \begin{enumerate}
 	    \item If no conjecture was created, typically membership queries are produced and added to the knowledgebase. These queries are then presented to the teacher to resolve it.
 	    \item On the other hand, if a conjecture was created, the equivalence query is answered by the teacher. If the conjecture was incorrect a counter example is rendered by the teacher.
@@ -94,19 +94,19 @@ In the online technique, the algorithm produces queries from an empty string to 
 % why should the alphabet size be given first in offline?
 
 \subsection{Offline learning algorithm}
-On contrary to the the online technique, the offline algorithm computes the conjecture by performing an advance only once from an already provided set of examples available in the knowledgebase. The user must provide the knolwedgebase with examples which will be referred by the algorithm during the advance and will compute the conjecture. \\
-Note: While an offline algorithm guarantees that the provided examples are satisfied by the conjecture, it does not guarantee that the conjecture either satisfacties or dissatisfacties of any other non-provided examples.
+On the contrary to the online technique, the offline algorithm computes the conjecture by performing an advance only once from an already provided set of examples available in the knowledgebase. The user must provide the knowledgebase with examples which will be referred by the algorithm during the advance and will compute the conjecture. \\
+Note: While an offline algorithm guarantees that the provided examples are satisfied by the conjecture, it does not guarantee that the conjecture either satisfies or dissatisfies any other non-provided examples.
 \paragraph{}
 The online algorithm works as follows.
 \begin{enumerate}
  \item The alphabet size is provided.
- \item The knowledgebase is furnished with the a set of examples.
+ \item The knowledgebase is furnished with a set of examples.
  \item The learning algorithm is made to advance to compute the conjecture in conformance with the examples.
 \end{enumerate}
 \paragraph{}
 
 \section{Loggers}
-Libalf's logger allows the learning algorithm to write information that may be relevant for application debugging. In fact, you may choose to make the learning algorithm write only those type of messages that is of interest to you. On the contrary, you may even choose to work without a logger by not associating any logger with learning algorithm during its initialization. 
+\libalf's logger allows the learning algorithm to write information that may be relevant for application debugging. In fact, you may choose to make the learning algorithm write only those type of messages that is of interest to you. On the contrary, you may even choose to work without a logger by not associating any logger with learning algorithm during its initialization. 
 \paragraph{}
 \libalf essentially offers three types of loggers. 
 \begin{enumerate}
@@ -131,13 +131,13 @@ The library also offers other features as listed below.
  \item \textbf{GraphViz visualization} \\
        \libalf can create a ``.dot'' file of the knowledgebase and the conjecture which can be executed by the GraphViz tool for a pictorial representation.
  \item \textbf{Serialization and Deserialization} \\
-	At any point of time, the state of the knowledgebase, learning algorithms and other componenets can be serialized to a linear representation which you may store locally, share it in the internet or deserialize it in other machine for use.
+	At any point of time, the state of the knowledgebase, learning algorithms and other components can be serialized to a linear representation which you may store locally, share it in the internet or deserialize it in other machine for use.
  \item \textbf{Merging knowledgebases} \\
 	\libalf also allows you to merge your knowledgebase with another one with certain constraints.
 \end{enumerate}
 Please refer to the main documentation to know more about these features.
 
-\section{How to emply \libalf in your application}
+\section{How to employ \libalf in your application}
 Let's look at a small example of how to employ \libalf in your application. \\
 In the following \cpp example, we will deal with Angluin online algorithm. The code is pretty much self explanatory supported by the comments in the code.
 \lstset{language=c++, numbers=left, numberstyle=\tiny, stepnumber=1, numbersep=5pt}
