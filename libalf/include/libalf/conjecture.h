@@ -37,29 +37,34 @@ namespace libalf {
 
 using namespace std;
 
+
+enum conjecture_type {
+	CONJECTURE_NONE = 0,
+	// BEGIN
+
+	CONJECTURE_MOORE_MACHINE = 1,
+	CONJECTURE_SIMPLE_MOORE_MACHINE = 2,
+	CONJECTURE_MEALY_MACHINE = 3,
+	CONJECTURE_BOUNDED_SIMPLE_MVCA = 4,
+	CONJECTURE_SIMPLE_MVCA = 5,
+
+	// END
+	CONJECTURE_LAST_INVALID = 6
+};
+
+
 class conjecture {
-	public: // types
-		enum type {
-			CONJECTURE_NONE = 0,
-			// BEGIN
-
-			CONJECTURE_SIMPLE_AUTOMATON = 1,
-			CONJECTURE_SIMPLE_M_BOUNDED_VISIBLE_1COUNTER_AUTOMATON = 2,
-
-			// END
-			CONJECTURE_LAST_INVALID = 3
-		};
+	public:
+		bool valid;
 	public: // members
-		virtual ~conjecture()
-		{ };
-
-		virtual bool is_valid()
-		{ return false; };
-
-		virtual conjecture::type get_type()
+		conjecture();
+		virtual bool is_valid();
+		virtual conjecture_type get_type()
 		{ return CONJECTURE_NONE; }
 
-		virtual void clear() = 0;
+		virtual bool calc_validity();
+
+		virtual void clear();
 
 		// serializer
 		virtual basic_string<int32_t> serialize() = 0;
@@ -71,85 +76,135 @@ class conjecture {
 
 		// visual version (dotfile preferred)
 		virtual string visualize() = 0;
-
 };
 
-class simple_automaton : public conjecture {
-	public: // yes, by all means!
-		bool valid;
 
+class finite_state_machine: public conjecture {
+	// in a finite_state_machine, an epsilon transition may be indicates by a transition with label "-1"
+	public: // data
 		bool is_deterministic;
-		int alphabet_size;
-		int state_count;
-		set<int> initial;
-		set<int> final;
-		multimap<pair<int, int>, int> transitions;
-
-	public:
-		simple_automaton();
-		virtual ~simple_automaton();
-		virtual bool is_valid();
-		virtual conjecture::type get_type()
-		{ return CONJECTURE_SIMPLE_AUTOMATON; }
+		unsigned int input_alphabet_size;
+		unsigned int output_alphabet_size;
+		unsigned int state_count;
+		set<unsigned int> initial_states;
+		bool final_output; // does this machine output a label every step or only at the end of calculation?
+		bool omega; // is this machine for infinite words?
+	public: // methods
+		finite_state_machine();
+		virtual bool calc_validity();
 		virtual void clear();
 
+		virtual bool calc_determinism() = 0;
+};
+
+
+class moore_machine: public finite_state_machine{
+	public:
+		vector<int> output_mapping; // mapping a state to its output-alphabet
+		multimap<pair<int, int>, int> transitions; // (state, input-alphabet) -> state
+
+	public:
+		moore_machine();
+		virtual conjecture_type get_type()
+		{ return CONJECTURE_MOORE_MACHINE; };
+		virtual void clear();
+		virtual bool calc_validity();
+		virtual bool calc_determinism();
 		virtual basic_string<int32_t> serialize();
 		virtual bool deserialize(serial_stretch & serial);
 		virtual string write();
 		virtual bool read(string input);
-
 		virtual string visualize();
-
-		// calculate if automaton is deterministic. this function does not rely on is_deterministic,
-		// but sets it.
-		bool calculate_determinism();
+	protected:
+		bool parse_transition(string single);
 };
 
-class bounded_mVCA : public simple_automaton {
+class simple_moore_machine: public moore_machine {
+	// a simple moore machine is a (non)deterministic finite automaton,
+	// i.e. a state can either be accepting or rejecting.
+	// where output alphabet: 0=reject, 1=accept.
+	public:
+		simple_moore_machine();
+		virtual conjecture_type get_type()
+		{ return CONJECTURE_SIMPLE_MOORE_MACHINE; }
+		virtual void clear();
+		virtual bool calc_validity();
+		virtual bool calc_determinism();
+		virtual basic_string<int32_t> serialize();
+		virtual bool deserialize(serial_stretch & serial);
+		virtual string write();
+		virtual bool read(string input);
+		virtual string visualize();
+
+		virtual set<int> get_final_states();
+};
+
+
+
+class mealy_machine : public finite_state_machine {
+	public: // data
+		multimap<pair<int, int>, pair<int, int> > transitions; // (state, input-alphabet) -> (output-alphabet, state)
+	public: // methods
+		mealy_machine();
+		virtual conjecture_type get_type()
+		{ return CONJECTURE_MEALY_MACHINE; };
+		virtual void clear();
+		virtual bool calc_validity();
+		virtual bool calc_determinism();
+		virtual basic_string<int32_t> serialize();
+		virtual bool deserialize(serial_stretch & serial);
+		virtual string write();
+		virtual bool read(string input);
+		virtual string visualize();
+};
+
+
+
+class bounded_simple_mVCA : public simple_moore_machine {
 	public:
 		int m_bound;
 	public:
-		bounded_mVCA()
-		{ m_bound = -1; }
+		bounded_simple_mVCA();
+		virtual conjecture_type get_type()
+		{ return CONJECTURE_BOUNDED_SIMPLE_MVCA; };
+		virtual void clear();
+		virtual bool calc_validity();
+		virtual bool calc_determinism();
+		virtual basic_string<int32_t> serialize();
+		virtual bool deserialize(serial_stretch & serial);
+		virtual string write();
+		virtual bool read(string input);
+		virtual string visualize();
 };
 
-class simple_mVCA : public conjecture {
-	public: // YES!
-		bool valid;
-
-		bool is_deterministic;
-
-		unsigned int state_count;
-		// pushdown alphabet:
-		int alphabet_size;
-		map<int, int> alphabet_directions;
-			// maps each member of the alphabet to a direction:
+class simple_mVCA : public finite_state_machine {
+	public:
+		// as this is a SIMPLE mVCA, output_alphabet_size is 2! (accept or reject)
+		// pushdown property of input-alphabet:
+		vector<int> alphabet_directions;
+			// maps each member of the input alphabet to a direction:
 			// +1 == UP
 			//  0 == STAY
 			// -1 == DOWN
 			// (-100 == undefined)
-		// end pushdown alphabet
-		int initial_state;
 		set<int> final_states;
 		int m_bound;
-		// transition function: m -> state -> sigma -> set<state>
+		map<int, map<int, map<int, set<int> > > > transitions; // m -> state -> input-alphabet -> set<states>
 		// (where set<states> is singleton or empty for deterministic mVCA)
-		map<int, map<int, map<int, set<int> > > > transitions;
-
 	public:
 		simple_mVCA();
-		virtual ~simple_mVCA();
-		virtual bool is_valid();
-		virtual conjecture::type get_type()
-		{ return CONJECTURE_SIMPLE_AUTOMATON; }
+		virtual conjecture_type get_type()
+		{ return CONJECTURE_SIMPLE_MVCA; }
 		virtual void clear();
-
+		virtual bool calc_validity();
+		virtual bool calc_determinism();
 		virtual basic_string<int32_t> serialize();
 		virtual bool deserialize(serial_stretch & serial);
 		virtual string write();
 		virtual bool read(string input);
-
 		virtual string visualize();
+
+		virtual set<int> get_final_states();
 };
 
 }; // end of namespace libalf
