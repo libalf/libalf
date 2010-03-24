@@ -47,7 +47,8 @@ using namespace std;
 
 
 
-// helper-functions for human-readable parser:
+
+// for human-readable automaton parser:
 static string parser_split_line(string & blob)
 {{{
 	int p;
@@ -138,172 +139,7 @@ static bool parser_get_set(string single, set<int>& s)
 
 	return true;
 }}}
-
-
-
-
-conjecture::conjecture()
-{ valid = false; };
-bool conjecture::is_valid()
-{ return valid; };
-void conjecture::clear()
-{ valid = false; };
-bool conjecture::calc_validity()
-{ return valid; };
-
-
-finite_state_machine::finite_state_machine()
-{{{
-	is_deterministic = false;
-	input_alphabet_size = 0;
-	output_alphabet_size = 0;
-	state_count = 0;
-	final_output = false;
-	omega = false;
-
-}}}
-void finite_state_machine::clear()
-{{{
-	conjecture::clear();
-	is_deterministic = false;
-	input_alphabet_size = 0;
-	output_alphabet_size = 0;
-	state_count = 0;
-	final_output = false;
-	omega = false;
-
-	initial_states.clear();
-}}}
-bool finite_state_machine::calc_validity()
-{{{
-	if(!conjecture::calc_validity())
-		return false;
-
-	if(input_alphabet_size<=0 || output_alphabet_size<=0 || state_count<=0 || initial_states.empty()) {
-		valid = false;
-		return false;
-	}
-
-	return true;
-}}}
-
-
-
-moore_machine::moore_machine()
-{ }
-void moore_machine::clear()
-{{{
-	finite_state_machine::clear();
-
-	output_mapping.clear();
-	transitions.clear();
-}}}
-bool moore_machine::calc_validity()
-{{{
-	if(!finite_state_machine::calc_validity())
-		return false;
-
-	if(output_mapping.size() != this->state_count) {
-		valid = false;
-		return false;
-	};
-
-	vector<int>::iterator vi;
-	for(vi = output_mapping.begin(); vi != output_mapping.end(); ++vi) {
-		if(*vi < 0 || *vi >= this->output_alphabet_size) {
-			valid = false;
-			return false;
-		}
-	}
-
-	multimap<pair<int, int>, int>::iterator tri;
-	for(tri = transitions.begin(); tri != transitions.end(); ++tri) {
-		if(   tri->first.first < 0 || tri->first.first >= this->state_count
-		   || tri->first.second < -1 || tri->first.second >= this->input_alphabet_size // allow epsilon-transitions (label = -1)
-		   || tri->second < 0 || tri->second >= this->state_count) {
-			valid = false;
-			return false;
-		}
-	}
-
-	return true;
-}}}
-bool moore_machine::calc_determinism()
-{{{
-	// check transitions for epsilon and double transitions
-	multimap<pair<int, int>, int>::iterator tri;
-
-	if(this->initial_states.size() > 1) {
-		is_deterministic = false;
-		return false;
-	}
-
-	pair<int, int> former;
-	former.first = -1;
-	former.second = -1;
-	for(tri = transitions.begin(); tri != transitions.end(); ++tri) {
-		// two transitions with same (source,label) ?
-		if(former == tri->first) {
-			is_deterministic = false;
-			return false;
-		}
-
-		// epsilon transition?
-		if(tri->first.second == -1) {
-			is_deterministic = false;
-			return false;
-		}
-
-		former = tri->first;
-	}
-
-	is_deterministic = true;
-	return true;
-}}}
-basic_string<int32_t> moore_machine::serialize()
-{{{
-	basic_string<int32_t> ret;
-
-	if(this->valid) {
-		ret += 0; // length, filled in later;
-		ret += ::serialize(this->is_deterministic);
-		ret += ::serialize(this->input_alphabet_size);
-		ret += ::serialize(this->output_alphabet_size);
-		ret += ::serialize(this->state_count);
-		ret += ::serialize(this->initial_states);
-		ret += ::serialize(this->output_mapping);
-		ret += ::serialize(this->transitions);
-		ret[0] = htonl(ret.length - 1);
-	}
-
-	return ret;
-}}}
-bool moore_machine::deserialize(serial_stretch & serial)
-{{{
-	clear();
-	int size;
-	if(!::deserialize(size, serial)) goto failed;
-	if(!::deserialize(is_deterministic, serial)) goto failed;
-	if(!::deserialize(input_alphabet_size, serial)) goto failed;
-	if(!::deserialize(output_alphabet_size, serial)) goto failed;
-	if(!::deserialize(state_count, serial)) goto failed;
-	if(!::deserialize(initial_states, serial)) goto failed;
-	if(!::deserialize(output_mapping, serial)) goto failed;
-	if(!::deserialize(transitions, serial)) goto failed;
-
-	this->valid = true;
-	return true;
-failed:
-	clear();
-	return false;
-}}}
-string moore_machine::write()
-{ }
-bool moore_machine::read(string input)
-{ }
-string moore_machine::visualize()
-{ }
-bool moore_machine::parse_transition(string single)
+static bool parser_get_transition(string single, multimap<pair<int, int>, int> & transitions)
 {{{
 	string tok;
 	size_t p;
@@ -339,74 +175,164 @@ bool moore_machine::parse_transition(string single)
 	if(*endptr)
 		return false;
 
-	this->transitions.insert(tr);
+	transitions.insert(tr);
 
 	return true;
 }}}
 
 
-simple_moore_machine::simple_moore_machine()
-{{{
-	this->output_alphabet_size = 2;
-}}}
-void simple_moore_machine::clear()
-{{{
-	moore_machine::clear();
 
-	this->output_alphabet_size = 2;
-}}}
-bool simple_moore_machine::calc_validity()
+simple_automaton::simple_automaton()
+{ clear(); }
+simple_automaton::~simple_automaton()
+{ };
+void simple_automaton::clear()
 {{{
-	if(!moore_machine::calc_validity())
-		return false;
-
-	this->valid = (this->output_alphabet_size == 2);
-
-	return this->valid;
+	valid = false;
+	is_deterministic = false;
+	alphabet_size = 0;
+	state_count = 0;
+	initial.clear();
+	final.clear();
+	transitions.clear();
 }}}
-basic_string<int32_t> simple_moore_machine::serialize()
+bool simple_automaton::is_valid()
+{ return valid; }
+basic_string<int32_t> simple_automaton::serialize()
 {{{
 	basic_string<int32_t> ret;
 
-	if(this->valid) {
+	if(valid) {
+		set<int>::iterator sit;
+		multimap<pair<int, int>, int>::iterator tit;
+
 		ret += 0; // length, filled in later.
-		ret += ::serialize(this->is_deterministic);
-		ret += ::serialize(this->input_alphabet_size);
-		ret += ::serialize(this->state_count);
-		ret += ::serialize(this->initial_states);
-		set<int> final = get_final_states();
-		ret += ::serialize(this->final_states);
-		ret += ::serialize(this->transitions);
+		ret += htonl( is_deterministic ? 1 : 0 );
+		ret += htonl(alphabet_size);
+		ret += htonl(state_count);
+		ret += htonl(initial.size());
+		for(sit = initial.begin(); sit != initial.end(); sit++)
+			ret += htonl(*sit);
+		ret += htonl(final.size());
+		for(sit = final.begin(); sit != final.end(); sit++)
+			ret += htonl(*sit);
+		ret += htonl(transitions.size());
+		for(tit = transitions.begin(); tit != transitions.end(); tit++) {
+			ret += htonl(tit->first.first);
+			ret += htonl(tit->first.second);
+			ret += htonl(tit->second);
+		}
 		ret[0] = htonl(ret.length() - 1);
 	}
 
 	return ret;
 }}}
-bool simple_moore_machine::deserialize(serial_stretch & serial)
+bool simple_automaton::deserialize(serial_stretch & serial)
 {{{
-	clear();
 	int size;
-	if(!::deserialize(size, serial)) goto failed;
-	if(!::deserialize(this->is_deterministic, serial)) goto failed;
-	if(!::deserialize(this->input_alphabet_size, serial)) goto failed;
-	this->output_alphabet_size = 2;
-	if(!::deserialize(this->state_count, serial)) goto failed;
-	output_mapping.resize(this->state_count, 0);
-	if(!::deserialize(this->initial_states, serial)) goto failed;
-	set<int> final;
-	if(!::deserialize(final, serial)) goto failed;
-	for(set<int>::iterator si = final.begin(); si != final.end(); ++si)
-		output_mapping[*si] = 1;
-	if(!::deserialize(this->transitions, serial)) goto failed;
+	int count;
+	int s,q;
 
-	this->valid = true;
+	initial.clear();
+	final.clear();
+	transitions.clear();
+
+	if(serial.empty())
+		goto deserialization_failed_fast;
+
+	size = ntohl(*serial);
+
+	// deterministic?
+	++serial; if(size <= 0 || serial.empty()) goto deserialization_failed_fast;
+	s = ntohl(*serial);
+	if(s != 0 && s != 1) goto deserialization_failed_fast;
+	is_deterministic = s;
+
+	// alphabet size
+	size--, ++serial; if(size <= 0 || serial.empty()) goto deserialization_failed_fast;
+	alphabet_size = ntohl(*serial);
+	if(alphabet_size < 1)
+		return false;
+
+	// state count
+	size--, ++serial; if(size <= 0 || serial.empty()) goto deserialization_failed_fast;
+	state_count = ntohl(*serial);
+	if(state_count < 1)
+		return false;
+
+	// initial states
+	size--, ++serial; if(size <= 0 || serial.empty()) goto deserialization_failed_fast;
+	count = ntohl(*serial);
+	if(count < 0)
+		return false;
+
+	for(s = 0; s < count; s++) {
+		size--, ++serial; if(size <= 0 || serial.empty()) goto deserialization_failed;
+		q = ntohl(*serial);
+		if(q >= state_count)
+			goto deserialization_failed;
+		initial.insert(q);
+	}
+
+	// final states
+	size--, ++serial; if(size <= 0 || serial.empty()) goto deserialization_failed;
+	count = ntohl(*serial);
+	if(count < 0)
+		return false;
+
+	for(s = 0; s < count; s++) {
+		size--, ++serial; if(size <= 0 || serial.empty()) goto deserialization_failed;
+		q = ntohl(*serial);
+		if(q >= state_count)
+			goto deserialization_failed;
+		final.insert(q);
+	}
+
+	// transitions
+	size--, ++serial; if(size <= 0 || serial.empty()) goto deserialization_failed;
+	count = ntohl(*serial);
+	if(count < 0)
+		return false;
+
+	for(s = 0; s < count; s++) {
+		int32_t src,label,dst;
+
+		size--, ++serial; if(size <= 0 || serial.empty()) goto deserialization_failed;
+		src = ntohl(*serial);
+		size--, ++serial; if(size <= 0 || serial.empty()) goto deserialization_failed;
+		label = ntohl(*serial);
+		size--, ++serial; if(size <= 0 || serial.empty()) goto deserialization_failed;
+		dst = ntohl(*serial);
+
+		if( (label < -1) || (label >= alphabet_size) || (src < 0) || (src >= state_count) || (dst < 0) || (dst >= state_count) )
+			goto deserialization_failed;
+
+		pair<int, int> trid;
+		trid.first = src;
+		trid.second = label;
+		transitions.insert( pair<pair<int, int>, int>( trid, dst ) );
+	}
+
+	size--, ++serial;
+
+	if(size != 0)
+		goto deserialization_failed;
+
+	valid = true;
 	return true;
-failed:
-	clear;
+
+deserialization_failed:
+	initial.clear();
+	final.clear();
+	transitions.clear();
+deserialization_failed_fast:
+	alphabet_size = 0;
+	state_count = 0;
+	valid = false;
 	return false;
 }}}
-string simple_moore_machine::write()
-{
+string simple_automaton::write()
+{{{
 	string ret;
 
 	if(valid) {
@@ -452,9 +378,9 @@ string simple_moore_machine::write()
 	}
 
 	return ret;
-}
-bool simple_moore_machine::read(string input)
-{
+}}}
+bool simple_automaton::read(string input)
+{{{
 	bool set_is_det = false, set_alphabet_size = false, set_state_count = false;
 	enum section {
 		section_none,
@@ -594,9 +520,9 @@ end:
 		clear();
 
 	return valid;
-}
-string simple_moore_machine::visualize()
-{
+}}}
+string simple_automaton::visualize()
+{{{
 	string ret;
 
 	if(valid) {
@@ -676,93 +602,60 @@ string simple_moore_machine::visualize()
 	}
 
 	return ret;
-}
-set<int> simple_moore_machine::get_final_states()
-{{{
-	set<int> s;
-	for(int i = 0; i < this->state_count; ++i)
-		if(output_mapping[i] == 1)
-			s.insert(i);
-	return s;
 }}}
-
-
-mealy_machine::mealy_machine()
-{ };
-void mealy_machine::clear()
+bool simple_automaton::calculate_determinism()
 {{{
-	finite_state_machine::clear();
+	// check transitions for epsilon and double transitions
+	multimap<pair<int, int>, int>::iterator tri;
 
-	transitions.clear();
-}}}
-bool mealy_machine::calc_validity()
-{ }
-bool mealy_machine::calc_determinism()
-{ }
-basic_string<int32_t> mealy_machine::serialize()
-{ }
-bool mealy_machine::deserialize(serial_stretch & serial)
-{ }
-string mealy_machine::write()
-{ }
-bool mealy_machine::read(string input)
-{ }
-string mealy_machine::visualize()
-{ }
-
-
-bounded_simple_mVCA::bounded_simple_mVCA()
-{{{
-	m_bound = -1;
-}}}
-void bounded_simple_mVCA::clear()
-{{{
-	simple_moore_machine::clear();
-
-	m_bound = -1;
-}}}
-bool bounded_simple_mVCA::calc_validity()
-{{{
-	if(!simple_moore_machine::calc_validity())
+	if(initial.size() > 1)
 		return false;
-	this->valid = (m_bound >= 0);
-	return this->valid;
+
+	pair<int, int> former;
+	former.first = -1;
+	former.second = -1;
+	for(tri = transitions.begin(); tri != transitions.end(); ++tri) {
+		// two transitions with same (source,label) ?
+		if(former == tri->first) {
+			is_deterministic = false;
+			return false;
+		}
+
+		// epsilon transition?
+		if(tri->first.second == -1) {
+			is_deterministic = false;
+			return false;
+		}
+
+		former = tri->first;
+	}
+
+	is_deterministic = true;
+	return true;
 }}}
-bool bounded_simple_mVCA::calc_determinism()
-{ }
-basic_string<int32_t> bounded_simple_mVCA::serialize()
-{ }
-bool bounded_simple_mVCA::deserialize(serial_stretch & serial)
-{ }
-string bounded_simple_mVCA::write()
-{ }
-bool bounded_simple_mVCA::read(string input)
-{ }
-string bounded_simple_mVCA::visualize()
-{ }
+
 
 
 simple_mVCA::simple_mVCA()
-{{{
-	this->output_alphabet_size = 2;
-	m_bound = -1;
-}}}
+{ clear(); }
+simple_mVCA::~simple_mVCA()
+{ };
+bool simple_mVCA::is_valid()
+{ return valid; };
 void simple_mVCA::clear()
 {{{
-	finite_state_machine::clear();
-
+	valid = false;
+	is_deterministic = false;
+	state_count = 0;
+	alphabet_size = 0;
 	alphabet_directions.clear();
-	m_bound = -1;
+	initial_state = -1;
 	final_states.clear();
+	m_bound = -2;
 	transitions.clear();
-	this->output_alphabet_size = 2;
 }}}
-bool simple_mVCA::calc_validity()
-{ }
-bool simple_mVCA::calc_determinism()
-{ }
+
 basic_string<int32_t> simple_mVCA::serialize()
-// FIXME: libmVCA expects another alphabet definition
 {{{
 	basic_string<int32_t> ret;
 
@@ -810,7 +703,6 @@ basic_string<int32_t> simple_mVCA::serialize()
 	return ret;
 }}}
 bool simple_mVCA::deserialize(serial_stretch & serial)
-// FIXME: libmVCA gives another alphabet definition
 {{{
 	int size;
 	int type;
@@ -858,11 +750,29 @@ fail:
 	return false;
 }}}
 string simple_mVCA::write()
-{ }
+{
+	string ret;
+
+	// FIXME
+	
+
+	return ret;
+}
 bool simple_mVCA::read(string input)
-{ }
+{
+	// human readable input?
+	
+	return false;
+}
 string simple_mVCA::visualize()
-{ }
+{
+	string ret;
+
+	// FIXME
+	
+
+	return ret;
+}
 
 
 
