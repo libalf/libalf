@@ -106,8 +106,8 @@ class original_biermann : public learning_algorithm<answer> {
 
 	conjecture* derive_conjecture() {
 		// Create result
-		simple_automaton *automaton = new simple_automaton;
-		automaton->alphabet_size = this->alphabet_size;
+		simple_moore_machine *automaton = new simple_moore_machine;
+		automaton->input_alphabet_size = this->alphabet_size;
 		automaton->valid = true;
 
 		// Create temporary variables		
@@ -124,7 +124,7 @@ class original_biermann : public learning_algorithm<answer> {
 		// Compute conjecture
 		int initial_state;		
 		initial_state = assign_equivalence_class(this->my_knowledge->get_rootptr(), automaton, eq_classes);
-		automaton->initial.insert(initial_state);
+		automaton->initial_states.insert(initial_state);
 
 		// Clean temporary variables
 		delete eq_classes;
@@ -335,7 +335,7 @@ class original_biermann : public learning_algorithm<answer> {
 	/*
 	 * Recursivley computing a nodes equivalence class.
 	 */
-	int assign_equivalence_class(node *current, simple_automaton *automaton, map<int, node*> *eq_classes) {
+	int assign_equivalence_class(node *current, simple_moore_machine *automaton, map<int, node*> *eq_classes) {
 		
 		/*
 		 * Recursively compute the equivalence classes of the current node's children
@@ -382,7 +382,7 @@ class original_biermann : public learning_algorithm<answer> {
 		// FIXME: Here we need to fix the output function. The following is a hack!
 		// Final states
 		if(current->get_answer() == true) {
-			automaton->final.insert(current_eq);
+			automaton->final_states.insert(current_eq);
 		}
 		// Transitions
 		for(int i=0; i<this->alphabet_size; i++) {

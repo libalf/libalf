@@ -55,7 +55,7 @@ class transition_function {
 
 		virtual bool is_deterministic() = 0;
 
-		virtual basic_string<int32_t> serialize() = 0;
+		virtual basic_string<int32_t> serialize() const = 0;
 		virtual bool deserialize(::serial_stretch serial) = 0;
 
 		virtual string get_transition_dotfile(int m, int m_bound) = 0;
@@ -75,14 +75,14 @@ class deterministic_transition_function : public transition_function {
 		virtual set<int> transmute(const set<int> & states, int sigma);
 		virtual set<int> transmute(int state, int sigma);
 
-		virtual basic_string<int32_t> serialize();
+		virtual basic_string<int32_t> serialize() const;
 		virtual bool deserialize(::serial_stretch serial);
 		virtual bool is_deterministic();
 
 		virtual string get_transition_dotfile(int m, int m_bound);
 };
 
-inline basic_string<int32_t> serialize(deterministic_transition_function & f)
+inline basic_string<int32_t> serialize(const deterministic_transition_function & f)
 { return f.serialize(); };
 
 inline bool deserialize(deterministic_transition_function & f, serial_stretch & serial)
@@ -100,14 +100,14 @@ class nondeterministic_transition_function : public transition_function {
 		virtual set<int> transmute(const set<int> & states, int sigma);
 		virtual set<int> transmute(int state, int sigma);
 
-		virtual basic_string<int32_t> serialize();
+		virtual basic_string<int32_t> serialize() const;
 		virtual bool deserialize(::serial_stretch serial);
 		virtual bool is_deterministic();
 
 		virtual string get_transition_dotfile(int m, int m_bound);
 };
 
-inline basic_string<int32_t> serialize(nondeterministic_transition_function & f)
+inline basic_string<int32_t> serialize(const nondeterministic_transition_function & f)
 { return f.serialize(); };
 
 inline bool deserialize(nondeterministic_transition_function & f, serial_stretch & serial)

@@ -52,7 +52,7 @@ bool get_input(finite_automaton *& automaton, input in, string gentype)
 	string input_string;
 	int i;
 
-	simple_automaton aut;
+	simple_moore_machine aut;
 
 	switch(in) {
 		case input_serial:
@@ -79,7 +79,7 @@ bool get_input(finite_automaton *& automaton, input in, string gentype)
 				return false;
 			}
 
-			automaton = construct_amore_automaton(aut.is_deterministic, aut.alphabet_size, aut.state_count, aut.initial, aut.final, aut.transitions);
+			automaton = construct_amore_automaton(aut.is_deterministic, aut.input_alphabet_size, aut.state_count, aut.initial_states, aut.final_states, aut.transitions);
 
 			if(!automaton) {
 				cerr << "construct of human-readable automaton failed\n";
@@ -129,7 +129,7 @@ bool get_input(finite_automaton *& automaton, input in, string gentype)
 				if(type == "dfa") {
 					dfa_randomgenerator dfarg;
 					if(!dfarg.generate(alphabet_size, modelsize,
-						aut.is_deterministic, aut.alphabet_size, aut.state_count, aut.initial, aut.final, aut.transitions)) {
+						aut.is_deterministic, aut.input_alphabet_size, aut.state_count, aut.initial_states, aut.final_states, aut.transitions)) {
 						cerr << "failed to generate DFA\n";
 						return false;
 					}
@@ -137,7 +137,7 @@ bool get_input(finite_automaton *& automaton, input in, string gentype)
 					if(type == "nfa") {
 						nfa_randomgenerator nfarg;
 						if(!nfarg.generate(alphabet_size, modelsize, 2, 0.5, 0.5,
-							aut.is_deterministic, aut.alphabet_size, aut.state_count, aut.initial, aut.final, aut.transitions)) {
+							aut.is_deterministic, aut.input_alphabet_size, aut.state_count, aut.initial_states, aut.final_states, aut.transitions)) {
 							cerr << "failed to generate NFA\n";
 							return false;
 						}
@@ -148,7 +148,7 @@ bool get_input(finite_automaton *& automaton, input in, string gentype)
 					}
 				}
 
-				automaton = construct_amore_automaton(aut.is_deterministic, aut.alphabet_size, aut.state_count, aut.initial, aut.final, aut.transitions);
+				automaton = construct_amore_automaton(aut.is_deterministic, aut.input_alphabet_size, aut.state_count, aut.initial_states, aut.final_states, aut.transitions);
 			}
 			if(automaton)
 				return true;

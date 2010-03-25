@@ -82,18 +82,18 @@ inline bool automaton_equivalence_query(finite_automaton & model, finite_automat
 
 inline bool automaton_classic_equivalence_query(finite_automaton & model, conjecture *cj, list<int> & counterexample)
 {{{
-	simple_automaton *ba;
+	simple_moore_machine *ba;
 	finite_automaton *hypothesis;
 	bool ret;
 
 	counterexample.clear();
 
-	ba = dynamic_cast<simple_automaton*>(cj);
+	ba = dynamic_cast<simple_moore_machine*>(cj);
 	if(!ba) {
 		fprintf(stderr, "equivalence query: hypothesis is not an automaton!\n");
 		return false;
 	}
-	hypothesis = construct_amore_automaton(ba->is_deterministic, ba->alphabet_size, ba->state_count, ba->initial, ba->final, ba->transitions);
+	hypothesis = construct_amore_automaton(ba->is_deterministic, ba->input_alphabet_size, ba->state_count, ba->initial_states, ba->final_states, ba->transitions);
 
 	ret = automaton_classic_equivalence_query(model, *hypothesis, counterexample);
 
@@ -104,18 +104,18 @@ inline bool automaton_classic_equivalence_query(finite_automaton & model, conjec
 
 inline bool automaton_antichain_equivalence_query(finite_automaton & model, conjecture *cj, list<int> & counterexample)
 {{{
-	simple_automaton *ba;
+	simple_moore_machine *ba;
 	finite_automaton *hypothesis;
 	bool ret;
 
 	counterexample.clear();
 
-	ba = dynamic_cast<simple_automaton*>(cj);
+	ba = dynamic_cast<simple_moore_machine*>(cj);
 	if(!ba) {
 		fprintf(stderr, "equivalence query: hypothesis is not an automaton!\n");
 		return false;
 	}
-	hypothesis = construct_amore_automaton(ba->is_deterministic, ba->alphabet_size, ba->state_count, ba->initial, ba->final, ba->transitions);
+	hypothesis = construct_amore_automaton(ba->is_deterministic, ba->input_alphabet_size, ba->state_count, ba->initial_states, ba->final_states, ba->transitions);
 
 	ret = automaton_antichain_equivalence_query(model, *hypothesis, counterexample);
 
@@ -126,18 +126,18 @@ inline bool automaton_antichain_equivalence_query(finite_automaton & model, conj
 
 inline bool automaton_equivalence_query(finite_automaton & model, conjecture *cj, list<int> & counterexample)
 {{{
-	simple_automaton *ba;
+	simple_moore_machine *ba;
 	finite_automaton *hypothesis;
 	bool ret;
 
 	counterexample.clear();
 
-	ba = dynamic_cast<simple_automaton*>(cj);
+	ba = dynamic_cast<simple_moore_machine*>(cj);
 	if(!ba) {
 		fprintf(stderr, "equivalence query: hypothesis is not an automaton!\n");
 		return false;
 	}
-	hypothesis = construct_amore_automaton(ba->is_deterministic, ba->alphabet_size, ba->state_count, ba->initial, ba->final, ba->transitions);
+	hypothesis = construct_amore_automaton(ba->is_deterministic, ba->input_alphabet_size, ba->state_count, ba->initial_states, ba->final_states, ba->transitions);
 
 	ret = automaton_equivalence_query(model, *hypothesis, counterexample);
 

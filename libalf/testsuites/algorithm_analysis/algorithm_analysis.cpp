@@ -196,7 +196,7 @@ model_too_big:
 							log(LOGGER_DEBUG, "completed \r");
 								equal = true;
 								if(learner == 2)
-									stat_size_RFSA = dynamic_cast<simple_automaton*>(cj)->state_count;
+									stat_size_RFSA = dynamic_cast<simple_moore_machine*>(cj)->state_count;
 							} else {
 								alg->add_counterexample(counterexample);
 							}

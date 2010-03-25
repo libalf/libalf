@@ -265,12 +265,12 @@ class basic_biermann : public learning_algorithm<answer> {
 		virtual conjecture * derive_conjecture()
 		{{{
 			if(this->my_knowledge->count_answers() == 0) {
-				simple_automaton *ret = new simple_automaton;
+				simple_moore_machine *ret = new simple_moore_machine;
 				(*this->my_logger)(LOGGER_WARN, "biermann: you started an offline-algorithm with an empty knowledgebase. that does not make very much sense, does it?\n");
 				// return automaton for empty language
-				ret->alphabet_size = 1;
+				ret->input_alphabet_size = 1;
 				ret->state_count = 1;
-				ret->initial.insert(0);
+				ret->initial_states.insert(0);
 				ret->valid = true;
 				return ret;
 			}
@@ -324,16 +324,16 @@ class basic_biermann : public learning_algorithm<answer> {
 				if(!answered)
 					(*this->my_logger)(LOGGER_WARN, "biermann: empty knowledgebase. no CSP to solve, you get a simple automaton.\n", mdfa_size);
 
-				simple_automaton * ret = new simple_automaton;
-				ret->alphabet_size = this->my_knowledge->get_largest_symbol();
+				simple_moore_machine * ret = new simple_moore_machine;
+				ret->input_alphabet_size = this->my_knowledge->get_largest_symbol();
 				ret->state_count = 1;
-				ret->initial.insert(0);
+				ret->initial_states.insert(0);
 				if(acceptance) {
-					ret->final.insert(0);
+					ret->final_states.insert(0);
 				}
 				pair<int, int> trid;
 				trid.first = 0;
-				for(int sigma = 0; sigma < ret->alphabet_size; sigma++) {
+				for(int sigma = 0; sigma < ret->input_alphabet_size; sigma++) {
 					trid.second = sigma;
 					ret->transitions.insert(pair<pair<int, int>, int>(trid, 0));
 				}
@@ -380,10 +380,10 @@ class basic_biermann : public learning_algorithm<answer> {
 				}
 			}
 
-			simple_automaton *ret = new simple_automaton;
+			simple_moore_machine *ret = new simple_moore_machine;
 
 			// 3) derive automaton from current_solution and mdfa_size
-			if(!solution2automaton(ret->is_deterministic, ret->alphabet_size, ret->state_count, ret->initial, ret->final, ret->transitions)) {
+			if(!solution2automaton(ret->is_deterministic, ret->input_alphabet_size, ret->state_count, ret->initial_states, ret->final_states, ret->transitions)) {
 				delete ret;
 				return NULL;
 			} else {

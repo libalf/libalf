@@ -131,7 +131,7 @@ int main(int argc, char**argv)
 	original_biermann<bool> orgy(&knowledge, &log, alphabet_size, nondeterminism);
 	finite_automaton * hypothesis = NULL;
 	conjecture *cj;
-	simple_automaton *ba;
+	simple_moore_machine *ba;
 
 	if(!orgy.conjecture_ready()) {
 		log(LOGGER_WARN, "biermann says that no conjecture is ready! trying anyway...\n");
@@ -140,9 +140,9 @@ int main(int argc, char**argv)
 	if( NULL == (cj = orgy.advance()) ) {
 		log(LOGGER_ERROR, "advance() returned false!\n");
 	} else {
-		ba = dynamic_cast<simple_automaton*>(cj);
+		ba = dynamic_cast<simple_moore_machine*>(cj);
 //		orgy.print(cout);
-		hypothesis = construct_amore_automaton(ba->is_deterministic, ba->alphabet_size, ba->state_count, ba->initial, ba->final, ba->transitions);
+		hypothesis = construct_amore_automaton(ba->is_deterministic, ba->input_alphabet_size, ba->state_count, ba->initial_states, ba->final_states, ba->transitions);
 		delete cj;
 
 		snprintf(filename, 128, "hypothesis.dot");

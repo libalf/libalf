@@ -857,7 +857,7 @@ class angluin_table : public learning_algorithm<answer> {
 		// derive an automaton and return it
 		virtual conjecture * derive_conjecture()
 		{{{
-			simple_automaton *ret = new simple_automaton;
+			simple_moore_machine * ret = new simple_moore_machine;
 
 			// derive deterministic finite automaton from this table
 			typename table::iterator uti, ti;
@@ -897,13 +897,13 @@ class angluin_table : public learning_algorithm<answer> {
 
 			// q0 is row(epsilon)
 			// as epsilon is the first row in uti, it will have id 0.
-			ret->initial.insert( 0 );
+			ret->initial_states.insert( 0 );
 
 			for(state_it = states.begin(); state_it != states.end(); state_it++) {
 				// the final, accepting states are the rows with
 				// acceptance in the epsilon-column
 				if(state_it->tableentry->acceptance.front() == true)
-					ret->final.insert(state_it->id);
+					ret->final_states.insert(state_it->id);
 
 				// the transformation function is:
 				// \delta: (row, char) -> row : (row(s), a) -> row(sa)
@@ -937,7 +937,7 @@ class angluin_table : public learning_algorithm<answer> {
 				}
 			}
 
-			ret->alphabet_size = this->get_alphabet_size();
+			ret->input_alphabet_size = this->get_alphabet_size();
 			ret->state_count = states.size();
 			ret->is_deterministic = true;
 

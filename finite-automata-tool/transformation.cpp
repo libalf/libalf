@@ -43,12 +43,12 @@ bool a2rfsa(finite_automaton *& automaton)
 
 	while(!equal) {
 		conjecture *cj;
-		simple_automaton *ba;
+		simple_moore_machine *ba;
 
 		while( NULL == (cj = tbl.advance()) )
 			amore_alf_glue::automaton_answer_knowledgebase(*automaton, base);
-		ba = dynamic_cast<simple_automaton*>(cj);
-		hypothesis = construct_amore_automaton(ba->is_deterministic, ba->alphabet_size, ba->state_count, ba->initial, ba->final, ba->transitions);
+		ba = dynamic_cast<simple_moore_machine*>(cj);
+		hypothesis = construct_amore_automaton(ba->is_deterministic, ba->input_alphabet_size, ba->state_count, ba->initial_states, ba->final_states, ba->transitions);
 		delete cj;
 
 		list<int> cex;

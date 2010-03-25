@@ -57,12 +57,12 @@ finite_automaton * angluin_learn_model(logger & log, finite_automaton * model, k
 
 	while(!equal) {
 		conjecture *cj;
-		simple_automaton *ba;
+		simple_moore_machine *ba;
 		while( NULL == (cj = angluin.advance()) )
 			amore_alf_glue::automaton_answer_knowledgebase(*model, knowledge);
 
-		ba = dynamic_cast<simple_automaton*>(cj);
-		hypothesis = construct_amore_automaton(ba->is_deterministic, ba->alphabet_size, ba->state_count, ba->initial, ba->final, ba->transitions);
+		ba = dynamic_cast<simple_moore_machine*>(cj);
+		hypothesis = construct_amore_automaton(ba->is_deterministic, ba->input_alphabet_size, ba->state_count, ba->initial_states, ba->final_states, ba->transitions);
 		delete cj;
 		if(!hypothesis) {
 			log(LOGGER_ERROR, "angluin: failed to construct hypothesis!\n");
@@ -104,10 +104,10 @@ bool check_validity(logger & log, finite_automaton * model)
 		ret = false;
 	} else {
 		// compare mdfa and result
-		simple_automaton *ba;
-		ba = dynamic_cast<simple_automaton*>(cj);
+		simple_moore_machine *ba;
+		ba = dynamic_cast<simple_moore_machine*>(cj);
 		finite_automaton * res;
-		res = construct_amore_automaton(ba->is_deterministic, ba->alphabet_size, ba->state_count, ba->initial, ba->final, ba->transitions);
+		res = construct_amore_automaton(ba->is_deterministic, ba->input_alphabet_size, ba->state_count, ba->initial_states, ba->final_states, ba->transitions);
 		delete cj;
 		if(res == NULL) {
 			log(LOGGER_ERROR, "construct of RPNI failed!\n");

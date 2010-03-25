@@ -57,7 +57,7 @@ inline bool deserialize(enum pushdown_direction & into, serial_stretch & serial)
 class pushdown_alphabet {
 	private:
 		int alphabet_size;
-		map<int, enum pushdown_direction> directions;
+		vector<enum pushdown_direction> directions;
 	public:
 		pushdown_alphabet();	// will initialise alphabet_size to 0.
 		pushdown_alphabet(int alphabet_size);

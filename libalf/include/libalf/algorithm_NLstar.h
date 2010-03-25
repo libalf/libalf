@@ -847,7 +847,7 @@ deserialization_failed:
 		// derive an automaton and return it
 		virtual conjecture * derive_conjecture()
 		{{{
-			simple_automaton *ret = new simple_automaton;
+			simple_moore_machine *ret = new simple_moore_machine;
 
 			// NFA is (Q, Q0, F, delta)
 			// with
@@ -871,11 +871,11 @@ deserialization_failed:
 
 				// get initial states
 				if(epsilon->covers(*upper_primes[i]))
-					ret->initial.insert(i);
+					ret->initial_states.insert(i);
 
 				// get final states (column 0 is always epsilon)
 				if(upper_primes[i]->acceptance.front() == true)
-					ret->final.insert(i);
+					ret->final_states.insert(i);
 
 				// and all transitions from this state
 				pair<int, int> trid;
@@ -896,7 +896,7 @@ deserialization_failed:
 			}
 
 			ret->is_deterministic = false;
-			ret->alphabet_size = this->get_alphabet_size();
+			ret->input_alphabet_size = this->get_alphabet_size();
 			ret->state_count = upper_primes.size();
 			ret->valid = true;
 

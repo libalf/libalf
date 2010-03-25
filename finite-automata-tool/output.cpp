@@ -297,7 +297,7 @@ bool write_output(finite_automaton *& automaton, output out, string sampletype)
 
 	serial_stretch ser;
 
-	simple_automaton aut;
+	simple_moore_machine aut;
 
 	switch(out) {
 		case output_serial:

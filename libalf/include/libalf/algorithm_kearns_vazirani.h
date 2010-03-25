@@ -1250,9 +1250,9 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			}
 			
 			// Create automaton
-			simple_automaton *automaton = new simple_automaton;
+			simple_moore_machine *automaton = new simple_moore_machine;
 			automaton->is_deterministic = true;
-			automaton->alphabet_size = this->alphabet_size;
+			automaton->input_alphabet_size = this->alphabet_size;
 			automaton->valid = true;
 
 			automaton->state_count = 1;
@@ -1261,10 +1261,10 @@ class kearns_vazirani : public learning_algorithm<answer> {
 				automaton->transitions.insert(pair<pair<int,int>,int>(source, 0));
 			}
 			
-			automaton->initial.insert(0);
+			automaton->initial_states.insert(0);
 			
 			if(a == true)
-				automaton->final.insert(0);
+				automaton->final_states.insert(0);
 
 			return automaton;
 
@@ -1276,12 +1276,12 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		else {
 		
 			// Create automaton
-			simple_automaton *automaton = new simple_automaton;
+			simple_moore_machine *automaton = new simple_moore_machine;
 			automaton->is_deterministic = true;
-			automaton->alphabet_size = this->alphabet_size;
+			automaton->input_alphabet_size = this->alphabet_size;
 			automaton->valid = true;
 			automaton->state_count = 0;
-			automaton->initial.insert(0);
+			automaton->initial_states.insert(0);
 		
 			// Iterate throug all leaf nodes to generate transitions,
 			// beginning with initial_state
@@ -1302,7 +1302,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 				
 				// Add as final state if so
 				if(current->accepting)
-					automaton->final.insert(current->id);
+					automaton->final_states.insert(current->id);
 				
 				// Process each transition
 				for(int i=0; i<this->alphabet_size; i++) {

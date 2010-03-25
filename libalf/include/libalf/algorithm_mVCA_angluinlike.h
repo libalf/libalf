@@ -1098,11 +1098,11 @@ deserialization_failed:
 
 		conjecture * create_partial_equivalence_query()
 		{{{
-			bounded_mVCA * cj = new bounded_mVCA;
+			bounded_simple_mVCA * cj = new bounded_simple_mVCA;
 
 			cj->valid = true;
 			cj->is_deterministic = true;
-			cj->alphabet_size = this->get_alphabet_size();
+			cj->input_alphabet_size = this->get_alphabet_size();
 			cj->state_count = 0; // done on the fly
 
 			if(tested_equivalence_bound == known_equivalence_bound)
@@ -1122,9 +1122,9 @@ deserialization_failed:
 					if(states.find(footprint) == states.end()) {
 						states[footprint] = cj->state_count;
 						if(equi->prefix().empty())
-							cj->initial.insert(cj->state_count);
+							cj->initial_states.insert(cj->state_count);
 						if((footprint.first == 0) && (true == (bool)(footprint.second[0])))
-							cj->final.insert(cj->state_count);
+							cj->final_states.insert(cj->state_count);
 						++cj->state_count;
 
 					}

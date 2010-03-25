@@ -15,7 +15,7 @@ clean: nodata
 	-rm -f *.o learn_regex learn_file
 
 nodata:
-	-rm -f *.dot *.jpg *.KVtree testlog
+	-rm -f *.dot *.jpg *.KVtree testlog *.kv *.ser
 
 run:
 	LD_LIBRARY_PATH="../../src:../../../libAMoRE:../../../libAMoRE++/src" ./learn_regex

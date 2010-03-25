@@ -299,14 +299,15 @@ class DeLeTe2 : public learning_algorithm<answer> {
 		// derive an automaton and return it
 		virtual conjecture * derive_conjecture()
 		{{{
-			simple_automaton *ret = new simple_automaton;
+			simple_moore_machine *ret = new simple_moore_machine;
 			if(this->my_knowledge->count_answers() == 0) {
 				(*this->my_logger)(LOGGER_WARN, "DeLeTe2: you started an offline-algorithm with an empty knowledgebase. that does not make very much sense, does it?\n");
 				// return automaton for empty language
-				ret->alphabet_size = 1;
+				ret->input_alphabet_size = 1;
 				ret->state_count = 1;
-				ret->initial.insert(0);
+				ret->initial_states.insert(0);
 				ret->valid = true;
+				ret->is_deterministic = true;
 				return ret;
 			}
 
@@ -348,7 +349,7 @@ class DeLeTe2 : public learning_algorithm<answer> {
 			typename list<node*>::iterator pi;
 
 			ret->is_deterministic = false;
-			ret->alphabet_size = this->alphabet_size;
+			ret->input_alphabet_size = this->alphabet_size;
 			ret->state_count = 0;
 
 			list<node*> state_candidates;	// the position in the list gives the numerical state-id. thus, only append new states.
@@ -394,12 +395,12 @@ class DeLeTe2 : public learning_algorithm<answer> {
 					r1.second = this->my_knowledge->get_rootptr();
 					if(inclusions.find(r1) != inclusions.end()) {
 						(*this->my_logger)(LOGGER_DEBUG, "is initial. ");
-						ret->initial.insert(sid);
+						ret->initial_states.insert(sid);
 					}
 					// check if final
 					if((*pi)->is_answered() && (*pi)->get_answer() == true) {
 						(*this->my_logger)(LOGGER_DEBUG, "is final.");
-						ret->final.insert(sid);
+						ret->final_states.insert(sid);
 					}
 
 					(*this->my_logger)(LOGGER_DEBUG, "\n");

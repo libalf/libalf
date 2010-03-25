@@ -136,10 +136,10 @@ int main(int argc, char**argv)
 			c++;
 		}
 
-		simple_automaton * ba = dynamic_cast<simple_automaton*>(cj);
+		simple_moore_machine * ba = dynamic_cast<simple_moore_machine*>(cj);
 		if(hypothesis)
 			delete hypothesis;
-		hypothesis = construct_amore_automaton(ba->is_deterministic, ba->alphabet_size, ba->state_count, ba->initial, ba->final, ba->transitions);
+		hypothesis = construct_amore_automaton(ba->is_deterministic, ba->input_alphabet_size, ba->state_count, ba->initial_states, ba->final_states, ba->transitions);
 		delete cj;
 		if(!hypothesis) {
 			printf("generation of hypothesis failed!\n");
@@ -161,7 +161,6 @@ int main(int argc, char**argv)
 		printf("hypothesis %02d state count %02d\n", iteration, hypothesis->get_state_count());
 		if(hypothesis_state_count >= hypothesis->get_state_count()) {
 			log(LOGGER_ERROR, "STATE COUNT DID NOT INCREASE\n");
-			getchar();
 		}
 		hypothesis_state_count = hypothesis->get_state_count();
 
@@ -177,7 +176,7 @@ int main(int argc, char**argv)
 			break;
 		}
 
-		snprintf(filename, 128, "counterexample%02d.angluin", iteration);
+		snprintf(filename, 128, "counterexample%02d.KVtree", iteration);
 		file.open(filename);
 		print_word(file, counterexample);
 		ot.add_counterexample(counterexample);

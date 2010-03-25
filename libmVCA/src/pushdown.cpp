@@ -46,12 +46,7 @@ void pushdown_alphabet::set_alphabet_size(int alphabet_size)
 {{{
 	if(alphabet_size < 0)
 		alphabet_size = 0;
-	// remove obsolete direction data,
-	for(int sigma = alphabet_size; sigma < this->alphabet_size; sigma++)
-		this->directions.erase(sigma);
-	// initialise new direction data
-	for(int sigma = this->alphabet_size; sigma < alphabet_size; sigma++)
-		this->directions[sigma] = DIR_STAY;
+	directions.resize(alphabet_size, DIR_STAY);
 	this->alphabet_size = alphabet_size;
 }}}
 
@@ -61,7 +56,7 @@ int pushdown_alphabet::get_alphabet_size()
 enum pushdown_direction pushdown_alphabet::get_direction(int sigma)
 {{{
 	if(sigma >= 0 && sigma < alphabet_size)
-		return this->directions[sigma];
+		return directions[sigma];
 	else
 		return DIR_INDEFINITE;
 }}}
@@ -69,7 +64,7 @@ enum pushdown_direction pushdown_alphabet::get_direction(int sigma)
 bool pushdown_alphabet::set_direction(int sigma, enum pushdown_direction direction)
 {{{
 	if(sigma >= 0 && sigma < alphabet_size && (direction == DIR_UP || direction == DIR_STAY || direction == DIR_DOWN)) {
-		this->directions[sigma] = direction;
+		directions[sigma] = direction;
 		return true;
 	} else {
 		return false;
@@ -115,9 +110,8 @@ string pushdown_alphabet::to_string()
 	snprintf(buf, 128, "pushdown alphabet of size %d\n", alphabet_size);
 	ret += buf;
 
-	map<int, enum pushdown_direction>::iterator di;
-	for(di = directions.begin(); di != directions.end(); ++di) {
-		snprintf(buf, 128, "  %d :: %d\n", di->first, di->second);
+	for(int i = 0; i < alphabet_size; ++i) {
+		snprintf(buf, 128, "  %d :: %d\n", i, directions[i]);
 		ret += buf;
 	}
 	ret += "\n";

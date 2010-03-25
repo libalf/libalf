@@ -149,7 +149,7 @@ int main(int argc, char**argv)
 		string in;
 		int i;
 
-		simple_automaton aut;
+		simple_moore_machine aut;
 
 		ifstream f1(firstfile.c_str());
 		while(!f1.eof())
@@ -160,7 +160,7 @@ int main(int argc, char**argv)
 			cerr << "failed to read first automaton\n";
 			return -1;
 		}
-		first = construct_amore_automaton(aut.is_deterministic, aut.alphabet_size, aut.state_count, aut.initial, aut.final, aut.transitions);
+		first = construct_amore_automaton(aut.is_deterministic, aut.input_alphabet_size, aut.state_count, aut.initial_states, aut.final_states, aut.transitions);
 		if(!first) {
 			cerr << "failed to construct first automaton\n";
 			return -1;
@@ -178,7 +178,7 @@ int main(int argc, char**argv)
 			cerr << "failed to read second automaton\n";
 			return -2;
 		}
-		second = construct_amore_automaton(aut.is_deterministic, aut.alphabet_size, aut.state_count, aut.initial, aut.final, aut.transitions);
+		second = construct_amore_automaton(aut.is_deterministic, aut.input_alphabet_size, aut.state_count, aut.initial_states, aut.final_states, aut.transitions);
 		if(!second) {
 			cerr << "failed to construct second automaton\n";
 			return -2;
@@ -244,7 +244,7 @@ int main(int argc, char**argv)
 		serial = difference->serialize();
 
 		if(human_readable_output) {
-			simple_automaton aut;
+			simple_moore_machine aut;
 			serial_stretch ser;
 			ser.init(serial);
 

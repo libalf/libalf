@@ -74,24 +74,24 @@ class  serial_stretch {
 
 // forward declarations
 inline                                  std::basic_string<int32_t> serialize(int a); // works for int, unsinged int, char and bool
-inline                                  std::basic_string<int32_t> serialize(double & a); // has to be reference, otherwise it is ambiguous with (int)
+inline                                  std::basic_string<int32_t> serialize(double & a); // has to be non-const reference, otherwise it is ambiguous with (int)
 inline                                  bool deserialize(int & into, serial_stretch & serial);
 inline                                  bool deserialize(unsigned int & into, serial_stretch & serial);
 inline                                  bool deserialize(bool & into, serial_stretch & serial);
 inline					bool deserialize(char & into, serial_stretch & serial);
 inline					bool deserialize(double & into, serial_stretch & serial);
 
-template <typename S, typename T>       std::basic_string<int32_t> serialize(std::pair<S, T> & p);
+template <typename S, typename T>       std::basic_string<int32_t> serialize(const std::pair<S, T> & p);
 template <typename S, typename T>       bool deserialize(std::pair<S, T> & p, serial_stretch & serial);
-template <typename S>                   std::basic_string<int32_t> serialize(std::list<S> & l);
+template <typename S>                   std::basic_string<int32_t> serialize(const std::list<S> & l);
 template <typename S>                   bool deserialize(std::list<S> & l, serial_stretch & serial);
-template <typename S>                   std::basic_string<int32_t> serialize(std::vector<S> & v);
+template <typename S>                   std::basic_string<int32_t> serialize(const std::vector<S> & v);
 template <typename S>                   bool deserialize(std::vector<S> & v, serial_stretch & serial);
-template <typename S>                   std::basic_string<int32_t> serialize(std::set<S> & s);
+template <typename S>                   std::basic_string<int32_t> serialize(const std::set<S> & s);
 template <typename S>                   bool deserialize(std::set<S> & s, serial_stretch & serial);
-template <typename S, typename T>       std::basic_string<int32_t> serialize(std::map<S, T> & m);
+template <typename S, typename T>       std::basic_string<int32_t> serialize(const std::map<S, T> & m);
 template <typename S, typename T>       bool deserialize(std::map<S, T> & m, serial_stretch & serial);
-template <typename S, typename T>	std::basic_string<int32_t> serialize(std::multimap<S, T> & m);
+template <typename S, typename T>	std::basic_string<int32_t> serialize(const std::multimap<S, T> & m);
 template <typename S, typename T>	bool deserialize(std::multimap<S, T> & m, serial_stretch & serial);
 template <typename S>			std::basic_string<int32_t> serialize(const std::basic_string<S> & s);
 template <typename S>			bool deserialize(std::basic_string<S> & s, serial_stretch & serial);
@@ -106,7 +106,7 @@ inline					std::basic_string<int32_t> serialize(int a) // works for int, unsinge
 	ret += htonl(a);
 	return ret;
 }}}
-inline                                  std::basic_string<int32_t> serialize(double & a) // has to be reference, otherwise it is ambiguous with (int). NOTE that serialize/deserialize is not perfect for double. value may change slightly!
+inline                                  std::basic_string<int32_t> serialize(double & a) // has to be non-const reference, otherwise it is ambiguous with (int). NOTE that serialize/deserialize is not perfect for double. value may change slightly!
 {{{
 	std::basic_string<int32_t> ret;
 
@@ -171,7 +171,7 @@ inline					bool deserialize(double & into, serial_stretch & serial)
 
 
 // pair<S,T>
-template <typename S, typename T>	std::basic_string<int32_t> serialize(std::pair<S, T> & p)
+template <typename S, typename T>	std::basic_string<int32_t> serialize(const std::pair<S, T> & p)
 {{{
 	std::basic_string<int32_t> ret;
 	ret += serialize(p.first);
@@ -186,10 +186,10 @@ template <typename S, typename T>	bool deserialize(std::pair<S, T> & p, serial_s
 
 
 // list<S>
-template <typename S>			std::basic_string<int32_t> serialize(std::list<S> & l)
+template <typename S>			std::basic_string<int32_t> serialize(const std::list<S> & l)
 {{{
 	std::basic_string<int32_t> serialized_list;
-	typename std::list<S>::iterator li;
+	typename std::list<S>::const_iterator li;
 	int size = 0;
 
 	for(li = l.begin(); li != l.end(); ++li) {
@@ -217,10 +217,10 @@ template <typename S>			bool deserialize(std::list<S> & l, serial_stretch & seri
 
 
 // vector<S>
-template <typename S>			std::basic_string<int32_t> serialize(std::vector<S> & v)
+template <typename S>			std::basic_string<int32_t> serialize(const std::vector<S> & v)
 {{{
 	std::basic_string<int32_t> ret;
-	typename std::vector<S>::iterator li;
+	typename std::vector<S>::const_iterator li;
 
 	ret += serialize(v.size());
 	for(li = v.begin(); li != v.end(); ++li)
@@ -247,10 +247,10 @@ template <typename S>			bool deserialize(std::vector<S> & v, serial_stretch & se
 
 
 // set<S>
-template <typename S>			std::basic_string<int32_t> serialize(std::set<S> & s)
+template <typename S>			std::basic_string<int32_t> serialize(const std::set<S> & s)
 {{{
 	std::basic_string<int32_t> ret;
-	typename std::set<S>::iterator si;
+	typename std::set<S>::const_iterator si;
 
 	ret += serialize(s.size());
 	for(si = s.begin(); si != s.end(); ++si)
@@ -276,10 +276,10 @@ template <typename S>			bool deserialize(std::set<S> & s, serial_stretch & seria
 
 
 // map<S, T>
-template <typename S, typename T>	std::basic_string<int32_t> serialize(std::map<S, T> & m)
+template <typename S, typename T>	std::basic_string<int32_t> serialize(const std::map<S, T> & m)
 {{{
 	std::basic_string<int32_t> ret;
-	typename std::map<S, T>::iterator mi;
+	typename std::map<S, T>::const_iterator mi;
 
 	ret += serialize(m.size());
 	for(mi = m.begin(); mi != m.end(); ++mi)
@@ -305,10 +305,10 @@ template <typename S, typename T>	bool deserialize(std::map<S, T> & m, serial_st
 
 
 // multimap<S, T>
-template <typename S, typename T>	std::basic_string<int32_t> serialize(std::multimap<S, T> & m)
+template <typename S, typename T>	std::basic_string<int32_t> serialize(const std::multimap<S, T> & m)
 {{{
 	std::basic_string<int32_t> ret;
-	typename std::multimap<S, T>::iterator mi;
+	typename std::multimap<S, T>::const_iterator mi;
 
 	ret += serialize(m.size());
 	for(mi = m.begin(); mi != m.end(); ++mi)

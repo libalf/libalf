@@ -338,14 +338,15 @@ class RPNI : public learning_algorithm<answer> {
 		// derive an automaton and return it
 		virtual conjecture * derive_conjecture()
 		{{{
-			simple_automaton *ret = new simple_automaton;
+			simple_moore_machine *ret = new simple_moore_machine;
 
 			if(this->my_knowledge->count_answers() == 0) {
 				(*this->my_logger)(LOGGER_WARN, "RPNI: you started an offline-algorithm with an empty knowledgebase. that does not make very much sense, does it?\n");
 				// return automaton for empty language
-				ret->alphabet_size = 1;
+				ret->input_alphabet_size = 1;
 				ret->state_count = 1;
-				ret->initial.insert(0);
+				ret->initial_states.insert(0);
+				ret->is_deterministic = true;
 				ret->valid = true;
 				return ret;
 			}
@@ -359,8 +360,8 @@ class RPNI : public learning_algorithm<answer> {
 			merge_states(eq);
 			(*this->my_logger)(LOGGER_INFO, "RPNI: states merged. constructing automaton...\n");
 			ok = this->my_knowledge->equivalence_relation2automaton(eq.equivalences, false,
-					ret->is_deterministic, ret->alphabet_size, ret->state_count,
-					ret->initial, ret->final, ret->transitions);
+					ret->is_deterministic, ret->input_alphabet_size, ret->state_count,
+					ret->initial_states, ret->final_states, ret->transitions);
 
 			ret->is_deterministic = true;
 

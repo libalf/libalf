@@ -88,7 +88,7 @@ set<int> deterministic_transition_function::transmute(int state, int sigma)
 	return dst;
 }}}
 
-basic_string<int32_t> deterministic_transition_function::serialize()
+basic_string<int32_t> deterministic_transition_function::serialize() const
 {{{
 	return ::serialize(transitions);
 }}}
@@ -138,7 +138,7 @@ set<int> nondeterministic_transition_function::transmute(int state, int sigma)
 	return dst;
 }}}
 
-basic_string<int32_t> nondeterministic_transition_function::serialize()
+basic_string<int32_t> nondeterministic_transition_function::serialize() const
 {{{
 	return ::serialize(transitions);
 }}}

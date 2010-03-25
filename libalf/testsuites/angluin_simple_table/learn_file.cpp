@@ -140,10 +140,10 @@ int main(int argc, char**argv)
 		while( NULL == (cj = ot.advance()) )
 			stats.queries.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*nfa, knowledge);
 
-		simple_automaton * ba = dynamic_cast<simple_automaton*>(cj);
+		simple_moore_machine * ba = dynamic_cast<simple_moore_machine*>(cj);
 		if(hypothesis)
 			delete hypothesis;
-		hypothesis = construct_amore_automaton(ba->is_deterministic, ba->alphabet_size, ba->state_count, ba->initial, ba->final, ba->transitions);
+		hypothesis = construct_amore_automaton(ba->is_deterministic, ba->input_alphabet_size, ba->state_count, ba->initial_states, ba->final_states, ba->transitions);
 		delete cj;
 		if(!hypothesis) {
 			printf("generation of hypothesis failed!\n");

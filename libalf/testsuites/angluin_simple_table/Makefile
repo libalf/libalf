@@ -9,10 +9,10 @@ CPPFLAGS+=-I../../include -I${PREFIX}/include -Wall -ggdb3
 
 LDFLAGS+=-L../../src -L${PREFIX}/lib -lalf -lAMoRE++
 
-all: learn_bug learn_file learn_regex learn_static
+all: learn_file learn_regex learn_static
 
 clean: nodata
-	-rm -f *.o learn_regex learn_static learn_bug learn_file
+	-rm -f *.o learn_regex learn_static learn_file
 
 nodata:
 	-rm -f *.dot *.jpg *.angluin testlog *.ser
@@ -22,8 +22,6 @@ run:
 
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;
-
-learn_bug: learn_bug.cpp
 
 learn_file: learn_file.cpp
 
