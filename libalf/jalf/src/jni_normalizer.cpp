@@ -27,6 +27,7 @@
 #include "jni_tools.h"
 
 #include <libalf/normalizer_msc.h>
+#include <libalf/serialize.h>
 
 #include <jni.h>
 
@@ -68,12 +69,12 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNINormalizer_deserialize (JNIEnv 
 	normalizer_msc *norm = (normalizer_msc*)pointer;
 
 	// Forward method call
-	basic_string<int32_t>::iterator si;
-	si = ser.begin();
-	if(!norm->deserialize(si, ser.end()))
+	::serial_stretch serial(ser);
+
+	if(!norm->deserialize(serial))
 		return false;
 
-	return (si == ser.end());
+	return (serial.empty());
 }
 
 JNIEXPORT void JNICALL Java_de_libalf_jni_JNINormalizer_destroy (JNIEnv *env, jobject obj, jlong pointer) {

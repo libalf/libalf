@@ -76,14 +76,14 @@ JNIEXPORT jobject JNICALL Java_de_libalf_jni_JNILearningAlgorithm_advance (JNIEn
 	if(cj != NULL) {
 		// Return a conjectrue if ready
 		jobject aut;
-		simple_automaton * sa = dynamic_cast<simple_automaton*>(cj);
+		simple_moore_machine * sa = dynamic_cast<simple_moore_machine*>(cj);
 		if(sa == NULL) {
 			fprintf(stderr, "FIXME: HYPOTHESIS IS NOT A SIMPLE AUTOMATON!\n");
 			delete cj;
 			return NULL;
 		}
 
-		aut = convertAutomaton(env, sa->is_deterministic, sa->alphabet_size, sa->state_count, sa->initial, sa->final, sa->transitions);
+		aut = convertAutomaton(env, sa->is_deterministic, sa->input_alphabet_size, sa->state_count, sa->initial_states, sa->final_states, sa->transitions);
 
 		delete cj;
 		return aut;
