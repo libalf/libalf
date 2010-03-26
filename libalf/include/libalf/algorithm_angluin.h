@@ -87,8 +87,9 @@ class angluin_table : public learning_algorithm<answer> {
 	 *	note: acceptance can e.g. be a member vector<answer> of the *(table::iterator) type
 	\*/
 
-	protected:
+	public: // types
 		typedef vector< list<int> > columnlist;
+	protected: // data
 		columnlist column_names;
 		list<unsigned int> column_timestamps;
 
@@ -97,7 +98,7 @@ class angluin_table : public learning_algorithm<answer> {
 
 		bool initialized;
 
-	public:
+	public: // methods
 		angluin_table()
 		{{{
 			this->set_knowledge_source(NULL);
@@ -161,7 +162,7 @@ class angluin_table : public learning_algorithm<answer> {
 					ci != column_names.end() && tsi != column_timestamps.end();
 					ci++, tsi++) {
 				// column label
-				ret += serialize_word(*ci);
+				ret += ::serialize(*ci);
 				// column timestamp
 				ret += htonl(*tsi);
 			}
@@ -1109,6 +1110,8 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 			int count;
 
 			this->column_names.clear();
+			this->column_timestamps.clear();
+
 			this->upper_table.clear();
 			this->lower_table.clear();
 
@@ -1204,6 +1207,7 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 		deserialization_failed:
 			this->set_alphabet_size(0);
 			this->column_names.clear();
+			this->column_timestamps.clear();
 			this->upper_table.clear();
 			this->lower_table.clear();
 			this->initialized = false;
