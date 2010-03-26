@@ -72,7 +72,7 @@ string print(list<int> &word)
 /*
  * Simulates the run of a simple automaton on a given input.
  */
-bool run(simple_automaton *automaton, list<int> &input)
+bool run(simple_moore_machine *automaton, list<int> &input)
 // FIXME: will be incorporated into future version of conjecture
 {{{
 
@@ -83,7 +83,7 @@ bool run(simple_automaton *automaton, list<int> &input)
 	}
 
 	// Get initial state
-	set<int> *current = new set<int>(automaton->initial);
+	set<int> *current = new set<int>(automaton->initial_states);
 
 	// Simulate run letter by letter
 	list<int>::iterator input_it;
@@ -111,21 +111,14 @@ bool run(simple_automaton *automaton, list<int> &input)
 	// Compute intersection of reached states and final states
 	bool accept;
 	accept = false;
-	set<int>::iterator reached_it, final_it;
+	set<int>::iterator reached_it;
 
 	// For each reached state ...
 	for(reached_it = current->begin(); reached_it != current->end(); reached_it++) {
-
-		// ... check whether it is a final state
-		for(final_it = automaton->final.begin(); final_it != automaton->final.end(); final_it++) {
-			if(*reached_it == *final_it) {
-				accept = true;
-				break;
-			}
-		}
-
-		if(accept)
+		if(automaton->final_states.find(*reached_it) != automaton->final_states.end()) {
+			accept = true;
 			break;
+		}
 	}
 
 	// Memory cleanup

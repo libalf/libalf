@@ -95,7 +95,7 @@ int main(int argc, const char* argv[]) {
 
 	// Compute conjecture
 	conjecture *cj = algorithm.advance();
-	simple_automaton *result = dynamic_cast<simple_automaton*>(cj);
+	simple_moore_machine *result = dynamic_cast<simple_moore_machine*>(cj);
 
 #ifdef VERBOSE
 	cout << result->visualize() << endl;
