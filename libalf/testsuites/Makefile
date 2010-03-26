@@ -3,7 +3,7 @@
 
 .PHONY: all clean algorithm_analysis alphabet angluin_col_table angluin_simple_table biermann DeLeTe2 kearns_vazirani NLstar_count_eq_queries NLstar_table normalizer RPNI
 
-all: algorithm_analysis alphabet angluin_col_table angluin_simple_table biermann DeLeTe2 NLstar_count_eq_queries NLstar_table normalizer RPNI
+all: algorithm_analysis alphabet angluin_col_table angluin_simple_table biermann DeLeTe2 NLstar_count_eq_queries NLstar_table normalizer RPNI conjecture
 
 algorithm_analysis:
 	make -C algorithm_analysis
@@ -38,6 +38,9 @@ normalizer:
 RPNI:
 	make -C RPNI
 
+conjecture:
+	make -C conjecture
+
 clean:
 	make -C algorithm_analysis clean
 	make -C alphabet clean
@@ -50,4 +53,5 @@ clean:
 	make -C NLstar_table clean
 	make -C normalizer clean
 	make -C RPNI clean
+	make -C conjecture clean
 
