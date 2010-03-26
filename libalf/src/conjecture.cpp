@@ -676,6 +676,41 @@ bool simple_moore_machine::parse_transition(string single)
 
 	return true;
 }}}
+bool simple_moore_machine::contains(const list<int> & word)
+{
+	if(!this->valid)
+		return false;
+
+	list<int>::const_iterator li;
+
+	set<int> current_states;
+	set<int>::iterator si;
+
+	current_states = this->initial_states;
+
+	// run
+	for(li = word.begin(); li != word.end(); ++li) {
+		set<int> new_states;
+
+		if(current_states.empty())
+			break;
+
+		for(si = current_states.begin(); si != current_states.end(); ++si) {
+			pair<multimap<pair<int, int>, int>::iterator, multimap<pair<int, int>, int>::iterator> range;
+			for(range = transitions.equal_range(pair<int, int>(*si, *li)); range.first != range.second; ++range.first)
+				new_states.insert(range.first->second);
+		}
+
+		current_states.swap(new_states);
+	}
+
+	// check if a final state was reached
+	for(si = current_states.begin(); si != current_states.end(); ++si)
+		if(this->final_states.find(*si) != this->final_states.end())
+			return true;
+
+	return false;
+}
 
 
 

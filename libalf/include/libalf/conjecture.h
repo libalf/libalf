@@ -139,6 +139,8 @@ class simple_moore_machine: public simple_output_finite_state_machine {
 		virtual string write();
 		virtual bool read(string input);
 		virtual string visualize();
+
+		virtual bool contains(const list<int> & word);
 	protected:
 		bool parse_transition(string single);
 };

@@ -108,7 +108,7 @@ int main(int argc, const char* argv[]) {
 
 		list<int> word = *test_it;
 
-		bool classification = run(result, word);
+		bool classification = result->contains(word);
 
 		if(classification)
 			submit << "1";
