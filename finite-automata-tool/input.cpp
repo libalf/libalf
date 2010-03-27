@@ -53,6 +53,7 @@ bool get_input(finite_automaton *& automaton, input in, string gentype)
 	int i;
 
 	simple_moore_machine aut;
+	serial_stretch serial;
 
 	switch(in) {
 		case input_serial:
@@ -63,10 +64,10 @@ bool get_input(finite_automaton *& automaton, input in, string gentype)
 
 			automaton = new nondeterministic_finite_automaton;
 
-			si = str.begin();
-			if(!automaton->deserialize(si, str.end()))
+			serial.init(str);
+			if(!automaton->deserialize(serial.current, serial.limit))
 				return false;
-			return si == str.end();
+			return serial.empty();
 		case input_human_readable:
 			// get input
 			while(!cin.eof())

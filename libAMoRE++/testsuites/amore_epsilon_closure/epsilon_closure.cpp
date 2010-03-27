@@ -31,6 +31,7 @@
 #include "arpa/inet.h"
 
 #include "amore++/nondeterministic_finite_automaton.h"
+#include "amore++/serialize.h"
 
 using namespace std;
 using namespace amore;
@@ -63,7 +64,7 @@ int main()
 	};
 	nondeterministic_finite_automaton *nfa;
 	basic_string<int32_t> serial;
-	basic_string<int32_t>::iterator sit;
+	serial_stretch ser;
 	set<int> states;
 	ofstream file;
 	ostream_iterator<int32_t> out(cout, ", ");
@@ -73,8 +74,8 @@ int main()
 	}
 
 	nfa = new nondeterministic_finite_automaton();
-	sit = serial.begin();
-	if( ! nfa->deserialize(sit, serial.end()) ) {
+	ser.init(serial);
+	if( ! nfa->deserialize(ser.current, ser.limit) ) {
 		cout << "deserialization failed. check automaton.\n";
 		return 1;
 	}

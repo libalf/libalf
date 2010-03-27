@@ -210,13 +210,9 @@ basic_string<int32_t> timing_statistics::serialize()
 
 	return ret;
 }}}
-bool timing_statistics::deserialize(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator limit)
+bool timing_statistics::deserialize(serial_stretch & serial)
 {{{
 	int size;
-
-	serial_stretch serial;
-	serial.current = it;
-	serial.limit = limit;
 
 	if(!::deserialize(size, serial)) goto deserialization_failed;
 	if(size != 4) goto deserialization_failed;
@@ -225,12 +221,10 @@ bool timing_statistics::deserialize(basic_string<int32_t>::iterator & it, basic_
 	if(!::deserialize(sys_sec, serial)) goto deserialization_failed;
 	if(!::deserialize(sys_usec, serial)) goto deserialization_failed;
 
-	it = serial.current;
 	return true;
 
 deserialization_failed:
 	reset();
-	it = serial.current;
 	return false;
 }}}
 
@@ -260,7 +254,7 @@ basic_string<int32_t> query_statistics::serialize()
 
 	return ret;
 }}}
-bool query_statistics::deserialize(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator limit)
+bool query_statistics::deserialize(basic_string<int32_t>::const_iterator & it, basic_string<int32_t>::const_iterator limit)
 {{{
 	int size;
 
@@ -315,7 +309,7 @@ basic_string<int32_t> memory_statistics::serialize()
 
 	return ret;
 }}}
-bool memory_statistics::deserialize(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator limit)
+bool memory_statistics::deserialize(basic_string<int32_t>::const_iterator & it, basic_string<int32_t>::const_iterator limit)
 {{{
 	int size;
 
@@ -371,10 +365,11 @@ basic_string<int32_t> statistics::serialize()
 	ret[0] = htonl( ret.length() - 1 );
 	return ret;
 }}}
-bool statistics::deserialize(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator limit)
+bool statistics::deserialize(basic_string<int32_t>::const_iterator & it, basic_string<int32_t>::const_iterator limit)
 {{{
 	int size;
-	basic_string<int32_t>::iterator end;
+	basic_string<int32_t>::const_iterator end;
+	serial_stretch s;
 
 	if(it == limit)
 		goto deserialization_failed;
@@ -387,7 +382,10 @@ bool statistics::deserialize(basic_string<int32_t>::iterator & it, basic_string<
 
 	if(!queries.deserialize(it, limit)) goto deserialization_failed;
 	if(!memory.deserialize(it, limit)) goto deserialization_failed;
-	if(!time.deserialize(it, limit)) goto deserialization_failed;
+	s.current = it;
+	s.limit = limit;
+	if(!time.deserialize(s)) goto deserialization_failed;
+	it = s.current;
 
 	if(it != end) goto deserialization_failed;
 

@@ -51,52 +51,50 @@ class deterministic_finite_automaton : public finite_automaton {
 		deterministic_finite_automaton();
 		deterministic_finite_automaton(dfa a);
 
-
-
 		virtual ~deterministic_finite_automaton();
 
-		virtual deterministic_finite_automaton * clone();
+		virtual deterministic_finite_automaton * clone() const;
 
-		virtual unsigned int get_state_count();
-		virtual unsigned int get_alphabet_size();
-		virtual set<int> get_initial_states();
-		virtual set<int> get_final_states();
+		virtual unsigned int get_state_count() const;
+		virtual unsigned int get_alphabet_size() const;
+		virtual set<int> get_initial_states() const;
+		virtual set<int> get_final_states() const;
 		virtual void set_initial_states(set<int> &states);
 		virtual void set_final_states(set<int> &states);
-		virtual bool contains_initial_states(set<int> states);
-		virtual bool contains_final_states(set<int> states);
-		virtual set<int> successor_states(set<int> states);
-		virtual set<int> successor_states(set<int> states, int label);
-		virtual set<int> predecessor_states(set<int> states);
-		virtual set<int> predecessor_states(set<int> states, int label);
-		virtual void epsilon_closure(set<int> __attribute__ ((__unused__)) & states) { return; };
-		virtual void inverted_epsilon_closure(set<int> __attribute__ ((__unused__)) & states) { return; };
-		virtual list<int> shortest_run(set<int> from, set<int> &to, bool &reachable);
-		virtual bool is_reachable(set<int> &from, set<int> &to);
-		virtual list<int> get_sample_word(bool & is_empty);
-		virtual bool is_empty();
-		virtual bool is_universal();
-		virtual bool operator==(finite_automaton &other);
-		virtual bool lang_subset_of(finite_automaton &other);
-		virtual bool lang_disjoint_to(finite_automaton &other);
+		virtual bool contains_initial_states(set<int> states) const;
+		virtual bool contains_final_states(set<int> states) const;
+		virtual set<int> successor_states(set<int> states) const;
+		virtual set<int> successor_states(set<int> states, int label) const;
+		virtual set<int> predecessor_states(set<int> states) const;
+		virtual set<int> predecessor_states(set<int> states, int label) const;
+		virtual void epsilon_closure(set<int> & states) const;
+		virtual void inverted_epsilon_closure(set<int> & states) const;
+		virtual list<int> shortest_run(set<int> from, set<int> &to, bool &reachable) const;
+		virtual bool is_reachable(set<int> &from, set<int> &to) const;
+		virtual list<int> get_sample_word(bool & is_empty) const;
+		virtual bool is_empty() const;
+		virtual bool is_universal() const;
+		virtual bool operator==(const finite_automaton &other) const;
+		virtual bool lang_subset_of(const finite_automaton &other) const;
+		virtual bool lang_disjoint_to(const finite_automaton &other) const;
 		virtual void minimize();
 		virtual void lang_complement();
-		virtual finite_automaton * reverse_language();
-		virtual finite_automaton * lang_union(finite_automaton &other);
-		virtual finite_automaton * lang_intersect(finite_automaton &other);
-		virtual deterministic_finite_automaton * lang_difference(finite_automaton &other);
-		virtual finite_automaton * lang_symmetric_difference(finite_automaton &other);
-		virtual finite_automaton * lang_concat(finite_automaton &other);
+		virtual finite_automaton * reverse_language() const;
+		virtual finite_automaton * lang_union(const finite_automaton &other) const;
+		virtual finite_automaton * lang_intersect(const finite_automaton &other) const;
+		virtual deterministic_finite_automaton * lang_difference(const finite_automaton &other) const;
+		virtual finite_automaton * lang_symmetric_difference(const finite_automaton &other) const;
+		virtual finite_automaton * lang_concat(const finite_automaton &other) const;
 
-		virtual bool is_deterministic();
-		virtual finite_automaton * nondeterminize();
-		virtual deterministic_finite_automaton * determinize();
+		virtual bool is_deterministic() const;
+		virtual finite_automaton * nondeterminize() const;
+		virtual deterministic_finite_automaton * determinize() const;
 
-		virtual basic_string<int32_t> serialize();
-		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
+		virtual basic_string<int32_t> serialize() const;
+		virtual bool deserialize(basic_string<int32_t>::const_iterator &it, basic_string<int32_t>::const_iterator limit);
 
 		// overloading
-		virtual bool contains(list<int> &word);
+		virtual bool contains(list<int> &word) const;
 		virtual bool construct(bool is_dfa, int alphabet_size, int state_count, set<int> &initial, set<int> &final, multimap<pair<int,int>, int> &transitions);
 
 		// new

@@ -624,7 +624,7 @@ string mVCA::visualize()
 
 mVCA * deserialize_mVCA(serial_stretch & serial)
 {{{
-	basic_string<int32_t>::iterator adv;
+	basic_string<int32_t>::const_iterator adv;
 	if(serial.empty()) return NULL;
 	adv = serial.current;
 	if(ntohl(*adv) < 1) return NULL;

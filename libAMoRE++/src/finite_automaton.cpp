@@ -59,11 +59,11 @@ finite_automaton * construct_amore_automaton(bool is_dfa, int alphabet_size, int
 	return NULL;
 }}}
 
-finite_automaton * deserialize_amore_automaton(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+finite_automaton * deserialize_amore_automaton(basic_string<int32_t>::const_iterator &it, basic_string<int32_t>::const_iterator limit)
 {{{
 	finite_automaton * ret;
 
-	basic_string<int32_t>::iterator si;
+	basic_string<int32_t>::const_iterator si;
 	int is_det;
 
 	si = it;
@@ -91,7 +91,7 @@ finite_automaton * deserialize_amore_automaton(basic_string<int32_t>::iterator &
 finite_automaton::~finite_automaton()
 { };
 
-void finite_automaton::get_transition_maps(map<int, map<int, set<int> > > & premap, map<int, map<int, set<int> > > & postmap)
+void finite_automaton::get_transition_maps(map<int, map<int, set<int> > > & premap, map<int, map<int, set<int> > > & postmap) const
 // mapping: state -> sigma -> stateset
 {{{
 	premap.clear();
@@ -108,7 +108,7 @@ void finite_automaton::get_transition_maps(map<int, map<int, set<int> > > & prem
 	}
 }}}
 
-set<int> finite_automaton::run(set<int> from, list<int>::iterator word, list<int>::iterator word_limit)
+set<int> finite_automaton::run(set<int> from, list<int>::const_iterator word, list<int>::const_iterator word_limit) const
 {{{
 	while(word != word_limit) {
 		from = this->transition(from, *word);
@@ -117,10 +117,10 @@ set<int> finite_automaton::run(set<int> from, list<int>::iterator word, list<int
 	return from;
 }}}
 
-bool finite_automaton::contains(list<int> & word)
+bool finite_automaton::contains(list<int> & word) const
 {{{
 	set<int> states, final_states;
-	set<int>::iterator si;
+	set<int>::const_iterator si;
 
 	states = this->get_initial_states();
 	states = this->run(states, word.begin(), word.end());
@@ -132,14 +132,14 @@ bool finite_automaton::contains(list<int> & word)
 	return false;
 }}}
 
-string finite_automaton::visualize(bool exclude_negative_sinks)
+string finite_automaton::visualize(bool exclude_negative_sinks) const
 {{{
 	basic_string<int32_t> serialized;
-	basic_string<int32_t>::iterator si;
+	basic_string<int32_t>::const_iterator si;
 	int n;
 
 	set<int> initial, final, sink;
-	set<int>::iterator sti;
+	set<int>::const_iterator sti;
 
 	unsigned int state_count;
 	bool header_written;
@@ -268,7 +268,7 @@ string finite_automaton::visualize(bool exclude_negative_sinks)
 	return ret;
 }}}
 
-finite_automaton *finite_automaton::co_determinize(bool minimize)
+finite_automaton *finite_automaton::co_determinize(bool minimize) const
 {{{
 	finite_automaton *r, *rcod, *cod;
 	r = this->reverse_language();
@@ -282,17 +282,17 @@ finite_automaton *finite_automaton::co_determinize(bool minimize)
 	return cod;
 }}}
 
-set<int> finite_automaton::negative_sink()
+set<int> finite_automaton::negative_sink() const
 {{{
 	set<int> s, pre, post;
-	set<int>::iterator si;
+	set<int>::const_iterator si;
 
 	// find states that can reach terminal states
 	pre = get_final_states();
 	while(pre != s) {
 		s = pre;
 		pre = predecessor_states(s);
-		for(set<int>::iterator si = s.begin(); si != s.end(); si++)
+		for(si = s.begin(); si != s.end(); si++)
 			pre.insert(*si);
 	}
 
@@ -302,7 +302,7 @@ set<int> finite_automaton::negative_sink()
 	while(post != s) {
 		s = post;
 		post = successor_states(s);
-		for(set<int>::iterator si = s.begin(); si != s.end(); si++)
+		for(si = s.begin(); si != s.end(); si++)
 			post.insert(*si);
 	}
 
@@ -322,8 +322,8 @@ set<int> finite_automaton::negative_sink()
 bool finite_automaton::construct(bool is_dfa, int alphabet_size, int state_count, set<int> &initial, set<int> &final, multimap<pair<int, int>, int> &transitions)
 {{{
 	basic_string<int32_t> ser;
-	set<int>::iterator sit;
-	multimap<pair<int, int>, int>::iterator tit;
+	set<int>::const_iterator sit;
+	multimap<pair<int, int>, int>::const_iterator tit;
 
 	// serialize that data and call deserialize :)
 	ser += 0;
@@ -352,7 +352,7 @@ bool finite_automaton::construct(bool is_dfa, int alphabet_size, int state_count
 
 	ser[0] = htonl(ser.length() - 1);
 
-	basic_string<int32_t>::iterator ser_begin = ser.begin();
+	basic_string<int32_t>::const_iterator ser_begin = ser.begin();
 
 	return this->deserialize(ser_begin, ser.end());
 }}}
@@ -373,7 +373,7 @@ bool antichain__is_universal(list<int> & counterexample)
 }
 */
 
-bool finite_automaton::antichain__is_equal(finite_automaton &other, list<int> & counterexample)
+bool finite_automaton::antichain__is_equal(const finite_automaton &other, list<int> & counterexample) const
 {{{
 	if(!this->antichain__is_superset_of(other, counterexample))
 		return false;
@@ -388,7 +388,7 @@ static inline void print_word(ostream &os, const list<int> &word)
 	copy(word.begin(), word.end(), out);
 }}}
 
-static inline void print_gamestate(ostream &con, const pair<int, pair< set<int>, list<int> > > gamestate)
+static inline void print_gamestate(ostream &con, const pair<int, pair< set<int>, list<int> > > & gamestate)
 {{{
 	con << "( " << gamestate.first << ", ";
 	print_set(con, gamestate.second.first);
@@ -397,7 +397,7 @@ static inline void print_gamestate(ostream &con, const pair<int, pair< set<int>,
 	con << " )";
 }}}
 
-static inline void antichain_attractor_remove_obsolete(multimap<int, pair<set<int>, list<int> > > & attractor, list< pair<int, pair< set<int>, list<int> > > > obsolete)
+static inline void antichain_attractor_remove_obsolete(multimap<int, pair<set<int>, list<int> > > & attractor, const list< pair<int, pair< set<int>, list<int> > > > & obsolete)
 {{{
 	typedef multimap<int, pair<set<int>, list<int> > > attractor_t;
 	typedef pair<int, pair< set<int>, list<int> > > gamestate_t;
@@ -405,7 +405,7 @@ static inline void antichain_attractor_remove_obsolete(multimap<int, pair<set<in
 	pair<attractor_t::iterator, attractor_t::iterator> atr_range;
 	attractor_t::iterator ati;
 
-	list<gamestate_t>::iterator obsi;
+	list<gamestate_t>::const_iterator obsi;
 
 	for(obsi = obsolete.begin(); obsi != obsolete.end(); ++obsi) {
 		atr_range = attractor.equal_range(obsi->first);
@@ -420,7 +420,7 @@ static inline void antichain_attractor_remove_obsolete(multimap<int, pair<set<in
 
 //#define ANTICHAIN_DEBUG
 
-bool finite_automaton::antichain__is_superset_of(finite_automaton &other, list<int> & counterexample)
+bool finite_automaton::antichain__is_superset_of(const finite_automaton &other, list<int> & counterexample) const
 // FIXME: this version does not work for automata with epsilon-transitions.
 // they induce many special cases that need to be taken care of very thoroughly
 {{{
@@ -432,15 +432,15 @@ bool finite_automaton::antichain__is_superset_of(finite_automaton &other, list<i
 	}
 
 	typedef multimap<int, pair<set<int>, list<int> > >  attractor_t;
-	typedef pair< attractor_t::iterator, attractor_t::iterator > attractor_range_t;
+	typedef pair< attractor_t::const_iterator, attractor_t::const_iterator > attractor_range_t;
 	typedef pair<int, pair< set<int>, list<int> > > gamestate_t;
 
 	// attractor and helper for single gamestate
 	attractor_t attractor, extension;
-	attractor_t::iterator ati, xti;
+	attractor_t::const_iterator ati, xti;
 	gamestate_t gamestate;
 	set<int> s; // state-set
-	set<int>::iterator si, ti;
+	set<int>::const_iterator si, ti;
 
 
 	// first obtain some static data that is required repeatedly:
@@ -629,7 +629,7 @@ bool finite_automaton::antichain__is_superset_of(finite_automaton &other, list<i
 
 // antichain helper functions:
 
-bool finite_automaton::antichain__superset_check_winning_condition(set<int> & this_initial, set<int> & other_initial, const pair<int, pair< set<int>, list<int> > > & gamestate, list<int> & counterexample)
+bool finite_automaton::antichain__superset_check_winning_condition(set<int> & this_initial, set<int> & other_initial, const pair<int, pair< set<int>, list<int> > > & gamestate, list<int> & counterexample) const
 // checks if the given <gamestate> is a winning state, i.e. <this> can NOT be a superset of <other>.
 // the specific run is copied to <counterexample>.
 {{{

@@ -86,7 +86,7 @@ nondeterministic_finite_automaton * sample_automaton()
 	int automaton[] = { 0, 2, 5, 1, 0, 4, 0, 1, 3, 4, 10, 0,0,0, 0,1,1, 1,0,0, 1,1,2, 2,0,3, 2,1,4, 3,0,0, 3,1,3, 4,0,0, 4,1,0 };
 
 	basic_string<int32_t> serial;
-	basic_string<int32_t>::iterator si;
+	basic_string<int32_t>::const_iterator si;
 
 	serial += htonl(sizeof(automaton)/sizeof(int));
 	for(unsigned int i = 0; i < sizeof(automaton)/sizeof(int); i++) {
@@ -179,7 +179,7 @@ int main(int argc, char**argv)
 
 		{{{ /* dump/serialize table */
 			basic_string<int32_t> serialized;
-			basic_string<int32_t>::iterator it;
+			basic_string<int32_t>::const_iterator it;
 
 			snprintf(filename, 128, "table%02d.text.NLstar", iteration);
 			file.open(filename); ot.print(file); file.close();

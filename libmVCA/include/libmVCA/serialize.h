@@ -44,13 +44,13 @@
 
 class  serial_stretch {
 	public:
-		std::basic_string<int32_t>::iterator current;
-		std::basic_string<int32_t>::iterator limit;
+		std::basic_string<int32_t>::const_iterator current;
+		std::basic_string<int32_t>::const_iterator limit;
 	public:
 		inline serial_stretch()
 		{ };
 
-		inline serial_stretch(std::basic_string<int32_t>::iterator current, std::basic_string<int32_t>::iterator limit)
+		inline serial_stretch(std::basic_string<int32_t>::const_iterator current, std::basic_string<int32_t>::const_iterator limit)
 		{ this->current = current; this->limit = limit; };
 
 		inline serial_stretch(std::basic_string<int32_t> & serial)

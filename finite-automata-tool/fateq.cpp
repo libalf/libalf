@@ -187,32 +187,31 @@ int main(int argc, char**argv)
 	else
 	{{{
 		basic_string<int32_t> serial;
-		basic_string<int32_t>::iterator si;
 
 		if(!file_to_basic_string(firstfile.c_str(), serial)) {
 			cerr << "failed to read first serial\n";
 			return -1;
 		}
 		first = new nondeterministic_finite_automaton;
-		si = serial.begin();
-		if(!first->deserialize(si, serial.end())) {
+		serial_stretch ser(serial);
+		if(!first->deserialize(ser.current, ser.limit)) {
 			cerr << "failed to deserialize first automaton\n";
 			return -1;
 		}
-		if(si != serial.end())
+		if(!ser.empty())
 			cerr << "garbage at end of first?\n";
 
 		if(!file_to_basic_string(secondfile.c_str(), serial)) {
 			cerr << "failed to read second serial\n";
 			return -2;
 		}
+		ser.init(serial);
 		second = new nondeterministic_finite_automaton;
-		si = serial.begin();
-		if(!second->deserialize(si, serial.end())) {
+		if(!second->deserialize(ser.current, ser.limit)) {
 			cerr << "failed to deserialize second automaton\n";
 			return -2;
 		}
-		if(si != serial.end())
+		if(!ser.empty())
 			cerr << "garbage at end of second?\n";
 	}}}
 

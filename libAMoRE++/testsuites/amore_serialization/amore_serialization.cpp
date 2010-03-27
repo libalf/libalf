@@ -30,6 +30,7 @@
 
 #include "amore++/nondeterministic_finite_automaton.h"
 #include "amore++/deterministic_finite_automaton.h"
+#include "amore++/serialize.h"
 
 using namespace std;
 using namespace amore;
@@ -40,7 +41,7 @@ int main(int argc, char**argv)
 	finite_automaton *dfa;
 
 	basic_string<int32_t> serialized;
-	basic_string<int32_t>::iterator sit;
+	serial_stretch ser;
 	ofstream file;
 
 	bool success = false;
@@ -86,14 +87,14 @@ int main(int argc, char**argv)
 
 	// serialize and deserialize now
 	serialized = nfa->serialize();
-	sit = serialized.begin();
+	ser.init(serialized);
 
 	delete nfa;
 	nfa = new nondeterministic_finite_automaton();
-	if(! nfa->deserialize(sit, serialized.end()) ) {
+	if(! nfa->deserialize(ser.current, ser.limit)) {
 		cout << "nfaa serialization failed: returned false.\n";
 	} else {
-		if(sit != serialized.end()) {
+		if(!ser.empty()) {
 			cout << "nfaa serialization failed: not at end of blob.\n";
 		} else {
 			file.open("deserialized-nfa.dot");
@@ -104,14 +105,14 @@ int main(int argc, char**argv)
 
 
 	serialized = dfa->serialize();
-	sit = serialized.begin();
+	ser.init(serialized);
 
 	delete dfa;
 	dfa = new deterministic_finite_automaton();
-	if(! dfa->deserialize(sit, serialized.end()) ) {
+	if(! dfa->deserialize(ser.current, ser.limit) ) {
 		cout << "dfaa serialization failed: returned false.\n";
 	} else {
-		if(sit != serialized.end()) {
+		if(!ser.empty()) {
 			cout << "dfaa serialization failed: not at end of blob.\n";
 		} else {
 			file.open("deserialized-dfa.dot");

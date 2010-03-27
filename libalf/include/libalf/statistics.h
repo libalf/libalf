@@ -146,7 +146,7 @@ class timing_statistics {
 		timing_statistics();
 		void reset();
 		basic_string<int32_t> serialize();
-		bool deserialize(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator limit);
+		bool deserialize(serial_stretch & serial);
 };
 
 // -------------------------------------------------------------------------------------------------- //
@@ -162,7 +162,7 @@ class query_statistics {
 		query_statistics();
 		void reset();
 		basic_string<int32_t> serialize();
-		bool deserialize(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator limit);
+		bool deserialize(basic_string<int32_t>::const_iterator & it, basic_string<int32_t>::const_iterator limit);
 };
 
 class memory_statistics {
@@ -177,7 +177,7 @@ class memory_statistics {
 		memory_statistics();
 		void reset();
 		basic_string<int32_t> serialize();
-		bool deserialize(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator limit);
+		bool deserialize(basic_string<int32_t>::const_iterator & it, basic_string<int32_t>::const_iterator limit);
 };
 
 class statistics {
@@ -189,7 +189,7 @@ class statistics {
 	public: // methods
 		void reset();
 		basic_string<int32_t> serialize();
-		bool deserialize(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator limit);
+		bool deserialize(basic_string<int32_t>::const_iterator & it, basic_string<int32_t>::const_iterator limit);
 };
 
 }; // end namespace libalf

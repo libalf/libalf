@@ -31,6 +31,7 @@
 #include <stdlib.h>
 
 #include <amore++/nondeterministic_finite_automaton.h>
+#include <amore++/serialize.h>
 
 #include <libalf/alphabet.h>
 #include <libalf/basic_string.h>
@@ -52,14 +53,14 @@ int main(int argc, char**argv)
 	// construct automata
 	{{{
 		  basic_string<int32_t> serial;
-		  basic_string<int32_t>::iterator si;
+		  serial_stretch ser;
 
 		  libalf::file_to_basic_string(argv[1], serial);
 		  libalf::print_basic_string_2hl(serial, cout);
 		  cout << "\n";
 		  n1 = new nondeterministic_finite_automaton;
-		  si = serial.begin();
-		  if( ! n1->deserialize(si, serial.end()) ){
+		  ser.init(serial);
+		  if( ! n1->deserialize(ser.current, ser.limit)) {
 			  cout << "failed to deserialize first automaton!\n";
 			  return -1;
 		  }
@@ -68,8 +69,8 @@ int main(int argc, char**argv)
 		  libalf::print_basic_string_2hl(serial, cout);
 		  cout << "\n";
 		  n2 = new nondeterministic_finite_automaton;
-		  si = serial.begin();
-		  if( ! n2->deserialize(si, serial.end()) ){
+		  ser.init(serial);
+		  if( ! n2->deserialize(ser.current, ser.limit)) {
 			  cout << "failed to deserialize second automaton!\n";
 			  return -1;
 		  }

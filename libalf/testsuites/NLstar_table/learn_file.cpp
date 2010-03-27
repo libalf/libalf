@@ -67,7 +67,7 @@ int main(int argc, char**argv)
 			return -1;
 		};
 		basic_string<int32_t> str;
-		basic_string<int32_t>::iterator si;
+		basic_string<int32_t>::const_iterator si;
 		if(!file_to_basic_string(argv[1], str)) {
 			cout << "failed to load file \"" << argv[1] << "\".\n";
 			return -1;
@@ -141,7 +141,7 @@ int main(int argc, char**argv)
 
 		{{{ /* dump/serialize table */
 			basic_string<int32_t> serialized;
-			basic_string<int32_t>::iterator it;
+			basic_string<int32_t>::const_iterator it;
 
 			snprintf(filename, 128, "table%02d.text.NLstar", iteration);
 			file.open(filename); ot.print(file); file.close();

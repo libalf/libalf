@@ -80,7 +80,7 @@ nondeterministic_finite_automaton * sample_automaton()
 	int automaton[] = { 0, 2, 6, 1, 0, 2, 3,5, 6, 0,1,1, 1,0,2, 2,0,3, 3,0,5, 3,1,4, 4,0,5 };
 
 	basic_string<int32_t> serial;
-	basic_string<int32_t>::iterator si;
+	basic_string<int32_t>::const_iterator si;
 
 	serial += htonl(sizeof(automaton)/sizeof(int));
 	for(unsigned int i = 0; i < sizeof(automaton)/sizeof(int); i++) {

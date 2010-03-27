@@ -55,70 +55,70 @@ class finite_automaton {
 		virtual ~finite_automaton() = 0;
 
 		// create a copy
-		virtual finite_automaton * clone() = 0;
+		virtual finite_automaton * clone() const = 0;
 		// check if automaton is deterministic
-		virtual bool is_deterministic() = 0;
+		virtual bool is_deterministic() const = 0;
 
 		// LANGUAGE/AUTOMATON OPERATIONS
 
 		// count (all) states
-		virtual unsigned int get_state_count() = 0;
+		virtual unsigned int get_state_count() const = 0;
 		// size of alphabet [0..n-1] \cap |N
-		virtual unsigned int get_alphabet_size() = 0;
+		virtual unsigned int get_alphabet_size() const = 0;
 
 		// get and set initial and final states.
 		// NOTE that in case of a DFA, setting multiple initial states will result in the LAST state being initial.
 		// (according to set order)
-		virtual set<int> get_initial_states() = 0;
-		virtual set<int> get_final_states() = 0;
+		virtual set<int> get_initial_states() const = 0;
+		virtual set<int> get_final_states() const = 0;
 		virtual void set_initial_states(set<int> &states) = 0;
 		virtual void set_final_states(set<int> &states) = 0;
 
 		// check if set contains initial or final states
-		virtual bool contains_initial_states(set<int> states) = 0;
-		virtual bool contains_final_states(set<int> states) = 0;
+		virtual bool contains_initial_states(set<int> states) const = 0;
+		virtual bool contains_final_states(set<int> states) const = 0;
 
 		// get all successor or predecessor states to a state-set
-		virtual set<int> successor_states(set<int> states) = 0;
-		virtual set<int> predecessor_states(set<int> states) = 0;
+		virtual set<int> successor_states(set<int> states) const = 0;
+		virtual set<int> predecessor_states(set<int> states) const = 0;
 		// get all successor or predecessor states to a state-set via a specifically labelled transition
-		virtual set<int> successor_states(set<int> states, int label) = 0;
-		virtual set<int> predecessor_states(set<int> states, int label) = 0;
+		virtual set<int> successor_states(set<int> states, int label) const = 0;
+		virtual set<int> predecessor_states(set<int> states, int label) const = 0;
 
 		// epsilon-closure functions: (obviously only applicable to automata with epsilon-transitions)
 		// apply epsilon-closure to state-set (i.e. include states that may be reached from those via epsilon)
-		virtual void epsilon_closure(set<int> & states) = 0;
+		virtual void epsilon_closure(set<int> & states) const = 0;
 		// apply inverted epsilon-closure to state-set (i.e. include states from whom these states may be reached via epsilon)
-		virtual void inverted_epsilon_closure(set<int> & states) = 0;
+		virtual void inverted_epsilon_closure(set<int> & states) const = 0;
 
 		// get mappings of all transitions. (post-transitions and pre-transitions, useful for fast, recurring calculations)
 		// the mapping works as follows: map[current_state][label] = { predecessor- resp. successor-states }.
 		// epsilon transitions are considered if the underlying automaton resolves epsilon-transitions
 		// in predecessor_states() and successor_states().
-		virtual void get_transition_maps(map<int, map<int, set<int> > > & premap, map<int, map<int, set<int> > > & postmap);
+		virtual void get_transition_maps(map<int, map<int, set<int> > > & premap, map<int, map<int, set<int> > > & postmap) const;
 
 		// calculate single-label transition or multiple-label run for a set of starting states
-		virtual set<int> transition(set<int> from, int label)
+		virtual set<int> transition(set<int> from, int label) const
 		{   return successor_states(from, label);   };
-		virtual set<int> run(set<int> from, list<int>::iterator word, list<int>::iterator word_limit);
+		virtual set<int> run(set<int> from, list<int>::const_iterator word, list<int>::const_iterator word_limit) const;
 
 		// get shortest run (i.e. word) from a state in <from> to a state in <to>
 		// reachable = false if state is not reachable.
-		virtual list<int> shortest_run(set<int> from, set<int> &to, bool &reachable) = 0;
+		virtual list<int> shortest_run(set<int> from, set<int> &to, bool &reachable) const = 0;
 		// check if states <to> are reachable from states <from>
-		virtual bool is_reachable(set<int> &from, set<int> &to) = 0;
+		virtual bool is_reachable(set<int> &from, set<int> &to) const = 0;
 
 		// get a random sample word from this automaton (usually the shortest word in L)
-		virtual list<int> get_sample_word(bool & is_empty) = 0;
+		virtual list<int> get_sample_word(bool & is_empty) const = 0;
 		// test if word is contained in language of this automaton
-		virtual bool contains(list<int> & word);
+		virtual bool contains(list<int> & word) const;
 
 
 		// UNARY LANGUAGE TESTS
 
 		// is the language of this automaton empty (resp. universal)?
-		virtual bool is_empty() = 0;
-		virtual bool is_universal() = 0;
+		virtual bool is_empty() const = 0;
+		virtual bool is_universal() const = 0;
 
 
 		// UNARY LANGUAGE OPERATIONS
@@ -126,7 +126,7 @@ class finite_automaton {
 		// get complement language
 		virtual void lang_complement() = 0;
 		// get reversed language
-		virtual finite_automaton * reverse_language() = 0;
+		virtual finite_automaton * reverse_language() const = 0;
 
 
 		// UNARY AUTOMATON OPERATIONS
@@ -134,37 +134,37 @@ class finite_automaton {
 		// minimize automaton
 		virtual void minimize() = 0;
 		// get all states that may be merged into a negative sink
-		virtual set<int> negative_sink();
+		virtual set<int> negative_sink() const;
 		// get nondeterministic automaton
-		virtual finite_automaton * nondeterminize() = 0;
+		virtual finite_automaton * nondeterminize() const = 0;
 		// an automaton is deterministic if it has only one initial state and, for every
 		// letter, every state has at most one successor.
-		virtual finite_automaton * determinize() = 0;
+		virtual finite_automaton * determinize() const = 0;
 		// an automaton is co-deterministic if it has only one final state and, for every
 		// letter, every state has at most one predecessor.
-		virtual finite_automaton * co_determinize(bool minimize = true);
+		virtual finite_automaton * co_determinize(bool minimize = true) const;
 
 		// BINARY LANGUAGE TESTS
 
 		// test if this == other
-		virtual bool operator==(finite_automaton &other) = 0;
+		virtual bool operator==(const finite_automaton &other) const = 0;
 		// test if this is a subset of other
-		virtual bool lang_subset_of(finite_automaton &other) = 0;
+		virtual bool lang_subset_of(const finite_automaton &other) const = 0;
 		// test if this and other are disjoint
-		virtual bool lang_disjoint_to(finite_automaton &other) = 0;
+		virtual bool lang_disjoint_to(const finite_automaton &other) const = 0;
 
 		// BINARY LANGUAGE OPERATIONS
 
 		// this+b
-		virtual finite_automaton * lang_union(finite_automaton &other) = 0;
+		virtual finite_automaton * lang_union(const finite_automaton &other) const = 0;
 		// this AND b
-		virtual finite_automaton * lang_intersect(finite_automaton &other) = 0;
+		virtual finite_automaton * lang_intersect(const finite_automaton &other) const = 0;
 		// this\b
-		virtual finite_automaton * lang_difference(finite_automaton &other) = 0;
+		virtual finite_automaton * lang_difference(const finite_automaton &other) const = 0;
 		// (this\other) + (other\this)
-		virtual finite_automaton * lang_symmetric_difference(finite_automaton &other) = 0;
+		virtual finite_automaton * lang_symmetric_difference(const finite_automaton &other) const = 0;
 		// this.b
-		virtual finite_automaton * lang_concat(finite_automaton &other) = 0;
+		virtual finite_automaton * lang_concat(const finite_automaton &other) const = 0;
 
 		// format for serialization:
 		// all values in NETWORK BYTE ORDER!
@@ -185,8 +185,8 @@ class finite_automaton {
 		//		label (-1 for epsilon)
 		//		destination state id
 		// </serialized automaton>
-		virtual basic_string<int32_t> serialize() = 0;
-		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit) = 0;
+		virtual basic_string<int32_t> serialize() const = 0;
+		virtual bool deserialize(basic_string<int32_t>::const_iterator &it, basic_string<int32_t>::const_iterator limit) = 0;
 
 		// construct a new automaton with states 0..state_count-1
 		//
@@ -196,8 +196,8 @@ class finite_automaton {
 		virtual bool construct(bool is_dfa, int alphabet_size, int state_count, set<int> &initial, set<int> &final, multimap<pair<int,int>, int> &transitions);
 
 		// create dotfile from automaton:
-		virtual string visualize(bool exclude_negative_sinks);
-		virtual string visualize()
+		virtual string visualize(bool exclude_negative_sinks) const;
+		virtual string visualize() const
 		{ return visualize(false); };
 
 	public:
@@ -210,11 +210,11 @@ class finite_automaton {
 		//    M. De Wulf, L. Doyen, J.-F. Raskin
 		//    Antichains: A New Algorithm for Checking Universality of Finite Automata
 
-//		virtual bool antichain__is_universal(list<int> & counterexample);
-		virtual bool antichain__is_equal(finite_automaton &other, list<int> & counterexample);
-		virtual bool antichain__is_superset_of(finite_automaton &other, list<int> & counterexample);
+//		virtual bool antichain__is_universal(list<int> & counterexample) const;
+		virtual bool antichain__is_equal(const finite_automaton &other, list<int> & counterexample) const;
+		virtual bool antichain__is_superset_of(const finite_automaton &other, list<int> & counterexample) const;
 	private:
-		bool antichain__superset_check_winning_condition(set<int> & this_initial, set<int> & other_initial, const pair<int, pair< set<int>, list<int> > > & gamestate, list<int> & counterexample);
+		bool antichain__superset_check_winning_condition(set<int> & this_initial, set<int> & other_initial, const pair<int, pair< set<int>, list<int> > > & gamestate, list<int> & counterexample) const;
 };
 
 
@@ -223,7 +223,7 @@ finite_automaton * construct_amore_automaton(bool is_dfa, int alphabet_size, int
 
 
 // automatically construct the specific automaton (NFA or DFA) during deserialization:
-finite_automaton * deserialize_amore_automaton(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit);
+finite_automaton * deserialize_amore_automaton(basic_string<int32_t>::const_iterator &it, basic_string<int32_t>::const_iterator limit);
 
 
 }; // end namespace amore
