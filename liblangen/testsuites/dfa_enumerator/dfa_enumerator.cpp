@@ -32,10 +32,9 @@
 #include <fstream>
 
 #include <liblangen/dfa_enumerator.h>
-#include <libalf/automaton.h>
+#include <libalf/conjecture.h>
 
 using namespace liblangen;
-using namespace libalf;
 using namespace std;
 
 int main(int argc, char**argv)
@@ -53,21 +52,17 @@ int main(int argc, char**argv)
 
 	dfa_enumerator denum(state_count, alphabet_size);
 
-	// generate random automaton and store it
-	bool f_is_dfa;
-	int f_alphabet_size, f_state_count;
-	set<int> f_initial, f_final;
-	multimap<pair<int, int>, int> f_transitions;
+	libalf::simple_moore_machine automaton;
 
 	int id = 0;
 
 	while(!denum.generation_completed()) {
-		denum.derive(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
+		denum.derive(automaton.is_deterministic, automaton.input_alphabet_size, automaton.state_count, automaton.initial_states, automaton.final_states, automaton.transitions);
 		ofstream file;
 		char filename[64];
 		snprintf(filename, 64, "dfa_%010d.dot", id);
 		file.open(filename);
-		file << automaton2dotfile(f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
+		file << automaton.visualize();
 		file.close();
 
 		denum.next(true);

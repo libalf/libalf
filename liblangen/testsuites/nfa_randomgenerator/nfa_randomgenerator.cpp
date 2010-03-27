@@ -35,7 +35,6 @@
 #include <amore++/finite_automaton.h>
 
 using namespace liblangen;
-using namespace amore;
 using namespace std;
 
 int main(int argc, char**argv)
@@ -68,7 +67,7 @@ int main(int argc, char**argv)
 		return 1;
 	}
 
-	finite_automaton * nfa = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
+	amore::finite_automaton * nfa = amore::construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
 	if(!nfa) {
 		printf("construction failed\n");
 		return -1;
@@ -77,14 +76,14 @@ int main(int argc, char**argv)
 	ofstream file;
 
 	file.open("random-nfa.dot");
-	file << nfa->generate_dotfile();
+	file << nfa->visualize();
 	file.close();
 
-	finite_automaton * dfa = nfa->determinize();
+	amore::finite_automaton * dfa = nfa->determinize();
 	dfa->minimize();
 
 	file.open("random-dfa.dot");
-	file << dfa->generate_dotfile();
+	file << dfa->visualize();
 	file.close();
 
 	printf("automaton generated: asize %2d, states %2d, mDFA states %2d\n",
