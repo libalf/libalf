@@ -54,7 +54,8 @@ int main(int argc, char**argv)
 	map<int, map<int, map<int, set<int> > > > transitions;
 	list<int> word;
 
-	map<int, int> alphabet_directions;
+	vector<int> alphabet_directions;
+	alphabet_directions.resize(3);
 	alphabet_directions[0] = 1;
 	alphabet_directions[1] = 0;
 	alphabet_directions[2] = -1;
