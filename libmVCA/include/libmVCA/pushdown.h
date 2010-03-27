@@ -68,12 +68,12 @@ class pushdown_alphabet {
 		// initialise new directions to "stay".
 		void set_alphabet_size(int alphabet_size);
 
-		int get_alphabet_size();
+		int get_alphabet_size() const;
 
 		void clear()
 		{ this->set_alphabet_size(0); directions.clear(); };
 
-		enum pushdown_direction get_direction(int sigma);
+		enum pushdown_direction get_direction(int sigma) const;
 
 		// set direction for an alphabet-member
 		// (will return false if direction was "indefinite" or
@@ -81,9 +81,9 @@ class pushdown_alphabet {
 		bool set_direction(int sigma, enum pushdown_direction direction);
 
 		// get the countervalue of this prefix. returns -1 for an invalid prefix under this alphabet.
-		int prefix_countervalue(list<int>::const_iterator word, list<int>::const_iterator limit, int initial_countervalue = 0);
+		int prefix_countervalue(list<int>::const_iterator word, list<int>::const_iterator limit, int initial_countervalue = 0) const;
 		// get countervalue of this word
-		int countervalue(const list<int> & word)
+		int countervalue(const list<int> & word) const
 		{ return this->prefix_countervalue(word.begin(), word.end(), 0); }
 
 		// format for serialization:
@@ -93,14 +93,14 @@ class pushdown_alphabet {
 		//	alphabet_size
 		//	pushdown-directions[] (alphabet-size times)
 		// </serialized automaton>
-		basic_string<int32_t> serialize();
+		basic_string<int32_t> serialize() const;
 		bool deserialize(::serial_stretch serial);
 
-		string to_string();
+		string to_string() const;
 
-		bool operator==(const pushdown_alphabet & other)
+		bool operator==(const pushdown_alphabet & other) const
 		{ return ( (this->alphabet_size == other.alphabet_size) && (this->directions == other.directions) ); };
-		bool operator!=(const pushdown_alphabet & other)
+		bool operator!=(const pushdown_alphabet & other) const
 		{ return ! (*this == other); };
 };
 

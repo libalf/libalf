@@ -89,7 +89,7 @@ class mVCA {
 		int m_bound; // there exist m_bound+1 transition_functions
 //		transition_function :: implemented by deriving classes
 
-		friend mVCA * construct_mVCA(unsigned int state_count, pushdown_alphabet & alphabet, int initial_state, set<int> & final_states, int m_bound, map<int, map<int, map<int, set<int> > > > & transitions);
+		friend mVCA * construct_mVCA(unsigned int state_count, const pushdown_alphabet & alphabet, int initial_state, const set<int> & final_states, int m_bound, const map<int, map<int, map<int, set<int> > > > & transitions);
 
 	public: // methods
 		mVCA();
@@ -200,20 +200,20 @@ class mVCA {
 
 
 mVCA * construct_mVCA(	unsigned int state_count,
-			int alphabet_size, map<int, int> & alphabet_directions,
+			int alphabet_size, const vector<int> & alphabet_directions,
 			int initial_state,
-			set<int> & final_states,
+			const set<int> & final_states,
 			int m_bound,
-			map<int, map<int, map<int, set<int> > > > & transitions
+			const map<int, map<int, map<int, set<int> > > > & transitions
 			// transitions: m -> state -> sigma -> states
 		);
 
-mVCA * construct_mVCA(  unsigned int state_count,
-			pushdown_alphabet & alphabet,
+mVCA * construct_mVCA(	unsigned int state_count,
+			const pushdown_alphabet & alphabet,
 			int initial_state,
-			set<int> & final_states,
+			const set<int> & final_states,
 			int m_bound,
-			map<int, map<int, map<int, set<int> > > > & transitions
+			const map<int, map<int, map<int, set<int> > > > & transitions
 			// transitions: m -> state -> sigma -> states
 		);
 

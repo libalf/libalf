@@ -47,27 +47,27 @@ class triple {
 		triple & operator=(const triple & o)
 		{ first = o.first; second = o.second; third = o.third; return *this; }
 
-		bool operator==(const triple & o)
+		bool operator==(const triple & o) const
 		{ return (first == o.first) && (second == o.second) && (third == o.third); }
 
-		bool operator!=(const triple & o)
+		bool operator!=(const triple & o) const
 		{ return (first != o.first) && (second != o.second) && (third != o.third); }
 
-		bool operator<(const triple & o)
+		bool operator<(const triple & o) const
 		{ return first < o.first || (first == o.first && ( second < o.second || ( second == o.second && third < o.third ) ) ); }
 
-		bool operator<=(const triple & o)
+		bool operator<=(const triple & o) const
 		{ return *this == o || *this < o; };
 
-		bool operator>(const triple & o)
+		bool operator>(const triple & o) const
 		{ return first > o.first || (first == o.first && ( second > o.second || ( second == o.second && third > o.third ) ) ); }
 
-		bool operator>=(const triple & o)
+		bool operator>=(const triple & o) const
 		{ return *this == o || *this > o; };
 };
 
 // triple<R,S,T>
-template <typename S, typename T, typename R> std::basic_string<int32_t> serialize(triple<R, S, T> & t)
+template <typename S, typename T, typename R> std::basic_string<int32_t> serialize(const triple<R, S, T> & t)
 {{{
 	std::basic_string<int32_t> ret;
 	ret += serialize(t.first);

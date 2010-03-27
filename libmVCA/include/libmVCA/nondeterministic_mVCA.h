@@ -44,7 +44,7 @@ class nondeterministic_mVCA : public mVCA {
 	protected: // data
 		map<int, nondeterministic_transition_function> transition_function;
 
-		friend mVCA * construct_mVCA(unsigned int state_count, pushdown_alphabet & alphabet, int initial_state, set<int> & final_states, int m_bound, map<int, map<int, map<int, set<int> > > > & transitions);
+		friend mVCA * construct_mVCA(unsigned int state_count, const pushdown_alphabet & alphabet, int initial_state, const set<int> & final_states, int m_bound, const map<int, map<int, map<int, set<int> > > > & transitions);
 
 	public: // methods
 		virtual set<int> transition(const set<int> & from, int & m, int label);

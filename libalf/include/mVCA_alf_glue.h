@@ -118,7 +118,13 @@ inline bool automaton_equivalence_query(mVCA & model, conjecture *cj, list<int> 
 		cerr << "mVCA_alf_glue::automaton_equivalence_query(...): hypothesis is not an m-bounded visible 1-counter automaton. aborting program.\n";
 		exit(-1);
 	}
-	hypothesis = construct_mVCA(a->state_count, a->alphabet_size, a->alphabet_directions, a->initial_state, a->final_states, a->m_bound, a->transitions);
+	int initial_state;
+	if(a->initial_states.size() != 1) {
+		cerr << "mVCA_alf_glue::automaton_equivalence_query(...): hypothesis has " << a->initial_states.size() << " initial states. aborting program.\n";
+		exit(-1);
+	}
+	initial_state = * (a->initial_states.begin());
+	hypothesis = construct_mVCA(a->state_count, a->input_alphabet_size, a->alphabet_directions, initial_state, a->final_states, a->m_bound, a->transitions);
 
 	ret = automaton_equivalence_query(model, *hypothesis, counterexample);
 

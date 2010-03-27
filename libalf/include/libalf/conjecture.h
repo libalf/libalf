@@ -55,28 +55,35 @@ enum conjecture_type {
 
 
 class conjecture {
-	public:
+	public: // data
 		bool valid;
+
 	public: // members
 		conjecture();
-		virtual bool is_valid();
-		virtual conjecture_type get_type()
+
+		// returns this->valid
+		virtual bool is_valid() const;
+
+		// return type of conjecture
+		virtual conjecture_type get_type() const
 		{ return CONJECTURE_NONE; }
 
+		// check if data is valid w.r.t. conjecture type
 		virtual bool calc_validity();
 
+		// clear data
 		virtual void clear();
 
-		// serializer
-		virtual basic_string<int32_t> serialize() = 0;
+		// (de)serialize data
+		virtual basic_string<int32_t> serialize() const = 0;
 		virtual bool deserialize(serial_stretch & serial) = 0;
 
-		// human readable version
-		virtual string write() = 0;
+		// create/parse human readable version
+		virtual string write() const = 0;
 		virtual bool read(string input) = 0;
 
 		// visual version (dotfile preferred)
-		virtual string visualize() = 0;
+		virtual string visualize() const = 0;
 };
 
 
@@ -90,11 +97,14 @@ class finite_state_machine: public conjecture {
 		int state_count;
 		set<int> initial_states;
 		bool omega; // is this machine for infinite words?
+
 	public: // methods
 		finite_state_machine();
+
 		virtual bool calc_validity();
 		virtual void clear();
 
+		// calculate if state machine is deterministic (i.e. no epsilon-transtions, no two targets for source/label pair)
 		virtual bool calc_determinism() = 0;
 };
 
@@ -102,8 +112,10 @@ class simple_output_finite_state_machine: public finite_state_machine {
 	// a state machine only capable of accepting or rejecting a specific input
 	public:
 		set<int> final_states;
+
 	public:
 		simple_output_finite_state_machine();
+
 		virtual void clear();
 		virtual bool calc_validity();
 };
@@ -113,8 +125,10 @@ class enhanced_output_finite_state_machine: public finite_state_machine { // HAS
 	public:
 		int output_alphabet_size;
 		bool final_output; // does this machine output a label in every step or only at the end of calculation?
+
 	public:
 		enhanced_output_finite_state_machine();
+
 		virtual void clear();
 		virtual bool calc_validity();
 };
@@ -127,38 +141,44 @@ class simple_moore_machine: public simple_output_finite_state_machine {
 	// i.e. a state can either be accepting or rejecting.
 	public:
 		multimap<pair<int, int>, int> transitions; // (state, input-alphabet) -> state
+
 	public:
 		simple_moore_machine();
-		virtual conjecture_type get_type()
+
+		virtual conjecture_type get_type() const
 		{ return CONJECTURE_SIMPLE_MOORE_MACHINE; }
 		virtual void clear();
 		virtual bool calc_validity();
 		virtual bool calc_determinism();
-		virtual basic_string<int32_t> serialize();
+		virtual basic_string<int32_t> serialize() const;
 		virtual bool deserialize(serial_stretch & serial);
-		virtual string write();
+		virtual string write() const;
 		virtual bool read(string input);
-		virtual string visualize();
+		virtual string visualize() const;
 
-		virtual bool contains(const list<int> & word);
+		// checks if a word is accepted by this automaton.
+		virtual bool contains(const list<int> & word) const;
 	protected:
+		// parse a single, human readable transition and store it in this->transitions
 		bool parse_transition(string single);
 };
 
 class bounded_simple_mVCA : public simple_moore_machine {
 	public:
 		int m_bound;
+
 	public:
 		bounded_simple_mVCA();
-		virtual conjecture_type get_type()
+
+		virtual conjecture_type get_type() const
 		{ return CONJECTURE_BOUNDED_SIMPLE_MVCA; };
 		virtual void clear();
 		virtual bool calc_validity();
-		virtual basic_string<int32_t> serialize();
+		virtual basic_string<int32_t> serialize() const;
 		virtual bool deserialize(serial_stretch & serial);
-		virtual string write();
+		virtual string write() const;
 		virtual bool read(string input);
-		virtual string visualize();
+		virtual string visualize() const;
 };
 
 class simple_mVCA : public simple_output_finite_state_machine {
@@ -173,18 +193,20 @@ class simple_mVCA : public simple_output_finite_state_machine {
 		int m_bound;
 		map<int, map<int, map<int, set<int> > > > transitions; // m -> state -> input-alphabet -> set<states>
 		// (where set<states> is singleton or empty for deterministic mVCA)
+
 	public:
 		simple_mVCA();
-		virtual conjecture_type get_type()
+
+		virtual conjecture_type get_type() const
 		{ return CONJECTURE_SIMPLE_MVCA; }
 		virtual void clear();
 		virtual bool calc_validity();
 		virtual bool calc_determinism();
-		virtual basic_string<int32_t> serialize();
+		virtual basic_string<int32_t> serialize() const;
 		virtual bool deserialize(serial_stretch & serial);
-		virtual string write();
+		virtual string write() const;
 		virtual bool read(string input);
-		virtual string visualize();
+		virtual string visualize() const;
 };
 
 
@@ -196,16 +218,16 @@ class moore_machine: public enhanced_output_finite_state_machine { // HAS NOT BE
 		multimap<pair<int, int>, int> transitions; // (state, input-alphabet) -> state
 	public:
 		moore_machine();
-		virtual conjecture_type get_type()
+		virtual conjecture_type get_type() const
 		{ return CONJECTURE_MOORE_MACHINE; };
 		virtual void clear();
 		virtual bool calc_validity();
 		virtual bool calc_determinism();
-		virtual basic_string<int32_t> serialize();
+		virtual basic_string<int32_t> serialize() const;
 		virtual bool deserialize(serial_stretch & serial);
-		virtual string write();
+		virtual string write() const;
 		virtual bool read(string input);
-		virtual string visualize();
+		virtual string visualize() const;
 };
 
 class mealy_machine : public enhanced_output_finite_state_machine { // HAS NOT BEEN TESTED
@@ -213,16 +235,16 @@ class mealy_machine : public enhanced_output_finite_state_machine { // HAS NOT B
 		map<int, map<int, set<pair<int, int> > > > transitions; // state -> input_alphabet -> set( <state, output_alphabet> )
 	public: // methods
 		mealy_machine();
-		virtual conjecture_type get_type()
+		virtual conjecture_type get_type() const
 		{ return CONJECTURE_MEALY_MACHINE; };
 		virtual void clear();
 		virtual bool calc_validity();
 		virtual bool calc_determinism();
-		virtual basic_string<int32_t> serialize();
+		virtual basic_string<int32_t> serialize() const;
 		virtual bool deserialize(serial_stretch & serial);
-		virtual string write();
+		virtual string write() const;
 		virtual bool read(string input);
-		virtual string visualize();
+		virtual string visualize() const;
 };
 
 }; // end of namespace libalf

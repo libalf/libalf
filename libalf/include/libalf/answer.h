@@ -70,12 +70,12 @@ class extended_bool {
 		inline extended_bool(bool val)
 		{ value = (val ? EBOOL_TRUE : EBOOL_FALSE); };
 
-		inline bool __attribute__((const)) valid()
+		inline bool __attribute__((const)) valid() const
 		{{{
 			  return (value == EBOOL_FALSE || value == EBOOL_UNKNOWN || value == EBOOL_TRUE);
 		}}}
 
-		inline bool __attribute__((const)) operator!=(const extended_bool & other)
+		inline bool __attribute__((const)) operator!=(const extended_bool & other) const
 		{{{
 			return this->value != other.value;
 		}}}
@@ -85,12 +85,12 @@ class extended_bool {
 			value = other.value;
 		}}}
 
-		inline bool __attribute__((const)) operator>(const extended_bool & other)
+		inline bool __attribute__((const)) operator>(const extended_bool & other) const
 		{{{
 			return( ((int)this->value) > ((int)other.value));
 		}}}
 
-		inline bool __attribute__((const)) operator==(bool other)
+		inline bool __attribute__((const)) operator==(bool other) const
 		{{{
 			  if(other)
 				  return (value == EBOOL_TRUE);
@@ -98,7 +98,7 @@ class extended_bool {
 				  return (value == EBOOL_FALSE);
 		}}}
 
-		inline bool __attribute__((const)) operator>(bool other)
+		inline bool __attribute__((const)) operator>(bool other) const
 		{{{
 			  if(other)
 				  return false;
@@ -114,7 +114,7 @@ class extended_bool {
 				value = EBOOL_FALSE;
 		}}}
 
-		inline operator int32_t()
+		inline operator int32_t() const
 		{{{
 			return (int32_t)value;
 		}}}

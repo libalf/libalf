@@ -109,8 +109,8 @@ int main()
 {
 	knowledgebase<bool> kb;
 	mVCA_angluinlike<bool> table(&kb, &my_logger, 3);
-	map<int, int> alphabet_pushdown_directions;
-
+	vector<int> alphabet_pushdown_directions;
+	alphabet_pushdown_directions.resize(3);
 	alphabet_pushdown_directions[0] = 1;
 	alphabet_pushdown_directions[1] = 0;
 	alphabet_pushdown_directions[2] = -1;
@@ -134,9 +134,9 @@ int main()
 		my_logger(LOGGER_DEBUG, "answered %d membership queries for next conjecture.\n", count);
 		if(delta == 0) break;
 
-		if(NULL != dynamic_cast<bounded_mVCA*>(cj)) {
+		if(NULL != dynamic_cast<bounded_simple_mVCA*>(cj)) {
 			// partial equivalence query
-			int bound = ( dynamic_cast<bounded_mVCA*>(cj) )->m_bound;
+			int bound = ( dynamic_cast<bounded_simple_mVCA*>(cj) )->m_bound;
 			my_logger(LOGGER_INFO, "partial equivalence query for bound %d.\n", bound);
 //			cout << cj->visualize();
 			list<int> counterexample;

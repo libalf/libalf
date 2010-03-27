@@ -655,41 +655,40 @@ mVCA * deserialize_mVCA(serial_stretch & serial)
 }}}
 
 mVCA * construct_mVCA(	unsigned int state_count,
-			int alphabet_size, map<int, int> & alphabet_directions,
+			int alphabet_size, const vector<int> & alphabet_directions,
 			int initial_state,
-			set<int> & final_states,
+			const set<int> & final_states,
 			int m_bound,
-			map<int, map<int, map<int, set<int> > > > & transitions
+			const map<int, map<int, map<int, set<int> > > > & transitions
 		)
 {{{
 	pushdown_alphabet alphabet;
 	alphabet.set_alphabet_size(alphabet_size);
-	map<int, int>::iterator di;
-	for(di = alphabet_directions.begin(); di != alphabet_directions.end(); ++di)
-		alphabet.set_direction(di->first, (enum pushdown_direction)di->second);
+	for(int sigma = 0; sigma < alphabet_size; ++sigma)
+		alphabet.set_direction(sigma, (enum pushdown_direction) alphabet_directions[sigma]);
 
 	return construct_mVCA(state_count, alphabet, initial_state, final_states, m_bound, transitions);
 }}}
 
 
 mVCA * construct_mVCA(	unsigned int state_count,
-			pushdown_alphabet & alphabet,
+			const pushdown_alphabet & alphabet,
 			int initial_state,
-			set<int> & final_states,
+			const set<int> & final_states,
 			int m_bound,
-			map<int, map<int, map<int, set<int> > > > & transitions
+			const map<int, map<int, map<int, set<int> > > > & transitions
 		)
 {{{
-	set<int>::iterator si;
+	set<int>::const_iterator si;
 	bool is_deterministic = true;
 
 	// do some sanity-checks
 	if(state_count < 1 || initial_state < 0 || initial_state >= (int)state_count || m_bound < -1)
 		return NULL;
 
-	map<int, map<int, map<int, set<int> > > >::iterator mmmi;
-	map<int, map<int, set<int> > >::iterator mmi;
-	map<int, set<int> >::iterator mi;
+	map<int, map<int, map<int, set<int> > > >::const_iterator mmmi;
+	map<int, map<int, set<int> > >::const_iterator mmi;
+	map<int, set<int> >::const_iterator mi;
 
 	for(mmmi = transitions.begin(); mmmi != transitions.end(); ++mmmi) {
 		if(mmmi->first < 0 || mmmi->first > m_bound)

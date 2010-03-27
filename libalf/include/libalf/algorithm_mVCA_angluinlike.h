@@ -488,7 +488,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 	protected: // data
 		bool initialized;
 
-		map<int, int> pushdown_directions; // maps a label to its pushdown direction:
+		vector<int> pushdown_directions; // maps a label to its pushdown direction:
 		// -1 == down == return ; 0 == stay == internal ; +1 == up == call
 
 		int mode; // -1: in membership-cycle; 0: partial equivalence; 1: full equivalence;
@@ -532,7 +532,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 			table.clear();
 		}}}
 
-		virtual void indicate_pushdown_alphabet_directions(const map<int, int> & directions)
+		virtual void indicate_pushdown_alphabet_directions(const vector<int> & directions)
 		{ pushdown_directions = directions; }
 
 		virtual void increase_alphabet_size(int new_asize)
@@ -635,7 +635,7 @@ deserialization_failed:
 
 			switch(command) {
 				case 0: { // indicate pushdown property of alphabet
-						map<int, int> dirs;
+						vector<int> dirs;
 						if(!::deserialize(dirs, serial)) return false;
 						pushdown_directions = dirs;
 						return true;
@@ -1176,9 +1176,9 @@ deserialization_failed:
 
 			cj->valid = true;
 			cj->is_deterministic = true;
-			cj->alphabet_size = this->get_alphabet_size();
+			cj->input_alphabet_size = this->get_alphabet_size();
 			cj->alphabet_directions = pushdown_directions;
-			cj->initial_state = 0;
+			cj->initial_states.insert(0);
 //			cj->state_count =   
 //			cj->final_states   
 //			cj->m_bound =   

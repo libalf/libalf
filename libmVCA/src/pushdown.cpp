@@ -37,7 +37,7 @@ pushdown_alphabet::pushdown_alphabet()
 { alphabet_size = 0; };
 
 pushdown_alphabet::pushdown_alphabet(int alphabet_size)
-{ this->alphabet_size = alphabet_size; };
+{ set_alphabet_size(alphabet_size); };
 
 pushdown_alphabet::~pushdown_alphabet()
 { /* nothing */ };
@@ -50,10 +50,10 @@ void pushdown_alphabet::set_alphabet_size(int alphabet_size)
 	this->alphabet_size = alphabet_size;
 }}}
 
-int pushdown_alphabet::get_alphabet_size()
+int pushdown_alphabet::get_alphabet_size() const
 { return this->alphabet_size; };
 
-enum pushdown_direction pushdown_alphabet::get_direction(int sigma)
+enum pushdown_direction pushdown_alphabet::get_direction(int sigma) const
 {{{
 	if(sigma >= 0 && sigma < alphabet_size)
 		return directions[sigma];
@@ -71,7 +71,7 @@ bool pushdown_alphabet::set_direction(int sigma, enum pushdown_direction directi
 	}
 }}}
 
-int pushdown_alphabet::prefix_countervalue(list<int>::const_iterator word, list<int>::const_iterator limit, int initial_countervalue)
+int pushdown_alphabet::prefix_countervalue(list<int>::const_iterator word, list<int>::const_iterator limit, int initial_countervalue) const
 {{{
 	for(/* nothing */; word != limit; ++word) {
 		enum pushdown_direction d = get_direction(*word);
@@ -87,7 +87,7 @@ int pushdown_alphabet::prefix_countervalue(list<int>::const_iterator word, list<
 	return initial_countervalue;
 }}}
 
-std::basic_string<int32_t> pushdown_alphabet::serialize()
+std::basic_string<int32_t> pushdown_alphabet::serialize() const
 {{{
 	return ::serialize(alphabet_size) + ::serialize(directions);
 }}}
@@ -102,7 +102,7 @@ bool pushdown_alphabet::deserialize(::serial_stretch serial)
 	return true;
 }}}
 
-string pushdown_alphabet::to_string()
+string pushdown_alphabet::to_string() const
 {{{
 	string ret;
 	char buf[128];

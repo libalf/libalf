@@ -144,7 +144,7 @@ static bool parser_get_set(string single, set<int>& s)
 
 conjecture::conjecture()
 { valid = false; };
-bool conjecture::is_valid()
+bool conjecture::is_valid() const
 { return valid; };
 void conjecture::clear()
 { valid = false; };
@@ -320,7 +320,7 @@ bool simple_moore_machine::calc_determinism()
 	is_deterministic = true;
 	return true;
 }}}
-basic_string<int32_t> simple_moore_machine::serialize()
+basic_string<int32_t> simple_moore_machine::serialize() const
 {{{
 	basic_string<int32_t> ret;
 
@@ -358,14 +358,14 @@ failed:
 	clear();
 	return false;
 }}}
-string simple_moore_machine::write()
+string simple_moore_machine::write() const
 {{{
 	string ret;
 
 	if(valid) {
 		char buf[256];
 		set<int>::iterator si;
-		multimap<pair<int, int>, int>::iterator tri;
+		multimap<pair<int, int>, int>::const_iterator tri;
 		bool first_komma;
 
 		snprintf(buf, 256, "[general]\n"
@@ -553,7 +553,7 @@ end:
 
 	return valid;
 }}}
-string simple_moore_machine::visualize()
+string simple_moore_machine::visualize() const
 {{{
 	string ret;
 
@@ -615,7 +615,7 @@ string simple_moore_machine::visualize()
 		}
 
 		// transitions
-		multimap<pair<int, int>, int>::iterator ti, tj;
+		multimap<pair<int, int>, int>::const_iterator ti, tj;
 		int s=-1,l=-2,d=-1;
 		for(ti = this->transitions.begin(); ti != this->transitions.end(); ti++) {
 			// skip double entries
@@ -676,8 +676,8 @@ bool simple_moore_machine::parse_transition(string single)
 
 	return true;
 }}}
-bool simple_moore_machine::contains(const list<int> & word)
-{
+bool simple_moore_machine::contains(const list<int> & word) const
+{{{
 	if(!this->valid)
 		return false;
 
@@ -696,7 +696,7 @@ bool simple_moore_machine::contains(const list<int> & word)
 			break;
 
 		for(si = current_states.begin(); si != current_states.end(); ++si) {
-			pair<multimap<pair<int, int>, int>::iterator, multimap<pair<int, int>, int>::iterator> range;
+			pair<multimap<pair<int, int>, int>::const_iterator, multimap<pair<int, int>, int>::const_iterator> range;
 			for(range = transitions.equal_range(pair<int, int>(*si, *li)); range.first != range.second; ++range.first)
 				new_states.insert(range.first->second);
 		}
@@ -710,7 +710,7 @@ bool simple_moore_machine::contains(const list<int> & word)
 			return true;
 
 	return false;
-}
+}}}
 
 
 
@@ -737,7 +737,7 @@ bool bounded_simple_mVCA::calc_validity()
 		return true;
 	}
 }}}
-basic_string<int32_t> bounded_simple_mVCA::serialize()
+basic_string<int32_t> bounded_simple_mVCA::serialize() const
 {{{
 	basic_string<int32_t> ret;
 
@@ -760,7 +760,7 @@ bool bounded_simple_mVCA::deserialize(serial_stretch & serial)
 		return true;
 	}
 }}}
-string bounded_simple_mVCA::write()
+string bounded_simple_mVCA::write() const
 {
 	// FIXME
 	return "";
@@ -770,7 +770,7 @@ bool bounded_simple_mVCA::read(string input)
 	// FIXME
 	return false;
 }
-string bounded_simple_mVCA::visualize()
+string bounded_simple_mVCA::visualize() const
 {
 	// FIXME: add a label showing the m_bound
 	return simple_moore_machine::visualize();
@@ -848,7 +848,7 @@ bool simple_mVCA::calc_determinism()
 	this->is_deterministic = true;
 	return true;
 }}}
-basic_string<int32_t> simple_mVCA::serialize()
+basic_string<int32_t> simple_mVCA::serialize() const
 {{{
 	basic_string<int32_t> ret;
 
@@ -868,18 +868,18 @@ basic_string<int32_t> simple_mVCA::serialize()
 	// transition function
 	if(is_deterministic) {
 		map<int, map<int, map<int, int> > > deterministic_transitions;
-		map<int, map<int, map<int, set<int> > > >::iterator mmmsi;
-		map<int, map<int, set<int> > >::iterator mmsi;
-		map<int, set<int> >::iterator msi;
-		set<int>::iterator si;
+		map<int, map<int, map<int, set<int> > > >::const_iterator mmmsi;
+		map<int, map<int, set<int> > >::const_iterator mmsi;
+		map<int, set<int> >::const_iterator msi;
+		set<int>::const_iterator si;
 		for(mmmsi = transitions.begin(); mmmsi != transitions.end(); ++mmmsi)
 			for(mmsi = mmmsi->second.begin(); mmsi != mmmsi->second.end(); ++mmsi)
 				for(msi = mmsi->second.begin(); msi != mmsi->second.end(); ++msi) {
 					bool found_one = false;
 					for(si = msi->second.begin(); si != msi->second.end(); ++si) {
 						if(found_one) {
-							is_deterministic = false;
-							return serialize();
+							ret.clear();
+							return ret;
 						} else {
 							found_one = true;
 							deterministic_transitions[mmmsi->first][mmsi->first][msi->first] = *si;
@@ -942,7 +942,7 @@ fail:
 	clear();
 	return false;
 }}}
-string simple_mVCA::write()
+string simple_mVCA::write() const
 {
 	// FIXME
 	return "";
@@ -952,7 +952,7 @@ bool simple_mVCA::read(string input)
 	// FIXME
 	return false;
 }
-string simple_mVCA::visualize()
+string simple_mVCA::visualize() const
 {
 	// FIXME: copy code from libmVCA
 	return "";
@@ -1027,7 +1027,7 @@ bool moore_machine::calc_determinism()
 	is_deterministic = true;
 	return true;
 }}}
-basic_string<int32_t> moore_machine::serialize()
+basic_string<int32_t> moore_machine::serialize() const
 {{{
 	basic_string<int32_t> ret;
 
@@ -1068,7 +1068,7 @@ failed:
 	clear();
 	return false;
 }}}
-string moore_machine::write()
+string moore_machine::write() const
 {
 	// FIXME
 	return "";
@@ -1078,7 +1078,7 @@ bool moore_machine::read(string input)
 	// FIXME
 	return false;
 }
-string moore_machine::visualize()
+string moore_machine::visualize() const
 {{{
 	string ret;
 
@@ -1097,7 +1097,15 @@ string moore_machine::visualize()
 		// states
 		for(int s = 0; s < state_count; s++) {
 			ret += "\tnode [shape=circle, style=\"\", color=black, label=";
-			snprintf(buf, 128, "\"q%d (%d)\"]; q%d;\n", s, output_mapping[s], s);
+
+			map<int, int>::const_iterator oi;
+			oi = output_mapping.find(s);
+			if(oi != output_mapping.end()) {
+				snprintf(buf, 128, "\"q%d (%d)\"]; q%d;\n", s, oi->second, s);
+			} else {
+				snprintf(buf, 128, "\"q%d\"]; q%d;\n", s, s);
+			}
+
 			ret += buf;
 		}
 
@@ -1121,7 +1129,7 @@ string moore_machine::visualize()
 		}
 
 		// transitions
-		multimap<pair<int, int>, int>::iterator ti, tj;
+		multimap<pair<int, int>, int>::const_iterator ti, tj;
 		int s=-1,l=-2,d=-1;
 		for(ti = this->transitions.begin(); ti != this->transitions.end(); ti++) {
 			// skip double entries
@@ -1197,7 +1205,7 @@ bool mealy_machine::calc_determinism()
 
 
 }}}
-basic_string<int32_t> mealy_machine::serialize()
+basic_string<int32_t> mealy_machine::serialize() const
 {{{
 	basic_string<int32_t> ret;
 
@@ -1238,7 +1246,7 @@ failed:
 	clear();
 	return false;
 }}}
-string mealy_machine::write()
+string mealy_machine::write() const
 {
 	// FIXME
 	return "";
@@ -1248,14 +1256,14 @@ bool mealy_machine::read(string input)
 	// FIXME
 	return false;
 }
-string mealy_machine::visualize()
+string mealy_machine::visualize() const
 {{{
 	string ret;
 
 	if(valid) {
 		char buf[64];
 
-		set<int>::iterator sti;
+		set<int>::const_iterator sti;
 		bool header_written;
 
 		// head
@@ -1292,9 +1300,9 @@ string mealy_machine::visualize()
 		}
 
 		// transitions
-		map<int, map<int, set<pair<int, int> > > >::iterator mmspi;
-		map<int, set<pair<int, int> > >::iterator mspi;
-		set<pair<int, int> >::iterator spi;
+		map<int, map<int, set<pair<int, int> > > >::const_iterator mmspi;
+		map<int, set<pair<int, int> > >::const_iterator mspi;
+		set<pair<int, int> >::const_iterator spi;
 
 		for(mmspi = transitions.begin(); mmspi != transitions.end(); ++mmspi) {
 			int src = mmspi->first;
