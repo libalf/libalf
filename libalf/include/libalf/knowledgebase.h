@@ -133,10 +133,10 @@ class knowledgebase {
 					else
 						return NULL;
 				}}}
-				void serialize_subtree(basic_string<int32_t> & into)
+				void serialize_subtree(basic_string<int32_t> & into) const
 				// used during serialization
 				{{{
-					typename vector<node *>::iterator ci;
+					typename vector<node *>::const_iterator ci;
 
 					into += htonl(label);
 					into += htonl(timestamp);
@@ -223,7 +223,7 @@ class knowledgebase {
 				{{{
 					  return parent;
 				}}}
-				int max_child_count()
+				int max_child_count() const
 				// if this returns n, there _may_ exist
 				// suffixes [0..n)
 				{{{
@@ -237,7 +237,7 @@ class knowledgebase {
 					else
 						return NULL;
 				}}}
-				node * find_descendant(list<int>::iterator infix_start, list<int>::iterator infix_limit)
+				node * find_descendant(list<int>::const_iterator infix_start, list<int>::const_iterator infix_limit)
 				{{{
 					node * n = this;
 
@@ -283,14 +283,14 @@ class knowledgebase {
 
 					return n;
 				}}}
-				bool has_specific_suffix(answer specific_answer)
+				bool has_specific_suffix(answer specific_answer) const
 				// check if a suffix exists with a specific
 				// answer
 				{{{
 					if(is_answered() && get_answer() == specific_answer)
 						return true;
 
-					typename vector<node*>::iterator ci;
+					typename vector<node*>::const_iterator ci;
 
 					for(ci = children.begin(); ci != children.end(); ci++)
 						if(*ci)
@@ -300,16 +300,16 @@ class knowledgebase {
 					return false;
 				}}}
 
-				int get_label()
+				int get_label() const
 				// get label of this node (i.e. last letter in word this node represents)
 				{{{
 					return this->label;
 				}}}
-				list<int> get_word()
+				list<int> get_word() const
 				// get word this node represents
 				{{{
 					list<int> w;
-					node * n = this;
+					const node * n = this;
 
 					while(n != NULL) {
 						if(n->label >= 0)
@@ -332,13 +332,13 @@ class knowledgebase {
 						return (status == NODE_REQUIRED);
 					}
 				}}}
-				bool is_required()
+				bool is_required() const
 				// is this node marked as unknown and
 				// required?
 				{{{
 					return status == NODE_REQUIRED;
 				}}}
-				bool is_answered()
+				bool is_answered() const
 				{{{
 					return status == NODE_ANSWERED;
 				}}}
@@ -363,17 +363,17 @@ class knowledgebase {
 
 					return true;
 				}}}
-				answer get_answer()
+				answer get_answer() const
 				{{{
 					  return ans;
 				}}}
-				bool no_subqueries(bool check_self = true)
+				bool no_subqueries(bool check_self = true) const
 				// no queries with this node as prefix exist?
 				{{{
 					if(check_self && status == NODE_REQUIRED)
 						return false;
 
-					typename vector<node*>::iterator ci;
+					typename vector<node*>::const_iterator ci;
 
 					for(ci = children.begin(); ci != children.end(); ci++)
 						if(*ci)
@@ -382,7 +382,7 @@ class knowledgebase {
 
 					return true;
 				}}}
-				bool different(node * other)
+				bool different(const node * other) const
 				// different answer this and other?
 				{{{
 					if(is_answered() && other->is_answered()) {
@@ -391,14 +391,14 @@ class knowledgebase {
 						return false;
 					}
 				}}}
-				bool recursive_different(node * other, int depth)
+				bool recursive_different(const node * other, int depth) const
 				// two nodes are recursive different if there
 				// exists a word w of maximum length `depth'
 				// in Sigma* with this.w is different from
 				// other.w . to allow infinite long words, use
 				// depth = -1.
 				{{{
-					typename vector<node*>::iterator ci, oci;
+					typename vector<node*>::const_iterator ci, oci;
 
 					if(different(other))
 						return true;
@@ -417,7 +417,7 @@ class knowledgebase {
 
 					return false;
 				}}}
-				bool is_prefix_of(node*other)
+				bool is_prefix_of(const node *other) const
 				// check if this is a suffix of other
 				{{{
 					while(other != NULL) {
@@ -427,37 +427,37 @@ class knowledgebase {
 					}
 					return false;
 				}}}
-				bool is_suffix_of(node*other)
+				bool is_suffix_of(const node *other)
 				// check if this is a prefix of other
 				{{{
 					return other->is_prefix_of(this);
 				}}}
-				bool is_lex_smaller(node * other)
+				bool is_lex_smaller(const node *other) const
 				// lexicographically compare this to other
 				// (true if this < other)
 				{{{
-					// FIXME: efficience
+					// FIXME: efficiency
 					list<int> a,b;
 					a = this->get_word();
 					b = other->get_word();
 					return libalf::is_lex_smaller(a,b);
 				}}}
-				bool is_graded_lex_smaller(node * other)
+				bool is_graded_lex_smaller(const node *other) const
 				// graded lexicographically compare this to
 				// other (true if this < other)
 				{{{
-					// FIXME: efficience
+					// FIXME: efficiency
 					list<int> a,b;
 					a = this->get_word();
 					b = other->get_word();
 					return libalf::is_graded_lex_smaller(a,b);
 				}}}
-				unsigned long long int get_memory_usage()
+				unsigned long long int get_memory_usage() const
 				// calculate memory consumption of this
 				// subtree
 				{{{
 					unsigned long long int ret;
-					typename vector<node*>::iterator ci;
+					typename vector<node*>::const_iterator ci;
 
 					ret = sizeof(this) + sizeof(node *) * children.size();
 					for(ci = children.begin(); ci != children.end(); ci++)
@@ -510,7 +510,7 @@ class knowledgebase {
 		// comparator object is required.
 		class node_comparator {
 			public:
-				bool operator() (node * a, node * b)
+				bool operator() (node * a, node * b) const
 				{ return a < b; };
 		};
 
@@ -822,7 +822,7 @@ class knowledgebase {
 					return tmp;
 				}}}
 
-				bool is_valid()
+				bool is_valid() const
 				{ return current != NULL; }
 				node & operator*()
 				{{{
@@ -841,11 +841,11 @@ class knowledgebase {
 
 					return *this;
 				}}}
-				bool operator==(const iterator & it)
+				bool operator==(const iterator & it) const
 				{{{
 					return (current == it.current);
 				}}}
-				bool operator!=(const iterator & it)
+				bool operator!=(const iterator & it) const
 				{{{
 					return (current != it.current);
 				}}}
@@ -931,7 +931,7 @@ class knowledgebase {
 			return true;
 		}}}
 
-		unsigned long long int get_memory_usage()
+		unsigned long long int get_memory_usage() const
 		{{{
 			unsigned long long int ret;
 
@@ -942,44 +942,44 @@ class knowledgebase {
 			return ret;
 		}}}
 
-		bool is_answered()
+		bool is_answered() const
 		// no information is marked as required?
 		{{{
 			return (required.size() == 0);
 		}}}
-		bool is_empty()
+		bool is_empty() const
 		// no information is contained?
 		{{{
 			return ( (required.size() == 0) && (answercount == 0) );
 		}}}
 
-		unsigned int get_timestamp()
+		unsigned int get_timestamp() const
 		{{{
 			return timestamp;
 		}}}
 
-		int count_nodes()
+		int count_nodes() const
 		{{{
 			return nodecount;
 		}}}
-		int count_answers()
+		int count_answers() const
 		{{{
 			return answercount;
 		}}}
-		int count_queries()
+		int count_queries() const
 		{{{
 			return required.size();
 		}}}
-		int count_resolved_queries()
+		int count_resolved_queries() const
 		{{{
 			return resolved_queries;
 		}}}
-		void reset_resolved_queries()
+		void reset_resolved_queries() const
 		{{{
 			resolved_queries = 0;
 		}}}
 
-		int get_largest_symbol()
+		int get_largest_symbol() const
 		// return largest known symbol ( O(1) ) that was ever
 		// stored in knowledgebase. usually this is only increased.
 		// only in cleanup() or manually via check_largest_symbol()
@@ -1187,7 +1187,7 @@ class knowledgebase {
 		}}}
 
 
-		basic_string<int32_t> serialize()
+		basic_string<int32_t> serialize() const
 		{{{
 			basic_string<int32_t> ret;
 
@@ -1372,7 +1372,7 @@ class knowledgebase {
 		// if the filter knows the answer, the answer will not
 		// be stored in the knowledgebase but returned to the user.
 		{{{
-			node * current;
+			const node * current;
 
 			current = root->find_descendant(word.begin(), word.end());
 
