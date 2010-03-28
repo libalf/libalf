@@ -40,8 +40,6 @@
 
 #include <libmVCA/p-automaton.h>
 
-#include "set.h"
-
 namespace libmVCA {
 
 using namespace std;

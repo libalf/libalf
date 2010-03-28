@@ -32,7 +32,7 @@
 
 template <class T>	bool set_includes(const std::set<T> &superset, const std::set<T> &subset)
 {{{
-	typename std::set<T>::iterator Si, si;
+	typename std::set<T>::const_iterator Si, si;
 
 	Si = superset.begin();
 	si = subset.begin();
@@ -57,7 +57,7 @@ template <class T>	bool set_includes(const std::set<T> &superset, const std::set
 
 template <class T>	std::set<T> set_union(std::set<T> s, const std::set<T> &t)
 {{{
-	typename std::set<T>::iterator si;
+	typename std::set<T>::const_iterator si;
 
 	for(si = t.begin(); si != t.end(); ++si)
 		s.insert(*si);
@@ -67,7 +67,7 @@ template <class T>	std::set<T> set_union(std::set<T> s, const std::set<T> &t)
 
 template <class T>	void set_insert(std::set<T> &into, const std::set<T> &subset)
 {{{
-	typename std::set<T>::iterator si;
+	typename std::set<T>::const_iterator si;
 
 	for(si = subset.begin(); si != subset.end(); ++si)
 		into.insert(*si);
@@ -77,7 +77,7 @@ template <class T>	std::set<T> set_intersect(const std::set<T> &s, const std::se
 {{{
 	std::set<T> ret;
 
-	typename std::set<T>::iterator si;
+	typename std::set<T>::const_iterator si;
 
 	for(si = s.begin(); si != s.end(); ++si) {
 		if(t.find(*si) != t.end())
@@ -93,7 +93,7 @@ template <class T>	std::set<T> set_intersect(const std::set<T> &s, const std::se
 template <class T>	std::set<T> set_without(const std::set<T> &s, const std::set<T> &remove)
 {{{
 	std::set<T> ret;
-	typename std::set<T>::iterator si, rmi;
+	typename std::set<T>::const_iterator si, rmi;
 
 	si = s.begin();
 	rmi = remove.begin();
@@ -121,7 +121,7 @@ template <class T>	std::set<T> set_without(const std::set<T> &s, const std::set<
 
 template <class T>	void print_set(std::ostream &con, const std::set<T> &s)
 {{{
-	typename std::set<T>::iterator si;
+	typename std::set<T>::const_iterator si;
 
 	con << "{ ";
 	si = s.begin();
