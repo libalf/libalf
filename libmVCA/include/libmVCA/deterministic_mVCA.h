@@ -41,18 +41,21 @@ using namespace std;
 // NOTE: this implementation DOES NOT SUPPORT epsilon transitions.
 
 class deterministic_mVCA : public mVCA {
+	protected: // types
+		typedef map<int, deterministic_transition_function>::iterator iterator;
+		typedef map<int, deterministic_transition_function>::const_iterator const_iterator;
 	protected: // data
 		map<int, deterministic_transition_function> transition_function;
 
 		friend mVCA * construct_mVCA(unsigned int state_count, const pushdown_alphabet & alphabet, int initial_state, const set<int> & final_states, int m_bound, const map<int, map<int, map<int, set<int> > > > & transitions);
 
 	public: // methods
-		virtual set<int> transition(const set<int> & from, int & m, int label);
-		virtual bool endo_transition(set<int> & states, int & m, int label);
+		virtual set<int> transition(const set<int> & from, int & m, int label) const;
+		virtual bool endo_transition(set<int> & states, int & m, int label) const;
 
-		virtual void get_transition_map(map<int, map<int, map<int, set<int> > > > & postmap);
+		virtual void get_transition_map(map<int, map<int, map<int, set<int> > > > & postmap) const;
 
-		virtual enum mVCA::mVCA_derivate get_derivate_id()
+		virtual enum mVCA::mVCA_derivate get_derivate_id() const
 		{ return mVCA::DERIVATE_DETERMINISTIC; };
 
 		virtual void add_transition(int m, int src, int label, int dst);
@@ -63,9 +66,9 @@ class deterministic_mVCA : public mVCA {
 		//	m_bound+1 (number of following transition-functions)
 		//	<serialized transition functions>[]
 		// </serialized automaton>
-		virtual basic_string<int32_t> serialize_derivate();
+		virtual basic_string<int32_t> serialize_derivate() const;
 		virtual bool deserialize_derivate(serial_stretch & serial);
-		virtual string get_transition_dotfile();
+		virtual string get_transition_dotfile() const;
 };
 
 }; // end of namespace libmVCA.

@@ -39,7 +39,7 @@ namespace libmVCA {
 using namespace std;
 
 
-set<int> deterministic_mVCA::transition(const set<int> & from, int & m, int label)
+set<int> deterministic_mVCA::transition(const set<int> & from, int & m, int label) const
 {{{
 	enum pushdown_direction dir;
 	set<int> ret;
@@ -47,7 +47,10 @@ set<int> deterministic_mVCA::transition(const set<int> & from, int & m, int labe
 	dir = this->alphabet.get_direction(label);
 
 	if(dir != DIR_INDEFINITE && m >= 0) {
-		ret = transition_function[ (m<=this->m_bound)?m:m_bound ].transmute(from, label);
+		const_iterator dti;
+		dti = transition_function.find( (m<=this->m_bound)?m:m_bound );
+		if(dti != transition_function.end())
+			ret = dti->second.transmute(from, label);
 		m += dir;
 	} else {
 		m = -1;
@@ -56,14 +59,19 @@ set<int> deterministic_mVCA::transition(const set<int> & from, int & m, int labe
 	return ret;
 }}}
 
-bool deterministic_mVCA::endo_transition(set<int> & states, int & m, int label)
+bool deterministic_mVCA::endo_transition(set<int> & states, int & m, int label) const
 {{{
 	enum pushdown_direction dir;
 
 	dir = this->alphabet.get_direction(label);
 
 	if(dir != DIR_INDEFINITE && m >= 0) {
-		transition_function[ (m<=this->m_bound)?m:m_bound ].endo_transmute(states, label);
+		const_iterator dti;
+		dti = transition_function.find( (m<=this->m_bound)?m:m_bound );
+		if(dti != transition_function.end())
+			dti->second.endo_transmute(states, label);
+		else
+			states.clear();
 		m += dir;
 		return true;
 	} else {
@@ -73,7 +81,7 @@ bool deterministic_mVCA::endo_transition(set<int> & states, int & m, int label)
 	}
 }}}
 
-basic_string<int32_t> deterministic_mVCA::serialize_derivate()
+basic_string<int32_t> deterministic_mVCA::serialize_derivate() const
 {{{
 	return ::serialize(transition_function);
 }}}
@@ -83,15 +91,15 @@ bool deterministic_mVCA::deserialize_derivate(serial_stretch & serial)
 	return ::deserialize(transition_function, serial);
 }}}
 
-void deterministic_mVCA::get_transition_map(map<int, map<int, map<int, set<int> > > > & postmap)
+void deterministic_mVCA::get_transition_map(map<int, map<int, map<int, set<int> > > > & postmap) const
 {{{
 	// create mappings with:
 	// map[m][current_state][label] = { successor-states }
 	postmap.clear();
 
-	map<int, deterministic_transition_function>::iterator tfi;
-	map<int, map<int, int> >::iterator tfii;
-	map<int, int>::iterator tfiii;
+	const_iterator tfi;
+	map<int, map<int, int> >::const_iterator tfii;
+	map<int, int>::const_iterator tfiii;
 
 	for(tfi = transition_function.begin(); tfi != transition_function.end(); ++tfi)	// m
 		for(tfii = tfi->second.transitions.begin(); tfii != tfi->second.transitions.end(); ++tfii) // current_state
@@ -99,11 +107,11 @@ void deterministic_mVCA::get_transition_map(map<int, map<int, map<int, set<int> 
 				postmap[tfi->first][tfii->first][tfiii->first].insert(tfiii->second);
 }}}
 
-string deterministic_mVCA::get_transition_dotfile()
+string deterministic_mVCA::get_transition_dotfile() const
 {{{
 	string ret;
 
-	map<int, deterministic_transition_function>::iterator tri;
+	const_iterator tri;
 	for(tri = transition_function.begin(); tri != transition_function.end(); ++tri)
 		ret += tri->second.get_transition_dotfile(tri->first, this->m_bound);
 

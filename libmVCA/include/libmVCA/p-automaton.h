@@ -86,7 +86,7 @@ class p_automaton {
 		bool valid;
 		bool saturated;
 		set< pair<int, int> > added_configurations;
-		mVCA * base_automaton;
+		const mVCA * base_automaton;
 		map<int, map<int, map<int, set<int> > > > mVCA_postmap; // m -> state -> label -> set<states>
 
 		// the alphabet is different from the mVCA alphabet, as we operate over the
@@ -110,25 +110,25 @@ class p_automaton {
 
 	private: // methods
 		int new_state();
-		list<int> get_config(int state, int m);
+		list<int> get_config(int state, int m) const;
 		bool transition_exists(int from_state, int label, int to_state);
 		set<int> run_transition(int from_state, int label);
-		set< pair<int, list<int> > > run_transition_accumulate(int from_state, int label, list<int> current_mVCA_run);
-		set< pair<int, list<int> > > run_transition_accumulate(int from_state, list<int> word);
+		set< pair<int, list<int> > > run_transition_accumulate(int from_state, int label, list<int> current_mVCA_run) const;
+		set< pair<int, list<int> > > run_transition_accumulate(int from_state, list<int> word) const;
 
 	public: // methods
 		p_automaton();
-		p_automaton(mVCA * base_automaton);
+		p_automaton(const mVCA * base_automaton);
 		void clear();
 
-		bool initialize(mVCA * base_automaton);
+		bool initialize(const mVCA * base_automaton);
 		bool add_accepting_configuration(int state, int m);
 
 		bool saturate_preSTAR();
 
-		list<int> get_shortest_valid_mVCA_run(int state, int m, bool & reachable);
+		list<int> get_shortest_valid_mVCA_run(int state, int m, bool & reachable) const;
 
-		string visualize();
+		string visualize() const;
 };
 
 

@@ -39,7 +39,7 @@ namespace libmVCA {
 using namespace std;
 
 
-set<int> nondeterministic_mVCA::transition(const set<int> & from, int & m, int label)
+set<int> nondeterministic_mVCA::transition(const set<int> & from, int & m, int label) const
 {{{
 	enum pushdown_direction dir;
 	set<int> ret;
@@ -47,7 +47,10 @@ set<int> nondeterministic_mVCA::transition(const set<int> & from, int & m, int l
 	dir = this->alphabet.get_direction(label);
 
 	if(dir != DIR_INDEFINITE && m >= 0) {
-		ret = transition_function[ (m<=this->m_bound)?m:m_bound ].transmute(from, label);
+		const_iterator tri;
+		tri = transition_function.find((m<=this->m_bound)?m:m_bound);
+		if(tri != transition_function.end())
+			ret = tri->second.transmute(from, label);
 		m += dir;
 	} else {
 		m = -1;
@@ -56,14 +59,20 @@ set<int> nondeterministic_mVCA::transition(const set<int> & from, int & m, int l
 	return ret;
 }}}
 
-bool nondeterministic_mVCA::endo_transition(set<int> & states, int & m, int label)
+bool nondeterministic_mVCA::endo_transition(set<int> & states, int & m, int label) const
 {{{
 	enum pushdown_direction dir;
 
 	dir = this->alphabet.get_direction(label);
 
 	if(dir != DIR_INDEFINITE && m >= 0) {
-		transition_function[ (m<=this->m_bound)?m:m_bound ].endo_transmute(states, label);
+		const_iterator tri;
+		tri = transition_function.find((m<=this->m_bound)?m:m_bound);
+		if(tri != transition_function.end()) {
+			tri->second.endo_transmute(states, label);
+		} else {
+			states.clear();
+		}
 		m += dir;
 		return true;
 	} else {
@@ -73,7 +82,7 @@ bool nondeterministic_mVCA::endo_transition(set<int> & states, int & m, int labe
 	}
 }}}
 
-basic_string<int32_t> nondeterministic_mVCA::serialize_derivate()
+basic_string<int32_t> nondeterministic_mVCA::serialize_derivate() const
 {{{
 	return ::serialize(transition_function);
 }}}
@@ -83,25 +92,25 @@ bool nondeterministic_mVCA::deserialize_derivate(serial_stretch & serial)
 	return ::deserialize(transition_function, serial);
 }}}
 
-void nondeterministic_mVCA::get_transition_map(map<int, map<int, map<int, set<int> > > > & postmap)
+void nondeterministic_mVCA::get_transition_map(map<int, map<int, map<int, set<int> > > > & postmap) const
 {{{
 	// create mappings with:
 	// map[m][current_state][label] = { successor-states }
 
 	// thats easy :)
-	map<int, nondeterministic_transition_function>::iterator tfi;
+	const_iterator tri;
 
 	postmap.clear();
 
-	for(tfi = transition_function.begin(); tfi != transition_function.end(); ++tfi)
-		postmap[tfi->first] = tfi->second.transitions;
+	for(tri = transition_function.begin(); tri != transition_function.end(); ++tri)
+		postmap[tri->first] = tri->second.transitions;
 }}}
 
-string nondeterministic_mVCA::get_transition_dotfile()
+string nondeterministic_mVCA::get_transition_dotfile() const
 {{{
 	string ret;
 
-	map<int, nondeterministic_transition_function>::iterator tri;
+	const_iterator tri;
 	for(tri = transition_function.begin(); tri != transition_function.end(); ++tri)
 		ret += tri->second.get_transition_dotfile(tri->first, this->m_bound);
 

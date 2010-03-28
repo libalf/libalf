@@ -41,7 +41,7 @@ using namespace std;
 
 // INTERFACE
 
-void transition_function::endo_transmute(set<int> & states,int sigma)
+void transition_function::endo_transmute(set<int> & states,int sigma) const
 {{{
 	set<int> s;
 	s = this->transmute(states, sigma);
@@ -50,12 +50,12 @@ void transition_function::endo_transmute(set<int> & states,int sigma)
 
 // DETERMINISTIC
 
-set<int> deterministic_transition_function::transmute(const set<int> & states, int sigma)
+set<int> deterministic_transition_function::transmute(const set<int> & states, int sigma) const
 {{{
-	set<int>::iterator si;
+	set<int>::const_iterator si;
 	set<int> dst;
-	map<int, map<int, int> >::iterator statei;
-	map<int, int>::iterator labeli;
+	map<int, map<int, int> >::const_iterator statei;
+	map<int, int>::const_iterator labeli;
 
 	for(si = states.begin(); si != states.end(); ++si) {
 		statei = transitions.find(*si);
@@ -70,11 +70,11 @@ set<int> deterministic_transition_function::transmute(const set<int> & states, i
 
 	return dst;
 }}}
-set<int> deterministic_transition_function::transmute(int state, int sigma)
+set<int> deterministic_transition_function::transmute(int state, int sigma) const
 {{{
 	set<int> dst;
-	map<int, map<int, int> >::iterator statei;
-	map<int, int>::iterator labeli;
+	map<int, map<int, int> >::const_iterator statei;
+	map<int, int>::const_iterator labeli;
 
 	statei = transitions.find(state);
 	if(statei != transitions.end()) {
@@ -96,14 +96,14 @@ bool deterministic_transition_function::deserialize(::serial_stretch serial)
 {{{
 	return ::deserialize(transitions, serial);
 }}}
-bool deterministic_transition_function::is_deterministic()
+bool deterministic_transition_function::is_deterministic() const
 { return true; };
-string deterministic_transition_function::get_transition_dotfile(int m, int m_bound)
+string deterministic_transition_function::get_transition_dotfile(int m, int m_bound) const
 {{{
 	string ret;
 	char buf[128];
-	map<int, map<int, int> >::iterator mmi;
-	map<int, int>::iterator mi;
+	map<int, map<int, int> >::const_iterator mmi;
+	map<int, int>::const_iterator mi;
 
 	for(mmi = transitions.begin(); mmi != transitions.end(); ++mmi) {
 		for(mi = mmi->second.begin(); mi != mmi->second.end(); ++mi) {
@@ -119,21 +119,36 @@ string deterministic_transition_function::get_transition_dotfile(int m, int m_bo
 
 // NONDETERMINISTIC
 
-set<int> nondeterministic_transition_function::transmute(const set<int> & states, int sigma)
+set<int> nondeterministic_transition_function::transmute(const set<int> & states, int sigma) const
 {{{
-	set<int>::iterator si;
+	set<int>::const_iterator si;
 	set<int> dst;
 
-	for(si = states.begin(); si != states.end(); ++si)
-		set_insert(dst, this->transitions[*si][sigma]);
+	for(si = states.begin(); si != states.end(); ++si) {
+		const_iterator i;
+		i = transitions.find(*si);
+		if(i != transitions.end()) {
+			map<int, set<int> >::const_iterator msi;
+			msi = i->second.find(sigma);
+			if(msi != i->second.end())
+				set_insert(dst, msi->second);
+		}
+	}
 
 	return dst;
 }}}
-set<int> nondeterministic_transition_function::transmute(int state, int sigma)
+set<int> nondeterministic_transition_function::transmute(int state, int sigma) const
 {{{
 	set<int> dst;
 
-	set_insert(dst, this->transitions[state][sigma]);
+	const_iterator i;
+	i = transitions.find(state);
+	if(i != transitions.end()) {
+		map<int, set<int> >::const_iterator msi;
+		msi = i->second.find(sigma);
+		if(msi != i->second.end())
+			set_insert(dst, msi->second);
+	}
 
 	return dst;
 }}}
@@ -146,15 +161,15 @@ bool nondeterministic_transition_function::deserialize(::serial_stretch serial)
 {{{
 	return ::deserialize(transitions, serial);
 }}}
-bool nondeterministic_transition_function::is_deterministic()
+bool nondeterministic_transition_function::is_deterministic() const
 { return false; }; // FIXME: check on the fly
-string nondeterministic_transition_function::get_transition_dotfile(int m, int m_bound)
+string nondeterministic_transition_function::get_transition_dotfile(int m, int m_bound) const
 {{{
 	string ret;
 	char buf[128];
-	map<int, map<int, set<int> > >::iterator mmsi;
-	map<int, set<int> >::iterator msi;
-	set<int>::iterator si;
+	map<int, map<int, set<int> > >::const_iterator mmsi;
+	map<int, set<int> >::const_iterator msi;
+	set<int>::const_iterator si;
 
 	for(mmsi = transitions.begin(); mmsi != transitions.end(); ++mmsi) {
 		for(msi = mmsi->second.begin(); msi != mmsi->second.end(); ++msi) {

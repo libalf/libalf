@@ -98,56 +98,56 @@ class mVCA {
 		// set alphabet (will be copied, will erase all other information about former automaton)
 		void set_alphabet(pushdown_alphabet & alphabet);
 		void unset_alphabet();
-		pushdown_alphabet get_alphabet();
+		pushdown_alphabet get_alphabet() const;
 
-		enum pushdown_direction alphabet_get_direction(int sigma);
-		int get_alphabet_size();
+		enum pushdown_direction alphabet_get_direction(int sigma) const;
+		int get_alphabet_size() const;
 
 		// STATES
-		int get_state_count();
+		int get_state_count() const;
 
-		int get_m_bound();
+		int get_m_bound() const;
 
 		// INITIAL/FINAL STATES
-		int get_initial_state();
-		set<int> get_initial_states();
-		set<int> get_final_states();
+		int get_initial_state() const;
+		set<int> get_initial_states() const;
+		set<int> get_final_states() const;
 		bool set_initial_state(unsigned int state);
 		bool set_final_state(const set<int> & states);
 
-		bool contains_initial_states(const set<int> & states);
-		bool contains_final_states(const set<int> & states);
+		bool contains_initial_states(const set<int> & states) const;
+		bool contains_final_states(const set<int> & states) const;
 
 		// TRANSITIONS
 
 		// get mappings of all transitions
 		// the mapping works as follows: map[m][current_state][label] = { successor-states }.
-		virtual void get_transition_map(map<int, map<int, map<int, set<int> > > > & postmap) = 0;
+		virtual void get_transition_map(map<int, map<int, map<int, set<int> > > > & postmap) const = 0;
 
-		set<int> transition(int from, int & m, int label);
-		virtual set<int> transition(const set<int> & from, int & m, int label) = 0; // depends on transition function
-		virtual bool endo_transition(set<int> & states, int & m, int label) = 0; // depends on transition function
+		set<int> transition(int from, int & m, int label) const;
+		virtual set<int> transition(const set<int> & from, int & m, int label) const = 0; // depends on transition function
+		virtual bool endo_transition(set<int> & states, int & m, int label) const = 0; // depends on transition function
 
-		set<int> run(const set<int> & from, int & m, list<int>::iterator word, list<int>::iterator word_limit);
+		set<int> run(const set<int> & from, int & m, list<int>::const_iterator word, list<int>::const_iterator word_limit) const;
 		// get shortest run from a state in <from> to a state in <to>.
 		// the run has to result in a configuration where the current state is a state in <to> and m is <to_m>.
-		list<int> shortest_run(const set<int> & from, int m, const set<int> & to, int to_m, bool &reachable);
+		list<int> shortest_run(const set<int> & from, int m, const set<int> & to, int to_m, bool &reachable) const;
 		// test if word is contained in language of automaton
-		bool contains(list<int> & word);
-		bool contains(list<int>::iterator word, list<int>::iterator word_limit);
+		bool contains(const list<int> & word) const;
+		bool contains(list<int>::const_iterator word, list<int>::const_iterator word_limit) const;
 		// obtain shortest word in language resp. test if language is empty,
-		list<int> get_sample_word(bool & is_empty);
-		bool is_empty();
+		list<int> get_sample_word(bool & is_empty) const;
+		bool is_empty() const;
 
-		void get_bounded_behaviour_graph(int m_bound, bool & f_is_deterministic, int & f_alphabet_size, int & f_state_count, set<int> & f_initial_states, set<int> & f_final_states, multimap<pair<int,int>, int> & f_transitions);
+		void get_bounded_behaviour_graph(int m_bound, bool & f_is_deterministic, int & f_alphabet_size, int & f_state_count, set<int> & f_initial_states, set<int> & f_final_states, multimap<pair<int,int>, int> & f_transitions) const;
 
 		///-----------------------------------
 
 		bool lang_subset_of(mVCA & other, list<int> & counterexample); // both have to be deterministic. this implicitly calls complete_automaton() for this and other!
 		bool lang_equal(mVCA & other, list<int> & counterexample); // both have to be deterministic. this implicitly calls complete_automaton() for this and other!
-		bool lang_disjoint_to(mVCA & other, list<int> & counterexample); // both have to be deterministic
+		bool lang_disjoint_to(const mVCA & other, list<int> & counterexample) const; // both have to be deterministic
 
-		mVCA * lang_intersect(mVCA & other); // both have to be deterministic
+		mVCA * lang_intersect(const mVCA & other) const; // both have to be deterministic
 //		mVCA * lang_union(mVCA & other); // FIXME: both may be nondeterministic. can be done efficiently.
 						// just take care of transitions from/to initial state and merge both initial states.
 
@@ -157,7 +157,7 @@ class mVCA {
 		///-----------------------------------
 
 		// obtain id of unique derived class
-		virtual enum mVCA_derivate get_derivate_id() = 0;
+		virtual enum mVCA_derivate get_derivate_id() const = 0;
 
 		// format for serialization:
 		// all values in NETWORK BYTE ORDER!
@@ -172,10 +172,10 @@ class mVCA {
 		//	m_bound
 		//	<serialized derivate-specific data>
 		// </serialized automaton>
-		basic_string<int> serialize();
+		basic_string<int> serialize() const;
 		bool deserialize(serial_stretch & serial);
 
-		string visualize();
+		string visualize() const;
 
 		// create a complete automaton from this automaton. i.e. add the implicit sink state
 		// and transitions to it.
@@ -183,14 +183,14 @@ class mVCA {
 		// add (or overwrite, in case of deterministic) a transition
 		virtual void add_transition(int m, int src, int label, int dst) = 0;
 	protected:
-		virtual basic_string<int32_t> serialize_derivate() = 0;
+		virtual basic_string<int32_t> serialize_derivate() const = 0;
 		virtual bool deserialize_derivate(serial_stretch & serial) = 0;
-		virtual string get_transition_dotfile() = 0;
+		virtual string get_transition_dotfile() const = 0;
 
 
-		mVCA * crossproduct(mVCA & other);
-		int crossproduct_state_match(mVCA & other, int this_state, int other_state);
-		int find_sink();
+		mVCA * crossproduct(const mVCA & other) const;
+		int crossproduct_state_match(const mVCA & other, int this_state, int other_state) const;
+		int find_sink() const;
 
 };
 

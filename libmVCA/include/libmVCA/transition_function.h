@@ -48,22 +48,25 @@ class transition_function {
 		virtual ~transition_function()
 		{ /* nothing */ };
 
-		virtual set<int> transmute(const set<int> & states, int sigma) = 0;
-		virtual set<int> transmute(int state, int sigma) = 0;
+		virtual set<int> transmute(const set<int> & states, int sigma) const = 0;
+		virtual set<int> transmute(int state, int sigma) const = 0;
 
-		virtual void endo_transmute(set<int> & states, int sigma);
+		virtual void endo_transmute(set<int> & states, int sigma) const;
 
-		virtual bool is_deterministic() = 0;
+		virtual bool is_deterministic() const = 0;
 
 		virtual basic_string<int32_t> serialize() const = 0;
 		virtual bool deserialize(::serial_stretch serial) = 0;
 
-		virtual string get_transition_dotfile(int m, int m_bound) = 0;
+		virtual string get_transition_dotfile(int m, int m_bound) const = 0;
 };
 
 class mVCA; // forward decl.
 
 class deterministic_transition_function : public transition_function {
+	public: // types
+		typedef map<int, map<int, int > >::iterator iterator;
+		typedef map<int, map<int, int > >::const_iterator const_iterator;
 	public: // data
 		// transitions :: state -> sigma -> state
 		map<int, map<int, int > > transitions;
@@ -72,14 +75,14 @@ class deterministic_transition_function : public transition_function {
 		virtual ~deterministic_transition_function()
 		{ /* nothing */ };
 
-		virtual set<int> transmute(const set<int> & states, int sigma);
-		virtual set<int> transmute(int state, int sigma);
+		virtual set<int> transmute(const set<int> & states, int sigma) const;
+		virtual set<int> transmute(int state, int sigma) const;
 
 		virtual basic_string<int32_t> serialize() const;
 		virtual bool deserialize(::serial_stretch serial);
-		virtual bool is_deterministic();
+		virtual bool is_deterministic() const;
 
-		virtual string get_transition_dotfile(int m, int m_bound);
+		virtual string get_transition_dotfile(int m, int m_bound) const;
 };
 
 inline basic_string<int32_t> serialize(const deterministic_transition_function & f)
@@ -89,6 +92,9 @@ inline bool deserialize(deterministic_transition_function & f, serial_stretch & 
 { return f.deserialize(serial); };
 
 class nondeterministic_transition_function : public transition_function {
+	public: // types
+		typedef map<int, map<int, set<int> > >::iterator iterator;
+		typedef map<int, map<int, set<int> > >::const_iterator const_iterator;
 	public: // data
 		// transitions :: state -> sigma -> set<states>
 		map<int, map<int, set<int> > > transitions;
@@ -97,14 +103,14 @@ class nondeterministic_transition_function : public transition_function {
 		virtual ~nondeterministic_transition_function()
 		{ /* nothing */ };
 
-		virtual set<int> transmute(const set<int> & states, int sigma);
-		virtual set<int> transmute(int state, int sigma);
+		virtual set<int> transmute(const set<int> & states, int sigma) const;
+		virtual set<int> transmute(int state, int sigma) const;
 
 		virtual basic_string<int32_t> serialize() const;
 		virtual bool deserialize(::serial_stretch serial);
-		virtual bool is_deterministic();
+		virtual bool is_deterministic() const;
 
-		virtual string get_transition_dotfile(int m, int m_bound);
+		virtual string get_transition_dotfile(int m, int m_bound) const;
 };
 
 inline basic_string<int32_t> serialize(const nondeterministic_transition_function & f)

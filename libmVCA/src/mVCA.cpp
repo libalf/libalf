@@ -96,38 +96,38 @@ void mVCA::unset_alphabet()
 {{{
 	this->alphabet.clear();
 }}}
-pushdown_alphabet mVCA::get_alphabet()
+pushdown_alphabet mVCA::get_alphabet() const
 {{{
 	return this->alphabet;
 }}}
-enum pushdown_direction mVCA::alphabet_get_direction(int sigma)
+enum pushdown_direction mVCA::alphabet_get_direction(int sigma) const
 {{{
 	return this->alphabet.get_direction(sigma);
 }}}
-int mVCA::get_alphabet_size()
+int mVCA::get_alphabet_size() const
 {{{
 	return this->alphabet.get_alphabet_size();
 }}}
-int mVCA::get_m_bound()
+int mVCA::get_m_bound() const
 {{{
 	return this->m_bound;
 }}}
 
-int mVCA::get_state_count()
+int mVCA::get_state_count() const
 {{{
 	return state_count;
 }}}
-int mVCA::get_initial_state()
+int mVCA::get_initial_state() const
 {{{
 	return initial_state;
 }}}
-set<int> mVCA::get_initial_states()
+set<int> mVCA::get_initial_states() const
 {{{
 	set<int> ret;
 	ret.insert(initial_state);
 	return ret;
 }}}
-set<int> mVCA::get_final_states()
+set<int> mVCA::get_final_states() const
 {{{
 	return final_states;
 }}}
@@ -150,7 +150,7 @@ bool mVCA::set_final_state(const set<int> & states)
 	return true;
 }}}
 
-bool mVCA::contains_initial_states(const set<int> & states)
+bool mVCA::contains_initial_states(const set<int> & states) const
 {{{
 	set<int>::iterator si;
 	for(si = states.begin(); si != states.end(); ++si)
@@ -158,7 +158,7 @@ bool mVCA::contains_initial_states(const set<int> & states)
 			return true;
 	return false;
 }}}
-bool mVCA::contains_final_states(const set<int> & states)
+bool mVCA::contains_final_states(const set<int> & states) const
 {{{
 	set<int>::iterator si;
 	for(si = states.begin(); si != states.end(); ++si)
@@ -167,14 +167,14 @@ bool mVCA::contains_final_states(const set<int> & states)
 	return false;
 }}}
 
-set<int> mVCA::transition(int from, int & m, int label)
+set<int> mVCA::transition(int from, int & m, int label) const
 {{{
 	set<int> src;
 	src.insert(from);
 	return transition(src, m, label);
 }}}
 
-set<int> mVCA::run(const set<int> & from, int & m, list<int>::iterator word, list<int>::iterator word_limit)
+set<int> mVCA::run(const set<int> & from, int & m, list<int>::const_iterator word, list<int>::const_iterator word_limit) const
 {{{
 	set<int> current = from;
 
@@ -191,7 +191,7 @@ set<int> mVCA::run(const set<int> & from, int & m, list<int>::iterator word, lis
 
 
 
-list<int> mVCA::shortest_run(const set<int> & from, int m, const set<int> & to, int to_m, bool &reachable)
+list<int> mVCA::shortest_run(const set<int> & from, int m, const set<int> & to, int to_m, bool &reachable) const
 {{{
 	// using the saturation algorithm to create the regular set Pre*(C),
 	// where C is the regular set of all accepting configurations (c, m) with c in <to> and m = <to_m>.
@@ -227,11 +227,11 @@ list<int> mVCA::shortest_run(const set<int> & from, int m, const set<int> & to, 
 	return old_word;
 }}}
 
-bool mVCA::contains(list<int> & word)
+bool mVCA::contains(const list<int> & word) const
 {{{
 	return this->contains(word.begin(), word.end());
 }}}
-bool mVCA::contains(list<int>::iterator word, list<int>::iterator word_limit)
+bool mVCA::contains(list<int>::const_iterator word, list<int>::const_iterator word_limit) const
 {{{
 	set<int> s;
 	set<int> ini;
@@ -243,7 +243,7 @@ bool mVCA::contains(list<int>::iterator word, list<int>::iterator word_limit)
 	return contains_final_states(s);
 }}}
 // obtain shortest word in language resp. test if language is empty,
-list<int> mVCA::get_sample_word(bool & is_empty)
+list<int> mVCA::get_sample_word(bool & is_empty) const
 {{{
 	set<int> i = get_initial_states();
 	set<int> f = get_final_states();
@@ -253,14 +253,14 @@ list<int> mVCA::get_sample_word(bool & is_empty)
 	is_empty = ! reachable;
 	return w;
 }}}
-bool mVCA::is_empty()
+bool mVCA::is_empty() const
 {{{
 	bool ret;
 	get_sample_word(ret);
 	return ret;
 }}}
 
-void mVCA::get_bounded_behaviour_graph(int m_bound, bool & f_is_deterministic, int & f_alphabet_size, int & f_state_count, set<int> & f_initial_states, set<int> & f_final_states, multimap<pair<int,int>, int> & f_transitions)
+void mVCA::get_bounded_behaviour_graph(int m_bound, bool & f_is_deterministic, int & f_alphabet_size, int & f_state_count, set<int> & f_initial_states, set<int> & f_final_states, multimap<pair<int,int>, int> & f_transitions) const
 {{{
 	// state in new automaton := state + m*state_count
 	f_is_deterministic = (this->get_derivate_id() == DERIVATE_DETERMINISTIC);
@@ -291,7 +291,7 @@ void mVCA::get_bounded_behaviour_graph(int m_bound, bool & f_is_deterministic, i
 	}
 }}}
 
-mVCA * mVCA::crossproduct(mVCA & other)
+mVCA * mVCA::crossproduct(const mVCA & other) const
 {{{
 	unsigned int f_state_count;
 	int f_initial_state;
@@ -355,7 +355,7 @@ mVCA * mVCA::crossproduct(mVCA & other)
 	ret = construct_mVCA(f_state_count, alphabet, f_initial_state, f_final_states, f_m_bound, f_transitions);
 	return ret;
 }}}
-int mVCA::crossproduct_state_match(mVCA & other, int this_state, int other_state)
+int mVCA::crossproduct_state_match(const mVCA & other, int this_state, int other_state) const
 // in a possible cross-product, get the state representing (this, other)
 { return this_state * other.get_state_count() + other_state; }
 
@@ -387,7 +387,7 @@ void mVCA::complete_automaton()
 	}
 }}}
 
-int mVCA::find_sink()
+int mVCA::find_sink() const
 {{{
 	int ret = -1;
 
@@ -495,7 +495,7 @@ bool mVCA::lang_equal(mVCA & other, list<int> & counterexample)
 	return !bad_state_reachable;
 }}}
 
-bool mVCA::lang_disjoint_to(mVCA & other, list<int> & counterexample)
+bool mVCA::lang_disjoint_to(const mVCA & other, list<int> & counterexample) const
 // NOTE: both this and other have to be deterministic. otherwise, exit().
 {{{
 	if(this->get_derivate_id() != DERIVATE_DETERMINISTIC || other.get_derivate_id() != DERIVATE_DETERMINISTIC) {
@@ -513,7 +513,7 @@ bool mVCA::lang_disjoint_to(mVCA & other, list<int> & counterexample)
 	return intersect_is_empty;
 }}}
 
-mVCA * mVCA::lang_intersect(mVCA & other)
+mVCA * mVCA::lang_intersect(const mVCA & other) const
 // NOTE: both this and other have to be deterministic. otherwise, exit().
 {{{
 	if(this->get_derivate_id() != DERIVATE_DETERMINISTIC || other.get_derivate_id() != DERIVATE_DETERMINISTIC) {
@@ -528,7 +528,7 @@ mVCA * mVCA::lang_intersect(mVCA & other)
 	return tmp;
 }}}
 
-basic_string<int32_t> mVCA::serialize()
+basic_string<int32_t> mVCA::serialize() const
 {{{
 	basic_string<int32_t> ret;
 	set<int>::iterator si;
@@ -568,7 +568,7 @@ bool mVCA::deserialize(serial_stretch & serial)
 	return true;
 }}}
 
-string mVCA::visualize()
+string mVCA::visualize() const
 {{{
 	string ret;
 	char buf[128];

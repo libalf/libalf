@@ -77,7 +77,7 @@ p_automaton::p_automaton()
 {{{
 	clear();
 }}}
-p_automaton::p_automaton(mVCA * base_automaton)
+p_automaton::p_automaton(const mVCA * base_automaton)
 {{{
 	clear();
 	initialize(base_automaton);
@@ -96,7 +96,7 @@ void p_automaton::clear()
 	transitions.clear();
 }}}
 
-bool p_automaton::initialize(mVCA * base_automaton)
+bool p_automaton::initialize(const mVCA * base_automaton)
 {{{
 	clear();
 
@@ -284,7 +284,7 @@ bool p_automaton::saturate_preSTAR()
 	return true;
 }}}
 
-list<int> p_automaton::get_shortest_valid_mVCA_run(int state, int m, bool & reachable)
+list<int> p_automaton::get_shortest_valid_mVCA_run(int state, int m, bool & reachable) const
 {{{
 	list<int> ret;
 
@@ -314,7 +314,7 @@ list<int> p_automaton::get_shortest_valid_mVCA_run(int state, int m, bool & reac
 	return ret;
 }}}
 
-string p_automaton::visualize()
+string p_automaton::visualize() const
 {{{
 	string ret;
 	char buf[128];
@@ -368,9 +368,9 @@ string p_automaton::visualize()
 	ret += "\n";
 
 	// add transitions
-	map<int, map<int, set<pa_transition_target> > >::iterator statei;
-	map<int, set<pa_transition_target> >::iterator labeli;
-	set<pa_transition_target>::iterator dsti;
+	map<int, map<int, set<pa_transition_target> > >::const_iterator statei;
+	map<int, set<pa_transition_target> >::const_iterator labeli;
+	set<pa_transition_target>::const_iterator dsti;
 	for(statei = transitions.begin(); statei != transitions.end(); ++statei) {
 		for(labeli = statei->second.begin(); labeli != statei->second.end(); ++labeli) {
 			for(dsti = labeli->second.begin(); dsti != labeli->second.end(); ++dsti) {
@@ -406,7 +406,7 @@ int p_automaton::new_state()
 	++state_count;
 	return n;
 }}}
-list<int> p_automaton::get_config(int state, int m)
+list<int> p_automaton::get_config(int state, int m) const
 // calculates a PDS configuration for given <state, m>.
 // the result is a list<int> where ret.front() is the state and
 // the rest of the list is the PDS stack (front is top).
@@ -434,7 +434,7 @@ list<int> p_automaton::get_config(int state, int m)
 }}}
 bool p_automaton::transition_exists(int from_state, int label, int to_state)
 {{{
-	set<pa_transition_target>::iterator tri;
+	set<pa_transition_target>::const_iterator tri;
 	for(tri = transitions[from_state][label].begin(); tri != transitions[from_state][label].end(); ++tri)
 		if(tri->dst == to_state)
 			return true;
@@ -449,17 +449,26 @@ set<int> p_automaton::run_transition(int from_state, int label)
 	return ret;
 }}}
 
-set< pair<int, list<int> > > p_automaton::run_transition_accumulate(int from_state, int label, list<int> current_mVCA_run)
+set< pair<int, list<int> > > p_automaton::run_transition_accumulate(int from_state, int label, list<int> current_mVCA_run) const
 {{{
 	set< pair<int, list<int> > > ret;
+
+	map<int, map<int, set<pa_transition_target> > >::const_iterator mmsi;
+	map<int, set<pa_transition_target> >::const_iterator msi;
 	set<pa_transition_target>::iterator tri;
 
-	for(tri = transitions[from_state][label].begin(); tri != transitions[from_state][label].end(); ++tri)
-		ret.insert(  pair<int, list<int> >(tri->dst, current_mVCA_run + tri->mVCA_word)  );
+	mmsi = transitions.find(from_state);
+	if(mmsi != transitions.end()) {
+		msi = mmsi->second.find(label);
+		if(msi != mmsi->second.end()) {
+			for(tri = msi->second.begin(); tri != msi->second.end(); ++tri)
+				ret.insert(  pair<int, list<int> >(tri->dst, current_mVCA_run + tri->mVCA_word)  );
+		}
+	}
 
 	return ret;
 }}}
-set< pair<int, list<int> > > p_automaton::run_transition_accumulate(int from_state, list<int> word)
+set< pair<int, list<int> > > p_automaton::run_transition_accumulate(int from_state, list<int> word) const
 {{{
 	list<int>::iterator wi;
 
