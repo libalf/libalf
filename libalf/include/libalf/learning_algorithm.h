@@ -123,7 +123,7 @@ class learning_algorithm {
 		{{{
 			this->alphabet_size = alphabet_size;
 		}}}
-		virtual int get_alphabet_size()
+		virtual int get_alphabet_size() const
 		{{{
 			return alphabet_size;
 		}}}
@@ -170,10 +170,10 @@ class learning_algorithm {
 			norm = NULL;
 		}}}
 
-		virtual memory_statistics get_memory_statistics() = 0;
-		virtual void receive_generic_statistics(generic_statistics & stat) = 0;
+		virtual memory_statistics get_memory_statistics() const = 0;
+		virtual void receive_generic_statistics(generic_statistics & stat) const = 0;
 
-		virtual timing_statistics get_timing_statistics()
+		virtual timing_statistics get_timing_statistics() const
 		{{{
 			return current_stats;
 		}}}
@@ -200,7 +200,7 @@ class learning_algorithm {
 		virtual bool sync_to_knowledgebase() = 0;
 
 		// supports_sync() must return true, if undo/sync is supported. false otherwise.
-		virtual bool supports_sync() = 0;
+		virtual bool supports_sync() const = 0;
 
 		/*
 		 * format for serialization:
@@ -211,7 +211,7 @@ class learning_algorithm {
 		 *	algorithm-specific data
 		 * </serialized learning algorithm data>
 		 */
-		virtual basic_string<int32_t> serialize() = 0;
+		virtual basic_string<int32_t> serialize() const = 0;
 		virtual bool deserialize(serial_stretch & serial) = 0;
 
 		// for algorithm-specific commands (e.g. parameter passing via dispatcher)
@@ -222,8 +222,13 @@ class learning_algorithm {
 			return false;
 		}}};
 
-		virtual void print(ostream &os) = 0;
-		virtual string to_string() = 0;
+		virtual void print(ostream &os) const = 0;
+		virtual string to_string() const
+		{{{
+			stringstream str;
+			this->print(str);
+			return str.str();
+		}}}
 
 		// check if a hypothesis can be constructed without any further queries
 		virtual bool conjecture_ready() = 0;
@@ -271,6 +276,7 @@ class learning_algorithm {
 
 // FIXME: is _LINUX defined on linux?
 #ifdef _LINUX
+#error OK!
 # define USAGE_SPECIFIER RUSAGE_THREAD
 #else
 # define USAGE_SPECIFIER RUSAGE_SELF

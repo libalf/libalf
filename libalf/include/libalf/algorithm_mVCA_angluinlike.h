@@ -59,7 +59,9 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 			// list of all samples (suffixes) for a given cv.
 			public:
 				typedef typename list<list<int> >::iterator iterator;
+				typedef typename list<list<int> >::const_iterator const_iterator;
 				typedef typename list<list<int> >::reverse_iterator reverse_iterator;
+				typedef typename list<list<int> >::const_reverse_iterator const_reverse_iterator;
 
 				bool add_sample(const list<int> & sample)
 				{{{
@@ -71,11 +73,11 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 					return true;
 				}}}
 
-				int get_dynamic_memory_consumption()
+				int get_dynamic_memory_consumption() const
 				{{{
 					int ret = 0;
-					iterator li;
-					list<int>::iterator i;
+					const_iterator li;
+					list<int>::const_iterator i;
 					for(li = this->begin(); li != this->end(); ++li) {
 						ret += sizeof(list<int>);
 						for(i = li->begin(); i != li->end(); ++i)
@@ -88,9 +90,14 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 
 		class equivalence_approximation : public triple<list<int>, int, vector<answer> > {
 			public:
-				inline list<int>	& prefix()		{ return this->first; };
-				inline int		& cv()			{ return this->second; };
-				inline vector<answer>	& acceptances()		{ return this->third; };
+				inline list<int>		& prefix()		{ return this->first; };
+				inline const list<int>		& prefix()		const { return this->first; };
+
+				inline int			& cv()			{ return this->second; };
+				inline const int		& cv()			const { return this->second; };
+
+				inline vector<answer>		& acceptances()		{ return this->third; };
+				inline const vector<answer>	& acceptances()		const { return this->third; };
 
 				inline equivalence_approximation()
 				{ };
@@ -160,9 +167,9 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 					return full_query;
 				}}}
 
-				void print(ostream &os)
+				void print(ostream &os) const
 				{{{
-					typename vector<answer>::iterator acci;
+					typename vector<answer>::const_iterator acci;
 
 					os << "\t\t";
 					print_word(os, prefix());
@@ -178,12 +185,12 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 					os << " ;\n";
 				}}}
 
-				int get_dynamic_memory_consumption()
+				int get_dynamic_memory_consumption() const
 				{{{
 					int ret = 0;
 
-					typename list<int>::iterator li;
-					typename vector<answer>::iterator acci;
+					typename list<int>::const_iterator li;
+					typename vector<answer>::const_iterator acci;
 
 					for(li = prefix().begin(); li != prefix().end(); ++li)
 						ret += sizeof(int);
@@ -198,6 +205,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 		class equivalence_table : public list<equivalence_approximation> {
 			public:
 				typedef typename list<equivalence_approximation>::iterator iterator;
+				typedef typename list<equivalence_approximation>::const_iterator const_iterator;
 
 				iterator find_prefix(const list<int> & prefix)
 				{{{
@@ -250,18 +258,17 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 					return complete;
 				}}}
 
-				void print(ostream & os)
+				void print(ostream & os) const
 				{{{
-					iterator it;
-					for(it = this->begin(); it != this->end(); ++it) {
+					const_iterator it;
+					for(it = this->begin(); it != this->end(); ++it)
 						it->print(os);
-					}
 				}}}
 
-				int get_dynamic_memory_consumption()
+				int get_dynamic_memory_consumption() const
 				{{{
 					int ret = 0;
-					iterator equi;
+					const_iterator equi;
 					for(equi = this->begin(); equi != this->end(); ++equi) {
 						ret += sizeof(equivalence_approximation);
 						ret += equi->get_dynamic_memory_consumption();
@@ -272,13 +279,22 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 
 		class m_representatives : public triple<sample_list, equivalence_table, triple<equivalence_table, equivalence_table, equivalence_table> > {
 			public: // methods
-				inline sample_list & samples()			{ return this->first; }; // suffixes
-				inline equivalence_table & representatives()	{ return this->second; }; // prefixes
-				inline equivalence_table & returning_tr()	{ return this->third.first; }; // returning transitions
-				inline equivalence_table & internal_tr()	{ return this->third.second; }; // internal transitions
-				inline equivalence_table & calling_tr()		{ return this->third.third; }; // calling transitions
+				inline sample_list & samples()				{ return this->first; }; // suffixes
+				inline const sample_list & samples()			const { return this->first; };
 
-				int get_dynamic_memory_consumption()
+				inline equivalence_table & representatives()		{ return this->second; }; // prefixes
+				inline const equivalence_table & representatives()	const { return this->second; };
+
+				inline equivalence_table & returning_tr()		{ return this->third.first; }; // returning transitions
+				inline const equivalence_table & returning_tr()		const { return this->third.first; };
+
+				inline equivalence_table & internal_tr()		{ return this->third.second; }; // internal transitions
+				inline const equivalence_table & internal_tr()		const { return this->third.second; };
+
+				inline equivalence_table & calling_tr()			{ return this->third.third; }; // calling transitions
+				inline const equivalence_table & calling_tr()		const { return this->third.third; };
+
+				int get_dynamic_memory_consumption() const
 				{{{
 					int ret;
 
@@ -297,6 +313,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 		class stratified_observationtable : public vector<m_representatives> {
 			public:
 				typedef typename vector<m_representatives>::iterator iterator;
+				typedef typename vector<m_representatives>::const_iterator const_iterator;
 				typedef pair<equivalence_table *, typename equivalence_table::iterator> location;
 
 				bool fill(knowledgebase<answer> * base)
@@ -338,16 +355,16 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 					return complete;
 				}}}
 
-				void print(ostream & os)
+				void print(ostream & os) const
 				{{{
 					int cv;
-					iterator vi;
+					const_iterator vi;
 
 					for(vi = this->begin(), cv = 0; vi != this->end(); ++cv, ++vi) {
 						// samples
 						os << "\tcv = " << cv << ":\n";
 						os << "\t  Samples:";
-						typename sample_list::iterator si;
+						typename sample_list::const_iterator si;
 						for(si = vi->samples().begin(); si != vi->samples().end(); ++si) {
 							os << " ";
 							print_word(os, *si);
@@ -381,10 +398,10 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 					}
 				}}}
 
-				int get_dynamic_memory_consumption()
+				int get_dynamic_memory_consumption() const
 				{{{
 					int ret = 0;
-					iterator vi;
+					const_iterator vi;
 
 					for(vi = this->begin(); vi != this->end(); ++vi) {
 						ret += sizeof(m_representatives);
@@ -394,11 +411,11 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 					return ret;
 				}}}
 
-				int count_words()
+				int count_words() const
 				{{{
 					int words = 0;
 
-					iterator previous, current, next;
+					const_iterator previous, current, next;
 
 					// initialize iterators
 					previous = this->end();
@@ -538,7 +555,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 		virtual void increase_alphabet_size(int new_asize)
 		{ this->set_alphabet_size(new_asize); }
 
-		virtual memory_statistics get_memory_statistics()
+		virtual memory_statistics get_memory_statistics() const
 		// get_memory_statistics() is obsolete and will be removed in the future.
 		// use receive_generic_statistics() instead.
 		{{{
@@ -553,7 +570,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 			return ret;
 		}}}
 
-		virtual void receive_generic_statistics(generic_statistics & stat)
+		virtual void receive_generic_statistics(generic_statistics & stat) const
 		{{{
 			stat["initialized"] = initialized;
 			if(initialized) {
@@ -576,10 +593,10 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 			(*this->my_logger)(LOGGER_ERROR, "mVCA_angluinlike does not support sync-operation.\n");
 			return false;
 		}}}
-		virtual bool supports_sync()
+		virtual bool supports_sync() const
 		{ return false; };
 
-		virtual basic_string<int32_t> serialize()
+		virtual basic_string<int32_t> serialize() const
 		{{{
 			basic_string<int32_t> ret;
 
@@ -649,7 +666,7 @@ deserialization_failed:
 			return false;
 		}}}
 
-		virtual void print(ostream &os)
+		virtual void print(ostream &os) const
 		{{{
 			os << "stratified_observationtable {\n";
 			os << "\tmode: " << (     (mode == -1) ? "membership query cycle\n"
@@ -677,12 +694,6 @@ deserialization_failed:
 			table.print(os);
 
 			os << "};\n";
-		}}}
-		virtual string to_string()
-		{{{
-			stringstream str;
-			print(str);
-			return str.str();
 		}}}
 
 		virtual bool conjecture_ready()
@@ -1078,7 +1089,7 @@ deserialization_failed:
 				return false;
 			}
 
-			(*this->my_logger)(LOGGER_ALGORITHM, "%s", to_string().c_str());
+			(*this->my_logger)(LOGGER_ALGORITHM, "%s", this->to_string().c_str());
 
 			if(!close()) {
 				(*this->my_logger)(LOGGER_ALGORITHM, "closing...\n");

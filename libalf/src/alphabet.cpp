@@ -42,10 +42,10 @@ namespace libalf {
 using namespace std;
 
 // return ptr to new list with first∙second
-list<int>* concat(list<int> &first, list<int> &second)
+list<int>* concat(const list<int> &first, const list<int> &second)
 {{{
 	list<int> *l = new list<int>;
-	list<int>::iterator li;
+	list<int>::const_iterator li;
 
 	if(first.size() != 0)
 		l->assign(first.begin(), first.end());
@@ -68,7 +68,7 @@ list<int> operator+(const list<int> & prefix, const list<int> & suffix)
 	return ret;
 }}}
 
-bool is_prefix_of(list<int> &prefix, list<int> &word)
+bool is_prefix_of(const list<int> &prefix, const list<int> &word)
 {{{
 	unsigned int prs, ws;
 	prs = prefix.size();
@@ -77,14 +77,16 @@ bool is_prefix_of(list<int> &prefix, list<int> &word)
 	ws = word.size();
 	if(prs > ws)
 		return false;
-	list<int>::iterator pi, li;
-	for(pi = prefix.begin(), li = word.begin(); pi != prefix.end(); pi++, li++)
-		if(*pi != *li)
+
+	list<int>::const_iterator pi, wi;
+
+	for(pi = prefix.begin(), wi = word.begin(); pi != prefix.end(); pi++, wi++)
+		if(*pi != *wi)
 			return false;
 	return true;
 }}}
 
-bool is_suffix_of(list<int> &suffix, list<int> &word)
+bool is_suffix_of(const list<int> &suffix, const list<int> &word)
 {{{
 	unsigned int sus,ws;
 	sus = suffix.size();
@@ -93,39 +95,37 @@ bool is_suffix_of(list<int> &suffix, list<int> &word)
 	ws = word.size();
 	if(sus > ws)
 		return false;
-	list<int>::iterator pi, li;
 
-	li = word.begin();
-	for(unsigned int i = 0; i < ws - sus; i++)
-		li++;
-	for(pi = suffix.begin(); pi != suffix.end(); pi++)
-		if(*pi != *li)
+	list<int>::const_reverse_iterator si, wi;
+
+	for(si = suffix.rbegin(), wi = word.rbegin(); si != suffix.rend(); si++, wi++)
+		if(*si != *wi)
 			return false;
 	return true;
 }}}
 
-void print_word(ostream &os, list<int> &word)
+void print_word(ostream &os, const list<int> &word)
 {{{
 	ostream_iterator<int> out(os, ".");
 	os << ".";
 	copy(word.begin(), word.end(), out);
 }}}
 
-void print_word(list<int> &word)
+void print_word(const list<int> &word)
 {{{
 	printf(".");
-	for(list<int>::iterator l = word.begin(); l != word.end(); l++)
+	for(list<int>::const_iterator l = word.begin(); l != word.end(); l++)
 		printf("%d.", *l);
 }}}
 
-string word2string(list<int> &word, char separator = '.')
+string word2string(const list<int> &word, char separator = '.')
 {{{
 	string ret;
 	char buf[32];
 
 	ret += separator;
 
-	for(list<int>::iterator wi = word.begin(); wi != word.end(); wi++) {
+	for(list<int>::const_iterator wi = word.begin(); wi != word.end(); wi++) {
 		snprintf(buf, 32, "%d%c", *wi, separator);
 		buf[31] = 0;
 		ret += buf;
@@ -134,13 +134,13 @@ string word2string(list<int> &word, char separator = '.')
 	return ret;
 }}}
 
-basic_string<int32_t> serialize_word(list<int> &word)
+basic_string<int32_t> serialize_word(const list<int> &word)
 {{{
 	basic_string<int32_t> ret;
 
 	ret += htonl(word.size());
 
-	for(list<int>::iterator l = word.begin(); l != word.end(); l++)
+	for(list<int>::const_iterator l = word.begin(); l != word.end(); l++)
 		ret += htonl(*l);
 
 	return ret;
@@ -170,10 +170,10 @@ bool deserialize_word(list<int32_t> &into, basic_string<int32_t>::iterator &it, 
 	return true;
 }}}
 
-bool is_lex_smaller(list<int> &a, list<int> &b)
+bool is_lex_smaller(const list<int> &a, const list<int> &b)
 {{{
-	list<int>::iterator w1i;
-	list<int>::iterator w2i;
+	list<int>::const_iterator w1i;
+	list<int>::const_iterator w2i;
 
 	for(w1i = a.begin(), w2i = b.begin(); w1i != a.end() && w2i != b.end(); w1i++, w2i++)
 		if(*w1i != *w2i)
@@ -182,10 +182,10 @@ bool is_lex_smaller(list<int> &a, list<int> &b)
 	return w1i == a.end() && w2i != b.end();
 }}}
 
-bool is_graded_lex_smaller(list<int> &a, list<int> &b)
+bool is_graded_lex_smaller(const list<int> &a, const list<int> &b)
 {{{
-	list<int>::iterator w1i;
-	list<int>::iterator w2i;
+	list<int>::const_iterator w1i;
+	list<int>::const_iterator w2i;
 	int cmp = 0;
 
 	for(w1i = a.begin(), w2i = b.begin(); w1i != a.end() && w2i != b.end(); w1i++, w2i++)

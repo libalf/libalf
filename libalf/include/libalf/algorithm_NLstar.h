@@ -61,18 +61,18 @@ class NLstar_table : public learning_algorithm<answer> {
 				list<int> index;
 				acceptances acceptance;
 			public:
-				bool __attribute__((const)) covers(table_row & other)
+				bool __attribute__((const)) covers(table_row & other) const
 				{{{
-					typename acceptances::iterator ai1, ai2;
+					typename acceptances::const_iterator ai1, ai2;
 					for(ai1 = this->acceptance.begin(), ai2 = other.acceptance.begin(); ai1 != this->acceptance.end() && ai2 != other.acceptance.end(); ai1++, ai2++)
 						if(*ai1 == false && *ai2 == true)
 							return false;
 
 					return ( ai1 == this->acceptance.end() && ai2 == other.acceptance.end() );
 				}}}
-				bool __attribute__((const)) mutual_noncover(table_row & other)
+				bool __attribute__((const)) mutual_noncover(table_row & other) const
 				{{{
-					typename acceptances::iterator ai1, ai2;
+					typename acceptances::const_iterator ai1, ai2;
 					bool tNCo = false, oNCt = false;
 					for(ai1 = this->acceptance.begin(), ai2 = other.acceptance.begin(); ai1 != this->acceptance.end() && ai2 != other.acceptance.end(); ai1++, ai2++) {
 						if(*ai1 == false && *ai2 == true) {
@@ -94,16 +94,16 @@ class NLstar_table : public learning_algorithm<answer> {
 					else
 						return false;
 				}}}
-				bool __attribute__((const)) operator==(table_row & other)
+				bool __attribute__((const)) operator==(table_row & other) const
 				{{{
-					typename acceptances::iterator ai1, ai2;
+					typename acceptances::const_iterator ai1, ai2;
 					for(ai1 = this->acceptance.begin(), ai2 = other.acceptance.begin(); ai1 != this->acceptance.end() && ai2 != other.acceptance.end(); ai1++, ai2++)
 						if(*ai1 != *ai2)
 							return false;
 
 					return ( ai1 == this->acceptance.end() && ai2 == other.acceptance.end() );
 				}}}
-				bool __attribute__((const)) operator!=(table_row & other)
+				bool __attribute__((const)) operator!=(table_row & other) const
 				{{{
 					return ( ! (*this == other) );
 				}}}
@@ -117,7 +117,7 @@ class NLstar_table : public learning_algorithm<answer> {
 							*ai1 = true;
 				}}}
 
-				basic_string<int32_t> serialize()
+				basic_string<int32_t> serialize() const
 				{{{
 					return ::serialize(index) + ::serialize(acceptance);
 				}}}
@@ -133,10 +133,10 @@ fail:
 
 				}}}
 
-				string to_string()
+				string to_string() const
 				{{{
 					string s;
-					typename acceptances::iterator acci;
+					typename acceptances::const_iterator acci;
 
 					s = word2string(index);
 					s += ": ";
@@ -153,10 +153,10 @@ fail:
 
 					return s;
 				}}}
-				size_t memory_usage()
+				size_t memory_usage() const
 				{{{
 					size_t s;
-					list< list<int> >::iterator acci;
+					list< list<int> >::const_iterator acci;
 
 					s = sizeof(list<int>) + sizeof(int) * index.size();
 					s += sizeof(acceptances) + sizeof(answer) * acceptance.size();
@@ -206,14 +206,14 @@ fail:
 			}
 		}}}
 
-		virtual memory_statistics get_memory_statistics()
+		virtual memory_statistics get_memory_statistics() const
 		// get_memory_statistics() is obsolete and will be removed in the future.
 		// use receive_generic_statistics() instead.
 		{{{
 			memory_statistics ret;
 			// get memory footprint:
-			typename columnlist::iterator ci;
-			typename table::iterator ti;
+			typename columnlist::const_iterator ci;
+			typename table::const_iterator ti;
 
 			ret.bytes = sizeof(this);
 			for(ci = column_names.begin(); ci != column_names.end(); ci++)
@@ -231,13 +231,13 @@ fail:
 			return ret;
 		}}}
 
-		virtual void receive_generic_statistics(generic_statistics & stat)
+		virtual void receive_generic_statistics(generic_statistics & stat) const
 		{{{
 			int bytes = 0;
 			int c, ut, lt;
 			// get memory footprint:
-			typename columnlist::iterator ci;
-			typename table::iterator ti;
+			typename columnlist::const_iterator ci;
+			typename table::const_iterator ti;
 
 			c = column_names.size();
 			ut = upper_table.size();
@@ -264,12 +264,12 @@ fail:
 			(*this->my_logger)(LOGGER_ERROR, "NL* does not support sync-operation (undo) for now.\n");
 			return false;
 		}}}
-		virtual bool supports_sync()
+		virtual bool supports_sync() const
 		{{{
 			return false; // not for now.
 		}}}
 
-		virtual basic_string<int32_t> serialize()
+		virtual basic_string<int32_t> serialize() const
 		{{{
 			basic_string<int32_t> ret;
 
@@ -318,16 +318,16 @@ deserialization_failed:
 			return false;
 		}}}
 
-		virtual void print(ostream &os)
+		virtual void print(ostream &os) const
 		{{{
 			os << this->to_string();
 		}}}
 
-		virtual string to_string()
+		virtual string to_string() const
 		{{{
 			string s;
-			typename columnlist::iterator ci;
-			typename table::iterator ti;
+			typename columnlist::const_iterator ci;
+			typename table::const_iterator ti;
 
 			s = "NL* table {\n";
 			s += "\tcolumns:";
@@ -903,10 +903,10 @@ deserialization_failed:
 			return ret;
 		}}}
 
-		basic_string<int32_t> serialize_table(table & t)
+		basic_string<int32_t> serialize_table(const table & t) const
 		{{{
 			std::basic_string<int32_t> serialized_list;
-			typename table::iterator ti;
+			typename table::const_iterator ti;
 			int size = 0;
 
 			for(ti = t.begin(); ti != t.end(); ++ti) {
@@ -915,7 +915,6 @@ deserialization_failed:
 			}
 
 			return ::serialize(size) + serialized_list;
-
 		}}}
 		bool deserialize_table(table & t, serial_stretch & serial)
 		{{{

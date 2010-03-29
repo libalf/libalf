@@ -108,8 +108,6 @@ class angluin_table : public learning_algorithm<answer> {
 			initialized = false;
 		}}}
 
-		virtual memory_statistics get_memory_statistics() = 0;
-
 		virtual bool sync_to_knowledgebase()
 		{{{
 			if(this->my_knowledge == NULL) {
@@ -132,17 +130,17 @@ class angluin_table : public learning_algorithm<answer> {
 			}
 		}}}
 
-		virtual bool supports_sync()
+		virtual bool supports_sync() const
 		{ return true; }
 
 
-		virtual basic_string<int32_t> serialize()
+		virtual basic_string<int32_t> serialize() const
 		{{{
 			basic_string<int32_t> ret;
 			basic_string<int32_t> temp;
-			typename table::iterator ti;
-			typename columnlist::iterator ci;
-			typename list<unsigned int>::iterator tsi;
+			typename table::const_iterator ti;
+			typename columnlist::const_iterator ci;
+			typename list<unsigned int>::const_iterator tsi;
 
 			// length (filled in later)
 			ret += 0;
@@ -185,12 +183,12 @@ class angluin_table : public learning_algorithm<answer> {
 		// (implementation specific)
 		virtual bool deserialize(serial_stretch & serial) = 0;
 
-		virtual void print(ostream &os)
+		virtual void print(ostream &os) const
 		{{{
-			typename columnlist::iterator ci;
-			typename list<unsigned int>::iterator tsi;
-			typename table::iterator ti;
-			typename acceptances::iterator acci;
+			typename columnlist::const_iterator ci;
+			typename list<unsigned int>::const_iterator tsi;
+			typename table::const_iterator ti;
+			typename acceptances::const_iterator acci;
 			char buf[32];
 
 			os << "angluin_table {\n";
@@ -251,13 +249,6 @@ class angluin_table : public learning_algorithm<answer> {
 			os << "}\n";
 		}}}
 
-		virtual string to_string()
-		{{{
-			stringstream str;
-			this->print(str);
-			return str.str();
-		}}}
-
 		virtual bool conjecture_ready()
 		{{{
 			return initialized && columns_filled() && is_closed() && is_consistent();
@@ -268,8 +259,8 @@ class angluin_table : public learning_algorithm<answer> {
 #ifdef DEBUG_ANGLUIN
 			(*this->my_logger)(LOGGER_DEBUG, "angluin_table: new counterexample %s.\n", word2string(word).c_str());
 #endif
-			typename table::iterator ti;
-			list<int>::iterator wi;
+			typename table::const_iterator ti;
+			list<int>::const_iterator wi;
 
 			if(this->my_knowledge == NULL) {
 				(*this->my_logger)(LOGGER_ERROR, "angluin_table: add_counterexample() without knowledgebase!\n");
@@ -334,7 +325,7 @@ class angluin_table : public learning_algorithm<answer> {
 		virtual void add_word_to_upper_table(list<int> word, bool check_uniq = true) = 0;
 
 		// this expects a NORMALIZED word!
-		virtual typename table::iterator search_upper_table(list<int> &word)
+		virtual typename table::iterator search_upper_table(const list<int> &word)
 		{{{
 			typename table::iterator uti;
 
@@ -346,7 +337,7 @@ class angluin_table : public learning_algorithm<answer> {
 		}}}
 
 		// this expects a NORMALIZED word!
-		virtual typename table::iterator search_upper_table(list<int> &word, int &index)
+		virtual typename table::iterator search_upper_table(const list<int> &word, int &index)
 		{{{
 			typename table::iterator uti;
 			index = 0;
@@ -360,7 +351,7 @@ class angluin_table : public learning_algorithm<answer> {
 		}}}
 
 		// this expects a NORMALIZED word!
-		virtual typename table::iterator search_lower_table(list<int> &word)
+		virtual typename table::iterator search_lower_table(const list<int> &word)
 		{{{
 			typename table::iterator lti;
 
@@ -371,7 +362,7 @@ class angluin_table : public learning_algorithm<answer> {
 		}}}
 
 		// this expects a NORMALIZED word!
-		virtual typename table::iterator search_lower_table(list<int> &word, int &index)
+		virtual typename table::iterator search_lower_table(const list<int> &word, int &index)
 		{{{
 			typename table::iterator lti;
 			index = 0;
@@ -384,7 +375,7 @@ class angluin_table : public learning_algorithm<answer> {
 		}}}
 
 		// this expects a NORMALIZED word!
-		virtual typename table::iterator search_tables(list<int> &word)
+		virtual typename table::iterator search_tables(const list<int> &word)
 		{{{
 			typename table::iterator it;
 
@@ -395,7 +386,7 @@ class angluin_table : public learning_algorithm<answer> {
 			return search_lower_table(word);
 		}}}
 
-		virtual bool add_column(list<int> word)
+		virtual bool add_column(const list<int> & word)
 		// returns true if column was added,
 		// false if column was there earlier
 		{{{
@@ -958,20 +949,20 @@ class angluin_table : public learning_algorithm<answer> {
 				unsigned int ut_timestamp;
 				unsigned int lt_timestamp;
 
-				bool __attribute__((const)) operator==(simple_row<answer, acceptances> &other)
+				bool __attribute__((const)) operator==(const simple_row<answer, acceptances> &other) const
 				{{{
 					return (acceptance == other.acceptance);
 				}}}
 
-				bool __attribute__((const)) operator!=(simple_row<answer, acceptances> &other)
+				bool __attribute__((const)) operator!=(const simple_row<answer, acceptances> &other) const
 				{{{
 					return (acceptance != other.acceptance);
 				}}}
 
-				bool __attribute__((const)) operator>(simple_row<answer, acceptances> &other)
+				bool __attribute__((const)) operator>(const simple_row<answer, acceptances> &other) const
 				{{{
-					typename acceptances::iterator ai;
-					typename acceptances::iterator oai;
+					typename acceptances::const_iterator ai;
+					typename acceptances::const_iterator oai;
 
 					ai = acceptance.begin();
 					oai = other.acceptance.begin();
@@ -984,7 +975,7 @@ class angluin_table : public learning_algorithm<answer> {
 					return false;
 				}}}
 
-				basic_string<int32_t> serialize()
+				basic_string<int32_t> serialize() const
 				{{{
 					basic_string<int32_t> ret;
 
@@ -1035,14 +1026,14 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 			this->set_knowledge_source(base);
 		}}}
 
-		virtual memory_statistics get_memory_statistics()
+		virtual memory_statistics get_memory_statistics() const
 		// get_memory_statistics() is obsolete and will be removed in the future.
 		// use receive_generic_statistics() instead.
 		{{{
 			memory_statistics ret;
 
-			typename angluin_table<answer, list< algorithm_angluin::simple_row<answer, vector<answer> > >, vector<answer> >::columnlist::iterator ci;
-			typename list< algorithm_angluin::simple_row<answer, vector<answer> > >::iterator ti;
+			typename angluin_table<answer, list< algorithm_angluin::simple_row<answer, vector<answer> > >, vector<answer> >::columnlist::const_iterator ci;
+			typename list< algorithm_angluin::simple_row<answer, vector<answer> > >::const_iterator ti;
 
 			ret.columns = this->column_names.size();
 			ret.upper_table = this->upper_table.size();
@@ -1069,12 +1060,12 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 			return ret;
 		}}}
 
-		virtual void receive_generic_statistics(generic_statistics & stat)
+		virtual void receive_generic_statistics(generic_statistics & stat) const
 		{{{
 			int c, ut, lt, bytes;
 
-			typename angluin_table<answer, list< algorithm_angluin::simple_row<answer, vector<answer> > >, vector<answer> >::columnlist::iterator ci;
-			typename list< algorithm_angluin::simple_row<answer, vector<answer> > >::iterator ti;
+			typename angluin_table<answer, list< algorithm_angluin::simple_row<answer, vector<answer> > >, vector<answer> >::columnlist::const_iterator ci;
+			typename list< algorithm_angluin::simple_row<answer, vector<answer> > >::const_iterator ti;
 
 			c = this->column_names.size();
 			ut = this->upper_table.size();

@@ -46,16 +46,16 @@ class normalizer {
 
 		virtual ~normalizer() { };
 
-		virtual enum type get_type()
+		virtual enum type get_type() const
 		{ return NORMALIZER_NONE; };
 
-		virtual basic_string<int32_t> serialize() = 0;
+		virtual basic_string<int32_t> serialize() const = 0;
 		virtual bool deserialize(serial_stretch & serial) = 0;
 
 		virtual bool deserialize_extension(serial_stretch & serial) = 0;
 
-		virtual list<int> prefix_normal_form(list<int> & w, bool &bottom) = 0;
-		virtual list<int> suffix_normal_form(list<int> & w, bool &bottom) = 0;
+		virtual list<int> prefix_normal_form(const list<int> & w, bool &bottom) const = 0;
+		virtual list<int> suffix_normal_form(const list<int> & w, bool &bottom) const = 0;
 		// if the normalizer finds that the word is not in the MSCs language, bottom will be set to true.
 		// that way, an learning algorithm can automatically set the words row to bottom.
 };

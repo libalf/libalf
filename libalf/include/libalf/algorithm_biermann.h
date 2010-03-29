@@ -110,7 +110,7 @@ class basic_biermann : public learning_algorithm<answer> {
 					return ret;
 				}}}
 
-				void print(ostream &os)
+				void print(ostream &os) const
 				{{{
 					char buf1[64];
 					char buf2[64];
@@ -161,12 +161,12 @@ class basic_biermann : public learning_algorithm<answer> {
 			this->set_alphabet_size(new_asize);
 		}}}
 
-		virtual memory_statistics get_memory_statistics()
+		virtual memory_statistics get_memory_statistics() const
 		// get_memory_statistics() is obsolete and will be removed in the future.
 		// use receive_generic_statistics() instead.
 		{ memory_statistics ret; return ret; }
 
-		virtual void receive_generic_statistics(generic_statistics & stat)
+		virtual void receive_generic_statistics(generic_statistics & stat) const
 		{
 			
 		}
@@ -176,12 +176,12 @@ class basic_biermann : public learning_algorithm<answer> {
 			return true;
 		}}}
 
-		virtual bool supports_sync()
+		virtual bool supports_sync() const
 		{{{
 			return true;
 		}}}
 
-		virtual basic_string<int32_t> serialize()
+		virtual basic_string<int32_t> serialize() const
 		{{{
 			basic_string<int32_t> ret;
 
@@ -202,10 +202,10 @@ class basic_biermann : public learning_algorithm<answer> {
 			return (s == learning_algorithm<answer>::ALG_BIERMANN);
 		}}}
 
-		virtual void print(ostream &os)
+		virtual void print(ostream &os) const
 		{{{
-			typename set<node*>::iterator si;
-			typename list<constraint>::iterator ci;
+			typename set<node*>::const_iterator si;
+			typename list<constraint>::const_iterator ci;
 
 			os << "mapping sources {\n";
 			for(si = sources.begin(); si != sources.end(); si++) {
@@ -225,13 +225,6 @@ class basic_biermann : public learning_algorithm<answer> {
 			}
 			os << "}\n";
 		}}}
-		virtual string to_string()
-		// FIXME: print constraints etc from last run
-		{
-			string ret;
-			ret = "biermann has nothing to print. it's an offline-algorithm.";
-			return ret;
-		}
 
 		// conjecture is always ready if there is a non-empty knowledgebase
 		virtual bool conjecture_ready()

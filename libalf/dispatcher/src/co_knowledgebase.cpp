@@ -22,6 +22,9 @@
  *
  */
 
+#include <libalf/answer.h>
+#include <libalf/serialize.h>
+
 #include "co_knowledgebase.h"
 #include "co_knowledgebase_iterator.h"
 
@@ -55,6 +58,7 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 	string s;
 	basic_string<int32_t> serial;
 	basic_string<int32_t>::iterator si;
+	serial_stretch cmd_ser(command_data);
 	list<int> word;
 	extended_bool acceptance;
 	int i;
@@ -142,10 +146,9 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 				return false;
 			return this->sv->client->stream_send_int(o->get_memory_usage());
 		case KNOWLEDGEBASE_RESOLVE_QUERY:
-			si = command_data.begin();
-			if(!deserialize_word(word, si, command_data.end()))
+			if(!deserialize(word, cmd_ser))
 				return this->sv->send_errno(ERR_BAD_PARAMETERS);
-			if(si != command_data.end())
+			if(!cmd_ser.empty())
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 			if(!this->sv->send_errno(ERR_SUCCESS))
 				return false;
@@ -159,10 +162,9 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 				return this->sv->client->stream_send_int(0);
 			}
 		case KNOWLEDGEBASE_RESOLVE_OR_ADD_QUERY:
-			si = command_data.begin();
-			if(!deserialize_word(word, si, command_data.end()))
+			if(!deserialize(word, cmd_ser))
 				return this->sv->send_errno(ERR_BAD_PARAMETERS);
-			if(si != command_data.end())
+			if(!cmd_ser.empty())
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 			if(!this->sv->send_errno(ERR_SUCCESS))
 				return false;
@@ -176,16 +178,13 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 				return this->sv->client->stream_send_int(0);
 			}
 		case KNOWLEDGEBASE_ADD_KNOWLEDGE:
-			si = command_data.begin();
-			if(!deserialize_word(word, si, command_data.end()))
+			if(!deserialize(word, cmd_ser))
 				return this->sv->send_errno(ERR_BAD_PARAMETERS);
-			if(si == command_data.end())
+			if(!deserialize(acceptance, cmd_ser))
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
-			acceptance = (int32_t)ntohl(*si);
 			if(!acceptance.valid())
 				return this->sv->send_errno(ERR_BAD_PARAMETERS);
-			si++;
-			if(si != command_data.end())
+			if(!cmd_ser.empty())
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 			if(!this->sv->send_errno(ERR_SUCCESS))
 				return false;
@@ -233,7 +232,7 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 				return false;
 			for(it2 = o->qbegin(); it2 != o->qend(); it2++) {
 				word = it2->get_word();
-				serial = serialize_word(word);
+				serial = serialize(word);
 				if(!this->sv->client->stream_send_raw_blob(serial))
 					return false;
 			}
@@ -245,7 +244,7 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 				return false;
 			for(it2 = o->begin(); it2 != o->end(); it2++) {
 				word = it2->get_word();
-				serial = serialize_word(word);
+				serial = serialize(word);
 				if(!this->sv->client->stream_send_raw_blob(serial))
 					return false;
 			}

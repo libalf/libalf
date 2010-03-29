@@ -137,37 +137,37 @@ class normalizer_msc : public normalizer {
 
 		virtual ~normalizer_msc();
 
-		virtual enum type get_type()
+		virtual enum type get_type() const
 		{ return NORMALIZER_MSC; };
 
 		void clear();
 
-		virtual basic_string<int32_t> serialize();
+		virtual basic_string<int32_t> serialize() const;
 		virtual bool deserialize(serial_stretch & serial);
 
 		virtual bool deserialize_extension(serial_stretch & serial);
 
-		virtual list<int> prefix_normal_form(list<int> & w, bool & bottom);
-		virtual list<int> suffix_normal_form(list<int> & w, bool & bottom);
+		virtual list<int> prefix_normal_form(const list<int> & w, bool & bottom) const;
+		virtual list<int> suffix_normal_form(const list<int> & w, bool & bottom) const;
 
 
 	private:
-		list<msc::msc_node*> graph;
-		queue<int> * buffers;
-		unsigned int buffercount;
+		mutable list<msc::msc_node*> graph;
+		mutable queue<int> * buffers;
+		mutable unsigned int buffercount;
 		// any label that can be normalized has to be in [0, label_bound)
-		unsigned int label_bound;
+		mutable unsigned int label_bound;
 
 	protected:
-		void graph_add_node(int id, int label, bool pnf);
+		void graph_add_node(int id, int label, bool pnf) const;
 
-		void clear_buffers(list<int> word);
-		bool check_buffer(int label, bool pnf);
-		void advance_buffer_status(int label, bool pnf);
+		void clear_buffers(const list<int> & word) const;
+		bool check_buffer(int label, bool pnf) const;
+		void advance_buffer_status(int label, bool pnf) const;
 
-		int graph_reduce(bool pnf);
+		int graph_reduce(bool pnf) const;
 
-		void graph_print();
+		void graph_print() const;
 };
 
 }; // end of namespace libalf

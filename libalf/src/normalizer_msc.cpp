@@ -122,7 +122,7 @@ void normalizer_msc::clear()
 	label_bound = 0;
 }}}
 
-basic_string<int32_t> normalizer_msc::serialize()
+basic_string<int32_t> normalizer_msc::serialize() const
 {{{
 	basic_string<int32_t> ret;
 
@@ -200,29 +200,12 @@ deserialization_failed:
 	return false;
 }}}
 
-void normalizer_msc::clear_buffers(list<int> word)
-// clear any buffer that this word may have touched
-{{{
-	if(!buffers)
-		return;
-
-	list<int>::iterator wi;
-	int buf;
-
-	for(wi = word.begin(); wi != word.end(); wi++) {
-		buf = buffer_match[*wi];
-		if(buf >= 0 && buf < (int)buffercount)
-			if(!buffers[buf].empty())
-				buffers[buf].pop();
-	}
-}}}
-
-list<int> normalizer_msc::prefix_normal_form(list<int> & w, bool & bottom)
+list<int> normalizer_msc::prefix_normal_form(const list<int> & w, bool & bottom) const
 {{{
 	list<int> ret;
 	int i;
 
-	list<int>::iterator wi;
+	list<int>::const_iterator wi;
 	// create MSC
 	for(wi = w.begin(), i = 0; wi != w.end(); wi++, i++) {
 		if(*wi < 0 || *wi >= (int)label_bound)
@@ -253,12 +236,12 @@ bottom_fast:
 	return ret;
 }}}
 
-list<int> normalizer_msc::suffix_normal_form(list<int> & w, bool & bottom)
+list<int> normalizer_msc::suffix_normal_form(const list<int> & w, bool & bottom) const
 {{{
 	list<int> ret;
 	int i;
 
-	list<int>::reverse_iterator rwi;
+	list<int>::const_reverse_iterator rwi;
 	// create MSC (reversed)
 	for(rwi = w.rbegin(), i = 0; rwi != w.rend(); rwi++, i++) {
 		if(*rwi < 0 || *rwi >= (int)label_bound)
@@ -289,7 +272,10 @@ bottom_fast:
 	return ret;
 }}}
 
-void normalizer_msc::graph_add_node(int id, int label, bool pnf)
+
+
+
+void normalizer_msc::graph_add_node(int id, int label, bool pnf) const
 {{{
 	msc::msc_node * newnode = new msc::msc_node();
 	list<msc::msc_node*>::iterator ni, extrema;
@@ -356,7 +342,24 @@ void normalizer_msc::graph_add_node(int id, int label, bool pnf)
 	}
 }}}
 
-bool normalizer_msc::check_buffer(int label, bool pnf)
+void normalizer_msc::clear_buffers(const list<int> & word) const
+// clear any buffer that this word may have touched
+{{{
+	if(!buffers)
+		return;
+
+	list<int>::const_iterator wi;
+	int buf;
+
+	for(wi = word.begin(); wi != word.end(); wi++) {
+		buf = buffer_match[*wi];
+		if(buf >= 0 && buf < (int)buffercount)
+			if(!buffers[buf].empty())
+				buffers[buf].pop();
+	}
+}}}
+
+bool normalizer_msc::check_buffer(int label, bool pnf) const
 {{{
 	// check if the message `label' can be put into its buffer / taken from its buffer (true)
 	// or its buffer is full / another message is at the head of the buffer (false)
@@ -389,7 +392,7 @@ bool normalizer_msc::check_buffer(int label, bool pnf)
 	return true;
 }}}
 
-void normalizer_msc::advance_buffer_status(int label, bool pnf)
+void normalizer_msc::advance_buffer_status(int label, bool pnf) const
 {{{
 	if(buffers) {
 		if( (pnf && (total_order[label] % 2)) || (!pnf && (total_order[label] % 2 == 0)) ) {
@@ -402,7 +405,7 @@ void normalizer_msc::advance_buffer_status(int label, bool pnf)
 	}
 }}}
 
-int normalizer_msc::graph_reduce(bool pnf)
+int normalizer_msc::graph_reduce(bool pnf) const
 {{{
 	list<msc::msc_node*>::iterator ni, extrema;
 
@@ -472,7 +475,7 @@ int normalizer_msc::graph_reduce(bool pnf)
 	return label;
 }}}
 
-void normalizer_msc::graph_print()
+void normalizer_msc::graph_print() const
 {{{
 	list<msc::msc_node*>::iterator ni;
 

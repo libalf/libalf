@@ -209,12 +209,12 @@ class RPNI : public learning_algorithm<answer> {
 			this->set_alphabet_size(new_asize);
 		}}}
 
-		virtual memory_statistics get_memory_statistics()
+		virtual memory_statistics get_memory_statistics() const
 		// get_memory_statistics() is obsolete and will be removed in the future.
 		// use receive_generic_statistics() instead.
 		{ memory_statistics ret; return ret; }
 
-		virtual void receive_generic_statistics(generic_statistics & stat)
+		virtual void receive_generic_statistics(generic_statistics & stat) const
 		{
 			
 		}
@@ -224,17 +224,17 @@ class RPNI : public learning_algorithm<answer> {
 			return true;
 		}}}
 
-		virtual bool supports_sync()
+		virtual bool supports_sync() const
 		{{{
 			return true;
 		}}}
 
-		virtual basic_string<int32_t> serialize()
+		virtual basic_string<int32_t> serialize() const
 		{{{
 			basic_string<int32_t> ret;
 
 			// we don't have any internal, persistent data
-			ret += ::serialize(1);
+			ret += ::serialize(1); // size
 			ret += ::serialize(learning_algorithm<answer>::ALG_RPNI);
 
 			return ret;
@@ -250,14 +250,9 @@ class RPNI : public learning_algorithm<answer> {
 			return (s == learning_algorithm<answer>::ALG_RPNI);
 		}}}
 
-		virtual void print(ostream &os)
+		virtual void print(ostream &os) const
 		{{{
-			os << to_string();
-		}}}
-		virtual string to_string()
-		{{{
-			string s;
-			return s;
+			os << "RPNI does not have any persistent data.\n";
 		}}}
 
 		// conjecture is always ready if there is a non-empty knowledgebase

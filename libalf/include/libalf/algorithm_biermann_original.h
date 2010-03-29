@@ -59,7 +59,7 @@ class original_biermann : public learning_algorithm<answer> {
 	void increase_alphabet_size(int new_alphabet_size) {
 		this->alphabet_size = new_alphabet_size;
 	}
-	
+
 	void set_nondeterminism(unsigned int new_nondeterminism) {
 		nondeterminism = new_nondeterminism;
 	}
@@ -67,15 +67,15 @@ class original_biermann : public learning_algorithm<answer> {
 	unsigned int get_nondeterminism() {
 		return nondeterminism;
 	}
-	
-	memory_statistics get_memory_statistics() {
+
+	memory_statistics get_memory_statistics() const {
 		// get_memory_statistics() is obsolete and will be removed in the future.
 		// use receive_generic_statistics() instead.
 		memory_statistics ret;
 		return ret;
 	}
 
-	virtual void receive_generic_statistics(generic_statistics & stat)
+	virtual void receive_generic_statistics(generic_statistics & stat) const
 	{
 		
 	}
@@ -84,7 +84,7 @@ class original_biermann : public learning_algorithm<answer> {
 		return true;
 	}
 
-	bool supports_sync() {
+	bool supports_sync() const {
 		return true;
 	}
 
@@ -110,9 +110,9 @@ class original_biermann : public learning_algorithm<answer> {
 		automaton->input_alphabet_size = this->alphabet_size;
 		automaton->valid = true;
 
-		// Create temporary variables		
+		// Create temporary variables
 		map<int, node*> *eq_classes = new map<int, node*>;
-		
+
 		// Add sink state
 		eq_classes->insert(pair<int, node*>(0, NULL));
 		automaton->state_count++;
@@ -122,7 +122,7 @@ class original_biermann : public learning_algorithm<answer> {
 		}
 
 		// Compute conjecture
-		int initial_state;		
+		int initial_state;
 		initial_state = assign_equivalence_class(this->my_knowledge->get_rootptr(), automaton, eq_classes);
 		automaton->initial_states.insert(initial_state);
 
@@ -133,10 +133,10 @@ class original_biermann : public learning_algorithm<answer> {
 		return automaton;
 	}
 
-	basic_string<int32_t> serialize() {
+	basic_string<int32_t> serialize() const {
 		basic_string<int32_t> ret;
 
-		ret += ::serialize(2);
+		ret += ::serialize(2); // size
 		ret += ::serialize(learning_algorithm<answer>::ALG_BIERMANN_ORIGINAL);
 		ret += ::serialize(nondeterminism);
 
@@ -187,16 +187,9 @@ class original_biermann : public learning_algorithm<answer> {
 		return true;
 	}
 
-	void print(ostream &os) {
+	void print(ostream &os) const {
 		os << "Biermann and Feldmann's offline algorithm. Alphabet size is " << this->alphabet_size;
 		os << " Nondeterminism is " + nondeterminism << endl;
-	}
-
-	string to_string() {
-		string ret;
-		ret = "Biermann and Feldmann's offline algorithm. Alphabet size is " + this->alphabet_size;
-		ret += " Nondeterminism is " + nondeterminism;
-		return ret;
 	}
 
 	private:
@@ -216,7 +209,7 @@ class original_biermann : public learning_algorithm<answer> {
 			eq_classes->insert(pair<int, node*>(0, current));
 			return 0;
 		}
-		
+
 		/*
 		 * Search whether the equivalence class belonging to the current node is already existing.
 		 * If so, return its number.
@@ -230,7 +223,7 @@ class original_biermann : public learning_algorithm<answer> {
 				#endif
 				return (*it).first;
 			}
-			
+
 			#ifdef DEBUG
 				else {
 					cout << "NOT equivalent to class " << it->first << endl;
@@ -244,7 +237,7 @@ class original_biermann : public learning_algorithm<answer> {
 		int new_eq_number;
 		new_eq_number = eq_classes->size();
 		eq_classes->insert(pair<int, node*>(new_eq_number, current));
-		
+
 		return new_eq_number;
 	}
 
@@ -263,7 +256,7 @@ class original_biermann : public learning_algorithm<answer> {
 			#endif
 			return true;
 		}
-		
+
 		/*
 		 * Exactly one node is NULL. We swap both variables such that n2 == NULL.
 		 */
@@ -276,14 +269,14 @@ class original_biermann : public learning_algorithm<answer> {
 				n1 = n2;
 				n2 = NULL;
 			}
-		
+
 			// If n1 is answered then the nodes are not equivalent
 			if(n1->is_answered())
 				return false;
-			
+
 			if(level == 0)
 				return true;
-			
+
 			// Check the children of n1 (which have to be unanswered in any case)
 			for(int i=0; i<MAX(this->alphabet_size, n1->max_child_count()); i++) {
 				node *child;
@@ -291,10 +284,10 @@ class original_biermann : public learning_algorithm<answer> {
 				if(!is_equivalent(child, NULL, level - 1))
 					return false;
 			}
-			
+
 			return true;
 		}
-		
+
 		/*
 		 * Both nodes are not NULL
 		 */
@@ -302,14 +295,14 @@ class original_biermann : public learning_algorithm<answer> {
 			#ifdef DEBUG
 				cout << "EQ-check: Both are NOT NULL" << endl;
 			#endif
-		
+
 			if((n1->is_answered() && !n2->is_answered()) || (!n1->is_answered() && n2->is_answered())) {
 				return false;
 			} else if(n1->is_answered() && n2->is_answered()) {
 				if(n1->get_answer() != n2->get_answer())
 					return false;
 			}
-			
+
 			// End of recursion?
 			if(level == 0)
 				return true;
@@ -327,7 +320,7 @@ class original_biermann : public learning_algorithm<answer> {
 				if(!is_equivalent(child1, child2, level-1))
 					return false;
 			}
-			
+
 			return true;
 		}
 	}
@@ -336,7 +329,7 @@ class original_biermann : public learning_algorithm<answer> {
 	 * Recursivley computing a nodes equivalence class.
 	 */
 	int assign_equivalence_class(node *current, simple_moore_machine *automaton, map<int, node*> *eq_classes) {
-		
+
 		/*
 		 * Recursively compute the equivalence classes of the current node's children
 		 */
@@ -354,7 +347,7 @@ class original_biermann : public learning_algorithm<answer> {
 				// Remember the child's eq class to proprly set the transitions
 				child_eq[i] = child_eq_nr;
 			}
-			
+
 			// If no child exists, point to the sink state
 			else {
 				child_eq[i] = 0;
@@ -372,7 +365,7 @@ class original_biermann : public learning_algorithm<answer> {
 		print_current(current);
 		cout << "Assigned equivalence class: " << current_eq << endl;
 		#endif
-		
+
 		/*
 		 * Update conjecture, i.e. add transitions from current equivalence class
 		 */
@@ -388,7 +381,7 @@ class original_biermann : public learning_algorithm<answer> {
 		for(int i=0; i<this->alphabet_size; i++) {
 
 			pair<int,int> source (current_eq, i);
-		
+
 			// Check whether the transition to insert already exists
 			pair<multimap<pair<int,int>,int>::iterator,multimap<pair<int,int>,int>::iterator> found;
 			found = automaton->transitions.equal_range(source);
@@ -405,22 +398,22 @@ class original_biermann : public learning_algorithm<answer> {
 			if(!contains) {
 				#ifdef DEBUG
 				cout << "Adding transition (" <<current_eq << ", " << i << ", " << child_eq[i] << ")" << endl;
-				#endif			
+				#endif
 				automaton->transitions.insert(pair<pair<int,int>,int>(source, child_eq[i]));
 			} else {
 				#ifdef DEBUG
 				cout << "Transition (" <<current_eq << ", " << i << ", " << child_eq[i] << ") already existing" << endl;
-				#endif			
+				#endif
 			}
-		
+
 		}
-		
+
 		return current_eq;
 	}
 
 	void print_current(node *current) {
 		cout << "Currenty processing: '";
-		
+
 		list<int> w =  current->get_word();
 
 		for (list<int>::iterator it = w.begin(); it != w.end(); it++) {
