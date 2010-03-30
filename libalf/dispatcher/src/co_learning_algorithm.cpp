@@ -22,6 +22,8 @@
  *
  */
 
+#include <libalf/answer.h>
+#include <libalf/serialize.h>
 #include <libalf/learning_algorithm.h>
 
 #include <libalf/algorithm_angluin.h>

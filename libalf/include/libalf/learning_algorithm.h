@@ -49,6 +49,7 @@
 #include <utility>
 #include <string>
 
+#include <libalf/serialize.h>
 #include <libalf/logger.h>
 #include <libalf/statistics.h>
 #include <libalf/knowledgebase.h>

@@ -23,8 +23,8 @@
  */
 
 #include <string>
-#include <amore++/finite_automaton.h>
 #include <libalf/knowledgebase.h>
+#include <amore++/finite_automaton.h>
 
 using namespace std;
 using namespace amore;

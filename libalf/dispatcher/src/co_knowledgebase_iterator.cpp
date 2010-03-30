@@ -22,6 +22,9 @@
  *
  */
 
+#include <libalf/answer.h>
+#include <libalf/serialize.h>
+
 #include "co_knowledgebase_iterator.h"
 
 co_knowledgebase_iterator::co_knowledgebase_iterator()

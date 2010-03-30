@@ -22,9 +22,6 @@
  *
  */
 
-#include <libalf/answer.h>
-#include <libalf/serialize.h>
-
 #include "co_knowledgebase.h"
 #include "co_knowledgebase_iterator.h"
 
@@ -57,7 +54,6 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 {{{
 	string s;
 	basic_string<int32_t> serial;
-	basic_string<int32_t>::iterator si;
 	serial_stretch cmd_ser(command_data);
 	list<int> word;
 	extended_bool acceptance;
@@ -74,10 +70,9 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 				return false;
 			return this->sv->client->stream_send_raw_blob(serial);
 		case KNOWLEDGEBASE_DESERIALIZE:
-			si = command_data.begin();
-			if(!o->deserialize(si, command_data.end()))
+			if(!o->deserialize(cmd_ser))
 				return this->sv->send_errno(ERR_BAD_PARAMETERS);
-			if(si != command_data.end())
+			if(!cmd_ser.empty())
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 			return this->sv->send_errno(ERR_SUCCESS);
 		case KNOWLEDGEBASE_ASSIGN:
@@ -219,10 +214,9 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 			else
 				return this->sv->client->stream_send_int(0);
 		case KNOWLEDGEBASE_DESERIALIZE_QUERY_ACCEPTANCES:
-			si = command_data.begin();
-			if(!o->deserialize_query_acceptances(si, command_data.end()))
+			if(!o->deserialize_query_acceptances(cmd_ser))
 				return this->sv->send_errno(ERR_BAD_PARAMETERS);
-			if(si != command_data.end())
+			if(!cmd_ser.empty())
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 			return this->sv->send_errno(ERR_SUCCESS);
 		case KNOWLEDGEBASE_SERIALIZE_QUERIES:

@@ -30,6 +30,7 @@
 #include <list>
 #include <string>
 
+#define __helper__serialize_only_forward_declarations__
 #include <libalf/serialize.h>
 
 namespace libalf {

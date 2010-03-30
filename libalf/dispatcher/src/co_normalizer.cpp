@@ -22,9 +22,10 @@
  *
  */
 
+#include <libalf/answer.h>
+#include <libalf/serialize.h>
 #include <libalf/normalizer.h>
 #include <libalf/normalizer_msc.h>
-#include <libalf/serialize.h>
 
 #include "co_normalizer.h"
 

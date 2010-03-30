@@ -52,39 +52,40 @@ namespace libalf {
 
 // the knowledgebase holds membership information about a language
 // (or samples for offline-algorithms). to obtain information about a
-// word w, use ::resolve_query(). if the requested information is not
+// word w, use kb::resolve_query(). if the requested information is not
 // known, false will be returned. if you wish it to be marked as to be
-// acquired (status==NODE_REQUIRED), use ::resolve_or_add_query().
+// acquired (status==NODE_REQUIRED), use kb::resolve_or_add_query().
 //
-// all membership information can be iterated via ::begin() .. ::end().
-// all queries via ::qbegin() .. ::qend(). the iterators resolve to a
-// ::node. each node represents a word ::node::get_word().
+// all membership information can be iterated via kb::begin() .. kb::end().
+// all queries via kb::qbegin() .. kb::qend(). the iterators resolve to a
+// kb::node. each node represents a word kb::nodekb::get_word().
 //
-// all nodes are arranged in a single tree-like structure, with ::root
-// representing epsilon. you can use ::node::parent() or
-// ::node::find_child() to find all prefixes of w or all words prefixed
-// by w. if ::node::find_child() returns NULL, the concat is not yet
+// all nodes are arranged in a single tree-like structure, with kb::root
+// representing epsilon. you can use kb::nodekb::parent() or
+// kb::nodekb::find_child() to find all prefixes of w or all words prefixed
+// by w. if kb::nodekb::find_child() returns NULL, the concat is not yet
 // contained in the tree. using find_or_create_child() solves this by
-// adding a new node marked ::node::status==NODE_IGNORE and returning
-// it. for this task, you can also use ::add_knowledge().
+// adding a new node marked kb::nodekb::status==NODE_IGNORE and returning
+// it. for this task, you can also use kb::add_knowledge().
 //
-// ::create_query_tree() creates a new knowledgebase containing only the
+// kb::create_query_tree() creates a new knowledgebase containing only the
 // queries.
 //
-// ::merge_knowledgebase() merges membership information (no queries)
+// kb::merge_knowledgebase() merges membership information (no queries)
 // from another knowledgebase into this (e.g. an answered query tree
 // created before)
 
 namespace libalf {
 
 using namespace std;
+using namespace libalf;
 
 template <class answer>
 class knowledgebase {
 	public: // types
 		class node {
-			friend class libalf::knowledgebase<answer>;
-			friend class libalf::knowledgebase<answer>::iterator;
+			friend class knowledgebase<answer>;
+			friend class knowledgebase<answer>::iterator;
 			public: // types
 				enum status_e {
 					NODE_IGNORE = 0,
@@ -138,58 +139,48 @@ class knowledgebase {
 				{{{
 					typename vector<node *>::const_iterator ci;
 
-					into += htonl(label);
-					into += htonl(timestamp);
-					into += htonl(status);
+					into += ::serialize(label); // label MUST be the first element (see deserialize of children)
+					into += ::serialize(timestamp);
+					into += ::serialize(status);
 
 					if(is_answered())
-						into += htonl((int32_t)ans);
+						into += ::serialize(ans);
 
 					int childcount = 0;
 					for(ci = children.begin(); ci != children.end(); ci++)
 						if(*ci != NULL)
 							childcount++;
-					into += htonl(childcount);
+					into += ::serialize(childcount);
 
 					for(ci = children.begin(); ci != children.end(); ci++)
 						if(*ci != NULL)
 							(*ci)->serialize_subtree(into);
 
 				}}}
-				bool deserialize_subtree(basic_string<int32_t>::iterator & it, basic_string<int32_t>::iterator limit, int & count)
+				bool deserialize_subtree(serial_stretch & ser)
 				{{{
-					int childcount;
-
-					if(it == limit) return false;
-
-					// skip label, was set by parent
-					it++, count--; if(it == limit) return false;
-					timestamp = (int)ntohl(*it);
-					if(base->timestamp <= timestamp)
+					using libalf::deserialize;
+					if(!::deserialize(label, ser)) return false;
+					if(!::deserialize(timestamp, ser)) return false;
+					if(timestamp >= base->timestamp)
 						base->timestamp = timestamp + 1;
-
-					it++, count--; if(it == limit) return false;
-					status = (enum node::status_e)ntohl(*it);
-
-					if(status == NODE_ANSWERED)
-						base->answercount++;
+					int st;
+					if(!::deserialize(st, ser)) return false;
+					status = (enum status_e) st;
 
 					if(is_answered()) {
-						it++, count--; if(it == limit) return false;
-						ans = (int32_t)ntohl(*it);
+						if(!deserialize(this->ans, ser)) return false;
+						base->answercount += 1;
 					}
 
-					it++, count--; if(it == limit) return false;
-					childcount = ntohl(*it);
-					it++, count--;
+					int childcount;
+					if(!::deserialize(childcount, ser)) return false;
 
-					for(/* nothing */; childcount > 0; childcount--) {
-						node* c;
-
-						if(it == limit) return false;
-
-						c = this->find_or_create_child(ntohl(*it));
-						c->deserialize_subtree(it, limit, count);
+					while(childcount) {
+						if(ser.empty()) return false;
+						node * c = this->find_or_create_child(ntohl(*ser));
+						if(!c->deserialize_subtree(ser)) return false;
+						--childcount;
 					}
 
 					return true;
@@ -437,20 +428,24 @@ class knowledgebase {
 				// (true if this < other)
 				{{{
 					// FIXME: efficiency
+					using libalf::is_lex_smaller;
+
 					list<int> a,b;
 					a = this->get_word();
 					b = other->get_word();
-					return libalf::is_lex_smaller(a,b);
+					return is_lex_smaller(a,b);
 				}}}
 				bool is_graded_lex_smaller(const node *other) const
 				// graded lexicographically compare this to
 				// other (true if this < other)
 				{{{
 					// FIXME: efficiency
+					using libalf::is_graded_lex_smaller;
+
 					list<int> a,b;
 					a = this->get_word();
 					b = other->get_word();
-					return libalf::is_graded_lex_smaller(a,b);
+					return is_graded_lex_smaller(a,b);
 				}}}
 				unsigned long long int get_memory_usage() const
 				// calculate memory consumption of this
@@ -576,6 +571,8 @@ class knowledgebase {
 				// get representative of nodes eq.class w.r.t.
 				// lexicographic order
 				{{{
+					using libalf::is_lex_smaller;
+
 					range eq_class;
 					list<int> current_rep_word;
 					node * current_rep;
@@ -591,7 +588,7 @@ class knowledgebase {
 					while(eq_class.first != eq_class.second) {
 						list<int> w;
 						w = eq_class.first->second->get_word();
-						if(libalf::is_lex_smaller(w, current_rep_word)) {
+						if(is_lex_smaller(w, current_rep_word)) {
 							current_rep = eq_class.first->second;
 							current_rep_word = w;
 						}
@@ -602,6 +599,8 @@ class knowledgebase {
 				}}}
 				bool is_representative_lex(node * n)
 				{{{
+					using libalf::is_lex_smaller;
+
 					range eq_class;
 					list<int> word;
 
@@ -614,7 +613,7 @@ class knowledgebase {
 					while(eq_class.first != eq_class.second) {
 						list<int> w;
 						w = eq_class.first->second->get_word();
-						if(libalf::is_lex_smaller(w, word))
+						if(is_lex_smaller(w, word))
 							return false;
 						eq_class.first++;
 					}
@@ -643,6 +642,8 @@ class knowledgebase {
 				// get representative of nodes eq.class w.r.t.
 				// graded lexicographic order
 				{{{
+					using libalf::is_graded_lex_smaller;
+
 					range eq_class;
 					list<int> current_rep_word;
 					node * current_rep;
@@ -658,7 +659,7 @@ class knowledgebase {
 					while(eq_class.first != eq_class.second) {
 						list<int> w;
 						w = eq_class.first->second->get_word();
-						if(libalf::is_graded_lex_smaller(w, current_rep_word)) {
+						if(is_graded_lex_smaller(w, current_rep_word)) {
 							current_rep = eq_class.first->second;
 							current_rep_word = w;
 						}
@@ -669,6 +670,8 @@ class knowledgebase {
 				}}}
 				bool is_representative_graded_lex(node * n)
 				{{{
+					using libalf::is_graded_lex_smaller;
+
 					range eq_class;
 					list<int> word;
 
@@ -681,7 +684,7 @@ class knowledgebase {
 					while(eq_class.first != eq_class.second) {
 						list<int> w;
 						w = eq_class.first->second->get_word();
-						if(libalf::is_graded_lex_smaller(w, word))
+						if(is_graded_lex_smaller(w, word))
 							return false;
 						eq_class.first++;
 					}
@@ -854,8 +857,8 @@ class knowledgebase {
 
 
 
-		friend class libalf::knowledgebase<answer>::node;
-		friend class libalf::knowledgebase<answer>::iterator;
+		friend class knowledgebase<answer>::node;
+		friend class knowledgebase<answer>::iterator;
 	protected: // data
 		// full tree
 		node * root;
@@ -958,19 +961,19 @@ class knowledgebase {
 			return timestamp;
 		}}}
 
-		int count_nodes() const
+		int count_nodes() const // O(1)
 		{{{
 			return nodecount;
 		}}}
-		int count_answers() const
+		int count_answers() const // O(1)
 		{{{
 			return answercount;
 		}}}
-		int count_queries() const
+		int count_queries() const // O(n) !
 		{{{
 			return required.size();
 		}}}
-		int count_resolved_queries() const
+		int count_resolved_queries() const // O(1)
 		{{{
 			return resolved_queries;
 		}}}
@@ -1193,44 +1196,40 @@ class knowledgebase {
 
 			ret += 0; // sizeof, will be filled in later
 
-			ret += htonl(resolved_queries);
+			ret += ::serialize(resolved_queries);
 			root->serialize_subtree(ret);
 
-			ret[0] += htonl(ret.size() - 1);
+			ret[0] = htonl(ret.size() - 1);
 
 			return ret;
 		}}}
-		bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+		bool deserialize(serial_stretch & ser)
 		{{{
-			int size;
+			// NOTE: the following members implicitly get values during the
+			// deserialization of the tree:
+			//	nodecount
+			//	answercount
+			//	largest_symbol
+			//	timestamp
 
-			if(it == limit)
-				goto deserialization_failed;
+			int size;
 
 			clear();
 
-			size = ntohl(*it);
-			it++; if(it == limit) goto deserialization_failed;
+			if(!::deserialize(size, ser)) goto failed;
+			if(!::deserialize(resolved_queries, ser)) goto failed;
 
-			resolved_queries = ntohl(*it);
-			if(resolved_queries < 0) goto deserialization_failed;
-			it++; size--; if(it == limit) goto deserialization_failed;
+			if(ser.empty()) goto failed;
+			if(((int)ntohl(*ser)) != -1) goto failed; // label of root-node must be -1.
+			if(!root->deserialize_subtree(ser)) goto failed;
 
-			// label of root-node should be -1
-			if((int32_t)(ntohl(*it)) != -1)
-				goto deserialization_failed;
+			return true;
 
-			if(!root->deserialize_subtree(it, limit, size))
-				goto deserialization_failed;
-
-			if(size == 0)
-				return true;
-
-		deserialization_failed:
+		failed:
 			clear();
 			return false;
 		}}}
-		bool deserialize_query_acceptances(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit)
+		bool deserialize_query_acceptances(serial_stretch & ser)
 		// answer all queries from a single, serialized chunk.
 		// the expected format is:
 		//	int length (i.e. the number of upcoming integers, excluding this one.
@@ -1241,34 +1240,23 @@ class knowledgebase {
 		// by their timestamps. 2) using get_queries(). 3) by iterating over all
 		// queries (via qbegin() and qend())
 		{{{
+			using libalf::deserialize;
 			int size;
 			iterator ki;
 
-			if(it == limit)
-				goto deserialization_failed;
+			if(!::deserialize(size, ser)) goto failed;
 
-			size = ntohl(*it);
-			it++;
-
-			// we expect _exactly_ as much answers as we have required nodes
-			if(size != (int)required.size())
-				goto deserialization_failed;
-
-			while( ! required.empty() ) {
-				ki = this->qbegin();
-				if(it == limit)
-					goto deserialization_failed;
+			while(size && !required.empty()) {
 				answer a;
-				a = (int32_t)ntohl(*it);
-				ki->set_answer(a);
-				size--;
-				it++;
+				if(!deserialize(a, ser)) goto failed;
+				required.front()->set_answer(a);
+				--size;
 			}
 
-			if(size == 0)
+			if(size == 0 && required.empty())
 				return true;
 
-		deserialization_failed:
+		failed:
 			clear();
 			return false;
 		}}}

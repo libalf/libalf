@@ -25,10 +25,9 @@
 #ifndef __libalf_dispatcher_co_knowledgebase_h__
 # define __libalf_dispatcher_co_knowledgebase_h__
 
-#include <set>
-
-#include <libalf/knowledgebase.h>
 #include <libalf/answer.h>
+#include <libalf/serialize.h>
+#include <libalf/knowledgebase.h>
 
 #include "client_object.h"
 

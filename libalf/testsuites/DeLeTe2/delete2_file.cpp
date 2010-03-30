@@ -58,12 +58,12 @@ int main(int argc, char**argv)
 		log(LOGGER_ERROR, "failed to obtain basic_string from file \"%s\"!\n", argv[1]);
 		return -1;
 	}
-	si = serialized.begin();
-	if(!knowledge.deserialize(si, serialized.end())) {
+	serial_stretch ser(serialized);
+	if(!knowledge.deserialize(ser)) {
 		log(LOGGER_ERROR, "failed to load knowledgebase from file \"%s\"!\n", argv[1]);
 		return -1;
 	}
-	if(si != serialized.end())
+	if(!ser.empty())
 		log(LOGGER_WARN, "garbage at end of file?\n");
 
 	cout << "\n";

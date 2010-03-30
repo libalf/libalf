@@ -21,26 +21,24 @@
  *
  */
 
-#ifndef __helper_serialize_h__
-# define __helper_serialize_h__
+#ifndef __helper_serialize_h__body__
 
-# include <string>
-# include <list>
-# include <set>
-# include <map>
-# include <iterator>
-# include <vector>
+// NOTE: __helper__serialize_h__only_forward_declarations__ may be defined by
+// the including party to only include forward declarations.
+// in this case, serialize.h needs to be included again later on.
 
-# include <cmath>
+// __helper_serialize_h__forward__ is defined if forward declarations were included already.
+# ifndef __helper_serialize_h__forward__
+#  define __helper_serialize_h__forward__
 
-# include <stdint.h>
-
-# ifdef _WIN32
-#  include <winsock.h>
-#  include <stdio.h>
-# else
-#  include <arpa/inet.h>
-# endif
+// headers that are needed for forward declaration:
+#  include <string>
+#  include <list>
+#  include <set>
+#  include <map>
+#  include <iterator>
+#  include <vector>
+#  include <stdint.h>
 
 class  serial_stretch {
 	public:
@@ -96,8 +94,25 @@ template <typename S, typename T>	bool deserialize(std::multimap<S, T> & m, seri
 template <typename S>			std::basic_string<int32_t> serialize(const std::basic_string<S> & s);
 template <typename S>			bool deserialize(std::basic_string<S> & s, serial_stretch & serial);
 
-// SERIALIZATION OF BASIC TYPES
+# endif // ifdef __helper_serialize_h__forward__
 
+# ifdef __helper__serialize_h__only_forward_declarations__
+#  undef __helper__serialize_h__only_forward_declarations__
+# else
+
+// __helper_serialize_h__body__ is defined if function bodies were included already.
+#  define __helper_serialize_h__body__
+
+// headers that are needed for function bodies:
+#  include <cmath>
+#  ifdef _WIN32
+#   include <winsock.h>
+#   include <stdio.h>
+#  else
+#   include <arpa/inet.h>
+#  endif
+
+// SERIALIZATION OF BASIC TYPES
 
 // int
 inline					std::basic_string<int32_t> serialize(int a) // works for int, unsinged int, char and bool
@@ -361,5 +376,7 @@ template <typename S>			bool deserialize(std::basic_string<S> & s, serial_stretc
 	return true;
 }}}
 
-#endif // __helper_serialize_h__
+# endif // else of ifdef __helper__serialize_h__only_forward_declarations__
+
+#endif // IFNDEF __helper_serialize_h__body__
 
