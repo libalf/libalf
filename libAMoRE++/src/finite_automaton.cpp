@@ -518,7 +518,7 @@ bool finite_automaton::antichain__is_superset_of(const finite_automaton &other, 
 					// get all predecessors
 					set<int> this_pre;
 					for(si = ati->second.first.begin(); si != ati->second.first.end(); ++si)
-						set_insert(this_pre, this_premap[*si][sigma]);
+						this_pre.insert(this_premap[*si][sigma].begin(), this_premap[*si][sigma].end());
 
 					// check, which of them are controllable
 					set<int> uncontrollable;
@@ -529,7 +529,7 @@ bool finite_automaton::antichain__is_superset_of(const finite_automaton &other, 
 
 					// create new gamestate(s)
 					gamestate.second.first = set_without(this_pre, uncontrollable);
-					set_insert(gamestate.second.first, this_states_without_successors[sigma]);
+					gamestate.second.first.insert(this_states_without_successors[sigma].begin(), this_states_without_successors[sigma].end());
 					gamestate.second.second = ati->second.second;
 					gamestate.second.second.push_front(sigma);
 					ti = other_premap[ati->first][sigma].end(); // for fast access

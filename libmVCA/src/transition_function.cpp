@@ -33,8 +33,6 @@
 
 #include <libmVCA/serialize.h>
 
-#include "set.h"
-
 namespace libmVCA {
 
 using namespace std;
@@ -131,7 +129,7 @@ set<int> nondeterministic_transition_function::transmute(const set<int> & states
 			map<int, set<int> >::const_iterator msi;
 			msi = i->second.find(sigma);
 			if(msi != i->second.end())
-				set_insert(dst, msi->second);
+				dst.insert(msi->second.begin(), msi->second.end());
 		}
 	}
 
@@ -147,7 +145,7 @@ set<int> nondeterministic_transition_function::transmute(int state, int sigma) c
 		map<int, set<int> >::const_iterator msi;
 		msi = i->second.find(sigma);
 		if(msi != i->second.end())
-			set_insert(dst, msi->second);
+			dst.insert(msi->second.begin(), msi->second.end());
 	}
 
 	return dst;

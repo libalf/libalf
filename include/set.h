@@ -30,6 +30,7 @@
 
 // the set_*-functions are very generic and may be used with any kind of set
 
+// set_includes uses the order of both sets for optimizations.
 template <class T>	bool set_includes(const std::set<T> &superset, const std::set<T> &subset)
 {{{
 	typename std::set<T>::const_iterator Si, si;
@@ -56,23 +57,12 @@ template <class T>	bool set_includes(const std::set<T> &superset, const std::set
 }}}
 
 template <class T>	std::set<T> set_union(std::set<T> s, const std::set<T> &t)
-{{{
-	typename std::set<T>::const_iterator si;
+{ s.insert(t.begin(), t.end()); return s; }
 
-	for(si = t.begin(); si != t.end(); ++si)
-		s.insert(*si);
+// set_insert(...):
+// use set::insert(begin(), end()) instead.
 
-	return s;
-}}}
-
-template <class T>	void set_insert(std::set<T> &into, const std::set<T> &subset)
-{{{
-	typename std::set<T>::const_iterator si;
-
-	for(si = subset.begin(); si != subset.end(); ++si)
-		into.insert(*si);
-}}}
-
+// set_intersect uses the order of both sets for optimizations.
 template <class T>	std::set<T> set_intersect(const std::set<T> &s, const std::set<T> &t)
 {{{
 	std::set<T> ret;
@@ -82,7 +72,6 @@ template <class T>	std::set<T> set_intersect(const std::set<T> &s, const std::se
 	for(si = s.begin(); si != s.end(); ++si) {
 		if(t.find(*si) != t.end())
 			ret.insert(*si);
-		// set::size() is O(1)
 		if(ret.size() >= s.size() || ret.size() >= t.size())
 			break;
 	}
@@ -90,6 +79,7 @@ template <class T>	std::set<T> set_intersect(const std::set<T> &s, const std::se
 	return ret;
 }}}
 
+// set_without uses the order of both sets for optimizations. thus it is more efficient than set::erase(...)
 template <class T>	std::set<T> set_without(const std::set<T> &s, const std::set<T> &remove)
 {{{
 	std::set<T> ret;
