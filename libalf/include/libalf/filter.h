@@ -62,16 +62,16 @@ class filter {
 
 		virtual void free_all_subfilter() = 0;
 
-		virtual enum type get_type()
+		virtual enum type get_type() const
 		{ return filter<answer>::FILTER_NONE; };
 
-		virtual bool evaluate(knowledgebase<answer> & base, list<int> & word, answer & result) = 0;
+		virtual bool evaluate(knowledgebase<answer> & base, const list<int> & word, answer & result) const = 0;
 
 		// layout for serialized filter:
 		// int size (of upcoming, including type)
 		// int type
 		// data[] (of length size - 2)
-		virtual basic_string<int32_t> serialize() = 0;
+		virtual basic_string<int32_t> serialize() const = 0;
 		virtual bool deserialize(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit) = 0;
 };
 
@@ -93,7 +93,7 @@ class filter_subfilter_array : public filter<answer> {
 				subfilter_array.erase(li);
 			}
 		}}}
-		virtual basic_string<int32_t> serialize()
+		virtual basic_string<int32_t> serialize() const
 		{{{
 			basic_string<int32_t> ret;
 			typename list<filter<answer>*>::iterator li;
@@ -123,11 +123,11 @@ class filter_and : public filter_subfilter_array<answer> {
 	public:
 		virtual ~filter_and()
 		{ };
-		virtual enum filter<answer>::type get_type()
+		virtual enum filter<answer>::type get_type() const
 		{ return filter<answer>::FILTER_AND; };
-		virtual bool evaluate(knowledgebase<answer> & base, list<int> & word, answer & result)
+		virtual bool evaluate(knowledgebase<answer> & base, const list<int> & word, answer & result) const
 		{{{
-			typename list<filter<answer>*>::iterator li;
+			typename list<filter<answer>*>::const_iterator li;
 			for(li = this->subfilter_array.begin(); li != this->subfilter_array.end(); li++) {
 				answer a;
 				if( ! (*li)->evaluate(base, word, a)) {
@@ -150,16 +150,17 @@ class filter_or : public filter_subfilter_array<answer> {
 	public:
 		virtual ~filter_or()
 		{ };
-		virtual enum filter<answer>::type get_type()
+		virtual enum filter<answer>::type get_type() const
 		{ return filter<answer>::FILTER_OR; };
-		virtual bool evaluate(knowledgebase<answer> & base, list<int> & word, answer & result)
+		virtual bool evaluate(knowledgebase<answer> & base, const list<int> & word, answer & result) const
 		{{{
-			typename list<filter<answer>*>::iterator li;
+			typename list<filter<answer>*>::const_iterator li;
+			bool all_known = true;
 			for(li = this->subfilter_array.begin(); li != this->subfilter_array.end(); li++) {
 				answer a;
 				if( ! (*li)->evaluate(base, word, a)) {
 					// filter does not know
-					// don't care.
+					all_known = false;
 				} else {
 					if(((bool)a)) {
 						result = true;
@@ -168,7 +169,7 @@ class filter_or : public filter_subfilter_array<answer> {
 				}
 			}
 			result = false;
-			return true;
+			return all_known;
 		}}};
 };
 
@@ -187,9 +188,9 @@ class filter_not : public filter<answer> {
 				subfilter = NULL;
 			}
 		}}}
-		virtual enum filter<answer>::type get_type()
+		virtual enum filter<answer>::type get_type() const
 		{ return filter<answer>::FILTER_NOT; };
-		virtual bool evaluate(knowledgebase<answer> & base, list<int> & word, answer & result)
+		virtual bool evaluate(knowledgebase<answer> & base, const list<int> & word, answer & result) const
 		{{{
 			if(subfilter) {
 				if(subfilter->evaluate(base, word, result)) {
@@ -210,7 +211,7 @@ class filter_not : public filter<answer> {
 		{{{
 			subfilter = NULL;
 		}}}
-		virtual basic_string<int32_t> serialize()
+		virtual basic_string<int32_t> serialize() const
 		{{{
 			basic_string<int32_t> ret;
 			ret += 0; // size, filled in later.
@@ -232,11 +233,11 @@ class filter_all_equal : public filter_subfilter_array<answer> {
 	public:
 		virtual ~filter_all_equal()
 		{ };
-		virtual enum filter<answer>::type get_type()
+		virtual enum filter<answer>::type get_type() const
 		{ return filter<answer>::FILTER_ALL_EQUAL; }
-		virtual bool evaluate(knowledgebase<answer> & base, list<int> & word, answer & result)
+		virtual bool evaluate(knowledgebase<answer> & base, const list<int> & word, answer & result) const
 		{{{
-			typename list<filter<answer>*>::iterator li;
+			typename list<filter<answer>*>::const_iterator li;
 			answer a;
 
 			if(this->subfilter_array.empty())
@@ -275,21 +276,17 @@ class filter_reverse : public filter<answer> {
 				subfilter = NULL;
 			}
 		}}}
-		virtual enum filter<answer>::type get_type()
+		virtual enum filter<answer>::type get_type() const
 		{ return filter<answer>::FILTER_NOT; };
-		virtual bool evaluate(knowledgebase<answer> & base, list<int> & word, answer & result)
+		virtual bool evaluate(knowledgebase<answer> & base, const list<int> & word, answer & result) const
 		{{{
 			if(subfilter) {
 				list<int> reversed_word;
-				typename list<int>::reverse_iterator li;
+				typename list<int>::const_reverse_iterator li;
 				for(li = word.rbegin(); li != word.rend(); li++)
 					reversed_word.push_back(*li);
 
-				if(subfilter->evaluate(base, reversed_word, result)) {
-					return true;
-				} else {
-					return false;
-				}
+				return subfilter->evaluate(base, reversed_word, result);
 			} else {
 				return false;
 			};
@@ -302,7 +299,7 @@ class filter_reverse : public filter<answer> {
 		{{{
 			subfilter = NULL;
 		}}}
-		virtual basic_string<int32_t> serialize()
+		virtual basic_string<int32_t> serialize() const
 		{{{
 			basic_string<int32_t> ret;
 			ret += 0; // size, filled in later.
@@ -330,9 +327,9 @@ class filter_identity : public filter<answer> {
 		{ };
 		virtual void free_all_subfilter()
 		{ };
-		virtual enum filter<answer>::type get_type()
+		virtual enum filter<answer>::type get_type() const
 		{ return filter<answer>::FILTER_IDENTITY; };
-		virtual bool evaluate(knowledgebase<answer> & base, list<int> & word, answer & result)
+		virtual bool evaluate(knowledgebase<answer> & base, const list<int> & word, answer & result) const
 		{{{
 			typename knowledgebase<answer>::node * n;
 			n = base.get_rootptr();
@@ -348,7 +345,7 @@ class filter_identity : public filter<answer> {
 				return false;
 			};
 		}}}
-		virtual basic_string<int32_t> serialize()
+		virtual basic_string<int32_t> serialize() const
 		{{{
 			basic_string<int32_t> ret;
 			ret += 0; // size, filled in later.

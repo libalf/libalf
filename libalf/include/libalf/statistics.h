@@ -71,18 +71,18 @@ class statistic_data {
 			double d;
 			bool b;
 		};
-		string s; // can't put this into the union cause its a class
+		string s; // as string has a constructur, we can't put it in a union.
 
 	public:
 		statistic_data();
 
-		string to_string();
-		void print(ostream & os);
+		string to_string() const;
+		void print(ostream & os) const;
 
-		basic_string<int32_t> serialize();
+		basic_string<int32_t> serialize() const;
 		bool deserialize(serial_stretch & serial);
 
-		enum statistic_type get_type();
+		enum statistic_type get_type() const;
 		void set_type(enum statistic_type type);
 
 		void unset();
@@ -92,10 +92,10 @@ class statistic_data {
 		void set_bool(bool b);
 		void set_string(string s);
 
-		bool get_integer(int & i);
-		bool get_double(double & d);
-		bool get_bool(bool & b);
-		bool get_string(string & s);
+		bool get_integer(int & i) const;
+		bool get_double(double & d) const;
+		bool get_bool(bool & b) const;
+		bool get_string(string & s) const;
 
 		inline statistic_data & operator=(const int & i)    { set_integer(i); return *this; };
 		inline statistic_data & operator=(const double & d) { set_double(d);  return *this; };
@@ -110,14 +110,17 @@ class statistic_data {
 };
 
 // required for generic serialisation:
-inline basic_string<int32_t> serialize(statistic_data & s)			{ return s.serialize(); }
+inline basic_string<int32_t> serialize(const statistic_data & s)		{ return s.serialize(); }
 inline bool deserialize(statistic_data & into, serial_stretch & serial)		{ return into.deserialize(serial); };
 
 
 class generic_statistics : public map<string, statistic_data> {
-	public:
-		string to_string();
-		void print(ostream & os);
+	public: // types
+		typedef map<string, statistic_data>::iterator iterator;
+		typedef map<string, statistic_data>::const_iterator const_iterator;
+	public: // methods
+		string to_string() const;
+		void print(ostream & os) const;
 
 		inline void remove_property(const string & key)					{ this->erase(key); };
 
@@ -146,7 +149,7 @@ class timing_statistics {
 	public: // methods
 		timing_statistics();
 		void reset();
-		basic_string<int32_t> serialize();
+		basic_string<int32_t> serialize() const;
 		bool deserialize(serial_stretch & serial);
 };
 

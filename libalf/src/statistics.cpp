@@ -59,7 +59,7 @@ statistic_data::statistic_data()
 {{{
 	type = UNSET;
 }}}
-enum statistic_type statistic_data::get_type()
+enum statistic_type statistic_data::get_type() const
 {{{
 	return type;
 }}}
@@ -82,7 +82,7 @@ void statistic_data::set_integer(int i)
 {{{
 	type = INTEGER; this->i = i;
 }}}
-bool statistic_data::get_integer(int & i)
+bool statistic_data::get_integer(int & i) const
 {{{
 	i = this->i; return (type == INTEGER);
 }}}
@@ -90,7 +90,7 @@ void statistic_data::set_double(double d)
 {{{
 	type = DOUBLE; this->d = d;
 }}}
-bool statistic_data::get_double(double & d)
+bool statistic_data::get_double(double & d) const
 {{{
 	d = this->d; return (type == DOUBLE);
 }}}
@@ -98,7 +98,7 @@ void statistic_data::set_bool(bool b)
 {{{
 	type = BOOL; this->b = b;
 }}}
-bool statistic_data::get_bool(bool & b)
+bool statistic_data::get_bool(bool & b) const
 {{{
 	b = this->b; return (type == BOOL);
 }}}
@@ -106,15 +106,15 @@ void statistic_data::set_string(string s)
 {{{
 	type = STRING; this->s = s;
 }}}
-bool statistic_data::get_string(string & s)
+bool statistic_data::get_string(string & s) const
 {{{
-	s = this->s; return (type = STRING);
+	s = this->s; return (type == STRING);
 }}}
-string statistic_data::to_string()
+string statistic_data::to_string() const
 {{{
 	stringstream str; print(str); return str.str();
 }}}
-void statistic_data::print(ostream & os)
+void statistic_data::print(ostream & os) const
 {{{
 	switch(type) {
 		case INTEGER: os << i; break;
@@ -124,7 +124,7 @@ void statistic_data::print(ostream & os)
 		default: break;
 	};
 }}}
-basic_string<int32_t> statistic_data::serialize()
+basic_string<int32_t> statistic_data::serialize() const
 {{{
 	basic_string<int32_t> ret;
 
@@ -132,7 +132,7 @@ basic_string<int32_t> statistic_data::serialize()
 
 	switch(type) {
 		case INTEGER: ret += ::serialize(i); break;
-		case DOUBLE: ret += ::serialize(d); break;
+		case DOUBLE: {ret += ::serialize((double&)d); printf("serialized double.\n");}break;
 		case BOOL: ret += ::serialize(b); break;
 		case STRING: ret += ::serialize(s); break;
 		default: break;
@@ -147,7 +147,7 @@ bool statistic_data::deserialize(serial_stretch & serial)
 	type = (enum statistic_type) t;
 	switch(type) {
 		case INTEGER: if(!::deserialize(i, serial)) return false; break;
-		case DOUBLE: if(!::deserialize(d, serial)) return false; break;
+		case DOUBLE: if(!::deserialize((double&)d, serial)) return false; break;
 		case BOOL: if(!::deserialize(b, serial)) return false; break;
 		case STRING: if(!::deserialize(s, serial)) return false; break;
 		default: break;
@@ -155,15 +155,15 @@ bool statistic_data::deserialize(serial_stretch & serial)
 	return true;
 }}}
 
-string generic_statistics::to_string()
+string generic_statistics::to_string() const
 {{{
 	stringstream str;
 	print(str);
 	return str.str();
 }}}
-void generic_statistics::print(ostream & os)
+void generic_statistics::print(ostream & os) const
 {{{
-	map<string, statistic_data>::iterator i;
+	const_iterator i;
 
 	os << "statistics = { ";
 
@@ -198,7 +198,7 @@ void timing_statistics::reset()
 	sys_sec = 0;
 	sys_usec = 0;
 }}}
-basic_string<int32_t> timing_statistics::serialize()
+basic_string<int32_t> timing_statistics::serialize() const
 {{{
 	basic_string<int32_t> ret;
 

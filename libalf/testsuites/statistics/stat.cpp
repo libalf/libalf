@@ -35,9 +35,9 @@ int main()
 
 	generic_statistics fnord;
 
-	serial_stretch s(serial.begin(), serial.end());
+	serial_stretch ser(serial.begin(), serial.end());
 
-	if(!::deserialize(fnord, s))
+	if(!::deserialize(fnord, ser))
 		cout << "deser failed.\n";
 
 	fnord.print(cout);
