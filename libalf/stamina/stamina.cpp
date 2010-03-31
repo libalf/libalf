@@ -71,8 +71,9 @@ int main(int argc, const char* argv[]) {
 
 	// Create libalf
 	knowledgebase<bool> base;
-	//original_biermann<bool> algorithm = original_biermann<bool>(&base, NULL, s_set->get_alphabet_size(), 4);
-	RPNI<bool> algorithm = RPNI<bool>(&base, NULL, s_set->get_alphabet_size());
+	ostream_logger log(&cout, LOGGER_DEBUG);
+	learning_algorithm<bool> * algorithm = new RPNI<bool>(&base, &log, s_set->get_alphabet_size());
+//	learning_algorithm<bool> * algorithm = new original_biermann<bool>(&base, &log, s_set->get_alphabet_size(), 10 /* <- set this as required (nondeterminism) */);
 
 	// Obtain data
 	map<list<int>, bool> training_set = s_set->get_training_set();
@@ -94,7 +95,7 @@ int main(int argc, const char* argv[]) {
 	}
 
 	// Compute conjecture
-	conjecture *cj = algorithm.advance();
+	conjecture *cj = algorithm->advance();
 	simple_moore_machine *result = dynamic_cast<simple_moore_machine*>(cj);
 
 #ifdef VERBOSE
@@ -121,6 +122,7 @@ int main(int argc, const char* argv[]) {
 	// Clean memory
 	delete result;
 	delete s_set;
+	delete algorithm;
 
 	return 0;
 }
