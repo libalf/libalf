@@ -105,13 +105,13 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 				inline equivalence_approximation(const list<int> & prefix, int cv)
 				{ this->prefix() = prefix; this->cv() = cv; };
 
-				pair<int, vector<answer> > footprint()
+				pair<int, vector<answer> > fingerprint()
 				{{{
 					pair<int, vector<answer> > ret;
 					ret.first = cv();
 					ret.second = acceptances();
 					return ret;
-				}}};
+				}}}
 
 				inline bool equivalent(equivalence_approximation & other)
 				{ return cv() == other.cv() && acceptances() == other.acceptances(); }
@@ -1129,12 +1129,12 @@ deserialization_failed:
 
 			for(vi = table.begin(); vi != table.end(); ++vi) {
 				for(equi = vi->representatives().begin(); equi != vi->representatives().end(); ++equi) {
-					pair<int, vector<answer> > footprint = equi->footprint();
-					if(states.find(footprint) == states.end()) {
-						states[footprint] = cj->state_count;
+					pair<int, vector<answer> > fingerprint = equi->fingerprint();
+					if(states.find(fingerprint) == states.end()) {
+						states[fingerprint] = cj->state_count;
 						if(equi->prefix().empty())
 							cj->initial_states.insert(cj->state_count);
-						if((footprint.first == 0) && (true == (bool)(footprint.second[0])))
+						if((fingerprint.first == 0) && (true == (bool)(fingerprint.second[0])))
 							cj->final_states.insert(cj->state_count);
 						++cj->state_count;
 
@@ -1147,7 +1147,7 @@ deserialization_failed:
 			pair<pair<int, int>, int> new_transition; // state, sigma -> state
 			for(vi = table.begin(); vi != table.end(); ++vi) {
 				for(equi = vi->representatives().begin(); equi != vi->representatives().end(); ++equi) {
-					new_transition.first.first = states[equi->footprint()];
+					new_transition.first.first = states[equi->fingerprint()];
 					list<int> rep;
 					rep = equi->prefix();
 					for(int sigma = 0; sigma < this->get_alphabet_size(); ++sigma) {
@@ -1159,12 +1159,12 @@ deserialization_failed:
 						rep.push_back(sigma);
 						new_transition.first.second = sigma;
 
-						pair<int, vector<answer> > footprint = equi->footprint();
+						pair<int, vector<answer> > fingerprint = equi->fingerprint();
 						bool found;
 
-						footprint = table.find_transition(rep, equi->cv(), dcv, found).second->footprint();
+						fingerprint = table.find_transition(rep, equi->cv(), dcv, found).second->fingerprint();
 
-						new_transition.second = states[footprint];
+						new_transition.second = states[fingerprint];
 						cj->transitions.insert(new_transition);
 						rep.pop_back();
 					}
