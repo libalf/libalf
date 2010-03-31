@@ -6,40 +6,40 @@
 all: algorithm_analysis alphabet angluin_col_table angluin_simple_table biermann DeLeTe2 NLstar_count_eq_queries NLstar_table normalizer RPNI conjecture
 
 algorithm_analysis:
-	make -C algorithm_analysis
+	+make -C algorithm_analysis
 
 alphabet:
-	make -C alphabet
+	+make -C alphabet
 
 angluin_col_table:
-	make -C angluin_col_table
+	+make -C angluin_col_table
 
 angluin_simple_table:
-	make -C angluin_simple_table
+	+make -C angluin_simple_table
 
 biermann:
-	make -C biermann
+	+make -C biermann
 
 DeLeTe2:
-	make -C DeLeTe2
+	+make -C DeLeTe2
 
 kearns_vazirani:
-	make -C kearns_vazirani
+	+make -C kearns_vazirani
 
 NLstar_count_eq_queries:
-	make -C NLstar_count_eq_queries
+	+make -C NLstar_count_eq_queries
 
 NLstar_table:
-	make -C NLstar_table
+	+make -C NLstar_table
 
 normalizer:
-	make -C normalizer
+	+make -C normalizer
 
 RPNI:
-	make -C RPNI
+	+make -C RPNI
 
 conjecture:
-	make -C conjecture
+	+make -C conjecture
 
 clean:
 	make -C algorithm_analysis clean
