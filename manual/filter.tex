@@ -5,7 +5,10 @@ Both components can be serialized and deserialized.
 
 \section{Filters}
 
-A knowledgebase can be associated with more than one filter through the logical connectors. It is organized in a class called \texttt{filter}.
+A knowledgebase can be associated with more than one filter through the logical connectors. A filter essentially works on the word and tries to resolve its classification. Thus, it reduces the number of queries that are asked to the teacher. You may also connect the filters with more than one logical connectors and, or and not.
+\paragraph{A simple example}
+Lets assume that you have associated two filters with learning algorithm. You wish that the classification of word is 1 (accepted) if only both the filters give positive results and is 0 (rejected) if even one of the filters give a negative result. \libalf lets you connect these filters with logical connector ``and'' so that the above operation is precisely performed. \\
+In the following material, we discuss the methods associated with Filters are implemented and how to work with it.
 
 \subsection{Class - filter}
 It is the main class that defines the types of filter.

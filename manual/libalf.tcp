@@ -8,7 +8,7 @@ img_extIsRegExp=false
 img_extensions=.eps .jpg .jpeg .png .pdf .ps .fig .gif
 kileprversion=2
 kileversion=2.1 beta2
-lastDocument=references.bib
+lastDocument=quicktour.tex
 masterDocument=
 name=Project
 pkg_extIsRegExp=false
@@ -39,10 +39,10 @@ order=2
 
 [item:filter.tex]
 archive=true
-column=39
+column=142
 encoding=UTF-8
 highlight=LaTeX
-line=12
+line=28
 open=true
 order=7
 
@@ -75,10 +75,10 @@ order=3
 
 [item:learning_algorithm.tex]
 archive=true
-column=1
+column=13
 encoding=UTF-8
 highlight=LaTeX
-line=30
+line=204
 open=true
 order=4
 
@@ -93,19 +93,19 @@ order=0
 
 [item:logger.tex]
 archive=true
-column=69
+column=44
 encoding=UTF-8
 highlight=LaTeX
-line=26
+line=13
 open=true
 order=6
 
 [item:quicktour.tex]
 archive=true
-column=1
+column=0
 encoding=ISO-8859-9
 highlight=LaTeX
-line=240
+line=6
 open=true
 order=8
 
