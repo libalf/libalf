@@ -1,0 +1,199 @@
+\documentclass[a4paper, fontsize=11pt, DIV=12, parskip=half]{scrartcl}
+%---------- Packages -----------
+\usepackage[bookmarks=false]{hyperref}
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{textcomp}
+\usepackage{xspace}
+\usepackage{fancyhdr}
+\usepackage{color}
+\usepackage{tikz}
+\usepackage{wrapfig}
+\usepackage{booktabs}
+
+%---------- Font -----------
+\usepackage[scaled]{berasans}
+\renewcommand*\familydefault{\sfdefault}  %% Only if the base font of the document is to be sans serif
+
+%---------- Hyperref setup -----------
+\definecolor{mycolor}{rgb}{0.18,0.02,.54}
+\hypersetup{
+pdftitle     = {libALF: The Automata Learning Framework},
+pdfauthor    = {Daniel Neider},
+pdfkeywords  = {libALF, Automata Learning},
+pdfstartview = {FitH},
+colorlinks   = {true},
+urlcolor     = {mycolor},
+linkcolor    = {black}
+}
+
+%---------- Fancy headings -----------
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\footrulewidth}{0pt}
+\rhead{\fancyplain{}{\bfseries \libalf: The Automata Learning Framework}}
+\rfoot{\fancyplain{\thepage}{\thepage}}
+
+%---------- Macros -----------
+\newcommand{\libalf}{\texttt{libALF}\xspace}
+\newcommand{\jalf}{\texttt{jALF}\xspace}
+\newcommand{\cpp}{\texttt{C+$\!$+}\xspace}
+\newcommand{\java}{\texttt{Java}\xspace}
+\newcommand{\jni}{\texttt{JNI}\xspace}
+\newcommand{\learnlib}{\texttt{LearnLib}\xspace}
+\newcommand{\ralt}{\texttt{RALT}\xspace}
+\newcommand{\libalfWebSite}{\url{http://libalf.informatik.rwth-aachen.de/}\xspace}
+\newcommand{\liblangen}{\texttt{liblangen}\xspace}
+\newcommand{\amorePP}{\texttt{AMoRE++}\xspace}
+%------------- Implemented learning algorithms ----------------
+\newcommand{\lstar}{{\textsf{L}}$^\ast$\xspace}
+\newcommand{\lstarcol}{\textsf{L}$_{\text{col}}^\ast$\xspace}
+\newcommand{\nlstar}{\textsf{NL}$^\ast$\xspace}
+\newcommand{\ulstar}{\textsf{UL}$^\ast$\xspace}
+\newcommand{\biermann}{\textsf{Biermann}\xspace}
+\newcommand{\rpni}{\textsf{RPNI}\xspace}
+\newcommand{\deletetwo}{\textsf{DeLeTe2}\xspace}
+\newcommand{\kvtree}{\textsf{Kearns\,/\,Vazirani}\xspace}
+%------------------------- OSes -------------------------------
+\newcommand{\windows}{\texttt{MS\,Windows}\xspace}
+\newcommand{\linux}{\texttt{Linux}\xspace}
+\newcommand{\macos}{\texttt{Mac\,OS}\xspace}
+
+%---------- Begin Document -----------
+\begin{document}
+\pagestyle{fancyplain}
+\thispagestyle{plain}
+
+%=======================
+% Title
+%=======================
+
+\title{\vspace{-1cm} \libalf: the Automata Learning Framework\thanks{This work is partially supported by the DAAD (Procope 2009).}}
+\date{\today}
+\author{Benedikt Bollig\and Joost-Pieter Katoen\and Carsten Kern\and Martin Leucker\and Daniel Neider\and David R. Piegdon}
+\maketitle
+
+%---------- Abstract ----------
+\begin{abstract}
+  This paper presents \libalf, a comprehensive, open-source library for
+  learning formal languages. \libalf covers various well-known learning
+  techniques for finite automata (e.g.\ Angluin's \lstar, \biermann, \rpni etc.)
+  as well as novel learning algorithms (such as for NFAs and visibly one-counter
+  automata). \libalf is flexible and allows 
+  facilely interchanging learning algorithms and combining domain-specific
+  features in a plug-and-play fashion.
+  Its modular design and \cpp implementation make it a suitable platform
+  for adding and engineering further learning algorithms for new
+  target models (e.g., B\"uchi automata).
+\end{abstract}
+
+%=======================
+% Introduction
+%=======================
+\section{Introduction}
+
+%------------------Learning in general--------------------
+The common objective of all learning algorithms is to generalize knowledge gained throughout a learning process. In such a process, the learning algorithm is confronted with classified examples. They are utilized to derive some kind of hypothesis which is able to classify new examples in conformance with the examples already seen. Typically, learning algorithms are grouped into \emph{online} and \emph{offline} algorithms. Online learning techniques are capable of actively asking queries to some kind of \emph{teacher} who is able to classify these queries. Offline algorithms, on the other hand, are passively provided with a set of classified examples from which they have to build an apposite hypothesis.
+
+%-----------Learning: motivation for learning-------------
+\enlargethispage*{\baselineskip}
+In recent years, learning algorithms have become increasingly popular for
+various application domains and have been successfully used in different
+fields of computer science, reaching from robotics over pattern recognition (e.g., in bioinformatics) to natural language recognition. Especially in the area of automatic verification, learning techniques have proved their great usefulness. They were used for minimizing partially specified systems \cite{OliveiraS01}, model checking blackbox systems (e.g., \cite{GrocePY02}), and for improving regular model checking (e.g., \cite{HabermehlV05}). To put it bluntly, automata learning is en vogue.
+
+%-----------Motivation for a learning library-------------
+The need for a unifying framework collecting various types of learning techniques is, thus, beyond all questions. In addition, it is desirable to have possibilities of easily exchanging or extending the implemented learning algorithms to compare assets and drawbacks for certain user applications. For users' convenience a library should provide additional features, such as means for statistical evaluation or loggers. Unfortunately, existing learning frameworks only partly cover these requirements.
+
+%-------------------Goal of the paper---------------------
+The main objective of this paper is to present a new library called the \emph{automata learning framework} (\libalf for short). \libalf unifies different kinds of learning techniques into a single flexible and easy-to-extend library with a clearly structured user interface. We would like \libalf to become a comprehensive compendium of learning techniques to which everybody has access and can contribute in a public domain fashion.
+
+%=======================
+% Relatex Work
+%=======================
+\section{Related work}
+
+%-------------Intro-----------------
+A large number of learning algorithms can be found in the literature. Usually, the most important and influential ones are implemented again and again, but often as \emph{quick-and-dirty} implementations, which are only meant to be a proof-of-concept of the researcher's theoretical work. Typically, this implies a lack of extensibility and comparability as the authors did not have time to bother for a clear, extensible design. We are only aware of two learning libraries that aim for the objectives mentioned above; note that \texttt{Java PathFinder} (cf.\ \cite{DBLP:conf/fase/GiannakopoulouP09}) also contains a learning submodule (implementing Angluin's \lstar algorithm), but this software seems to be too restricted for most cases.
+
+The \learnlib library \cite{DBLP:journals/sttt/RaffeltSBM09} allows learning of deterministic finite-state automata. It is available as a dedicated, password-protected server located at the University of Dortmund and can be accessed via the Internet. The \learnlib implements Angluin's \lstar algorithm for inferring DFA and some slight variants for deriving Mealy machines.
+
+%---------------RALT-----------------
+The \emph{Rich Automata Learning and Testing} library \cite{PHDShahbaz08} (\ralt) has been developed in \java yielding a platform independent solution. It also implements \lstar and three relatives for inferring Mealy machines. Regrettably, \ralt seems not publicly available.
+
+However, two requirements that seem to be crucial for many user application are clearly missing: Firstly, both libraries are limited to learning Mealy machines in an Angluin setting, but in many environments different learning settings occur. Beyond that, a way to augment the libraries with new learning algorithms, in particular for additional kinds of automata models, is clearly missing. Secondly, as \learnlib can be only accessed remotely and \ralt is not available, it seems impossible to assess their performance; in fact, we were not able to experimentally evaluate or benchmark \libalf to neither existing library in any appropriate manner. Thus, \libalf seems to be the only automata learning library currently available that is competitive and flexible enough for the use in real user applications.
+
+%=======================
+% libalf
+%=======================
+\section{A library for learning automata: \libalf}
+
+The \libalf library is an actively developed and stable open source library\footnote{\libalf is freely available on \libalfWebSite.} for learning and manipulating formal languages; it puts the emphasis on learning deterministic and non-deterministic finite-state machines, but can be easily augmented with new automata classes (for instance, \libalf already supports learning of visibly one-counter automata). As of today, \libalf comprises a total of nine learning algorithms, cf.\ Table~\ref{tbl:algorithms}.
+
+\begin{table}
+	\centering	
+	\begin{tabular}{p{4cm}@{\hspace{.2cm}}p{4cm}}
+		\toprule
+		\multicolumn{1}{l}{Online algorithms} & \multicolumn{1}{l}{Offline algorithms} \\
+		\midrule
+
+		Angluin's \lstar (2 variants) &
+			\biermann (2 variants)\\
+
+		\nlstar \cite{BHKL09} &
+			\rpni \\
+
+		\kvtree &
+			\deletetwo \\
+	
+		Visibly 1-counter automata \cite{NeiderLoeding10}\\
+		\bottomrule
+	\end{tabular}
+	\caption{Algorithms available in \libalf.}\label{tbl:algorithms}
+\end{table}
+
+\libalf consists of a core \cpp library and is complemented by two additional components: \liblangen (a library to generate random regular languages) and \amorePP (a \cpp automata library, among others featuring the antichains algorithm \cite{DBLP:conf/cav/WulfDHR06}). Although written in \cpp, \libalf fits seamlessly into a huge number of diverse environments: it runs on \windows, \linux, and \macos (in 32- and 64-bit) and features a platform independent \java interface (using the Java Native Interface \jni). In addition, the so-called \emph{dispatcher} implements a network-based client-server architecture, which allows one to run \libalf remotely, e.g., on a high performance machine.
+
+The key objectives of \libalf are \emph{high flexibility} and \emph{simple extensibility}. High flexibility, on the one hand, means that \libalf lets the user easily switch between learning algorithms and information sources (often only by changing a single line of code\footnote{Visit our website for a \java online demo on how to employ \libalf in a user application.}). This allows one to experiment with different learning techniques, making it possible for the user to choose the algorithm best suited for her setting. Moreover, \libalf's visualization and logging facilities enable researchers to gain a deeper understanding of the differences of existing and new algorithms.
+
+Simple extensibility, on the other hand, refers to \libalf's structured \cpp class hierarchy, especially the learning algorithms and automata models. That allows developers to easily enrich \libalf with additional features such as new learning algorithms, advanced automata classes, domain-specific optimizations etc.
+
+Obviously, developing a flexible and easy-to-use library while preserving high extensibility was one of the implementation's most challenging tasks. A comparison of important learning libraries to \libalf is given in Table~\ref{tbl:learningLibrariesComparison}.
+
+\begin{table}
+\centering
+\small
+\begin{tabular}{p{1.7cm}@{\hspace{.5cm}}p{5cm}@{\hspace{.5cm}}p{4cm}@{\hspace{.5cm}}p{1.8cm}@{\hspace{.5cm}}} \toprule
+	\multicolumn{1}{l}{} & \multicolumn{1}{l}{\libalf} & \multicolumn{1}{l}{\learnlib} & \multicolumn{1}{l}{\ralt} \\ \midrule
+
+	Algorithms & online\,/\,offline & online & online\\
+	& currently 9 & 1 (\lstar) & 1 (\lstar)\\
+
+	Hypotheses & DFA, NFA, Mealy, visibly one-counter, etc.\ & DFA, Mealy & DFA, Mealy\\
+
+	Open source& yes & no & n/a\\
+
+	Availability & \cpp, \java (\jni) & \cpp & \java\\
+	& source code, binary, dispatcher & via Internet connection only & n\,/\,a\\
+
+	Specifics & filters, normalizers, statistics, visualization & filters, statistics, visualization & visualization\\ \bottomrule
+\end{tabular}
+\caption{Overview over the most important learning libraries in comparison to \libalf.\label{tbl:learningLibrariesComparison}}
+\end{table}
+
+%---------- Implementation details ----------
+\noindent\textbf{Technical details.}
+In \libalf words $w \in \Sigma^\ast$ (i.e.\ queries) are represented as lists of symbols, where each symbol is a 32-bit integer. Thus, the maximal size $ |\Sigma|$ of an alphabet $\Sigma$ is $2^{32}$. For hypotheses, on the other hand, \libalf provides generic but simple interfaces such that new automata classes can easily be added. However, the \amorePP library can be used if a more powerful automata library is needed.
+
+\libalf's main components are the \emph{learning algorithms} and the so-called \emph{knowledgebase}. The knowledgebase is an efficient storage for language information and collects \emph{queries} and \emph{classifications} thereof; in \libalf a classification can be any \cpp object, but in most algorithms it is a Boolean value. Using an external storage has the advantage of being independent of the choice of the learning algorithm. So it becomes possible to quickly interchange different learning algorithms or run them (even concurrently) on the basis of the same knowledgebase (i.e.\ queries are only conducted once and are then available to any learning algorithm). Clearly, this helps the user experiment and decide which algorithm to use in her specific setting.
+
+Additionally, \libalf features two types of domain-specific optimizations: \emph{filters} and \emph{normalizers}. Filters are a means for reducing the number of queries asked to the teacher. The idea is that in many cases the classification of a query can be decided without consulting the teacher just by applying simple domain-specific knowledge; take, for instance, well-formedness of XML-documents as such a criterion. If a query can already be answered by a filter, it is not passed on to the teacher and the number of queries actually asked to the teacher is reduced. Moreover, filters can be composed by logical connectors (\emph{and}, \emph{or}, \emph{not}).
+
+In contrast, \emph{normalizers} are a means to reduce memory consumption during the lear-\linebreak ning phase. A normalizer defines a domain-specific equivalence relation $\sim \subseteq \Sigma^\ast \times \Sigma^\ast$ over all words and only stores data for one representative of each equivalence class (i.e.\ data for equivalent queries is only queried and stored once). This does not only reduce the consumed memory, but also the number of queries conducted. By subtyping the respective interface, a user can easily define her own domain-specific optimizations.
+
+Finally, \libalf comprises auxiliary components to ease application development and debugging: a \emph{logger} (an adjustable logging facility an algorithm can write to), extensive \emph{statistics} and methods to produce \textsf{GraphViz} visualizations. All of \libalf's components are designed to be used in a plug-and-play manner and, to this end, no knowledge about the libraries implementation is required.
+
+%---------- References ----------
+\bibliographystyle{abbrv}
+\bibliography{mylit}
+\end{document}
