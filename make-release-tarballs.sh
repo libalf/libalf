@@ -1,12 +1,13 @@
 #!/bin/sh
 
 VERSION="INSERT-RELEASE-TAG-HERE"
+exit
 
 svn export https://svn-i2.informatik.rwth-aachen.de/repos/libalf/tags/${VERSION} release
 
 cd release
 
-rm -Rf libalf/testsuites/NLstar_count_eq_queries/found libalf/testsuites/online_performance_tester/stats-*
+rm -Rf libalf/testsuites/sample-automata
 
 tar jcf libalf-${VERSION}.tar.bz2		libalf
 tar jcf "libAMoRE(++)-${VERSION}.tar.bz2"	libAMoRE libAMoRE++ 
