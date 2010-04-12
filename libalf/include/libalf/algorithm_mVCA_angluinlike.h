@@ -54,15 +54,17 @@ using namespace std;
 template <class answer>
 class mVCA_angluinlike : public learning_algorithm<answer> {
 	public: // types
+		typedef pair<int, vector<answer> > fingerprint_t;
 
 		class sample_list : public list<list<int> > {
 			// list of all samples (suffixes) for a given cv.
-			public:
+			public: // types
 				typedef typename list<list<int> >::iterator iterator;
 				typedef typename list<list<int> >::const_iterator const_iterator;
+
 				typedef typename list<list<int> >::reverse_iterator reverse_iterator;
 				typedef typename list<list<int> >::const_reverse_iterator const_reverse_iterator;
-
+			public: // methods
 				bool add_sample(const list<int> & sample)
 				{{{
 					reverse_iterator li;
@@ -89,7 +91,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 		};
 
 		class equivalence_approximation : public triple<list<int>, int, vector<answer> > {
-			public:
+			public: // methods
 				inline list<int>		& prefix()		{ return this->first; };
 				inline const list<int>		& prefix()		const { return this->first; };
 
@@ -105,13 +107,8 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 				inline equivalence_approximation(const list<int> & prefix, int cv)
 				{ this->prefix() = prefix; this->cv() = cv; };
 
-				pair<int, vector<answer> > fingerprint()
-				{{{
-					pair<int, vector<answer> > ret;
-					ret.first = cv();
-					ret.second = acceptances();
-					return ret;
-				}}}
+				fingerprint_t fingerprint() const
+				{ return pair<int, vector<answer> >(cv(), acceptances()); }
 
 				inline bool equivalent(equivalence_approximation & other)
 				{ return cv() == other.cv() && acceptances() == other.acceptances(); }
@@ -203,10 +200,10 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 		};
 
 		class equivalence_table : public list<equivalence_approximation> {
-			public:
+			public: // types
 				typedef typename list<equivalence_approximation>::iterator iterator;
 				typedef typename list<equivalence_approximation>::const_iterator const_iterator;
-
+			public: // methods
 				iterator find_prefix(const list<int> & prefix)
 				{{{
 					iterator r;
@@ -311,11 +308,12 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 		};
 
 		class stratified_observationtable : public vector<m_representatives> {
-			public:
+			public: // types
 				typedef typename vector<m_representatives>::iterator iterator;
 				typedef typename vector<m_representatives>::const_iterator const_iterator;
-				typedef pair<equivalence_table *, typename equivalence_table::iterator> location;
 
+				typedef pair<equivalence_table *, typename equivalence_table::iterator> location;
+			public: // methods
 				bool fill(knowledgebase<answer> * base)
 				{{{
 					bool complete = true;
@@ -1121,7 +1119,7 @@ deserialization_failed:
 
 			cj->m_bound = tested_equivalence_bound;
 
-			map<pair<int, vector<answer> >, int> states; // this is not really good. something better anyone?
+			map<fingerprint_t, int> states; // this is not really good. something better anyone?
 
 			// generate statemap and mark initial and final states
 			typename stratified_observationtable::iterator vi;
@@ -1129,7 +1127,7 @@ deserialization_failed:
 
 			for(vi = table.begin(); vi != table.end(); ++vi) {
 				for(equi = vi->representatives().begin(); equi != vi->representatives().end(); ++equi) {
-					pair<int, vector<answer> > fingerprint = equi->fingerprint();
+					fingerprint_t fingerprint = equi->fingerprint();
 					if(states.find(fingerprint) == states.end()) {
 						states[fingerprint] = cj->state_count;
 						if(equi->prefix().empty())
@@ -1159,7 +1157,7 @@ deserialization_failed:
 						rep.push_back(sigma);
 						new_transition.first.second = sigma;
 
-						pair<int, vector<answer> > fingerprint = equi->fingerprint();
+						fingerprint_t fingerprint = equi->fingerprint();
 						bool found;
 
 						fingerprint = table.find_transition(rep, equi->cv(), dcv, found).second->fingerprint();

@@ -767,6 +767,101 @@ class knowledgebase {
 				}}}
 		}; // end of knowledgebase::equivalence_relation
 
+	/*
+	 * future replacement of equivalence_relation:
+	 *
+		class eq_class : public set<int> {
+			public: // types
+				typedef typename set<node*>::iterator iterator;
+				typedef typename set<node*>::const_iterator const_iterator;
+			public: // methods
+				bool contains(const node * element) const
+				{ return (this->find(element) != this->end()); }
+				void print(ostream &os) const
+				{{{
+					const_iterator i;
+
+					os << "{ ";
+					i = this->begin();
+					while(i != this->end()) {
+						os << *i;
+						i++;
+						if(i != this->end())
+							os << ", ";
+					}
+					os << " }";
+				}}}
+				string to_string() const
+				{{{
+					stringstream str;
+					this->print(str);
+					return str.str();
+				}}}
+		};
+
+		class eq_relation : public set<eq_class> {
+			public: // types
+				typedef typename set<eq_class>::iterator iterator;
+				typedef typename set<eq_class>::const_iterator const_iterator;
+			public: // methods
+				// merge two equivalence classes (Forced without any check)
+				void immediate_Fmerge(iterator i, iterator j)
+				{{{
+					if(i->size() < j->size()) {
+						merge(j, i); // thats faster
+					} else {
+						// insert j into i
+						this->insert(j->begin(), j->end());
+
+						// delete j
+						this->erase(j);
+					}
+				}}}
+				// merge two equivalence classes and all of their children accordingly.
+				// (Forced without any check)
+				bool successive_Fmerge(iterator i, iterator j)
+				{
+
+				}
+				iterator find_class_of(node * element)
+				{{{
+					iterator i;
+					for(i = this->begin(); i != this->end(); ++i)
+						if(i->contains(element))
+							break;
+					return i;
+				}}}
+				const_iterator find_class_of(const node * element)
+				{{{
+					const_iterator i;
+					for(i = this->begin(); i != this->end(); ++i)
+						if(i->contains(element))
+							break;
+					return i;
+				}}}
+				void print(ostream &os) const
+				{{{
+					const_iterator i;
+
+					os << "{ ";
+					i = this->begin();
+					while(i != this->end()) {
+						i->print(os);
+						i++;
+						if(i != this->end())
+							os << ", ";
+					}
+					os << " }";
+				}}}
+				string to_string() const
+				{{{
+					stringstream str;
+					this->print(str);
+					return str.str();
+				}}}
+		};
+	*/
+
 		// this class can be used to iterate over all nodes markes as known
 		// or all nodes marked as required
 		class iterator : std::iterator<std::forward_iterator_tag, node> {
@@ -852,7 +947,6 @@ class knowledgebase {
 				{{{
 					return (current != it.current);
 				}}}
-
 		}; // end of knowledgebase::iterator
 
 
