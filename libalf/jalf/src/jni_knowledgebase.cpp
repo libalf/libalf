@@ -317,9 +317,8 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIKnowledgebase_deserialize (JNIE
 	knowledgebase<bool> *base = (knowledgebase<bool>*)pointer;
 
 	// Forward method call
-	basic_string<int32_t>::iterator si;
-	si = ser.begin();
-	return base->deserialize(si, ser.end());
+	serial_stretch serial(ser);
+	return base->deserialize(serial);
 }
 
 JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNIKnowledgebase_tostring (JNIEnv *env , jobject obj, jlong pointer) {
