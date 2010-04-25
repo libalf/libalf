@@ -8,7 +8,7 @@ img_extIsRegExp=false
 img_extensions=.eps .jpg .jpeg .png .pdf .ps .fig .gif
 kileprversion=2
 kileversion=2.1 beta2
-lastDocument=quicktour.tex
+lastDocument=Quick_Tour/quicktour.tex
 masterDocument=
 name=Project
 pkg_extIsRegExp=false
@@ -28,31 +28,58 @@ UseMakeIndex=1
 MakeIndex=
 QuickBuild=
 
+[item:Quick_Tour/Quick_tour_main.tex]
+archive=true
+column=28
+encoding=ISO-8859-9
+highlight=LaTeX
+line=88
+open=true
+order=7
+
+[item:Quick_Tour/quicktour.tex]
+archive=true
+column=23
+encoding=UTF-8
+highlight=LaTeX
+line=11
+open=true
+order=6
+
 [item:commands.tex]
 archive=true
-column=44
+column=0
 encoding=UTF-8
 highlight=LaTeX
 line=0
 open=true
 order=2
 
-[item:filter.tex]
+[item:compilation_guide/compilation_guide.tex]
 archive=true
-column=142
+column=0
 encoding=UTF-8
 highlight=LaTeX
-line=28
+line=245
 open=true
+order=5
+
+[item:filter.tex]
+archive=true
+column=0
+encoding=UTF-8
+highlight=LaTeX
+line=0
+open=false
 order=7
 
 [item:install.tex]
 archive=true
-column=13
+column=0
 encoding=UTF-8
 highlight=LaTeX
-line=14
-open=true
+line=0
+open=false
 order=9
 
 [item:introduction.tex]
@@ -66,19 +93,19 @@ order=1
 
 [item:knowledgebase.tex]
 archive=true
-column=27
+column=0
 encoding=UTF-8
 highlight=LaTeX
-line=0
+line=190
 open=true
 order=3
 
 [item:learning_algorithm.tex]
 archive=true
-column=13
+column=71
 encoding=UTF-8
 highlight=LaTeX
-line=204
+line=101
 open=true
 order=4
 
@@ -87,27 +114,18 @@ archive=true
 column=0
 encoding=UTF-8
 highlight=LaTeX
-line=32
+line=3
 open=true
 order=0
 
 [item:logger.tex]
 archive=true
-column=44
+column=0
 encoding=UTF-8
 highlight=LaTeX
-line=13
-open=true
+line=0
+open=false
 order=6
-
-[item:quicktour.tex]
-archive=true
-column=0
-encoding=ISO-8859-9
-highlight=LaTeX
-line=6
-open=true
-order=8
 
 [item:references.bib]
 archive=true
@@ -115,5 +133,5 @@ column=0
 encoding=UTF-8
 highlight=BibTeX
 line=0
-open=true
+open=false
 order=5
