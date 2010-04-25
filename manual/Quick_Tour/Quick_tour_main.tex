@@ -1,0 +1,98 @@
+\documentclass[a4paper, fontsize=11pt, DIV=12, parskip=half]{scrartcl}
+%---------- Packages -----------
+\usepackage[bookmarks=false]{hyperref}
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{textcomp}
+\usepackage{xspace}
+\usepackage{fancyhdr}
+\usepackage{color}
+\usepackage{tikz}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{subfig}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+
+%---------- Font -----------
+%\usepackage[scaled]{berasans}
+%\renewcommand*\familydefault{\sfdefault}  %% Only if the base font of the document is to be sans serif
+
+%---------- Hyperref setup -----------
+\definecolor{mycolor}{rgb}{0.18,0.02,.54}
+\hypersetup{
+pdftitle     = {libALF Compilation Guide},
+pdfauthor    = {Daniel Neider},
+pdfkeywords  = {libALF, Automata Learning},
+pdfstartview = {FitH},
+colorlinks   = {true},
+urlcolor     = {mycolor},
+linkcolor    = {black}
+}
+
+%---------- Fancy headings -----------
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\footrulewidth}{0pt}
+\rhead{\fancyplain{}{\bfseries \libalf Compilation Guide}}
+\rfoot{\fancyplain{\thepage}{\thepage}}
+
+
+%---------- Macros -----------
+\newcommand{\libalf}{\texttt{libALF}\xspace}
+\newcommand{\jalf}{\texttt{jALF}\xspace}
+\newcommand{\cpp}{C+$\!$+\xspace}
+\newcommand{\java}{\texttt{Java}\xspace}
+\newcommand{\offline}{\emph{offline}\xspace}
+\newcommand{\online}{\emph{online}\xspace}
+\newcommand{\teacher}{\emph{teacher}\xspace}
+\newcommand{\alphsize}{\emph{alphabet size}\xspace}
+\newcommand{\conjecture}{\texttt{conjecture}\xspace}
+\newcommand{\cj}{\texttt{cj}\xspace}
+\newcommand{\advanced}{\emph{advance}\xspace}
+\newcommand{\memque}{\emph{membership queries}\xspace}
+\newcommand{\accepted}{\emph{accepted}\xspace}
+\newcommand{\rejected}{\emph{rejected}\xspace}
+\newcommand{\result}{\texttt{result}\xspace}
+\newcommand{\stringtype}{\texttt{String}\xspace}
+\newcommand{\inputs}{\texttt{input}\xspace}
+\newcommand{\checkeq}{\texttt{check\_equivalence\(\)}\xspace}
+\newcommand{\answer}{\texttt{answerMembership}\xspace}
+\newcommand{\getqueries}{\texttt{get\_queries\(\)}\xspace}
+\newcommand{\getsize}{\texttt{get\_alphabetsize\(\)}\xspace}
+\newcommand{\filters}{\emph{filters}\xspace}
+\newcommand{\normalizers}{\emph{normalizers}\xspace}
+\newcommand{\vectored}{\texttt{vector}\xspace}
+\newcommand{\node}{\texttt{node}\xspace}
+\newcommand{\integer}{\texttt{integer}\xspace}
+\newcommand{\true}{\texttt{true}\xspace}
+\newcommand{\false}{\texttt{false}\xspace}
+\newcommand{\knowledgebase}{\texttt{knowledgebase}\xspace}
+\newcommand{\lists}{\texttt{list}\xspace}
+\newcommand{\cmd}[1]{
+\begin{tabular}{p{.025\textwidth}l}
+&\begin{minipage}{.85\textwidth}\texttt{#1}\end{minipage}
+\end{tabular}
+}
+
+
+%---------- Begin Document -----------
+\begin{document}
+\pagestyle{fancyplain}
+\thispagestyle{plain}
+
+%---------- Title -----------
+\begin{minipage}{.9\textwidth}
+\Huge{Quick Tour of \libalf}
+\end{minipage}
+
+\vskip -5.3mm
+\tikz \draw[thick] (0,0) -- +(\textwidth,0);
+
+%---------- Text -----------
+\input{quicktour}
+
+\end{document}
