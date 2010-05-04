@@ -3,16 +3,18 @@ This user quick guide demonstrates how to use \libalf in your application. In th
 
 \section{Introduction}
 The central working component of \libalf is the learning algorithm (which essentially is a set of learning algorithms implemented in the library listed in table \ref{listofalgs1}) and its main repository is the knowledgebase which contains all knowledge required for the learning process. \\
-In brief, the learning algorithm does an ``advance'' and examines the words and their classifications available in the knowledgebase and tries to build a conjecture from it. \\
 
-\subsection{The Knowledgebase}
-The knowledgebase stores the words and their classification. \libalf uses 32 bit integers to store the words. Internally. these words are stored as \texttt{list of integers}. \\
-Classification refers to a value that is mapped to every word. For instance, the classification of a word for a Finite Automata may either be \true or \false which indicates whether the word is accepted in the language or not. \\
-Since the repository is a template class, you can use arbitrary values for storing the classification. But the \jalf java library and dispatcher only allows boolean values for storing the classification. 
-\paragraph{Conjecture} \\
-The above stated information form the basic knowledge for the learning algorithms to compute a conjecture. A conjecture is a collection of states and transitions. The simple\_automaton class defines the data structures for forming the conjecture. The algorithm creates a \emph{simple automaton} with preliminary states when it is initialized. The final conjecture is built by adding \emph{state transitions}. That is, a word classified as \true will reach the end state through the state transitions. 
+The basic operation of \libalf is to formulate a conjecture by evaluating words and classifications. A conjecture is essentially a collection of states and state transitions. \libalf has the \texttt{simple\_automaton} class that defines the data structures for the conjecture.\\
+A word, which is a sequence of symbols from a particular alphabet set, is represented as a list of 32 bit integers in \libalf. For example, a word of alphabet size 2 in \libalf is automatically a sequence of characters from the set {0,1} and the whole word will be stored internally as a list a integers. A word's classification is a mapping of the word to a value. For example, for a Finite Automata the classification is a value indicating whether the word conforms to the langauge or not. This classification can be arbitrary in \libalf while it can only be of boolean type in java counterpart \jalf and dispatcher. Naturally, the component that analyzes the words and classification is the learning algorithm and the repository that contains this information is the Knowledgebase.
+\\
+So, the fundamental steps to perform towards using \libalf is to create a knowledgebase, connect it to your favourite learning algorithm and if needed, use a logger (we shall see loggers in bit more detail later in this chapter since they are handy and very useful) and of course let the algorithm know what the alphabet size is (as we will see in the example codes later in the chapter). Learning algorithms can be of two types - \online and \offline algorithm. While the \offline algorithms work on a passively provided set of words and classifications, the \online algorithms ask queries to some kind of a teacher (typically a user application) for its opearation. However, both types of learning techniques perform what is called an ``advance'' and examine the words and their classifications available in the knowledgebase to try to build a conjecture from it. The types of queries and the complete operation of their loops is detailed in the next section.
+
+
+%\paragraph{Conjecture} \\
+%The above stated information form the basic knowledge for the learning algorithms to compute a conjecture. A conjecture is a collection of states and transitions. The simple\_automaton class defines the data structures for forming the conjecture. The algorithm creates a \emph{simple automaton} with preliminary states when it is initialized. The final conjecture is built by adding \emph{state transitions}. That is, a word classified as \true will reach the end state through the state transitions. 
 
 \section{The Learning Algorithms}
+\label{learningalgs}
 Learning algorithms communicate with the knowledgebase for getting information about words and their classification. They are classified as \online and \offline follow slightly differing techniques in building the conjecture. The algorithms perform an \emph{advance}, wherein it takes information from the knowledgebase and tries to construct a conjecture out of it. The offline algorithm, at this stage, either builds a complete conjecture or fails. The difference between the \online and \offline algorithms comes from this aspect. While an \offline algorithm performs an \emph{advance} only once, the \online algorithm would typically perform that more than once. Given below is the list of learning algorithms implemented in \libalf.
 
 \begin{table} [h]

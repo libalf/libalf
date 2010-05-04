@@ -8,7 +8,7 @@ img_extIsRegExp=false
 img_extensions=.eps .jpg .jpeg .png .pdf .ps .fig .gif
 kileprversion=2
 kileversion=2.1 beta2
-lastDocument=Quick_Tour/quicktour.tex
+lastDocument=jalf.tex
 masterDocument=
 name=Project
 pkg_extIsRegExp=false
@@ -90,6 +90,15 @@ highlight=LaTeX
 line=142
 open=true
 order=1
+
+[item:jalf.tex]
+archive=true
+column=2
+encoding=ISO-8859-9
+highlight=LaTeX
+line=9
+open=true
+order=8
 
 [item:knowledgebase.tex]
 archive=true
