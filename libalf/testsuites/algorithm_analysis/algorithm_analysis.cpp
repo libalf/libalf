@@ -87,7 +87,7 @@ int main(int argc, char**argv)
 	statfile << "# model_index alphabet_size method model_size mDFA_size RFSA_size - L*-membership L*-uniq_membership L*-equivalence - L*col-membership L*col-uniq_membership L*col-equivalence - NL*-membership NL*-uniq_membership NL*-equivalence\n";
 
 	for(alphabet_size = min_asize; alphabet_size <= max_asize; ++alphabet_size) {
-		for(method = 1; method <= 2; method++) { // skip DFA
+		for(method = 0; method <= 2; method++) {
 			for(model_size = min_msize; model_size <= max_msize; model_size += model_size_step) {
 				for(testcase_index = 0; testcase_index < num_testcases; ++testcase_index) {
 					// construct automaton according to method
