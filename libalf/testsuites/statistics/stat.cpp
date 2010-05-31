@@ -21,28 +21,25 @@ int main()
 
 	stat.print(cout);
 
-
-
-
+	// test serialization of generic_statistics:
 	basic_string<int32_t> serial;
+
 	serial = ::serialize(stat);
-	cout << "\n\n";
+	cout << "\n\nserial: ";
 	print_basic_string_2hl(serial, cout);
 	cout << "\n\n";
 
-
-
-
+	// test deserialization of generic_statistics:
 	generic_statistics fnord;
 
 	serial_stretch ser(serial.begin(), serial.end());
-
 	if(!::deserialize(fnord, ser))
 		cout << "deser failed.\n";
 
 	fnord.print(cout);
 	cout << "\n";
 
+	// test typecasting
 	string foo;
 
 	try {
