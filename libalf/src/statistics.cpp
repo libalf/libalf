@@ -132,7 +132,7 @@ basic_string<int32_t> statistic_data::serialize() const
 
 	switch(type) {
 		case INTEGER: ret += ::serialize(i); break;
-		case DOUBLE: {ret += ::serialize((double&)d); break;
+		case DOUBLE: ret += ::serialize((double&)d); break;
 		case BOOL: ret += ::serialize(b); break;
 		case STRING: ret += ::serialize(s); break;
 		default: break;
