@@ -101,82 +101,110 @@ The class consists of methods for setting a buffer as a log (typically a string)
 \end{enumerate}
 
 \section{Statistics}
-The component is used to obtain three types of statistical information. They are organized as three classes namely 
-\begin{itemize}
-\item \texttt{timing\_statistics} - To retrieve the user time and system time of the learning process.
-\item \texttt{memory\_statistics} - To retrieve information about the memory usage
-\item \texttt{query\_statistics} - To retrieve information about the queries produced during the learning procedure.
-\end{itemize}
-
-For example, memory statistics may be helpful in deciding whether a clean up is required for the knowledgebase. Timing statistics and query statistics help to analyse the performance of the learning algorithm. In addition to their uses, they support serialization and deserialization as another advantage. 
-
-\paragraph{}
-These classes are defined in the following manner.
-
-\subsection{class timing\_statistics}
-The class consists of methods to obtain timing statistics of the learning procedure.
-\subsection*{Attributes}
+The Statistics component provides variable statistic types through a set of classes which consist of methods to map string to a value. Using this component, any statistical information can be generated and the value can be of types: int, double, bool or string. Casting between any of the above forms is also allowed but a wrong reference will give out an exception. The component also supports serialization and deserialization. 
+The classes and methods from this component are described below.
+\subsection*{statistic\_type}
+The global enum variable \texttt{statistic\_type} defines the values that can be used. It consists of \texttt{UNSET}, \texttt{INTEGER}, \texttt{DOUBLE}, \texttt{BOOL}, \texttt{STRING}.
+\subsection*{statistic\_data\_bad\_typecast\_e}
+The constructor of this class throws the exception when typecast error occurs.
+\subsection*{Class Statistic\_Data}
+The class provides many functions for working with the \texttt{statistic\_type} variable. The methods provided are given below.
 \begin{enumerate}
- \item \textbf{int32\_t user\_sec} - Variable to store the User time.
- \item \textbf{int32\_t user\_usec}
- \item \textbf{int32\_t sys\_sec} - Variable to store the System time.
- \item \textbf{int32\_t sys\_usec}
-\end{enumerate}
-\subsection*{Methods}
-\begin{enumerate}
- \item \textbf{timing\_statistics()} \\
-	Constructor that retrieves the timing information.
- \item \textbf{void reset()} \\
-	The method resets all the acquired timing statistics.
+ \item \textbf{Get and Set methods}\\
+	The class provides these methods to set and get appropriate values on the variables. The methods are of the form \texttt{get\_\emph{type}()} and \texttt{set\_\emph{type}()} where \emph{type} is one of \emph{integer}, \emph{double}, \emph{bool} or \emph{string}.
+ \item \textbf{Operator overloading functions}
+	There are methods that overload operators for assigning values to the variables. when a typecast error occurs, exception is thrown.
 \end{enumerate}
 
-\subsection{class memory\_statistics}
-The class consists of methods to obtain statistical information about the memory usage during the learning procedure. 
-\subsection*{Attributes}
-Most of the attributes belonging to this class are used by the Angluin algorithm.
+\subsection*{generate\_statistic}
+The class extends \texttt{map$<$string, statistic\_data$>$} and provides methods to map the \texttt{statistic\_data} to a key string. In essence, a statistical value is mapped to a statistical property (which is named as \emph{key}) The methods are as follows.
 \begin{enumerate}
- \item \textbf{int32\_t bytes} - bytes of algorithms data structure
- \item \textbf{int32\_t members} - number of membership data
- \item \textbf{int32\_t words} - number of words in table
- \item \textbf{int32\_t upper\_table} - size of upper table (if appropriate)
- \item \textbf{int32\_t lower\_table} - size of lower table (if appropriate)
- \item \textbf{int32\_t columns} - columns (if appropriate)
-\end{enumerate}
-\subsection*{Methods}
-\begin{enumerate}
- \item \textbf{memory\_statistics()} \\
-	Constructor to retrieve the memory statistics.
- \item \textbf{void reset()} \\
-        The method resets all the acquired memory statistics.
+ \item \textbf{Get and Set methods} \\
+	The class provides methods to set value to a property or get the value from the property. The method is of the form \texttt{inline void set\_\emph{type}\_property(const string \& key, \emph{type} value)} where the type is one of \emph{integer}, \emph{double}, \emph{bool} or \emph{string}. Naturally, these methods use the set and get methods from \texttt{statistic\_data} class.
+ \item \textbf{inline void remove\_property(const string \& key)} \\
+	The method is used to remove the property \emph{key} completely.
+ \item \textbf{inline void unset\_property(const string \& key)} \\
+	The method unsets this property but does not remove from memory.
 \end{enumerate}
 
-\subsection{class query\_statistics}
-The class consists of methods to obtain statistical information about the queries produced during the learning procedure.
-\subsection*{Attributes}
-\begin{enumerate}
- \item \textbf{int32\_t membership} - Stores the number of membership queries.
- \item \textbf{int32\_t uniq\_membership}
- \item \textbf{int32\_t equivalence} - Stores the number of equivalence queries.
-\end{enumerate}
-\subsection*{Methods}
-\begin{enumerate}
- \item \textbf{query\_statistics()} \\
-	Constructor that retrieves statistics about the all queries produced.
- \item \textbf{void reset()}
-	The method resets all the acquired statics about queries.
-\end{enumerate}
 
-\subsection{class statistics}
-The main class that contains objects of the other three classes (the three types of statistics) to access the methods. 
-\subsection*{Attributes}
-\begin{enumerate}
- \item \textbf{query\_statistics queries} - Object to retrieve query statistics.
- \item \textbf{memory\_statistics memory} - Object to retrieve memory statistics.
- \item \textbf{timing\_statistics time} - Object to retrieve the timing statistics.
-\end{enumerate}
-\subsection*{Methods}
-Along with the serialize and deserialize, the class defines the following method.
-\begin{itemize}
- \item \textbf{void reset()}
-	The method resets all the statistical information.
-\end{itemize}
+
+%The component is used to obtain three types of statistical information. They are organized as three classes namely 
+%\begin{itemize}
+%\item \texttt{timing\_statistics} - To retrieve the user time and system time of the learning process.
+%\item \texttt{memory\_statistics} - To retrieve information about the memory usage
+%\item \texttt{query\_statistics} - To retrieve information about the queries produced during the learning procedure.
+%\end{itemize}
+
+%For example, memory statistics may be helpful in deciding whether a clean up is required for the knowledgebase. Timing statistics and query statistics help to analyse the performance of the learning algorithm. In addition to their uses, they support serialization and deserialization as another advantage. 
+
+%\paragraph{}
+%These classes are defined in the following manner.
+
+%\subsection{class timing\_statistics}
+%The class consists of methods to obtain timing statistics of the learning procedure.
+%\subsection*{Attributes}
+%\begin{enumerate}
+% \item \textbf{int32\_t user\_sec} - Variable to store the User time.
+% \item \textbf{int32\_t user\_usec}
+% \item \textbf{int32\_t sys\_sec} - Variable to store the System time.
+% \item \textbf{int32\_t sys\_usec}
+%\end{enumerate}
+%\subsection*{Methods}
+%\begin{enumerate}
+% \item \textbf{timing\_statistics()} \\
+%	Constructor that retrieves the timing information.
+ %\item \textbf{void reset()} \\
+%	The method resets all the acquired timing statistics.
+%\end{enumerate}
+
+%\subsection{class memory\_statistics}
+%The class consists of methods to obtain statistical information about the memory usage during the learning procedure. 
+%\subsection*{Attributes}
+%Most of the attributes belonging to this class are used by the Angluin algorithm.
+%\begin{enumerate}
+% \item \textbf{int32\_t bytes} - bytes of algorithms data structure
+% \item \textbf{int32\_t members} - number of membership data
+% \item \textbf{int32\_t words} - number of words in table
+% \item \textbf{int32\_t upper\_table} - size of upper table (if appropriate)
+% \item \textbf{int32\_t lower\_table} - size of lower table (if appropriate)
+% \item \textbf{int32\_t columns} - columns (if appropriate)
+%\end{enumerate}
+%\subsection*{Methods}
+%\begin{enumerate}
+% \item \textbf{memory\_statistics()} \\
+%	Constructor to retrieve the memory statistics.
+% \item \textbf{void reset()} \\
+%        The method resets all the acquired memory statistics.
+%\end{enumerate}
+
+%\subsection{class query\_statistics}
+%The class consists of methods to obtain statistical information about the queries produced during the learning procedure.
+%\subsection*{Attributes}
+%\begin{enumerate}
+% \item \textbf{int32\_t membership} - Stores the number of membership queries.
+% \item \textbf{int32\_t uniq\_membership}
+% \item \textbf{int32\_t equivalence} - Stores the number of equivalence queries.
+%\end{enumerate}
+%\subsection*{Methods}
+%\begin{enumerate}
+% \item \textbf{query\_statistics()} \\
+%	Constructor that retrieves statistics about the all queries produced.
+% \item \textbf{void reset()}
+%	The method resets all the acquired statics about queries.
+%\end{enumerate}
+
+%\subsection{class statistics}
+%The main class that contains objects of the other three classes (the three types of statistics) to access the methods. 
+%\subsection*{Attributes}
+%\begin{enumerate}
+% \item \textbf{query\_statistics queries} - Object to retrieve query statistics.
+% \item \textbf{memory\_statistics memory} - Object to retrieve memory statistics.
+% \item \textbf{timing\_statistics time} - Object to retrieve the timing statistics.
+%\end{enumerate}
+%\subsection*{Methods}
+%Along with the serialize and deserialize, the class defines the following method.
+%\begin{itemize}
+% \item \textbf{void reset()}
+%	The method resets all the statistical information.
+%\end{itemize}

@@ -80,3 +80,51 @@ This is a filter that tries to identify if the answer to the word is already ava
 
 \end{enumerate}
 
+\section{Normalizers}
+
+As mentioned before, Normalizers are means to reduce memory consumption during the learning phase. A normalizer defines a domain-specific equivalence relation (...) over all words and only stores data for one representative of each equivlance class. This means that the data for equivalent queries is only queried and stored once. Apart from reducing the memory consumption, the number of queries are also reduced. By subtyping the respective interface, a user can easily define her own domain-specific optimizations. Normalizers are extensively used by Angluin Algorithm.
+
+\subsection{Working Overview}
+
+Normalizers are based on the concept of Message Sequence charts (MSC). An MSC consists of a set of processes (or nodes) P, set of messages M, a set E of events which is partitioned into a set S of \emph{send} events and a set R of \emph{receive} events
+In the normalizer, the send and receive events are organized as odd and even pairs respectively. Odd represents the send event of the sending process and even represents the receive event of the receiving process. The processes pass the symbols of the word as the messages and the normalizer tries to identify if the word belongs to the MSC's language. If yes, it returns the normalized word available in the knowledgebase. In this way, the need to store another word is eliminated. \\
+Normalizer also supports the serialize and deserialize features. 
+
+\subsection{Methods}
+The methods governing this component is described below.
+\subsubsection*{User Perspective}
+From the user perspective, the two important methods that perform the normalization are given below. You can simply associate a normalizer with your Angluin learning algorithm.
+\begin{itemize}
+ \item \textbf{list$<$int$>$ normalizer\_msc::prefix\_normal\_form(list$<$int$>$ \& w, bool \& bottom)}
+	This is the method that normalizes the given input. The parameter \emph{w} is the word. The method creates the MSC and then attempts to normalize the word. If successful, it returns the normalized word. Otherwise \emph{bottom} is set to true and it returns the BOTTOM\_CHAR. 
+ \item \textbf{list$<$int$>$ normalize\_msc::suffix\_normal\_form(list$<$int$>$ \& w, bool \& bottom)}
+	This method performs the same operation as the previous method except that a reversed MSC is created.
+\end{itemize}
+
+
+\subsubsection*{Developer Perspective}
+The MSC is stored in the form of a graph. The important attributes are as follows.
+\begin{enumerate}
+ \item \textbf{vector$<$int$>$ total\_order} - Denotes the total order. A total order is nothing but the temporal order of the messages that are available for the events in the buffer.
+ \item \textbf{vector$<$int$>$ process\_match} - A relation that matches the events to a process.
+ \item \textbf{vector$<$int$>$ buffer\_match} - A relation matching event to a buffer. The messages are queued in send and receive buffers.
+ \item \textbf{int max\_buffer\_length} - The maximum number of messages in a buffer.
+ \item \textbf{list$<$msc::msc\_node*$>$ graph} - Variable for storing the graph
+ \item \textbf{queue$<$int$>$ * buffers} - The buffers.
+ \item \textbf{unsigned int buffercount} - The count of number of buffers used.
+ \item \textbf{unsigned int label\_bound} - The label bound is essentially the alphabet size known by the normalizer. A message must be in [0, label\_bound).
+\end{enumerate}
+
+The important methods are given below.
+\begin{enumerate}
+ \item \textbf{void graph\_add\_node(int id, int label, bool pnf)} \\
+	The method is used to add node to the graph. This method is used by the prefix and suffix normal form methods. There are two things to be noted here. First, the process connection for prefix\_normal\_form (PNF), a connection is made to the node from other youngest node with same process that is not connected. For suffix\_normal\_form (SNF), a connection is made from node to other youngest node with same process that is not connected. The connection between the messages is again ruled by PNF or SNF. For PNF, a receiving event is connected to oldest corresponding send-event that is not connected and for SNF, a sending event is connected from oldest corresponding send-event that is not connected.
+ \item \textbf{void normalizer\_msc::clear\_buffers(list$<$int$>$ word)} \\
+        Clears all buffers that this word has touched.
+ \item \textbf{bool normalizer\_msc::check\_buffer(int label, bool pnf)} \\
+	The method checks if the message (label) can be put into its buffer or taken from its buffer. If yes, returns \true. On the otherhand, if its buffer is full or another message is at the head of the buffer, it returns \false.
+ \item \textbf{int normalizer\_msc::graph\_reduce(bool pnf)} \\
+	This is the actual method used by the PNF and SNF methods for normalization.  
+ \item \textbf{inline void connect\_buffer(msc\_node * other)} \\
+	Method to connect the buffers.
+\end{enumerate}
