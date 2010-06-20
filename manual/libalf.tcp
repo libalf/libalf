@@ -8,7 +8,7 @@ img_extIsRegExp=false
 img_extensions=.eps .jpg .jpeg .png .pdf .ps .fig .gif
 kileprversion=2
 kileversion=2.0.85
-lastDocument=knowledgebase.tex
+lastDocument=libalf.tex
 masterDocument=
 name=Project
 pkg_extIsRegExp=false
@@ -131,8 +131,8 @@ encoding=ISO-8859-9
 highlight=LaTeX
 line=0
 mode=LaTeX
-open=false
-order=7
+open=true
+order=5
 
 [item:Quick_Tour/quicktour.tex]
 archive=true
@@ -141,7 +141,7 @@ encoding=UTF-8
 highlight=LaTeX
 line=0
 mode=LaTeX
-open=false
+open=true
 order=6
 
 [item:commands.tex]
@@ -161,8 +161,8 @@ encoding=UTF-8
 highlight=LaTeX
 line=13
 mode=LaTeX
-open=false
-order=5
+open=true
+order=7
 
 [item:filter.tex]
 archive=true
@@ -196,10 +196,10 @@ order=1
 
 [item:jalf.tex]
 archive=true
-column=306
+column=15
 encoding=ISO-8859-9
 highlight=LaTeX
-line=62
+line=48
 mode=LaTeX
 open=true
 order=0
@@ -226,13 +226,13 @@ order=4
 
 [item:libalf.tex]
 archive=true
-column=0
+column=16
 encoding=UTF-8
 highlight=LaTeX
-line=0
+line=14
 mode=LaTeX
-open=false
-order=0
+open=true
+order=8
 
 [item:logger.tex]
 archive=true
@@ -283,8 +283,8 @@ CursorColumn=0
 CursorLine=0
 
 [view-settings,view=0,item:jalf.tex]
-CursorColumn=306
-CursorLine=62
+CursorColumn=15
+CursorLine=48
 
 [view-settings,view=0,item:knowledgebase.tex]
 CursorColumn=0
@@ -295,8 +295,8 @@ CursorColumn=0
 CursorLine=0
 
 [view-settings,view=0,item:libalf.tex]
-CursorColumn=0
-CursorLine=0
+CursorColumn=16
+CursorLine=14
 
 [view-settings,view=0,item:logger.tex]
 CursorColumn=12

@@ -8,7 +8,7 @@ The chapter discusses these methods from both a user and a developer's perspecti
 
 \section{The knowledgebase - A User's Perspective}
 
-\paragraph{} This section deals with basic functionality of the knowledgebase and provide fundamental information that one would have to know to employ \libalf in an application. It will explicate functional practice of the database and some elementary details of methods to better understand how all operations are carried out. \\
+\paragraph{} This section deals with basic functionality of the knowledgebase and provide fundamental information that one would have to know to employ \libalf in an application. It will explicate functional practice of the database and some elementary details of methods to better understand how all operations are carried out. \paragraph{}
 To discover more about the internal structure of the knowledgebase and the methods that help to extend it, you may refer to the next section on Developer's Perspective and Methods in Detail.
 
 \subsection*{Basic Concepts}
@@ -243,7 +243,7 @@ The method returns the label of the node.
 \item \textbf{node::node * find\_child(int label)} \hfill \vskip 1pt
 The method finds the child node with the specified label.
 	
-\item \textbf{node::node * find\_descendant(list$<$int$>$ :: iterator infix\_start, list<int>::iterator infix\_limit)} \hfill \vskip 1pt
+\item \textbf{node::node * find\_descendant(list$<$int$>$ :: iterator infix\_start, list$<$int$>$:: iterator infix\_limit)} \hfill \vskip 1pt
 The method finds the child node specified by a word and returns it. It traverses through the tree based on the iteration over the word to find the path that generates the required word.
 	
 \item \textbf{knowledgebase::node* get\_rootptr()} \hfill \vskip 1pt
@@ -262,7 +262,7 @@ The primary purpose of the knowledgebase is centered on storing words and classi
 \item \textbf{node::node * find\_or\_create\_child(int label)} \vskip 1pt
 	This function returns the child node given the label. If the node does not exist, it creates the child node with the specified label.
 	
-\item \textbf{node::node * find\_or\_create\_descendant(list$<$int$>$::iterator infix\_start, list$<$int$>$::iterator infix\_limit)} \hfill \vskip 1pt
+\item \textbf{node::node * find\_or\_create\_descendant(list$<$int$>$::iterator infix\_start, \\ list$<$int$>$::iterator infix\_limit)} \hfill \vskip 1pt
 	This function behaves almost similar to the previous one. The difference is that it does not operate on a single label but on a word (which is a list of \integer). 
 \end{enumerate}	
 
@@ -743,7 +743,7 @@ The section supplies a comprehensive list of all the methods used in the knowled
 \end{detail}
 %%%
 \item \begin{detail}
-{deserialize**}
+{deserialize}
 {bool deserialize(basic\_string$<$int32\_t$>$::iterator \&it, \\ basic\_string$<$int32\_t$>$::iterator limit)}
 {\texttt{it} - iterator to iterate over the string containing the word.
  \texttt{limit} - iterator that points to the last word }

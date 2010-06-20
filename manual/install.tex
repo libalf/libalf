@@ -42,7 +42,7 @@ You have the choice to compile the \libalf library either as a \emph{static} or 
 \subsection*{Compiling a Shared Library}
 Compiling \libalf is easy: simply change into the \texttt{libalf/src} folder and invoke the make utility by typing 
 
-\cmd{make}
+\cmd{make} 
 
 The make utility automatically detects which operating system you are running and compiles the library accordingly. After the compilation you should find the binary file \texttt{libalf.so} (on Linux) or \texttt{libalf.dll} (on Windows) inside the \texttt{libalf/src} folder. However, if you experience problems, you can explicitly tell the make utility for which system you want to compile \libalf by typing \texttt{make libalf.so} (under Linux) or \texttt{make libalf.dll} (under Windows).
 
@@ -80,7 +80,7 @@ To compile the online example that uses the shared library, type the following c
 If you want to link libalf statically into your application, you can do so by adding \texttt{-static} as additional parameter just before linking to libalf like below.
 
 \cmd{g++ -I path\_to\_headers -L path\_to\_library online.cpp -static -lalf}
-
+\paragraph{}
 In both cases, it is also a good idea to specify the name of the output file using the \texttt{-o} parameter, e.g. \texttt{-o online}.
 
 \paragraph{Additional Parameter for Windows.}
@@ -109,7 +109,7 @@ In the following we assume that you are familiar with basics of compiling and ru
 In order to compile \jalf's Java sources, change to the \texttt{libalf/jalf} folder and type
 
 \cmd{ant}
-
+\paragraph{}
 This invokes the Ant build utility and produces the file \texttt{jalf.jar} containing all compiled class files inside the \texttt{libalf/jalf} folder. If you do not wish to use \jalf via JNI, you can skip compiling \jalf's \cpp sources.
 
 Note that you can generate \jalf's \emph{JavaDoc} also using Ant with the command \texttt{ant doc}. Thereafter, the JavaDoc can be found inside the \texttt{libalf/jalf/java/doc} folder.
@@ -121,6 +121,7 @@ Compiling \jalf's \cpp sources is also automated by means of the make utility. H
 
 \cmd{JAVA\_INCLUDE=path\_to\_jdk/include make}
 
+\paragraph{}
 Again, the make utility should detect your operating system automatically, but you can also use the commands \texttt{make libjalf.so} (for Linux) and \texttt{make jalf.dll} (for Windows) to explicitly compile \jalf for your desired operating system. After a successful compilation, the compiled binary is located in \texttt{libalf/jalf/src}.
 
 \paragraph{Dynamic Linking.}
@@ -148,6 +149,7 @@ Please recall that Linux and Windows use different ways of separating folders. W
 
 \cmd{java -classpath "path\_to\_jalf/jalf.jar;." \\\phantom{java }-Djava.library.path=path\_to\_jalf\_library Online}
 
+\paragraph{}
 For further details please refer to the examples' Readme.
 
 %---------- Compiling and Using the Dispatcher ----------

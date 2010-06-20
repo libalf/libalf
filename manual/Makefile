@@ -13,7 +13,7 @@ BIBS = $(shell echo *.bib)
 all: libalf.pdf
 
 clean:
-	-rm libalf.out libalf.pdf libalf.aux libalf.log libalf.idx libalf.lof libalf.toc
+	-rm libalf.out libalf.pdf libalf.aux libalf.log libalf.idx libalf.lof libalf.toc libalf.bbl libalf.blg libalf.lot
 
 libalf.pdf:
 	pdflatex libalf.tex
