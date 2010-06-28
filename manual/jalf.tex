@@ -1,33 +1,32 @@
 \chapter{\jalf Java Library}
 
-The \jalf \java library, as you may have come across in various sections in the previous chapters, is the \java implementation of \libalf. Hence, the \jalf is not a standalone library and indeed requires the \libalf library to be useful. The \jalf library can be used through JNI calls or by using a dispatcher to the \cpp \libalf itself. This implies that \libalf library is indeed necessary to use \jalf \java library. 
+The \jalf \java library, as you may have come across in various sections in the previous chapters, is the \java implementation of \libalf. However, \jalf is not a standalone library. It is implemented as calls pointing to the \cpp \libalf objects. \\
+The \jalf library can be used either locally through JNI or remotely from a server using the dispatcher. The important point to be noted here is that a few features in \jalf are not identical to \libalf. The differences exist at different levels and will be described in this section along with how to use \jalf and its developer's perspective.
 
-\section{Files Structure}
+
+\section{Source Code Structure}
 The \jalf implementation can be found in \texttt{/libalf/jalf} folder of the \libalf package. The \jalf package information is as follows.
 \begin{itemize}
- \item \texttt{src} - The folder contains the JNI call methods that forwards the method calls to \cpp part.
- \item \texttt{include} - The header files for the above.
- \item \texttt{java/src/de/libalf} - The files available in this folder are the interfaces to the native methods.
- \item \texttt{java/src/de/libalf/jni} - The java native methods of all the components.
+ \item \texttt{src} - The folder contains \cpp methods of JNI calls that forwards the calls to \libalf.
+ \item \texttt{include} - The header files generated using \texttt{javah} command.
+ \item \texttt{java/src/de/libalf} - The files in this folder are the interfaces to the native methods.
+ \item \texttt{java/src/de/libalf/jni} - The java native methods for JNI.
+ \item \texttt{java/src/de/libalf/dispatcher} - The java native methods for dispatcher.
 \end{itemize}
 
-\section{Naming Conventions}
-The JNI calls of the source files are named as follows. \\
-\textbf{Java\_de\_libalf\_jni\_JNI[ClassName]\_name\_1of\_1the\_1method( \emph{parameters} )} \\
-The parameters consist of the JNI Environment variable, the java object and the parameters of the original method along with a pointer to the object of this method. For example, the method \texttt{void resolve\_or\_add\_query} from the \cpp part of knowledgebase is written as \\
-\textbf{Java\_de\_libalf\_jni\_JNIKnowledgebase\_resolve\_1or\_1add\_1query(JNIEnv *env, jobject obj, jintArray word, jlong pointer)} \\
-Here, \emph{env} is the JNI environment variable,  \emph{obj} is the jobject, \emph{word} represents the knowledge to be either resolved or added to the knowledgebase, pointer is the pointer to the \cpp object. The native java files consist of the same method names as the \cpp counterpart except that.
-
-\section{Structure of \jalf}
+\section{\jalf - User Perspective}
+In this section we will introduce how to use \jalf and explain its features.
 
 \subsection*{Data Structures}
-The data structure used in \jalf is similar to that as \libalf.  In \libalf, words were represented as list of integers. Similarly \jalf uses integer arrays to represent the words. To represent a list of words, \jalf uses the data structure LinkedList.
-An important difference lies in the data structure of the knowledgebase. While it is possible to store arbitrary value types for classification in \libalf, \jalf uses a boolean type for the knowledgebase and hence only boolean values (\true or \false) can be used for storing classification information in \jalf. 
+The data structure used in \jalf is mostly similar to that of \libalf. An important difference lies in the data structure of the knowledgebase. While it is possible to store arbitrary value types for classification in \libalf, it is possible to use only boolean values (\true or \false) can be used for storing classification information in \jalf. \\
+However, other differences in data structures are handled entirely by the \jalf itself and the task does not burden on the user. 
+For instance in \libalf, words were represented as list of integers. Similarly \jalf uses integer arrays, or more precisely, \texttt{jintArray} to represent the words and \texttt{LinkedList} for list of words. \jalf automatically performs the conversion during the execution.
 
-\subsection*{The Factory Class}
-From an abstract view, the components are created in \jalf under a roof called Factory. That is, the objects of all components are created in an abstract class called as \texttt{factory}. 
+\subsection{The \jalf Factory}
+Unlike \libalf the components are not entirely free but belong to what is called a Factory class. From an abstract point of view, this factory can be imagined as a roof under which the components can be declared and used. The following code snippet shows an example of how to use the factory class. (Note: refer to the examples provided in the \libalf website for the full program)
 
 \begin{lstlisting}
+
 int[] words
 boolean classification;
 LibALFFactory factory = JNIFactory.STATIC;
@@ -48,36 +47,27 @@ make_OutputFile(automaton.toDot());
 
 \end{lstlisting}
 
+As one can observe from above, the objects for knowledgebase and learning algorithm are created only through this factory class. Loggers and Normalizers also belong to the factory and must be initialized in the same way as the knowledgebase. After declaring the components under this factory, they can be used normally like in the \cpp program. In this context, the user must understand and remember that \jalf is a library that points to the objects of the \cpp \libalf library. Which means that although the components are declared under the factory, each component maintains a separate pointer to its corresponding \cpp object. The object can be destroyed by calling the \texttt{destroy()} method and an exception is thrown when trying to access a destroyed object. And thus, the learning algorithm class provides you two extra methods compared to \libalf \cpp part, which are \texttt{remove\_logger} and \texttt{remove\_normalizer} which destroys the objects of logger and normalizer. The same can be created at a later point of time and can be attached to the learning algorithm through \texttt{set\_logger} and \texttt{set\_normalizer}. However, one has to note that \jalf does not support IO logger. This implies that you may choose to use only a buffered logger or ignore logger completely. \\
+\jalf also supports exceptions that a user that helps debugging. For instance, an exception is thrown when trying to add a counter example for an \offline algorithm or when enough information is not provided during the creation of learning algorithm. The dispatcher can additionally give a protocol exception.\\
 
+\section{\jalf - Developer Perspective}
+The \jalf library, in essence, are methods that forward the calls to the \libalf library. \\
+( A short intro summary here - will be done after finalizing this part. Points about javah will be added in this part) \\
 
+\section{Naming Conventions}
+Before going into the details of the \jalf, the text below briefs on the naming of the methods.
 
+The \cpp part of the native methods, as a result of the \texttt{javah} command are written as \\
+\textbf{Java\_de\_libalf\_jni\_JNI[ClassName]\_name\_1of\_1the\_1method( \emph{parameters} )} \\
+The parameters consist of the JNI Environment variable, the java object and the parameters of the original method along with a pointer to the object of this method. For example, the method \texttt{void resolve\_or\_add\_query} is coded as \\
+\textbf{Java\_de\_libalf\_jni\_JNIKnowledgebase\_resolve\_1or\_1add\_1query(JNIEnv *env, jobject obj, jintArray word, jlong pointer)} \\
+Here, \emph{env} is the JNI environment variable,  \emph{obj} is the jobject, \emph{word} represents the knowledge to be either resolved or added to the knowledgebase, pointer is the pointer to the \cpp object. 
 
-
-In essence, the factory interface initializes or creates the knowledgebase, learning algorithm, logger and normalizer.
-
-\section{Working with \jalf - Preliminaries}
+\section{\jalf - Preliminaries}
 
 \subsection*{JNIObject}
-The \texttt{JNIObject} is the root of all classes representing the JNI \libalf \cpp objects. Each JNIObject stores a 64 bit pointer variable that points to memory location of the \cpp object. This ensures memory access is allowed on both 32 and 64 bit systems. Each \texttt{native} method call on \cpp objects via the JNI interface has to provide a pointer to locate the object. This class is not initialized but its subclasses provide an \texttt{init} method to initialize a \cpp object via the JNI interface and returns the memory address of the object. For instance, the native method \texttt{private native long init()} of the knowledgebase invokes the JNI interface to initialize a new \cpp knowledgebase object without any parameters and returns the pointer to this object. \\
-The \texttt{JNIObject} extends \texttt{LibALFObject} which is the interface that initializes the factory and creates pointer to the \cpp objects. 
-   
-\subsection*{JNItools}
-The \texttt{jni\_tools} provide methods useful especially for converting variables to JNI data structures. The methods provided are as follows.
-\begin{itemize}
- \item \textbf{jintArray basic\_string2jintArray\_tohl(JNIEnv *env, basic\_string$<$int32\_t$>$ str)}
- \item \textbf{jintArray basic\_string2jintArray(JNIEnv *env, basic\_string$<$int32\_t$>$ str)} \\ 
-	To convert basic\_string to jintArray. 
- \item \textbf{jintArray list\_int2jintArray(JNIEnv *env, list$<$int$>$ l)} \\
-	The method converts list of integers to jintArray.
- \item \textbf{jobject create\_transition(JNIEnv* env, int source, int label, int destination)} \\
-	The method creates an edge between the source node and the destination node with the prescribed label.
- \item \textbf{jobject convertAutomaton(JNIEnv* env, bool is\_dfa, int alphabet\_size, int state\_count, set$<$int$>$ \& initial, set$<$int$>$ \& final, multimap$<$pair$<$int, int$>$, int$>$ \& transitions)}\\ ??
-\end{itemize}
-
-\subsection*{Exceptions}
-The classes \texttt{ALFException} and \texttt{ALFObjectDestroyedException} are used by the components for throwing exceptions of any kind. One particular example is from a class \texttt{JNILearningAlgorithmOffline}. The class consists of a method that throws an exception when tried to invoke \texttt{add\_counterexample(int[] counterexample)} method with a message stating that \offline learning algorithms do not support adding counterexample.
-
-
+The \texttt{JNIObject} is the root of all classes representing the JNI \libalf \cpp objects. Each JNIObject stores a 64 bit pointer variable that points to memory location of the \cpp object. This ensures memory access is allowed on both 32 and 64 bit systems. Each \texttt{native} method call on \cpp objects via the JNI interface has to provide a pointer to locate the object. This class is not initialized but its subclasses provide an \texttt{init} method to initialize a \cpp object via the JNI interface and returns the memory address of the object. For instance, the native method \texttt{private native long init()} of the knowledgebase invokes the JNI interface to initialize a new \cpp knowledgebase object without any parameters and returns the pointer to this object. The same exists for the dispatcher as \texttt{DispatcherObject.java}. \\
+The \texttt{JNIObject} extends \texttt{LibALFObject} which is the interface that initializes the factory and creates pointer to the \cpp objects. And hence, the classes under the factory (knowledgebase, learning algorithm, logger and normalizer) implement a \texttt{destroy()} method to remove the pointer to the respective \cpp object. 
 
 \section{Automaton Tools}
 Three classes that are important for working with the automaton is described below.
@@ -89,11 +79,22 @@ The automaton essentially consists of the set of \emph{states} which is represen
 \subsection*{BasicTransition}
 Creates a new transition from source to destination, given the label of this transition.
 
-\section{The Knowledgebase}
-As mentioned earlier, \jalf can use only boolean variables for storing the classification. 
-Like in the \cpp counterpart, the acceptance information or the classification of the word is from the \texttt{enum} variable {Accept, reject, dontcare or unknown}
+\subsection*{Exceptions}
+As mentioned earlier, \jalf supports exceptions that is derived from the interface \texttt{AlfException}. \jalf throws an exception if an object has already been destroyed. This is handled by methods derived from the interface \texttt{AlfObjectDestroyedException}. To add more exceptions, simply include the methods in the corresponding interface and use it in the classes. 
+   
+\subsection*{JNItools}
+The \texttt{jni\_tools} provide methods useful especially for converting variables to JNI data structures. The methods provided are as follows.
+\begin{itemize}
+ \item \textbf{jintArray basic\_string2jintArray\_tohl(JNIEnv *env, basic\_string$<$int32\_t$>$ str)}
+	The method is used to convert basic\_string to jintArray. The function uses \texttt{ntohl} to convert the integer to host byte order. 
+ \item \textbf{jintArray basic\_string2jintArray(JNIEnv *env, basic\_string$<$int32\_t$>$ str)} \\ 
+	Method to convert basic\_string to jintArray.
+ \item \textbf{jintArray list\_int2jintArray(JNIEnv *env, list$<$int$>$ l)} \\
+	The method converts list of integers to jintArray.
+ \item \textbf{jobject create\_transition(JNIEnv* env, int source, int label, int destination)} \\
+	The method creates an edge between the source node and the destination node with the prescribed label.
+ \item \textbf{jobject convertAutomaton(JNIEnv* env, bool is\_dfa, int alphabet\_size, int state\_count, set$<$int$>$ \& initial, set$<$int$>$ \& final, multimap$<$pair$<$int, int$>$, int$>$ \& transitions)}\\ ??
 
-\subsection{Loggers}
-The functionality and the implementation of the logger is the same as in \libalf except a few differences. \jalf does not support IO logger. Which means that you can only choose to use the buffered logger (which logs the events as a \stringtype) or ignore it.
-Also, the loglevel is converted to integer form (1 - ERROR, 2 - WARN, 3 - INFO and 4 - DEBUG) for processing. This is done in the method \\ \texttt{private int mapJNILoggerLevel(LoggerLevel logLevel)}. 
+\end{itemize}
+
 
