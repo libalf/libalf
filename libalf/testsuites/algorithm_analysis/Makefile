@@ -7,7 +7,8 @@ PREFIX ?= /usr/local
 
 CPPFLAGS+=-I../../include -I${PREFIX}/include -Wall -ggdb3
 
-LDFLAGS+=-L../../src -L${PREFIX}/lib -lalf -lAMoRE++ -llangen
+# -lrt needed for clock_gettime()
+LDFLAGS+=-L../../src -L${PREFIX}/lib -lalf -lAMoRE++ -llangen -lrt
 
 all: algorithm_analysis
 

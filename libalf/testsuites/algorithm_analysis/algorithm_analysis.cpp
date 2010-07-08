@@ -22,6 +22,8 @@
  *
  */
 
+#include <time.h>
+
 #include <iostream>
 #include <ostream>
 #include <iterator>
@@ -169,6 +171,7 @@ model_too_big:
 					// learn model with different algorithms
 					learning_algorithm<bool> * alg;
 					statistics stats[3];
+					unsigned long long int usecs_needed[3];
 
 					int stat_size_RFSA;
 
@@ -212,9 +215,9 @@ model_too_big:
 						struct timespec tp2;
 						clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tp2);
 						usecs_needed[learner] = (tp2.tv_sec - tp1.tv_sec) * 1000;
-						if(tp2.nsec < tp1.nsec)
+						if(tp2.tv_nsec < tp1.tv_nsec)
 							usecs_needed[learner] -= 1000;
-						usecs_needed[learner] += (tv2.tv_nsec - tp1.tv_nsec) / 1000;
+						usecs_needed[learner] += (tp2.tv_nsec - tp1.tv_nsec) / 1000;
 
 						delete alg;
 					}
@@ -222,17 +225,16 @@ model_too_big:
 					// save stats:
 					//		model_index alphabet_size method model_size mDFA_size RFSA_size
 					// (L* stats)
-					//		- membership uniq_membership equivalence
+					//		- membership uniq_membership equivalence usecs_needed
 					// (L*_col stats)
-					//		- membership uniq_membership equivalence
+					//		- membership uniq_membership equivalence usecs_needed
 					// (NL* stats)
-					//		- membership uniq_membership equivalence
-					snprintf(logline, 1024, "%d %d %d %d %d %d - %d %d %d - %d %d %d - %d %d %d\n",
+					//		- membership uniq_membership equivalence usecs_needed
+					snprintf(logline, 1024, "%d %d %d %d %d %d - %d %d %d %lld - %d %d %d %lld - %d %d %d %lld\n",
 							model_index, alphabet_size, method, stat_size_model, stat_size_mDFA, stat_size_RFSA,
-							stats[0].queries.membership, stats[0].queries.uniq_membership, stats[0].queries.equivalence,
-							stats[1].queries.membership, stats[1].queries.uniq_membership, stats[1].queries.equivalence,
-							stats[2].queries.membership, stats[2].queries.uniq_membership, stats[1].queries.equivalence,
-							usecs_needed[0], usecs_needed[1], usecs_needed[2]
+							stats[0].queries.membership, stats[0].queries.uniq_membership, stats[0].queries.equivalence, usecs_needed[0],
+							stats[1].queries.membership, stats[1].queries.uniq_membership, stats[1].queries.equivalence, usecs_needed[1],
+							stats[2].queries.membership, stats[2].queries.uniq_membership, stats[1].queries.equivalence, usecs_needed[2]
 							);
 
 					statfile << logline;
