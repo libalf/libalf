@@ -599,6 +599,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 			basic_string<int32_t> ret;
 
 			ret += 0; // size, filled in later.
+			ret += ::serialize((int)learning_algorithm<answer>::ALG_MVCA_ANGLUINLIKE);
 			ret += ::serialize(initialized);
 			ret += ::serialize(this->get_alphabet_size());
 			ret += ::serialize(pushdown_directions);
@@ -617,11 +618,15 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 		virtual bool deserialize(serial_stretch & serial)
 		{{{
 			int size;
+			int type;
 
 			clear();
 
 			if(!::deserialize(size, serial)) goto deserialization_failed;
 			// total size: we don't care.
+			if(!::deserialize(type, serial)) goto deserialization_failed;
+			if(type != (int)learning_algorithm<answer>::ALG_MVCA_ANGLUINLIKE)
+				goto deserialization_failed;
 			if(!::deserialize(initialized, serial)) goto deserialization_failed;
 			if(!::deserialize(size, serial)) goto deserialization_failed;
 			this->set_alphabet_size(size);
