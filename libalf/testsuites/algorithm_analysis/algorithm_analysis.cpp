@@ -86,7 +86,7 @@ int main(int argc, char**argv)
 	char logline[1024];
 	ofstream statfile;
 	statfile.open("statistics");
-	statfile << "# model_index alphabet_size method model_size mDFA_size RFSA_size - L*-membership L*-uniq_membership L*-equivalence - L*col-membership L*col-uniq_membership L*col-equivalence - NL*-membership NL*-uniq_membership NL*-equivalence\n";
+	statfile << "# model_index alphabet_size method model_size mDFA_size RFSA_size - L*-membership L*-uniq_membership L*-equivalence L*-usecs-needed - L*col-membership L*col-uniq_membership L*col-equivalence L*col-usecs-needed - NL*-membership NL*-uniq_membership NL*-equivalence NL*-usecs-needed\n";
 
 	for(alphabet_size = min_asize; alphabet_size <= max_asize; ++alphabet_size) {
 		for(method = 0; method <= 2; method++) {
@@ -183,8 +183,7 @@ model_too_big:
 						base.clear();
 						switch (learner) {
 							case 0: alg = new angluin_simple_table<bool>(&base, &log, alphabet_size); break;
-							case 1: //alg = new angluin_col_table<bool>(&base, &log, alphabet_size); break;
-								continue; // skip angluin_col_table
+							case 1: alg = new angluin_col_table<bool>(&base, &log, alphabet_size); break;
 							case 2: alg = new NLstar_table<bool>(&base, &log, alphabet_size); break;
 						}
 
