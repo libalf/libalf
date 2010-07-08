@@ -173,6 +173,10 @@ model_too_big:
 					int stat_size_RFSA;
 
 					for(int learner = 0; learner <= 2; learner++) {
+
+						struct timespec tp1;
+						clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tp1);
+
 						base.clear();
 						switch (learner) {
 							case 0: alg = new angluin_simple_table<bool>(&base, &log, alphabet_size); break;
@@ -205,6 +209,13 @@ model_too_big:
 							iteration++;
 						}
 
+						struct timespec tp2;
+						clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tp2);
+						usecs_needed[learner] = (tp2.tv_sec - tp1.tv_sec) * 1000;
+						if(tp2.nsec < tp1.nsec)
+							usecs_needed[learner] -= 1000;
+						usecs_needed[learner] += (tv2.tv_nsec - tp1.tv_nsec) / 1000;
+
 						delete alg;
 					}
 
@@ -220,7 +231,8 @@ model_too_big:
 							model_index, alphabet_size, method, stat_size_model, stat_size_mDFA, stat_size_RFSA,
 							stats[0].queries.membership, stats[0].queries.uniq_membership, stats[0].queries.equivalence,
 							stats[1].queries.membership, stats[1].queries.uniq_membership, stats[1].queries.equivalence,
-							stats[2].queries.membership, stats[2].queries.uniq_membership, stats[1].queries.equivalence
+							stats[2].queries.membership, stats[2].queries.uniq_membership, stats[1].queries.equivalence,
+							usecs_needed[0], usecs_needed[1], usecs_needed[2]
 							);
 
 					statfile << logline;
