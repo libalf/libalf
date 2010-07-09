@@ -33,6 +33,7 @@
 #include <libalf/alf.h>
 #include <libalf/algorithm_angluin.h>
 #include <libalf/algorithm_NLstar.h>
+#include <libalf/algorithm_kearns_vazirani.h>
 #include <libalf/knowledgebase.h>
 
 #include <liblangen/dfa_randomgenerator.h>
@@ -171,12 +172,12 @@ model_too_big:
 
 					// learn model with different algorithms
 					learning_algorithm<bool> * alg;
-					statistics stats[3];
-					unsigned long long int usecs_needed[3];
+					statistics stats[4];
+					unsigned long long int usecs_needed[4];
 
 					int stat_size_RFSA;
 
-					for(int learner = 0; learner <= 2; learner++) {
+					for(int learner = 0; learner <= 3; learner++) {
 
 
 						base.clear();
@@ -184,6 +185,7 @@ model_too_big:
 							case 0: alg = new angluin_simple_table<bool>(&base, &log, alphabet_size); break;
 							case 1: alg = new angluin_col_table<bool>(&base, &log, alphabet_size); break;
 							case 2: alg = new NLstar_table<bool>(&base, &log, alphabet_size); break;
+							case 3: alg = new kearns_vazirani<bool>(&base, &log, alphabet_size); break;
 						}
 
 						bool equal = false;
@@ -250,11 +252,14 @@ model_too_big:
 					//		- membership uniq_membership equivalence usecs_needed
 					// (NL* stats)
 					//		- membership uniq_membership equivalence usecs_needed
-					snprintf(logline, 1024, "%d %d %d %d %d %d - %d %d %d %llu - %d %d %d %llu - %d %d %d %llu\n",
+					// (KV stats)
+					//		- membership uniq_membership equivalence usecs_needed
+					snprintf(logline, 1024, "%d %d %d %d %d %d - %d %d %d %llu - %d %d %d %llu - %d %d %d %llu - %d %d %d %llu\n",
 							model_index, alphabet_size, method, stat_size_model, stat_size_mDFA, stat_size_RFSA,
 							stats[0].queries.membership, stats[0].queries.uniq_membership, stats[0].queries.equivalence, usecs_needed[0],
 							stats[1].queries.membership, stats[1].queries.uniq_membership, stats[1].queries.equivalence, usecs_needed[1],
-							stats[2].queries.membership, stats[2].queries.uniq_membership, stats[1].queries.equivalence, usecs_needed[2]
+							stats[2].queries.membership, stats[2].queries.uniq_membership, stats[2].queries.equivalence, usecs_needed[2],
+							stats[3].queries.membership, stats[3].queries.uniq_membership, stats[3].queries.equivalence, usecs_needed[3]
 							);
 
 					statfile << logline;
