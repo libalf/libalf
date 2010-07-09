@@ -79,7 +79,7 @@ int main(int argc, char**argv)
 	int method, model_size, alphabet_size, testcase_index;
 
 	int model_index = 0;
-	int max_model_index = num_testcases * (max_asize - min_asize + 1) * (max_msize - min_msize + 1) * 3 /* 3 different kinds of model generation */ - 1;
+	int max_model_index = num_testcases * (max_asize - min_asize + 1) * ((max_msize - min_msize)/model_size_step + 1) * 3 /* 3 different kinds of model generation */ - 1;
 
 	ostream_logger log(&cout, LOGGER_DEBUG);
 	knowledgebase<bool> base;
@@ -101,72 +101,73 @@ int main(int argc, char**argv)
 					multimap<pair<int,int>, int> f_transitions;
 
 model_too_big:
-
 					// {{{ construct model
-					if(method != 2) {
-						if(method == 0) {
-							// 0 == DFA
-							if(!dfa_rg.generate(alphabet_size, model_size,
-									f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
-								cout << "failed to generate random DFA!\n";
-								return 1;
-							}
-							dfa_rg.discard_tables(); // we need space
-						} else {
-							// 1 == NFA
-							if(!nfa_rg.generate(alphabet_size, model_size, 2, 0.5, 0.5,
-									f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
-								cout << "failed to generate random NFA!\n";
-								return 1;
-							}
+						if(method != 2) {
+							if(method == 0) {
+								// 0 == DFA
+								if(!dfa_rg.generate(alphabet_size, model_size,
+										f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
+									cout << "failed to generate random DFA!\n";
+									return 1;
+								}
+								dfa_rg.discard_tables(); // we need space
+							} else {
+								// 1 == NFA
+								if(!nfa_rg.generate(alphabet_size, model_size, 2, 0.5, 0.5,
+										f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {
+									cout << "failed to generate random NFA!\n";
+									return 1;
+								}
 
+							}
+							model = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
+							if(!model) {
+								cout << "failed to construct automaton from generated data!\n";
+								return 1;
+							}
+						} else {
+							// 2 == RegEx
+							std::string regex;
+							bool success;
+							regex = regex_rg.generate(alphabet_size, model_size, 0.556, 0.278, 0.166);
+							model = new nondeterministic_finite_automaton(alphabet_size, regex.c_str(), success);
+							if(!success) {
+								cout << "failed to construct NFA from regex!\n";
+								return 1;
+							}
 						}
-						model = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
-						if(!model) {
-							cout << "failed to construct automaton from generated data!\n";
-							return 1;
-						}
-					} else {
-						// 2 == RegEx
-						std::string regex;
-						bool success;
-						regex = regex_rg.generate(alphabet_size, model_size, 0.556, 0.278, 0.166);
-						model = new nondeterministic_finite_automaton(alphabet_size, regex.c_str(), success);
-						if(!success) {
-							cout << "failed to construct NFA from regex!\n";
-							return 1;
-						}
-					}
 					/// }}}
 
 					int stat_size_model = model->get_state_count();
 
 					// save model to file, then determinize and minimize model so we're faster {{{
-					char modelfilename[128];
-					ofstream modelfile;
+						char modelfilename[128];
+						ofstream modelfile;
 
-					snprintf(modelfilename, 128, "model_%08d_%c.dot", model_index, (method == 2) ? 'R' : (method == 1) ? 'N' : (method == 0) ? 'D' : '?');
+						snprintf(modelfilename, 128, "model_%08d_%c.dot", model_index, (method == 2) ? 'R' : (method == 1) ? 'N' : (method == 0) ? 'D' : '?');
 
-					modelfile.open(modelfilename);
-					modelfile << model->visualize();
-					modelfile.close();
+						modelfile.open(modelfilename);
+						modelfile << model->visualize();
+						modelfile.close();
 
-					finite_automaton * tmp;
-					tmp = model;
-					model = tmp->determinize();
-					delete tmp;
-					model->minimize();
+						finite_automaton * tmp;
+						tmp = model;
+						model = tmp->determinize();
+						delete tmp;
+						model->minimize();
 					// }}}
 
 					int stat_size_mDFA = model->get_state_count();
 
-					if(stat_size_mDFA > max_msize * 3) {
+					if(stat_size_mDFA > max_msize * 2) {
 						delete model;
 						goto model_too_big;
 					}
 
-					log(LOGGER_INFO, "completed %5.1f%% [model %d/%d size %d] (current alphabet size %d, method %d, model size %d)   \r",
-							(float)model_index / max_model_index * 100, model_index, max_model_index, stat_size_mDFA , alphabet_size, method, model_size);
+					log(LOGGER_INFO, "completed %5.1f%% [model %d/%d size %d] (current alphabet size %d, method %s, model size %d)   \r",
+							(float)model_index / max_model_index * 100, model_index, max_model_index, stat_size_mDFA , alphabet_size,
+							(method == 0) ? "rDFA" : (method == 1) ? "rNFA" : (method == 2) ? "rRegEx" : "[?]",
+							model_size);
 
 					// learn model with different algorithms
 					learning_algorithm<bool> * alg;
@@ -177,8 +178,6 @@ model_too_big:
 
 					for(int learner = 0; learner <= 2; learner++) {
 
-						struct timespec tp1;
-						clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tp1);
 
 						base.clear();
 						switch (learner) {
@@ -189,15 +188,44 @@ model_too_big:
 
 						bool equal = false;
 						int iteration = 0;
+						usecs_needed[learner] = 0;
+						struct timespec tp1, tp2; // {{{ timing }}}
+
 						while(!equal) {
 							conjecture * cj;
-							while( NULL == (cj = alg->advance()) )
+
+							clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tp1); // {{{ timing }}}
+							while( NULL == (cj = alg->advance()) ) {
+								// {{{ timing
+								clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tp2);
+								usecs_needed[learner] += (tp2.tv_sec - tp1.tv_sec) * 1000000;
+								if(tp2.tv_nsec < tp1.tv_nsec) {
+									usecs_needed[learner] -= 1000000;
+									usecs_needed[learner] += (tp1.tv_nsec - tp2.tv_nsec) / 1000;
+								} else {
+									usecs_needed[learner] += (tp2.tv_nsec - tp1.tv_nsec) / 1000;
+								}
+								// }}} timing end
+
+								// answer membership queries
 								stats[learner].queries.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*model, base);
+							}
+							// {{{ timing
+							clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tp2);
+							usecs_needed[learner] += (tp2.tv_sec - tp1.tv_sec) * 1000000;
+							if(tp2.tv_nsec < tp1.tv_nsec) {
+								usecs_needed[learner] -= 1000000;
+								usecs_needed[learner] += (tp1.tv_nsec - tp2.tv_nsec) / 1000;
+							} else {
+								usecs_needed[learner] += (tp2.tv_nsec - tp1.tv_nsec) / 1000;
+							}
+							// }}} timing end
 
 							list<int> counterexample;
 							stats[learner].queries.equivalence++;
 							stats[learner].queries.membership = base.count_resolved_queries();
 							log(LOGGER_DEBUG, "eq query. \r");
+							// --
 							if(amore_alf_glue::automaton_antichain_equivalence_query(*model, cj, counterexample)) {
 							log(LOGGER_DEBUG, "completed \r");
 								equal = true;
@@ -211,13 +239,6 @@ model_too_big:
 							iteration++;
 						}
 
-						struct timespec tp2;
-						clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tp2);
-						usecs_needed[learner] = (tp2.tv_sec - tp1.tv_sec) * 1000;
-						if(tp2.tv_nsec < tp1.tv_nsec)
-							usecs_needed[learner] -= 1000;
-						usecs_needed[learner] += (tp2.tv_nsec - tp1.tv_nsec) / 1000;
-
 						delete alg;
 					}
 
@@ -229,7 +250,7 @@ model_too_big:
 					//		- membership uniq_membership equivalence usecs_needed
 					// (NL* stats)
 					//		- membership uniq_membership equivalence usecs_needed
-					snprintf(logline, 1024, "%d %d %d %d %d %d - %d %d %d %lld - %d %d %d %lld - %d %d %d %lld\n",
+					snprintf(logline, 1024, "%d %d %d %d %d %d - %d %d %d %llu - %d %d %d %llu - %d %d %d %llu\n",
 							model_index, alphabet_size, method, stat_size_model, stat_size_mDFA, stat_size_RFSA,
 							stats[0].queries.membership, stats[0].queries.uniq_membership, stats[0].queries.equivalence, usecs_needed[0],
 							stats[1].queries.membership, stats[1].queries.uniq_membership, stats[1].queries.equivalence, usecs_needed[1],
