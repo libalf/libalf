@@ -87,7 +87,7 @@ int main(int argc, char**argv)
 	char logline[1024];
 	ofstream statfile;
 	statfile.open("statistics");
-	statfile << "# model_index alphabet_size method model_size mDFA_size RFSA_size - L*-membership L*-uniq_membership L*-equivalence L*-usecs-needed - L*col-membership L*col-uniq_membership L*col-equivalence L*col-usecs-needed - NL*-membership NL*-uniq_membership NL*-equivalence NL*-usecs-needed\n";
+	statfile << "# model_index alphabet_size method model_size mDFA_size RFSA_size - L*-membership L*-uniq_membership L*-equivalence L*-usecs-needed - L*col-membership L*col-uniq_membership L*col-equivalence L*col-usecs-needed - NL*-membership NL*-uniq_membership NL*-equivalence NL*-usecs-needed - KV-membership KV-uniq_membership KV-equivalence KV-usecs-needed\n";
 
 	for(alphabet_size = min_asize; alphabet_size <= max_asize; ++alphabet_size) {
 		for(method = 0; method <= 2; method++) {
@@ -194,34 +194,24 @@ model_too_big:
 						struct timespec tp1, tp2; // {{{ timing }}}
 
 						while(!equal) {
-							conjecture * cj;
+							conjecture * cj = NULL; // XXX
 
-							clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tp1); // {{{ timing }}}
-							while( NULL == (cj = alg->advance()) ) {
+							while(cj == NULL) {
+								clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tp1); // {{{ timing }}}
+								cj = alg->advance();
 								// {{{ timing
-								clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tp2);
-								usecs_needed[learner] += (tp2.tv_sec - tp1.tv_sec) * 1000000;
-								if(tp2.tv_nsec < tp1.tv_nsec) {
-									usecs_needed[learner] -= 1000000;
-									usecs_needed[learner] += (tp1.tv_nsec - tp2.tv_nsec) / 1000;
-								} else {
-									usecs_needed[learner] += (tp2.tv_nsec - tp1.tv_nsec) / 1000;
-								}
+									clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tp2);
+									usecs_needed[learner] += (tp2.tv_sec - tp1.tv_sec) * 1000000;
+									if(tp2.tv_nsec < tp1.tv_nsec) {
+										usecs_needed[learner] -= 1000000;
+										usecs_needed[learner] += (tp1.tv_nsec - tp2.tv_nsec) / 1000;
+									} else {
+										usecs_needed[learner] += (tp2.tv_nsec - tp1.tv_nsec) / 1000;
+									}
 								// }}} timing end
-
-								// answer membership queries
-								stats[learner].queries.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*model, base);
+								if(cj == NULL)
+									stats[learner].queries.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*model, base);
 							}
-							// {{{ timing
-							clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tp2);
-							usecs_needed[learner] += (tp2.tv_sec - tp1.tv_sec) * 1000000;
-							if(tp2.tv_nsec < tp1.tv_nsec) {
-								usecs_needed[learner] -= 1000000;
-								usecs_needed[learner] += (tp1.tv_nsec - tp2.tv_nsec) / 1000;
-							} else {
-								usecs_needed[learner] += (tp2.tv_nsec - tp1.tv_nsec) / 1000;
-							}
-							// }}} timing end
 
 							list<int> counterexample;
 							stats[learner].queries.equivalence++;
