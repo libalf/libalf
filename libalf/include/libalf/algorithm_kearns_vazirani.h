@@ -1323,9 +1323,9 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			}
 
 			if(max_target_state >= automaton->state_count) {
-				printf("PANIK: KV transition source >= state_count\n\n");
+				printf("PANIK: KV transition source (%d) >= state_count (%d)\n\n", max_target_state, automaton->state_count);
 				fflush(stdout);
-				automaton->state_count++;
+				automaton->state_count = max_target_state + 1;
 			}
 
 			return automaton;
