@@ -15,10 +15,13 @@ all: algorithm_analysis
 clean: nodata
 	-rm -f *.o algorithm_analysis
 
-nodata:
-	-rm -f *.dot *.jpg statistics stats_a2m0 stats_a2m1 stats_a2m2 stats_a3m0 stats_a3m1 stats_a3m2 stats_a4m0 stats_a4m1 stats_a4m2
+nodata: noresults
+	-rm -f *.dot statistics
 
-plot:
+noresults:
+	-rm -f *.jpg stats_a2m0 stats_a2m1 stats_a2m2 stats_a3m0 stats_a3m1 stats_a3m2 stats_a4m0 stats_a4m1 stats_a4m2
+
+split_data:
 	gawk '/^[^ ]+ 2 0/ { print $0 }' statistics > stats_a2m0
 	gawk '/^[^ ]+ 2 1/ { print $0 }' statistics > stats_a2m1
 	gawk '/^[^ ]+ 2 2/ { print $0 }' statistics > stats_a2m2
@@ -28,6 +31,8 @@ plot:
 	gawk '/^[^ ]+ 4 0/ { print $0 }' statistics > stats_a4m0
 	gawk '/^[^ ]+ 4 1/ { print $0 }' statistics > stats_a4m1
 	gawk '/^[^ ]+ 4 2/ { print $0 }' statistics > stats_a4m2
+
+plot: split_data
 	gnuplot plot.conf
 
 run:
