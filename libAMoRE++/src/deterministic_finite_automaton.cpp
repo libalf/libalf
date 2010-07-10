@@ -760,21 +760,46 @@ bool deterministic_finite_automaton::construct(bool is_dfa, int alphabet_size, i
 	a->alphabet_size = alphabet_size; // alphabet size
 	a->delta = newddelta(a->alphabet_size, a->highest_state); // transition function: delta[sigma][source] = destination
 	// currently, delta[n] = 0. thus all undefined transitions would lead to
-	// state 0. we don't want this, thus we reset the value here and add a
+	// state 0. obviously stupid, thus we reset the value here and add a
 	// sink later on, if required.
 	bool sink_required = false;
 	for(unsigned int s = 0; s <= a->highest_state; s++)
 		for(unsigned int i = 1; i <= a->alphabet_size; i++)
 			a->delta[i][s] = a->highest_state+1;
-	for(ti = transitions.begin(); ti != transitions.end(); ti++)
+	for(ti = transitions.begin(); ti != transitions.end(); ti++) {
+#ifdef DEBUG
+		if(ti->first.first >= state_count) {
+			printf("deterministic_finite_automaton::construct(): in transition %d-(%d)->%d: bad state %d with state_count %d\n",
+					ti->first.first, ti->first.second, ti->second,
+					ti->first.first, state_count);
+			printf("state count: %d\nalphabet size: %d\n", state_count, alphabet_size);
+			printf("\ntransitions:\n");
+			for(ti = transitions.begin(); ti != transitions.end(); ti++)
+				printf("\t%d-(%d)->%d\n", ti->first.first, ti->first.second, ti->second);
+			printf("throwing a NULL-ptr exception, so you get a stack-trace...\n");
+			fflush(stdout);
+			is_dfa = *((int*)NULL);//panik
+		}
+		if(ti->first.second >= alphabet_size) {
+			printf("deterministic_finite_automaton::construct(): in transition %d-(%d)->%d: bad label %d with asize %d\n",
+					ti->first.first, ti->first.second, ti->second,
+					ti->first.second, alphabet_size); fflush(stdout);
+			printf("state count: %d\nalphabet size: %d\n", state_count, alphabet_size);
+			printf("\ntransitions:\n");
+			for(ti = transitions.begin(); ti != transitions.end(); ti++)
+				printf("\t%d-(%d)->%d\n", ti->first.first, ti->first.second, ti->second);
+			printf("throwing a NULL-ptr exception, so you get a stack-trace...\n");
+			fflush(stdout);
+			is_dfa = *((int*)NULL);//panik
+		}
+#endif
 		a->delta[ti->first.second + 1][ti->first.first] = ti->second;
+	}
 	for(unsigned int s = 0; s <= a->highest_state && !sink_required; s++)
 		for(unsigned int i = 1; i <= a->alphabet_size && !sink_required; i++)
 			if(a->delta[i][s] > a->highest_state)
 				sink_required = true;
 	if(sink_required) {
-//		printf("AMoRE++ deterministic_finite_automaton::construct adding implicit sink\n");
-
 		ddelta tmp;
 		tmp = a->delta;
 
