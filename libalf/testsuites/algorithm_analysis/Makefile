@@ -19,18 +19,18 @@ nodata: noresults
 	-rm -f *.dot statistics
 
 noresults:
-	-rm -f *.jpg stats_a2m0 stats_a2m1 stats_a2m2 stats_a3m0 stats_a3m1 stats_a3m2 stats_a4m0 stats_a4m1 stats_a4m2
+	-rm -f *.jpg split_data_a2m0 split_data_a2m1 split_data_a2m2 split_data_a3m0 split_data_a3m1 split_data_a3m2 split_data_a4m0 split_data_a4m1 split_data_a4m2
 
 split_data:
-	gawk '/^[^ ]+ 2 0/ { print $0 }' statistics > stats_a2m0
-	gawk '/^[^ ]+ 2 1/ { print $0 }' statistics > stats_a2m1
-	gawk '/^[^ ]+ 2 2/ { print $0 }' statistics > stats_a2m2
-	gawk '/^[^ ]+ 3 0/ { print $0 }' statistics > stats_a3m0
-	gawk '/^[^ ]+ 3 1/ { print $0 }' statistics > stats_a3m1
-	gawk '/^[^ ]+ 3 2/ { print $0 }' statistics > stats_a3m2
-	gawk '/^[^ ]+ 4 0/ { print $0 }' statistics > stats_a4m0
-	gawk '/^[^ ]+ 4 1/ { print $0 }' statistics > stats_a4m1
-	gawk '/^[^ ]+ 4 2/ { print $0 }' statistics > stats_a4m2
+	gawk '/^[^ ]+ 2 0/ { print $0 }' statistics > split_data_a2m0
+	gawk '/^[^ ]+ 2 1/ { print $0 }' statistics > split_data_a2m1
+	gawk '/^[^ ]+ 2 2/ { print $0 }' statistics > split_data_a2m2
+	gawk '/^[^ ]+ 3 0/ { print $0 }' statistics > split_data_a3m0
+	gawk '/^[^ ]+ 3 1/ { print $0 }' statistics > split_data_a3m1
+	gawk '/^[^ ]+ 3 2/ { print $0 }' statistics > split_data_a3m2
+	gawk '/^[^ ]+ 4 0/ { print $0 }' statistics > split_data_a4m0
+	gawk '/^[^ ]+ 4 1/ { print $0 }' statistics > split_data_a4m1
+	gawk '/^[^ ]+ 4 2/ { print $0 }' statistics > split_data_a4m2
 
 plot: split_data
 	gnuplot plot.conf
