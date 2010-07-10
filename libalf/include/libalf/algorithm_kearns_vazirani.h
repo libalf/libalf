@@ -1292,6 +1292,8 @@ class kearns_vazirani : public learning_algorithm<answer> {
 
 			to_process.push_front(initial_state);
 
+			int max_target_state = -1;
+
 			while (!to_process.empty()) {
 
 				// Get leaf node to process
@@ -1307,6 +1309,9 @@ class kearns_vazirani : public learning_algorithm<answer> {
 				// Process each transition
 				for(int i=0; i<this->alphabet_size; i++) {
 
+					if(current->id > max_target_state)
+						max_target_state = current->id;
+
 					pair<int,int> source (current->id, i);
 					automaton->transitions.insert(pair<pair<int,int>,int>(source, current->transitions[i]->id));
 
@@ -1315,6 +1320,12 @@ class kearns_vazirani : public learning_algorithm<answer> {
 						to_process.push_back(current->transitions[i]);
 				}
 
+			}
+
+			if(max_target_state >= automaton->state_count) {
+				printf("PANIK: KV transition source >= state_count\n\n");
+				fflush(stdout);
+				automaton->state_count++;
 			}
 
 			return automaton;
