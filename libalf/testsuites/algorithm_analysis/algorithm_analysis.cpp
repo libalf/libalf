@@ -119,7 +119,6 @@ model_too_big:
 									cout << "failed to generate random NFA!\n";
 									return 1;
 								}
-
 							}
 							model = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
 							if(!model) {
