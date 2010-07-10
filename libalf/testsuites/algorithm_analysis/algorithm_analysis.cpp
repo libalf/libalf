@@ -186,28 +186,19 @@ model_too_big:
 							case 2: alg = new NLstar_table<bool>(&base, &log, alphabet_size); break;
 							case 3: alg = new kearns_vazirani<bool>(&base, &log, alphabet_size); break;
 						}
+						alg->enable_timing();
 
 						bool equal = false;
 						int iteration = 0;
 						usecs_needed[learner] = 0;
-						struct timespec tp1, tp2; // {{{ timing }}}
 
 						while(!equal) {
 							conjecture * cj = NULL;
 
 							while(cj == NULL) {
-								clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tp1); // {{{ timing start }}}
 								cj = alg->advance();
-								// {{{ timing end
-									clock_gettime(CLOCK_THREAD_CPUTIME_ID, &tp2);
-									usecs_needed[learner] += (tp2.tv_sec - tp1.tv_sec) * 1000000;
-									if(tp2.tv_nsec < tp1.tv_nsec) {
-										usecs_needed[learner] -= 1000000;
-										usecs_needed[learner] += (tp1.tv_nsec - tp2.tv_nsec) / 1000;
-									} else {
-										usecs_needed[learner] += (tp2.tv_nsec - tp1.tv_nsec) / 1000;
-									}
-								// }}} timing
+								timing_statistics t = alg->get_timing_statistics();
+								usecs_needed[learner] += t.user_sec * 1000000 + t.user_usec;
 								if(cj == NULL)
 									stats[learner].queries.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*model, base);
 							}
