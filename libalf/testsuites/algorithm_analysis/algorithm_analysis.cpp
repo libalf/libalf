@@ -89,9 +89,9 @@ int main(int argc, char**argv)
 	statfile.open("statistics");
 	statfile << "# model_index alphabet_size method model_size mDFA_size RFSA_size - L*-membership L*-uniq_membership L*-equivalence L*-usecs-needed - L*col-membership L*col-uniq_membership L*col-equivalence L*col-usecs-needed - NL*-membership NL*-uniq_membership NL*-equivalence NL*-usecs-needed - KV-membership KV-uniq_membership KV-equivalence KV-usecs-needed\n";
 
-	for(alphabet_size = min_asize; alphabet_size <= max_asize; ++alphabet_size) {
+	for(model_size = min_msize; model_size <= max_msize; model_size += model_size_step) {
 		for(method = 0; method <= 2; method++) {
-			for(model_size = min_msize; model_size <= max_msize; model_size += model_size_step) {
+			for(alphabet_size = min_asize; alphabet_size <= max_asize; ++alphabet_size) {
 				for(testcase_index = 0; testcase_index < num_testcases; ++testcase_index) {
 					// construct automaton according to method
 					finite_automaton * model;
