@@ -105,7 +105,7 @@ bool basic_string_to_file(basic_string<int32_t> &str, const char* filename)
 {{{
 	int fd;
 
-	fd = open(filename, O_WRONLY | O_CREAT, 0644);
+	fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 
 	bool ok = basic_string_to_fd(str, fd);
 
