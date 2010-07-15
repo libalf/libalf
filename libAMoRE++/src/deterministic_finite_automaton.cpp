@@ -564,7 +564,7 @@ std::basic_string<int32_t> deterministic_finite_automaton::serialize() const
 		if(dfa_p->final[s] == TRUE)
 			temp += htonl(s);
 	// number of final states
-	ret += htonl(temp.length());
+	ret += htonl(temp.length() / 3);
 	// final states
 	ret += temp;
 	// transitions
@@ -576,9 +576,8 @@ std::basic_string<int32_t> deterministic_finite_automaton::serialize() const
 			temp += htonl(dfa_p->delta[l+1][s]); // destination
 		}
 	}
-
-	ret += htonl(temp.length() / 3);
-	ret += temp;
+	ret += htonl(temp.length() / 3); // number of transtions
+	ret += temp; // transitions
 
 	ret[0] = htonl(ret.length() - 1);
 
