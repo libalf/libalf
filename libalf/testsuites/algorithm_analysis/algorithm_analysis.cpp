@@ -197,8 +197,6 @@ model_too_big:
 
 							while(cj == NULL) {
 								cj = alg->advance();
-								timing_statistics t = alg->get_timing_statistics();
-								usecs_needed[learner] += t.user_sec * 1000000 + t.user_usec;
 								if(cj == NULL)
 									stats[learner].queries.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*model, base);
 							}
@@ -220,6 +218,9 @@ model_too_big:
 
 							iteration++;
 						}
+
+						timing_statistics t = alg->get_timing_statistics();
+						usecs_needed[learner] = t.user_sec * 1000000 + t.user_usec;
 
 						delete alg;
 					}
