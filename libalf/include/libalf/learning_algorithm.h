@@ -86,20 +86,19 @@ class learning_algorithm {
 			// online
 			ALG_ANGLUIN = 1,
 			ALG_ANGLUIN_COLUMN = 2,
-			ALG_RVA = 3,			// Rivest and Shapira: reduced angluin
+			ALG_RIVEST_SHAPIRO = 3,		// Rivest and Shapiro: reduced angluin
 			ALG_NL_STAR = 4,
-
+			ALG_MVCA_ANGLUINLIKE = 5,	// angluin-style learning of m-bounded visible 1counter automata
 			// offline
-			ALG_BIERMANN = 5,
-			ALG_RPNI = 6,
-			ALG_DELETE2 = 7,
-			ALG_BIERMANN_ORIGINAL = 8,
-			ALG_KEARNS_VAZIRANI = 9,
+			ALG_BIERMANN = 6,
+			ALG_RPNI = 7,
+			ALG_DELETE2 = 8,
+			ALG_BIERMANN_ORIGINAL = 9,
+			ALG_KEARNS_VAZIRANI = 10,
 
 			// END
-			ALG_LAST_INVALID = 10
+			ALG_LAST_INVALID = 11
 
-//			ALG_MVCA_ANGLUINLIKE = ...,	// angluin-style learning of m-bounded visible 1counter automata
 //			ALG_BIERMANN_ANGLUIN = ...,	//
 //			ALG_TB_INFERENCE = ...,		// Trakhtenbrot and Barzdin
 //			ALG_HSI = ...,			// homing sequence inference

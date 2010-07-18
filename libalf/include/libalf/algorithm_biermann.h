@@ -258,13 +258,15 @@ class basic_biermann : public learning_algorithm<answer> {
 		virtual conjecture * derive_conjecture()
 		{{{
 			if(this->my_knowledge->count_answers() == 0) {
-				simple_moore_machine *ret = new simple_moore_machine;
+				finite_automaton *ret = new finite_automaton;
 				(*this->my_logger)(LOGGER_WARN, "biermann: you started an offline-algorithm with an empty knowledgebase. that does not make very much sense, does it?\n");
 				// return automaton for empty language
 				ret->input_alphabet_size = 1;
 				ret->state_count = 1;
 				ret->initial_states.insert(0);
 				ret->valid = true;
+				for(int sigma = 0; sigma < ret->input_alphabet_size; sigma++)
+					ret->transitions[0][sigma].insert(0);
 				return ret;
 			}
 
@@ -317,19 +319,15 @@ class basic_biermann : public learning_algorithm<answer> {
 				if(!answered)
 					(*this->my_logger)(LOGGER_WARN, "biermann: empty knowledgebase. no CSP to solve, you get a simple automaton.\n", mdfa_size);
 
-				simple_moore_machine * ret = new simple_moore_machine;
+				finite_automaton * ret = new finite_automaton;
 				ret->input_alphabet_size = this->my_knowledge->get_largest_symbol();
 				ret->state_count = 1;
+				ret->set_all_non_accepting();
 				ret->initial_states.insert(0);
-				if(acceptance) {
-					ret->final_states.insert(0);
-				}
-				pair<int, int> trid;
-				trid.first = 0;
-				for(int sigma = 0; sigma < ret->input_alphabet_size; sigma++) {
-					trid.second = sigma;
-					ret->transitions.insert(pair<pair<int, int>, int>(trid, 0));
-				}
+				if(acceptance)
+					ret->output_mapping[0] = true;
+				for(int sigma = 0; sigma < ret->input_alphabet_size; sigma++)
+					ret->transitions[0][sigma].insert(0);
 				ret->valid = true;
 				return ret;
 			} else {
@@ -373,16 +371,8 @@ class basic_biermann : public learning_algorithm<answer> {
 				}
 			}
 
-			simple_moore_machine *ret = new simple_moore_machine;
-
 			// 3) derive automaton from current_solution and mdfa_size
-			if(!solution2automaton(ret->is_deterministic, ret->input_alphabet_size, ret->state_count, ret->initial_states, ret->final_states, ret->transitions)) {
-				delete ret;
-				return NULL;
-			} else {
-				ret->valid = true;
-				return ret;
-			}
+			return solution2automaton();
 		}}}
 
 		virtual void create_constraints()
@@ -452,36 +442,39 @@ class basic_biermann : public learning_algorithm<answer> {
 
 		virtual bool solve_constraints() = 0;
 
-		virtual bool solution2automaton(bool & t_is_dfa, int & t_alphabet_size, int & t_state_count, set<int> & t_initial, set<int> & t_final, multimap<pair<int, int>, int> & t_transitions)
+		virtual finite_automaton * solution2automaton()
 		{{{
+			finite_automaton * ret = new finite_automaton;
 			typename set<node*>::iterator si;
 
+			ret->is_deterministic = true;
+			ret->input_alphabet_size = this->get_alphabet_size();
+			ret->state_count = mdfa_size;
+
+			ret->valid = true;
+
+			ret->set_all_non_accepting();
+
 			// knowledgebase.begin() always starts at root node (epsilon)
-			t_initial.insert( solution[ this->my_knowledge->begin()->get_selfptr() ] );
+			ret->initial_states.insert( solution[ this->my_knowledge->begin()->get_selfptr() ] );
 
 			for(si = sources.begin(); si != sources.end(); si++) {
 					// acceptance-status
 					if((*si)->is_answered())
 						if((*si)->get_answer() == true)
-							t_final.insert( solution[ (*si)->get_selfptr() ] );
+							ret->output_mapping[solution[ (*si)->get_selfptr() ] ] = true;
 					// transitions
-					pair<int, int> trid;
-					trid.first = solution[ (*si)->get_selfptr() ];
+					int src = solution[ (*si)->get_selfptr() ];
+
 					for(int s = 0; s < this->get_alphabet_size(); s++) {
 						node* child;
 						child = (*si)->find_child(s);
-						if(child != NULL) {
-							trid.second = s;
-							t_transitions.insert( pair<pair<int, int>, int>( trid, solution[ child->get_selfptr() ]) );
-						}
+						if(child != NULL)
+							ret->transitions[src][s].insert(solution[ child->get_selfptr() ]);
 					}
 			}
 
-			t_is_dfa = true;
-			t_alphabet_size = this->get_alphabet_size();
-			t_state_count = mdfa_size;
-
-			return true;
+			return ret;
 		}}}
 
 };

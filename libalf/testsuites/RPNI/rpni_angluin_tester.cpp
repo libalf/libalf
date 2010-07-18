@@ -45,24 +45,25 @@
 
 using namespace std;
 using namespace libalf;
-using namespace amore;
 using namespace liblangen;
 
-finite_automaton * angluin_learn_model(logger & log, finite_automaton * model, knowledgebase<bool> & knowledge)
+amore::finite_automaton * angluin_learn_model(logger & log, amore::finite_automaton * model, knowledgebase<bool> & knowledge)
 {{{
 	angluin_simple_table<bool> angluin(&knowledge, &log, model->get_alphabet_size());
 
-	finite_automaton * hypothesis;
+	amore::finite_automaton * hypothesis;
 	bool equal = false;
 
 	while(!equal) {
 		conjecture *cj;
-		simple_moore_machine *ba;
+		libalf::finite_automaton *ba;
 		while( NULL == (cj = angluin.advance()) )
 			amore_alf_glue::automaton_answer_knowledgebase(*model, knowledge);
 
-		ba = dynamic_cast<simple_moore_machine*>(cj);
-		hypothesis = construct_amore_automaton(ba->is_deterministic, ba->input_alphabet_size, ba->state_count, ba->initial_states, ba->final_states, ba->transitions);
+		ba = dynamic_cast<libalf::finite_automaton*>(cj);
+		set<int> final_states;
+		ba->get_final_states(final_states);
+		hypothesis = amore::construct_amore_automaton(ba->is_deterministic, ba->input_alphabet_size, ba->state_count, ba->initial_states, final_states, ba->transitions);
 		delete cj;
 		if(!hypothesis) {
 			log(LOGGER_ERROR, "angluin: failed to construct hypothesis!\n");
@@ -81,10 +82,10 @@ finite_automaton * angluin_learn_model(logger & log, finite_automaton * model, k
 	return hypothesis;
 }}}
 
-bool check_validity(logger & log, finite_automaton * model)
+bool check_validity(logger & log, amore::finite_automaton * model)
 {{{
 	knowledgebase<bool> knowledge;
-	finite_automaton * mdfa;
+	amore::finite_automaton * mdfa;
 	RPNI<bool> rpni(&knowledge, &log, model->get_alphabet_size());
 	bool ret = true;
 
@@ -104,10 +105,12 @@ bool check_validity(logger & log, finite_automaton * model)
 		ret = false;
 	} else {
 		// compare mdfa and result
-		simple_moore_machine *ba;
-		ba = dynamic_cast<simple_moore_machine*>(cj);
-		finite_automaton * res;
-		res = construct_amore_automaton(ba->is_deterministic, ba->input_alphabet_size, ba->state_count, ba->initial_states, ba->final_states, ba->transitions);
+		libalf::finite_automaton *ba;
+		ba = dynamic_cast<libalf::finite_automaton*>(cj);
+		amore::finite_automaton * res;
+		set<int> final_states;
+		ba->get_final_states(final_states);
+		res = amore::construct_amore_automaton(ba->is_deterministic, ba->input_alphabet_size, ba->state_count, ba->initial_states, final_states, ba->transitions);
 		delete cj;
 		if(res == NULL) {
 			log(LOGGER_ERROR, "construct of RPNI failed!\n");
@@ -173,17 +176,17 @@ int main(int argc, char**argv)
 	regex_randomgenerator regex_rg;
 
 	for(int i = 0; i < num_testcases; i++) {
-		finite_automaton * model;
+		amore::finite_automaton * model;
 
 		bool f_is_dfa;
 		int f_alphabet_size, f_state_count;
 		std::set<int> f_initial, f_final;
-		multimap<pair<int,int>, int> f_transitions;
+		map<int, map<int, set<int> > > f_transitions;
 
 
 		if(!dfa_rg.generate(alphabet_size, model_size, f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions))
 		{ log(LOGGER_ERROR, "rg of DFA failed\n"); continue; }
-		model = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
+		model = amore::construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
 		if(!model) log(LOGGER_ERROR, "construct of rg DFA failed\n");
 		else { if(!check_validity(log, model)) log(LOGGER_ERROR,"random DFA: result different for Angluin and RPNI!\n"); delete model; }
 
@@ -191,7 +194,7 @@ int main(int argc, char**argv)
 
 		if(!nfa_rg.generate(alphabet_size, model_size, 2, 0.5, 0.5, f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions))
 		{ log(LOGGER_ERROR, "rg of NFA failed\n"); continue; }
-		model = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
+		model = amore::construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
 		if(!model) log(LOGGER_ERROR, "construct of rg DFA failed\n");
 		else { if(!check_validity(log, model)) log(LOGGER_ERROR,"random NFA: result different for Angluin and RPNI!\n"); delete model; }
 
@@ -200,7 +203,7 @@ int main(int argc, char**argv)
 		std::string regex;
 		bool success;
 		regex = regex_rg.generate(alphabet_size, model_size, 0.556, 0.278, 0.166);
-		model = new nondeterministic_finite_automaton(alphabet_size, regex.c_str(), success);
+		model = new amore::nondeterministic_finite_automaton(alphabet_size, regex.c_str(), success);
 		if(!success) log(LOGGER_ERROR, "construct of rg RegEx failed\n");
 		else { if(!check_validity(log, model)) log(LOGGER_ERROR,"random RegEx: result different for Angluin and RPNI!\n"); delete model; }
 

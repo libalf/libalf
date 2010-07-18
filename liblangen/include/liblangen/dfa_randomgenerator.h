@@ -73,7 +73,7 @@ class dfa_randomgenerator {
 
 		// generate a random automaton
 		bool generate(int alphabet_size, int state_count,
-			      bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, std::set<int> &t_initial, std::set<int> &t_final, multimap<pair<int,int>, int> &t_transitions);
+			      bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, std::set<int> &t_initial, std::set<int> &t_final, map<int, map<int, set<int> > > &t_transitions);
 
 };
 

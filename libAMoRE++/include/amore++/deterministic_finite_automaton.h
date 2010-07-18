@@ -95,7 +95,7 @@ class deterministic_finite_automaton : public finite_automaton {
 
 		// overloading
 		virtual bool contains(list<int> &word) const;
-		virtual bool construct(bool is_dfa, int alphabet_size, int state_count, set<int> &initial, set<int> &final, multimap<pair<int,int>, int> &transitions);
+		virtual bool construct(bool is_dfa, int alphabet_size, int state_count, set<int> &initial, set<int> &final, map<int, map<int, set<int> > > &transitions);
 
 		// new
 		virtual void set_dfa(dfa a);

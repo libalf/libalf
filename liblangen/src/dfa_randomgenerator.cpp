@@ -155,7 +155,7 @@ void dfa_randomgenerator::discard_tables()
 	}
 }}}
 
-bool dfa_randomgenerator::generate(int alphabet_size, int state_count, bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, std::set<int> &t_initial, std::set<int> &t_final, multimap<pair<int,int>, int> &t_transitions)
+bool dfa_randomgenerator::generate(int alphabet_size, int state_count, bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, std::set<int> &t_initial, std::set<int> &t_final, map<int, map<int, set<int> > > &t_transitions)
 {{{
 	t_initial.clear();
 	t_final.clear();
@@ -200,10 +200,7 @@ bool dfa_randomgenerator::generate(int alphabet_size, int state_count, bool &t_i
 			}
 			while(*ni > internal_done) {
 				// add transition between internal nodes
-				pair<int, int> trid;
-				trid.first = internal.top();
-				trid.second = current_label.top();
-				t_transitions.insert( pair<pair<int, int>, int>( trid, current_state) );
+				t_transitions[internal.top()][current_label.top()].insert(current_state);
 
 				// add new internal node
 				current_label.top()++;
@@ -223,10 +220,7 @@ bool dfa_randomgenerator::generate(int alphabet_size, int state_count, bool &t_i
 		}
 
 		// add leaf (i.e. create outgoing transition from predecessor)
-		pair<int, int> trid;
-		trid.first = internal.top();
-		trid.second = current_label.top();
-		t_transitions.insert( pair<pair<int, int>, int>( trid, random_int(current_state)) );
+		t_transitions[internal.top()][current_label.top()].insert(random_int(current_state));
 
 		current_label.top()++;
 

@@ -1,9 +1,9 @@
 # $Id$
 # libalf Makefile
 
-.PHONY: all clean algorithm_analysis alphabet angluin_col_table angluin_simple_table biermann DeLeTe2 kearns_vazirani NLstar_count_eq_queries NLstar_table normalizer RPNI
+.PHONY: all clean algorithm_analysis alphabet angluin_col_table angluin_simple_table biermann DeLeTe2 kearns_vazirani NLstar_count_eq_queries NLstar_table normalizer RPNI statistics simple-example
 
-all: algorithm_analysis alphabet angluin_col_table angluin_simple_table biermann DeLeTe2 NLstar_count_eq_queries NLstar_table normalizer RPNI conjecture
+all: algorithm_analysis alphabet angluin_col_table angluin_simple_table biermann DeLeTe2 NLstar_count_eq_queries NLstar_table normalizer RPNI conjecture statistics simple-example
 
 algorithm_analysis:
 	+make -C algorithm_analysis
@@ -41,6 +41,12 @@ RPNI:
 conjecture:
 	+make -C conjecture
 
+statistics:
+	+make -C statistics
+
+simple-example:
+	+make -C simple-example
+
 clean:
 	make -C algorithm_analysis clean
 	make -C alphabet clean
@@ -54,4 +60,6 @@ clean:
 	make -C normalizer clean
 	make -C RPNI clean
 	make -C conjecture clean
+	make -C statistics clean
+	make -C simple-example clean
 

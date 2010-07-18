@@ -52,12 +52,15 @@ int main(int argc, char**argv)
 
 	dfa_enumerator denum(state_count, alphabet_size);
 
-	libalf::simple_moore_machine automaton;
+	libalf::finite_automaton automaton;
 
 	int id = 0;
 
 	while(!denum.generation_completed()) {
-		denum.derive(automaton.is_deterministic, automaton.input_alphabet_size, automaton.state_count, automaton.initial_states, automaton.final_states, automaton.transitions);
+		set<int> final_states;
+		denum.derive(automaton.is_deterministic, automaton.input_alphabet_size, automaton.state_count, automaton.initial_states, final_states, automaton.transitions);
+		automaton.valid = true;
+		automaton.set_final_states(final_states);
 		ofstream file;
 		char filename[64];
 		snprintf(filename, 64, "dfa_%010d.dot", id);

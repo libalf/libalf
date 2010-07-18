@@ -278,7 +278,7 @@ int main(int argc, char**argv)
 		return -1;
 	}
 
-	finite_automaton * automaton = NULL;
+	amore::finite_automaton * automaton = NULL;
 	knowledgebase<bool> knowledge;
 
 	if(!get_input(automaton, in, gentype)) {

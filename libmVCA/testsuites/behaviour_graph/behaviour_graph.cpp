@@ -90,7 +90,7 @@ int main(int argc, char**argv)
 	bool f_is_deterministic;
 	int f_alphabet_size, f_state_count;
 	set<int> f_initial_states, f_final_states;
-	multimap<pair<int,int>, int> f_transitions;
+	map<int, map<int, set<int> > > f_transitions;
 
 	aNbcN3->get_bounded_behaviour_graph(4, f_is_deterministic, f_alphabet_size, f_state_count, f_initial_states, f_final_states, f_transitions);
 

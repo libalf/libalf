@@ -40,7 +40,6 @@
 
 using namespace std;
 using namespace libalf;
-using namespace amore;
 
 int main()
 {
@@ -59,7 +58,7 @@ int main()
 		cout << "failed to load file \"model.ser\".\n";
 		return -1;
 	}
-	dfa = new deterministic_finite_automaton;
+	dfa = new amore::deterministic_finite_automaton;
 	si = str.begin();
 	if(!dfa->deserialize(si, str.end())) {
 		cout << "failed to deserialize automaton\n.";
@@ -79,7 +78,7 @@ int main()
 
 	// create kearns/vazirani learning algorithm and teach it the automaton
 	kearns_vazirani<ANSWERTYPE> ot(&knowledge, &log, alphabet_size, true);
-	finite_automaton * hypothesis = NULL;
+	amore::finite_automaton * hypothesis = NULL;
 
 	while(!success) {
 		conjecture * cj = NULL;
@@ -93,8 +92,10 @@ int main()
 		if(hypothesis)
 			delete hypothesis;
 
-		simple_moore_machine * ba = dynamic_cast<simple_moore_machine*>(cj);
-		hypothesis = construct_amore_automaton(ba->is_deterministic, ba->input_alphabet_size, ba->state_count, ba->initial_states, ba->final_states, ba->transitions);
+		libalf::finite_automaton * ba = dynamic_cast<libalf::finite_automaton*>(cj);
+		set<int> final_states;
+		ba->get_final_states(final_states);
+		hypothesis = amore::construct_amore_automaton(ba->is_deterministic, ba->input_alphabet_size, ba->state_count, ba->initial_states, final_states, ba->transitions);
 		delete cj;
 
 		if(!hypothesis) {

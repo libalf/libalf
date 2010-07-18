@@ -1239,6 +1239,10 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		/*
 		 * If we are in the initial phase, let's build an easy automaton.
 		 */
+
+		// Create automaton
+		finite_automaton *automaton = new finite_automaton;
+
 		if (initial_phase) {
 
 			// Query empty string
@@ -1249,22 +1253,18 @@ class kearns_vazirani : public learning_algorithm<answer> {
 				return NULL;
 			}
 
-			// Create automaton
-			simple_moore_machine *automaton = new simple_moore_machine;
 			automaton->is_deterministic = true;
 			automaton->input_alphabet_size = this->alphabet_size;
 			automaton->valid = true;
 
 			automaton->state_count = 1;
-			for(int i=0; i<this->alphabet_size; i++) {
-				pair<int,int> source (0, i);
-				automaton->transitions.insert(pair<pair<int,int>,int>(source, 0));
-			}
+			for(int i=0; i<this->alphabet_size; i++)
+				automaton->transitions[0][i].insert(0);
 
 			automaton->initial_states.insert(0);
 
-			if(a == true)
-				automaton->final_states.insert(0);
+			automaton->output_mapping[0] = (a == true);
+			// (a == true) because <a> is not necessarily a bool, but should provide a typecast-function to bool.
 
 			return automaton;
 
@@ -1275,8 +1275,6 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		 */
 		else {
 
-			// Create automaton
-			simple_moore_machine *automaton = new simple_moore_machine;
 			automaton->is_deterministic = true;
 			automaton->input_alphabet_size = this->alphabet_size;
 			automaton->valid = true;
@@ -1304,7 +1302,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 
 				// Add as final state if so
 				if(current->accepting)
-					automaton->final_states.insert(current->id);
+					automaton->output_mapping[current->id] = true;
 
 				// Process each transition
 				for(int i=0; i<this->alphabet_size; i++) {
@@ -1313,7 +1311,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 						max_target_state = current->id;
 
 					pair<int,int> source (current->id, i);
-					automaton->transitions.insert(pair<pair<int,int>,int>(source, current->transitions[i]->id));
+					automaton->transitions[current->id][i].insert(current->transitions[i]->id);
 
 					// If the destination is not yet processed, add it to be processed
 					if(!visited[current->transitions[i]->id] && find(to_process.begin(), to_process.end(), current->transitions[i]) == to_process.end())
@@ -1323,9 +1321,10 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			}
 
 			if(max_target_state >= automaton->state_count) {
-				printf("PANIK: KV transition source (%d) >= state_count (%d)\n\n", max_target_state, automaton->state_count);
-				fflush(stdout);
+				fprintf(stderr, "BUG: KV transition source (%d) >= state_count (%d)\n\n", max_target_state, automaton->state_count);
 				automaton->state_count = max_target_state + 1;
+				printf("\n");
+				fflush(stdout);
 			}
 
 			return automaton;

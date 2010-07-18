@@ -294,7 +294,7 @@ class DeLeTe2 : public learning_algorithm<answer> {
 		// derive an automaton and return it
 		virtual conjecture * derive_conjecture()
 		{{{
-			simple_moore_machine *ret = new simple_moore_machine;
+			finite_automaton *ret = new finite_automaton;
 			if(this->my_knowledge->count_answers() == 0) {
 				(*this->my_logger)(LOGGER_WARN, "DeLeTe2: you started an offline-algorithm with an empty knowledgebase. that does not make very much sense, does it?\n");
 				// return automaton for empty language
@@ -395,7 +395,9 @@ class DeLeTe2 : public learning_algorithm<answer> {
 					// check if final
 					if((*pi)->is_answered() && (*pi)->get_answer() == true) {
 						(*this->my_logger)(LOGGER_DEBUG, "is final.");
-						ret->final_states.insert(sid);
+						ret->output_mapping[sid] = true;
+					} else {
+						ret->output_mapping[sid] = false;
 					}
 
 					(*this->my_logger)(LOGGER_DEBUG, "\n");
@@ -404,7 +406,6 @@ class DeLeTe2 : public learning_algorithm<answer> {
 					state_candidates.push_back(*pi);
 
 					// add transitions:
-					pair<int, int> trid;
 					int i;
 					// incoming
 					r1.first = *pi;
@@ -412,15 +413,12 @@ class DeLeTe2 : public learning_algorithm<answer> {
 						for(int sigma = 0; sigma < (*sci)->max_child_count(); sigma++) {
 							r1.second = (*sci)->find_child(sigma);
 							if(inclusions.find(r1) != inclusions.end()) {
-								trid.first = i;
-								trid.second = sigma;
-								ret->transitions.insert(pair<pair<int, int>, int>(trid, sid));
+								ret->transitions[i][sigma].insert(sid);
 								(*this->my_logger)(LOGGER_DEBUG, "DeLeTe2: incoming transition (q%d,%d,q%d)\n", i, sigma, sid);
 							}
 						}
 					}
 					// outgoing
-					trid.first = sid;
 					for(i=0,sci = state_candidates.begin(); sci != state_candidates.end(); ++sci,i++) {
 						if(*sci == *pi)
 							continue; // already done in incoming transitions
@@ -428,9 +426,7 @@ class DeLeTe2 : public learning_algorithm<answer> {
 						for(int sigma = 0; sigma < (*pi)->max_child_count(); sigma++) {
 							r1.second = (*pi)->find_child(sigma);
 							if(inclusions.find(r1) != inclusions.end()) {
-								trid.first = sid;
-								trid.second = sigma;
-								ret->transitions.insert(pair<pair<int, int>, int>(trid, i));
+								ret->transitions[sid][sigma].insert(i);
 								(*this->my_logger)(LOGGER_DEBUG, "DeLeTe2: outgoing transition (q%d,%d,q%d)\n", sid, sigma, i);
 							}
 						}

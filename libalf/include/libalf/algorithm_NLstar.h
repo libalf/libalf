@@ -847,7 +847,7 @@ deserialization_failed:
 		// derive an automaton and return it
 		virtual conjecture * derive_conjecture()
 		{{{
-			simple_moore_machine *ret = new simple_moore_machine;
+			finite_automaton * ret = new finite_automaton;
 
 			// NFA is (Q, Q0, F, delta)
 			// with
@@ -865,7 +865,11 @@ deserialization_failed:
 				if(row_is_prime(ti))
 					upper_primes.push_back(ti);
 
-			for(unsigned int i = 0; i < upper_primes.size(); i++) {
+			ret->is_deterministic = false;
+			ret->input_alphabet_size = this->get_alphabet_size();
+			ret->state_count = upper_primes.size();
+
+			for(int i = 0; i < ret->state_count; i++) {
 				list<int> succ_w;
 				typename table::iterator successor;
 
@@ -874,30 +878,22 @@ deserialization_failed:
 					ret->initial_states.insert(i);
 
 				// get final states (column 0 is always epsilon)
-				if(upper_primes[i]->acceptance.front() == true)
-					ret->final_states.insert(i);
+				ret->output_mapping[i] = (upper_primes[i]->acceptance.front() == true);
 
 				// and all transitions from this state
-				pair<int, int> trid;
-				trid.first = i;
 				succ_w = upper_primes[i]->index;
 				for(unsigned int sigma = 0; (int)sigma < this->get_alphabet_size(); sigma++) {
 					succ_w.push_back(sigma);
 					successor = search_tables(succ_w);
 					succ_w.pop_back();
 
-					trid.second = sigma;
-
-					for(unsigned int dst = 0; dst < upper_primes.size(); dst++)
+					for(int dst = 0; dst < ret->state_count; dst++)
 						if(successor->covers(*upper_primes[dst]))
-							ret->transitions.insert( pair<pair<int, int>, int>( trid, dst) );
+							ret->transitions[i][sigma].insert(dst);
 
 				}
 			}
 
-			ret->is_deterministic = false;
-			ret->input_alphabet_size = this->get_alphabet_size();
-			ret->state_count = upper_primes.size();
 			ret->valid = true;
 
 			return ret;

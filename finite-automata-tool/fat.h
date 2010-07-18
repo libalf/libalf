@@ -54,9 +54,9 @@ enum output {
 	output_sample_text
 };
 
-bool get_input(finite_automaton *& automaton, input in, string gentype);
+bool get_input(amore::finite_automaton *& automaton, input in, string gentype);
 
-bool do_transformation(finite_automaton *& automaton, transformation trans);
+bool do_transformation(amore::finite_automaton *& automaton, transformation trans);
 
-bool write_output(finite_automaton *& automaton, output out, string sampletype);
+bool write_output(amore::finite_automaton *& automaton, output out, string sampletype);
 

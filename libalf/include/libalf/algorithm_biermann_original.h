@@ -106,8 +106,9 @@ class original_biermann : public learning_algorithm<answer> {
 
 	conjecture* derive_conjecture() {
 		// Create result
-		simple_moore_machine *automaton = new simple_moore_machine;
+		finite_automaton *automaton = new finite_automaton;
 		automaton->input_alphabet_size = this->alphabet_size;
+		automaton->is_deterministic = true; // FIXME: see below
 		automaton->valid = true;
 
 		// Create temporary variables
@@ -116,10 +117,8 @@ class original_biermann : public learning_algorithm<answer> {
 		// Add sink state
 		eq_classes->insert(pair<int, node*>(0, NULL));
 		automaton->state_count++;
-		for(int i=0; i<this->alphabet_size; i++) {
-			pair<int,int> source (0, i);
-			automaton->transitions.insert(pair<pair<int,int>,int>(source, 0));
-		}
+		for(int i=0; i<this->alphabet_size; i++)
+			automaton->transitions[0][i].insert(0);
 
 		// Compute conjecture
 		int initial_state;
@@ -328,7 +327,7 @@ class original_biermann : public learning_algorithm<answer> {
 	/*
 	 * Recursivley computing a nodes equivalence class.
 	 */
-	int assign_equivalence_class(node *current, simple_moore_machine *automaton, map<int, node*> *eq_classes) {
+	int assign_equivalence_class(node *current, finite_automaton *automaton, map<int, node*> *eq_classes) {
 
 		/*
 		 * Recursively compute the equivalence classes of the current node's children
@@ -361,10 +360,10 @@ class original_biermann : public learning_algorithm<answer> {
 		current_eq = compute_fingerprint(current, eq_classes);
 
 		// DEBUG
-		#ifdef DEBUG
+#ifdef DEBUG
 		print_current(current);
 		cout << "Assigned equivalence class: " << current_eq << endl;
-		#endif
+#endif
 
 		/*
 		 * Update conjecture, i.e. add transitions from current equivalence class
@@ -374,38 +373,15 @@ class original_biermann : public learning_algorithm<answer> {
 			automaton->state_count++;
 		// FIXME: Here we need to fix the output function. The following is a hack!
 		// Final states
-		if(current->get_answer() == true) {
-			automaton->final_states.insert(current_eq);
-		}
+		if(current->get_answer() == true)
+			automaton->output_mapping[current_eq] = true;
 		// Transitions
 		for(int i=0; i<this->alphabet_size; i++) {
-
-			pair<int,int> source (current_eq, i);
-
-			// Check whether the transition to insert already exists
-			pair<multimap<pair<int,int>,int>::iterator,multimap<pair<int,int>,int>::iterator> found;
-			found = automaton->transitions.equal_range(source);
-			multimap<pair<int,int>,int>::iterator it;
-			bool contains;
-			contains = false;
-			for(it=found.first; it!=found.second; it++) {
-				if(it->second == child_eq[i]) {
-					contains = true;
-					break;
-				}
-			}
-			// Add transition if necessary
-			if(!contains) {
-				#ifdef DEBUG
-				cout << "Adding transition (" <<current_eq << ", " << i << ", " << child_eq[i] << ")" << endl;
-				#endif
-				automaton->transitions.insert(pair<pair<int,int>,int>(source, child_eq[i]));
-			} else {
-				#ifdef DEBUG
-				cout << "Transition (" <<current_eq << ", " << i << ", " << child_eq[i] << ") already existing" << endl;
-				#endif
-			}
-
+			// FIXME: nondeterministic transitions? then automaton->is_deterministic := false !
+			automaton->transitions[current_eq][i].insert(child_eq[i]);
+#ifdef DEBUG
+			cout << "Adding transition (" <<current_eq << ", " << i << ", " << child_eq[i] << ")" << endl;
+#endif
 		}
 
 		return current_eq;

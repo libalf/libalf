@@ -40,7 +40,6 @@
 
 using namespace std;
 using namespace libalf;
-using namespace amore;
 
 
 
@@ -56,8 +55,8 @@ int run_length = 8;
 
 int main(int argc, char**argv)
 {
-	finite_automaton *nfa = NULL;
-	finite_automaton *dfa = NULL;
+	amore::finite_automaton *nfa = NULL;
+	amore::finite_automaton *dfa = NULL;
 
 	ostream_logger log(&cout, LOGGER_DEBUG);
 
@@ -70,10 +69,10 @@ int main(int argc, char**argv)
 
 	bool regex_ok;
 	if(argc == 3) {
-		nfa = new nondeterministic_finite_automaton(atoi(argv[1]), argv[2], regex_ok);
+		nfa = new amore::nondeterministic_finite_automaton(atoi(argv[1]), argv[2], regex_ok);
 	} else /* find alphabet size or show some example regex */ {{{
 		if(argc == 2) {
-			nfa = new nondeterministic_finite_automaton(argv[1], regex_ok);
+			nfa = new amore::nondeterministic_finite_automaton(argv[1], regex_ok);
 		} else {
 			cout << "either give a sole regex as parameter, or give <alphabet size> <regex>.\n\n";
 			cout << "example regular expressions:\n";
@@ -121,9 +120,9 @@ int main(int argc, char**argv)
 	cout << "\n";
 
 	RPNI<bool> rumps(&knowledge, &log, alphabet_size);
-	finite_automaton * hypothesis = NULL;
+	amore::finite_automaton * hypothesis = NULL;
 	conjecture *cj;
-	simple_moore_machine *ba;
+	libalf::finite_automaton *ba;
 
 	if(!rumps.conjecture_ready()) {
 		log(LOGGER_WARN, "RPNI says that no conjecture is ready! trying anyway...\n");
@@ -132,14 +131,16 @@ int main(int argc, char**argv)
 	if( NULL == (cj = rumps.advance()) ) {
 		log(LOGGER_ERROR, "advance() returned false!\n");
 	} else {
-		ba = dynamic_cast<simple_moore_machine*>(cj);
+		ba = dynamic_cast<libalf::finite_automaton*>(cj);
+		set<int> final_states;
+		ba->get_final_states(final_states);
 //		rumps.print(cout);
-		hypothesis = construct_amore_automaton(ba->is_deterministic, ba->input_alphabet_size, ba->state_count, ba->initial_states, ba->final_states, ba->transitions);
+		hypothesis = amore::construct_amore_automaton(ba->is_deterministic, ba->input_alphabet_size, ba->state_count, ba->initial_states, final_states, ba->transitions);
 
 		snprintf(filename, 128, "hypothesis.dot");
 		file.open(filename); file << hypothesis->visualize(); file.close();
 
-		finite_automaton * ndifference, * difference;
+		amore::finite_automaton * ndifference, * difference;
 		ndifference = dfa->lang_symmetric_difference( *hypothesis );
 		difference = ndifference->determinize();
 		delete ndifference;

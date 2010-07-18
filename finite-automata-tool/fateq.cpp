@@ -34,6 +34,8 @@
 #include <amore++/amore.h>
 #include <amore/global.h>
 
+#include "amore_alf_glue.h"
+
 using namespace std;
 using namespace amore;
 using namespace libalf;
@@ -128,7 +130,7 @@ int main(int argc, char**argv)
 		}
 	}}}
 
-	finite_automaton *first, *second;
+	amore::finite_automaton *first, *second;
 
 	// input
 
@@ -149,7 +151,7 @@ int main(int argc, char**argv)
 		string in;
 		int i;
 
-		simple_moore_machine aut;
+		libalf::finite_automaton aut;
 
 		ifstream f1(firstfile.c_str());
 		while(!f1.eof())
@@ -160,7 +162,7 @@ int main(int argc, char**argv)
 			cerr << "failed to read first automaton\n";
 			return -1;
 		}
-		first = construct_amore_automaton(aut.is_deterministic, aut.input_alphabet_size, aut.state_count, aut.initial_states, aut.final_states, aut.transitions);
+		first = amore_alf_glue::automaton_libalf2amore(aut);
 		if(!first) {
 			cerr << "failed to construct first automaton\n";
 			return -1;
@@ -178,7 +180,7 @@ int main(int argc, char**argv)
 			cerr << "failed to read second automaton\n";
 			return -2;
 		}
-		second = construct_amore_automaton(aut.is_deterministic, aut.input_alphabet_size, aut.state_count, aut.initial_states, aut.final_states, aut.transitions);
+		second = amore_alf_glue::automaton_libalf2amore(aut);
 		if(!second) {
 			cerr << "failed to construct second automaton\n";
 			return -2;
@@ -192,7 +194,7 @@ int main(int argc, char**argv)
 			cerr << "failed to read first serial\n";
 			return -1;
 		}
-		first = new nondeterministic_finite_automaton;
+		first = new amore::nondeterministic_finite_automaton;
 		serial_stretch ser(serial);
 		if(!first->deserialize(ser.current, ser.limit)) {
 			cerr << "failed to deserialize first automaton\n";
@@ -206,7 +208,7 @@ int main(int argc, char**argv)
 			return -2;
 		}
 		ser.init(serial);
-		second = new nondeterministic_finite_automaton;
+		second = new amore::nondeterministic_finite_automaton;
 		if(!second->deserialize(ser.current, ser.limit)) {
 			cerr << "failed to deserialize second automaton\n";
 			return -2;
@@ -215,7 +217,7 @@ int main(int argc, char**argv)
 			cerr << "garbage at end of second?\n";
 	}}}
 
-	finite_automaton *difference, *tmp;
+	amore::finite_automaton *difference, *tmp;
 
 	difference = first->lang_symmetric_difference(*second);
 	tmp = difference->determinize();
@@ -243,7 +245,7 @@ int main(int argc, char**argv)
 		serial = difference->serialize();
 
 		if(human_readable_output) {
-			simple_moore_machine aut;
+			libalf::finite_automaton aut;
 			serial_stretch ser;
 			ser.init(serial);
 

@@ -55,7 +55,7 @@ long double generate(int alphabet_size, int state_count, int count)
 		int asize, scount;
 		bool is_dfa;
 		set<int> ini, fini;
-		multimap<pair<int,int>, int> tra;
+		map<int, map<int, set<int> > > tra;
 
 		if(!rag.generate(alphabet_size, state_count, is_dfa, asize, scount, ini, fini, tra))
 			return -1;

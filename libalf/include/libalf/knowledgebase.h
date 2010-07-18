@@ -47,6 +47,7 @@ namespace libalf {
 #include <libalf/answer.h>
 #include <libalf/alphabet.h>
 #include <libalf/filter.h>
+#include <libalf/conjecture.h>
 
 #include <libalf/serialize.h>
 
@@ -1533,9 +1534,7 @@ class knowledgebase {
 			return it;
 		}}}
 
-		bool equivalence_relation2automaton(equivalence_relation &eq, bool ignoring_states_accept,
-			bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, set<int> &t_initial,
-			set<int> &t_final, multimap<pair<int, int>, int> &t_transitions)
+		bool equivalence_relation2automaton(equivalence_relation &eq, bool ignoring_states_accept, finite_automaton &automaton)
 		// construct a modulo automaton given the tree-structure
 		// in this knowledgebase and the equivalence relation.
 		// will return false if the equivalence relation is
@@ -1553,19 +1552,17 @@ class knowledgebase {
 			for(i=0, si = representatives.begin(); si != representatives.end(); i++, si++)
 				mapping[*si] = i;
 
-			t_alphabet_size = -1; // will be adjusted on the fly
-			t_is_dfa = false;
-			t_state_count = representatives.size();
-			t_initial.clear();
-			t_initial.insert(mapping[eq.representative_ptr(get_rootptr())]);
-			t_final.clear();
-			t_transitions.clear();
+			automaton.clear();
+			automaton.input_alphabet_size = -1;
+			automaton.is_deterministic = false;
+			automaton.state_count = representatives.size();;
+			automaton.initial_states.insert(mapping[eq.representative_ptr(get_rootptr())]);
 
 			// get final states and transitions
 			vector<extended_bool> acceptances;
 			extended_bool b;
 			b.value = extended_bool::EBOOL_UNKNOWN;
-			for(i = 0; i < t_state_count; i++)
+			for(i = 0; i < automaton.state_count; i++)
 				acceptances.push_back(b);
 
 			typename equivalence_relation::iterator eqi;
@@ -1575,38 +1572,36 @@ class knowledgebase {
 					n = eqi->first;
 					int childcount = n->max_child_count();
 
-					if(t_alphabet_size < childcount)
-						t_alphabet_size = childcount;
+					if(automaton.input_alphabet_size < childcount)
+						automaton.input_alphabet_size = childcount;
 
-					pair<int, int> trid;
-					trid.first = mapping[eq.representative_ptr(n)];
+					int src = mapping[eq.representative_ptr(n)];
 					for(i = 0; i < childcount; i++) {
 						// add transition if exists
 						node *c;
 						c = n->find_child(i);
 						if(c != NULL) {
-							trid.second = i;
-							t_transitions.insert( pair<pair<int, int>, int>(trid, mapping[eq.representative_ptr(c)]));
+							automaton.transitions[src][i].insert(mapping[eq.representative_ptr(c)]);
 						}
 					}
 					if(n->is_answered()) {
 						if(n->get_answer() == true) {
-							if(acceptances[trid.first].value == extended_bool::EBOOL_FALSE) {
+							if(acceptances[src].value == extended_bool::EBOOL_FALSE) {
 								list<int> word;
 								word = n->get_word();
 //								printf("inconsistency in equivalence relation: %s\n", word2string(word).c_str());
 								return false;
 							}
-							acceptances[trid.first].value = extended_bool::EBOOL_TRUE;
+							acceptances[src].value = extended_bool::EBOOL_TRUE;
 						} else {
 							if(n->get_answer() == false) {
-								if(acceptances[trid.first].value == extended_bool::EBOOL_TRUE) {
+								if(acceptances[src].value == extended_bool::EBOOL_TRUE) {
 									list<int> word;
 									word = n->get_word();
 //									printf("inconsistency in equivalence relation: %s\n", word2string(word).c_str());
 									return false;
 								}
-								acceptances[trid.first].value = extended_bool::EBOOL_FALSE;
+								acceptances[src].value = extended_bool::EBOOL_FALSE;
 							} else {
 								// well what can we do :)
 							}
@@ -1615,12 +1610,11 @@ class knowledgebase {
 				}
 			}
 
-			for(i = 0; i < t_state_count; i++) {
+			for(i = 0; i < automaton.state_count; i++) {
 				if(acceptances[i].value == extended_bool::EBOOL_TRUE)
-					t_final.insert(i);
+					automaton.output_mapping[i] = true;
 				else
-					if(acceptances[i].value == extended_bool::EBOOL_UNKNOWN && ignoring_states_accept)
-						t_final.insert(i);
+					automaton.output_mapping[i] = (acceptances[i].value == extended_bool::EBOOL_UNKNOWN && ignoring_states_accept);
 			}
 
 			return true;

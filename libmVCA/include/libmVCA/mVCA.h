@@ -139,7 +139,7 @@ class mVCA {
 		list<int> get_sample_word(bool & is_empty) const;
 		bool is_empty() const;
 
-		void get_bounded_behaviour_graph(int m_bound, bool & f_is_deterministic, int & f_alphabet_size, int & f_state_count, set<int> & f_initial_states, set<int> & f_final_states, multimap<pair<int,int>, int> & f_transitions) const;
+		void get_bounded_behaviour_graph(int m_bound, bool & f_is_deterministic, int & f_alphabet_size, int & f_state_count, set<int> & f_initial_states, set<int> & f_final_states, map<int, map<int, set<int> > > & f_transitions) const;
 
 		///-----------------------------------
 

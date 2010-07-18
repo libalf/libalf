@@ -41,13 +41,12 @@
 
 using namespace std;
 using namespace libalf;
-using namespace amore;
 
 int main(int argc, char**argv)
 {
 	statistics stats;
 
-	finite_automaton *nfa;
+	amore::finite_automaton *nfa;
 	ostream_logger log(&cout, LOGGER_DEBUG);
 
 	knowledgebase<ANSWERTYPE> knowledge;
@@ -72,7 +71,7 @@ int main(int argc, char**argv)
 			cout << "failed to load file \"" << argv[1] << "\".\n";
 			return -1;
 		}
-		nfa = new nondeterministic_finite_automaton;
+		nfa = new amore::nondeterministic_finite_automaton;
 		si = str.begin();
 		if(!nfa->deserialize(si, str.end())) {
 			cout << "failed to deserialize automaton\n.";
@@ -87,7 +86,7 @@ int main(int argc, char**argv)
 	{{{ /* dump original automata */
 //		file.open("original-nfa.dot"); file << nfa->visualize(); file.close();
 
-		finite_automaton * dfa;
+		amore::finite_automaton * dfa;
 		dfa = nfa->determinize();
 		dfa->minimize();
 		mindfa_statecount = dfa->get_state_count();

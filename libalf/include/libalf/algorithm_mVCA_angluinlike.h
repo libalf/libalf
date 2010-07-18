@@ -1122,7 +1122,7 @@ deserialization_failed:
 			if(tested_equivalence_bound == known_equivalence_bound)
 				++tested_equivalence_bound;
 
-			cj->m_bound = tested_equivalence_bound;
+			cj->bound = tested_equivalence_bound;
 
 			map<fingerprint_t, int> states; // this is not really good. something better anyone?
 
@@ -1138,7 +1138,7 @@ deserialization_failed:
 						if(equi->prefix().empty())
 							cj->initial_states.insert(cj->state_count);
 						if((fingerprint.first == 0) && (true == (bool)(fingerprint.second[0])))
-							cj->final_states.insert(cj->state_count);
+							cj->output_mapping[cj->state_count] = true;
 						++cj->state_count;
 
 					}
@@ -1194,7 +1194,7 @@ deserialization_failed:
 			cj->alphabet_directions = pushdown_directions;
 			cj->initial_states.insert(0);
 //			cj->state_count =   
-//			cj->final_states   
+//			cj->output_mapping   
 //			cj->m_bound =   
 //			cj->transitions   
 

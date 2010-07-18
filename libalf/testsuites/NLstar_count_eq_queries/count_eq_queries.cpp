@@ -44,12 +44,11 @@
 
 using namespace std;
 using namespace libalf;
-using namespace amore;
 using namespace liblangen;
 
 ostream_logger my_logger(&cout, LOGGER_DEBUG);
 
-int learn_via_NLstar(int asize, finite_automaton * model)
+int learn_via_NLstar(int asize, amore::finite_automaton * model)
 {{{
 	statistics stats;
 	knowledgebase<ANSWERTYPE> knowledge;
@@ -95,7 +94,7 @@ int main(int argc, char**argv)
 	bool f_is_dfa;
 	int f_asize, f_state_count;
 	set<int> f_initial, f_final;
-	multimap<pair<int,int>, int> f_transitions;
+	map<int, map<int, set<int> > > f_transitions;
 
 	int asize = 2;
 
@@ -111,7 +110,7 @@ int main(int argc, char**argv)
 		while (!denum.generation_completed()) {
 			denum.next(true); // (we also want to skip the initial automaton)
 			denum.derive(f_is_dfa, f_asize, f_state_count, f_initial, f_final, f_transitions);
-			finite_automaton *model = construct_amore_automaton(f_is_dfa, f_asize, f_state_count, f_initial, f_final, f_transitions);
+			amore::finite_automaton *model = amore::construct_amore_automaton(f_is_dfa, f_asize, f_state_count, f_initial, f_final, f_transitions);
 			model->minimize();
 
 			if(model->get_state_count() < size) {

@@ -48,7 +48,6 @@
 
 using namespace std;
 using namespace libalf;
-using namespace amore;
 using namespace liblangen;
 
 int main(int argc, char**argv)
@@ -94,12 +93,12 @@ int main(int argc, char**argv)
 			for(alphabet_size = min_asize; alphabet_size <= max_asize; ++alphabet_size) {
 				for(testcase_index = 0; testcase_index < num_testcases; ++testcase_index) {
 					// construct automaton according to method
-					finite_automaton * model;
+					amore::finite_automaton * model;
 
 					bool f_is_dfa;
 					int f_alphabet_size, f_state_count;
 					std::set<int> f_initial, f_final;
-					multimap<pair<int,int>, int> f_transitions;
+					map<int, map<int, set<int> > > f_transitions;
 
 model_too_big:
 					// {{{ construct model
@@ -120,7 +119,7 @@ model_too_big:
 									return 1;
 								}
 							}
-							model = construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
+							model = amore::construct_amore_automaton(f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions);
 							if(!model) {
 								cout << "failed to construct automaton from generated data!\n";
 								return 1;
@@ -130,7 +129,7 @@ model_too_big:
 							std::string regex;
 							bool success;
 							regex = regex_rg.generate(alphabet_size, model_size, 0.556, 0.278, 0.166);
-							model = new nondeterministic_finite_automaton(alphabet_size, regex.c_str(), success);
+							model = new amore::nondeterministic_finite_automaton(alphabet_size, regex.c_str(), success);
 							if(!success) {
 								cout << "failed to construct NFA from regex!\n";
 								return 1;
@@ -150,7 +149,7 @@ model_too_big:
 						modelfile << model->visualize();
 						modelfile.close();
 
-						finite_automaton * tmp;
+						amore::finite_automaton * tmp;
 						tmp = model;
 						model = tmp->determinize();
 						delete tmp;
@@ -210,7 +209,7 @@ model_too_big:
 							log(LOGGER_DEBUG, "completed \r");
 								equal = true;
 								if(learner == 2)
-									stat_size_RFSA = dynamic_cast<simple_moore_machine*>(cj)->state_count;
+									stat_size_RFSA = dynamic_cast<libalf::finite_automaton*>(cj)->state_count;
 							} else {
 								alg->add_counterexample(counterexample);
 							}

@@ -43,8 +43,8 @@ nfa_randomgenerator::nfa_randomgenerator()
 }}}
 
 bool nfa_randomgenerator::generate(int alphabet_size, int state_count, int transitions_p_state, float p_initial, float p_final,
-	      bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, std::set<int> &t_initial, std::set<int> &t_final, multimap<pair<int,int>, int> &t_transitions)
-{
+	      bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, std::set<int> &t_initial, std::set<int> &t_final, map<int, map<int, set<int> > > &t_transitions)
+{{{
 	float x;
 
 	t_initial.clear();
@@ -53,17 +53,14 @@ bool nfa_randomgenerator::generate(int alphabet_size, int state_count, int trans
 
 	for(int i = 0; i < state_count; i++) {
 		// transitions
-		for(int t = 0; t < transitions_p_state; ++t) {
-			pair<pair<int, int>, int> tr;
-			tr.first.first = i;
-			tr.first.second = random_int(alphabet_size);
-			tr.second = random_int(state_count);
-			t_transitions.insert(tr);
-		}
+		for(int t = 0; t < transitions_p_state; ++t)
+			t_transitions[i][random_int(alphabet_size)].insert(random_int(state_count));
+
 		// initial states
 		x = random_float();
 		if(x < p_initial)
 			t_initial.insert(i);
+
 		// final states
 		x = random_float();
 		if(x < p_final)
@@ -76,7 +73,7 @@ bool nfa_randomgenerator::generate(int alphabet_size, int state_count, int trans
 	t_state_count = state_count;
 
 	return true;
-}
+}}}
 
 }; // end of namespace liblangen
 

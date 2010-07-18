@@ -723,13 +723,16 @@ dfaa_deserialization_failed_fast:
 	return false;
 }}}
 
-bool deterministic_finite_automaton::construct(bool is_dfa, int alphabet_size, int state_count, set<int> &initial, set<int> &final, multimap<pair<int, int>, int> &transitions)
+bool deterministic_finite_automaton::construct(bool is_dfa, int alphabet_size, int state_count, set<int> &initial, set<int> &final, map<int, map<int, set<int> > > &transitions)
 {{{
 	if(!is_dfa)
 		return false;
 	dfa a;
-	set<int>::const_iterator si;
 	multimap<pair<int, int>, int>::const_iterator ti,tj;
+
+	map<int, map<int, set<int> > >::const_iterator mmsi;
+	map<int, set<int> >::const_iterator msi;
+	set<int>::const_iterator si;
 
 	// DO SOME SANITY CHECKS
 
@@ -739,14 +742,14 @@ bool deterministic_finite_automaton::construct(bool is_dfa, int alphabet_size, i
 		return false;
 	}
 	// - check if transitions don't contain nondeterministic choices
-	for(ti = transitions.begin(); ti != transitions.end(); ti++) {
-		if(ti->first.second == -1)
-			return false; // epsilon transition
-		if(transitions.count(ti->first) > 2) {
-			tj = ti;
-			for(++tj ; (tj != transitions.end()) && (ti->first == tj->first) ; ++tj)
-				if(ti->second != tj->second)
-					return false;
+	for(mmsi = transitions.begin(); mmsi != transitions.end(); ++mmsi) {
+		for(msi = mmsi->second.begin(); msi != mmsi->second.end(); ++msi) {
+			if(msi->first == -1) {
+				return false; // epsilon transition
+			}
+			if(msi->second.size() > 1) {
+				return false; // nondeterministic transition
+			}
 		}
 	}
 
@@ -765,34 +768,46 @@ bool deterministic_finite_automaton::construct(bool is_dfa, int alphabet_size, i
 	for(unsigned int s = 0; s <= a->highest_state; s++)
 		for(unsigned int i = 1; i <= a->alphabet_size; i++)
 			a->delta[i][s] = a->highest_state+1;
-	for(ti = transitions.begin(); ti != transitions.end(); ti++) {
-#ifdef DEBUG
-		if(ti->first.first >= state_count) {
-			printf("deterministic_finite_automaton::construct(): in transition %d-(%d)->%d: bad state %d with state_count %d\n",
-					ti->first.first, ti->first.second, ti->second,
-					ti->first.first, state_count);
-			printf("state count: %d\nalphabet size: %d\n", state_count, alphabet_size);
-			printf("\ntransitions:\n");
-			for(ti = transitions.begin(); ti != transitions.end(); ti++)
-				printf("\t%d-(%d)->%d\n", ti->first.first, ti->first.second, ti->second);
-			printf("throwing a NULL-ptr exception, so you get a stack-trace...\n");
-			fflush(stdout);
-			is_dfa = *((int*)NULL);//panik
+
+	for(mmsi = transitions.begin(); mmsi != transitions.end(); ++mmsi) {
+		int src = mmsi->first;
+		for(msi = mmsi->second.begin(); msi != mmsi->second.end(); ++msi) {
+			int label = msi->first;
+			for(si = msi->second.begin(); si != msi->second.end(); ++si) {
+				int dst = *si;
+#ifdef DEBUG // sanity-check transitions {{{
+				if(src >= state_count) {
+					printf("deterministic_finite_automaton::construct(): in transition %d-(%d)->%d: bad src %d with state_count %d\n",
+							src, label, dst,
+							src, state_count);
+					printf("state count: %d\nalphabet size: %d\n", state_count, alphabet_size);
+					printf("throwing a NULL-ptr exception, so you get a stack-trace...\n");
+					fflush(stdout);
+					is_dfa = *((int*)NULL); // panik
+				}
+				if(dst >= state_count) {
+					printf("deterministic_finite_automaton::construct(): in transition %d-(%d)->%d: bad dst %d with state_count %d\n",
+							src, label, dst,
+							dst, state_count);
+					printf("state count: %d\nalphabet size: %d\n", state_count, alphabet_size);
+					printf("throwing a NULL-ptr exception, so you get a stack-trace...\n");
+					fflush(stdout);
+					is_dfa = *((int*)NULL); // panik
+				}
+				if(label >= alphabet_size) {
+					printf("deterministic_finite_automaton::construct(): in transition %d-(%d)->%d: bad label %d with asize %d\n",
+							src, label, dst,
+							label, alphabet_size); fflush(stdout);
+					printf("state count: %d\nalphabet size: %d\n", state_count, alphabet_size);
+					printf("throwing a NULL-ptr exception, so you get a stack-trace...\n");
+					fflush(stdout);
+					is_dfa = *((int*)NULL); // panik
+				}
+#endif // }}}
+
+				a->delta[label + 1][src] = dst;
+			}
 		}
-		if(ti->first.second >= alphabet_size) {
-			printf("deterministic_finite_automaton::construct(): in transition %d-(%d)->%d: bad label %d with asize %d\n",
-					ti->first.first, ti->first.second, ti->second,
-					ti->first.second, alphabet_size); fflush(stdout);
-			printf("state count: %d\nalphabet size: %d\n", state_count, alphabet_size);
-			printf("\ntransitions:\n");
-			for(ti = transitions.begin(); ti != transitions.end(); ti++)
-				printf("\t%d-(%d)->%d\n", ti->first.first, ti->first.second, ti->second);
-			printf("throwing a NULL-ptr exception, so you get a stack-trace...\n");
-			fflush(stdout);
-			is_dfa = *((int*)NULL);//panik
-		}
-#endif
-		a->delta[ti->first.second + 1][ti->first.first] = ti->second;
 	}
 	for(unsigned int s = 0; s <= a->highest_state && !sink_required; s++)
 		for(unsigned int i = 1; i <= a->alphabet_size && !sink_required; i++)

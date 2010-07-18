@@ -65,14 +65,14 @@ bool leaf_is_non_accepting(knowledgebase<bool>::node* n, list<int> & sample, boo
 	return false;
 }}}
 
-bool generate_samples_rpni(finite_automaton *& automaton, knowledgebase<bool> & base)
+bool generate_samples_rpni(amore::finite_automaton *& automaton, knowledgebase<bool> & base)
 {
 	do_transformation(automaton, trans_mdfa);
 	
 	return false;
 }
 
-bool generate_samples_delete2(finite_automaton *& automaton, knowledgebase<bool> & base)
+bool generate_samples_delete2(amore::finite_automaton *& automaton, knowledgebase<bool> & base)
 {{{
 	list<int> word;
 	set<list<int> > SP, spk;
@@ -126,7 +126,7 @@ bool generate_samples_delete2(finite_automaton *& automaton, knowledgebase<bool>
 	for(set<list<int> >::iterator spi = SP.begin(); spi != SP.end(); ++spi) {{{
 		list<int> sp_word = *spi;
 		set<int> sp_states;
-		finite_automaton *sp_residual;
+		amore::finite_automaton *sp_residual;
 
 		sp_states = automaton->run(initial, sp_word.begin(), sp_word.end());
 		sp_residual = automaton->clone();
@@ -135,7 +135,7 @@ bool generate_samples_delete2(finite_automaton *& automaton, knowledgebase<bool>
 		for(set<list<int> >::iterator spki = spk.begin(); spki != spk.end(); ++spki) {
 			list<int> spk_word;
 			set<int> spk_states;
-			finite_automaton *spk_residual;
+			amore::finite_automaton *spk_residual;
 
 			spk_word = *spki;
 			spk_states = automaton->run(initial, spk_word.begin(), spk_word.end()); // XXX
@@ -145,7 +145,7 @@ bool generate_samples_delete2(finite_automaton *& automaton, knowledgebase<bool>
 			spk_residual->set_initial_states(spk_states);
 
 			if(sp_states != spk_states) {
-				finite_automaton * difference;
+				amore::finite_automaton * difference;
 				difference = spk_residual->lang_symmetric_difference(*sp_residual);
 
 				list<int> discriminator;
@@ -187,7 +187,7 @@ bool generate_samples_delete2(finite_automaton *& automaton, knowledgebase<bool>
 		//
 		// get residual language and find an accepting word
 		set<int> residual_states;
-		finite_automaton * residual_language;
+		amore::finite_automaton * residual_language;
 
 		residual_states = automaton->run(initial, word.begin(), word.end());
 		residual_language = automaton->clone();
@@ -214,20 +214,20 @@ bool generate_samples_delete2(finite_automaton *& automaton, knowledgebase<bool>
 	return true;
 }}}
 
-bool generate_samples_biermann(finite_automaton *& automaton, knowledgebase<bool> & base)
+bool generate_samples_biermann(amore::finite_automaton *& automaton, knowledgebase<bool> & base)
 {
 	do_transformation(automaton, trans_mdfa);
 	
 	return false;
 }
 
-bool generate_samples_random(finite_automaton *& automaton, knowledgebase<bool> & base, unsigned int count)
+bool generate_samples_random(amore::finite_automaton *& automaton, knowledgebase<bool> & base, unsigned int count)
 {
 	
 	return false;
 }
 
-bool generate_samples_depth(finite_automaton *& automaton, knowledgebase<bool> & base, unsigned int depth)
+bool generate_samples_depth(amore::finite_automaton *& automaton, knowledgebase<bool> & base, unsigned int depth)
 {{{
 	list<int> word;
 
@@ -239,7 +239,7 @@ bool generate_samples_depth(finite_automaton *& automaton, knowledgebase<bool> &
 	return true;
 }}}
 
-bool generate_samples(finite_automaton *& automaton, knowledgebase<bool> & base, string sampletype)
+bool generate_samples(amore::finite_automaton *& automaton, knowledgebase<bool> & base, string sampletype)
 {{{
 	size_t pos;
 	string st;
@@ -291,13 +291,13 @@ bool generate_samples(finite_automaton *& automaton, knowledgebase<bool> & base,
 	return false;
 }}}
 
-bool write_output(finite_automaton *& automaton, output out, string sampletype)
+bool write_output(amore::finite_automaton *& automaton, output out, string sampletype)
 {{{
 	basic_string<int32_t> serial;
 
 	serial_stretch ser;
 
-	simple_moore_machine aut;
+	libalf::finite_automaton aut;
 
 	switch(out) {
 		case output_serial:

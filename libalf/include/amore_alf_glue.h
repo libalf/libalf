@@ -38,19 +38,40 @@
 namespace amore_alf_glue {
 
 using namespace std;
-using namespace libalf;
-using namespace amore;
 
-inline bool automaton_antichain_equivalence_query(finite_automaton & model, finite_automaton & hypothesis, list<int> & counterexample)
+
+
+inline amore::finite_automaton * automaton_libalf2amore(libalf::finite_automaton & automaton)
+{{{
+	set<int> final_states;
+	automaton.get_final_states(final_states);
+	return amore::construct_amore_automaton(automaton.is_deterministic, automaton.input_alphabet_size, automaton.state_count, automaton.initial_states, final_states, automaton.transitions);
+}}}
+
+inline libalf::finite_automaton * automaton_amore2libalf(amore::finite_automaton & automaton)
+{{{
+	basic_string<int32_t> ser = automaton.serialize();
+	serial_stretch range(ser);
+	libalf::finite_automaton * ret = new libalf::finite_automaton;
+	if(!ret->deserialize(range)) {
+		delete ret;
+		ret = NULL;
+	}
+	return ret;
+}}}
+
+
+
+inline bool automaton_antichain_equivalence_query(amore::finite_automaton & model, amore::finite_automaton & hypothesis, list<int> & counterexample)
 {{{
 	if(!model.antichain__is_superset_of(hypothesis, counterexample))
 		return false;
 	return hypothesis.antichain__is_superset_of(model, counterexample);
 }}};
 
-inline bool automaton_classic_equivalence_query(finite_automaton & model, finite_automaton & hypothesis, list<int> & counterexample)
+inline bool automaton_classic_equivalence_query(amore::finite_automaton & model, amore::finite_automaton & hypothesis, list<int> & counterexample)
 {{{
-	finite_automaton * difference;
+	amore::finite_automaton * difference;
 	bool is_empty;
 
 	counterexample.clear();
@@ -69,31 +90,31 @@ inline bool automaton_classic_equivalence_query(finite_automaton & model, finite
 	return is_empty;
 }}};
 
-inline bool automaton_equivalence_query(finite_automaton & model, finite_automaton & hypothesis, list<int> & counterexample)
+inline bool automaton_equivalence_query(amore::finite_automaton & model, amore::finite_automaton & hypothesis, list<int> & counterexample)
 {
 	// use antichain-algorithm, if one of the automata is an NFA with size larger than 7
-	if(    ( dynamic_cast<nondeterministic_finite_automaton*>(&model)      != NULL && model.get_state_count()      >= 8 )
-	    || ( dynamic_cast<nondeterministic_finite_automaton*>(&hypothesis) != NULL && hypothesis.get_state_count() >= 8 ) ) {
+	if(    ( dynamic_cast<amore::nondeterministic_finite_automaton*>(&model)      != NULL && model.get_state_count()      >= 8 )
+	    || ( dynamic_cast<amore::nondeterministic_finite_automaton*>(&hypothesis) != NULL && hypothesis.get_state_count() >= 8 ) ) {
 		return automaton_antichain_equivalence_query(model, hypothesis, counterexample);
 	} else {
 		return automaton_classic_equivalence_query(model, hypothesis, counterexample);
 	}
 };
 
-inline bool automaton_classic_equivalence_query(finite_automaton & model, conjecture *cj, list<int> & counterexample)
+inline bool automaton_classic_equivalence_query(amore::finite_automaton & model, libalf::conjecture *cj, list<int> & counterexample)
 {{{
-	simple_moore_machine *ba;
-	finite_automaton *hypothesis;
+	libalf::finite_automaton *ba;
+	amore::finite_automaton *hypothesis;
 	bool ret;
 
 	counterexample.clear();
 
-	ba = dynamic_cast<simple_moore_machine*>(cj);
+	ba = dynamic_cast<libalf::finite_automaton*>(cj);
 	if(!ba) {
 		fprintf(stderr, "equivalence query: hypothesis is not an automaton!\n");
 		return false;
 	}
-	hypothesis = construct_amore_automaton(ba->is_deterministic, ba->input_alphabet_size, ba->state_count, ba->initial_states, ba->final_states, ba->transitions);
+	hypothesis = automaton_libalf2amore(*ba);
 
 	ret = automaton_classic_equivalence_query(model, *hypothesis, counterexample);
 
@@ -102,20 +123,20 @@ inline bool automaton_classic_equivalence_query(finite_automaton & model, conjec
 	return ret;
 }}};
 
-inline bool automaton_antichain_equivalence_query(finite_automaton & model, conjecture *cj, list<int> & counterexample)
+inline bool automaton_antichain_equivalence_query(amore::finite_automaton & model, libalf::conjecture *cj, list<int> & counterexample)
 {{{
-	simple_moore_machine *ba;
-	finite_automaton *hypothesis;
+	libalf::finite_automaton *ba;
+	amore::finite_automaton *hypothesis;
 	bool ret;
 
 	counterexample.clear();
 
-	ba = dynamic_cast<simple_moore_machine*>(cj);
+	ba = dynamic_cast<libalf::finite_automaton*>(cj);
 	if(!ba) {
 		fprintf(stderr, "equivalence query: hypothesis is not an automaton!\n");
 		return false;
 	}
-	hypothesis = construct_amore_automaton(ba->is_deterministic, ba->input_alphabet_size, ba->state_count, ba->initial_states, ba->final_states, ba->transitions);
+	hypothesis = automaton_libalf2amore(*ba);
 
 	ret = automaton_antichain_equivalence_query(model, *hypothesis, counterexample);
 
@@ -124,20 +145,20 @@ inline bool automaton_antichain_equivalence_query(finite_automaton & model, conj
 	return ret;
 }}};
 
-inline bool automaton_equivalence_query(finite_automaton & model, conjecture *cj, list<int> & counterexample)
+inline bool automaton_equivalence_query(amore::finite_automaton & model, libalf::conjecture *cj, list<int> & counterexample)
 {{{
-	simple_moore_machine *ba;
-	finite_automaton *hypothesis;
+	libalf::finite_automaton *ba;
+	amore::finite_automaton *hypothesis;
 	bool ret;
 
 	counterexample.clear();
 
-	ba = dynamic_cast<simple_moore_machine*>(cj);
+	ba = dynamic_cast<libalf::finite_automaton*>(cj);
 	if(!ba) {
 		fprintf(stderr, "equivalence query: hypothesis is not an automaton!\n");
 		return false;
 	}
-	hypothesis = construct_amore_automaton(ba->is_deterministic, ba->input_alphabet_size, ba->state_count, ba->initial_states, ba->final_states, ba->transitions);
+	hypothesis = automaton_libalf2amore(*ba);
 
 	ret = automaton_equivalence_query(model, *hypothesis, counterexample);
 
@@ -146,15 +167,16 @@ inline bool automaton_equivalence_query(finite_automaton & model, conjecture *cj
 	return ret;
 }}};
 
-inline bool automaton_membership_query(finite_automaton & model, list<int> & word)
+
+
+inline bool automaton_membership_query(amore::finite_automaton & model, list<int> & word)
 { return model.contains(word); };
 
-
 template<class answer>
-inline int automaton_answer_knowledgebase(finite_automaton & model, knowledgebase<answer> & base)
+inline int automaton_answer_knowledgebase(amore::finite_automaton & model, libalf::knowledgebase<answer> & base)
 {
 	int count = 0;
-	typename knowledgebase<answer>::iterator qi = base.qbegin();
+	typename libalf::knowledgebase<answer>::iterator qi = base.qbegin();
 
 	while(qi != base.qend()) {
 		list<int> word;
@@ -166,6 +188,7 @@ inline int automaton_answer_knowledgebase(finite_automaton & model, knowledgebas
 
 	return count;
 };
+
 
 
 }; // end of namespace amore_alf_glue

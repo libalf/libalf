@@ -849,7 +849,7 @@ class angluin_table : public learning_algorithm<answer> {
 		// derive an automaton and return it
 		virtual conjecture * derive_conjecture()
 		{{{
-			simple_moore_machine * ret = new simple_moore_machine;
+			libalf::finite_automaton * ret = new finite_automaton;
 
 			// derive deterministic finite automaton from this table
 			typename table::iterator uti, ti;
@@ -894,8 +894,7 @@ class angluin_table : public learning_algorithm<answer> {
 			for(state_it = states.begin(); state_it != states.end(); state_it++) {
 				// the final, accepting states are the rows with
 				// acceptance in the epsilon-column
-				if(state_it->tableentry->acceptance.front() == true)
-					ret->final_states.insert(state_it->id);
+				ret->output_mapping[state_it->id] = (state_it->tableentry->acceptance.front() == true);
 
 				// the transformation function is:
 				// \delta: (row, char) -> row : (row(s), a) -> row(sa)
@@ -918,11 +917,7 @@ class angluin_table : public learning_algorithm<answer> {
 					// find matching state for successor
 					for(state_it2 = states.begin(); state_it2 != states.end(); state_it2++) {
 						if(*ti == *(state_it2->tableentry)) {
-							pair<int, int> trid;
-							trid.first = state_it->id;
-							trid.second = i;
-							ret->transitions.insert( pair<pair<int, int>, int>( trid, state_it2->id) );
-
+							ret->transitions[state_it->id][i].insert(state_it2->id);
 							break;
 						}
 					}

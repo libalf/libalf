@@ -169,7 +169,7 @@ int main()
 			int f_alphabet_size, f_state_count;
 			bool f_is_dfa;
 			set<int> f_initial, f_final;
-			multimap<pair<int, int>, int> f_transitions;
+			map<int, map<int, set<int> > > f_transitions;
 
 			finite_automaton *nfa1, *nfa2;
 

@@ -41,18 +41,17 @@
 
 using namespace std;
 using namespace libalf;
-using namespace amore;
 
 int main(int argc, char**argv)
 {
-	finite_automaton *model;
+	amore::finite_automaton *model;
 	knowledgebase<bool> knowledge;
 	ostream_logger log(&cerr, LOGGER_DEBUG);
 
 	bool regex_ok;
 	if(argc == 3) {
-		finite_automaton *nfa;
-		nfa = new nondeterministic_finite_automaton(atoi(argv[1]), argv[2], regex_ok);
+		amore::finite_automaton *nfa;
+		nfa = new amore::nondeterministic_finite_automaton(atoi(argv[1]), argv[2], regex_ok);
 		model = nfa->determinize();
 		delete nfa;
 		if(!regex_ok) {

@@ -33,22 +33,22 @@
 
 //#define SANITY_CHECK_TRANSFORMATION
 
-bool a2rfsa(finite_automaton *& automaton)
+bool a2rfsa(amore::finite_automaton *& automaton)
 {{{
 	knowledgebase<bool> base;
 	NLstar_table<bool> tbl(&base, NULL, automaton->get_alphabet_size());
-	finite_automaton * hypothesis = NULL;
+	amore::finite_automaton * hypothesis = NULL;
 
 	bool equal = false;
 
 	while(!equal) {
 		conjecture *cj;
-		simple_moore_machine *ba;
+		libalf::finite_automaton *ba;
 
 		while( NULL == (cj = tbl.advance()) )
 			amore_alf_glue::automaton_answer_knowledgebase(*automaton, base);
-		ba = dynamic_cast<simple_moore_machine*>(cj);
-		hypothesis = construct_amore_automaton(ba->is_deterministic, ba->input_alphabet_size, ba->state_count, ba->initial_states, ba->final_states, ba->transitions);
+		ba = dynamic_cast<libalf::finite_automaton*>(cj);
+		hypothesis = amore_alf_glue::automaton_libalf2amore(*ba);
 		delete cj;
 
 		list<int> cex;
@@ -66,12 +66,12 @@ bool a2rfsa(finite_automaton *& automaton)
 	return true;
 }}}
 
-bool do_transformation(finite_automaton *& automaton, transformation trans)
+bool do_transformation(amore::finite_automaton *& automaton, transformation trans)
 {{{
-	finite_automaton * tmp;
+	amore::finite_automaton * tmp;
 
 #ifdef SANITY_CHECK_TRANSFORMATION
-	finite_automaton * cl;
+	amore::finite_automaton * cl;
 	if(automaton)
 		cl = automaton->clone();
 #endif
@@ -113,7 +113,7 @@ bool do_transformation(finite_automaton *& automaton, transformation trans)
 
 #ifdef SANITY_CHECK_TRANSFORMATION
 	if(automaton) {
-		finite_automaton * difference;
+		amore::finite_automaton * difference;
 		list<int> w;
 		bool empty;
 

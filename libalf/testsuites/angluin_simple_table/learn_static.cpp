@@ -40,11 +40,10 @@
 
 using namespace std;
 using namespace libalf;
-using namespace amore;
 
-nondeterministic_finite_automaton * sample_automaton()
+amore::nondeterministic_finite_automaton * sample_automaton()
 {{{
-	nondeterministic_finite_automaton * nfa;
+	amore::nondeterministic_finite_automaton * nfa;
 
 	/*
 	int automaton[] = {
@@ -88,7 +87,7 @@ nondeterministic_finite_automaton * sample_automaton()
 	}
 
 	si = serial.begin();
-	nfa = new nondeterministic_finite_automaton;
+	nfa = new amore::nondeterministic_finite_automaton;
 	nfa->deserialize(si, serial.end());
 
 	return nfa;
@@ -98,7 +97,7 @@ int main(int argc, char**argv)
 {
 	statistics stats;
 
-	finite_automaton *nfa;
+	amore::finite_automaton *nfa;
 	ostream_logger log(&cout, LOGGER_DEBUG);
 
 	knowledgebase<ANSWERTYPE> knowledge;
@@ -119,7 +118,7 @@ int main(int argc, char**argv)
 	{{{ /* dump original automata */
 		file.open("original-nfa.dot"); file << nfa->visualize(); file.close();
 
-		finite_automaton * dfa;
+		amore::finite_automaton * dfa;
 		dfa = nfa->determinize();
 		dfa->minimize();
 		file.open("original-dfa.dot"); file << dfa->visualize(); file.close();
@@ -129,7 +128,7 @@ int main(int argc, char**argv)
 
 	// create angluin_simple_table and teach it the automaton
 	angluin_simple_table<ANSWERTYPE> ot(&knowledge, &log, alphabet_size);
-	finite_automaton * hypothesis = NULL;
+	amore::finite_automaton * hypothesis = NULL;
 
 	for(iteration = 1; iteration <= 100; iteration++) {
 		int c = 'a';
@@ -160,10 +159,10 @@ int main(int argc, char**argv)
 			c++;
 		}
 
-		simple_moore_machine * ba = dynamic_cast<simple_moore_machine*>(cj);
+		libalf::finite_automaton * ba = dynamic_cast<libalf::finite_automaton*>(cj);
 		if(hypothesis)
 			delete hypothesis;
-		hypothesis = construct_amore_automaton(ba->is_deterministic, ba->input_alphabet_size, ba->state_count, ba->initial_states, ba->final_states, ba->transitions);
+		hypothesis = amore_alf_glue::automaton_libalf2amore(*ba);
 		delete cj;
 		if(!hypothesis) {
 			printf("generation of hypothesis failed!\n");

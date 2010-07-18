@@ -44,7 +44,7 @@ namespace amore {
 using namespace std;
 
 
-finite_automaton * construct_amore_automaton(bool is_dfa, int alphabet_size, int state_count, set<int> &initial, set<int> &final, multimap<pair<int,int>, int> &transitions)
+finite_automaton * construct_amore_automaton(bool is_dfa, int alphabet_size, int state_count, set<int> &initial, set<int> &final, map<int, map<int, set<int> > > &transitions)
 {{{
 	finite_automaton * ret;
 	if(is_dfa)
@@ -319,11 +319,15 @@ set<int> finite_automaton::negative_sink() const
 // inefficient (as it only wraps another interface), but it works for all automata implementations
 // that implement serialize and deserialize. implementations may provide their own, more performant
 // implementation of construct().
-bool finite_automaton::construct(bool is_dfa, int alphabet_size, int state_count, set<int> &initial, set<int> &final, multimap<pair<int, int>, int> &transitions)
+bool finite_automaton::construct(bool is_dfa, int alphabet_size, int state_count, set<int> &initial, set<int> &final, map<int, map<int, set<int> > > &transitions)
 {{{
 	basic_string<int32_t> ser;
 	set<int>::const_iterator sit;
-	multimap<pair<int, int>, int>::const_iterator tit;
+
+	map<int, map<int, set<int> > >::const_iterator mmsi;
+	map<int, set<int> >::const_iterator msi;
+	set<int>::const_iterator si;
+	basic_string<int32_t> tr_ser;
 
 	// serialize that data and call deserialize :)
 	ser += 0;
@@ -342,13 +346,19 @@ bool finite_automaton::construct(bool is_dfa, int alphabet_size, int state_count
 	for(sit = final.begin(); sit != final.end(); sit++)
 		ser += htonl(*sit);
 
-	ser += htonl(transitions.size());
-
-	for(tit = transitions.begin(); tit != transitions.end(); tit++) {
-		ser += htonl(tit->first.first);  // source
-		ser += htonl(tit->first.second); // label
-		ser += htonl(tit->second);       // desination
+	// accumulate transitions
+	for(mmsi = transitions.begin(); mmsi != transitions.end(); ++mmsi) {
+		for(msi = mmsi->second.begin(); msi != mmsi->second.end(); ++msi) {
+			for(si = msi->second.begin(); si != msi->second.end(); ++si) {
+				tr_ser += htonl(mmsi->first);
+				tr_ser += htonl(msi->first);
+				tr_ser += htonl(*si);
+			}
+		}
 	}
+	ser += htonl(tr_ser.length() / 3);
+	ser += tr_ser;
+
 
 	ser[0] = htonl(ser.length() - 1);
 
@@ -466,19 +476,19 @@ bool finite_automaton::antichain__is_superset_of(const finite_automaton &other, 
 	for(unsigned int i = 0; i < this->get_state_count(); ++i)
 		if(this_final.find(i) == this_final.end())
 			gamestate.second.first.insert(i); // A \ FinA
-#ifdef ANTICHAIN_DEBUG
+#ifdef ANTICHAIN_DEBUG // {{{
 	cout << "initial attractor: {\n";
-#endif
+#endif // }}}
 	for(si = other_final.begin(); si != other_final.end(); ++si) {
 		gamestate.first = *si;
 		attractor.insert(gamestate);
-#ifdef ANTICHAIN_DEBUG
+#ifdef ANTICHAIN_DEBUG // {{{
 		cout << "\t"; print_gamestate(cout, gamestate); cout << "\n";
-#endif
+#endif // }}}
 	}
-#ifdef ANTICHAIN_DEBUG
+#ifdef ANTICHAIN_DEBUG // {{{
 	cout << "};\n\n";
-#endif
+#endif // }}}
 
 	// check if (already) we're not a superset of other
 	for(ati = attractor.begin(); ati != attractor.end(); ++ati)
@@ -499,22 +509,22 @@ bool finite_automaton::antichain__is_superset_of(const finite_automaton &other, 
 	while(!extension.empty()) {
 		attractor_t new_extension;
 
-#ifdef ANTICHAIN_DEBUG
+#ifdef ANTICHAIN_DEBUG // {{{
 		cout << "\nNEW CYCLE:\n";
-#endif
+#endif // }}}
 
 		// iterate over all gamestates and extend the attractor
 		for(ati = extension.begin(); ati != extension.end(); ++ati) {
-#ifdef ANTICHAIN_DEBUG
+#ifdef ANTICHAIN_DEBUG // {{{
 			cout << "checking attr element ";
 			print_gamestate(cout, *ati);
 			cout << " :\n";
-#endif
+#endif // }}}
 			for(unsigned int sigma = 0; sigma < other.get_alphabet_size(); ++sigma) {
 				if( ! other_premap[ati->first][sigma].empty()) {
-#ifdef ANTICHAIN_DEBUG
+#ifdef ANTICHAIN_DEBUG // {{{
 					cout << "\t for label: " << sigma << "\n";
-#endif
+#endif // }}}
 					// get all predecessors
 					set<int> this_pre;
 					for(si = ati->second.first.begin(); si != ati->second.first.end(); ++si)
@@ -535,16 +545,16 @@ bool finite_automaton::antichain__is_superset_of(const finite_automaton &other, 
 					ti = other_premap[ati->first][sigma].end(); // for fast access
 					for(si = other_premap[ati->first][sigma].begin(); si != ti; ++si) {
 						gamestate.first = *si;
-#ifdef ANTICHAIN_DEBUG
+#ifdef ANTICHAIN_DEBUG // {{{
 						cout << "\t\tnew   ";
 						print_gamestate(cout, gamestate);
 						cout << ": ";
 						// check winning condition for new gamestate
-#endif
+#endif // }}}
 						if(antichain__superset_check_winning_condition(this_initial, other_initial, gamestate, counterexample)) {
-#ifdef ANTICHAIN_DEBUG
+#ifdef ANTICHAIN_DEBUG // {{{
 							cout << "is winning.\n";
-#endif
+#endif // }}}
 							return false;
 						}
 
@@ -565,14 +575,14 @@ bool finite_automaton::antichain__is_superset_of(const finite_automaton &other, 
 							obsolete.unique();
 							antichain_attractor_remove_obsolete(new_extension, obsolete);
 							if(!antichain_new_is_obsolete) {
-#ifdef ANTICHAIN_DEBUG
+#ifdef ANTICHAIN_DEBUG // {{{
 								cout << "was added.\n";
-#endif
+#endif // }}}
 								new_extension.insert(gamestate);
-#ifdef ANTICHAIN_DEBUG
+#ifdef ANTICHAIN_DEBUG // {{{
 							} else {
 								cout << "is obsolete.\n";
-#endif
+#endif // }}}
 							}
 						}}}
 					}
@@ -593,13 +603,13 @@ bool finite_automaton::antichain__is_superset_of(const finite_automaton &other, 
 				bool superficial = false;
 				for(ati = attr_range.first; ati != attr_range.second; ++ati) {
 					if(set_includes(ati->second.first, xti->second.first)) {
-#ifdef ANTICHAIN_DEBUG
+#ifdef ANTICHAIN_DEBUG // {{{
 						cout << "gamestate ";
 						print_gamestate(cout, *xti);
 						cout << " is superficial due to known attractor-state ";
 						print_gamestate(cout, *ati);
 						cout << ".\n";
-#endif
+#endif // }}}
 						superficial = true;
 						break;
 					}
@@ -607,11 +617,11 @@ bool finite_automaton::antichain__is_superset_of(const finite_automaton &other, 
 						obsolete.push_back(*ati);
 				}
 				if(!superficial) {
-#ifdef ANTICHAIN_DEBUG
+#ifdef ANTICHAIN_DEBUG // {{{
 					cout << "scheduling new state ";
 					print_gamestate(cout, *xti);
 					cout << ".\n";
-#endif
+#endif // }}}
 					attractor.insert(*xti);
 					extension.insert(*xti);
 				}

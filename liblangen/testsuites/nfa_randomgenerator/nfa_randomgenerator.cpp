@@ -59,7 +59,7 @@ int main(int argc, char**argv)
 	bool f_is_dfa;
 	int f_alphabet_size, f_state_count;
 	set<int> f_initial, f_final;
-	multimap<pair<int, int>, int> f_transitions;
+	map<int, map<int, set<int> > > f_transitions;
 
 	if(!rag.generate(alphabet_size, state_count, tr_per_state, p_initial, p_final,
 			f_is_dfa, f_alphabet_size, f_state_count, f_initial, f_final, f_transitions)) {

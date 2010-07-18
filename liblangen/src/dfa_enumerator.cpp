@@ -141,7 +141,7 @@ check_reachable:
 	return true;
 }}}
 
-bool dfa_enumerator::derive(bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, std::set<int> &t_initial, std::set<int> &t_final, multimap<pair<int,int>, int> &t_transitions)
+bool dfa_enumerator::derive(bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, std::set<int> &t_initial, std::set<int> &t_final, map<int, map<int, set<int> > > &t_transitions)
 {{{
 	unsigned int i;
 
@@ -155,13 +155,8 @@ bool dfa_enumerator::derive(bool &t_is_dfa, int &t_alphabet_size, int &t_state_c
 		if(final[i])
 			t_final.insert(i);
 
-	for(i = 0; i < transitions.size(); i++) {
-		pair<int, int> trid;
-
-		trid.first = transitions[i].source;
-		trid.second = transitions[i].label;
-		t_transitions.insert( pair<pair<int, int>, int>( trid, transitions[i].destination) );
-	}
+	for(i = 0; i < transitions.size(); i++)
+		t_transitions[transitions[i].source][transitions[i].label].insert(transitions[i].destination);
 
 	t_is_dfa = true;
 	t_alphabet_size = alphabet_size;
