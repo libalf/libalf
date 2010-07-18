@@ -6,12 +6,7 @@ ideas for the roadmap of all software in this directory
 libalf:
 	see also libalf/TODO
 
-	* new conjecture types
-	* finish mVCA angluin-like
-	* Rivest+Shapire Algorithm (improved L*)
-
-	* c++ dispatcher
-	* library / database with sample automata and software to access the db
+- library / database with sample automata and software to access the db
 
 
 

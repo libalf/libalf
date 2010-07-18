@@ -11,9 +11,13 @@ TODO (priority ordered)
 
 - set_alphatbet_size
 
-- learning 1-counter automata
+- finish mVCA angluin-like
+
+- Rivest+Shapire Algorithm (improved L*)
 
 - angluin: mealy-machine
+
+- C++ dispatcher client
 
 - create debian packages (including jalf)
 
