@@ -46,5 +46,5 @@ jintArray list_int2jintArray(JNIEnv *, list<int>);
 
 jobject create_transition(JNIEnv*, int, int, int);
 
-jobject convertAutomaton(JNIEnv* env, bool is_dfa, int alphabet_size, int state_count, set<int> & initial, set<int> & final, multimap<pair<int, int>, int> & transitions);
+jobject convertAutomaton(JNIEnv* env, bool is_dfa, int alphabet_size, int state_count, set<int> & initial, set<int> & final, map<int, map<int, set<int> > > & transitions);
 

@@ -115,7 +115,7 @@ jobject create_transition(JNIEnv* env, int source, int label, int destination) {
 	return java_transition;
 }
 
-jobject convertAutomaton(JNIEnv* env, bool is_dfa, int alphabet_size, int state_count, set<int> & initial, set<int> & final, multimap<pair<int, int>, int> & transitions) {
+jobject convertAutomaton(JNIEnv* env, bool is_dfa, int alphabet_size, int state_count, set<int> & initial, set<int> & final, map<int, map<int, set<int> > > & transitions) {
 	/*
 	 *Create new Java LibALFAutomaton object
 	 */
@@ -179,11 +179,18 @@ jobject convertAutomaton(JNIEnv* env, bool is_dfa, int alphabet_size, int state_
 		return NULL;
 	}
 	// Process all transitions
-	multimap<pair<int, int>, int>::iterator si;
-	for(si = transitions.begin(); si != transitions.end(); si++) {
-		// Add state to Java object
-		jobject tr = create_transition(env, si->first.first, si->first.second, si->second);
-		env->CallVoidMethod(java_automaton, jmid, tr);
+	map<int, map<int, set<int> > >::const_iterator mmsi;
+	map<int, set<int> >::const_iterator msi;
+	set<int>::const_iterator si;
+
+	for(mmsi = transitions.begin(); mmsi != transitions.end(); ++mmsi) {
+		for(msi = mmsi->second.begin(); msi != mmsi->second.end(); ++msi) {
+			for(si = msi->second.begin(); si != msi->second.end(); ++si) {
+				// Add state to Java object
+				jobject tr = create_transition(env, mmsi->first, msi->first, *si);
+				env->CallVoidMethod(java_automaton, jmid, tr);
+			}
+		}
 	}
 
 	return java_automaton;

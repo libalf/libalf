@@ -65,25 +65,22 @@ JNIEXPORT jobject JNICALL Java_de_libalf_jni_JNILearningAlgorithm_advance (JNIEn
 	// Create a new automaton
 	conjecture * cj;
 
-	bool is_dfa;
-	int alphabet_size, state_count;
-	set<int> initial, final;
-	multimap<pair<int, int>, int> transitions;
-
 	// Advance!
 	cj = algorithm->advance();
 
 	if(cj != NULL) {
 		// Return a conjectrue if ready
 		jobject aut;
-		simple_moore_machine * sa = dynamic_cast<simple_moore_machine*>(cj);
+		finite_automaton * sa = dynamic_cast<finite_automaton*>(cj);
 		if(sa == NULL) {
 			fprintf(stderr, "FIXME: HYPOTHESIS IS NOT A SIMPLE AUTOMATON!\n");
 			delete cj;
 			return NULL;
 		}
 
-		aut = convertAutomaton(env, sa->is_deterministic, sa->input_alphabet_size, sa->state_count, sa->initial_states, sa->final_states, sa->transitions);
+		set<int> final_states;
+		sa->get_final_states(final_states);
+		aut = convertAutomaton(env, sa->is_deterministic, sa->input_alphabet_size, sa->state_count, sa->initial_states, final_states, sa->transitions);
 
 		delete cj;
 		return aut;
