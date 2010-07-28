@@ -10,9 +10,7 @@ http://libalf.informatik.rwth-aachen.de/
 
 
 libalf is a C++ library that implements several learning algorithms for finite
-automata. it includes a Java Native Interface (JNI) and a server for running
-learning applications over IP on a remote server (dispatcher). both may be used
-from java interchangable via the generic interface ``jalf''
+automata.
 
 
 DEPENCENCIES:

@@ -8,7 +8,7 @@
 # - get LibGMP (e.g. http://progressive-living.com/opensource/gmp/gmp-4.2.2_win_lib_h.zip)
 # - set JAVA_INCLUDE (at the top of this file) to your JDK include path
 
-LDFLAGS += -L${PREFIX}/lib -L${PREFIX}/src -L../../src
+LDFLAGS += -L${PREFIX}/lib -L${PREFIX}/src -L../../../libalf/src
 
 ifeq (${OS}, Windows_NT)
   # assuming Windows
@@ -37,15 +37,15 @@ OBJECTS = jni_tools.o jni_object.o jni_knowledgebase.o jni_buffered_logger.o jni
 all:	${TARGET}
 
 libjalf.so: test_java_dir ${OBJECTS}
-	make -C ../../src libalf.a
+	make -C ../../../libalf/src libalf.a
 	g++ ${OBJECTS} ${CPPFLAGS} ${CXXFLAGS} -Xlinker -soname=libjalf ${LDFLAGS} -static -lalf -o libjalf.so
 	
 libjalf.so-dynamic: test_java_dir ${OBJECTS}
-	make -C ../../src libalf.so
+	make -C ../../../libalf/src libalf.so
 	g++ ${OBJECTS} ${CPPFLAGS} ${CXXFLAGS} -Xlinker -soname=libjalf ${LDFLAGS} -lalf -o libjalf.so
 
 jalf.dll: ${OBJECTS}
-	make -C ../../src libalf.a
+	make -C ../../../libalf/src libalf.a
 	g++ ${OBJECTS} ${CPPFLAGS} ${CXXFLAGS} ${LDFLAGS} -static -lalf -o jalf.dll -Wl,--kill-at
 #	                                                                            ^^^^^^^^^^^^^ needed for JNI-DLL (http://www.mingw.org/wiki/JNI-MinGW-DLL)
 

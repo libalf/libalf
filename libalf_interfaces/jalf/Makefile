@@ -3,12 +3,13 @@
 
 .PHONY: install all clean
 
-all:
+all:	jalf.jar
 	+make -C src all
 
 clean:
 	+make -C src clean
+	-rm jalf.jar
 
-install:
-	make -C include install
-	make -C src install
+jalf.jar:
+	ant
+

@@ -17,9 +17,7 @@ TODO (priority ordered)
 
 - angluin: mealy-machine
 
-- C++ dispatcher client
-
-- create debian packages (including jalf)
+- create debian packages
 
 - RPNI: check for correctness
 
@@ -51,7 +49,5 @@ TODO (priority ordered)
 - BL*: implement
 
 - L*,L*col,NL*: use knowledgebase pointers instead of list<int> words.
-
-- dispatcher: listen on multiple address/port combinations, IPv6 and unix domain sockets
 
 

@@ -1,0 +1,5 @@
+
+- C++ dispatcher client
+
+- dispatcher: listen on multiple address/port combinations, IPv6 and unix domain sockets
+
