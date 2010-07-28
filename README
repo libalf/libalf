@@ -28,11 +28,20 @@ libmVCA
 
 libalf
 	main C++ library of this project, implementation of algorithms,
-	JNI, network protocol et al.
 
 	dependencies: none
 		(requires liblangen and libAMoRE++ for some of its
 		 testcases)
+
+libalf_interfaces
+	JNI, network protocol of libalf
+
+	depencencies: libalf
+
+libalf_manual
+	LaTeX manual of libalf
+
+	depencencies: LaTeX and stuff
 
 liblangen
 	locally developed C++ library, implementing algorithms to randomly
