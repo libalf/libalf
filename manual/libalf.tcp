@@ -196,10 +196,10 @@ order=1
 
 [item:jalf.tex]
 archive=true
-column=162
+column=11
 encoding=ISO-8859-9
 highlight=LaTeX
-line=60
+line=80
 mode=LaTeX
 open=true
 order=0
@@ -283,8 +283,8 @@ CursorColumn=0
 CursorLine=0
 
 [view-settings,view=0,item:jalf.tex]
-CursorColumn=162
-CursorLine=60
+CursorColumn=11
+CursorLine=80
 
 [view-settings,view=0,item:knowledgebase.tex]
 CursorColumn=20
