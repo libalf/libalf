@@ -846,8 +846,20 @@ class angluin_table : public learning_algorithm<answer> {
 			}
 		}}}
 
+
 		// derive an automaton and return it
 		virtual conjecture * derive_conjecture()
+		{{{
+			conjecture * cj;
+			list<algorithm_angluin::automaton_state<table> > states;
+
+			cj = this->derive_conjecture(states);
+
+			return cj;
+		}}}
+
+		// derive an automaton and return it, such that a table<->automaton mapping is stored in states
+		virtual libalf::finite_automaton * derive_conjecture(list<algorithm_angluin::automaton_state<table> > & states)
 		{{{
 			libalf::finite_automaton * ret = new finite_automaton;
 
@@ -855,7 +867,7 @@ class angluin_table : public learning_algorithm<answer> {
 			typename table::iterator uti, ti;
 
 			algorithm_angluin::automaton_state<table> state;
-			list<algorithm_angluin::automaton_state<table> > states;
+			states.clear();
 			state.id = 0;
 			typename list<algorithm_angluin::automaton_state<table> >::iterator state_it, state_it2;
 

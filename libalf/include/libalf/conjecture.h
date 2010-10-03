@@ -64,6 +64,9 @@ class conjecture {
 		conjecture()
 		{ clear(); }
 
+		virtual ~conjecture()
+		{ };
+
 		// returns this->valid
 		virtual bool is_valid() const
 		{ return valid; }
@@ -110,6 +113,8 @@ class finite_state_machine: public conjecture {
 			state_count = 0;
 			omega = false;
 		}}}
+		virtual ~finite_state_machine()
+		{ };
 		virtual void clear()
 		{{{
 			conjecture::clear();
@@ -189,6 +194,8 @@ class moore_machine: public finite_state_machine<output_alphabet> {
 		// using -1 as epsilon-transition (input-alphabet field)
 	public:
 		moore_machine()
+		{ };
+		virtual ~moore_machine()
 		{ };
 		virtual conjecture_type get_type() const
 		{ return CONJECTURE_MOORE_MACHINE; };
@@ -299,6 +306,8 @@ class mealy_machine: public finite_state_machine<output_alphabet> {
 		// using -1 as epsilon-transition (input-alphabet field)
 	public:
 		mealy_machine()
+		{ };
+		virtual ~mealy_machine()
 		{ };
 		virtual conjecture_type get_type() const
 		{ return CONJECTURE_MEALY_MACHINE; };
@@ -412,6 +421,8 @@ class mVCA: public finite_state_machine<output_alphabet> {
 	public:
 		mVCA()
 		{ m_bound = 0; }
+		virtual ~mVCA()
+		{ };
 		virtual conjecture_type get_type() const
 		{ return CONJECTURE_MVCA; };
 		virtual void clear()
@@ -556,6 +567,8 @@ class finite_automaton : public moore_machine<bool> {
 	public:
 		finite_automaton()
 		{ this->omega = false; };
+		virtual ~finite_automaton()
+		{ };
 		virtual conjecture_type get_type() const
 		{ return CONJECTURE_FINITE_AUTOMATON; }
 		virtual bool calc_validity();
@@ -609,6 +622,8 @@ class simple_mVCA : public mVCA<bool> {
 	public:
 		simple_mVCA()
 		{ this->omega = false; };
+		virtual ~simple_mVCA()
+		{ };
 		virtual conjecture_type get_type() const
 		{ return CONJECTURE_SIMPLE_MVCA; }
 		virtual basic_string<int32_t> serialize() const;
@@ -647,6 +662,8 @@ class bounded_simple_mVCA : public finite_automaton {
 	public:
 		bounded_simple_mVCA()
 		{ bound = 0; this->omega = false; };
+		virtual ~bounded_simple_mVCA()
+		{ };
 		virtual conjecture_type get_type() const
 		{ return CONJECTURE_BOUNDED_SIMPLE_MVCA; };
 		virtual void clear();
