@@ -130,14 +130,21 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 				list<int> new_word;
 
 				// and add suffix
-				list<int>::iterator li;
+				list<int>::const_iterator li;
 				int i;
 				for(li = counterexample_l.begin(), i = 0; i < current; ++i, ++li)
 					new_word.push_back(*li);
 
 
-				
+				// get the other prefix that leads to the same state
+				list<int> new_prefix;
 
+				
+#error TODO
+
+				list<int>::const_reverse_iterator rli;
+				for(rli = new_prefix.rbegin(); rli != new_prefix.rend(); ++rli)
+					new_word.push_front(*rli);
 
 				if(!resolve_or_add_query(new_word, a))
 					return false;
@@ -181,7 +188,7 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 		}
 		virtual bool add_counterexample(list<int> word)
 		{{{
-			list<int>::iterator wi;
+			list<int>::const_iterator li;
 			if(this->my_knowledge == NULL) {
 				(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: add_counterexample() without knowledgebase!\n");
 				return false;
@@ -195,9 +202,9 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 			// check for increase in alphabet size
 			int new_asize = this->get_alphabet_size();
 			bool asize_changed = false;
-			for(wi = word.begin(); wi != word.end(); wi++) {
-				if(*wi >= new_asize) {
-					new_asize = *wi+1;
+			for(li = word.begin(); li != word.end(); li++) {
+				if(*li >= new_asize) {
+					new_asize = *li+1;
 					asize_changed = true;
 				}
 			}
@@ -208,7 +215,6 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 
 			this->counterexample.resize(word.size());
 			counterexample_l.clear();
-			typename list<int>::iterator li;
 			int i;
 			for(i = 0, li = word.begin(); li != word.end(); ++li, ++i) {
 				counterexample[i] = *li;
