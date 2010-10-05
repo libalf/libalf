@@ -16,8 +16,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with libalf.  If not, see <http://www.gnu.org/licenses/>.
  *
- * (c) 2008,2009,2010 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
- *                and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
+ * (c) 2008,2009 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
+ *           and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
  * Author: David R. Piegdon <david-i2@piegdon.de>
  *
  */
@@ -30,6 +30,9 @@
 
 #include <libalf/alf.h>
 #include <libalf/algorithm_rivest_shapire.h>
+#include <libalf/basic_string.h>
+
+#include <libalf/normalizer_msc.h>
 
 #include <amore++/nondeterministic_finite_automaton.h>
 
@@ -40,6 +43,7 @@
 
 using namespace std;
 using namespace libalf;
+
 
 int main(int argc, char**argv)
 {
@@ -52,88 +56,59 @@ int main(int argc, char**argv)
 
 	char filename[128];
 	ofstream file;
+	int mindfa_statecount;
 
 	int iteration;
 	bool success = false;
 
 	int alphabet_size;
-	unsigned int hypothesis_state_count = 0;
 
-	bool regex_ok;
-	if(argc == 3) {
-		nfa = new amore::nondeterministic_finite_automaton(atoi(argv[1]), argv[2], regex_ok);
-	} else /* find alphabet size or show some example regex */ {{{
-		if(argc == 2) {
-			nfa = new amore::nondeterministic_finite_automaton(argv[1], regex_ok);
-		} else {
-			cout << "either give a sole regex as parameter, or give <alphabet size> <regex>.\n\n";
-			cout << "example regular expressions:\n";
-			cout << "alphabet size, \"regex\":\n";
-			cout << "2 '((a((aa)a))U(((bb))*((((bU(ab))U(bUa)))*)*))'\n";
-			cout << "2 '(((bb)|a)(b(((bb)b)(((aa)a)|a))))'\n";
-			cout << "2 '(((aa)(a)*)(((a((b(b)*)(aUb)))((ba))*))*)'\n";
-			cout << "3 '(cbb(ab(c)*))* U (a((cbb*) U a+b+bc)+)'\n";
-			return 1;
+	{{{ // get automaton from file
+		if(argc != 2) {
+			cout << "please give filename as sole parameter.\n";
+			return -1;
+		};
+		basic_string<int32_t> str;
+		basic_string<int32_t>::const_iterator si;
+		if(!file_to_basic_string(argv[1], str)) {
+			cout << "failed to load file \"" << argv[1] << "\".\n";
+			return -1;
 		}
+		nfa = new amore::nondeterministic_finite_automaton;
+		si = str.begin();
+		if(!nfa->deserialize(si, str.end())) {
+			cout << "failed to deserialize automaton\n.";
+			return -1;
+		}
+		if(si != str.end())
+			cout << "garbage at end of file? trying to ignore.\n";
 	}}}
-
-	if(regex_ok) {
-		log(LOGGER_INFO, "REGEX ok.\n");
-	} else {
-		log(LOGGER_ERROR, "REGEX failed.\n");
-		return 1;
-	}
 
 	alphabet_size = nfa->get_alphabet_size();
 
 	{{{ /* dump original automata */
-		file.open("original-nfa.dot"); file << nfa->visualize(); file.close();
+		file.open("original-nfa.dot"); file << nfa->visualize(true); file.close();
 
 		amore::finite_automaton * dfa;
 		dfa = nfa->determinize();
 		dfa->minimize();
-		file.open("original-dfa.dot"); file << dfa->visualize(); file.close();
-
-		basic_string<int32_t> serial;
-		serial = dfa->serialize();
-		libalf::basic_string_to_file(serial, "original-dfa.ser");
-
+		mindfa_statecount = dfa->get_state_count();
+		file.open("original-dfa.dot"); file << dfa->visualize(true); file.close();
 		delete dfa;
 	}}}
 
 
-	// create RV and teach it the automaton
+	// create algorithm and teach it the automaton
 	rivest_shapire_table<ANSWERTYPE> ot(&knowledge, &log, alphabet_size);
 	amore::finite_automaton * hypothesis = NULL;
 
 	for(iteration = 1; iteration <= 100; iteration++) {
-		int c = 'a';
 		conjecture * cj;
 
-		while( NULL == (cj = ot.advance()) ) {
-			// resolve missing knowledge:
-
-			snprintf(filename, 128, "knowledgebase%02d%c.dot", iteration, c);
-			file.open(filename); file << knowledge.visualize(); file.close();
-
-			// create query-tree
-			knowledgebase<ANSWERTYPE> * query;
-			query = knowledge.create_query_tree();
-
-			snprintf(filename, 128, "knowledgebase%02d%c-q.dot", iteration, c);
-			file.open(filename); file << query->visualize(); file.close();
-
-			// answer queries
-			stats.queries.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*nfa, *query);
-
-			snprintf(filename, 128, "knowledgebase%02d%c-r.dot", iteration, c);
-			file.open(filename); file << query->visualize(); file.close();
-
-			// merge answers into knowledgebase
-			knowledge.merge_knowledgebase(*query);
-			delete query;
-			c++;
-		}
+		fflush(stdout);
+		printf("advancing...\n");
+		while( NULL == (cj = ot.advance()) )
+			stats.queries.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*nfa, knowledge);
 
 		libalf::finite_automaton * ba = dynamic_cast<libalf::finite_automaton*>(cj);
 		if(hypothesis)
@@ -145,20 +120,36 @@ int main(int argc, char**argv)
 			return -1;
 		}
 
-		snprintf(filename, 128, "hypothesis%02d.dot", iteration);
-		file.open(filename); file << hypothesis->visualize(); file.close();
+		{{{ /* dump/serialize table */
+			basic_string<int32_t> serialized;
+			basic_string<int32_t>::iterator it;
 
-		printf("hypothesis %02d state count %02d\n", iteration, hypothesis->get_state_count());
-		if(hypothesis_state_count >= hypothesis->get_state_count()) {
-			log(LOGGER_ERROR, "STATE COUNT DID NOT INCREASE\n");
-			getchar();
-		}
-		hypothesis_state_count = hypothesis->get_state_count();
+			snprintf(filename, 128, "table%02d.text.rv", iteration);
+			file.open(filename); ot.print(file); file.close();
+
+			/*
+			serialized = ot.serialize();
+
+			snprintf(filename, 128, "table%02d.serialized.rv", iteration);
+			file.open(filename);
+
+			for(it = serialized.begin(); it != serialized.end(); it++) {
+				file << ntohl(*it);
+				file << ";";
+			}
+
+			file.close();
+			*/
+		}}}
+
+		snprintf(filename, 128, "hypothesis%02d.dot", iteration);
+		file.open(filename); file << hypothesis->visualize(true); file.close();
 
 		// once an automaton is generated, test for equivalence with oracle_automaton
 		// if this test is ok, all worked well
 
 		list<int> counterexample;
+
 		stats.queries.equivalence++;
 		if(amore_alf_glue::automaton_equivalence_query(*nfa, *hypothesis, counterexample)) {
 			// equivalent
@@ -175,17 +166,11 @@ int main(int argc, char**argv)
 	}
 
 	iteration++;
-	snprintf(filename, 128, "knowledgebase%02d-final.dot", iteration);
-	file.open(filename);
-	file << knowledge.visualize();
-	file.close();
 
 	stats.memory = ot.get_memory_statistics();
 	stats.queries.membership = knowledge.count_resolved_queries();
 
-	delete nfa;
-
-	cout << "\nrequired membership queries: " << stats.queries.membership << "\n";
+	cout << "required membership queries: " << stats.queries.membership << "\n";
 	cout << "required uniq membership queries: " << stats.queries.uniq_membership << "\n";
 	cout << "required equivalence queries: " << stats.queries.equivalence << "\n";
 	cout << "sizes: bytes: " << stats.memory.bytes
@@ -194,9 +179,12 @@ int main(int argc, char**argv)
 	cout << "upper table rows: " << stats.memory.upper_table
 	     << ", lower table rows: " << stats.memory.lower_table
 	     << ", columns: " << stats.memory.columns << "\n";
-	cout << "minimal state count: " << hypothesis->get_state_count() << "\n";
+	cout << "original NFA state count: " << nfa->get_state_count() << "\n";
+	cout << "minimal DFA state count: " << mindfa_statecount << "\n";
+	cout << "final hypothesis state count: " << hypothesis->get_state_count() << "\n";
 
 	delete hypothesis;
+	delete nfa;
 
 	if(success)
 		return 0;

@@ -37,6 +37,9 @@ using namespace std;
 
 template <class answer>
 class rivest_shapire_table : public angluin_simple_table<answer> {
+	protected: // types
+		typedef list< algorithm_angluin::simple_row<answer, vector<answer> > > table_t;
+
 	protected: // data
 		bool counterexample_mode;
 		list<int> counterexample;
@@ -44,42 +47,23 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 		bool cex_answer_set;
 		int cex_front, cex_back, cex_latest_bad;
 
+		bool conjecture_stored;
 		libalf::finite_automaton latest_cj;
-		typedef list< algorithm_angluin::simple_row<answer, vector<answer> > > table_t;
 		list<algorithm_angluin::automaton_state<table_t> > latest_cj_statemapping;
 
-
-	protected:
+	protected: // methods
 		virtual conjecture * derive_conjecture()
 		{{{
 			finite_automaton * cj;
 			cj = this->derive_conjecture_memorize(latest_cj_statemapping);
-			if(cj)
+			if(cj) {
 				latest_cj = *cj;
-			else
+				conjecture_stored = true;
+			} else {
 				latest_cj.valid = false;
+			}
+
 			return cj;
-		}}}
-	public: // methods
-		rivest_shapire_table()
-		{{{
-			this->set_alphabet_size(0);
-			this->set_knowledge_source(NULL);
-			this->set_logger(NULL);
-			counterexample_mode = false;
-			cex_front = -1;
-			cex_back = -1;
-			cex_latest_bad = -1;
-			latest_cj.valid = false;
-		}}}
-		rivest_shapire_table(knowledgebase<answer> *base, logger *log, int alphabet_size)
-		{{{
-			this->set_alphabet_size(alphabet_size);
-			this->set_logger(log);
-			this->set_knowledge_source(base);
-			counterexample_mode = false;
-			cex_front = -1;
-			cex_back = -1;
 		}}}
 		virtual bool complete()
 		{{{
@@ -89,7 +73,9 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 				latest_cj.valid = false;
 			}
 
-			if(!counterexample_mode) {
+			if(counterexample_mode) {
+				return analyse_counterexample();
+			} else {
 				// normal operation, almost like angluin L*
 
 				if(   this->fill_missing_columns(this->upper_table)
@@ -105,120 +91,164 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 				} else{
 					return false;
 				}
-			} else {
-				// the basic idea behind the RV algorithm is to analyse a counterexample
-				// to find an optimal suffix that discriminated between two stated that
-				// were merged in the hypothesis. this suffix is than added as a new column.
-				// we do this using a binary search through all possible suffixes, in
-				// the bound of cex_front and cex_back. cex_latest_bad marks the latest
-				// position that is found to be descriminating between the hypothesis
-				// and teacher.
-
-				answer a;
-				if(!cex_answer_set)
-					cex_answer_set = this->my_knowledge->resolve_or_add_query(counterexample, cex_answer);
-				if(!cex_answer_set)
-					return false;
-
-				if(cex_back < cex_front) // end is reached -> cex is invalid
-				{{{
-					(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: no discriminating suffix found. you gave an invalid counterexample. aborting counterexample mode.\n");
-					counterexample_mode = false;
-					cex_front = -1;
-					cex_back = -1;
-					cex_latest_bad = -1;
-					cex_answer_set = false;
-
-					return false;
-				}}}
-
-				// binary search for the state that needs to be split
-				int current_index = (cex_front + cex_back) / 2;
-				int i;
-				list<int>::const_iterator current_pos, li;
-
-				for(i = 0, current_pos = counterexample.begin(); (i < current_index) && (current_pos != counterexample.end()); ++i, ++current_pos)
-					/* nothing */ ;
-
-				list<int> new_word;
-				// generate new word to test
-				{{{
-					// get different prefix from last hypothesis
-					set<int> current_states;
-					typename list<algorithm_angluin::automaton_state<table_t> >::const_iterator mi;
-
-					current_states = latest_cj.initial_states;
-					latest_cj.run(current_states, counterexample.begin(), current_pos);
-					if(current_states.size() != 1) {{{ // internal bug checking
-						(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: the latest conjecture is either nondeterministic or not compelte. this most likely is an internal bug.\n");
-						return false;
-					}}}
-					int current_state = *( current_states.begin() );
-					for(mi = latest_cj_statemapping.begin(); mi != latest_cj_statemapping.end(); ++mi)
-						if(mi->id == current_state)
-							break;
-					if(mi == latest_cj_statemapping.end()) {{{ // internal bug checking
-						(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: latest_cj_statemapping is broken! this is an internal bug.\n");
-						return false;
-					}}}
-					new_word = mi->tableentry->index;
-
-					// add same suffix
-					while(current_pos != counterexample.end()) {
-						new_word.push_back(*current_pos);
-						++current_pos;
-					};
-				}}}
-
-				if(!this->my_knowledge->resolve_or_add_query(new_word, a))
-					return false;
-
-				// compare hypothesis and teacher and advance accordingly.
-				// i.e. either continue binary search or add new suffix
-				{{{
-					if(cex_front != cex_back) {
-						// advance binary search until we find the first bad state
-						if(a != cex_answer) {
-							cex_latest_bad = current_index;
-							cex_back = current_index-1;
-						} else {
-							cex_front = current_index+1;
-						}
-
-						return complete();
-					} else {
-						if(a != cex_answer)
-							cex_latest_bad = current_index;
-
-						// add new suffix to table that discriminated the two states
-						while(cex_latest_bad > 0) {
-							counterexample.pop_front();
-							cex_latest_bad--;
-						}
-
-						if(!this->add_column(counterexample))
-							(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: invalid counterexample.\n");
-
-						counterexample_mode = false;
-						cex_front = -1;
-						cex_back = -1;
-						cex_latest_bad = -1;
-						cex_answer_set = false;
-
-						return complete();
-					}
-				}}}
 			}
 		}}}
+		virtual bool analyse_counterexample()
+		{{{
+			// the basic idea behind the RV algorithm is to analyse a counterexample
+			// to find an optimal suffix that discriminated between two stated that
+			// were merged in the hypothesis. this suffix is than added as a new column.
+			// we do this using a binary search through all possible suffixes, in
+			// the bound of cex_front and cex_back. cex_latest_bad marks the latest
+			// position that is found to be descriminating between the hypothesis
+			// and teacher.
+
+			answer a;
+			bool missing_knowledge = false;
+
+			if(!cex_answer_set)
+				cex_answer_set = this->my_knowledge->resolve_or_add_query(counterexample, cex_answer);
+			if(!cex_answer_set)
+				missing_knowledge = true;
+
+(*this->my_logger)(LOGGER_DEBUG, "RV:    cex_front %d, cex_back %d\n", cex_front, cex_back);
+			if(cex_back < cex_front) // end is reached -> cex is invalid
+			{{{
+				(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: no discriminating suffix found. you gave an invalid counterexample. aborting counterexample mode.\n");
+				counterexample_mode = false;
+				cex_front = -1;
+				cex_back = -1;
+				cex_latest_bad = -1;
+				cex_answer_set = false;
+
+				return false;
+			}}}
+
+			// binary search for the state that needs to be split
+			int current_index = (cex_front + cex_back) / 2;
+			int i;
+			list<int>::const_iterator current_pos, li;
+
+(*this->my_logger)(LOGGER_DEBUG, "RV: CEX mode, picked index %d from [%d,%d]\n", current_index, cex_front, cex_back);
+
+
+			for(i = 0, current_pos = counterexample.begin(); (i < current_index) && (current_pos != counterexample.end()); ++i, ++current_pos)
+				/* nothing */ ;
+
+			list<int> new_word;
+			// generate new word to test
+			{{{
+				// get different prefix from last hypothesis
+				set<int> current_states;
+				typename list<algorithm_angluin::automaton_state<table_t> >::const_iterator mi;
+
+				current_states = latest_cj.initial_states;
+{
+(*this->my_logger)(LOGGER_DEBUG, "RV:     replacing prefix: .");
+list<int>::const_iterator li;
+for(li = counterexample.begin(); li != current_pos; ++li)
+	(*this->my_logger)(LOGGER_DEBUG, "%d.", *li);
+(*this->my_logger)(LOGGER_DEBUG, "\n");
+}
+				latest_cj.run(current_states, counterexample.begin(), current_pos);
+
+				int current_state = *( current_states.begin() );
+				for(i = 0, mi = latest_cj_statemapping.begin(); mi != latest_cj_statemapping.end(); ++i, ++mi)
+					if(mi->id == current_state)
+						break;
+				new_word = mi->tableentry->index;
+(*this->my_logger)(LOGGER_DEBUG, "RV:     different prefix is %s\n", word2string(new_word).c_str());
+
+
+				// add same suffix
+				while(current_pos != counterexample.end()) {
+					new_word.push_back(*current_pos);
+					++current_pos;
+				};
+(*this->my_logger)(LOGGER_DEBUG, "RV:     new_word %s\n", word2string(new_word).c_str());
+			}}}
+
+			if(!this->my_knowledge->resolve_or_add_query(new_word, a))
+				return false;
+(*this->my_logger)(LOGGER_DEBUG, "RV:     cex: %c, new_word: %c\n", (cex_answer == true) ? '+' : '-', (a == true) ? '+' : '-');
+			if(missing_knowledge)
+				return false;
+
+			// compare hypothesis and teacher and advance accordingly.
+			// i.e. either continue binary search or add new suffix
+			{{{
+				if(cex_front != cex_back) {
+					// advance binary search until we find the first bad state
+					if(a != cex_answer) {
+						cex_latest_bad = current_index;
+						cex_back = current_index-1;
+					} else {
+						cex_front = current_index+1;
+					}
+
+					if(cex_front <= cex_back)
+						return complete();
+				}
+
+				if(a != cex_answer)
+					cex_latest_bad = current_index;
+
+				// add new suffix to table that discriminated the two states
+				while(cex_latest_bad > 0) {
+					counterexample.pop_front();
+					cex_latest_bad--;
+				}
+
+				(*this->my_logger)(LOGGER_DEBUG, "rivest_shapire_table: adding new suffix %s due to last counterexample.\n", word2string(counterexample).c_str());
+				if(!this->add_column(counterexample))
+					(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: invalid counterexample or internal bug! suffix already contained in table.\n");
+
+				counterexample_mode = false;
+				cex_front = -1;
+				cex_back = -1;
+				cex_latest_bad = -1;
+				cex_answer_set = false;
+
+				return complete();
+			}}}
+		}}}
+
+	public: // methods
+		rivest_shapire_table()
+		{{{
+			this->set_alphabet_size(0);
+			this->set_knowledge_source(NULL);
+			this->set_logger(NULL);
+			counterexample_mode = false;
+			cex_front = -1;
+			cex_back = -1;
+			cex_latest_bad = -1;
+			latest_cj.valid = false;
+			conjecture_stored = false;
+		}}}
+		rivest_shapire_table(knowledgebase<answer> *base, logger *log, int alphabet_size)
+		{{{
+			this->set_alphabet_size(alphabet_size);
+			this->set_logger(log);
+			this->set_knowledge_source(base);
+			counterexample_mode = false;
+			cex_front = -1;
+			cex_back = -1;
+			cex_latest_bad = -1;
+			latest_cj.valid = false;
+			conjecture_stored = false;
+		}}}
+
 		virtual bool add_counterexample(list<int> word)
 		{{{
+(*this->my_logger)(LOGGER_DEBUG, "RV: counterexample: %s\n", word2string(word).c_str());
 			list<int>::const_iterator li;
 			if(this->my_knowledge == NULL) {
 				(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: add_counterexample() without knowledgebase!\n");
 				return false;
 			}
 
-			if(!latest_cj.valid) {
+			if(!conjecture_stored || !latest_cj.valid) {
 				(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: add_counterexample() without having a conjecture stored! did you ever advance until you had a conjecture?\n");
 				return false;
 			}
@@ -235,6 +265,8 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 			if(asize_changed) {
 				(*this->my_logger)(LOGGER_ALGORITHM, "rivest_shapire_table: add_counterexample(): increase of alphabet_size from %d to %d.\nNOTE: it is possible that the next hypothesis does not increase in state-count.\n", this->get_alphabet_size(), new_asize);
 				this->increase_alphabet_size(new_asize);
+				// don't store the cex, we need to re-run and generate a new cex before analysing it.
+				return true;
 			}
 
 			counterexample = word;
@@ -247,10 +279,34 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 			if(cex_back < cex_front) {
 				(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: you gave epsilon as a counterexample. why didn't you set the right answer in the beginning? aborting counterexample mode. if epsilon is really wrong, please restart with a fresh instance.\n");
 				counterexample_mode = false;
-				cex_front = -1;
-				cex_back = -1;
+				cex_front = cex_back = cex_latest_bad = -1;
+				latest_cj.clear();
+				latest_cj_statemapping.clear();
+				cex_latest_bad = false;
+				conjecture_stored = false;
 			}
 			return true;
+		}}}
+
+		virtual basic_string<int32_t> serialize() const
+		{{{
+			if(conjecture_stored)
+				(*this->my_logger)(LOGGER_WARN, "rivest_shapire_table: serialize during counterexample mode is a bad idea. please avoid it for now.\n");
+
+			return angluin_simple_table<answer>::serialize();
+		}}}
+		virtual bool deserialize(serial_stretch & serial)
+		{{{
+			counterexample_mode = false;
+			counterexample.clear();
+			cex_answer_set = false;
+			cex_front = cex_back = cex_latest_bad = -1;
+
+			conjecture_stored = false;
+			latest_cj.clear();
+			latest_cj_statemapping.clear();
+
+			return angluin_simple_table<answer>::deserialize(serial);
 		}}}
 };
 
