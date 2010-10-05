@@ -39,8 +39,7 @@ template <class answer>
 class rivest_shapire_table : public angluin_simple_table<answer> {
 	protected: // data
 		bool counterexample_mode;
-		vector<int> counterexample;
-		list<int> counterexample_l;
+		list<int> counterexample;
 		answer cex_answer;
 		bool cex_answer_set;
 		int cex_front, cex_back, cex_latest_bad;
@@ -107,12 +106,12 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 
 				answer a;
 				if(!cex_answer_set)
-					cex_answer_set = resolve_or_add_query(counterexample_l, cex_answer);
+					cex_answer_set = resolve_or_add_query(counterexample, cex_answer);
 				if(!cex_answer_set)
 					return false;
 
-				if(cex_back < cex_front)
-				{{{ // end is reached, cex is invalid
+				if(cex_back < cex_front) // end is reached -> cex is invalid
+				{{{
 					(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: you gave an invalid counterexample. aborting counterexample mode.\n");
 					counterexample_mode = false;
 					cex_front = -1;
@@ -124,27 +123,42 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 				}}}
 
 				// binary search for the state that needs to be split
-				int current = (cex_front + cex_back) / 2;
-
-				// check if this suffix discriminates
-				list<int> new_word;
-
-				// and add suffix
-				list<int>::const_iterator li;
+				int current_index = (cex_front + cex_back) / 2;
 				int i;
-				for(li = counterexample_l.begin(), i = 0; i < current; ++i, ++li)
-					new_word.push_back(*li);
+				list<int>::const_iterator current_pos, li;
 
+				for(i = 0, current_pos = counterexample.begin(); (i < current_index) && (current_pos != counterexample.end()); ++i, ++current_pos)
+					/* nothing */ ;
 
-				// get the other prefix that leads to the same state
-				list<int> new_prefix;
+				list<int> new_word;
+				// generate new word to test
+				{{{
+					// get different prefix from last hypothesis
+					set<int> current_states;
+					typename list<algorithm_angluin::automaton_state<table_t> >::const_iterator mi;
 
-				
-#error TODO
+					current_states = latest_cj.initial_states;
+					latest_cj.run(current_states, counterexample.begin(), current_pos);
+					if(current_states.size() != 1) {{{ // internal bug checking
+						(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: the latest conjecture is either nondeterministic or not compelte. this most likely is an internal bug.\n");
+						return false;
+					}}}
+					int current_state = *( current_states.begin() );
+					for(mi = latest_cj_statemapping.begin(); mi != latest_cj_statemapping.end(); ++mi)
+						if(mi->id == current_state)
+							break;
+					if(mi == latest_cj_statemapping.end()) {{{ // internal bug checking
+						(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: latest_cj_statemapping is broken! this is an internal bug.\n");
+						return false;
+					}}}
+					new_word = mi->tableentry->index;
 
-				list<int>::const_reverse_iterator rli;
-				for(rli = new_prefix.rbegin(); rli != new_prefix.rend(); ++rli)
-					new_word.push_front(*rli);
+					// add same suffix
+					while(current_pos != counterexample.end()) {
+						new_word.push_back(*current_pos);
+						++current_pos;
+					};
+				}}}
 
 				if(!resolve_or_add_query(new_word, a))
 					return false;
@@ -155,24 +169,24 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 					if(cex_front != cex_back) {
 						// advance binary search until we find the first bad state
 						if(a != cex_answer) {
-							cex_latest_bad = current;
-							cex_back = current-1;
+							cex_latest_bad = current_index;
+							cex_back = current_index-1;
 						} else {
-							cex_front = current+1;
+							cex_front = current_index+1;
 						}
 
 						return complete();
 					} else {
 						if(a != cex_answer)
-							cex_latest_bad = current;
+							cex_latest_bad = current_index;
 
 						// add new suffix to table that discriminated the two states
 						while(cex_latest_bad > 0) {
-							counterexample_l.pop_front();
+							counterexample.pop_front();
 							cex_latest_bad--;
 						}
 
-						if(!this->add_column(counterexample_l))
+						if(!this->add_column(counterexample))
 							(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: invalid counterexample.\n");
 
 						counterexample_mode = false;
@@ -213,18 +227,11 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 				this->increase_alphabet_size(new_asize);
 			}
 
-			this->counterexample.resize(word.size());
-			counterexample_l.clear();
-			int i;
-			for(i = 0, li = word.begin(); li != word.end(); ++li, ++i) {
-				counterexample[i] = *li;
-				counterexample_l.push_back(*li);
-			};
-
+			counterexample = word;
 			counterexample_mode = true;
 			cex_answer_set = false;
 			cex_front = 0;
-			cex_back = i-1;
+			cex_back = counterexample.size()-1;
 			cex_latest_bad = -1;
 
 			if(cex_back < cex_front) {
