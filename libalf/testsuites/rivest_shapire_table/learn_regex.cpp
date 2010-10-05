@@ -46,6 +46,7 @@ int main(int argc, char**argv)
 	statistics stats;
 
 	amore::finite_automaton *nfa;
+	amore::finite_automaton *dfa;
 	ostream_logger log(&cout, LOGGER_DEBUG);
 
 	knowledgebase<ANSWERTYPE> knowledge;
@@ -89,7 +90,6 @@ int main(int argc, char**argv)
 	{{{ /* dump original automata */
 		file.open("original-nfa.dot"); file << nfa->visualize(); file.close();
 
-		amore::finite_automaton * dfa;
 		dfa = nfa->determinize();
 		dfa->minimize();
 		file.open("original-dfa.dot"); file << dfa->visualize(); file.close();
@@ -97,9 +97,9 @@ int main(int argc, char**argv)
 		basic_string<int32_t> serial;
 		serial = dfa->serialize();
 		libalf::basic_string_to_file(serial, "original-dfa.ser");
-
-		delete dfa;
 	}}}
+
+	delete nfa;
 
 
 	// create RV and teach it the automaton
@@ -124,7 +124,7 @@ int main(int argc, char**argv)
 			file.open(filename); file << query->visualize(); file.close();
 
 			// answer queries
-			stats.queries.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*nfa, *query);
+			stats.queries.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*dfa, *query);
 
 			snprintf(filename, 128, "knowledgebase%02d%c-r.dot", iteration, c);
 			file.open(filename); file << query->visualize(); file.close();
@@ -160,7 +160,7 @@ int main(int argc, char**argv)
 
 		list<int> counterexample;
 		stats.queries.equivalence++;
-		if(amore_alf_glue::automaton_equivalence_query(*nfa, *hypothesis, counterexample)) {
+		if(amore_alf_glue::automaton_equivalence_query(*dfa, *hypothesis, counterexample)) {
 			// equivalent
 			cout << "success.\n";
 			success = true;
@@ -183,7 +183,7 @@ int main(int argc, char**argv)
 	stats.memory = ot.get_memory_statistics();
 	stats.queries.membership = knowledge.count_resolved_queries();
 
-	delete nfa;
+	delete dfa;
 
 	cout << "\nrequired membership queries: " << stats.queries.membership << "\n";
 	cout << "required uniq membership queries: " << stats.queries.uniq_membership << "\n";

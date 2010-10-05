@@ -50,6 +50,7 @@ int main(int argc, char**argv)
 	statistics stats;
 
 	amore::finite_automaton *nfa;
+	amore::finite_automaton *dfa;
 	ostream_logger log(&cout, LOGGER_DEBUG);
 
 	knowledgebase<ANSWERTYPE> knowledge;
@@ -89,13 +90,13 @@ int main(int argc, char**argv)
 	{{{ /* dump original automata */
 		file.open("original-nfa.dot"); file << nfa->visualize(true); file.close();
 
-		amore::finite_automaton * dfa;
 		dfa = nfa->determinize();
 		dfa->minimize();
 		mindfa_statecount = dfa->get_state_count();
 		file.open("original-dfa.dot"); file << dfa->visualize(true); file.close();
-		delete dfa;
 	}}}
+
+	delete nfa;
 
 
 	// create algorithm and teach it the automaton
@@ -108,7 +109,7 @@ int main(int argc, char**argv)
 		fflush(stdout);
 		printf("advancing...\n");
 		while( NULL == (cj = ot.advance()) )
-			stats.queries.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*nfa, knowledge);
+			stats.queries.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*dfa, knowledge);
 
 		libalf::finite_automaton * ba = dynamic_cast<libalf::finite_automaton*>(cj);
 		if(hypothesis)
@@ -151,7 +152,7 @@ int main(int argc, char**argv)
 		list<int> counterexample;
 
 		stats.queries.equivalence++;
-		if(amore_alf_glue::automaton_equivalence_query(*nfa, *hypothesis, counterexample)) {
+		if(amore_alf_glue::automaton_equivalence_query(*dfa, *hypothesis, counterexample)) {
 			// equivalent
 			cout << "success.\n";
 			success = true;
@@ -179,12 +180,12 @@ int main(int argc, char**argv)
 	cout << "upper table rows: " << stats.memory.upper_table
 	     << ", lower table rows: " << stats.memory.lower_table
 	     << ", columns: " << stats.memory.columns << "\n";
-	cout << "original NFA state count: " << nfa->get_state_count() << "\n";
+	cout << "original NFA state count: " << dfa->get_state_count() << "\n";
 	cout << "minimal DFA state count: " << mindfa_statecount << "\n";
 	cout << "final hypothesis state count: " << hypothesis->get_state_count() << "\n";
 
 	delete hypothesis;
-	delete nfa;
+	delete dfa;
 
 	if(success)
 		return 0;
