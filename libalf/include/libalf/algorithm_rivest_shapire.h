@@ -209,7 +209,9 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 					cex_latest_bad--;
 				}
 
-				(*this->my_logger)(LOGGER_DEBUG, "rivest_shapire_table: adding new suffix %s due to last counterexample.\n", word2string(counterexample).c_str());
+#ifdef DEBUG_RIVEST_SHAPIRE
+				(*this->my_logger)(LOGGER_INFO, "rivest_shapire_table: adding new suffix %s due to last counterexample.\n", word2string(counterexample).c_str());
+#endif
 				if(!this->add_column(counterexample))
 					(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: invalid counterexample or internal bug! suffix already contained in table.\n");
 

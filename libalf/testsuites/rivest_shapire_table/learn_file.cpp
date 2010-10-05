@@ -143,6 +143,10 @@ int main(int argc, char**argv)
 			*/
 		}}}
 
+#ifdef DEBUG_RIVEST_SHAPIRE
+		cout << ot.to_string();
+#endif
+
 		snprintf(filename, 128, "hypothesis%02d.dot", iteration);
 		file.open(filename); file << hypothesis->visualize(true); file.close();
 

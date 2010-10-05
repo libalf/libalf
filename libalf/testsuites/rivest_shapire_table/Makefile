@@ -5,7 +5,7 @@
 
 PREFIX ?= /usr/local
 
-CPPFLAGS+=-I../../include -I${PREFIX}/include -Wall -ggdb3
+CPPFLAGS += -I../../include -I${PREFIX}/include -Wall -ggdb3
 
 LDFLAGS+=-L../../src -L${PREFIX}/lib -lalf -lAMoRE++
 
@@ -26,4 +26,5 @@ jpegs:
 learn_regex: learn_regex.cpp
 
 learn_file: learn_file.cpp
+#learn_file: CPPFLAGS += -DDEBUG_RIVEST_SHAPIRE
 
