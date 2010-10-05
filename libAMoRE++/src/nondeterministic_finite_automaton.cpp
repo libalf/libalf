@@ -564,8 +564,10 @@ void nondeterministic_finite_automaton::minimize()
 
 	freedfa(d);
 	free(d);
-	freenfa(nfa_p);
-	free(nfa_p);
+	if(nfa_p != n) {
+		freenfa(nfa_p);
+		free(nfa_p);
+	}
 
 	nfa_p = n;
 }}}

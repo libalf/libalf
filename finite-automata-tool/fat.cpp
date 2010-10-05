@@ -56,7 +56,7 @@ void usage()
 		"\tdefault:\n"
 		"\t\t\tno transformation\n"
 		"\t-m or --minimize\n"
-		"\t\t\tminimize automaton\n"
+		"\t\t\tminimize automaton. with -d, it will give the minimal DFA\n"
 		"\t-d or --determinize\n"
 		"\t\t\tdeterminize automaton (an automaton is det. iff it\n"
 		"\t\t\thas only one initial state and, for every letter, every\n"
