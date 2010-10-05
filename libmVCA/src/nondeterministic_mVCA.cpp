@@ -18,6 +18,7 @@
  *
  * (c) 2009,2010 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
  *           and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
+ *           and David R. Piegdon <david-i2@piegdon.de>
  * Author: David R. Piegdon <david-i2@piegdon.de>
  *
  */
