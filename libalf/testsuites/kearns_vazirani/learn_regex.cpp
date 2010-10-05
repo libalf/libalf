@@ -40,13 +40,12 @@
 
 using namespace std;
 using namespace libalf;
-using namespace amore;
 
 int main(int argc, char**argv)
 {
 	statistics stats;
 
-	finite_automaton *nfa;
+	amore::finite_automaton *nfa, *dfa;
 	ostream_logger log(&cout, LOGGER_DEBUG);
 
 	knowledgebase<ANSWERTYPE> knowledge;
@@ -62,10 +61,10 @@ int main(int argc, char**argv)
 
 	bool regex_ok;
 	if(argc == 3) {
-		nfa = new nondeterministic_finite_automaton(atoi(argv[1]), argv[2], regex_ok);
+		nfa = new amore::nondeterministic_finite_automaton(atoi(argv[1]), argv[2], regex_ok);
 	} else /* find alphabet size or show some example regex */ {{{
 		if(argc == 2) {
-			nfa = new nondeterministic_finite_automaton(argv[1], regex_ok);
+			nfa = new amore::nondeterministic_finite_automaton(argv[1], regex_ok);
 		} else {
 			cout << "either give a sole regex as parameter, or give <alphabet size> <regex>.\n\n";
 			cout << "example regular expressions:\n";
@@ -90,7 +89,6 @@ int main(int argc, char**argv)
 	{{{ /* dump original automata */
 		file.open("original-nfa.dot"); file << nfa->visualize(); file.close();
 
-		finite_automaton * dfa;
 		dfa = nfa->determinize();
 		dfa->minimize();
 		file.open("original-dfa.dot"); file << dfa->visualize(); file.close();
@@ -98,14 +96,13 @@ int main(int argc, char**argv)
 		basic_string<int32_t> serial;
 		serial = dfa->serialize();
 		libalf::basic_string_to_file(serial, "original-dfa.ser");
-
-		delete dfa;
 	}}}
+	delete nfa;
 
 
 	// create kearns/vazirani learning algorithm and teach it the automaton
 	kearns_vazirani<ANSWERTYPE> ot(&knowledge, &log, alphabet_size);
-	finite_automaton * hypothesis = NULL;
+	amore::finite_automaton * hypothesis = NULL;
 
 	for(iteration = 1; iteration <= 100; iteration++) {
 		int c = 'a';
@@ -125,7 +122,7 @@ int main(int argc, char**argv)
 			file.open(filename); file << query->visualize(); file.close();
 
 			// answer queries
-			stats.queries.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*nfa, *query);
+			stats.queries.uniq_membership += amore_alf_glue::automaton_answer_knowledgebase(*dfa, *query);
 
 			snprintf(filename, 128, "knowledgebase%02d%c-r.dot", iteration, c);
 			file.open(filename); file << query->visualize(); file.close();
@@ -136,10 +133,10 @@ int main(int argc, char**argv)
 			c++;
 		}
 
-		simple_moore_machine * ba = dynamic_cast<simple_moore_machine*>(cj);
+		libalf::finite_automaton * ba = dynamic_cast<libalf::finite_automaton*>(cj);
 		if(hypothesis)
 			delete hypothesis;
-		hypothesis = construct_amore_automaton(ba->is_deterministic, ba->input_alphabet_size, ba->state_count, ba->initial_states, ba->final_states, ba->transitions);
+		hypothesis = amore_alf_glue::automaton_libalf2amore(*ba);
 		delete cj;
 		if(!hypothesis) {
 			printf("generation of hypothesis failed!\n");
@@ -169,7 +166,7 @@ int main(int argc, char**argv)
 
 		list<int> counterexample;
 		stats.queries.equivalence++;
-		if(amore_alf_glue::automaton_equivalence_query(*nfa, *hypothesis, counterexample)) {
+		if(amore_alf_glue::automaton_equivalence_query(*dfa, *hypothesis, counterexample)) {
 			// equivalent
 			cout << "success.\n";
 			success = true;
@@ -192,7 +189,7 @@ int main(int argc, char**argv)
 	stats.memory = ot.get_memory_statistics();
 	stats.queries.membership = knowledge.count_resolved_queries();
 
-	delete nfa;
+	delete dfa;
 
 	cout << "\nrequired membership queries: " << stats.queries.membership << "\n";
 	cout << "required uniq membership queries: " << stats.queries.uniq_membership << "\n";

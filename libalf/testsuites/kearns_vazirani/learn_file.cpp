@@ -40,13 +40,12 @@
 
 using namespace std;
 using namespace libalf;
-using namespace amore;
 
 int main(int argc, char**argv)
 {
 	statistics stats;
 
-	finite_automaton *nfa;
+	amore::finite_automaton *nfa, *dfa;
 	ostream_logger log(&cout, LOGGER_DEBUG);
 
 	knowledgebase<ANSWERTYPE> knowledge;
@@ -71,7 +70,7 @@ int main(int argc, char**argv)
 			cout << "failed to load file \"" << argv[1] << "\".\n";
 			return -1;
 		}
-		nfa = new nondeterministic_finite_automaton;
+		nfa = new amore::nondeterministic_finite_automaton;
 		si = str.begin();
 		if(!nfa->deserialize(si, str.end())) {
 			cout << "failed to deserialize automaton\n.";
@@ -83,7 +82,6 @@ int main(int argc, char**argv)
 
 	alphabet_size = nfa->get_alphabet_size();
 
-	finite_automaton * dfa;
 	{{{ /* dump original automata */
 		file.open("original-nfa.dot"); file << nfa->visualize(); file.close();
 
@@ -94,14 +92,13 @@ int main(int argc, char**argv)
 		basic_string<int32_t> serial;
 		serial = dfa->serialize();
 		libalf::basic_string_to_file(serial, "original-dfa.ser");
-
-		//delete dfa;
 	}}}
 
+	delete nfa;
 
 	// create kearns/vazirani learning algorithm and teach it the automaton
 	kearns_vazirani<ANSWERTYPE> ot(&knowledge, &log, alphabet_size, true);
-	finite_automaton * hypothesis = NULL;
+	amore::finite_automaton * hypothesis = NULL;
 
 	while(!success) {
 		iteration++;
@@ -133,23 +130,23 @@ int main(int argc, char**argv)
 			c++;
 		}
 
-		simple_moore_machine * ba = dynamic_cast<simple_moore_machine*>(cj);
-		
+		libalf::finite_automaton * ba = dynamic_cast<libalf::finite_automaton*>(cj);
+
 		// DEBUG
 #if 0
 		cout << ot.to_string() << endl;
 		cout << ba->visualize() << endl;
-#endif		
-		
+#endif
+
 		// END DEBUG
-		
+
 		ot.to_string();
-		
+
 		if(hypothesis)
 			delete hypothesis;
-		hypothesis = construct_amore_automaton(ba->is_deterministic, ba->input_alphabet_size, ba->state_count, ba->initial_states, ba->final_states, ba->transitions);
+		hypothesis = amore_alf_glue::automaton_libalf2amore(*ba);
 		delete cj;
-		
+
 		if(!hypothesis) {
 			printf("generation of hypothesis failed!\n");
 			return -1;
@@ -161,7 +158,7 @@ int main(int argc, char**argv)
 			//file.open(filename); ot.print(file); file.close();
 
 		}}}
-		
+
 		//snprintf(filename, 128, "hypothesis%02d.dot", iteration);
 		//file.open(filename); file << hypothesis->visualize(); file.close();
 
@@ -207,7 +204,6 @@ int main(int argc, char**argv)
 	stats.memory = ot.get_memory_statistics();
 	stats.queries.membership = knowledge.count_resolved_queries();
 
-	delete nfa;
 	delete dfa;
 
 	cout << "\nrequired membership queries: " << stats.queries.membership << "\n";
