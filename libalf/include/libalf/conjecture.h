@@ -221,7 +221,7 @@ class moore_machine: public finite_state_machine<output_alphabet> {
 					goto invalid;
 
 			for(mmsi = transitions.begin(); mmsi != transitions.end(); ++mmsi) {
-				if(mmsi->first < 0 || msi->first >= this->state_count)
+				if(mmsi->first < 0 || mmsi->first >= this->state_count)
 					goto invalid;
 				for(msi = mmsi->second.begin(); msi != mmsi->second.end(); ++msi) {
 					if(msi->first < -1 || msi->first >= this->input_alphabet_size)
@@ -578,6 +578,8 @@ class finite_automaton : public moore_machine<bool> {
 		virtual bool read(string input);
 		virtual string visualize() const;
 
+		// do the run of a word
+		void run(set<int> & current_states, list<int>::const_iterator word, list<int>::const_iterator word_end) const;
 		// checks if a word is accepted by this automaton.
 		virtual bool contains(const list<int> & word) const;
 		inline void get_final_states(set<int> & into) const

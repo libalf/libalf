@@ -531,42 +531,48 @@ string finite_automaton::visualize() const
 
 	return ret;
 }}}
-bool finite_automaton::contains(const list<int> & word) const
+
+void finite_automaton::run(set<int> & current_states, list<int>::const_iterator word, list<int>::const_iterator word_end) const
 {{{
-	if(!this->valid)
-		return false;
-
-	list<int>::const_iterator li;
-
-	set<int> current_states;
 	set<int>::const_iterator si;
 
-	current_states = this->initial_states;
+	set<int> new_states;
 
-	// run
-	for(li = word.begin(); li != word.end(); ++li) {
-		set<int> new_states;
+	map<int, map<int, set<int> > >::const_iterator mmsi;
+	map<int, set<int> >::const_iterator msi;
+	set<int>::const_iterator di;
+
+	while(word != word_end) {
 
 		if(current_states.empty())
 			break;
 
 		for(si = current_states.begin(); si != current_states.end(); ++si) {
-			map<int, map<int, set<int> > >::const_iterator mmsi;
-			map<int, set<int> >::const_iterator msi;
-			set<int>::const_iterator di;
-
 			mmsi = this->transitions.find(*si);
 			if(mmsi != this->transitions.end()) {
-				msi = mmsi->second.find(*li);
-				if(msi != mmsi->second.end()) {
+				msi = mmsi->second.find(*word);
+				if(msi != mmsi->second.end())
 					for(di = msi->second.begin(); di != msi->second.end(); ++di)
 						new_states.insert(*di);
-				}
 			}
 		}
 
 		current_states.swap(new_states);
+		new_states.clear();
+
+		++word;
 	}
+}}}
+bool finite_automaton::contains(const list<int> & word) const
+{{{
+	if(!this->valid)
+		return false;
+
+	set<int> current_states;
+	set<int>::const_iterator si;
+
+	current_states = this->initial_states;
+	run(current_states, word.begin(), word.end());
 
 	// check if a final state was reached
 	map<int, bool>::const_iterator fi;

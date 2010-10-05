@@ -30,10 +30,10 @@
 using namespace std;
 using namespace libalf;
 
-simple_moore_machine * simple_moore_machine_from_file(const char * filename)
+finite_automaton * finite_automaton_from_file(const char * filename)
 {{{
 	basic_string<int32_t> serial;
-	simple_moore_machine * m;
+	finite_automaton * m;
 
 	if(!file_to_basic_string(filename, serial)) {
 		cerr << "failed to load serial from file.\n";
@@ -45,7 +45,7 @@ simple_moore_machine * simple_moore_machine_from_file(const char * filename)
 	cout << " ;\n\n";
 
 	serial_stretch s(serial);
-	m = new simple_moore_machine;
+	m = new finite_automaton;
 	if(!m->deserialize(s)) {
 		cerr << "error: failed to deserialize.\n";
 		delete m;
@@ -66,9 +66,9 @@ int main(int argc, char**argv)
 		return -1;
 	}
 
-	simple_moore_machine * m;
+	finite_automaton * m;
 
-	m = simple_moore_machine_from_file(argv[1]);
+	m = finite_automaton_from_file(argv[1]);
 
 	if(!m) {
 		cerr << "failed to obtain automaton from file \"" << argv[1] << "\".\n";
