@@ -50,6 +50,16 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 
 
 	protected:
+		virtual conjecture * derive_conjecture()
+		{{{
+			finite_automaton * cj;
+			cj = this->derive_conjecture_memorize(latest_cj_statemapping);
+			if(cj)
+				latest_cj = *cj;
+			else
+				latest_cj.valid = false;
+			return cj;
+		}}}
 	public: // methods
 		rivest_shapire_table()
 		{{{
@@ -72,7 +82,7 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 			cex_back = -1;
 		}}}
 		virtual bool complete()
-		{
+		{{{
 			if(!this->initialized) {
 				this->initialize_table();
 				counterexample_mode = false;
@@ -106,13 +116,13 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 
 				answer a;
 				if(!cex_answer_set)
-					cex_answer_set = resolve_or_add_query(counterexample, cex_answer);
+					cex_answer_set = this->my_knowledge->resolve_or_add_query(counterexample, cex_answer);
 				if(!cex_answer_set)
 					return false;
 
 				if(cex_back < cex_front) // end is reached -> cex is invalid
 				{{{
-					(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: you gave an invalid counterexample. aborting counterexample mode.\n");
+					(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: no discriminating suffix found. you gave an invalid counterexample. aborting counterexample mode.\n");
 					counterexample_mode = false;
 					cex_front = -1;
 					cex_back = -1;
@@ -160,7 +170,7 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 					};
 				}}}
 
-				if(!resolve_or_add_query(new_word, a))
+				if(!this->my_knowledge->resolve_or_add_query(new_word, a))
 					return false;
 
 				// compare hypothesis and teacher and advance accordingly.
@@ -199,7 +209,7 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 					}
 				}}}
 			}
-		}
+		}}}
 		virtual bool add_counterexample(list<int> word)
 		{{{
 			list<int>::const_iterator li;
@@ -240,16 +250,7 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 				cex_front = -1;
 				cex_back = -1;
 			}
-		}}}
-		virtual conjecture * derive_conjecture()
-		{{{
-			conjecture * cj;
-			cj = this->derive_conjecture(latest_cj_statemapping);
-			if(cj)
-				latest_cj = *cj;
-			else
-				latest_cj.valid = false;
-			return cj;
+			return true;
 		}}}
 };
 

@@ -853,13 +853,13 @@ class angluin_table : public learning_algorithm<answer> {
 			conjecture * cj;
 			list<algorithm_angluin::automaton_state<table> > states;
 
-			cj = this->derive_conjecture(states);
+			cj = this->derive_conjecture_memorize(states);
 
 			return cj;
 		}}}
 
 		// derive an automaton and return it, such that a table<->automaton mapping is stored in states
-		virtual libalf::finite_automaton * derive_conjecture(list<algorithm_angluin::automaton_state<table> > & states)
+		virtual libalf::finite_automaton * derive_conjecture_memorize(list<algorithm_angluin::automaton_state<table> > & states)
 		{{{
 			libalf::finite_automaton * ret = new finite_automaton;
 
