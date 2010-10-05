@@ -111,7 +111,9 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 			if(!cex_answer_set)
 				missing_knowledge = true;
 
-(*this->my_logger)(LOGGER_DEBUG, "RV:    cex_front %d, cex_back %d\n", cex_front, cex_back);
+#ifdef DEBUG_RIVEST_SHAPIRE // {{{
+			(*this->my_logger)(LOGGER_DEBUG, "RV:    cex_front %d, cex_back %d\n", cex_front, cex_back);
+#endif // }}}
 			if(cex_back < cex_front) // end is reached -> cex is invalid
 			{{{
 				(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: no discriminating suffix found. you gave an invalid counterexample. aborting counterexample mode.\n");
@@ -129,7 +131,9 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 			int i;
 			list<int>::const_iterator current_pos, li;
 
-(*this->my_logger)(LOGGER_DEBUG, "RV: CEX mode, picked index %d from [%d,%d]\n", current_index, cex_front, cex_back);
+#ifdef DEBUG_RIVEST_SHAPIRE // {{{
+			(*this->my_logger)(LOGGER_DEBUG, "RV: CEX mode, picked index %d from [%d,%d]\n", current_index, cex_front, cex_back);
+#endif // }}}
 
 
 			for(i = 0, current_pos = counterexample.begin(); (i < current_index) && (current_pos != counterexample.end()); ++i, ++current_pos)
@@ -143,13 +147,13 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 				typename list<algorithm_angluin::automaton_state<table_t> >::const_iterator mi;
 
 				current_states = latest_cj.initial_states;
-{
-(*this->my_logger)(LOGGER_DEBUG, "RV:     replacing prefix: .");
-list<int>::const_iterator li;
-for(li = counterexample.begin(); li != current_pos; ++li)
-	(*this->my_logger)(LOGGER_DEBUG, "%d.", *li);
-(*this->my_logger)(LOGGER_DEBUG, "\n");
-}
+#ifdef DEBUG_RIVEST_SHAPIRE // {{{
+				(*this->my_logger)(LOGGER_DEBUG, "RV:     replacing prefix: .");
+				list<int>::const_iterator li;
+				for(li = counterexample.begin(); li != current_pos; ++li)
+					(*this->my_logger)(LOGGER_DEBUG, "%d.", *li);
+				(*this->my_logger)(LOGGER_DEBUG, "\n");
+#endif // }}}
 				latest_cj.run(current_states, counterexample.begin(), current_pos);
 
 				int current_state = *( current_states.begin() );
@@ -157,7 +161,9 @@ for(li = counterexample.begin(); li != current_pos; ++li)
 					if(mi->id == current_state)
 						break;
 				new_word = mi->tableentry->index;
-(*this->my_logger)(LOGGER_DEBUG, "RV:     different prefix is %s\n", word2string(new_word).c_str());
+#ifdef DEBUG_RIVEST_SHAPIRE // {{{
+				(*this->my_logger)(LOGGER_DEBUG, "RV:     new prefix is %s\n", word2string(new_word).c_str());
+#endif // }}}
 
 
 				// add same suffix
@@ -165,12 +171,16 @@ for(li = counterexample.begin(); li != current_pos; ++li)
 					new_word.push_back(*current_pos);
 					++current_pos;
 				};
-(*this->my_logger)(LOGGER_DEBUG, "RV:     new_word %s\n", word2string(new_word).c_str());
+#ifdef DEBUG_RIVEST_SHAPIRE // {{{
+				(*this->my_logger)(LOGGER_DEBUG, "RV:     new word thus %s\n", word2string(new_word).c_str());
+#endif // }}}
 			}}}
 
 			if(!this->my_knowledge->resolve_or_add_query(new_word, a))
 				return false;
-(*this->my_logger)(LOGGER_DEBUG, "RV:     cex: %c, new_word: %c\n", (cex_answer == true) ? '+' : '-', (a == true) ? '+' : '-');
+#ifdef DEBUG_RIVEST_SHAPIRE // {{{
+			(*this->my_logger)(LOGGER_DEBUG, "RV:     cex: %c, new_word: %c\n", (cex_answer == true) ? '+' : '-', (a == true) ? '+' : '-');
+#endif // }}}
 			if(missing_knowledge)
 				return false;
 
@@ -241,7 +251,9 @@ for(li = counterexample.begin(); li != current_pos; ++li)
 
 		virtual bool add_counterexample(list<int> word)
 		{{{
-(*this->my_logger)(LOGGER_DEBUG, "RV: counterexample: %s\n", word2string(word).c_str());
+#ifdef DEBUG_RIVEST_SHAPIRE // {{{
+			(*this->my_logger)(LOGGER_DEBUG, "RV: counterexample: %s\n", word2string(word).c_str());
+#endif // }}}
 			list<int>::const_iterator li;
 			if(this->my_knowledge == NULL) {
 				(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: add_counterexample() without knowledgebase!\n");
