@@ -50,6 +50,21 @@ namespace libalf {
 
 using namespace std;
 
+/*
+ * mVCA_angluinlike implements a L*-like algorithm to learn visible m-bounded 1-counter automata.
+ * it is meant to be an implementation of the algorithm described in
+ *    "D. Neider, C. Löding - Learning Visibly One-Counter Automata in Polynomial Time"
+ *    Technical Report AIB-2010-02, RWTH Aachen, January 2010.
+ * obtainable at
+ *    http://aib.informatik.rwth-aachen.de/2010/2010-02.pdf
+ */
+
+// NOTE: the implementation is incomplete. missing is the creation of the full equivalence querie
+//       (i.e. an mVCA). everything else is implemented, but might still contain bugs.
+//       TODO are:
+//		bool find_next_valid_m()
+//		conjecture * create_full_equivalence_query()
+
 template <class answer>
 class mVCA_angluinlike : public learning_algorithm<answer> {
 	public: // types
@@ -90,6 +105,8 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 		};
 
 		class equivalence_approximation : public triple<list<int>, int, vector<answer> > {
+			// a single row in a single table, containing the acceptances of prefix.suffixes,
+			// where suffixes are the suffixes belonging to the current cv (see sample_list).
 			public: // methods
 				inline list<int>		& prefix()		{ return this->first; };
 				inline const list<int>		& prefix()		const { return this->first; };
@@ -112,6 +129,8 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 				inline bool equivalent(equivalence_approximation & other)
 				{ return cv() == other.cv() && acceptances() == other.acceptances(); }
 
+				// check if this and the other line are equivalent under the given suffixes. i.e. they have the
+				// same acceptances.
 				inline bool equivalent(equivalence_approximation & other, typename sample_list::iterator suffix_it)
 				{{{
 					typename vector<answer>::iterator vi1, vi2;
@@ -129,6 +148,8 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 					return (vi1 == acceptances().end() && vi2 == other.acceptances().end());
 				}}}
 
+				// fill all missing membership information (acceptances) from knowledgebase
+				// or mark them as queried
 				bool fill(sample_list & samples, knowledgebase<answer> * base)
 				{{{
 					typename vector<answer>::iterator acci;
@@ -199,10 +220,12 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 		};
 
 		class equivalence_table : public list<equivalence_approximation> {
+			// single table of equivalence lines for a fixed cv.
 			public: // types
 				typedef typename list<equivalence_approximation>::iterator iterator;
 				typedef typename list<equivalence_approximation>::const_iterator const_iterator;
 			public: // methods
+				// find a line by its prefix
 				iterator find_prefix(const list<int> & prefix)
 				{{{
 					iterator r;
@@ -215,6 +238,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 					return r;
 				}}}
 
+				// find or add a line by its prefix
 				iterator find_or_insert_prefix(const list<int> & prefix, int cv)
 				{{{
 					iterator r;
@@ -233,6 +257,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 					return r;
 				}}}
 
+				// find a line by its equivalence class (same acceptances)
 				iterator find_equivalence_class(equivalence_approximation & representative)
 				{{{
 					iterator equi;
@@ -242,6 +267,8 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 					return equi;
 				}}}
 
+				// fill all missing membership information (acceptances) from knowledgebase
+				// or mark them as queried
 				bool fill(sample_list & samples, knowledgebase<answer> * base)
 				{{{
 					iterator equi;
@@ -274,6 +301,10 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 		};
 
 		class m_representatives : public triple<sample_list, equivalence_table, triple<equivalence_table, equivalence_table, equivalence_table> > {
+			// all information of the stratified observationtable for a fixed cv. i.e.
+			// the discriminating suffixes, a table with all prefixes (state candidates)
+			// and a table each for all internal (cv += 0), returning (cv -= 1) and
+			// calling (cv += 1) transitions.
 			public: // methods
 				inline sample_list & samples()				{ return this->first; }; // suffixes
 				inline const sample_list & samples()			const { return this->first; };
@@ -307,6 +338,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 		};
 
 		class stratified_observationtable : public vector<m_representatives> {
+			// full observationtable for all cv.
 			public: // types
 				typedef typename vector<m_representatives>::iterator iterator;
 				typedef typename vector<m_representatives>::const_iterator const_iterator;
@@ -514,223 +546,6 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 		pair<int, list<int> > full_eq_test__counterexample; // <height, word>
 
 		stratified_observationtable table;
-
-	public: // methods
-		mVCA_angluinlike()
-		{{{
-			this->set_logger(NULL);
-			this->set_knowledge_source(NULL);
-			clear();
-		}}}
-
-		mVCA_angluinlike(knowledgebase<answer> *base, logger *log, int alphabet_size)
-		{{{
-			this->set_logger(log);
-			this->set_knowledge_source(base);
-			clear();
-			this->set_alphabet_size(alphabet_size);
-		}}}
-
-		void clear()
-		{{{
-			initialized = false;
-			this->set_alphabet_size(0);
-			mode = -1;
-			known_equivalence_bound = -1;
-			tested_equivalence_bound = -1;
-			full_eq_test__current_m = -1;
-			full_eq_test__queried_m = -1;
-			full_eq_test__counterexample.first = -1;
-			full_eq_test__counterexample.second.clear();
-			pushdown_directions.clear();
-			table.clear();
-		}}}
-
-		virtual void indicate_pushdown_alphabet_directions(const vector<int> & directions)
-		{ pushdown_directions = directions; }
-
-		virtual void increase_alphabet_size(int new_asize)
-		{ this->set_alphabet_size(new_asize); }
-
-		virtual memory_statistics get_memory_statistics() const
-		// get_memory_statistics() is obsolete and will be removed in the future.
-		// use receive_generic_statistics() instead.
-		{{{
-			generic_statistics stat;
-			memory_statistics ret;
-
-			receive_generic_statistics(stat);
-
-			ret.bytes = stat["bytes"];
-			ret.words = stat["words"];
-
-			return ret;
-		}}}
-
-		virtual void receive_generic_statistics(generic_statistics & stat) const
-		{{{
-			stat["initialized"] = initialized;
-			if(initialized) {
-				int words = 0; // words that are stored in the tables
-				int bytes = 0; // bytes this algorithm consumes over all
-
-				bytes = sizeof(*this);
-				bytes += table.get_dynamic_memory_consumption();
-				words = table.count_words();
-
-				stat["words"] = words;
-				stat["bytes"] = bytes;
-				stat["table bound"] = (int)table.size() - 1;
-				stat["known equivalence bound"] = known_equivalence_bound;
-			}
-		}}}
-
-		virtual bool sync_to_knowledgebase()
-		{{{
-			(*this->my_logger)(LOGGER_ERROR, "mVCA_angluinlike does not support sync-operation.\n");
-			return false;
-		}}}
-		virtual bool supports_sync() const
-		{ return false; };
-
-		virtual basic_string<int32_t> serialize() const
-		{{{
-			basic_string<int32_t> ret;
-
-			ret += 0; // size, filled in later.
-			ret += ::serialize((int)learning_algorithm<answer>::ALG_MVCA_ANGLUINLIKE);
-			ret += ::serialize(initialized);
-			ret += ::serialize(this->get_alphabet_size());
-			ret += ::serialize(pushdown_directions);
-			ret += ::serialize(mode);
-			ret += ::serialize(known_equivalence_bound);
-			ret += ::serialize(tested_equivalence_bound);
-			ret += ::serialize(full_eq_test__current_m);
-			ret += ::serialize(full_eq_test__queried_m);
-			ret += ::serialize(full_eq_test__counterexample);
-			ret += ::serialize(table);
-
-			ret[0] = htonl(ret.length() - 1);
-
-			return ret;
-		}}}
-		virtual bool deserialize(serial_stretch & serial)
-		{{{
-			int size;
-			int type;
-
-			clear();
-
-			if(!::deserialize(size, serial)) goto deserialization_failed;
-			// total size: we don't care.
-			if(!::deserialize(type, serial)) goto deserialization_failed;
-			if(type != (int)learning_algorithm<answer>::ALG_MVCA_ANGLUINLIKE)
-				goto deserialization_failed;
-			if(!::deserialize(initialized, serial)) goto deserialization_failed;
-			if(!::deserialize(size, serial)) goto deserialization_failed;
-			this->set_alphabet_size(size);
-			if(!::deserialize(pushdown_directions, serial)) goto deserialization_failed;
-			if(!::deserialize(mode, serial)) goto deserialization_failed;
-			if(!::deserialize(known_equivalence_bound, serial)) goto deserialization_failed;
-			if(!::deserialize(tested_equivalence_bound, serial)) goto deserialization_failed;
-			if(!::deserialize(full_eq_test__current_m, serial)) goto deserialization_failed;
-			if(!::deserialize(full_eq_test__queried_m, serial)) goto deserialization_failed;
-			if(!::deserialize(full_eq_test__counterexample, serial)) goto deserialization_failed;
-			if(!::deserialize(table, serial)) goto deserialization_failed;
-
-			return true;
-deserialization_failed:
-			clear();
-			return false;
-		}}}
-
-		bool deserialize_magic(serial_stretch & serial, basic_string<int32_t> & result)
-		{{{
-			int command;
-
-			result.clear();
-
-			if(!::deserialize(command, serial)) return false;
-
-			switch(command) {
-				case 0: { // indicate pushdown property of alphabet
-						vector<int> dirs;
-						if(!::deserialize(dirs, serial)) return false;
-						pushdown_directions = dirs;
-						return true;
-					}
-				case 1: { // indicate partial equivalence
-						result += ::serialize(indicate_partial_equivalence());
-						return true;
-					}
-			};
-			// bad command?
-			return false;
-		}}}
-
-		virtual void print(ostream &os) const
-		{{{
-			os << "stratified_observationtable {\n";
-			os << "\tmode: " << (     (mode == -1) ? "membership query cycle\n"
-						: (mode == 0) ? "partial equivalence query cycle\n"
-						: (mode == 1) ? "full equivalence query cycle\n"
-						:               "UNKNOWN MODE\n"  );
-			os << "\tknown equivalence bound: " << known_equivalence_bound << "\n";
-
-			if(mode == 0 && tested_equivalence_bound != known_equivalence_bound)
-					os << "\ttested equivalence bound: " << tested_equivalence_bound << "\n";
-
-			if(mode == 1) {
-				os << "\tcurrent m for full eq. query: " << full_eq_test__current_m << "\n";
-				os << "\tqueried m for full eq. query: " << full_eq_test__queried_m << "\n";
-				os << "\tsaved counterexample: ";
-				if(full_eq_test__counterexample.first < 0) {
-					os << "none yet.\n";
-				} else {
-					print_word(os, full_eq_test__counterexample.second);
-					os << " (cv=" << full_eq_test__counterexample.first << ")\n";
-				}
-			}
-
-			os << "\n\ttable data:\n";
-			table.print(os);
-
-			os << "};\n";
-		}}}
-
-		virtual bool conjecture_ready()
-		{ return complete(); };
-
-		virtual bool indicate_partial_equivalence()
-		{{{
-			if(mode != 0) {
-				(*this->my_logger)(LOGGER_ERROR, "mVCA_angluinlike: you indicated a partial equivalence, but i did not expect that now.\n");
-				return false;
-			}
-
-			known_equivalence_bound = tested_equivalence_bound;
-			full_eq_test__current_m = -1;
-			full_eq_test__queried_m = -1;
-			full_eq_test__counterexample.first = -1;
-			full_eq_test__counterexample.second.clear();
-			mode = 1;
-
-			return true;
-		}}}
-
-		virtual bool add_counterexample(list<int> counterexample)
-		{{{
-			switch(mode) {
-				default:
-				case -1:
-					(*this->my_logger)(LOGGER_WARN, "mVCA_angluinlike: you are giving a counterexample but i did not expect one. please complete filling the table until i send you the next equivalence query.\n");
-					return false;
-				case 0:
-					return add_partial_counterexample(counterexample);
-				case 1:
-					return add_full_counterexample(counterexample);
-			}
-		}}}
 
 	protected: // methods
 		int countervalue(list<int>::const_iterator word, list<int>::const_iterator limit, int initial_countervalue = 0)
@@ -1224,6 +1039,223 @@ deserialization_failed:
 					return create_partial_equivalence_query();
 				case 1:
 					return create_full_equivalence_query();
+			}
+		}}}
+
+	public: // methods
+		mVCA_angluinlike()
+		{{{
+			this->set_logger(NULL);
+			this->set_knowledge_source(NULL);
+			clear();
+		}}}
+
+		mVCA_angluinlike(knowledgebase<answer> *base, logger *log, int alphabet_size)
+		{{{
+			this->set_logger(log);
+			this->set_knowledge_source(base);
+			clear();
+			this->set_alphabet_size(alphabet_size);
+		}}}
+
+		void clear()
+		{{{
+			initialized = false;
+			this->set_alphabet_size(0);
+			mode = -1;
+			known_equivalence_bound = -1;
+			tested_equivalence_bound = -1;
+			full_eq_test__current_m = -1;
+			full_eq_test__queried_m = -1;
+			full_eq_test__counterexample.first = -1;
+			full_eq_test__counterexample.second.clear();
+			pushdown_directions.clear();
+			table.clear();
+		}}}
+
+		virtual void indicate_pushdown_alphabet_directions(const vector<int> & directions)
+		{ pushdown_directions = directions; }
+
+		virtual void increase_alphabet_size(int new_asize)
+		{ this->set_alphabet_size(new_asize); }
+
+		virtual memory_statistics get_memory_statistics() const
+		// get_memory_statistics() is obsolete and will be removed in the future.
+		// use receive_generic_statistics() instead.
+		{{{
+			generic_statistics stat;
+			memory_statistics ret;
+
+			receive_generic_statistics(stat);
+
+			ret.bytes = stat["bytes"];
+			ret.words = stat["words"];
+
+			return ret;
+		}}}
+
+		virtual void receive_generic_statistics(generic_statistics & stat) const
+		{{{
+			stat["initialized"] = initialized;
+			if(initialized) {
+				int words = 0; // words that are stored in the tables
+				int bytes = 0; // bytes this algorithm consumes over all
+
+				bytes = sizeof(*this);
+				bytes += table.get_dynamic_memory_consumption();
+				words = table.count_words();
+
+				stat["words"] = words;
+				stat["bytes"] = bytes;
+				stat["table bound"] = (int)table.size() - 1;
+				stat["known equivalence bound"] = known_equivalence_bound;
+			}
+		}}}
+
+		virtual bool sync_to_knowledgebase()
+		{{{
+			(*this->my_logger)(LOGGER_ERROR, "mVCA_angluinlike does not support sync-operation.\n");
+			return false;
+		}}}
+		virtual bool supports_sync() const
+		{ return false; };
+
+		virtual basic_string<int32_t> serialize() const
+		{{{
+			basic_string<int32_t> ret;
+
+			ret += 0; // size, filled in later.
+			ret += ::serialize((int)learning_algorithm<answer>::ALG_MVCA_ANGLUINLIKE);
+			ret += ::serialize(initialized);
+			ret += ::serialize(this->get_alphabet_size());
+			ret += ::serialize(pushdown_directions);
+			ret += ::serialize(mode);
+			ret += ::serialize(known_equivalence_bound);
+			ret += ::serialize(tested_equivalence_bound);
+			ret += ::serialize(full_eq_test__current_m);
+			ret += ::serialize(full_eq_test__queried_m);
+			ret += ::serialize(full_eq_test__counterexample);
+			ret += ::serialize(table);
+
+			ret[0] = htonl(ret.length() - 1);
+
+			return ret;
+		}}}
+		virtual bool deserialize(serial_stretch & serial)
+		{{{
+			int size;
+			int type;
+
+			clear();
+
+			if(!::deserialize(size, serial)) goto deserialization_failed;
+			// total size: we don't care.
+			if(!::deserialize(type, serial)) goto deserialization_failed;
+			if(type != (int)learning_algorithm<answer>::ALG_MVCA_ANGLUINLIKE)
+				goto deserialization_failed;
+			if(!::deserialize(initialized, serial)) goto deserialization_failed;
+			if(!::deserialize(size, serial)) goto deserialization_failed;
+			this->set_alphabet_size(size);
+			if(!::deserialize(pushdown_directions, serial)) goto deserialization_failed;
+			if(!::deserialize(mode, serial)) goto deserialization_failed;
+			if(!::deserialize(known_equivalence_bound, serial)) goto deserialization_failed;
+			if(!::deserialize(tested_equivalence_bound, serial)) goto deserialization_failed;
+			if(!::deserialize(full_eq_test__current_m, serial)) goto deserialization_failed;
+			if(!::deserialize(full_eq_test__queried_m, serial)) goto deserialization_failed;
+			if(!::deserialize(full_eq_test__counterexample, serial)) goto deserialization_failed;
+			if(!::deserialize(table, serial)) goto deserialization_failed;
+
+			return true;
+deserialization_failed:
+			clear();
+			return false;
+		}}}
+
+		bool deserialize_magic(serial_stretch & serial, basic_string<int32_t> & result)
+		{{{
+			int command;
+
+			result.clear();
+
+			if(!::deserialize(command, serial)) return false;
+
+			switch(command) {
+				case 0: { // indicate pushdown property of alphabet
+						vector<int> dirs;
+						if(!::deserialize(dirs, serial)) return false;
+						pushdown_directions = dirs;
+						return true;
+					}
+				case 1: { // indicate partial equivalence
+						result += ::serialize(indicate_partial_equivalence());
+						return true;
+					}
+			};
+			// bad command?
+			return false;
+		}}}
+
+		virtual void print(ostream &os) const
+		{{{
+			os << "stratified_observationtable {\n";
+			os << "\tmode: " << (     (mode == -1) ? "membership query cycle\n"
+						: (mode == 0) ? "partial equivalence query cycle\n"
+						: (mode == 1) ? "full equivalence query cycle\n"
+						:               "UNKNOWN MODE\n"  );
+			os << "\tknown equivalence bound: " << known_equivalence_bound << "\n";
+
+			if(mode == 0 && tested_equivalence_bound != known_equivalence_bound)
+					os << "\ttested equivalence bound: " << tested_equivalence_bound << "\n";
+
+			if(mode == 1) {
+				os << "\tcurrent m for full eq. query: " << full_eq_test__current_m << "\n";
+				os << "\tqueried m for full eq. query: " << full_eq_test__queried_m << "\n";
+				os << "\tsaved counterexample: ";
+				if(full_eq_test__counterexample.first < 0) {
+					os << "none yet.\n";
+				} else {
+					print_word(os, full_eq_test__counterexample.second);
+					os << " (cv=" << full_eq_test__counterexample.first << ")\n";
+				}
+			}
+
+			os << "\n\ttable data:\n";
+			table.print(os);
+
+			os << "};\n";
+		}}}
+
+		virtual bool conjecture_ready()
+		{ return complete(); };
+
+		virtual bool indicate_partial_equivalence()
+		{{{
+			if(mode != 0) {
+				(*this->my_logger)(LOGGER_ERROR, "mVCA_angluinlike: you indicated a partial equivalence, but i did not expect that now.\n");
+				return false;
+			}
+
+			known_equivalence_bound = tested_equivalence_bound;
+			full_eq_test__current_m = -1;
+			full_eq_test__queried_m = -1;
+			full_eq_test__counterexample.first = -1;
+			full_eq_test__counterexample.second.clear();
+			mode = 1;
+
+			return true;
+		}}}
+
+		virtual bool add_counterexample(list<int> counterexample)
+		{{{
+			switch(mode) {
+				default:
+				case -1:
+					(*this->my_logger)(LOGGER_WARN, "mVCA_angluinlike: you are giving a counterexample but i did not expect one. please complete filling the table until i send you the next equivalence query.\n");
+					return false;
+				case 0:
+					return add_partial_counterexample(counterexample);
+				case 1:
+					return add_full_counterexample(counterexample);
 			}
 		}}}
 };
