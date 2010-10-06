@@ -532,37 +532,6 @@ string finite_automaton::visualize() const
 	return ret;
 }}}
 
-void finite_automaton::run(set<int> & current_states, list<int>::const_iterator word, list<int>::const_iterator word_end) const
-{{{
-	set<int>::const_iterator si;
-
-	set<int> new_states;
-
-	map<int, map<int, set<int> > >::const_iterator mmsi;
-	map<int, set<int> >::const_iterator msi;
-	set<int>::const_iterator di;
-
-	while(word != word_end) {
-
-		if(current_states.empty())
-			break;
-
-		for(si = current_states.begin(); si != current_states.end(); ++si) {
-			mmsi = this->transitions.find(*si);
-			if(mmsi != this->transitions.end()) {
-				msi = mmsi->second.find(*word);
-				if(msi != mmsi->second.end())
-					for(di = msi->second.begin(); di != msi->second.end(); ++di)
-						new_states.insert(*di);
-			}
-		}
-
-		current_states.swap(new_states);
-		new_states.clear();
-
-		++word;
-	}
-}}}
 bool finite_automaton::contains(const list<int> & word) const
 {{{
 	if(!this->valid)

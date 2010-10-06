@@ -289,6 +289,38 @@ failed:
 			clear();
 			return false;
 		}}}
+		// from current_states, follow the transitions given by word. resulting states are stored in current_states.
+		virtual void run(set<int> & current_states, list<int>::const_iterator word, list<int>::const_iterator word_end) const
+		{{{
+			set<int>::const_iterator si;
+
+			set<int> new_states;
+
+			map<int, map<int, set<int> > >::const_iterator mmsi;
+			map<int, set<int> >::const_iterator msi;
+			set<int>::const_iterator di;
+
+			while(word != word_end) {
+
+				if(current_states.empty())
+					break;
+
+				for(si = current_states.begin(); si != current_states.end(); ++si) {
+					mmsi = transitions.find(*si);
+					if(mmsi != transitions.end()) {
+						msi = mmsi->second.find(*word);
+						if(msi != mmsi->second.end())
+							for(di = msi->second.begin(); di != msi->second.end(); ++di)
+								new_states.insert(*di);
+					}
+				}
+
+				current_states.swap(new_states);
+				new_states.clear();
+
+				++word;
+			}
+		}}}
 		virtual string write() const
 		{ /* depends on output_alphabet, has to be done by you! */ return ""; }
 		virtual bool read(__attribute__ ((__unused__)) string input)
@@ -578,8 +610,6 @@ class finite_automaton : public moore_machine<bool> {
 		virtual bool read(string input);
 		virtual string visualize() const;
 
-		// do the run of a word
-		void run(set<int> & current_states, list<int>::const_iterator word, list<int>::const_iterator word_end) const;
 		// checks if a word is accepted by this automaton.
 		virtual bool contains(const list<int> & word) const;
 		inline void get_final_states(set<int> & into) const
