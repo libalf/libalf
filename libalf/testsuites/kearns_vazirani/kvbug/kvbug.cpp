@@ -96,6 +96,8 @@ int main()
 		set<int> final_states;
 		ba->get_final_states(final_states);
 		hypothesis = amore::construct_amore_automaton(ba->is_deterministic, ba->input_alphabet_size, ba->state_count, ba->initial_states, final_states, ba->transitions);
+		printf("new hypothesis has %d states.\n", ba->state_count);
+
 		delete cj;
 
 		if(!hypothesis) {
@@ -105,6 +107,7 @@ int main()
 
 		printf("eq query...\n");
 		list<int> counterexample;
+		//if(amore_alf_glue::automaton_equivalence_query(*dfa, *hypothesis, counterexample)) { // bug does not occur with std eq query, as other counterexamples are chosen.
 		if(amore_alf_glue::automaton_antichain_equivalence_query(*dfa, *hypothesis, counterexample)) {
 			// equivalent
 			success = true;
@@ -113,6 +116,8 @@ int main()
 		ot.add_counterexample(counterexample);
 
 	}
+
+	printf("hypothesis and model are equal.\n");
 
 	delete dfa;
 	delete hypothesis;

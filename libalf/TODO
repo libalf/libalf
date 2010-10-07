@@ -13,8 +13,6 @@ TODO (priority ordered)
 
 - finish mVCA angluin-like
 
-- Rivest+Shapire Algorithm (improved L*)
-
 - angluin: mealy-machine
 
 - create debian packages
@@ -27,9 +25,9 @@ TODO (priority ordered)
 
 - documentation
 
-- THOUGHT: abstract knowledgebase?
+- IDEA: abstract knowledgebase?
 
-- THOUGHT: change knowledgebase-query interface to represent normalizer and remove them
+- IDEA: change knowledgebase-query interface to represent normalizer and remove them
   from algorithm and into knowledgebase?
 
 - knowledgebase: rewrite / check efficiency of equivalence relation
