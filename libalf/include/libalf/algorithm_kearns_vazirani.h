@@ -1279,53 +1279,48 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			automaton->input_alphabet_size = this->alphabet_size;
 			automaton->valid = true;
 			automaton->state_count = 0;
-			automaton->initial_states.insert(0);
+			automaton->initial_states.insert(0);	// Initial state is always nr. 0
 
 			// Iterate throug all leaf nodes to generate transitions,
 			// beginning with initial_state
-			bool visited[this->leaf_node_count];
+			int * state = new int[this->leaf_node_count]; // name of a state
 			for(int i=0; i<this->leaf_node_count; i++)
-				visited[i] = false;
+				state[i] = -1; // Indicates that the node has not yet been visited
+			state[initial_state->id] = automaton->state_count; // initial state is always nr. 0
+			automaton->state_count = automaton->state_count + 1;
 			list<leaf_node*> to_process;
-
-			to_process.push_front(initial_state);
-
-			int max_target_state = -1;
+			to_process.push_front(this->initial_state);
 
 			while (!to_process.empty()) {
 
 				// Get leaf node to process
 				leaf_node *current = to_process.front();
 				to_process.pop_front();
-				visited[current->id] = true;
-				automaton->state_count++;
 
 				// Add as final state if so
 				if(current->accepting)
-					automaton->output_mapping[current->id] = true;
+					automaton->output_mapping[state[current->id]] = true;
 
 				// Process each transition
 				for(int i=0; i<this->alphabet_size; i++) {
 
-					if(current->id > max_target_state)
-						max_target_state = current->id;
-
-					pair<int,int> source (current->id, i);
-					automaton->transitions[current->id][i].insert(current->transitions[i]->id);
-
-					// If the destination is not yet processed, add it to be processed
-					if(!visited[current->transitions[i]->id] && find(to_process.begin(), to_process.end(), current->transitions[i]) == to_process.end())
+					// Check whether current->transitions[i] already has a name
+					if(state[current->transitions[i]->id] == -1) {
+						// Give it a new name ...
+						state[current->transitions[i]->id] = automaton->state_count;
+						automaton->state_count = automaton->state_count + 1;
+						// ... and process it next
 						to_process.push_back(current->transitions[i]);
+					}
+
+					// Add new transition
+					automaton->transitions[state[current->id]][i].insert(state[current->transitions[i]->id]);
 				}
 
 			}
 
-			if(max_target_state >= automaton->state_count) {
-				fprintf(stderr, "BUG: KV transition source (%d) >= state_count (%d)\n\n", max_target_state, automaton->state_count);
-				automaton->state_count = max_target_state + 1;
-				printf("\n");
-				fflush(stdout);
-			}
+			// clean up
+			delete[] state;
 
 			return automaton;
 		}
