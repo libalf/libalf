@@ -204,7 +204,6 @@ set<int> deterministic_finite_automaton::predecessor_states(set<int> states) con
 		for(sigma = 0; sigma < dfa_p->alphabet_size; sigma++) {
 			if(states.find(dfa_p->delta[sigma+1][state]) != states.end()) {
 				ret.insert(state);
-//				break;
 			}
 		}
 	}
@@ -222,7 +221,6 @@ set<int> deterministic_finite_automaton::predecessor_states(set<int> states, int
 	for(state = 0; state <= dfa_p->highest_state; state++) {
 		if(states.find(dfa_p->delta[label+1][state]) != states.end()) {
 			ret.insert(state);
-//			break;
 		}
 	}
 
