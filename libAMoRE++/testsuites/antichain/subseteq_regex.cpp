@@ -40,6 +40,8 @@ using namespace amore;
 
 int main(int argc, char**argv)
 {
+	int ret = -1;
+
 	if(argc != 4) {
 		cout << "please give <alphabet size> <Regex1> <Regex2> as parameters. the program will check if "
 			<< "R1 is subset of or equal R2"
@@ -82,16 +84,18 @@ int main(int argc, char**argv)
 	list<int> counterexample;
 	if(n2->antichain__is_superset_of(*n1, counterexample)) {
 		cout << "\nR1 is subset of or equal R2.\n";
-		return 0;
+		ret = 0;
 	} else {
 		cout << "\nR1 is NOT subset of or equal R2.\n";
 		cout << "counterexample: ";
 		libalf::print_word(cout, counterexample);
 		cout << "\n";
-		return 1;
+		ret = 1;
 	}
 
 	delete n1;
 	delete n2;
+
+	return ret;
 }
 

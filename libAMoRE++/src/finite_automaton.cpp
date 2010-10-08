@@ -106,6 +106,38 @@ void finite_automaton::get_transition_maps(map<int, map<int, set<int> > > & prem
 			postmap[state][sigma] = this->successor_states(stateS, sigma);
 		}
 	}
+
+/*
+	map<int, map<int, set<int> > >::const_iterator mmsi;
+	map<int, set<int> >::const_iterator msi;
+	set<int>::const_iterator si;
+
+	printf("premap:\n");
+	for(mmsi = premap.begin(); mmsi != premap.end(); ++mmsi) {
+		printf("%d -> {\n", mmsi->first);
+		for(msi = mmsi->second.begin(); msi != mmsi->second.end(); ++msi) {
+			printf("\t%d -> { ", msi->first);
+			for(si = msi->second.begin(); si != msi->second.end(); ++si) {
+				printf("%d ", *si);
+			}
+			printf(" };\n");
+		}
+		printf("}\n");
+	}
+
+	printf("postmap:\n");
+	for(mmsi = postmap.begin(); mmsi != postmap.end(); ++mmsi) {
+		printf("%d -> {\n", mmsi->first);
+		for(msi = mmsi->second.begin(); msi != mmsi->second.end(); ++msi) {
+			printf("\t%d -> { ", msi->first);
+			for(si = msi->second.begin(); si != msi->second.end(); ++si) {
+				printf("%d ", *si);
+			}
+			printf(" };\n");
+		}
+		printf("}\n");
+	}
+*/
 }}}
 
 set<int> finite_automaton::run(set<int> from, list<int>::const_iterator word, list<int>::const_iterator word_limit) const

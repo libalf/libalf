@@ -14,6 +14,7 @@ CPPFLAGS+=-Wextra
 CPPFLAGS+=-D__cplusplus -DVERSION="\"${VERSION}\""
 # for ubuntu, try disabling stack-smashing due to linker failures:
 CPPFLAGS+=-fno-stack-protector
+#CPPFLAGS+=-DANTICHAIN_DEBUG
 LDFLAGS+=-shared -L${PREFIX}/lib -lAMoRE
 
 SONAME=libalf

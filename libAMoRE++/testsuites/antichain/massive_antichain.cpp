@@ -152,9 +152,9 @@ int main()
 
 	while(1) {
 		// randomize parameters
-		alphabet_size = prng::random_int(4) + 2;
-		state_count = prng::random_int(30) + 20;
-		tr_per_state = prng::random_int(5) + 1;
+		alphabet_size = prng::random_int(2) + 2;
+		state_count = prng::random_int(10) + 5;
+		tr_per_state = prng::random_int(3) + 1;
 		p_initial = prng::random_float();
 		p_final = prng::random_float();
 		cout << "\nnew set with\n";
@@ -212,6 +212,9 @@ int main()
 			delete nfa2;
 			fflush(stdout);
 		}
+		printf("bad count: %d\n", bad_count);
+		if(bad_count > 0)
+			getchar();
 	}
 }
 

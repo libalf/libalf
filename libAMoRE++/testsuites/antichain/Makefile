@@ -5,7 +5,7 @@
 
 PREFIX ?= /usr/local
 
-CPPFLAGS+=-I../../include -I${PREFIX}/include -Wall -ggdb3
+CPPFLAGS+=-I../../include -I${PREFIX}/include -Wall -ggdb3 -DANTICHAIN_DEBUG
 
 LDFLAGS+=-L../../src -L${PREFIX}/lib -lAMoRE++ -lalf
 
