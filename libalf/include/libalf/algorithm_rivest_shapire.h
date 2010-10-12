@@ -25,6 +25,7 @@
 # define __libalf_algorithm_rivest_shapire_h__
 
 #include <libalf/algorithm_angluin.h>
+#include <libalf/logger_terminalcolors.h>
 
 namespace libalf {
 
@@ -83,7 +84,7 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 
 					if(!this->close())
 						return complete();
-//				// OBSOLETE for RV, as the table is always consistent:
+//				// OBSOLETE for RS, as the table is always consistent:
 //					if(!make_consistent())
 //						return complete();
 
@@ -95,7 +96,7 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 		}}}
 		virtual bool analyse_counterexample()
 		{{{
-			// the basic idea behind the RV algorithm is to analyse a counterexample
+			// the basic idea behind the RS algorithm is to analyse a counterexample
 			// to find an optimal suffix that discriminated between two stated that
 			// were merged in the hypothesis. this suffix is than added as a new column.
 			// we do this using a binary search through all possible suffixes, in
@@ -129,7 +130,7 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 			list<int>::const_iterator current_pos, li;
 
 #ifdef DEBUG_RIVEST_SHAPIRE // {{{
-			(*this->my_logger)(LOGGER_DEBUG, "RV: CEX mode, picked index %d from [%d,%d]\n", current_index, cex_front, cex_back);
+			(*this->my_logger)(LOGGER_DEBUG, "RS: CEX mode, picked index %d from [%d,%d]\n", current_index, cex_front, cex_back);
 #endif // }}}
 
 
@@ -144,13 +145,6 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 				typename list<algorithm_angluin::automaton_state<table_t> >::const_iterator mi;
 
 				current_states = latest_cj.initial_states;
-#ifdef DEBUG_RIVEST_SHAPIRE // {{{
-				(*this->my_logger)(LOGGER_DEBUG, "RV:     replacing prefix: .");
-				list<int>::const_iterator li;
-				for(li = counterexample.begin(); li != current_pos; ++li)
-					(*this->my_logger)(LOGGER_DEBUG, "%d.", *li);
-				(*this->my_logger)(LOGGER_DEBUG, "\n");
-#endif // }}}
 				latest_cj.run(current_states, counterexample.begin(), current_pos);
 
 				int current_state = *( current_states.begin() );
@@ -159,9 +153,12 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 						break;
 				new_word = mi->tableentry->index;
 #ifdef DEBUG_RIVEST_SHAPIRE // {{{
-				(*this->my_logger)(LOGGER_DEBUG, "RV:     new prefix is %s\n", word2string(new_word).c_str());
+				(*this->my_logger)(LOGGER_DEBUG, "RS:     replacing prefix  .");
+				list<int>::const_iterator li;
+				for(li = counterexample.begin(); li != current_pos; ++li)
+					(*this->my_logger)(LOGGER_DEBUG, "%d.", *li);
+				(*this->my_logger)(LOGGER_DEBUG, "  with  %s  ", word2string(new_word).c_str());
 #endif // }}}
-
 
 				// add same suffix
 				while(current_pos != counterexample.end()) {
@@ -169,7 +166,7 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 					++current_pos;
 				};
 #ifdef DEBUG_RIVEST_SHAPIRE // {{{
-				(*this->my_logger)(LOGGER_DEBUG, "RV:     new word thus %s\n", word2string(new_word).c_str());
+				(*this->my_logger)(LOGGER_DEBUG, "thus new_word is  %s\n", word2string(new_word).c_str());
 #endif // }}}
 			}}}
 
@@ -178,7 +175,9 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 			if(missing_knowledge)
 				return false;
 #ifdef DEBUG_RIVEST_SHAPIRE // {{{
-			(*this->my_logger)(LOGGER_DEBUG, "RV:     cex: %c, new_word: %c\n", (cex_answer == true) ? '+' : '-', (a == true) ? '+' : '-');
+			(*this->my_logger)(LOGGER_DEBUG, "RS:     cex/new_word: %s%c %c\n",
+					(cex_answer == a) ? COLOR(CFG_BLUE) : COLOR(CFG_RED),
+					(cex_answer == true) ? '+' : '-', (a == true) ? '+' : '-');
 #endif // }}}
 
 			// compare hypothesis and teacher and advance accordingly.
