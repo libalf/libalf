@@ -131,7 +131,7 @@ inline                                  std::basic_string<int32_t> serialize(dou
 
 	significand = std::frexp(a, &exponent);
 
-	sig2 = significand * (2 << 30);
+	sig2 = (int)significand * (2 << 30);
 
 	ret += serialize(exponent);
 	ret += serialize(sig2);
