@@ -111,9 +111,6 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 			if(!cex_answer_set)
 				missing_knowledge = true;
 
-#ifdef DEBUG_RIVEST_SHAPIRE // {{{
-			(*this->my_logger)(LOGGER_DEBUG, "RV:    cex_front %d, cex_back %d\n", cex_front, cex_back);
-#endif // }}}
 			if(cex_back < cex_front) // end is reached -> cex is invalid
 			{{{
 				(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: no discriminating suffix found. you gave an invalid counterexample. aborting counterexample mode.\n");
@@ -178,11 +175,11 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 
 			if(!this->my_knowledge->resolve_or_add_query(new_word, a))
 				return false;
+			if(missing_knowledge)
+				return false;
 #ifdef DEBUG_RIVEST_SHAPIRE // {{{
 			(*this->my_logger)(LOGGER_DEBUG, "RV:     cex: %c, new_word: %c\n", (cex_answer == true) ? '+' : '-', (a == true) ? '+' : '-');
 #endif // }}}
-			if(missing_knowledge)
-				return false;
 
 			// compare hypothesis and teacher and advance accordingly.
 			// i.e. either continue binary search or add new suffix
@@ -200,6 +197,8 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 						return complete();
 				}
 
+				(*this->my_logger)(LOGGER_DEBUG, "rivest_shapire_table: from last counterexample %s, ", word2string(counterexample).c_str());
+
 				if(a != cex_answer)
 					cex_latest_bad = current_index;
 
@@ -209,11 +208,9 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 					cex_latest_bad--;
 				}
 
-#ifdef DEBUG_RIVEST_SHAPIRE // {{{
-				(*this->my_logger)(LOGGER_INFO, "rivest_shapire_table: adding new suffix %s due to last counterexample.\n", word2string(counterexample).c_str());
-#endif // }}}
+				(*this->my_logger)(LOGGER_DEBUG, " suffix %s was picked.\n", word2string(counterexample).c_str());
 				if(!this->add_column(counterexample))
-					(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: invalid counterexample or internal bug! suffix already contained in table.\n");
+					(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: invalid counterexample or internal bug! suffix %s already contained in table.\n", word2string(counterexample).c_str());
 
 				counterexample_mode = false;
 				cex_front = -1;
@@ -253,9 +250,6 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 
 		virtual bool add_counterexample(list<int> word)
 		{{{
-#ifdef DEBUG_RIVEST_SHAPIRE // {{{
-			(*this->my_logger)(LOGGER_DEBUG, "RV: counterexample: %s\n", word2string(word).c_str());
-#endif // }}}
 			list<int>::const_iterator li;
 			if(this->my_knowledge == NULL) {
 				(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: add_counterexample() without knowledgebase!\n");
