@@ -31,9 +31,11 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
-#define ANGLUIN_GENERIC_HYPOTHESIS
 #include <libalf/alf.h>
 #include <libalf/algorithm_angluin.h>
+#if ALGORITHM == 3
+# include <libalf/algorithm_rivest_shapire.h>
+#endif
 
 
 #include "my_answer.h"
@@ -62,43 +64,6 @@ string set2string(const set<int> & s)
 
 	return str.str();
 }}}
-
-string conjecture2string(const moore_machine<my_answer> & cj)
-{{{
-	stringstream str;
-
-	str << "{\n";
-
-	str << "\tvalid: " << (cj.valid ? "true" : "false") << "\n";
-
-	str << "\tdeterministic: " << (cj.is_deterministic ? "true" : "false") << "\n";
-
-	str << "\tinput alphabet size: " << (cj.input_alphabet_size) << "\n";
-
-	str << "\tstate count: " << (cj.state_count) << "\n";
-
-	str << "\tinitial states: " << (set2string(cj.initial_states)) << "\n";
-
-	str << "\tomega: " << (cj.omega ? "true" : "false") << "\n";
-
-	str << "\toutput mapping:\n";
-	map<int, my_answer>::const_iterator oi;
-	for(oi = cj.output_mapping.begin(); oi != cj.output_mapping.end(); ++oi)
-		str << "\t\t" << oi->first << " -> " << oi->second << "\n";
-	str << "\n";
-
-	str << "\ttransitions:\n";
-	map<int, map<int, set<int> > >::const_iterator tri;
-	map<int, set<int> >::const_iterator mi;
-	for(tri = cj.transitions.begin(); tri != cj.transitions.end(); ++tri)
-		for(mi = tri->second.begin(); mi != tri->second.end(); ++mi)
-			str << "\t\t(" << tri->first << ", " << mi->first << ") -> " << set2string(mi->second) << "\n";
-	str << "\n";
-
-	str << "}\n";
-
-	return str.str();
-}}};
 
 // by user-interaction, get a valid integer
 int user_get_int(string msg, bool must_be_positive)
@@ -213,7 +178,19 @@ int main(int argc, char**argv)
 	bool success = false;
 
 
+#if ALGORITHM == 1
 	angluin_simple_table<my_answer> ot(&knowledge, &log, alphabet_size);
+#else
+# if ALGORITHM == 2
+	angluin_col_table<my_answer> ot(&knowledge, &log, alphabet_size);
+# else
+#  if ALGORITHM == 3
+	rivest_shapire_table<my_answer> ot(&knowledge, &log, alphabet_size);
+#  else
+#   error unknown algorithm specified. define ALGORITHM to be of 1, 2 or 3.
+#  endif
+# endif
+#endif
 	conjecture * cj = NULL;
 	moore_machine<my_answer> * mm = NULL;
 
@@ -243,7 +220,7 @@ int main(int argc, char**argv)
 			cerr << "dynamic cast of conjecture failed. aborting.\n";
 			return 1;
 		}}}
-		cout << conjecture2string(*mm);
+		cout << mm->visualize();
 		success = user_get_bool("is this the searched automaton? ");
 		if(!success) {
 			list<int> counterexample;
@@ -254,7 +231,7 @@ int main(int argc, char**argv)
 
 	cout << "\n\nnumber of uniq membership queries: " << membership_queries << "\n";
 	cout << "number of equivalence queries: " << equivalence_queries << "\n";
-	cout << "final automaton:\n" << conjecture2string(*mm) << "\n";
+	cout << "final automaton:\n" << mm->visualize() << "\n";
 
 	delete cj;
 

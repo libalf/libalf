@@ -48,13 +48,13 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 		int cex_front, cex_back, cex_latest_bad;
 
 		bool conjecture_stored;
-		libalf::finite_automaton latest_cj;
+		libalf::moore_machine<answer> latest_cj;
 		list<algorithm_angluin::automaton_state<table_t> > latest_cj_statemapping;
 
 	protected: // methods
 		virtual conjecture * derive_conjecture()
 		{{{
-			finite_automaton * cj;
+			libalf::moore_machine<answer> * cj;
 			cj = this->derive_conjecture_memorize(latest_cj_statemapping);
 			if(cj) {
 				latest_cj = *cj;

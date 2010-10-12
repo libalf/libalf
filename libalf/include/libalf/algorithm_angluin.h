@@ -122,6 +122,8 @@ class angluin_table : public learning_algorithm<answer> {
 
 		bool initialized;
 
+		bool answer_type_is_bool;
+
 	public: // methods
 		angluin_table()
 		{{{
@@ -130,6 +132,14 @@ class angluin_table : public learning_algorithm<answer> {
 			this->set_normalizer(NULL);
 			this->set_alphabet_size(0);
 			initialized = false;
+
+			// check if the answer type is bool. if so, our conjecture should be of type
+			// finite_automaton, otherwise of type moore_machine<answer>.
+			finite_automaton * cj = new finite_automaton;
+			moore_machine<answer> * mm;
+			mm = dynamic_cast<moore_machine<answer> *>(cj);
+			answer_type_is_bool = (mm != NULL);
+			delete cj;
 		}}}
 
 		virtual bool sync_to_knowledgebase()
@@ -237,17 +247,7 @@ class angluin_table : public learning_algorithm<answer> {
 				print_word(os, ti->index);
 				os << ": ";
 				for(acci = ti->acceptance.begin(); acci != ti->acceptance.end(); acci++) {
-#ifdef ANGLUIN_GENERIC_HYPOTHESIS
 					os << *acci << " ";
-#else
-					if(*acci == true)
-						os << "+ ";
-					else
-						if(*acci == false)
-							os << "- ";
-						else
-							os << "? ";
-#endif
 				}
 				os << ";\n";
 			}
@@ -263,17 +263,7 @@ class angluin_table : public learning_algorithm<answer> {
 				print_word(os, ti->index);
 				os << ": ";
 				for(acci = ti->acceptance.begin(); acci != ti->acceptance.end(); acci++) {
-#ifdef ANGLUIN_GENERIC_HYPOTHESIS
 					os << *acci << " ";
-#else
-					if(*acci == true)
-						os << "+ ";
-					else
-						if(*acci == false)
-							os << "- ";
-						else
-							os << "? ";
-#endif
 				}
 				os << ";\n";
 			}
@@ -891,17 +881,14 @@ class angluin_table : public learning_algorithm<answer> {
 		}}}
 
 		// derive an automaton and return it, such that a table<->automaton mapping is stored in states
-#ifdef ANGLUIN_GENERIC_HYPOTHESIS
 		virtual libalf::moore_machine<answer> * derive_conjecture_memorize(list<algorithm_angluin::automaton_state<table> > & states)
-#else
-		virtual libalf::finite_automaton * derive_conjecture_memorize(list<algorithm_angluin::automaton_state<table> > & states)
-#endif
 		{{{
-#ifdef ANGLUIN_GENERIC_HYPOTHESIS
-			libalf::moore_machine<answer> * ret = new libalf::moore_machine<answer>;
-#else
-			libalf::finite_automaton * ret = new finite_automaton;
-#endif
+			libalf::moore_machine<answer> * ret;
+
+			if(answer_type_is_bool)
+				ret = dynamic_cast<libalf::moore_machine<answer>*>(new libalf::finite_automaton);
+			else
+				ret = new libalf::moore_machine<answer>;
 
 			// derive deterministic finite automaton from this table
 			typename table::iterator uti, ti;
@@ -946,11 +933,7 @@ class angluin_table : public learning_algorithm<answer> {
 			for(state_it = states.begin(); state_it != states.end(); state_it++) {
 				// the final, accepting states are the rows with
 				// acceptance in the epsilon-column
-#ifdef ANGLUIN_GENERIC_HYPOTHESIS
 				ret->output_mapping[state_it->id] = state_it->tableentry->acceptance.front();
-#else
-				ret->output_mapping[state_it->id] = (state_it->tableentry->acceptance.front() == true);
-#endif
 
 				// the transformation function is:
 				// \delta: (row, char) -> row : (row(s), a) -> row(sa)

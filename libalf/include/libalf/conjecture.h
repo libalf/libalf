@@ -32,6 +32,7 @@
 #include <stdio.h>
 
 #include <libalf/serialize.h>
+#include <libalf/set.h>
 
 namespace libalf {
 
@@ -326,7 +327,42 @@ failed:
 		virtual bool read(__attribute__ ((__unused__)) string input)
 		{ /* depends on output_alphabet, has to be done by you! */ return false; }
 		virtual string visualize() const
-		{ /* depends on output_alphabet, has to be done by you! */ return "";}
+		{{{
+			/* NOTE: depends on output_alphabet, but we expect to be operator<< to be defined for it. */
+			stringstream str;
+
+			str << "{\n";
+
+			str << "\tvalid: " << (this->valid ? "true" : "false") << "\n";
+
+			str << "\tdeterministic: " << (this->is_deterministic ? "true" : "false") << "\n";
+
+			str << "\tinput alphabet size: " << (this->input_alphabet_size) << "\n";
+
+			str << "\tstate count: " << (this->state_count) << "\n";
+
+			str << "\tinitial states: " << (set2string(this->initial_states)) << "\n";
+
+			str << "\tomega: " << (this->omega ? "true" : "false") << "\n";
+
+			str << "\toutput mapping:\n";
+			typename map<int, output_alphabet>::const_iterator oi;
+			for(oi = this->output_mapping.begin(); oi != this->output_mapping.end(); ++oi)
+				str << "\t\t" << oi->first << " -> " << oi->second << "\n";
+			str << "\n";
+
+			str << "\ttransitions:\n";
+			typename map<int, map<int, set<int> > >::const_iterator tri;
+			typename map<int, set<int> >::const_iterator mi;
+			for(tri = this->transitions.begin(); tri != this->transitions.end(); ++tri)
+				for(mi = tri->second.begin(); mi != tri->second.end(); ++mi)
+					str << "\t\t(" << tri->first << ", " << mi->first << ") -> " << set2string(mi->second) << "\n";
+			str << "\n";
+
+			str << "}\n";
+
+			return str.str();
+		}}}
 };
 
 
