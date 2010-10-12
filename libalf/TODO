@@ -13,8 +13,6 @@ TODO (priority ordered)
 
 - finish mVCA angluin-like
 
-- angluin: mealy-machine
-
 - create debian packages
 
 - RPNI: check for correctness
@@ -47,5 +45,7 @@ TODO (priority ordered)
 - BL*: implement
 
 - L*,L*col,NL*: use knowledgebase pointers instead of list<int> words.
+
+- learning of mealy-machine? (some L* variant?)
 
 
