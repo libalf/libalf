@@ -18,6 +18,7 @@
  *
  * (c) 2008,2009,2010 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
  *                and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
+ *                and David R. Piegdon
  * Author: David R. Piegdon <david-i2@piegdon.de>
  *
  */
@@ -46,6 +47,29 @@
 #include <libalf/learning_algorithm.h>
 
 namespace libalf {
+
+
+/* NOTE
+ *
+ * For Angluins L* algorithm for learning regular languages, there exist a lot of extensions.
+ * libalf provides the following algorithms based on L*:
+ *
+ *	- classical L* (table based)
+ *		in this file, class angluin_simple_table
+ *	- L* putting counterexamples to the columns
+ *		in this file, class angluin_col_table
+ *	- classical L* extended to arbitrary output alphabets (not just accept/reject)
+ *		in this file using angluin_simple_table
+ *		but define ANGLUIN_GENERIC_HYPOTHESIS before including any libalf header
+ *		(the same *MAY* work for angluin_col_table)
+ *	- Rivest&Shapire extension that analyses the counterexample to find a optimal split
+ *		in algorithm_rivest_shapire.h, class rivest_shapire_table
+ *	- L*-like learning of visible m-bounded 1-counter automata
+ *		in algorithm_mVCA_angluinlike.h, class mVCA_angluinlike
+ */
+
+
+
 
 using namespace std;
 
@@ -213,6 +237,9 @@ class angluin_table : public learning_algorithm<answer> {
 				print_word(os, ti->index);
 				os << ": ";
 				for(acci = ti->acceptance.begin(); acci != ti->acceptance.end(); acci++) {
+#ifdef ANGLUIN_GENERIC_HYPOTHESIS
+					os << *acci << " ";
+#else
 					if(*acci == true)
 						os << "+ ";
 					else
@@ -220,6 +247,7 @@ class angluin_table : public learning_algorithm<answer> {
 							os << "- ";
 						else
 							os << "? ";
+#endif
 				}
 				os << ";\n";
 			}
@@ -235,6 +263,9 @@ class angluin_table : public learning_algorithm<answer> {
 				print_word(os, ti->index);
 				os << ": ";
 				for(acci = ti->acceptance.begin(); acci != ti->acceptance.end(); acci++) {
+#ifdef ANGLUIN_GENERIC_HYPOTHESIS
+					os << *acci << " ";
+#else
 					if(*acci == true)
 						os << "+ ";
 					else
@@ -242,6 +273,7 @@ class angluin_table : public learning_algorithm<answer> {
 							os << "- ";
 						else
 							os << "? ";
+#endif
 				}
 				os << ";\n";
 			}
@@ -859,9 +891,17 @@ class angluin_table : public learning_algorithm<answer> {
 		}}}
 
 		// derive an automaton and return it, such that a table<->automaton mapping is stored in states
+#ifdef ANGLUIN_GENERIC_HYPOTHESIS
+		virtual libalf::moore_machine<answer> * derive_conjecture_memorize(list<algorithm_angluin::automaton_state<table> > & states)
+#else
 		virtual libalf::finite_automaton * derive_conjecture_memorize(list<algorithm_angluin::automaton_state<table> > & states)
+#endif
 		{{{
+#ifdef ANGLUIN_GENERIC_HYPOTHESIS
+			libalf::moore_machine<answer> * ret = new libalf::moore_machine<answer>;
+#else
 			libalf::finite_automaton * ret = new finite_automaton;
+#endif
 
 			// derive deterministic finite automaton from this table
 			typename table::iterator uti, ti;
@@ -906,7 +946,11 @@ class angluin_table : public learning_algorithm<answer> {
 			for(state_it = states.begin(); state_it != states.end(); state_it++) {
 				// the final, accepting states are the rows with
 				// acceptance in the epsilon-column
+#ifdef ANGLUIN_GENERIC_HYPOTHESIS
+				ret->output_mapping[state_it->id] = state_it->tableentry->acceptance.front();
+#else
 				ret->output_mapping[state_it->id] = (state_it->tableentry->acceptance.front() == true);
+#endif
 
 				// the transformation function is:
 				// \delta: (row, char) -> row : (row(s), a) -> row(sa)
