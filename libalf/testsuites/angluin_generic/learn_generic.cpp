@@ -112,9 +112,11 @@ int user_get_int(string msg, bool must_be_positive)
 	while(!ok) {
 		line = readline(msg.c_str());
 
-		ret = strtoll(line, &end, 10);
-		if(*end == '\0')
-			ok = !must_be_positive || (ret >= 0);
+		if(strlen(line) > 0) {
+			ret = strtoll(line, &end, 10);
+			if(*end == '\0')
+				ok = !must_be_positive || (ret >= 0);
+		}
 
 		free(line);
 	};
@@ -129,6 +131,12 @@ char user_get_char(string msg, char lower_limit, char upper_limit)
 	bool ok = false;
 
 	char ret;
+
+	msg += "[";
+	msg += lower_limit;
+	msg += "..";
+	msg += upper_limit;
+	msg += "] ";
 
 	while(!ok) {
 		line = readline(msg.c_str());
@@ -152,6 +160,8 @@ bool user_get_bool(string msg)
 
 	bool ret;
 	char c;
+
+	msg += "[Y/T/+ or N/F/-] ";
 
 	while(!ok) {
 		line = readline(msg.c_str());
@@ -180,10 +190,12 @@ list<int> user_get_word(string msg)
 	int i;
 	list<int> ret;
 
-	cout << msg << "\nplease give one int per line, using anything >= " << my_answer::get_alphabet_size() << " as end-of-word marker.\n";
+	cout << msg << "\none int per line, anything >= " << my_answer::get_alphabet_size() << " as end-of-word marker.\n";
 
-	while( (i = user_get_int("next letter ", true)) <= my_answer::get_alphabet_size())
+	while( (i = user_get_int("next letter ", true)) <= my_answer::get_alphabet_size()) {
 		ret.push_back(i);
+		cout << "prefix: " << word2string(ret) << "\n";
+	}
 
 	return ret;
 }}};
