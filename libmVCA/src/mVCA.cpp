@@ -87,6 +87,8 @@ mVCA::mVCA()
 	initial_state = -1;
 	m_bound = -2;
 }}}
+mVCA::~mVCA()
+{ };
 void mVCA::set_alphabet(pushdown_alphabet & alphabet)
 {{{
 	this->alphabet = alphabet;

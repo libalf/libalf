@@ -39,6 +39,8 @@ namespace libmVCA {
 
 using namespace std;
 
+deterministic_mVCA::~deterministic_mVCA()
+{ };
 
 set<int> deterministic_mVCA::transition(const set<int> & from, int & m, int label) const
 {{{

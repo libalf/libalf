@@ -40,6 +40,9 @@ namespace libmVCA {
 using namespace std;
 
 
+nondeterministic_mVCA::~nondeterministic_mVCA()
+{ };
+
 set<int> nondeterministic_mVCA::transition(const set<int> & from, int & m, int label) const
 {{{
 	enum pushdown_direction dir;

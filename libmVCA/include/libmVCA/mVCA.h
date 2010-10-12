@@ -94,6 +94,7 @@ class mVCA {
 
 	public: // methods
 		mVCA();
+		virtual ~mVCA();
 
 		// ALPHABET
 		// set alphabet (will be copied, will erase all other information about former automaton)

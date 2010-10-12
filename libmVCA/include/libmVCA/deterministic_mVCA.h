@@ -51,6 +51,7 @@ class deterministic_mVCA : public mVCA {
 		friend mVCA * construct_mVCA(unsigned int state_count, const pushdown_alphabet & alphabet, int initial_state, const set<int> & final_states, int m_bound, const map<int, map<int, map<int, set<int> > > > & transitions);
 
 	public: // methods
+		virtual ~deterministic_mVCA();
 		virtual set<int> transition(const set<int> & from, int & m, int label) const;
 		virtual bool endo_transition(set<int> & states, int & m, int label) const;
 
