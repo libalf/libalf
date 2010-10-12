@@ -52,23 +52,25 @@ namespace libalf {
 
 /* NOTE
  *
- * For Angluins L* algorithm for learning regular languages, there exist a lot of extensions.
- * libalf provides the following algorithms based on L*:
+ * For Dana Angluins L* algorithm for learning regular languages, there exist
+ * a lot of extensions. libalf provides the following algorithms based on L*:
  *
  *	- classical L* (table based)
  *		in this file, class angluin_simple_table
- *	- L* putting counterexamples to the columns
+ *	- L* putting counterexamples into the columns
  *		in this file, class angluin_col_table
- *	- classical L* extended to arbitrary output alphabets (not just accept/reject)
- *		in this file using angluin_simple_table
- *		but define ANGLUIN_GENERIC_HYPOTHESIS before including any libalf header
- *		(the same *MAY* work for angluin_col_table)
- *	- Rivest&Shapire extension that analyses the counterexample to find a optimal split
+ *	- Rivest&Shapire extension that analyses the counterexample to find an optimal split
  *		in algorithm_rivest_shapire.h, class rivest_shapire_table
+ *
+ *	all the above do not just support learning of finite_automata, but of abstract
+ *	moore_machine<answer> types. if you choose bool, the conjectures will be of type
+ *	finite_automaton (which are derived from moore_machine<bool> and carry some
+ *	extra methods), otherwise the conjectures will be of type moore_machine<answer>.
+ *
  *	- L*-like learning of visible m-bounded 1-counter automata
- *		in algorithm_mVCA_angluinlike.h, class mVCA_angluinlike
+ *		in algorithm_mVCA_angluinlike.h, class mVCA_angluinlike;
+ *		this for now only supports learning of simple mVCAs.
  */
-
 
 
 
