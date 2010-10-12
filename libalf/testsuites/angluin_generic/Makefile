@@ -24,14 +24,14 @@ jpegs:
 learn_generic: learn_generic_L learn_generic_Lcol learn_generic_RV
 	
 learn_generic_L: CPPFLAGS += -DALGORITHM=1
-learn_generic_L: learn_generic.cpp my_answer.h
+learn_generic_L: learn_generic.cpp
 	g++ ${CPPFLAGS} ${LDFLAGS} learn_generic.cpp -o learn_generic_L
 
 learn_generic_Lcol: CPPFLAGS += -DALGORITHM=2
-learn_generic_Lcol: learn_generic.cpp my_answer.h
+learn_generic_Lcol: learn_generic.cpp
 	g++ ${CPPFLAGS} ${LDFLAGS} learn_generic.cpp -o learn_generic_Lcol
 
 learn_generic_RV: CPPFLAGS += -DALGORITHM=3
-learn_generic_RV: learn_generic.cpp my_answer.h
+learn_generic_RV: learn_generic.cpp
 	g++ ${CPPFLAGS} ${LDFLAGS} learn_generic.cpp -o learn_generic_RV
 

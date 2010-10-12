@@ -37,12 +37,21 @@
 # include <libalf/algorithm_rivest_shapire.h>
 #endif
 
-
-#include "my_answer.h"
-
+#include <libalf/answer.h>
 
 using namespace std;
 using namespace libalf;
+
+
+
+// define output_alphabet (answer) to be used
+class my_size : public fixed_count_answer__size_definition {
+	public:
+		virtual int get_size() { return 3; };
+};
+typedef fixed_count_answer<my_size> my_answer;
+
+
 
 
 string set2string(const set<int> & s)
@@ -149,15 +158,15 @@ bool user_get_bool(string msg)
 	return ret;
 }}};
 
-list<int> user_get_word(string msg)
+list<int> user_get_word(string msg, int alphabet_size)
 {{{
 	stringstream str (stringstream::in | stringstream::out);
 	int i;
 	list<int> ret;
 
-	cout << msg << "\none int per line, anything >= " << my_answer::get_alphabet_size() << " as end-of-word marker.\n";
+	cout << msg << "\none int per line, anything >= " << alphabet_size << " as end-of-word marker.\n";
 
-	while( (i = user_get_int("next letter ", true)) <= my_answer::get_alphabet_size()) {
+	while( (i = user_get_int("next letter ", true)) <= alphabet_size) {
 		ret.push_back(i);
 		cout << "prefix: " << word2string(ret) << "\n";
 	}
@@ -224,7 +233,7 @@ int main(int argc, char**argv)
 		success = user_get_bool("is this the searched automaton? ");
 		if(!success) {
 			list<int> counterexample;
-			counterexample = user_get_word("please give counterexample. ");
+			counterexample = user_get_word("please give counterexample. ", alphabet_size);
 			ot.add_counterexample(counterexample);
 		}
 	};
