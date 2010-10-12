@@ -166,7 +166,7 @@ list<int> user_get_word(string msg, int alphabet_size)
 
 	cout << msg << "\none int per line, anything >= " << alphabet_size << " as end-of-word marker.\n";
 
-	while( (i = user_get_int("next letter ", true)) <= alphabet_size) {
+	while( (i = user_get_int("next letter ", true)) < alphabet_size) {
 		ret.push_back(i);
 		cout << "prefix: " << word2string(ret) << "\n";
 	}

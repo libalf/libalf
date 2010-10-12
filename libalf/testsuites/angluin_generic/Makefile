@@ -32,6 +32,7 @@ learn_generic_Lcol: learn_generic.cpp
 	g++ ${CPPFLAGS} ${LDFLAGS} learn_generic.cpp -o learn_generic_Lcol
 
 learn_generic_RV: CPPFLAGS += -DALGORITHM=3
+learn_generic_RV: CPPFLAGS += -DDEBUG_RIVEST_SHAPIRE
 learn_generic_RV: learn_generic.cpp
 	g++ ${CPPFLAGS} ${LDFLAGS} learn_generic.cpp -o learn_generic_RV
 

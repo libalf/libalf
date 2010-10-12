@@ -107,22 +107,26 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 			answer a;
 			bool missing_knowledge = false;
 
-			if(!cex_answer_set)
+			if(!cex_answer_set) {
 				cex_answer_set = this->my_knowledge->resolve_or_add_query(counterexample, cex_answer);
-			if(!cex_answer_set)
-				missing_knowledge = true;
-
-			if(cex_back < cex_front) // end is reached -> cex is invalid
-			{{{
-				(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: no discriminating suffix found. you gave an invalid counterexample. aborting counterexample mode.\n");
-				counterexample_mode = false;
-				cex_front = -1;
-				cex_back = -1;
-				cex_latest_bad = -1;
-				cex_answer_set = false;
-
-				return false;
-			}}}
+				if(!cex_answer_set) {
+					missing_knowledge = true;
+				} else {
+					// check if cex really differs to hypothesis' answer
+					set<int> current_states = latest_cj.initial_states;
+					latest_cj.run(current_states, counterexample.begin(), counterexample.end());
+					int current_state = *( current_states.begin() );
+					if(latest_cj.output_mapping[current_state] == cex_answer) {
+						(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: my recent conjecture classifies your counterexample %s correctly. most likely you gave an invalid counterexample. aborting counterexample mode.\n", word2string(counterexample).c_str());
+						counterexample_mode = false;
+						cex_front = -1;
+						cex_back = -1;
+						cex_latest_bad = -1;
+						cex_answer_set = false;
+						return false;
+					}
+				}
+			}
 
 			// binary search for the state that needs to be split
 			int current_index = (cex_front + cex_back) / 2;
@@ -175,9 +179,11 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 			if(missing_knowledge)
 				return false;
 #ifdef DEBUG_RIVEST_SHAPIRE // {{{
-			(*this->my_logger)(LOGGER_DEBUG, "RS:     cex/new_word: %s%c %c\n",
-					(cex_answer == a) ? COLOR(CFG_BLUE) : COLOR(CFG_RED),
-					(cex_answer == true) ? '+' : '-', (a == true) ? '+' : '-');
+			stringstream str;
+			str << "RS:     cex/new_word: ";
+			str << ( (cex_answer == a) ? COLOR(CFG_BLUE) : COLOR(CFG_RED) );
+			str << cex_answer << " " << a << "\n";
+			(*this->my_logger)(LOGGER_DEBUG, "%s", str.str().c_str());
 #endif // }}}
 
 			// compare hypothesis and teacher and advance accordingly.
