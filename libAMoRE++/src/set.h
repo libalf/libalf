@@ -18,6 +18,7 @@
  *
  * (c) 2008,2009,2010 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
  *           and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
+ * (c) 2010 David R. Piegdon
  * Author: David R. Piegdon <david-i2@piegdon.de>
  *
  */
@@ -27,6 +28,7 @@
 
 # include <set>
 # include <ostream>
+# include <sstream>
 
 // the set_*-functions are very generic and may be used with any kind of set
 
@@ -111,18 +113,30 @@ template <class T>	std::set<T> set_without(const std::set<T> &s, const std::set<
 
 template <class T>	void print_set(std::ostream &con, const std::set<T> &s)
 {{{
-	typename std::set<T>::const_iterator si;
+	std::set<int>::const_iterator si;
 
-	con << "{ ";
-	si = s.begin();
-	while(si != s.end()) {
-		con << *si;
-		si++;
-		if(si != s.end())
-			con << ", ";
-	}
-	con << " }";
-}}}
+        con << "{ ";
+        si = s.begin();
+        if(si != s.end()) {
+                con <<  *si;
+                ++si;
+                while(si != s.end()) {
+                        con << ", " << *si;
+                        ++si;
+                };
+        }
+        con << " }";
+}}};
+
+template <class T>	std::string set2string(const std::set<T> &s)
+{{{
+	std::stringstream str;
+	std::set<int>::const_iterator si;
+
+	print_set(str, s);
+
+	return str.str();
+}}};
 
 #endif // __helper_set_h__
 
