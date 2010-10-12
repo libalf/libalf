@@ -35,6 +35,9 @@
 
 namespace libalf {
 
+#define MIN(x,y) ( (x) <= (y) ? (x) : (y) )
+#define MAX(x,y) ( (x) >= (y) ? (x) : (y) )
+
 /*
  * in general, a possible <answer> should implement the following:
  *
@@ -220,15 +223,7 @@ class fixed_count_answer {
                 { size_definition sizedef; return sizedef.get_size(); }
 
                 inline void set(char c)
-                {{{
-                        if(c < 'a')
-                                value = 'a';
-                        else
-                                if(c >= 'a' + sizedef.get_size())
-                                        value = 'a' + sizedef.get_size() - 1;
-                                else
-                                        value = c;
-                }}}
+                { value = MAX( 'a' , MIN(c, ('a' + sizedef.get_size() - 1)) ); }
 
                 inline char get() const
                 { return value; }
@@ -270,7 +265,6 @@ template<typename size_definition>
 inline std::ostream & operator<<(std::ostream& os, fixed_count_answer<size_definition> a)
 {{{
         os << a.get();
-
         return os;
 }}};
 
