@@ -38,9 +38,6 @@
 
 #include "amore_alf_glue.h"
 
-//#define ANSWERTYPE extended_bool
-#define ANSWERTYPE bool
-
 using namespace std;
 using namespace libalf;
 
@@ -53,7 +50,7 @@ int main(int argc, char**argv)
 	amore::finite_automaton *dfa;
 	ostream_logger log(&cout, LOGGER_DEBUG);
 
-	knowledgebase<ANSWERTYPE> knowledge;
+	knowledgebase<bool> knowledge;
 
 	char filename[128];
 	ofstream file;
@@ -100,7 +97,7 @@ int main(int argc, char**argv)
 
 
 	// create algorithm and teach it the automaton
-	rivest_shapire_table<ANSWERTYPE> ot(&knowledge, &log, alphabet_size);
+	rivest_shapire_table<bool> ot(&knowledge, &log, alphabet_size);
 	amore::finite_automaton * hypothesis = NULL;
 
 	for(iteration = 1; iteration <= 100; iteration++) {

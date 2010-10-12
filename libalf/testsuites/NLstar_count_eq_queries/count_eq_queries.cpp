@@ -39,9 +39,6 @@
 
 #include "amore_alf_glue.h"
 
-//#define ANSWERTYPE extended_bool
-#define ANSWERTYPE bool
-
 using namespace std;
 using namespace libalf;
 using namespace liblangen;
@@ -51,13 +48,13 @@ ostream_logger my_logger(&cout, LOGGER_DEBUG);
 int learn_via_NLstar(int asize, amore::finite_automaton * model)
 {{{
 	statistics stats;
-	knowledgebase<ANSWERTYPE> knowledge;
+	knowledgebase<bool> knowledge;
 
 	int iteration;
 	bool success = false;
 
 	// create NLstar table and teach it the automaton
-	NLstar_table<ANSWERTYPE> ot(&knowledge, &my_logger, asize);
+	NLstar_table<bool> ot(&knowledge, &my_logger, asize);
 
 	for(iteration = 1; iteration <= 100; iteration++) {
 		conjecture *cj;

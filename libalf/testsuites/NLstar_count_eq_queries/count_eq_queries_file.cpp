@@ -36,9 +36,6 @@
 
 #include "amore_alf_glue.h"
 
-//#define ANSWERTYPE extended_bool
-#define ANSWERTYPE bool
-
 using namespace std;
 using namespace libalf;
 
@@ -49,7 +46,7 @@ int main(int argc, char**argv)
 	amore::finite_automaton *nfa;
 	ostream_logger log(&cout, LOGGER_DEBUG);
 
-	knowledgebase<ANSWERTYPE> knowledge;
+	knowledgebase<bool> knowledge;
 
 //	char filename[128];
 //	ofstream file;
@@ -96,7 +93,7 @@ int main(int argc, char**argv)
 
 
 	// create NLstar table and teach it the automaton
-	NLstar_table<ANSWERTYPE> ot(&knowledge, &log, alphabet_size);
+	NLstar_table<bool> ot(&knowledge, &log, alphabet_size);
 
 	for(iteration = 1; iteration <= 100; iteration++) {
 		int c = 'a';

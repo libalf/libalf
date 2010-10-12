@@ -40,9 +40,6 @@
 
 #include "amore_alf_glue.h"
 
-//#define ANSWERTYPE extended_bool
-#define ANSWERTYPE bool
-
 using namespace std;
 using namespace libalf;
 
@@ -62,7 +59,7 @@ int main(int argc, char**argv)
 	amore::finite_automaton *dfa;
 	ostream_logger log(&cout, LOGGER_DEBUG);
 
-	knowledgebase<ANSWERTYPE> knowledge;
+	knowledgebase<bool> knowledge;
 
 	char filename[128];
 	ofstream file;
@@ -108,7 +105,7 @@ int main(int argc, char**argv)
 	delete nfa;
 
 	// create angluin_simple_table and teach it the automaton
-	angluin_simple_table<ANSWERTYPE> ot(&knowledge, &log, alphabet_size);
+	angluin_simple_table<bool> ot(&knowledge, &log, alphabet_size);
 	amore::finite_automaton * hypothesis = NULL;
 
 #ifdef USE_NORMALIZER

@@ -35,9 +35,6 @@
 
 #include "amore_alf_glue.h"
 
-//#define ANSWERTYPE extended_bool
-#define ANSWERTYPE bool
-
 using namespace std;
 using namespace libalf;
 
@@ -49,7 +46,7 @@ int main(int argc, char**argv)
 	amore::finite_automaton *dfa;
 	ostream_logger log(&cout, LOGGER_DEBUG);
 
-	knowledgebase<ANSWERTYPE> knowledge;
+	knowledgebase<bool> knowledge;
 
 	char filename[128];
 	ofstream file;
@@ -103,7 +100,7 @@ int main(int argc, char**argv)
 
 
 	// create RV and teach it the automaton
-	rivest_shapire_table<ANSWERTYPE> ot(&knowledge, &log, alphabet_size);
+	rivest_shapire_table<bool> ot(&knowledge, &log, alphabet_size);
 	amore::finite_automaton * hypothesis = NULL;
 
 	for(iteration = 1; iteration <= 100; iteration++) {
@@ -117,7 +114,7 @@ int main(int argc, char**argv)
 			file.open(filename); file << knowledge.visualize(); file.close();
 
 			// create query-tree
-			knowledgebase<ANSWERTYPE> * query;
+			knowledgebase<bool> * query;
 			query = knowledge.create_query_tree();
 
 			snprintf(filename, 128, "knowledgebase%02d%c-q.dot", iteration, c);
