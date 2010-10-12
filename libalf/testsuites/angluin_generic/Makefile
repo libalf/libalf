@@ -13,7 +13,7 @@ LDFLAGS+=-L../../src -L${PREFIX}/lib -lalf -lAMoRE++ -lreadline
 all: learn_generic
 
 clean: nodata
-	-rm -f *.o learn_generic
+	-rm -f *.o learn_generic_L learn_generic_Lcol learn_generic_RV
 
 nodata:
 	-rm -f *.dot *.jpg *.angluin *.ser

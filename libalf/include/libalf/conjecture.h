@@ -28,6 +28,7 @@
 #include <string>
 #include <set>
 #include <map>
+#include <typeinfo>
 
 #include <stdio.h>
 
@@ -331,7 +332,7 @@ failed:
 			/* NOTE: depends on output_alphabet, but we expect to be operator<< to be defined for it. */
 			stringstream str;
 
-			str << "{\n";
+			str << "moore_machine<" << typeid(output_alphabet).name() << "> {\n";
 
 			str << "\tvalid: " << (this->valid ? "true" : "false") << "\n";
 

@@ -33,6 +33,7 @@
 #include <functional>
 #include <ostream>
 #include <sstream>
+#include <typeinfo>
 
 #include <stdio.h>
 
@@ -122,8 +123,6 @@ class angluin_table : public learning_algorithm<answer> {
 
 		bool initialized;
 
-		bool answer_type_is_bool;
-
 	public: // methods
 		angluin_table()
 		{{{
@@ -132,14 +131,6 @@ class angluin_table : public learning_algorithm<answer> {
 			this->set_normalizer(NULL);
 			this->set_alphabet_size(0);
 			initialized = false;
-
-			// check if the answer type is bool. if so, our conjecture should be of type
-			// finite_automaton, otherwise of type moore_machine<answer>.
-			finite_automaton * cj = new finite_automaton;
-			moore_machine<answer> * mm;
-			mm = dynamic_cast<moore_machine<answer> *>(cj);
-			answer_type_is_bool = (mm != NULL);
-			delete cj;
 		}}}
 
 		virtual bool sync_to_knowledgebase()
@@ -885,7 +876,7 @@ class angluin_table : public learning_algorithm<answer> {
 		{{{
 			libalf::moore_machine<answer> * ret;
 
-			if(answer_type_is_bool)
+			if(typeid(answer) == typeid(bool))
 				ret = dynamic_cast<libalf::moore_machine<answer>*>(new libalf::finite_automaton);
 			else
 				ret = new libalf::moore_machine<answer>;
