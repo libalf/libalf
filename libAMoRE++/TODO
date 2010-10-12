@@ -5,11 +5,11 @@ NOTES
 TODO
 ====
 
-- VERIFY: Antichains for checking language inclusion and equivalence
+
+- Antichains: implement faster variant using data-structures as in nfa_antichains from stefffan.
+  then check for correctness.
 
 - removal of epsilon-transitions in NFA
 
-- check network/deserialization code for bugs
-
-- _init and _fini are not working (linker stuff...)
+- check that _init and _fini are working (linker stuff...)
 

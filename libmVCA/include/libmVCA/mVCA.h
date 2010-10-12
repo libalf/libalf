@@ -150,7 +150,7 @@ class mVCA {
 		bool lang_disjoint_to(const mVCA & other, list<int> & counterexample) const; // both have to be deterministic
 
 		mVCA * lang_intersect(const mVCA & other) const; // both have to be deterministic
-//		mVCA * lang_union(mVCA & other); // FIXME: both may be nondeterministic. can be done efficiently.
+//		mVCA * lang_union(mVCA & other); // TODO: both may be nondeterministic. can be done efficiently.
 						// just take care of transitions from/to initial state and merge both initial states.
 
 		//bool lang_complement();

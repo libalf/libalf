@@ -161,7 +161,7 @@ bool nondeterministic_transition_function::deserialize(::serial_stretch serial)
 	return ::deserialize(transitions, serial);
 }}}
 bool nondeterministic_transition_function::is_deterministic() const
-{ return false; }; // FIXME: check on the fly
+{ return false; }; // TODO: check on the fly
 string nondeterministic_transition_function::get_transition_dotfile(int m, int m_bound) const
 {{{
 	string ret;

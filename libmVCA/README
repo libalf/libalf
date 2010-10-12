@@ -5,8 +5,9 @@ libmVCA - m-bounded Visibly 1-Counter Automata
 
 http://libalf.informatik.rwth-aachen.de/
 
-(c) 2008,2009,2010 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
-               and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
+(c) 2009, 2010 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
+           and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
+           and David R. Piegdon
 
 
 implementation of m-bounded visibly 1-counter automata, as described e.g. in
