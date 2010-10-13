@@ -1,0 +1,45 @@
+
+CHANGELOG
+
+for libalf, libAMoRE (local branch for libAMoRE++), libAMoRE++,
+liblangen, libmVCA and finite-automata-tools.
+
+
+
+v0.3   (FIXME SET DATE)
+----------------------------
+svn-revision ** FIXME **
+
+- A lot of cleanup and bugfixes
+- libalf: refactor of conjecture type
+- libalf: New (generic) statistic type
+- libalf: New algorithm Rivest&Shapire (Angluin L* variant)
+- libalf: Extended algorithms to support learning of mealy-machines, not just
+          finite automata: angluin_simple_table, angluin_col_table,
+	  rivest_shapire_table, ** TODO: biermann_original **
+- libalf: Critical bug in Kearns&Vazirani algorithm fixed
+- libalf: introduced an example answer-type for learning mealy-machines
+          in answer.h: class fixed_count_answer.
+	  however, in this simple case, one could also use int or char, i guess.
+- libAMoRE++: Bug fixed that made antichains fail for deterministic automata
+
+
+
+v0.2   (2010-04-18 21:11:33)
+----------------------------
+OLD-SVN-revision 1310
+
+not noted.
+
+v0.1a  (2010-02-04 16:06:08)
+----------------------------
+OLD-SVN-revision 1139
+
+not noted.
+
+v0.1   (2009-10-13 11:03:25)
+----------------------------
+OLD-SVN-revision 1005
+
+initial release
+
