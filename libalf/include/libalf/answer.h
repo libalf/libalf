@@ -35,8 +35,12 @@
 
 namespace libalf {
 
-#define MIN(x,y) ( (x) <= (y) ? (x) : (y) )
-#define MAX(x,y) ( (x) >= (y) ? (x) : (y) )
+#ifndef MIN
+# define MIN(x,y) ( (x) <= (y) ? (x) : (y) )
+#endif
+#ifndef MAX
+# define MAX(x,y) ( (x) >= (y) ? (x) : (y) )
+#endif
 
 /*
  * in general, a possible <answer> should implement the following:

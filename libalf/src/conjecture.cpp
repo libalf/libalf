@@ -456,7 +456,7 @@ string finite_automaton::visualize() const
 		bool header_written;
 
 		// head
-		ret = "digraph simple_moore_machine {\n"
+		ret = "digraph finite_automaton {\n"
 			"\tgraph[fontsize=8]\n"
 			"\trankdir=LR;\n"
 			"\tsize=8;\n\n";

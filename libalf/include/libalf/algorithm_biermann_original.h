@@ -35,7 +35,9 @@
 #include <libalf/knowledgebase.h>
 #include <libalf/learning_algorithm.h>
 
-#define MAX(a,b) ((a)>(b)?(a):(b))
+#ifndef MAX
+# define MAX(a,b) ((a)>(b)?(a):(b))
+#endif
 
 namespace libalf {
 
