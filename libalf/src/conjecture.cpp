@@ -467,6 +467,7 @@ string finite_automaton::visualize() const
 		int final_state_count = 0;
 		map<int, bool>::const_iterator oi;
 
+		// final states
 		for(oi = output_mapping.begin(); oi != output_mapping.end(); ++oi) {
 			if(oi->second) {
 				++final_state_count;
@@ -481,7 +482,7 @@ string finite_automaton::visualize() const
 		if(header_written)
 			ret += ";\n";
 
-		// default
+		// normal states
 		if(final_state_count < state_count) {
 			ret += "\tnode [shape=circle, style=\"\", color=black];";
 			for(oi = output_mapping.begin(); oi != output_mapping.end(); ++oi) {
@@ -493,7 +494,7 @@ string finite_automaton::visualize() const
 			ret += ";\n";
 		}
 
-		// add non-visible states for arrows to initial states
+		// non-visible states for arrows to initial states
 		header_written = false;
 		for(sti = this->initial_states.begin(); sti != this->initial_states.end(); ++sti) {
 			if(!header_written) {
