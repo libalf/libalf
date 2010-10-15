@@ -520,7 +520,7 @@ string finite_automaton::visualize() const
 		for(mmsi = this->transitions.begin(); mmsi != this->transitions.end(); ++mmsi) {
 			for(msi = mmsi->second.begin(); msi != mmsi->second.end(); ++msi) {
 				for(si = msi->second.begin(); si != msi->second.end(); ++si) {
-					snprintf(buf, 256, "\tq%d -> q%d [ label = \"%d\" ];\n", mmsi->first, msi->first, *si);
+					snprintf(buf, 256, "\tq%d -> q%d [ label = \"%d\" ];\n", mmsi->first, *si, msi->first);
 					ret += buf;
 				}
 			}
