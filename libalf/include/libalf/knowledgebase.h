@@ -1114,7 +1114,7 @@ class knowledgebase {
 				print_word(os, w);
 				os << " marked " << ( (ki->is_answered()) ? "!" : ( (ki->is_required()) ? "?" : "%" ) );
 				if(ki->is_answered())
-					os << " answered " << ( (ki->get_answer() == true) ? "+" : ( (ki->get_answer() == false) ? "-" : "?" ) );
+					os << " answered " << ki->get_answer();
 				os << "\n";
 			}
 
@@ -1500,6 +1500,19 @@ class knowledgebase {
 		{{{
 			return root->find_or_create_descendant(word.begin(), word.end());
 		}}}
+		bool node_exists(const list<int> & word) const
+		{{{
+			return (root->find_descendant(word.begin(), word.end()) != NULL);
+		}}};
+		bool knowledge_exists(const list<int> & word) const
+		{{{
+			node * n;
+			n = root->find_descendant(word.begin(), word.end());
+			if(n)
+				return n->is_answered();
+			else
+				return false;
+		}}};
 		node* get_rootptr()
 		// get node* for epsilon
 		{{{

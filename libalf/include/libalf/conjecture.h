@@ -353,11 +353,11 @@ failed:
 			str << "\n";
 
 			str << "\ttransitions:\n";
-			typename map<int, map<int, set<int> > >::const_iterator tri;
+			typename map<int, map<int, set<int> > >::const_iterator mmi;
 			typename map<int, set<int> >::const_iterator mi;
-			for(tri = this->transitions.begin(); tri != this->transitions.end(); ++tri)
-				for(mi = tri->second.begin(); mi != tri->second.end(); ++mi)
-					str << "\t\t(" << tri->first << ", " << mi->first << ") -> " << set2string(mi->second) << "\n";
+			for(mmi = this->transitions.begin(); mmi != this->transitions.end(); ++mmi)
+				for(mi = mmi->second.begin(); mi != mmi->second.end(); ++mi)
+					str << "\t\t(" << mmi->first << ", " << mi->first << ") -> " << set2string(mi->second) << "\n";
 			str << "\n";
 
 			str << "}\n";
