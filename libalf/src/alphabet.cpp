@@ -16,9 +16,10 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with libalf.  If not, see <http://www.gnu.org/licenses/>.
  *
- * (c) 2008,2009 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
- *           and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
+ * (c) 2008,2009,2010 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
+ *                and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
  * Author: David R. Piegdon <david-i2@piegdon.de>
+ *	   Daniel Neider <neider@automata.rwth-aachen.de
  *
  */
 
@@ -26,6 +27,7 @@
 #include <list>
 #include <ostream>
 #include <iterator>
+#include <cstdarg>
 
 #ifdef _WIN32
 # include <winsock.h>
@@ -66,6 +68,18 @@ list<int> operator+(const list<int> & prefix, const list<int> & suffix)
 		ret.push_back(*li);
 
 	return ret;
+}}}
+
+list<int> word(const int num_letters, ...)
+{{{
+	va_list listPointer;
+	va_start( listPointer, num_letters);
+	list<int> result;
+
+	for(int i = 0; i < num_letters; ++i)
+		result.push_back(va_arg( listPointer, int));
+
+	return result;
 }}}
 
 bool is_prefix_of(const list<int> &prefix, const list<int> &word)

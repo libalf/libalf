@@ -16,9 +16,10 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with libalf.  If not, see <http://www.gnu.org/licenses/>.
  *
- * (c) 2008,2009 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
- *           and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
+ * (c) 2008,2009,2010 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
+ *                and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
  * Author: David R. Piegdon <david-i2@piegdon.de>
+ *	   Daniel Neider <neider@automata.rwth-aachen.de
  *
  */
 
@@ -48,6 +49,12 @@ using namespace std;
 list<int>* concat(const list<int> &first, const list<int> &second);
 
 list<int> operator+(const list<int> & prefix, const list<int> & suffix);
+
+// simple constructors for (const-len) words.
+// call:
+//	my_word = word(4,  0,1,2,3);
+//                     ^ number of letters
+list<int> word(const int num_letters, ...);
 
 bool is_prefix_of(const list<int> &prefix, const list<int> &word);
 
