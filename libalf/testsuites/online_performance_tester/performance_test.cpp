@@ -54,12 +54,11 @@
 
 using namespace std;
 using namespace liblangen;
-using namespace amore;
 using namespace libalf;
 
-ostream_logger *log;
+ostream_logger *my_logger;
 
-bool learn(finite_automaton * model, unsigned int & membership_queries, unsigned int & eq_queries, unsigned long long int & memory_usage, unsigned long long int & usecs_in_alg, unsigned long long int & usecs_total)
+bool learn(amore::finite_automaton * model, unsigned int & membership_queries, unsigned int & eq_queries, unsigned long long int & memory_usage, unsigned long long int & usecs_in_alg, unsigned long long int & usecs_total)
 {{{
 	membership_queries = 0;
 	eq_queries = 0;
@@ -75,19 +74,16 @@ bool learn(finite_automaton * model, unsigned int & membership_queries, unsigned
 	start_total_time = ru.ru_utime;
 
 	knowledgebase<bool> kb;
-	ALGORITHM<bool> alg(&kb, log, model->get_alphabet_size());
+	ALGORITHM<bool> alg(&kb, my_logger, model->get_alphabet_size());
 
 	alg.enable_timing();
 
 	for(unsigned int iteration = 0; iteration < model->get_state_count(); iteration++) {
 		conjecture * cj;
-		simple_automaton * sa;
 		list<int> counterexample;
 
 		while( NULL == (cj = alg.advance()) )
 			membership_queries += amore_alf_glue::automaton_answer_knowledgebase(*model, kb);
-
-		sa = dynamic_cast<simple_automaton*>(cj);
 
 		eq_queries++;
 		if(amore_alf_glue::automaton_equivalence_query(*model, cj, counterexample)) {
@@ -139,10 +135,10 @@ int main(int argc, char**argv)
 	unsigned int max_model_size   = atoi(argv[4]);
 	unsigned int steps_model_size = atoi(argv[5]);
 
-	log = new ostream_logger(&cout, LOGGER_DEBUG);
+	my_logger = new ostream_logger(&cout, LOGGER_DEBUG);
 	dfa_randomgenerator dfarg;
 
-	(*log)(LOGGER_INFO, "%d automata, asize %d, model size %d..%d += %d\n",
+	(*my_logger)(LOGGER_INFO, "%d automata, asize %d, model size %d..%d += %d\n",
 			num_testcases, alphabet_size, min_model_size, max_model_size, steps_model_size);
 
 	char str[512];
@@ -157,26 +153,28 @@ int main(int argc, char**argv)
 	average_stats.open(str);
 
 	// learning loop
-	simple_automaton sa;
+	finite_automaton fa;
 	for(unsigned int model_size = min_model_size; model_size <= max_model_size; model_size += steps_model_size) {
 		unsigned int avg_membership_queries = 0, avg_eq_queries = 0;
 		unsigned long long int avg_memory_usage = 0, avg_usecs_in_alg = 0, avg_usecs_total = 0;
 		for(unsigned int c = 0; c < num_testcases; c++) {
-			sa.clear();
-			finite_automaton * model;
+			fa.clear();
+			amore::finite_automaton * model;
 		create_model:
-			if(!dfarg.generate(alphabet_size, model_size, sa.is_deterministic, sa.alphabet_size, sa.state_count, sa.initial, sa.final, sa.transitions)) {
-				(*log)(LOGGER_WARN, "DFA random generator failed to construct model (asize %d msize %d)\n", alphabet_size, model_size);
+			set<int> final_states;
+			if(!dfarg.generate(alphabet_size, model_size, fa.is_deterministic, fa.input_alphabet_size, fa.state_count, fa.initial_states, final_states, fa.transitions)) {
+				(*my_logger)(LOGGER_WARN, "DFA random generator failed to construct model (asize %d msize %d)\n", alphabet_size, model_size);
 				goto create_model;
 			}
-			model = construct_amore_automaton(sa.is_deterministic, sa.alphabet_size, sa.state_count, sa.initial, sa.final, sa.transitions);
+			fa.set_final_states(final_states);
+			model = amore_alf_glue::automaton_libalf2amore(fa);
 			if(!model) {
-				(*log)(LOGGER_WARN, "failed to construct amore automaton for model\n");
+				(*my_logger)(LOGGER_WARN, "failed to construct amore automaton for model\n");
 				goto create_model;
 			}
 			model->minimize();
 			if(model->get_state_count() != model_size) {
-				(*log)(LOGGER_DEBUG, "model skipped: too small.\n");
+				(*my_logger)(LOGGER_DEBUG, "model skipped: too small.\n");
 				delete model;
 				goto create_model;
 			}
@@ -186,8 +184,8 @@ int main(int argc, char**argv)
 
 			if(!learn(model, membership_queries, eq_queries, memory_usage, usecs_in_alg, usecs_total)) {
 				string s;
-				s = sa.write();
-				(*log)(LOGGER_ERROR, "failed to learn model! model:\n\n%s\n", s.c_str());
+				s = fa.write();
+				(*my_logger)(LOGGER_ERROR, "failed to learn model! model:\n\n%s\n", s.c_str());
 				delete model;
 				return -1;
 			}
@@ -196,7 +194,7 @@ int main(int argc, char**argv)
 					ALGORITHM_NAME, alphabet_size, model_size,
 					membership_queries, eq_queries, memory_usage, usecs_in_alg, usecs_total);
 
-			(*log)(LOGGER_DEBUG, "%s", str);
+			(*my_logger)(LOGGER_DEBUG, "%s", str);
 			single_stats << str;
 			single_stats.flush();
 
@@ -218,7 +216,7 @@ int main(int argc, char**argv)
 				ALGORITHM_NAME, alphabet_size, model_size,
 				avg_membership_queries, avg_eq_queries, avg_memory_usage, avg_usecs_in_alg, avg_usecs_total);
 
-		(*log)(LOGGER_INFO, "%s", str);
+		(*my_logger)(LOGGER_INFO, "%s", str);
 		average_stats << str;
 		average_stats.flush();
 	}
@@ -226,7 +224,7 @@ int main(int argc, char**argv)
 	single_stats.close();
 	average_stats.close();
 
-	delete log;
+	delete my_logger;
 	dfarg.discard_tables();
 
 	return 0;
