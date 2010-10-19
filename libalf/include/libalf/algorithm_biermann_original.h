@@ -108,9 +108,12 @@ class original_biermann : public learning_algorithm<answer> {
 
 	conjecture* derive_conjecture() {
 		// Create result
-		finite_automaton *automaton = new finite_automaton;
+		moore_machine<answer> * automaton;
+		if(typeid(answer) == typeid(bool))
+			automaton = dynamic_cast<moore_machine<answer>*>(new finite_automaton);
+		else
+			automaton = new moore_machine<answer>;
 		automaton->input_alphabet_size = this->alphabet_size;
-		automaton->is_deterministic = true; // FIXME: see below
 		automaton->valid = true;
 
 		// Create temporary variables
@@ -121,12 +124,17 @@ class original_biermann : public learning_algorithm<answer> {
 		automaton->state_count++;
 		for(int i=0; i<this->alphabet_size; i++)
 			automaton->transitions[0][i].insert(0);
+		if(typeid(answer) == typeid(bool))
+			automaton->output_mapping[0] = false;
 
 		// Compute conjecture
 		int initial_state;
 		initial_state = assign_equivalence_class(this->my_knowledge->get_rootptr(), automaton, eq_classes);
 		automaton->initial_states.insert(initial_state);
 
+		// Calc determinism
+		automaton->calc_determinism();
+		
 		// Clean temporary variables
 		delete eq_classes;
 
@@ -329,7 +337,7 @@ class original_biermann : public learning_algorithm<answer> {
 	/*
 	 * Recursivley computing a nodes equivalence class.
 	 */
-	int assign_equivalence_class(node *current, finite_automaton *automaton, map<int, node*> *eq_classes) {
+	int assign_equivalence_class(node *current, moore_machine<answer> * automaton, map<int, node*> *eq_classes) {
 
 		/*
 		 * Recursively compute the equivalence classes of the current node's children
@@ -373,13 +381,16 @@ class original_biermann : public learning_algorithm<answer> {
 		// State
 		if(automaton->state_count <= current_eq)
 			automaton->state_count++;
-		// FIXME: Here we need to fix the output function. The following is a hack!
-		// Final states
-		if(current->get_answer() == true)
-			automaton->output_mapping[current_eq] = true;
+		// Output of states
+		if(current->is_answered()) {
+			automaton->output_mapping[current_eq] = current->get_answer();
+		} else {
+			if(typeid(answer) == typeid(bool))
+				automaton->output_mapping[current_eq] = false;
+		}
+			
 		// Transitions
 		for(int i=0; i<this->alphabet_size; i++) {
-			// FIXME: nondeterministic transitions? then automaton->is_deterministic := false !
 			automaton->transitions[current_eq][i].insert(child_eq[i]);
 #ifdef DEBUG
 			cout << "Adding transition (" <<current_eq << ", " << i << ", " << child_eq[i] << ")" << endl;
