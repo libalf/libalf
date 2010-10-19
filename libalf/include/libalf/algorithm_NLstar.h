@@ -44,10 +44,14 @@ namespace libalf {
 
 using namespace std;
 
-// NLstar, angluin-style learning algorithm for RFSA-automata,
-// as described in
-//	* B. Bollig, P. Habermehl, C. Kern, M. Leucker: "Angluin-Style Learning of NFA"
-//	  http://www.lsv.ens-cachan.fr/Publis/RAPPORTS_LSV/PDF/rr-lsv-2008-28.pdf
+/*
+ * NLstar, angluin-style learning algorithm for RFSA-automata,
+ * as described in
+ *	* B. Bollig, P. Habermehl, C. Kern, M. Leucker: "Angluin-Style Learning of NFA"
+ *	  http://www.lsv.ens-cachan.fr/Publis/RAPPORTS_LSV/PDF/rr-lsv-2008-28.pdf
+ *
+ * NOTE: this version does only support bool as <answer>.
+ */
 
 template <class answer>
 class NLstar_table : public learning_algorithm<answer> {

@@ -57,13 +57,15 @@ using namespace std;
  *    Technical Report AIB-2010-02, RWTH Aachen, January 2010.
  * obtainable at
  *    http://aib.informatik.rwth-aachen.de/2010/2010-02.pdf
+ *
+ * NOTE: for now, this version does only support bool as <answer>.
+ * ALSO NOTE:
+ *       the implementation is incomplete. missing is the creation of the full equivalence query
+ *       (i.e. an mVCA). everything else is implemented, but might still contain bugs.
+ *       TODO are:
+ *		bool find_next_valid_m()
+ *		conjecture * create_full_equivalence_query()
  */
-
-// NOTE: the implementation is incomplete. missing is the creation of the full equivalence querie
-//       (i.e. an mVCA). everything else is implemented, but might still contain bugs.
-//       TODO are:
-//		bool find_next_valid_m()
-//		conjecture * create_full_equivalence_query()
 
 template <class answer>
 class mVCA_angluinlike : public learning_algorithm<answer> {

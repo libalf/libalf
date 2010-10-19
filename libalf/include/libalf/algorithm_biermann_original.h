@@ -26,6 +26,8 @@
 /*
  * BIERMANN is an offline learning algorithm as described in
  *	* A.W. Biermann, J.A. Feldman - On the Synthesis of Finite-State Machines from Samples of their Behavior
+ *
+ * this implementation supports almost arbitrary <answer> types.
  */
 
 #include <iostream>

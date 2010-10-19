@@ -25,6 +25,8 @@
 /*
  * Kearns and Vazirani is an online learning algorithm described in
  *	* M.J. Kearns, U.V. Vazirani - An Introduction to Computational Learning Theory, MIT Press, 1994.
+ *
+ * NOTE: this version does only support bool as <answer>.
  */
 
 #include <list>

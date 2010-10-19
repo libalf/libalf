@@ -28,6 +28,8 @@
  *	* A.W. Biermann, J.A. Feldman - On the Synthesis of Finite-State Machines from Samples of their Behavior
  *	* Martin Leucker - Learning Meets Verification
  *	* Arlindo L. Oliveira and João P.M. Silva - Efficient Algorithms for the Inference of Minimum Size DFAs
+ *
+ * NOTE: this version does only support bool as <answer>.
  */
 
 

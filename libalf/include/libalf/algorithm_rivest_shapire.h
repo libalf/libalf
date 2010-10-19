@@ -34,6 +34,8 @@ using namespace std;
 /*
  * Rivest Shapire Extension of Angluins L* algorithm.
  * It tries to find an optimal split in a given counterexample
+ *
+ * this implementation supports almost arbitrary <answer> types.
  */
 
 template <class answer>

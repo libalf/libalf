@@ -29,6 +29,8 @@
  * described in e.g.
  *	* P. Graćıa and J. Oncina: "Inferring regular languages in polynomial update time"
  *	* D. Neider: "Learning Automata for Streaming XML Documents" [1]
+ *
+ * NOTE: this version does only support bool as <answer>.
  */
 
 

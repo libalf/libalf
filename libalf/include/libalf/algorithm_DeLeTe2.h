@@ -28,6 +28,8 @@
  * described in
  *	* F. Denis, A. Lemay, A. Terlutte: "Learning regular languages using RFSAs" [1]
  *	  (Theoretical Computer Science 313, 2004, p. 267-294)
+ *
+ * NOTE: this version does only support bool as <answer>.
  */
 
 
