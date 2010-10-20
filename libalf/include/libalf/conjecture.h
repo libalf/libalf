@@ -344,7 +344,7 @@ failed:
 
 				// mark final states
 				header_written = false;
-				map<int, bool>::const_iterator oi;
+				typename map<int, output_alphabet>::const_iterator oi;
 
 				// normal states
 				for(int i = 0; i < this->state_count; ++i) {
