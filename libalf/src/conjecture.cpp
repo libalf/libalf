@@ -447,16 +447,14 @@ end:
 }}}
 string finite_automaton::visualize() const
 {{{
-	string ret;
+	stringstream str;
 
 	if(valid) {
-		char buf[64];
-
 		set<int>::iterator sti;
 		bool header_written;
 
 		// head
-		ret = "digraph finite_automaton {\n"
+		str << "digraph finite_automaton {\n"
 			"\tgraph[fontsize=8]\n"
 			"\trankdir=LR;\n"
 			"\tsize=8;\n\n";
@@ -472,65 +470,54 @@ string finite_automaton::visualize() const
 			if(oi->second) {
 				++final_state_count;
 				if(!header_written) {
-					ret += "\tnode [shape=doublecircle, style=\"\", color=black];";
+					str << "\tnode [shape=doublecircle, style=\"\", color=black];";
 					header_written = true;
 				}
-				snprintf(buf, 128, " q%d", oi->first);
-				ret += buf;
+				str << " q" << oi->first;
 			}
 		}
 		if(header_written)
-			ret += ";\n";
+			str << ";\n";
 
 		// normal states
 		if(final_state_count < state_count) {
-			ret += "\tnode [shape=circle, style=\"\", color=black];";
-			for(oi = output_mapping.begin(); oi != output_mapping.end(); ++oi) {
-				if(!oi->second) {
-					snprintf(buf, 128, " q%d", oi->first);
-					ret += buf;
-				}
-			}
-			ret += ";\n";
+			str << "\tnode [shape=circle, style=\"\", color=black];";
+			for(oi = output_mapping.begin(); oi != output_mapping.end(); ++oi)
+				if(!oi->second)
+					str << " q" << oi->first;
+			str << ";\n";
 		}
 
 		// non-visible states for arrows to initial states
 		header_written = false;
 		for(sti = this->initial_states.begin(); sti != this->initial_states.end(); ++sti) {
 			if(!header_written) {
-				ret += "\tnode [shape=plaintext, label=\"\", style=\"\"];";
+				str << "\tnode [shape=plaintext, label=\"\", style=\"\"];";
 				header_written = true;
 			}
-			snprintf(buf, 128, " iq%d", *sti);
-			ret += buf;
+			str << " iq" << *sti;
 		}
 		if(header_written)
-			ret += ";\n";
+			str << ";\n";
 
 		// and arrows to mark initial states
-		for(sti = this->initial_states.begin(); sti != this->initial_states.end(); ++sti) {
-			snprintf(buf, 128, "\tiq%d -> q%d [ color = blue ];\n", *sti, *sti);
-			ret += buf;
-		}
+		for(sti = this->initial_states.begin(); sti != this->initial_states.end(); ++sti)
+			str << "\tiq" << *sti << " -> q" << *sti << " [color=blue];\n";
 
 		// transitions
 		map<int, map<int, set<int> > >::const_iterator mmsi;
 		map<int, set<int> >::const_iterator msi;
 		set<int>::const_iterator si;
-		for(mmsi = this->transitions.begin(); mmsi != this->transitions.end(); ++mmsi) {
-			for(msi = mmsi->second.begin(); msi != mmsi->second.end(); ++msi) {
-				for(si = msi->second.begin(); si != msi->second.end(); ++si) {
-					snprintf(buf, 256, "\tq%d -> q%d [ label = \"%d\" ];\n", mmsi->first, *si, msi->first);
-					ret += buf;
-				}
-			}
-		}
+		for(mmsi = this->transitions.begin(); mmsi != this->transitions.end(); ++mmsi)
+			for(msi = mmsi->second.begin(); msi != mmsi->second.end(); ++msi)
+				for(si = msi->second.begin(); si != msi->second.end(); ++si)
+					str << "\tq" << mmsi->first << " -> q" << *si << " [label=\"" << msi->first << "\"];\n";
 
 		// end
-		ret += "};\n";
+		str << "};\n";
 	}
 
-	return ret;
+	return str.str();
 }}}
 
 bool finite_automaton::contains(const list<int> & word) const

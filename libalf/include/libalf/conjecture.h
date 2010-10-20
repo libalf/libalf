@@ -328,39 +328,58 @@ failed:
 		virtual bool read(__attribute__ ((__unused__)) string input)
 		{ /* depends on output_alphabet, has to be done by you! */ return false; }
 		virtual string visualize() const
+		/* NOTE: depends on output_alphabet, but we expect to be operator<< to be defined for it. */
 		{{{
-			/* NOTE: depends on output_alphabet, but we expect to be operator<< to be defined for it. */
 			stringstream str;
 
-			str << "moore_machine<" << typeid(output_alphabet).name() << "> {\n";
+			if(this->valid) {
+				set<int>::iterator sti;
+				bool header_written;
 
-			str << "\tvalid: " << (this->valid ? "true" : "false") << "\n";
+				// head
+				str << "digraph finite_automaton {\n"
+					"\tgraph[fontsize=8]\n"
+					"\trankdir=LR;\n"
+					"\tsize=8;\n\n";
 
-			str << "\tdeterministic: " << (this->is_deterministic ? "true" : "false") << "\n";
+				// mark final states
+				header_written = false;
+				map<int, bool>::const_iterator oi;
 
-			str << "\tinput alphabet size: " << (this->input_alphabet_size) << "\n";
+				// normal states
+				for(int i = 0; i < this->state_count; ++i) {
+					str << "\tnode [shape=circle, style=\"\", color=black, label=\"q" << i;
+					oi = this->output_mapping.find(i);
+					if(oi != this->output_mapping.end())
+						str << "\\n[" << oi->second << "]";
 
-			str << "\tstate count: " << (this->state_count) << "\n";
+					str << "\"] q" << i << ";\n";
+				}
 
-			str << "\tinitial states: " << (set2string(this->initial_states)) << "\n";
+				// non-visible states for arrows to initial states
+				if(!this->initial_states.empty()) {
+					str << "\tnode [shape=plaintext, label=\"\", style=\"\"];";
+					for(sti = this->initial_states.begin(); sti != this->initial_states.end(); ++sti)
+						str << " iq" << *sti;
+					str << ";\n";
+				}
 
-			str << "\tomega: " << (this->omega ? "true" : "false") << "\n";
+				// and arrows to mark initial states
+				for(sti = this->initial_states.begin(); sti != this->initial_states.end(); ++sti)
+					str << "\tiq" << *sti << " -> q" << *sti << " [color=blue];\n";
 
-			str << "\toutput mapping:\n";
-			typename map<int, output_alphabet>::const_iterator oi;
-			for(oi = this->output_mapping.begin(); oi != this->output_mapping.end(); ++oi)
-				str << "\t\t" << oi->first << " -> " << oi->second << "\n";
-			str << "\n";
+				// transitions
+				map<int, map<int, set<int> > >::const_iterator mmsi;
+				map<int, set<int> >::const_iterator msi;
+				set<int>::const_iterator si;
+				for(mmsi = this->transitions.begin(); mmsi != this->transitions.end(); ++mmsi)
+					for(msi = mmsi->second.begin(); msi != mmsi->second.end(); ++msi)
+						for(si = msi->second.begin(); si != msi->second.end(); ++si)
+							str << "\tq" << mmsi->first << " -> q" << *si << " [label=\"" << msi->first << "\"];\n";
 
-			str << "\ttransitions:\n";
-			typename map<int, map<int, set<int> > >::const_iterator mmi;
-			typename map<int, set<int> >::const_iterator mi;
-			for(mmi = this->transitions.begin(); mmi != this->transitions.end(); ++mmi)
-				for(mi = mmi->second.begin(); mi != mmi->second.end(); ++mi)
-					str << "\t\t(" << mmi->first << ", " << mi->first << ") -> " << set2string(mi->second) << "\n";
-			str << "\n";
-
-			str << "}\n";
+				// end
+				str << "};\n";
+			}
 
 			return str.str();
 		}}}
