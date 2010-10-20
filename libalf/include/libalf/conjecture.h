@@ -337,10 +337,12 @@ failed:
 				bool header_written;
 
 				// head
-				str << "digraph finite_automaton {\n"
-					"\tgraph[fontsize=8]\n"
-					"\trankdir=LR;\n"
-					"\tsize=8;\n\n";
+				str << "digraph moore_machine__"
+					<< typeid(output_alphabet).name()
+					<< "__ {\n"
+					   "\tgraph[fontsize=8]\n"
+					   "\trankdir=LR;\n"
+					   "\tsize=8;\n\n";
 
 				// mark final states
 				header_written = false;
