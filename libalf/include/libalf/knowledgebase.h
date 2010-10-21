@@ -38,6 +38,7 @@
 #endif
 #include <queue>
 #include <map>
+#include <typeinfo>
 
 // forward declaration for filter
 namespace libalf {
@@ -1128,61 +1129,70 @@ class knowledgebase {
 		}}}
 		string visualize()
 		{{{
-			string ret;
-
-			char buf[128];
+			stringstream str;
 			iterator it;
-
-			list<int> word;
 			string wname;
 
-			ret = "digraph knowledgebase {\n"
+			str << "digraph knowledgebase {\n"
 				"\trankdir=LR;\n"
 				"\tsize=8;\n";
 
 			// add all nodes
 			for(it = this->begin(); it != this->end(); it++) {
-				word = it->get_word();
-				wname = word2string(word);
-				snprintf(buf, 128, "\tnode [shape=\"%s\", style=\"filled\", color=\"%s\"]; \"%s [%d]\";\n",
-						// shape
-						it->is_answered() ? "ellipse" : "pentagon",
-						// color
-						it->is_answered() ? ( (it->get_answer() == true) ? "green" : (it->get_answer() == false ? "red" : "blue"))
-								  : (it->is_required() ? "darkorange" : "grey"),
-						// name
-						wname.c_str(), it->timestamp
-					);
-				buf[127] = 0;
-				ret += buf;
+				wname = word2string( it->get_word() );
+
+				str << "\tnode [shape=\"";
+				if(it->is_answered())
+					str << "ellipse";
+				else
+					if(it->is_required())
+						str << "invhouse";
+					else
+						str << "box";
+				str << "\", style=\"filled\", color=\"";
+				if(it->is_answered()) {
+					if(typeid(answer) == typeid(bool)) {
+						// bool. use value for color
+						answer a = it->get_answer();
+						bool *b = (bool*)(&a);
+
+						str << ((*b) ? "green" : "red");
+					} else {
+						// no bool. just indicate we have information
+						str << "orange";
+					}
+				} else {
+					if(it->is_required())
+						str << "cyan";
+					else
+						str << "gray95";
+				}
+				str << "\", label=\"" << wname << " [" << it->timestamp << "]";
+				if(it->is_answered())
+					str << " := '" << it->get_answer() << "'\"] \"k" << wname << "\";\n";
+				else
+					str << "\"] \"k" << wname << "\";\n";
 			}
+
 			// and add all connections
 			for(it = this->begin(); it != this->end(); it++) {
 				typename vector<node *>::iterator ci;
 				string toname;
 
-				word = it->get_word();
-				wname = word2string(word);
+				wname = word2string( it->get_word() );
 				for(ci = it->children.begin(); ci != it->children.end(); ci++) {
 					if(*ci) {
-						word = (*ci)->get_word();
-						toname = word2string(word);
-
-						snprintf(buf, 128, "\t\"%s [%d]\" -> \"%s [%d]\" [ label = \"%d\" ];\n",
-								wname.c_str(), it->timestamp,
-								toname.c_str(), (*ci)->timestamp,
-								(*ci)->label
-							);
-						buf[127] = 0;
-						ret += buf;
+						toname = word2string( (*ci)->get_word() );
+						str << "\t\"k" << wname << "\" -> \"k" << toname << "\" [label=\"" << (*ci)->label << "\"];\n";
 					}
 				}
 			}
 
-			ret += "}\n";
-			return ret;
+			str << "}\n";
+			return str.str();
 		}}}
 		string visualize(equivalence_relation & eq)
+		// FIXME: use operator<< fot it->get_answer().
 		{{{
 			string ret;
 

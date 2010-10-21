@@ -350,17 +350,17 @@ failed:
 
 				// normal states
 				for(int i = 0; i < this->state_count; ++i) {
-					str << "\tnode [shape=circle, style=\"\", color=black, label=\"q" << i;
 					oi = this->output_mapping.find(i);
-					if(oi != this->output_mapping.end())
-						str << "\\n[" << oi->second << "]";
-
-					str << "\"] q" << i << ";\n";
+					str << "\tnode [shape=circle, color=";
+					if(oi == this->output_mapping.end())
+						str << "gray, fontcolor=gray, label=\"q" << i << "\"] q" << i << ";\n";
+					else
+						str << "black, fontcolor=black, label=\"q" << i << "\\n[" << oi->second << "]\"] q" << i << ";\n";
 				}
 
 				// non-visible states for arrows to initial states
 				if(!this->initial_states.empty()) {
-					str << "\tnode [shape=plaintext, label=\"\", style=\"\"];";
+					str << "\tnode [shape=plaintext, label=\"\"] ";
 					for(sti = this->initial_states.begin(); sti != this->initial_states.end(); ++sti)
 						str << " iq" << *sti;
 					str << ";\n";
