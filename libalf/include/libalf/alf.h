@@ -36,8 +36,6 @@
 
 namespace libalf {
 
-using namespace std;
-
 const char * libalf_version();
 
 };

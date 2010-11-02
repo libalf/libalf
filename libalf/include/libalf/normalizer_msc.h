@@ -34,8 +34,6 @@
 
 namespace libalf {
 
-using namespace std;
-
 namespace msc {
 
 	class msc_node {
@@ -120,20 +118,20 @@ class normalizer_msc : public normalizer {
 		// thus we can split into send(odd)/receive(even) events via a test for (n%1)
 
 		// total order of all messages
-		vector<int> total_order;
+		std::vector<int> total_order;
 
 		// relation matching an event to a process
-		vector<int> process_match;
+		std::vector<int> process_match;
 
 		// relation matching an event to a buffer
-		vector<int> buffer_match;
+		std::vector<int> buffer_match;
 
 		// max number of messages in a buffer
 		int max_buffer_length;
 		// if <= 0, max buffer length will not be checked.
 	public:
 		normalizer_msc();
-		normalizer_msc(vector<int> &total_order, vector<int> &process_match, vector<int> &buffer_match, int max_buffer_length);
+		normalizer_msc(std::vector<int> &total_order, std::vector<int> &process_match, std::vector<int> &buffer_match, int max_buffer_length);
 
 		virtual ~normalizer_msc();
 
@@ -142,18 +140,18 @@ class normalizer_msc : public normalizer {
 
 		void clear();
 
-		virtual basic_string<int32_t> serialize() const;
+		virtual std::basic_string<int32_t> serialize() const;
 		virtual bool deserialize(serial_stretch & serial);
 
 		virtual bool deserialize_extension(serial_stretch & serial);
 
-		virtual list<int> prefix_normal_form(const list<int> & w, bool & bottom) const;
-		virtual list<int> suffix_normal_form(const list<int> & w, bool & bottom) const;
+		virtual std::list<int> prefix_normal_form(const std::list<int> & w, bool & bottom) const;
+		virtual std::list<int> suffix_normal_form(const std::list<int> & w, bool & bottom) const;
 
 
 	private:
-		mutable list<msc::msc_node*> graph;
-		mutable queue<int> * buffers;
+		mutable std::list<msc::msc_node*> graph;
+		mutable std::queue<int> * buffers;
 		mutable unsigned int buffercount;
 		// any label that can be normalized has to be in [0, label_bound)
 		mutable unsigned int label_bound;
@@ -161,7 +159,7 @@ class normalizer_msc : public normalizer {
 	protected:
 		void graph_add_node(int id, int label, bool pnf) const;
 
-		void clear_buffers(const list<int> & word) const;
+		void clear_buffers(const std::list<int> & word) const;
 		bool check_buffer(int label, bool pnf) const;
 		void advance_buffer_status(int label, bool pnf) const;
 

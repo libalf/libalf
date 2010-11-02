@@ -41,9 +41,6 @@
 
 namespace libalf {
 
-using namespace std;
-
-
 enum statistic_type {
 	UNSET = 0,
 	INTEGER = 1,
@@ -71,15 +68,15 @@ class statistic_data {
 			double d;
 			bool b;
 		};
-		string s; // as string has a constructur, we can't put it in a union.
+		std::string s; // as string has a constructur, we can't put it in a union.
 
 	public:
 		statistic_data();
 
-		string to_string() const;
-		void print(ostream & os) const;
+		std::string to_string() const;
+		void print(std::ostream & os) const;
 
-		basic_string<int32_t> serialize() const;
+		std::basic_string<int32_t> serialize() const;
 		bool deserialize(serial_stretch & serial);
 
 		enum statistic_type get_type() const;
@@ -90,53 +87,53 @@ class statistic_data {
 		void set_integer(int i);
 		void set_double(double d);
 		void set_bool(bool b);
-		void set_string(string s);
+		void set_string(std::string s);
 
 		bool get_integer(int & i) const;
 		bool get_double(double & d) const;
 		bool get_bool(bool & b) const;
-		bool get_string(string & s) const;
+		bool get_string(std::string & s) const;
 
-		inline statistic_data & operator=(const int & i)    { set_integer(i); return *this; };
-		inline statistic_data & operator=(const double & d) { set_double(d);  return *this; };
-		inline statistic_data & operator=(const bool & b)   { set_bool(b);    return *this; };
-		inline statistic_data & operator=(const string & s) { set_string(s);  return *this; };
-		inline statistic_data & operator=(const char * c)   { set_string(c);  return *this; };
+		inline statistic_data & operator=(const int & i)         { set_integer(i); return *this; };
+		inline statistic_data & operator=(const double & d)      { set_double(d);  return *this; };
+		inline statistic_data & operator=(const bool & b)        { set_bool(b);    return *this; };
+		inline statistic_data & operator=(const std::string & s) { set_string(s);  return *this; };
+		inline statistic_data & operator=(const char * c)        { set_string(c);  return *this; };
 
-		inline operator int()	 throw (statistic_data_bad_typecast_e) { if(type == INTEGER) return i; else throw statistic_data_bad_typecast_e(type, INTEGER); };
-		inline operator double() throw (statistic_data_bad_typecast_e) { if(type == DOUBLE)  return d; else throw statistic_data_bad_typecast_e(type, DOUBLE);  };
-		inline operator bool()	 throw (statistic_data_bad_typecast_e) { if(type == BOOL)    return b; else throw statistic_data_bad_typecast_e(type, BOOL);    };
-		inline operator string() throw (statistic_data_bad_typecast_e) { if(type == STRING)  return s; else throw statistic_data_bad_typecast_e(type, STRING);  };
+		inline operator int()	      throw (statistic_data_bad_typecast_e) { if(type == INTEGER) return i; else throw statistic_data_bad_typecast_e(type, INTEGER); };
+		inline operator double()      throw (statistic_data_bad_typecast_e) { if(type == DOUBLE)  return d; else throw statistic_data_bad_typecast_e(type, DOUBLE);  };
+		inline operator bool()	      throw (statistic_data_bad_typecast_e) { if(type == BOOL)    return b; else throw statistic_data_bad_typecast_e(type, BOOL);    };
+		inline operator std::string() throw (statistic_data_bad_typecast_e) { if(type == STRING)  return s; else throw statistic_data_bad_typecast_e(type, STRING);  };
 };
 
 // required for generic serialisation:
-inline basic_string<int32_t> serialize(const statistic_data & s)		{ return s.serialize(); }
+inline std::basic_string<int32_t> serialize(const statistic_data & s)		{ return s.serialize(); }
 inline bool deserialize(statistic_data & into, serial_stretch & serial)		{ return into.deserialize(serial); };
 
 
-class generic_statistics : public map<string, statistic_data> {
+class generic_statistics : public std::map<std::string, statistic_data> {
 	public: // types
-		typedef map<string, statistic_data>::iterator iterator;
-		typedef map<string, statistic_data>::const_iterator const_iterator;
+		typedef std::map<std::string, statistic_data>::iterator iterator;
+		typedef std::map<std::string, statistic_data>::const_iterator const_iterator;
 	public: // methods
-		string to_string() const;
-		void print(ostream & os) const;
+		std::string to_string() const;
+		void print(std::ostream & os) const;
 
-		inline void remove_property(const string & key)					{ this->erase(key); };
+		inline void remove_property(const std::string & key)				{ this->erase(key); };
 
-		inline void unset_property(const string & key)					{ (*this)[key].unset(); };
+		inline void unset_property(const std::string & key)				{ (*this)[key].unset(); };
 
-		inline void set_integer_property(const string & key, int value)			{ (*this)[key].set_integer(value); }
-		inline bool get_integer_property(const string & key, int & into)		{ return (*this)[key].get_integer(into); }
+		inline void set_integer_property(const std::string & key, int value)		{ (*this)[key].set_integer(value); }
+		inline bool get_integer_property(const std::string & key, int & into)		{ return (*this)[key].get_integer(into); }
 
-		inline void set_double_property(const string & key, double value)		{ (*this)[key].set_double(value); }
-		inline bool get_double_property(const string & key, double & into)		{ return (*this)[key].get_double(into); }
+		inline void set_double_property(const std::string & key, double value)		{ (*this)[key].set_double(value); }
+		inline bool get_double_property(const std::string & key, double & into)		{ return (*this)[key].get_double(into); }
 
-		inline void set_bool_property(const string & key, bool value)			{ (*this)[key].set_bool(value); }
-		inline bool get_bool_property(const string & key, bool & into)			{ return (*this)[key].get_bool(into); }
+		inline void set_bool_property(const std::string & key, bool value)		{ (*this)[key].set_bool(value); }
+		inline bool get_bool_property(const std::string & key, bool & into)		{ return (*this)[key].get_bool(into); }
 
-		inline void set_string_property(const string & key, string value)		{ (*this)[key].set_string(value); }
-		inline bool get_string_property(const string & key, string & into)		{ return (*this)[key].get_string(into); }
+		inline void set_string_property(const std::string & key, std::string value)	{ (*this)[key].set_string(value); }
+		inline bool get_string_property(const std::string & key, std::string & into)	{ return (*this)[key].get_string(into); }
 };
 
 
@@ -149,7 +146,7 @@ class timing_statistics {
 	public: // methods
 		timing_statistics();
 		void reset();
-		basic_string<int32_t> serialize() const;
+		std::basic_string<int32_t> serialize() const;
 		bool deserialize(serial_stretch & serial);
 };
 
@@ -165,8 +162,8 @@ class query_statistics {
 	public:	// methods
 		query_statistics();
 		void reset();
-		basic_string<int32_t> serialize();
-		bool deserialize(basic_string<int32_t>::const_iterator & it, basic_string<int32_t>::const_iterator limit);
+		std::basic_string<int32_t> serialize();
+		bool deserialize(std::basic_string<int32_t>::const_iterator & it, std::basic_string<int32_t>::const_iterator limit);
 };
 
 class memory_statistics {
@@ -180,8 +177,8 @@ class memory_statistics {
 	public:	// methods
 		memory_statistics();
 		void reset();
-		basic_string<int32_t> serialize();
-		bool deserialize(basic_string<int32_t>::const_iterator & it, basic_string<int32_t>::const_iterator limit);
+		std::basic_string<int32_t> serialize();
+		bool deserialize(std::basic_string<int32_t>::const_iterator & it, std::basic_string<int32_t>::const_iterator limit);
 };
 
 class statistics {
@@ -192,8 +189,8 @@ class statistics {
 
 	public: // methods
 		void reset();
-		basic_string<int32_t> serialize();
-		bool deserialize(basic_string<int32_t>::const_iterator & it, basic_string<int32_t>::const_iterator limit);
+		std::basic_string<int32_t> serialize();
+		bool deserialize(std::basic_string<int32_t>::const_iterator & it, std::basic_string<int32_t>::const_iterator limit);
 };
 
 }; // end namespace libalf

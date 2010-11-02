@@ -25,8 +25,10 @@
 #ifndef __libalf_conjecture_h__
 # define __libalf_conjecture_h__
 
-#include <string>
 #include <set>
+#include <list>
+#include <string>
+#include <vector>
 #include <map>
 #include <typeinfo>
 
@@ -36,9 +38,6 @@
 #include <libalf/set.h>
 
 namespace libalf {
-
-using namespace std;
-
 
 
 enum conjecture_type {
@@ -86,15 +85,15 @@ class conjecture {
 		{ valid = false; };
 
 		// (de)serialize data
-		virtual basic_string<int32_t> serialize() const = 0;
+		virtual std::basic_string<int32_t> serialize() const = 0;
 		virtual bool deserialize(serial_stretch & serial) = 0;
 
 		// create/parse human readable version
-		virtual string write() const = 0;
-		virtual bool read(string input) = 0;
+		virtual std::string write() const = 0;
+		virtual bool read(std::string input) = 0;
 
 		// visual version (dotfile preferred)
-		virtual string visualize() const = 0;
+		virtual std::string visualize() const = 0;
 };
 
 
@@ -105,7 +104,7 @@ class finite_state_machine: public conjecture {
 		bool is_deterministic;
 		int input_alphabet_size;
 		int state_count;
-		set<int> initial_states;
+		std::set<int> initial_states;
 		bool omega; // is this machine for infinite words?
 	public: // methods
 		finite_state_machine()
@@ -128,7 +127,7 @@ class finite_state_machine: public conjecture {
 		}}}
 		virtual bool calc_validity()
 		{{{
-			set<int>::const_iterator si;
+			std::set<int>::const_iterator si;
 
 			if(!conjecture::calc_validity())
 				goto invalid;
@@ -145,9 +144,9 @@ invalid:
 			this->valid = false;
 			return false;
 		}}}
-		virtual basic_string<int32_t> serialize() const
+		virtual std::basic_string<int32_t> serialize() const
 		{{{
-			basic_string<int32_t> ret;
+			std::basic_string<int32_t> ret;
 
 			if(this->valid) {
 				ret += 0; // size, filled in later.
@@ -191,8 +190,8 @@ failed:
 template <typename output_alphabet>
 class moore_machine: public finite_state_machine<output_alphabet> {
 	public:
-		map<int, output_alphabet> output_mapping; // mapping state to its output-alphabet
-		map<int, map<int, set<int> > > transitions; // state -> input-alphabet -> { states }
+		std::map<int, output_alphabet> output_mapping; // mapping state to its output-alphabet
+		std::map<int, std::map<int, std::set<int> > > transitions; // state -> input-alphabet -> { states }
 		// using -1 as epsilon-transition (input-alphabet field)
 	public:
 		moore_machine()
@@ -209,11 +208,11 @@ class moore_machine: public finite_state_machine<output_alphabet> {
 		}}}
 		virtual bool calc_validity()
 		{{{
-			typename map<int, output_alphabet>::const_iterator oi;
+			typename std::map<int, output_alphabet>::const_iterator oi;
 
-			typename map<int, map<int, set<int> > >::const_iterator mmsi;
-			typename map<int, set<int> >::const_iterator msi;
-			typename set<int>::const_iterator si;
+			typename std::map<int, std::map<int, std::set<int> > >::const_iterator mmsi;
+			typename std::map<int, std::set<int> >::const_iterator msi;
+			typename std::set<int>::const_iterator si;
 
 			if(!finite_state_machine<output_alphabet>::calc_validity())
 				goto invalid;
@@ -246,8 +245,8 @@ invalid:
 				return false;
 
 			// check for epsilon transition and multiple destination states
-			map<int, map<int, set<int> > >::const_iterator mmsi;
-			map<int, set<int> >::const_iterator msi;
+			std::map<int, std::map<int, std::set<int> > >::const_iterator mmsi;
+			std::map<int, std::set<int> >::const_iterator msi;
 
 			for(mmsi = transitions.begin(); mmsi != transitions.end(); ++mmsi) {
 				for(msi = mmsi->second.begin(); msi != mmsi->second.end(); ++msi) {
@@ -262,9 +261,9 @@ nondet:
 			this->is_deterministic = false;
 			return false;
 		}}}
-		virtual basic_string<int32_t> serialize() const
+		virtual std::basic_string<int32_t> serialize() const
 		{{{
-			basic_string<int32_t> ret;
+			std::basic_string<int32_t> ret;
 
 			if(this->valid) {
 				ret += 0; // size, filled in later.
@@ -292,15 +291,15 @@ failed:
 			return false;
 		}}}
 		// from current_states, follow the transitions given by word. resulting states are stored in current_states.
-		virtual void run(set<int> & current_states, list<int>::const_iterator word, list<int>::const_iterator word_end) const
+		virtual void run(std::set<int> & current_states, std::list<int>::const_iterator word, std::list<int>::const_iterator word_end) const
 		{{{
-			set<int>::const_iterator si;
+			std::set<int>::const_iterator si;
 
-			set<int> new_states;
+			std::set<int> new_states;
 
-			map<int, map<int, set<int> > >::const_iterator mmsi;
-			map<int, set<int> >::const_iterator msi;
-			set<int>::const_iterator di;
+			std::map<int, std::map<int, std::set<int> > >::const_iterator mmsi;
+			std::map<int, std::set<int> >::const_iterator msi;
+			std::set<int>::const_iterator di;
 
 			while(word != word_end) {
 
@@ -323,17 +322,17 @@ failed:
 				++word;
 			}
 		}}}
-		virtual string write() const
+		virtual std::string write() const
 		{ /* depends on output_alphabet, has to be done by you! */ return ""; }
-		virtual bool read(__attribute__ ((__unused__)) string input)
+		virtual bool read(__attribute__ ((__unused__)) std::string input)
 		{ /* depends on output_alphabet, has to be done by you! */ return false; }
-		virtual string visualize() const
+		virtual std::string visualize() const
 		/* NOTE: depends on output_alphabet, but we expect to be operator<< to be defined for it. */
 		{{{
-			stringstream str;
+			std::stringstream str;
 
 			if(this->valid) {
-				set<int>::iterator sti;
+				std::set<int>::iterator sti;
 				bool header_written;
 
 				// head
@@ -346,7 +345,7 @@ failed:
 
 				// mark final states
 				header_written = false;
-				typename map<int, output_alphabet>::const_iterator oi;
+				typename std::map<int, output_alphabet>::const_iterator oi;
 
 				// normal states
 				for(int i = 0; i < this->state_count; ++i) {
@@ -371,9 +370,9 @@ failed:
 					str << "\tiq" << *sti << " -> q" << *sti << " [color=blue];\n";
 
 				// transitions
-				map<int, map<int, set<int> > >::const_iterator mmsi;
-				map<int, set<int> >::const_iterator msi;
-				set<int>::const_iterator si;
+				std::map<int, std::map<int, std::set<int> > >::const_iterator mmsi;
+				std::map<int, std::set<int> >::const_iterator msi;
+				std::set<int>::const_iterator si;
 				for(mmsi = this->transitions.begin(); mmsi != this->transitions.end(); ++mmsi)
 					for(msi = mmsi->second.begin(); msi != mmsi->second.end(); ++msi)
 						for(si = msi->second.begin(); si != msi->second.end(); ++si)
@@ -392,7 +391,7 @@ failed:
 template <typename output_alphabet>
 class mealy_machine: public finite_state_machine<output_alphabet> {
 	public:
-		map<int, map<int, set<pair<int, output_alphabet> > > > transitions; // state -> input_alphabet -> set( <state, output_alphabet> )
+		std::map<int, std::map<int, std::set<std::pair<int, output_alphabet> > > > transitions; // state -> input_alphabet -> std::set( <state, output_alphabet> )
 		// using -1 as epsilon-transition (input-alphabet field)
 	public:
 		mealy_machine()
@@ -408,9 +407,9 @@ class mealy_machine: public finite_state_machine<output_alphabet> {
 		}}}
 		virtual bool calc_validity()
 		{{{
-			typename map<int, map<int, set<pair<int, output_alphabet> > > >::const_iterator ttsi;
-			typename map<int, set<pair<int, output_alphabet> > >::const_iterator tsi;
-			typename set<pair<int, output_alphabet> >::const_iterator si;
+			typename std::map<int, std::map<int, std::set<std::pair<int, output_alphabet> > > >::const_iterator ttsi;
+			typename std::map<int, std::set<std::pair<int, output_alphabet> > >::const_iterator tsi;
+			typename std::set<std::pair<int, output_alphabet> >::const_iterator si;
 
 			if(!finite_state_machine<output_alphabet>::calc_validity())
 				goto invalid;
@@ -439,8 +438,8 @@ invalid:
 				return false;
 
 			// check for epsilon transitions and multiple destination states
-			typename map<int, map<int, set<pair<int, output_alphabet> > > >::const_iterator ttsi;
-			typename map<int, set<pair<int, output_alphabet> > >::const_iterator tsi;
+			typename std::map<int, std::map<int, std::set<std::pair<int, output_alphabet> > > >::const_iterator ttsi;
+			typename std::map<int, std::set<std::pair<int, output_alphabet> > >::const_iterator tsi;
 
 			for(ttsi = transitions.begin(); ttsi != transitions.end(); ++ttsi) {
 				for(tsi = ttsi->second.begin(); tsi != ttsi->second.end(); ++tsi) {
@@ -455,9 +454,9 @@ nondet:
 			this->is_deterministic = false;
 			return false;
 		}}}
-		virtual basic_string<int32_t> serialize() const
+		virtual std::basic_string<int32_t> serialize() const
 		{{{
-			basic_string<int32_t> ret;
+			std::basic_string<int32_t> ret;
 
 			if(this->valid) {
 				ret += 0; // size, filled in later.
@@ -482,11 +481,11 @@ failed:
 			clear();
 			return false;
 		}}}
-		virtual string write() const
+		virtual std::string write() const
 		{ /* depends on output_alphabet, has to be done by you! */ return ""; }
-		virtual bool read(__attribute__ ((__unused__)) string input)
+		virtual bool read(__attribute__ ((__unused__)) std::string input)
 		{ /* depends on output_alphabet, has to be done by you! */ return false; }
-		virtual string visualize() const
+		virtual std::string visualize() const
 		{ /* depends on output_alphabet, has to be done by you! */ return ""; }
 };
 
@@ -497,17 +496,17 @@ class mVCA: public finite_state_machine<output_alphabet> {
 	// expects omega == false.
 	public:
 		// pushdown property of input-alphabet:
-		vector<int> alphabet_directions;
+		std::vector<int> alphabet_directions;
 			// maps each member of the input alphabet to a direction:
 			// +1 == UP
 			//  0 == STAY
 			// -1 == DOWN
 			// (-100 == undefined)
 		int m_bound;
-		map<int, map<int, map<int, set<int> > > > transitions; // m -> state -> input-alphabet -> set<states>
+		std::map<int, std::map<int, std::map<int, std::set<int> > > > transitions; // m -> state -> input-alphabet -> std::set<states>
 		// using -1 as epsilon-transition (input-alphabet field)
 
-		map<int, output_alphabet> output_mapping; // mapping state to its output-alphabet
+		std::map<int, output_alphabet> output_mapping; // mapping state to its output-alphabet
 	public:
 		mVCA()
 		{ m_bound = 0; }
@@ -527,14 +526,14 @@ class mVCA: public finite_state_machine<output_alphabet> {
 		{{{
 			int i;
 
-			vector<int>::const_iterator vi;
+			std::vector<int>::const_iterator vi;
 
-			typename map<int, map<int, map<int, set<int> > > >::const_iterator mmmsi;
-			typename map<int, map<int, set<int> > >::const_iterator mmsi;
-			typename map<int, set<int> >::const_iterator msi;
-			typename set<int>::const_iterator si;
+			typename std::map<int, std::map<int, std::map<int, std::set<int> > > >::const_iterator mmmsi;
+			typename std::map<int, std::map<int, std::set<int> > >::const_iterator mmsi;
+			typename std::map<int, std::set<int> >::const_iterator msi;
+			typename std::set<int>::const_iterator si;
 
-			typename map<int, output_alphabet>::const_iterator oi;
+			typename std::map<int, output_alphabet>::const_iterator oi;
 
 			if(this->omega)
 				goto invalid;
@@ -581,10 +580,10 @@ invalid:
 				return false;
 
 			// check for epsilon transition and multiple destination states
-			typename map<int, map<int, map<int, set<int> > > >::const_iterator mmmsi;
-			typename map<int, map<int, set<int> > >::const_iterator mmsi;
-			typename map<int, set<int> >::const_iterator msi;
-			typename set<int>::const_iterator si;
+			typename std::map<int, std::map<int, std::map<int, std::set<int> > > >::const_iterator mmmsi;
+			typename std::map<int, std::map<int, std::set<int> > >::const_iterator mmsi;
+			typename std::map<int, std::set<int> >::const_iterator msi;
+			typename std::set<int>::const_iterator si;
 
 			for(mmmsi = transitions.begin(); mmmsi != transitions.end(); ++mmmsi) {
 				for(mmsi = mmmsi->second.begin(); mmsi != mmmsi->second.end(); ++mmsi) {
@@ -601,9 +600,9 @@ nondet:
 			this->is_deterministic = false;
 			return false;
 		}}}
-		virtual basic_string<int32_t> serialize() const
+		virtual std::basic_string<int32_t> serialize() const
 		{{{
-			basic_string<int32_t> ret;
+			std::basic_string<int32_t> ret;
 
 			if(this->valid) {
 				ret += 0; // size, filled in later.
@@ -634,11 +633,11 @@ failed:
 			clear();
 			return false;
 		}}}
-		virtual string write() const
+		virtual std::string write() const
 		{ /* depends on output_alphabet, has to be done by you! */ return ""; }
-		virtual bool read(__attribute__ ((__unused__)) string input)
+		virtual bool read(__attribute__ ((__unused__)) std::string input)
 		{ /* depends on output_alphabet, has to be done by you! */ return false; }
-		virtual string visualize() const
+		virtual std::string visualize() const
 		{ /* depends on output_alphabet, has to be done by you! */ return ""; }
 };
 
@@ -662,17 +661,17 @@ class finite_automaton : public moore_machine<bool> {
 		virtual conjecture_type get_type() const
 		{ return CONJECTURE_FINITE_AUTOMATON; }
 		virtual bool calc_validity();
-		virtual basic_string<int32_t> serialize() const;
+		virtual std::basic_string<int32_t> serialize() const;
 		virtual bool deserialize(serial_stretch & serial);
-		virtual string write() const;
-		virtual bool read(string input);
-		virtual string visualize() const;
+		virtual std::string write() const;
+		virtual bool read(std::string input);
+		virtual std::string visualize() const;
 
 		// checks if a word is accepted by this automaton.
-		virtual bool contains(const list<int> & word) const;
-		inline void get_final_states(set<int> & into) const
+		virtual bool contains(const std::list<int> & word) const;
+		inline void get_final_states(std::set<int> & into) const
 		{{{
-			map<int, bool>::const_iterator oi;
+			std::map<int, bool>::const_iterator oi;
 
 			into.clear();
 
@@ -680,15 +679,15 @@ class finite_automaton : public moore_machine<bool> {
 				if(oi->second)
 					into.insert(oi->first);
 		}}}
-		inline set<int> get_final_states() const
+		inline std::set<int> get_final_states() const
 		{{{
-			set<int> final_states;
+			std::set<int> final_states;
 			this->get_final_states(final_states);
 			return final_states;
 		}}}
-		inline void set_final_states(const set<int> &final)
+		inline void set_final_states(const std::set<int> &final)
 		{{{
-			set<int>::const_iterator si;
+			std::set<int>::const_iterator si;
 			this->set_all_non_accepting();
 			for(si = final.begin(); si != final.end(); ++si)
 				this->output_mapping[*si] = true;
@@ -696,7 +695,7 @@ class finite_automaton : public moore_machine<bool> {
 		virtual void set_all_non_accepting();
 	protected:
 		// parse a single, human readable transition and store it in this->transitions
-		bool parse_transition(string single);
+		bool parse_transition(std::string single);
 };
 
 
@@ -716,15 +715,15 @@ class simple_mVCA : public mVCA<bool> {
 		{ };
 		virtual conjecture_type get_type() const
 		{ return CONJECTURE_SIMPLE_MVCA; }
-		virtual basic_string<int32_t> serialize() const;
+		virtual std::basic_string<int32_t> serialize() const;
 		virtual bool deserialize(serial_stretch & serial);
-		virtual string write() const;
-		virtual bool read(string input);
-		virtual string visualize() const;
+		virtual std::string write() const;
+		virtual bool read(std::string input);
+		virtual std::string visualize() const;
 
-		inline void get_final_states(set<int> & into) const
+		inline void get_final_states(std::set<int> & into) const
 		{{{
-			map<int, bool>::const_iterator oi;
+			std::map<int, bool>::const_iterator oi;
 
 			into.clear();
 
@@ -732,9 +731,9 @@ class simple_mVCA : public mVCA<bool> {
 				if(oi->second)
 					into.insert(oi->first);
 		}}}
-		inline set<int> get_final_states() const
+		inline std::set<int> get_final_states() const
 		{{{
-			set<int> final_states;
+			std::set<int> final_states;
 			this->get_final_states(final_states);
 			return final_states;
 		}}}
@@ -758,11 +757,11 @@ class bounded_simple_mVCA : public finite_automaton {
 		{ return CONJECTURE_BOUNDED_SIMPLE_MVCA; };
 		virtual void clear();
 		virtual bool calc_validity();
-		virtual basic_string<int32_t> serialize() const;
+		virtual std::basic_string<int32_t> serialize() const;
 		virtual bool deserialize(serial_stretch & serial);
-		virtual string write() const;
-		virtual bool read(string input);
-		virtual string visualize() const;
+		virtual std::string write() const;
+		virtual bool read(std::string input);
+		virtual std::string visualize() const;
 };
 
 

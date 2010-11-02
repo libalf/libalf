@@ -28,11 +28,7 @@
 #include <string>
 #include <istream>
 
-#include <stdio.h>
-
 namespace libalf {
-
-using namespace std;
 
 enum logger_loglevel {
 	LOGGER_INTERNAL	 = 0,		// only internal, do not use
@@ -45,7 +41,7 @@ enum logger_loglevel {
 	LOGGER_ALGORITHM = 5		// do not use this as minimal loglevel
 };
 
-class logger : public binary_function< enum logger_loglevel, string&, void > {
+class logger : public std::binary_function< enum logger_loglevel, std::string&, void > {
 	protected:
 		enum logger_loglevel minimal_loglevel;
 		bool log_algorithm;
@@ -54,7 +50,7 @@ class logger : public binary_function< enum logger_loglevel, string&, void > {
 		logger();
 		virtual ~logger() { };
 
-		virtual void operator()(enum logger_loglevel, string&);
+		virtual void operator()(enum logger_loglevel, std::string&);
 		virtual void operator()(enum logger_loglevel, const char* format, ...);
 
 		void set_minimal_loglevel(enum logger_loglevel minimal_loglevel);
@@ -75,11 +71,11 @@ class ignore_logger : public logger {
 
 class ostream_logger : public logger {
 	private:
-		ostream *out;
+		std::ostream *out;
 		bool use_color;
 	public:
 		ostream_logger();
-		ostream_logger(ostream *out, enum logger_loglevel minimal_loglevel, bool log_algorithm = true, bool use_color = true);
+		ostream_logger(std::ostream *out, enum logger_loglevel minimal_loglevel, bool log_algorithm = true, bool use_color = true);
 
 		virtual ~ostream_logger();
 
@@ -89,14 +85,14 @@ class ostream_logger : public logger {
 
 class buffered_logger : public logger {
 	private:
-		string * buffer;
+		std::string * buffer;
 	public:
 		buffered_logger();
 		buffered_logger(enum logger_loglevel minimal_loglevel, bool log_algorithm = true);
 
 		virtual ~buffered_logger();
 
-		string * receive_and_flush();
+		std::string * receive_and_flush();
 
 	protected:
 		virtual void log(enum logger_loglevel l, const char* s);

@@ -44,10 +44,9 @@
 #endif
 
 #include <list>
-#include <set>
-#include <map>
-#include <utility>
 #include <string>
+#include <ostream>
+#include <sstream>
 
 #include <libalf/serialize.h>
 #include <libalf/logger.h>
@@ -57,8 +56,6 @@
 #include <libalf/conjecture.h>
 
 namespace libalf {
-
-using namespace std;
 
 // basic interface for different implementations (e.g. one table and one tree)
 template <class answer>
@@ -211,21 +208,21 @@ class learning_algorithm {
 		 *	algorithm-specific data
 		 * </serialized learning algorithm data>
 		 */
-		virtual basic_string<int32_t> serialize() const = 0;
+		virtual std::basic_string<int32_t> serialize() const = 0;
 		virtual bool deserialize(serial_stretch & serial) = 0;
 
 		// for algorithm-specific commands (e.g. parameter passing via dispatcher)
-		virtual bool deserialize_magic(serial_stretch & serial, basic_string<int32_t> & result)
+		virtual bool deserialize_magic(serial_stretch & serial, std::basic_string<int32_t> & result)
 		{{{
 			serial.empty(); /* <- this is just so we don't get a not-used warning */
 			result.clear();
 			return false;
 		}}};
 
-		virtual void print(ostream &os) const = 0;
-		virtual string to_string() const
+		virtual void print(std::ostream &os) const = 0;
+		virtual std::string to_string() const
 		{{{
-			stringstream str;
+			std::stringstream str;
 			this->print(str);
 			return str.str();
 		}}}
@@ -264,7 +261,7 @@ class learning_algorithm {
 		}}};
 
 		// in case the hypothesis is wrong, use this function to give a counter-example
-		virtual bool add_counterexample(list<int>) = 0;
+		virtual bool add_counterexample(std::list<int>) = 0;
 
 	protected:
 		// complete table in such a way that an automaton can be derived

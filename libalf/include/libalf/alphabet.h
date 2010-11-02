@@ -26,64 +26,60 @@
 #ifndef __libalf_alphabet_h__
 # define __libalf_alphabet_h__
 
-#include <algorithm>
 #include <list>
 #include <string>
+#include <iostream>
 
 #ifdef _WIN32
 # include <stdint.h>
 #endif
 
-#include <stdio.h>
-
 namespace libalf {
-
-using namespace std;
 
 #define BOTTOM_CHAR -42
 
 // alphabet is just <int> and the first letter is `0'.
-// epsilon is denoted by an empty list<int>
+// epsilon is denoted by an empty std::list<int>
 
-// return ptr to new list with first∙second
-list<int>* concat(const list<int> &first, const list<int> &second);
+// return ptr to new std::list with first∙second
+std::list<int>* concat(const std::list<int> &first, const std::list<int> &second);
 
-list<int> operator+(const list<int> & prefix, const list<int> & suffix);
+std::list<int> operator+(const std::list<int> & prefix, const std::list<int> & suffix);
 
 // simple constructors for (const-len) words.
 // call:
 //	my_word = word(4,  0,1,2,3);
 //                     ^ number of letters
-list<int> word(const int num_letters, ...);
+std::list<int> word(const int num_letters, ...);
 
-bool is_prefix_of(const list<int> &prefix, const list<int> &word);
+bool is_prefix_of(const std::list<int> &prefix, const std::list<int> &word);
 
-bool is_suffix_of(const list<int> &postfix, const list<int> &word);
+bool is_suffix_of(const std::list<int> &postfix, const std::list<int> &word);
 
-void print_word(ostream &os, const list<int> &word);
+void print_word(std::ostream &os, const std::list<int> &word);
 
-void print_word(const list<int> &word);
+void print_word(const std::list<int> &word);
 
-string word2string(const list<int> &word, char separator);
+std::string word2string(const std::list<int> &word, char separator);
 
-inline string word2string(const list<int> &word)
+inline std::string word2string(const std::list<int> &word)
 { return word2string(word, '.'); };
 
-basic_string<int32_t> serialize_word(const list<int> &word);
+std::basic_string<int32_t> serialize_word(const std::list<int> &word);
 
-bool deserialize_word(list<int32_t> &into, basic_string<int32_t>::const_iterator &it, basic_string<int32_t>::const_iterator limit);
+bool deserialize_word(std::list<int32_t> &into, std::basic_string<int32_t>::const_iterator &it, std::basic_string<int32_t>::const_iterator limit);
 
 // lexicographic compare:
 // a < b iff a[i] == b[i] \forall i < j and a[j] < b[j]
-bool is_lex_smaller(const list<int> &a, const list<int> &b);
+bool is_lex_smaller(const std::list<int> &a, const std::list<int> &b);
 
 // graded lexicographic compare:
 // a < b iff |a|<|b| or ( |a|==|b| and lex. a < b )
-bool is_graded_lex_smaller(const list<int> &a, const list<int> &b);
+bool is_graded_lex_smaller(const std::list<int> &a, const std::list<int> &b);
 
 // get next bigger/smaller word w.r.t. graded lexicographic order
-void inc_graded_lex(list<int> &word, int alphabet_size);
-void dec_graded_lex(list<int> &word, int alphabet_size);
+void inc_graded_lex(std::list<int> &word, int alphabet_size);
+void dec_graded_lex(std::list<int> &word, int alphabet_size);
 
 };
 

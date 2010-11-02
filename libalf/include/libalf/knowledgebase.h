@@ -31,6 +31,7 @@
 #include <string>
 #include <set>
 #include <sstream>
+#include <algorithm>
 #ifdef _WIN32
 #include <winsock.h>
 #else
@@ -79,9 +80,6 @@ namespace libalf {
 
 namespace libalf {
 
-using namespace std;
-using namespace libalf;
-
 template <class answer>
 class knowledgebase {
 	public: // types
@@ -98,7 +96,7 @@ class knowledgebase {
 				knowledgebase * base;
 				node * parent;
 				// for root-node, parent is NULL.
-				vector<node *> children;
+				std::vector<node *> children;
 				// NULL is a valid placeholder for
 				// non-existing sub-trees
 				int label;
@@ -112,11 +110,11 @@ class knowledgebase {
 				node* get_next(node * current_child)
 				// used in iterator++
 				{{{
-					typename vector<node *>::iterator ci;
+					typename std::vector<node *>::iterator ci;
 
 					// find next after current child
 					if(current_child != NULL) {
-						ci = find(children.begin(), children.end(), current_child);
+						ci = std::find(children.begin(), children.end(), current_child);
 						if(ci == children.end())
 							ci = children.begin();
 						else
@@ -136,10 +134,10 @@ class knowledgebase {
 					else
 						return NULL;
 				}}}
-				void serialize_subtree(basic_string<int32_t> & into) const
+				void serialize_subtree(std::basic_string<int32_t> & into) const
 				// used during serialization
 				{{{
-					typename vector<node *>::const_iterator ci;
+					typename std::vector<node *>::const_iterator ci;
 
 					into += ::serialize(label); // label MUST be the first element (see deserialize of children)
 					into += ::serialize(timestamp);
@@ -201,7 +199,7 @@ class knowledgebase {
 				// reference in parent will stay ; all
 				// children will be deleted
 				{{{
-					typename vector<node*>::iterator ci;
+					typename std::vector<node*>::iterator ci;
 					for(ci = children.begin(); ci != children.end(); ci++)
 						if(*ci)
 							delete (*ci);
@@ -230,7 +228,7 @@ class knowledgebase {
 					else
 						return NULL;
 				}}}
-				node * find_descendant(list<int>::const_iterator infix_start, list<int>::const_iterator infix_limit)
+				node * find_descendant(std::list<int>::const_iterator infix_start, std::list<int>::const_iterator infix_limit)
 				{{{
 					node * n = this;
 
@@ -265,7 +263,7 @@ class knowledgebase {
 
 					return children[label];
 				}}}
-				node * find_or_create_descendant(list<int>::iterator infix_start, list<int>::iterator infix_limit)
+				node * find_or_create_descendant(std::list<int>::iterator infix_start, std::list<int>::iterator infix_limit)
 				{{{
 					node * n = this;
 
@@ -283,7 +281,7 @@ class knowledgebase {
 					if(is_answered() && get_answer() == specific_answer)
 						return true;
 
-					typename vector<node*>::const_iterator ci;
+					typename std::vector<node*>::const_iterator ci;
 
 					for(ci = children.begin(); ci != children.end(); ci++)
 						if(*ci)
@@ -298,10 +296,10 @@ class knowledgebase {
 				{{{
 					return this->label;
 				}}}
-				list<int> get_word() const
+				std::list<int> get_word() const
 				// get word this node represents
 				{{{
-					list<int> w;
+					std::list<int> w;
 					const node * n = this;
 
 					while(n != NULL) {
@@ -366,7 +364,7 @@ class knowledgebase {
 					if(check_self && status == NODE_REQUIRED)
 						return false;
 
-					typename vector<node*>::const_iterator ci;
+					typename std::vector<node*>::const_iterator ci;
 
 					for(ci = children.begin(); ci != children.end(); ci++)
 						if(*ci)
@@ -391,7 +389,7 @@ class knowledgebase {
 				// other.w . to allow infinite long words, use
 				// depth = -1.
 				{{{
-					typename vector<node*>::const_iterator ci, oci;
+					typename std::vector<node*>::const_iterator ci, oci;
 
 					if(different(other))
 						return true;
@@ -432,7 +430,7 @@ class knowledgebase {
 					// FIXME: efficiency
 					using libalf::is_lex_smaller;
 
-					list<int> a,b;
+					std::list<int> a,b;
 					a = this->get_word();
 					b = other->get_word();
 					return is_lex_smaller(a,b);
@@ -444,7 +442,7 @@ class knowledgebase {
 					// FIXME: efficiency
 					using libalf::is_graded_lex_smaller;
 
-					list<int> a,b;
+					std::list<int> a,b;
 					a = this->get_word();
 					b = other->get_word();
 					return is_graded_lex_smaller(a,b);
@@ -454,7 +452,7 @@ class knowledgebase {
 				// subtree
 				{{{
 					unsigned long long int ret;
-					typename vector<node*>::const_iterator ci;
+					typename std::vector<node*>::const_iterator ci;
 
 					ret = sizeof(this) + sizeof(node *) * children.size();
 					for(ci = children.begin(); ci != children.end(); ci++)
@@ -486,7 +484,7 @@ class knowledgebase {
 					may_remove_self = ( this->status == NODE_IGNORE );
 
 					// remove all children that may be removed
-					typename vector<node*>::iterator ci;
+					typename std::vector<node*>::iterator ci;
 					for(ci = children.begin(); ci != children.end(); ++ci) {
 						if(*ci != NULL) {
 							if( ! (*ci)->cleanup() ) {
@@ -532,21 +530,21 @@ class knowledgebase {
 		//
 		// FIXME: define:
 		//	template <order>
-		//	class equivalence_class : public set<node*>;
+		//	class equivalence_class : public std::set<node*>;
 		//	here overload operator[] to give &representative
 		//
 		//	template <order>
-		//	class equivalence_relation : public set<equivalence_class<order> >;
+		//	class equivalence_relation : public std::set<equivalence_class<order> >;
 		//	here overlode operator[] to give &equivalence_class.
-		class equivalence_relation : public multimap<node*, node*, node_comparator> {
+		class equivalence_relation : public std::multimap<node*, node*, node_comparator> {
 			public: // types
-				typedef typename multimap<node*, node*, node_comparator>::iterator iterator;
-				typedef pair<iterator, iterator> range;
+				typedef typename std::multimap<node*, node*, node_comparator>::iterator iterator;
+				typedef std::pair<iterator, iterator> range;
 			public: // member functions
-				set<node*> get_equivalence_class(node * n)
+				std::set<node*> get_equivalence_class(node * n)
 				// get all members of equivalence class
 				{{{
-					set<node*> ret;
+					std::set<node*> ret;
 					range eq_class;
 
 					eq_class = this->equal_range(n);
@@ -576,7 +574,7 @@ class knowledgebase {
 					using libalf::is_lex_smaller;
 
 					range eq_class;
-					list<int> current_rep_word;
+					std::list<int> current_rep_word;
 					node * current_rep;
 
 					eq_class = this->equal_range(n);
@@ -588,7 +586,7 @@ class knowledgebase {
 					eq_class.first++;
 
 					while(eq_class.first != eq_class.second) {
-						list<int> w;
+						std::list<int> w;
 						w = eq_class.first->second->get_word();
 						if(is_lex_smaller(w, current_rep_word)) {
 							current_rep = eq_class.first->second;
@@ -604,7 +602,7 @@ class knowledgebase {
 					using libalf::is_lex_smaller;
 
 					range eq_class;
-					list<int> word;
+					std::list<int> word;
 
 					eq_class = this->equal_range(n);
 					if(eq_class.first == eq_class.second)
@@ -613,7 +611,7 @@ class knowledgebase {
 					word = n->get_word();
 
 					while(eq_class.first != eq_class.second) {
-						list<int> w;
+						std::list<int> w;
 						w = eq_class.first->second->get_word();
 						if(is_lex_smaller(w, word))
 							return false;
@@ -622,11 +620,11 @@ class knowledgebase {
 
 					return true;
 				}}}
-				set<node*> representatives_lex()
+				std::set<node*> representatives_lex()
 				// get representatives of all eq.classes
 				// w.r.t. lexicographic order
 				{{{
-					set<node*> ret;
+					std::set<node*> ret;
 					iterator i;
 					node *done = NULL;
 
@@ -647,7 +645,7 @@ class knowledgebase {
 					using libalf::is_graded_lex_smaller;
 
 					range eq_class;
-					list<int> current_rep_word;
+					std::list<int> current_rep_word;
 					node * current_rep;
 
 					eq_class = this->equal_range(n);
@@ -659,7 +657,7 @@ class knowledgebase {
 					eq_class.first++;
 
 					while(eq_class.first != eq_class.second) {
-						list<int> w;
+						std::list<int> w;
 						w = eq_class.first->second->get_word();
 						if(is_graded_lex_smaller(w, current_rep_word)) {
 							current_rep = eq_class.first->second;
@@ -675,7 +673,7 @@ class knowledgebase {
 					using libalf::is_graded_lex_smaller;
 
 					range eq_class;
-					list<int> word;
+					std::list<int> word;
 
 					eq_class = this->equal_range(n);
 					if(eq_class.first == eq_class.second)
@@ -684,7 +682,7 @@ class knowledgebase {
 					word = n->get_word();
 
 					while(eq_class.first != eq_class.second) {
-						list<int> w;
+						std::list<int> w;
 						w = eq_class.first->second->get_word();
 						if(is_graded_lex_smaller(w, word))
 							return false;
@@ -693,11 +691,11 @@ class knowledgebase {
 
 					return true;
 				}}}
-				set<node*> representatives_graded_lex()
+				std::set<node*> representatives_graded_lex()
 				// get representatives of all eq.classes
 				// w.r.t. graded lexicographic order
 				{{{
-					set<node*> ret;
+					std::set<node*> ret;
 					iterator i;
 					node* done = NULL;
 
@@ -749,12 +747,12 @@ class knowledgebase {
 
 					return true;
 				}}}
-				set<node*> representatives_ptr()
+				std::set<node*> representatives_ptr()
 				// get representatives of all eq.classes
 				// w.r.t. ptr order (very efficient, but
 				// arbitrary)
 				{{{
-					set<node*> ret;
+					std::set<node*> ret;
 					iterator i;
 					node* done = NULL;
 
@@ -772,14 +770,14 @@ class knowledgebase {
 	/*
 	 * future replacement of equivalence_relation:
 	 *
-		class eq_class : public set<int> {
+		class eq_class : public std::set<int> {
 			public: // types
-				typedef typename set<node*>::iterator iterator;
-				typedef typename set<node*>::const_iterator const_iterator;
+				typedef typename std::set<node*>::iterator iterator;
+				typedef typename std::set<node*>::const_iterator const_iterator;
 			public: // methods
 				bool contains(const node * element) const
 				{ return (this->find(element) != this->end()); }
-				void print(ostream &os) const
+				void print(std::ostream &os) const
 				{{{
 					const_iterator i;
 
@@ -793,18 +791,18 @@ class knowledgebase {
 					}
 					os << " }";
 				}}}
-				string to_string() const
+				std::string to_string() const
 				{{{
-					stringstream str;
+					std::stringstream str;
 					this->print(str);
 					return str.str();
 				}}}
 		};
 
-		class eq_relation : public set<eq_class> {
+		class eq_relation : public std::set<eq_class> {
 			public: // types
-				typedef typename set<eq_class>::iterator iterator;
-				typedef typename set<eq_class>::const_iterator const_iterator;
+				typedef typename std::set<eq_class>::iterator iterator;
+				typedef typename std::set<eq_class>::const_iterator const_iterator;
 			public: // methods
 				// merge two equivalence classes (Forced without any check)
 				void immediate_Fmerge(iterator i, iterator j)
@@ -841,7 +839,7 @@ class knowledgebase {
 							break;
 					return i;
 				}}}
-				void print(ostream &os) const
+				void print(std::ostream &os) const
 				{{{
 					const_iterator i;
 
@@ -855,9 +853,9 @@ class knowledgebase {
 					}
 					os << " }";
 				}}}
-				string to_string() const
+				std::string to_string() const
 				{{{
-					stringstream str;
+					std::stringstream str;
 					this->print(str);
 					return str.str();
 				}}}
@@ -873,7 +871,7 @@ class knowledgebase {
 				node * current;
 
 				bool queries_only;
-				typename list<node*>::iterator qi;
+				typename std::list<node*>::iterator qi;
 			public:
 				iterator()
 				{{{
@@ -889,7 +887,7 @@ class knowledgebase {
 					qi = other.qi;
 				}}}
 
-				iterator(bool queries_only, typename list<node*>::iterator currentquery, node * current, knowledgebase * base)
+				iterator(bool queries_only, typename std::list<node*>::iterator currentquery, node * current, knowledgebase * base)
 				{{{
 					this->base = base;
 					this->current = current;
@@ -959,7 +957,7 @@ class knowledgebase {
 		// full tree
 		node * root;
 		// list of all nodes that are required
-		list<node *> required;
+		std::list<node *> required;
 
 		// filter that is tried during resolved_queries() and resolve_or_add_query()
 		filter<answer> * my_filter;
@@ -1102,10 +1100,10 @@ class knowledgebase {
 			return largest_symbol;
 		}}}
 
-		void print(ostream &os)
+		void print(std::ostream &os)
 		{{{
 			iterator ki;
-				list<int> w;
+				std::list<int> w;
 
 			os << "knowledgebase {\n";
 
@@ -1121,17 +1119,17 @@ class knowledgebase {
 
 			os << "}\n";
 		}}}
-		string to_string()
+		std::string to_string()
 		{{{
-			stringstream str;
+			std::stringstream str;
 			this->print(str);
 			return str.str();
 		}}}
-		string visualize()
+		std::string visualize()
 		{{{
-			stringstream str;
+			std::stringstream str;
 			iterator it;
-			string wname;
+			std::string wname;
 
 			str << "digraph knowledgebase {\n"
 				"\trankdir=LR;\n"
@@ -1176,8 +1174,8 @@ class knowledgebase {
 
 			// and add all connections
 			for(it = this->begin(); it != this->end(); it++) {
-				typename vector<node *>::iterator ci;
-				string toname;
+				typename std::vector<node *>::iterator ci;
+				std::string toname;
 
 				wname = word2string( it->get_word() );
 				for(ci = it->children.begin(); ci != it->children.end(); ci++) {
@@ -1191,16 +1189,16 @@ class knowledgebase {
 			str << "}\n";
 			return str.str();
 		}}}
-		string visualize(equivalence_relation & eq)
+		std::string visualize(equivalence_relation & eq)
 		// FIXME: use operator<< fot it->get_answer().
 		{{{
-			string ret;
+			std::string ret;
 
 			char buf[128];
 			iterator it;
 
-			list<int> word;
-			string wname;
+			std::list<int> word;
+			std::string wname;
 
 			ret = "digraph knowledgebase {\n"
 				"\trankdir=LR;\n"
@@ -1224,8 +1222,8 @@ class knowledgebase {
 			}
 			// and add all connections
 			for(it = this->begin(); it != this->end(); it++) {
-				typename vector<node *>::iterator ci;
-				string toname;
+				typename std::vector<node *>::iterator ci;
+				std::string toname;
 
 				word = it->get_word();
 				wname = word2string(word);
@@ -1246,13 +1244,13 @@ class knowledgebase {
 			}
 
 			// and mark equivalence relations
-			set<node*> done;
+			std::set<node*> done;
 			typename equivalence_relation::iterator ni;
 			for(ni = eq.begin(); ni != eq.end(); ni++) {
 				if(done.find(ni->second) == done.end()) {
-					set<node*> eq_class;
-					typename set<node*>::iterator si;
-					list<node*> sorted_eq_class;
+					std::set<node*> eq_class;
+					typename std::set<node*>::iterator si;
+					std::list<node*> sorted_eq_class;
 
 					// sort equivalence class, then draw a line through the class
 					eq_class = eq.get_equivalence_class(ni->second);
@@ -1260,7 +1258,7 @@ class knowledgebase {
 					for(si = eq_class.begin(), count = 0; si != eq_class.end(); si++, count++) {
 						done.insert(*si);
 						// sorted insert into sorted_eq_class: [FIXME: efficiency is non-existant]
-						typename list<node*>::iterator li;
+						typename std::list<node*>::iterator li;
 						for(li = sorted_eq_class.begin(); li != sorted_eq_class.end(); li++)
 							if( ! (*li)->is_graded_lex_smaller(*si) )
 								break;
@@ -1268,13 +1266,13 @@ class knowledgebase {
 					}
 
 					if(count >= 2) {
-						typename list<node*>::iterator li1, li2;
+						typename std::list<node*>::iterator li1, li2;
 						li1 = sorted_eq_class.begin();
 						li2 = li1;
 						li2++;
 
 						while(li2 != sorted_eq_class.end()) {
-							list<int> w1, w2;
+							std::list<int> w1, w2;
 							w1 = (*li1)->get_word();
 							w2 = (*li2)->get_word();
 							snprintf(buf, 128, "\t\"%s [%d]\" -> \"%s [%d]\" [ label=\"\", color=\"orange\", constraint=\"false\", dir=\"none\" ];\n",
@@ -1295,9 +1293,9 @@ class knowledgebase {
 		}}}
 
 
-		basic_string<int32_t> serialize() const
+		std::basic_string<int32_t> serialize() const
 		{{{
-			basic_string<int32_t> ret;
+			std::basic_string<int32_t> ret;
 
 			ret += 0; // sizeof, will be filled in later
 
@@ -1376,7 +1374,7 @@ class knowledgebase {
 			query_tree = new knowledgebase();
 
 			for(qi = this->qbegin(); qi != this->qend(); ++qi) {
-				list<int> qw;
+				std::list<int> qw;
 				qw = qi->get_word();
 				query_tree->add_query(qw, 0);
 				query_tree->timestamp++;
@@ -1384,11 +1382,11 @@ class knowledgebase {
 
 			return query_tree;
 		}}}
-		list<list<int> > get_queries()
+		std::list<std::list<int> > get_queries()
 		// get list of all queries (in correct order so that deserialize_query_acceptances() may be used)
 		{{{
 			iterator ki;
-			list<list<int> > ret;
+			std::list<std::list<int> > ret;
 
 			for(ki = this->qbegin(); ki != this->qend(); ++ki)
 				ret.push_back(ki->get_word());
@@ -1412,7 +1410,7 @@ class knowledgebase {
 
 			for(ki = other_tree.begin(); ki != other_tree.end(); ++ki)
 				if(ki->is_answered()) {
-					list<int> w;
+					std::list<int> w;
 					w = ki->get_word();
 					if(!this->add_knowledge(w, ki->get_answer()))
 						/* this should never happen as we
@@ -1425,7 +1423,7 @@ class knowledgebase {
 			return true;
 		}}}
 
-		bool add_knowledge(list<int> & word, answer acceptance)
+		bool add_knowledge(std::list<int> & word, answer acceptance)
 		// will return false if knowledge for this word was
 		// already set and is != acceptance. in this case, the
 		// holder is in an inconsistent state and the
@@ -1433,12 +1431,12 @@ class knowledgebase {
 		{{{
 			return root->find_or_create_descendant(word.begin(), word.end())->set_answer(acceptance);
 		}}}
-		int add_query(list<int> & word, int prefix_count = 0)
+		int add_query(std::list<int> & word, int prefix_count = 0)
 		// returns the number of new required nodes (excluding
 		// those already known.
 		{{{
 			node * current;
-			list<int>::iterator wi;
+			std::list<int>::iterator wi;
 			int skip_prefixes;
 			int new_queries = 0;
 
@@ -1459,7 +1457,7 @@ class knowledgebase {
 
 			return new_queries;
 		}}}
-		bool resolve_query(list<int> & word, answer & acceptance)
+		bool resolve_query(std::list<int> & word, answer & acceptance)
 		// returns true if known
 		// will also try to apply the filter, if set.
 		// if the filter knows the answer, the answer will not
@@ -1480,7 +1478,7 @@ class knowledgebase {
 					return false;
 			}
 		}}}
-		bool resolve_or_add_query(list<int> & word, answer & acceptance)
+		bool resolve_or_add_query(std::list<int> & word, answer & acceptance)
 		// returns true if known. otherwise marks knowledge as
 		// to-be-acquired and returns false.
 		// will also try to apply the filter, if set.
@@ -1505,16 +1503,16 @@ class knowledgebase {
 				return false;
 			}
 		}}}
-		node* get_nodeptr(list<int> & word)
+		node* get_nodeptr(std::list<int> & word)
 		// get node* for a specific word
 		{{{
 			return root->find_or_create_descendant(word.begin(), word.end());
 		}}}
-		bool node_exists(const list<int> & word) const
+		bool node_exists(const std::list<int> & word) const
 		{{{
 			return (root->find_descendant(word.begin(), word.end()) != NULL);
 		}}};
-		bool knowledge_exists(const list<int> & word) const
+		bool knowledge_exists(const std::list<int> & word) const
 		{{{
 			node * n;
 			n = root->find_descendant(word.begin(), word.end());
@@ -1565,9 +1563,9 @@ class knowledgebase {
 		// with different knowledge.
 		{{{
 			// get a set of all representatives
-			set<node*> representatives;
-			typename set<node*>::iterator si;
-			map<node*, int> mapping;
+			std::set<node*> representatives;
+			typename std::set<node*>::iterator si;
+			std::map<node*, int> mapping;
 			int i;
 
 			// map representatives to state-IDs
@@ -1582,7 +1580,7 @@ class knowledgebase {
 			automaton.initial_states.insert(mapping[eq.representative_ptr(get_rootptr())]);
 
 			// get final states and transitions
-			vector<extended_bool> acceptances;
+			std::vector<extended_bool> acceptances;
 			extended_bool b;
 			b.value = extended_bool::EBOOL_UNKNOWN;
 			for(i = 0; i < automaton.state_count; i++)
@@ -1610,7 +1608,7 @@ class knowledgebase {
 					if(n->is_answered()) {
 						if(n->get_answer() == true) {
 							if(acceptances[src].value == extended_bool::EBOOL_FALSE) {
-								list<int> word;
+								std::list<int> word;
 								word = n->get_word();
 //								printf("inconsistency in equivalence relation: %s\n", word2string(word).c_str());
 								return false;
@@ -1619,7 +1617,7 @@ class knowledgebase {
 						} else {
 							if(n->get_answer() == false) {
 								if(acceptances[src].value == extended_bool::EBOOL_TRUE) {
-									list<int> word;
+									std::list<int> word;
 									word = n->get_word();
 //									printf("inconsistency in equivalence relation: %s\n", word2string(word).c_str());
 									return false;
@@ -1647,7 +1645,7 @@ class knowledgebase {
 
 
 template<typename answer>
-basic_string<int32_t> serialize(typename knowledgebase<answer>::node * n)
+std::basic_string<int32_t> serialize(typename knowledgebase<answer>::node * n)
 // this will ONLY serialize the word, not any information about membership!
 {{{
 	return ::serialize(n->get_word());
@@ -1656,7 +1654,7 @@ basic_string<int32_t> serialize(typename knowledgebase<answer>::node * n)
 template<typename answer>
 bool deserialize(typename knowledgebase<answer>::node * & into, knowledgebase<answer> & base, serial_stretch & serial)
 {{{
-	list<int> w;
+	std::list<int> w;
 
 	into = NULL;
 	if(!::deserialize(w, serial)) return false;
@@ -1673,7 +1671,7 @@ bool deserialize(typename knowledgebase<answer>::node * & into, knowledgebase<an
 template <class answer>
 class kIterator_lex_graded {
 	private:
-		queue<typename knowledgebase<answer>::node*> pending;
+		std::queue<typename knowledgebase<answer>::node*> pending;
 	public:
 		kIterator_lex_graded(typename knowledgebase<answer>::node* root)
 		{ set_root(root); }
@@ -1689,7 +1687,7 @@ class kIterator_lex_graded {
 
 		kIterator_lex_graded & operator++()
 		{{{
-			typename vector<typename knowledgebase<answer>::node*>::iterator ci;
+			typename std::vector<typename knowledgebase<answer>::node*>::iterator ci;
 			typename knowledgebase<answer>::node* n;
 
 			if(pending.empty()) {
