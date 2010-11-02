@@ -28,6 +28,7 @@
 #include <list>
 #include <string>
 #include <set>
+#include <map>
 
 #include <amore++/finite_automaton.h>
 
@@ -62,8 +63,6 @@ namespace amore {
  * the alphabet is mapped from [a..] to [0..] ([1..] in amore-internal representation)
  */
 
-using namespace std;
-
 class nondeterministic_finite_automaton : public finite_automaton {
 	private:
 		nfa nfa_p;
@@ -80,21 +79,21 @@ class nondeterministic_finite_automaton : public finite_automaton {
 
 		virtual unsigned int get_state_count() const;
 		virtual unsigned int get_alphabet_size() const;
-		virtual set<int> get_initial_states() const;
-		virtual set<int> get_final_states() const;
-		virtual void set_initial_states(set<int> &states);
-		virtual void set_final_states(set<int> &states);
-		virtual bool contains_initial_states(set<int> states) const;
-		virtual bool contains_final_states(set<int> states) const;
-		virtual set<int> successor_states(set<int> states) const;
-		virtual set<int> successor_states(set<int> states, int label) const;
-		virtual set<int> predecessor_states(set<int> states) const;
-		virtual set<int> predecessor_states(set<int> states, int label) const;
-		virtual void epsilon_closure(set<int> & states) const;
-		virtual void inverted_epsilon_closure(set<int> & states) const;
-		virtual list<int> shortest_run(set<int> from, set<int> &to, bool &reachable) const;
-		virtual bool is_reachable(set<int> &from, set<int> &to) const;
-		virtual list<int> get_sample_word(bool & is_empty) const;
+		virtual std::set<int> get_initial_states() const;
+		virtual std::set<int> get_final_states() const;
+		virtual void set_initial_states(std::set<int> &states);
+		virtual void set_final_states(std::set<int> &states);
+		virtual bool contains_initial_states(std::set<int> states) const;
+		virtual bool contains_final_states(std::set<int> states) const;
+		virtual std::set<int> successor_states(std::set<int> states) const;
+		virtual std::set<int> successor_states(std::set<int> states, int label) const;
+		virtual std::set<int> predecessor_states(std::set<int> states) const;
+		virtual std::set<int> predecessor_states(std::set<int> states, int label) const;
+		virtual void epsilon_closure(std::set<int> & states) const;
+		virtual void inverted_epsilon_closure(std::set<int> & states) const;
+		virtual std::list<int> shortest_run(std::set<int> from, std::set<int> &to, bool &reachable) const;
+		virtual bool is_reachable(std::set<int> &from, std::set<int> &to) const;
+		virtual std::list<int> get_sample_word(bool & is_empty) const;
 		virtual bool is_empty() const;
 		virtual bool is_universal() const;
 		virtual bool operator==(const finite_automaton &other) const;
@@ -113,23 +112,23 @@ class nondeterministic_finite_automaton : public finite_automaton {
 		virtual nondeterministic_finite_automaton * nondeterminize() const;
 		virtual finite_automaton * determinize() const;
 
-		virtual basic_string<int32_t> serialize() const;
-		virtual bool deserialize(basic_string<int32_t>::const_iterator &it, basic_string<int32_t>::const_iterator limit);
+		virtual std::basic_string<int32_t> serialize() const;
+		virtual bool deserialize(std::basic_string<int32_t>::const_iterator &it, std::basic_string<int32_t>::const_iterator limit);
 
 		// overloading
-		virtual bool contains(list<int> &word) const;
+		virtual bool contains(std::list<int> &word) const;
 
 		// new
 		virtual void set_nfa(nfa a);
 		virtual nfa get_nfa();
 
 		// get regex for automaton
-		virtual string to_regex() const;
+		virtual std::string to_regex() const;
 
 	protected:
-//		set<set<int> > antichain_universality_cpre(set<int>);
-		multimap< int, set<int> > antichain_subset_cpre(multimap< int, set<int> > &stateset, nondeterministic_finite_automaton &other) const;
-		void antichain_subset_cpreN(pair<int, set<int> > &f1, multimap< int, set<int> > &Fn, nondeterministic_finite_automaton &other) const;
+//		std::set<std::set<int> > antichain_universality_cpre(std::set<int>);
+		std::multimap< int, std::set<int> > antichain_subset_cpre(std::multimap< int, std::set<int> > &stateset, nondeterministic_finite_automaton &other) const;
+		void antichain_subset_cpreN(std::pair<int, std::set<int> > &f1, std::multimap< int, std::set<int> > &Fn, nondeterministic_finite_automaton &other) const;
 
 };
 

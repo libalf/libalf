@@ -34,12 +34,9 @@
 
 namespace amore {
 
-using namespace std;
-
-
 class automaton_run {
 	public:
-		list<int> prefix;
+		std::list<int> prefix;
 		int state;
 
 		automaton_run()
@@ -69,49 +66,49 @@ class finite_automaton {
 		// get and set initial and final states.
 		// NOTE that in case of a DFA, setting multiple initial states will result in the LAST state being initial.
 		// (according to set order)
-		virtual set<int> get_initial_states() const = 0;
-		virtual set<int> get_final_states() const = 0;
-		virtual void set_initial_states(set<int> &states) = 0;
-		virtual void set_final_states(set<int> &states) = 0;
+		virtual std::set<int> get_initial_states() const = 0;
+		virtual std::set<int> get_final_states() const = 0;
+		virtual void set_initial_states(std::set<int> &states) = 0;
+		virtual void set_final_states(std::set<int> &states) = 0;
 
 		// check if set contains initial or final states
-		virtual bool contains_initial_states(set<int> states) const = 0;
-		virtual bool contains_final_states(set<int> states) const = 0;
+		virtual bool contains_initial_states(std::set<int> states) const = 0;
+		virtual bool contains_final_states(std::set<int> states) const = 0;
 
 		// get all successor or predecessor states to a state-set
-		virtual set<int> successor_states(set<int> states) const = 0;
-		virtual set<int> predecessor_states(set<int> states) const = 0;
+		virtual std::set<int> successor_states(std::set<int> states) const = 0;
+		virtual std::set<int> predecessor_states(std::set<int> states) const = 0;
 		// get all successor or predecessor states to a state-set via a specifically labelled transition
-		virtual set<int> successor_states(set<int> states, int label) const = 0;
-		virtual set<int> predecessor_states(set<int> states, int label) const = 0;
+		virtual std::set<int> successor_states(std::set<int> states, int label) const = 0;
+		virtual std::set<int> predecessor_states(std::set<int> states, int label) const = 0;
 
 		// epsilon-closure functions: (obviously only applicable to automata with epsilon-transitions)
 		// apply epsilon-closure to state-set (i.e. include states that may be reached from those via epsilon)
-		virtual void epsilon_closure(set<int> & states) const = 0;
+		virtual void epsilon_closure(std::set<int> & states) const = 0;
 		// apply inverted epsilon-closure to state-set (i.e. include states from whom these states may be reached via epsilon)
-		virtual void inverted_epsilon_closure(set<int> & states) const = 0;
+		virtual void inverted_epsilon_closure(std::set<int> & states) const = 0;
 
 		// get mappings of all transitions. (post-transitions and pre-transitions, useful for fast, recurring calculations)
 		// the mapping works as follows: map[current_state][label] = { predecessor- resp. successor-states }.
 		// epsilon transitions are considered if the underlying automaton resolves epsilon-transitions
 		// in predecessor_states() and successor_states().
-		virtual void get_transition_maps(map<int, map<int, set<int> > > & premap, map<int, map<int, set<int> > > & postmap) const;
+		virtual void get_transition_maps(std::map<int, std::map<int, std::set<int> > > & premap, std::map<int, std::map<int, std::set<int> > > & postmap) const;
 
 		// calculate single-label transition or multiple-label run for a set of starting states
-		virtual set<int> transition(set<int> from, int label) const
+		virtual std::set<int> transition(std::set<int> from, int label) const
 		{   return successor_states(from, label);   };
-		virtual set<int> run(set<int> from, list<int>::const_iterator word, list<int>::const_iterator word_limit) const;
+		virtual std::set<int> run(std::set<int> from, std::list<int>::const_iterator word, std::list<int>::const_iterator word_limit) const;
 
 		// get shortest run (i.e. word) from a state in <from> to a state in <to>
 		// reachable = false if state is not reachable.
-		virtual list<int> shortest_run(set<int> from, set<int> &to, bool &reachable) const = 0;
+		virtual std::list<int> shortest_run(std::set<int> from, std::set<int> &to, bool &reachable) const = 0;
 		// check if states <to> are reachable from states <from>
-		virtual bool is_reachable(set<int> &from, set<int> &to) const = 0;
+		virtual bool is_reachable(std::set<int> &from, std::set<int> &to) const = 0;
 
 		// get a random sample word from this automaton (usually the shortest word in L)
-		virtual list<int> get_sample_word(bool & is_empty) const = 0;
+		virtual std::list<int> get_sample_word(bool & is_empty) const = 0;
 		// test if word is contained in language of this automaton
-		virtual bool contains(list<int> & word) const;
+		virtual bool contains(std::list<int> & word) const;
 
 
 		// UNARY LANGUAGE TESTS
@@ -134,7 +131,7 @@ class finite_automaton {
 		// minimize automaton
 		virtual void minimize() = 0;
 		// get all states that may be merged into a negative sink
-		virtual set<int> negative_sink() const;
+		virtual std::set<int> negative_sink() const;
 		// get nondeterministic automaton
 		virtual finite_automaton * nondeterminize() const = 0;
 		// an automaton is deterministic if it has only one initial state and, for every
@@ -185,19 +182,19 @@ class finite_automaton {
 		//		label (-1 for epsilon)
 		//		destination state id
 		// </serialized automaton>
-		virtual basic_string<int32_t> serialize() const = 0;
-		virtual bool deserialize(basic_string<int32_t>::const_iterator &it, basic_string<int32_t>::const_iterator limit) = 0;
+		virtual std::basic_string<int32_t> serialize() const = 0;
+		virtual bool deserialize(std::basic_string<int32_t>::const_iterator &it, std::basic_string<int32_t>::const_iterator limit) = 0;
 
 		// construct a new automaton with states 0..state_count-1
 		//
 		// states are named 0 .. state_count-1,
 		// transition attributes are 0 .. alphabet_size-1,
 		// an epsilon transition is denoted as -1
-		virtual bool construct(bool is_dfa, int alphabet_size, int state_count, set<int> &initial, set<int> &final, map<int, map<int, set<int> > > &transitions);
+		virtual bool construct(bool is_dfa, int alphabet_size, int state_count, std::set<int> &initial, std::set<int> &final, std::map<int, std::map<int, std::set<int> > > &transitions);
 
 		// create dotfile from automaton:
-		virtual string visualize(bool exclude_negative_sinks) const;
-		virtual string visualize() const
+		virtual std::string visualize(bool exclude_negative_sinks) const;
+		virtual std::string visualize() const
 		{ return visualize(false); };
 
 	public:
@@ -210,20 +207,20 @@ class finite_automaton {
 		//    M. De Wulf, L. Doyen, J.-F. Raskin
 		//    Antichains: A New Algorithm for Checking Universality of Finite Automata
 
-//		virtual bool antichain__is_universal(list<int> & counterexample) const;
-		virtual bool antichain__is_equal(const finite_automaton &other, list<int> & counterexample) const;
-		virtual bool antichain__is_superset_of(const finite_automaton &other, list<int> & counterexample) const;
+//		virtual bool antichain__is_universal(std::list<int> & counterexample) const;
+		virtual bool antichain__is_equal(const finite_automaton &other, std::list<int> & counterexample) const;
+		virtual bool antichain__is_superset_of(const finite_automaton &other, std::list<int> & counterexample) const;
 	private:
-		bool antichain__superset_check_winning_condition(set<int> & this_initial, set<int> & other_initial, const pair<int, pair< set<int>, list<int> > > & gamestate, list<int> & counterexample) const;
+		bool antichain__superset_check_winning_condition(std::set<int> & this_initial, std::set<int> & other_initial, const std::pair<int, std::pair< std::set<int>, std::list<int> > > & gamestate, std::list<int> & counterexample) const;
 };
 
 
 // assemble an automaton from compounds:
-finite_automaton * construct_amore_automaton(bool is_dfa, int alphabet_size, int state_count, set<int> &initial, set<int> &final, map<int, map<int, set<int> > > &transitions);
+finite_automaton * construct_amore_automaton(bool is_dfa, int alphabet_size, int state_count, std::set<int> &initial, std::set<int> &final, std::map<int, std::map<int, std::set<int> > > &transitions);
 
 
 // automatically construct the specific automaton (NFA or DFA) during deserialization:
-finite_automaton * deserialize_amore_automaton(basic_string<int32_t>::const_iterator &it, basic_string<int32_t>::const_iterator limit);
+finite_automaton * deserialize_amore_automaton(std::basic_string<int32_t>::const_iterator &it, std::basic_string<int32_t>::const_iterator limit);
 
 
 }; // end namespace amore

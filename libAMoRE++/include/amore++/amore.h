@@ -33,8 +33,6 @@
 
 namespace amore {
 
-using namespace std;
-
 const char* libamorepp_version();
 
 }; // end of namespace amore

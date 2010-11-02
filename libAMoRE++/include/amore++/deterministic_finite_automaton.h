@@ -28,6 +28,7 @@
 #include <list>
 #include <string>
 #include <set>
+#include <map>
 
 #include <amore++/finite_automaton.h>
 
@@ -40,8 +41,6 @@
 #endif
 
 namespace amore {
-
-using namespace std;
 
 class deterministic_finite_automaton : public finite_automaton {
 	private:
@@ -57,21 +56,21 @@ class deterministic_finite_automaton : public finite_automaton {
 
 		virtual unsigned int get_state_count() const;
 		virtual unsigned int get_alphabet_size() const;
-		virtual set<int> get_initial_states() const;
-		virtual set<int> get_final_states() const;
-		virtual void set_initial_states(set<int> &states);
-		virtual void set_final_states(set<int> &states);
-		virtual bool contains_initial_states(set<int> states) const;
-		virtual bool contains_final_states(set<int> states) const;
-		virtual set<int> successor_states(set<int> states) const;
-		virtual set<int> successor_states(set<int> states, int label) const;
-		virtual set<int> predecessor_states(set<int> states) const;
-		virtual set<int> predecessor_states(set<int> states, int label) const;
-		virtual void epsilon_closure(set<int> & states) const;
-		virtual void inverted_epsilon_closure(set<int> & states) const;
-		virtual list<int> shortest_run(set<int> from, set<int> &to, bool &reachable) const;
-		virtual bool is_reachable(set<int> &from, set<int> &to) const;
-		virtual list<int> get_sample_word(bool & is_empty) const;
+		virtual std::set<int> get_initial_states() const;
+		virtual std::set<int> get_final_states() const;
+		virtual void set_initial_states(std::set<int> &states);
+		virtual void set_final_states(std::set<int> &states);
+		virtual bool contains_initial_states(std::set<int> states) const;
+		virtual bool contains_final_states(std::set<int> states) const;
+		virtual std::set<int> successor_states(std::set<int> states) const;
+		virtual std::set<int> successor_states(std::set<int> states, int label) const;
+		virtual std::set<int> predecessor_states(std::set<int> states) const;
+		virtual std::set<int> predecessor_states(std::set<int> states, int label) const;
+		virtual void epsilon_closure(std::set<int> & states) const;
+		virtual void inverted_epsilon_closure(std::set<int> & states) const;
+		virtual std::list<int> shortest_run(std::set<int> from, std::set<int> &to, bool &reachable) const;
+		virtual bool is_reachable(std::set<int> &from, std::set<int> &to) const;
+		virtual std::list<int> get_sample_word(bool & is_empty) const;
 		virtual bool is_empty() const;
 		virtual bool is_universal() const;
 		virtual bool operator==(const finite_automaton &other) const;
@@ -90,12 +89,12 @@ class deterministic_finite_automaton : public finite_automaton {
 		virtual finite_automaton * nondeterminize() const;
 		virtual deterministic_finite_automaton * determinize() const;
 
-		virtual basic_string<int32_t> serialize() const;
-		virtual bool deserialize(basic_string<int32_t>::const_iterator &it, basic_string<int32_t>::const_iterator limit);
+		virtual std::basic_string<int32_t> serialize() const;
+		virtual bool deserialize(std::basic_string<int32_t>::const_iterator &it, std::basic_string<int32_t>::const_iterator limit);
 
 		// overloading
-		virtual bool contains(list<int> &word) const;
-		virtual bool construct(bool is_dfa, int alphabet_size, int state_count, set<int> &initial, set<int> &final, map<int, map<int, set<int> > > &transitions);
+		virtual bool contains(std::list<int> &word) const;
+		virtual bool construct(bool is_dfa, int alphabet_size, int state_count, std::set<int> &initial, std::set<int> &final, std::map<int, std::map<int, std::set<int> > > &transitions);
 
 		// new
 		virtual void set_dfa(dfa a);
