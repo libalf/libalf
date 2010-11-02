@@ -34,6 +34,7 @@
 #include <map>
 #include <string>
 #include <sstream>
+#include <ostream>
 #include <stdlib.h>
 
 #include <libalf/knowledgebase.h>
@@ -41,8 +42,6 @@
 #include <libalf/learning_algorithm.h>
 
 namespace libalf {
-
-using namespace std;
 
 template <class answer>
 class kearns_vazirani : public learning_algorithm<answer> {
@@ -59,14 +58,14 @@ class kearns_vazirani : public learning_algorithm<answer> {
 
 		public:
 
-		list<int> label;	// The label of the node
+		std::list<int> label;	// The label of the node
 		node *parent;		// Pointer to the node's parent (or NULL if root node)
 		int level;			// The depth of the node in the tree (root has level 0)
 
 		/*
 		 * Creates a new node.
 		 */
-		node (list<int> &label, int level) {
+		node (std::list<int> &label, int level) {
 			this->label = label;
 			this->level = level;
 		}
@@ -94,7 +93,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		 *
 		 * Takes A label, a level and its left and right children as arguments.
 		 */
-		inner_node (list<int> &label, int level, node *left_child, node *right_child)
+		inner_node (std::list<int> &label, int level, node *left_child, node *right_child)
 		: node (label, level) {
 			this->left_child = left_child;
 			this->right_child = right_child;
@@ -119,7 +118,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 	class leaf_node : public node {
 		public:
 		bool accepting;							// Stores whether the node is in the left or right subtree of the root
-		set<leaf_node*> incoming_transitions;	// Stores all transitions pointing to this node
+		std::set<leaf_node*> incoming_transitions;	// Stores all transitions pointing to this node
 		leaf_node** transitions;				// The transitions of this node
 		int id;									// A unique id to identify this equivalence class
 
@@ -129,7 +128,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		 * Takes a label, a level, an id, the accepting condition of the currently
 		 * used alphabet size as parameters.
 		 */
-		leaf_node (list<int> &label, int level, int id, bool accepting, int alphabet_size)
+		leaf_node (std::list<int> &label, int level, int id, bool accepting, int alphabet_size)
 		: node (label, level) {
 			this->id = id;
 			this->accepting = accepting;
@@ -175,7 +174,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		/*
 		 * Returns a string representation of this task.
 		 */
-		virtual string to_string() const = 0;
+		virtual std::string to_string() const = 0;
 	};
 
 	/*
@@ -189,7 +188,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		leaf_node *source;				// The source of the transition
 		node *current_node;				// The node currently reached during the sift operation
 		int symbol;						// The transition symbol (i.e. the character)
-		list<int> *transition_label;	// The label to sift down the tree
+		std::list<int> *transition_label;	// The label to sift down the tree
 		kearns_vazirani *kv;			// Pointer to the learning algorithms (used to access the tree)
 
 		public:
@@ -209,7 +208,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			current_node = kv->root;
 
 			// Create transition label
-			transition_label = new list<int>(source->label);
+			transition_label = new std::list<int>(source->label);
 			transition_label->push_back(symbol);
 		}
 
@@ -229,7 +228,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			do {
 
 				// Query the
-				list<int> query(*transition_label);
+				std::list<int> query(*transition_label);
 				query.insert(query.end(), current_node->label.begin(), current_node->label.end());
 				answer a;
 				if(!kv->my_knowledge->resolve_or_add_query(query, a))
@@ -259,16 +258,16 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		/*
 		 * Returns a string representation of this task.
 		 */
-		string to_string() const {
-			stringstream descr;
+		std::string to_string() const {
+			std::stringstream descr;
 			descr << "\"";
-			list<int>::const_iterator it;
+			std::list<int>::const_iterator it;
 			for(it = source->label.begin(); it != source->label.end(); it++)
 				descr << (*it) << " ";
 			descr << "\"-\"" << symbol << "\"-> ? (\"";
 			for(it = current_node->label.begin(); it != current_node->label.end(); it++)
 				descr << (*it) << " ";
-			descr << "\")" << endl;
+			descr << "\")" << std::endl;
 			return descr.str();
 		}
 	};
@@ -282,9 +281,9 @@ class kearns_vazirani : public learning_algorithm<answer> {
 	 */
 	class add_counterexample_linearsearch_task : public task {
 		protected:
-		list<int> counterexample;	// The counter-example
+		std::list<int> counterexample;	// The counter-example
 		unsigned int position;		// The length of the prefix
-		list<int> *prefix;			// The currently analyzed prefix of the counter-example
+		std::list<int> *prefix;			// The currently analyzed prefix of the counter-example
 		node *sift_node;			// The current node reached on sifting the prefix
 		kearns_vazirani *kv;		// Pointer to the learning algorithms (used to access the tree)
 
@@ -297,7 +296,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		 * The constructor takes the the counter-example and a pointer to the
 		 * learning algorithm as parameters.
 		 */
-		add_counterexample_linearsearch_task(const list<int> &counterexample, kearns_vazirani *kv) {
+		add_counterexample_linearsearch_task(const std::list<int> &counterexample, kearns_vazirani *kv) {
 			// Store and initialize parameters
 			this->counterexample = counterexample;
 			this->sift_node = kv->root;
@@ -332,7 +331,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 				do {
 
 					// Perform membership query
-					list<int> query (*prefix);
+					std::list<int> query (*prefix);
 					query.insert(query.end(), sift_node->label.begin(), sift_node->label.end());
 					answer a;
 					if(!kv->my_knowledge->resolve_or_add_query(query, a))
@@ -355,8 +354,8 @@ class kearns_vazirani : public learning_algorithm<answer> {
 				if (run_node != sift_node) {
 
 					// Get next to last state of the run
-					list<int> next_to_last;
-					list<int>::iterator it;
+					std::list<int> next_to_last;
+					std::list<int>::iterator it;
 					it = counterexample.begin();
 					for(unsigned int i=1; i<=position-1; i++) {
 						next_to_last.push_back(*it);
@@ -365,7 +364,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 					leaf_node *node_to_split = kv->simulate_run(next_to_last);
 
 					// Create parameter for split node task
-					list<int> inner_node_label;
+					std::list<int> inner_node_label;
 					node *lca = kv->least_commont_ancestor(run_node, sift_node);
 					inner_node_label.push_back(*it);
 					for(it = lca->label.begin(); it != lca->label.end(); it++)
@@ -396,11 +395,11 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		/*
 		 * Returns a string representation of this task.
 		 */
-		string to_string() const {
-			stringstream descr;
+		std::string to_string() const {
+			std::stringstream descr;
 			descr << "Add counter-example task linear search (counter example: \"";
 
-			list<int>::const_iterator it;
+			std::list<int>::const_iterator it;
 			for(it = counterexample.begin(); it != counterexample.end(); it++)
 				descr << (*it) << " ";
 			descr << "\")";
@@ -423,8 +422,8 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		}
 
 		void make_prefix() {
-			this->prefix = new list<int>;
-			list<int>::iterator it;
+			this->prefix = new std::list<int>;
+			std::list<int>::iterator it;
 			it = counterexample.begin();
 			for(unsigned int i=1; i<=this->position; i++) {
 				prefix->push_back(*it);
@@ -444,10 +443,10 @@ class kearns_vazirani : public learning_algorithm<answer> {
 	class add_counterexample_binarysearch_task : public task {
 
 		private:
-		list<int> counterexample;		// The counter-example
+		std::list<int> counterexample;		// The counter-example
 		unsigned int position;			// The length of the prefix
-		list<int> *prefix;				// The currently analyzed prefix of the counter-example (up to position)
-		list<int> *prefix_m1;			// The prefix up to position  - 1
+		std::list<int> *prefix;				// The currently analyzed prefix of the counter-example (up to position)
+		std::list<int> *prefix_m1;			// The prefix up to position  - 1
 		kearns_vazirani *kv;			// Pointer to the learning algorithms (used to access the tree)
 		unsigned int left, right;		// Left and right bounderies of the prefix
 		node **sift_buffer;				// Buffer to store nodes during a sift operation (and finally the result)
@@ -459,7 +458,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		/*
 		 * Constructor:
 		 */
-		add_counterexample_binarysearch_task(list<int> &counterexample, kearns_vazirani *kv) {
+		add_counterexample_binarysearch_task(std::list<int> &counterexample, kearns_vazirani *kv) {
 			// Store and initialize parameters
 			this->counterexample = counterexample;
 			this->kv = kv;
@@ -506,7 +505,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 				 */
 				// Position i
 				while(!sift_buffer[position]->is_leaf()) {
-					list<int> query (*prefix);
+					std::list<int> query (*prefix);
 					query.insert(query.end(), sift_buffer[position]->label.begin(), sift_buffer[position]->label.end());
 					answer a;
 
@@ -523,7 +522,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 
 				// Position i - 1
 				while(!sift_buffer[position - 1]->is_leaf()) {
-					list<int> query (*prefix_m1);
+					std::list<int> query (*prefix_m1);
 					query.insert(query.end(), sift_buffer[position - 1]->label.begin(), sift_buffer[position - 1]->label.end());
 					answer a;
 
@@ -561,13 +560,13 @@ class kearns_vazirani : public learning_algorithm<answer> {
 				if ((run_buffer[position - 1] == sift_buffer[position - 1]) && (run_buffer[position] != sift_buffer[position])) {
 
 					// Create parameter for split node task
-					list<int> inner_node_label;
+					std::list<int> inner_node_label;
 					node *lca = kv->least_commont_ancestor(run_buffer[position], sift_buffer[position]);
 					inner_node_label.push_back(*prefix->rbegin());
 					inner_node_label.insert(inner_node_label.end(), lca->label.begin(), lca->label.end());
 
 					// Create new leaf node label
-					list<int> leaf_node_label(*prefix_m1);
+					std::list<int> leaf_node_label(*prefix_m1);
 
 					// Create and add split node task
 					task *t = new split_node_task(run_buffer[position - 1], leaf_node_label, inner_node_label, kv);
@@ -626,11 +625,11 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		/*
 		 * Returns a string representation of this task.
 		 */
-		string to_string() const {
-			stringstream descr;
+		std::string to_string() const {
+			std::stringstream descr;
 			descr << "Add counter-example task linear search (counter example: \"";
 
-			list<int>::const_iterator it;
+			std::list<int>::const_iterator it;
 			for(it = counterexample.begin(); it != counterexample.end(); it++)
 				descr << (*it) << " ";
 			descr << "\")";
@@ -642,11 +641,11 @@ class kearns_vazirani : public learning_algorithm<answer> {
 
 		void make_prefix() {
 			// Create new prefixes
-			this->prefix = new list<int>;
-			this->prefix_m1 = new list<int>;
+			this->prefix = new std::list<int>;
+			this->prefix_m1 = new std::list<int>;
 
 			// Create prefix up to position - 1
-			list<int>::iterator it;
+			std::list<int>::iterator it;
 			it = counterexample.begin();
 			for(unsigned int i=1; i<=this->position - 1; i++) {
 				prefix->push_back(*it);
@@ -671,8 +670,8 @@ class kearns_vazirani : public learning_algorithm<answer> {
 	class split_node_task : public task {
 		private:
 		leaf_node *node_to_split;			// The node to split
-		list<int> new_leaf_node_label;		// The new leaf node label
-		list<int> new_inner_node_label;		// The new inner node label
+		std::list<int> new_leaf_node_label;		// The new leaf node label
+		std::list<int> new_inner_node_label;		// The new inner node label
 		kearns_vazirani *kv;				// Pointer to the learning algorithms (used to access the tree)
 
 		public:
@@ -683,7 +682,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		 * Takes a pointer to the node to split, the labels of the new leaf and
 		 * inner nodes, and the pointer to the learning algorithm as arguments.
 		 */
-		split_node_task(leaf_node *node_to_split, list<int> &new_leaf_node_label, list<int> &new_inner_node_label, kearns_vazirani *kv) {
+		split_node_task(leaf_node *node_to_split, std::list<int> &new_leaf_node_label, std::list<int> &new_inner_node_label, kearns_vazirani *kv) {
 			this->node_to_split = node_to_split;
 			this->new_leaf_node_label = new_leaf_node_label;
 			this->new_inner_node_label = new_inner_node_label;
@@ -704,7 +703,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 
 			// Query information about where to put the children
 			answer a;
-			list<int> query (new_leaf_node_label.begin(), new_leaf_node_label.end());
+			std::list<int> query (new_leaf_node_label.begin(), new_leaf_node_label.end());
 			query.insert(query.end(), new_inner_node_label.begin(), new_inner_node_label.end());
 			if(!kv->my_knowledge->resolve_or_add_query(query, a))
 				return false;
@@ -734,7 +733,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			node_to_split->parent = new_child_node->parent = new_inner_node;
 
 			// Redirect transitions that point to the old leaf node
-			typename set<leaf_node*>::iterator transition_it;
+			typename std::set<leaf_node*>::iterator transition_it;
 			for(transition_it = node_to_split->incoming_transitions.begin(); transition_it != node_to_split->incoming_transitions.end(); transition_it++) {
 				for (int i=0; i<kv->alphabet_size; i++) {
 					if ((*transition_it)->transitions[i] == node_to_split) {
@@ -759,10 +758,10 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		/*
 		 * Returns a string representation of this task.
 		 */
-		string to_string() const {
-			stringstream descr;
+		std::string to_string() const {
+			std::stringstream descr;
 			descr << "split_node_task: node to split=\"";
-			list<int>::const_iterator it;
+			std::list<int>::const_iterator it;
 			for(it = node_to_split->label.begin(); it != node_to_split->label.end(); it++)
 				descr << (*it) << " ";
 			descr << "\", leaf label=\"";
@@ -882,8 +881,8 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		/*
 		 * Returns a string representation of the list.
 		 */
-		string to_string() const {
-			stringstream descr;
+		std::string to_string() const {
+			std::stringstream descr;
 			task *t = first;
 			while(t != NULL) {
 				descr << t->to_string();
@@ -1001,7 +1000,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		 */
 		if (initial_phase) {
 
-			list<int> epsilon;
+			std::list<int> epsilon;
 			answer a;
 
 			if(this->my_knowledge->resolve_or_add_query(epsilon, a))
@@ -1073,13 +1072,13 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		return false;
 	}
 
-	basic_string<int32_t> serialize() const {
-		basic_string<int32_t> ret;
+	std::basic_string<int32_t> serialize() const {
+		std::basic_string<int32_t> ret;
 		(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: this implementation does not support serialization!\n");
 		return ret;
 	}
 
-	bool deserialize_magic(serial_stretch & serial, basic_string<int32_t> & result)
+	bool deserialize_magic(serial_stretch & serial, std::basic_string<int32_t> & result)
 	{
 		// expects:
 		//	function
@@ -1121,7 +1120,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 	/*
 	 * Add a counter-example to the algorithm.
 	 */
-	bool add_counterexample(list<int> counter_example) {
+	bool add_counterexample(std::list<int> counter_example) {
 		// If there are tasks to complete, return false
 		if(!tasks.is_empty()) {
 			(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: no counter-example is expected!\n");
@@ -1154,7 +1153,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		if (initial_phase) {
 
 			// Query empty string
-			list<int> epsilon;
+			std::list<int> epsilon;
 			answer a;
 			if(!this->my_knowledge->resolve_or_add_query(epsilon, a)) {
 				(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: need the classification of the empty string!\n");
@@ -1248,7 +1247,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		if (initial_phase) {
 
 			// Query empty string
-			list<int> epsilon;
+			std::list<int> epsilon;
 			answer a;
 			if(!this->my_knowledge->resolve_or_add_query(epsilon, a)) {
 				(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: need the classification of the empty string!\n");
@@ -1290,7 +1289,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 				state[i] = -1; // Indicates that the node has not yet been visited
 			state[initial_state->id] = automaton->state_count; // initial state is always nr. 0
 			automaton->state_count = automaton->state_count + 1;
-			list<leaf_node*> to_process;
+			std::list<leaf_node*> to_process;
 			to_process.push_front(this->initial_state);
 
 			while (!to_process.empty()) {
@@ -1332,13 +1331,13 @@ class kearns_vazirani : public learning_algorithm<answer> {
 	 * Prints an internal representation of the learning algorithm including its
 	 * tree data structure.
 	 */
-	void print(ostream &os) const {
+	void print(std::ostream &os) const {
 
 		/*
 		 * Are we in the initial phase
 		 */
 		if(initial_phase) {
-			os << "Initial phase (no internal data)." << endl;
+			os << "Initial phase (no internal data)." << std::endl;
 			return;
 		}
 
@@ -1346,21 +1345,21 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		 * Create dot for the normal phase
 		 */
 
-		os << "digraph KV_tree {" << endl << "  fontsize = 8;" << endl << "  rankdir = TD;" << endl;
+		os << "digraph KV_tree {" << std::endl << "  fontsize = 8;" << std::endl << "  rankdir = TD;" << std::endl;
 
 		// Nodes
-		map<node*, int> *nodes = new map<node*, int>();
+		std::map<node*, int> *nodes = new std::map<node*, int>();
 
 		// Number
 		int *id = new int(0);
 
 		//
-		map<int, stringstream*> *dot_on_level = new map<int, stringstream*>;
+		std::map<int, std::stringstream*> *dot_on_level = new std::map<int, std::stringstream*>;
 
 		// Dot tree
-		map<int, stringstream*>::iterator it;
+		std::map<int, std::stringstream*>::iterator it;
 		dot_tree(root, nodes, id, dot_on_level);
-		os << "  {" << endl << "    node [shape=plaintext];" << endl << "    \"root\" ->";
+		os << "  {" << std::endl << "    node [shape=plaintext];" << std::endl << "    \"root\" ->";
 		for(unsigned int i=1; i<dot_on_level->size(); i++) {
 			os << "\"level " << i << "\"";
 			if(i < dot_on_level->size() - 1)
@@ -1368,15 +1367,15 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			else
 				os << ";";
 		}
-		os << endl << "  }" << endl;
+		os << std::endl << "  }" << std::endl;
 		for(unsigned int i=0; i<dot_on_level->size(); i++) {
-			os << "  node [shape=box]; {" << endl << "    rank = same;" << endl;
+			os << "  node [shape=box]; {" << std::endl << "    rank = same;" << std::endl;
 			if(i==0)
-				os << "    \"root\";" << endl;
+				os << "    \"root\";" << std::endl;
 			else
-				os << "    \"level " << i << "\";" << endl;
+				os << "    \"level " << i << "\";" << std::endl;
 			os << (*dot_on_level)[i]->str();
-			os << "  }" << endl;
+			os << "  }" << std::endl;
 		}
 
 		dot_transitions(root, nodes, os);
@@ -1394,9 +1393,9 @@ class kearns_vazirani : public learning_algorithm<answer> {
 	/*
 	 * Returns a string representation of the learning algorithm.
 	 */
-	string to_string() const {
+	std::string to_string() const {
 
-		stringstream dot;
+		std::stringstream dot;
 		print(dot);
 		return dot.str();
 	}
@@ -1435,10 +1434,10 @@ class kearns_vazirani : public learning_algorithm<answer> {
 	 * Simulates the run of the hypothesis on the given input and returns the
 	 * reached equivalence class.
 	 */
-	leaf_node* simulate_run(list<int> &input) {
+	leaf_node* simulate_run(std::list<int> &input) {
 
 		leaf_node *current = this->initial_state;
-		list<int>::iterator it;
+		std::list<int>::iterator it;
 
 		// Simulate run
 		for(it = input.begin(); it != input.end(); it++)
@@ -1450,31 +1449,31 @@ class kearns_vazirani : public learning_algorithm<answer> {
 	/*
 	 * Recursively computes a dot representation of the tree structure.
 	 */
-	void dot_tree(node *n, map<node*, int> *nodes, int *id, map<int, stringstream*> *dot_on_level) const {
+	void dot_tree(node *n, std::map<node*, int> *nodes, int *id, std::map<int, std::stringstream*> *dot_on_level) const {
 
 		/*
 		 * Assign a node id
 		 */
-		nodes->insert(pair<node*,int>(n, (*id)));
+		nodes->insert(std::pair<node*,int>(n, (*id)));
 		(*id)++;
 
 		/*
 		 * Check whether there is a node on the current level allready
 		 */
 		if(dot_on_level->find(n->level) == dot_on_level->end()) {
-			stringstream *dot_new_level = new stringstream;
-			dot_on_level->insert(pair<int, stringstream*>(n->level, dot_new_level));
+			std::stringstream *dot_new_level = new std::stringstream;
+			dot_on_level->insert(std::pair<int, std::stringstream*>(n->level, dot_new_level));
 		}
 
 		/*
 		 * Dot current node
 		 */
-		stringstream *dot = (*dot_on_level)[n->level];
+		std::stringstream *dot = (*dot_on_level)[n->level];
 		(*dot) << "    " << (*nodes)[n] << " [";
 		if(n == root || n == initial_state)
 			(*dot) << "style=\"filled\",";
 		(*dot) << "label=\"'";
-		list<int>::iterator it;
+		std::list<int>::iterator it;
 		for(it=n->label.begin(); it!=n->label.end(); it++)
 			(*dot) << (*it) << " ";
 		(*dot) << "'";
@@ -1506,17 +1505,17 @@ class kearns_vazirani : public learning_algorithm<answer> {
 	/*
 	 * Dots the transitions of the hypothesis (i.e. represented by the leaf nodes).
 	 */
-	void dot_transitions(node *n, map<node*, int> *nodes, ostream &dot) const {
+	void dot_transitions(node *n, std::map<node*, int> *nodes, std::ostream &dot) const {
 		/*
 		 * Dot tree connections
 		 */
 		if(n != root) {
-			dot << "  " << (*nodes)[n] << " -> " << (*nodes)[n->parent] << " [style=\"dotted\"];" << endl;
+			dot << "  " << (*nodes)[n] << " -> " << (*nodes)[n->parent] << " [style=\"dotted\"];" << std::endl;
 		}
 		if (!n->is_leaf()) {
 			inner_node *inner = dynamic_cast<inner_node*> (n);
-			dot << "  " << (*nodes)[n] << " -> " << (*nodes)[inner->left_child] << " [weight=2, color=\"green\"];" << endl;
-			dot << "  " << (*nodes)[n] << " -> " << (*nodes)[inner->right_child] << " [weight=2, color=\"red\"];" << endl;
+			dot << "  " << (*nodes)[n] << " -> " << (*nodes)[inner->left_child] << " [weight=2, color=\"green\"];" << std::endl;
+			dot << "  " << (*nodes)[n] << " -> " << (*nodes)[inner->right_child] << " [weight=2, color=\"red\"];" << std::endl;
 		}
 
 		/*
@@ -1537,7 +1536,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			for (int i=0; i<this->alphabet_size; i++) {
 				if(leaf->transitions[i] != NULL) {
 					dot << "  " << (*nodes)[n] << " -> " << (*nodes)[leaf->transitions[i]];
-					dot << " [fontcolor=\"gray\",label=\"" << i << "\",color=\"gray\"];" << endl;
+					dot << " [fontcolor=\"gray\",label=\"" << i << "\",color=\"gray\"];" << std::endl;
 				}
 			}
 		}

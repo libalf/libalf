@@ -48,8 +48,6 @@
 
 namespace libalf {
 
-using namespace std;
-
 /*
  * mVCA_angluinlike implements a L*-like algorithm to learn visible m-bounded 1-counter automata.
  * it is meant to be an implementation of the algorithm described in
@@ -70,18 +68,18 @@ using namespace std;
 template <class answer>
 class mVCA_angluinlike : public learning_algorithm<answer> {
 	public: // types
-		typedef pair<int, vector<answer> > fingerprint_t;
+		typedef std::pair<int, std::vector<answer> > fingerprint_t;
 
-		class sample_list : public list<list<int> > {
+		class sample_list : public std::list<std::list<int> > {
 			// list of all samples (suffixes) for a given cv.
 			public: // types
-				typedef typename list<list<int> >::iterator iterator;
-				typedef typename list<list<int> >::const_iterator const_iterator;
+				typedef typename std::list<std::list<int> >::iterator iterator;
+				typedef typename std::list<std::list<int> >::const_iterator const_iterator;
 
-				typedef typename list<list<int> >::reverse_iterator reverse_iterator;
-				typedef typename list<list<int> >::const_reverse_iterator const_reverse_iterator;
+				typedef typename std::list<std::list<int> >::reverse_iterator reverse_iterator;
+				typedef typename std::list<std::list<int> >::const_reverse_iterator const_reverse_iterator;
 			public: // methods
-				bool add_sample(const list<int> & sample)
+				bool add_sample(const std::list<int> & sample)
 				{{{
 					reverse_iterator li;
 					for(li = this->rbegin(); li != this->rend(); ++li)
@@ -95,9 +93,9 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 				{{{
 					int ret = 0;
 					const_iterator li;
-					list<int>::const_iterator i;
+					std::list<int>::const_iterator i;
 					for(li = this->begin(); li != this->end(); ++li) {
-						ret += sizeof(list<int>);
+						ret += sizeof(std::list<int>);
 						for(i = li->begin(); i != li->end(); ++i)
 							ret += sizeof(int);
 					}
@@ -106,27 +104,27 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 				}}}
 		};
 
-		class equivalence_approximation : public triple<list<int>, int, vector<answer> > {
+		class equivalence_approximation : public triple<std::list<int>, int, std::vector<answer> > {
 			// a single row in a single table, containing the acceptances of prefix.suffixes,
 			// where suffixes are the suffixes belonging to the current cv (see sample_list).
 			public: // methods
-				inline list<int>		& prefix()		{ return this->first; };
-				inline const list<int>		& prefix()		const { return this->first; };
+				inline std::list<int>		& prefix()		{ return this->first; };
+				inline const std::list<int>		& prefix()		const { return this->first; };
 
 				inline int			& cv()			{ return this->second; };
 				inline const int		& cv()			const { return this->second; };
 
-				inline vector<answer>		& acceptances()		{ return this->third; };
-				inline const vector<answer>	& acceptances()		const { return this->third; };
+				inline std::vector<answer>		& acceptances()		{ return this->third; };
+				inline const std::vector<answer>	& acceptances()		const { return this->third; };
 
 				inline equivalence_approximation()
 				{ };
 
-				inline equivalence_approximation(const list<int> & prefix, int cv)
+				inline equivalence_approximation(const std::list<int> & prefix, int cv)
 				{ this->prefix() = prefix; this->cv() = cv; };
 
 				fingerprint_t fingerprint() const
-				{ return pair<int, vector<answer> >(cv(), acceptances()); }
+				{ return std::pair<int, std::vector<answer> >(cv(), acceptances()); }
 
 				inline bool equivalent(equivalence_approximation & other)
 				{ return cv() == other.cv() && acceptances() == other.acceptances(); }
@@ -135,7 +133,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 				// same acceptances.
 				inline bool equivalent(equivalence_approximation & other, typename sample_list::iterator suffix_it)
 				{{{
-					typename vector<answer>::iterator vi1, vi2;
+					typename std::vector<answer>::iterator vi1, vi2;
 					vi1 = acceptances().begin();
 					vi2 = other.acceptances().begin();
 
@@ -154,7 +152,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 				// or mark them as queried
 				bool fill(sample_list & samples, knowledgebase<answer> * base)
 				{{{
-					typename vector<answer>::iterator acci;
+					typename std::vector<answer>::iterator acci;
 					typename sample_list::iterator sui;
 
 					for(acci = acceptances().begin(), sui = samples.begin(); acci != acceptances().end() && sui != samples.end(); ++acci, ++sui)
@@ -186,9 +184,9 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 					return full_query;
 				}}}
 
-				void print(ostream &os) const
+				void print(std::ostream &os) const
 				{{{
-					typename vector<answer>::const_iterator acci;
+					typename std::vector<answer>::const_iterator acci;
 
 					os << "\t\t";
 					print_word(os, prefix());
@@ -208,8 +206,8 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 				{{{
 					int ret = 0;
 
-					typename list<int>::const_iterator li;
-					typename vector<answer>::const_iterator acci;
+					typename std::list<int>::const_iterator li;
+					typename std::vector<answer>::const_iterator acci;
 
 					for(li = prefix().begin(); li != prefix().end(); ++li)
 						ret += sizeof(int);
@@ -221,14 +219,14 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 				}}}
 		};
 
-		class equivalence_table : public list<equivalence_approximation> {
+		class equivalence_table : public std::list<equivalence_approximation> {
 			// single table of equivalence lines for a fixed cv.
 			public: // types
-				typedef typename list<equivalence_approximation>::iterator iterator;
-				typedef typename list<equivalence_approximation>::const_iterator const_iterator;
+				typedef typename std::list<equivalence_approximation>::iterator iterator;
+				typedef typename std::list<equivalence_approximation>::const_iterator const_iterator;
 			public: // methods
 				// find a line by its prefix
-				iterator find_prefix(const list<int> & prefix)
+				iterator find_prefix(const std::list<int> & prefix)
 				{{{
 					iterator r;
 					r = this->begin();
@@ -241,7 +239,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 				}}}
 
 				// find or add a line by its prefix
-				iterator find_or_insert_prefix(const list<int> & prefix, int cv)
+				iterator find_or_insert_prefix(const std::list<int> & prefix, int cv)
 				{{{
 					iterator r;
 
@@ -283,7 +281,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 					return complete;
 				}}}
 
-				void print(ostream & os) const
+				void print(std::ostream & os) const
 				{{{
 					const_iterator it;
 					for(it = this->begin(); it != this->end(); ++it)
@@ -339,13 +337,13 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 				}}}
 		};
 
-		class stratified_observationtable : public vector<m_representatives> {
+		class stratified_observationtable : public std::vector<m_representatives> {
 			// full observationtable for all cv.
 			public: // types
-				typedef typename vector<m_representatives>::iterator iterator;
-				typedef typename vector<m_representatives>::const_iterator const_iterator;
+				typedef typename std::vector<m_representatives>::iterator iterator;
+				typedef typename std::vector<m_representatives>::const_iterator const_iterator;
 
-				typedef pair<equivalence_table *, typename equivalence_table::iterator> location;
+				typedef std::pair<equivalence_table *, typename equivalence_table::iterator> location;
 			public: // methods
 				bool fill(knowledgebase<answer> * base)
 				{{{
@@ -386,7 +384,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 					return complete;
 				}}}
 
-				void print(ostream & os) const
+				void print(std::ostream & os) const
 				{{{
 					int cv;
 					const_iterator vi;
@@ -479,7 +477,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 					return words;
 				}}}
 
-				location find_representative(const list<int> & rep, int cv, bool & exists)
+				location find_representative(const std::list<int> & rep, int cv, bool & exists)
 				{{{
 					location ret;
 
@@ -496,7 +494,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 					return ret;
 				}}}
 
-				location find_transition(const list<int> & transition, int cv_without_transition, int sigma_direction, bool & exists)
+				location find_transition(const std::list<int> & transition, int cv_without_transition, int sigma_direction, bool & exists)
 				{{{
 					location ret;
 
@@ -536,7 +534,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 	protected: // data
 		bool initialized;
 
-		vector<int> pushdown_directions; // maps a label to its pushdown direction:
+		std::vector<int> pushdown_directions; // maps a label to its pushdown direction:
 		// -1 == down == return ; 0 == stay == internal ; +1 == up == call
 
 		int mode; // -1: in membership-cycle; 0: partial equivalence; 1: full equivalence;
@@ -545,12 +543,12 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 		int tested_equivalence_bound; // the m for which the latest partial equivalence test was (usually known_equivalence_bound+1)
 		int full_eq_test__current_m; // the current m we are testing
 		int full_eq_test__queried_m; // the m that the last query was for
-		pair<int, list<int> > full_eq_test__counterexample; // <height, word>
+		std::pair<int, std::list<int> > full_eq_test__counterexample; // <height, word>
 
 		stratified_observationtable table;
 
 	protected: // methods
-		int countervalue(list<int>::const_iterator word, list<int>::const_iterator limit, int initial_countervalue = 0)
+		int countervalue(std::list<int>::const_iterator word, std::list<int>::const_iterator limit, int initial_countervalue = 0)
 		{{{
 			for(/* nothing */; word != limit; ++word) {
 				if(*word < 0 || *word >= this->get_alphabet_size()) {
@@ -565,10 +563,10 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 			return initial_countervalue;
 		}}}
 
-		int countervalue(const list<int> & word)
+		int countervalue(const std::list<int> & word)
 		{ return this->countervalue(word.begin(), word.end(), 0); }
 
-		int word_height(list<int>::const_iterator word, list<int>::const_iterator limit, int initial_countervalue = 0)
+		int word_height(std::list<int>::const_iterator word, std::list<int>::const_iterator limit, int initial_countervalue = 0)
 		{{{
 			int height = initial_countervalue;
 
@@ -590,10 +588,10 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 			return height;
 		}}}
 
-		int word_height(const list<int> & word)
+		int word_height(const std::list<int> & word)
 		{ return this->word_height(word.begin(), word.end(), 0); }
 
-		typename equivalence_table::iterator insert_representative(list<int> rep, bool & success)
+		typename equivalence_table::iterator insert_representative(std::list<int> rep, bool & success)
 		{{{
 			typename equivalence_table::iterator new_rep = table[0].representatives().end();
 			int cv = countervalue(rep);
@@ -660,9 +658,9 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 			return new_rep;
 		}}}
 
-		bool add_partial_counterexample(list<int> & counterexample)
+		bool add_partial_counterexample(std::list<int> & counterexample)
 		{{{
-			list<int> suffix;
+			std::list<int> suffix;
 			int cv = countervalue(counterexample);
 			int height = word_height(counterexample);
 			bool success;
@@ -708,7 +706,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 			return true;
 		}}}
 
-		bool add_full_counterexample(list<int> & counterexample)
+		bool add_full_counterexample(std::list<int> & counterexample)
 		{{{
 			int cv = countervalue(counterexample);
 			int height = word_height(counterexample);
@@ -752,7 +750,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 					return false;
 				}
 
-				list<int> suffix;
+				std::list<int> suffix;
 
 				// increase table-size so we don't incrementally do it if cv is much larger than table.size()
 				if(height >= (int)table.size())
@@ -787,7 +785,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 			if(!initialized) {
 				m_representatives mr;
 				table.push_back(mr);
-				list<int> epsilon;
+				std::list<int> epsilon;
 				table[0].samples().add_sample(epsilon);
 				bool success;
 				insert_representative(epsilon, success);
@@ -856,7 +854,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 					++b;
 					while(b != vi->representatives().end()) {
 						if(a->equivalent(*b)) {
-							list<int> wa, wb;
+							std::list<int> wa, wb;
 							wa = a->prefix();
 							wb = b->prefix();
 							// check that all transitions are equivalent as well
@@ -879,7 +877,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 								typename sample_list::iterator bad_suffix;
 								bad_suffix = table[ncv].samples().begin();
 								if(!as.second->equivalent(*bs.second, bad_suffix)) {
-									list<int> new_suffix;
+									std::list<int> new_suffix;
 									new_suffix = *bad_suffix;
 									new_suffix.push_front(sigma);
 									table[ncv].samples().push_back(new_suffix);
@@ -940,7 +938,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 
 			cj->bound = tested_equivalence_bound;
 
-			map<fingerprint_t, int> states; // this is not really good. something better anyone?
+			std::map<fingerprint_t, int> states; // this is not really good. something better anyone?
 
 			// generate statemap and mark initial and final states
 			typename stratified_observationtable::iterator vi;
@@ -963,11 +961,11 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 			}
 
 			// list all transitions
-			pair<pair<int, int>, int> new_transition; // state, sigma -> state
+			std::pair<std::pair<int, int>, int> new_transition; // state, sigma -> state
 			for(vi = table.begin(); vi != table.end(); ++vi) {
 				for(equi = vi->representatives().begin(); equi != vi->representatives().end(); ++equi) {
 					new_transition.first.first = states[equi->fingerprint()];
-					list<int> rep;
+					std::list<int> rep;
 					rep = equi->prefix();
 					for(int sigma = 0; sigma < this->get_alphabet_size(); ++sigma) {
 						int dcv = pushdown_directions[sigma];
@@ -1075,7 +1073,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 			table.clear();
 		}}}
 
-		virtual void indicate_pushdown_alphabet_directions(const vector<int> & directions)
+		virtual void indicate_pushdown_alphabet_directions(const std::vector<int> & directions)
 		{ pushdown_directions = directions; }
 
 		virtual void increase_alphabet_size(int new_asize)
@@ -1122,9 +1120,9 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 		virtual bool supports_sync() const
 		{ return false; };
 
-		virtual basic_string<int32_t> serialize() const
+		virtual std::basic_string<int32_t> serialize() const
 		{{{
-			basic_string<int32_t> ret;
+			std::basic_string<int32_t> ret;
 
 			ret += 0; // size, filled in later.
 			ret += ::serialize((int)learning_algorithm<answer>::ALG_MVCA_ANGLUINLIKE);
@@ -1173,7 +1171,7 @@ deserialization_failed:
 			return false;
 		}}}
 
-		bool deserialize_magic(serial_stretch & serial, basic_string<int32_t> & result)
+		bool deserialize_magic(serial_stretch & serial, std::basic_string<int32_t> & result)
 		{{{
 			int command;
 
@@ -1183,7 +1181,7 @@ deserialization_failed:
 
 			switch(command) {
 				case 0: { // indicate pushdown property of alphabet
-						vector<int> dirs;
+						std::vector<int> dirs;
 						if(!::deserialize(dirs, serial)) return false;
 						pushdown_directions = dirs;
 						return true;
@@ -1197,7 +1195,7 @@ deserialization_failed:
 			return false;
 		}}}
 
-		virtual void print(ostream &os) const
+		virtual void print(std::ostream &os) const
 		{{{
 			os << "stratified_observationtable {\n";
 			os << "\tmode: " << (     (mode == -1) ? "membership query cycle\n"
@@ -1247,7 +1245,7 @@ deserialization_failed:
 			return true;
 		}}}
 
-		virtual bool add_counterexample(list<int> counterexample)
+		virtual bool add_counterexample(std::list<int> counterexample)
 		{{{
 			switch(mode) {
 				default:

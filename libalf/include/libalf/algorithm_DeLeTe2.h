@@ -38,23 +38,21 @@
 
 #include <stdio.h>
 
-#include <string>
+#include <set>
 #include <list>
-#include <map>
-#include <queue>
+#include <string>
+#include <ostream>
 
 #include <libalf/knowledgebase.h>
 #include <libalf/learning_algorithm.h>
 
 namespace libalf {
 
-using namespace std;
-
 template <class answer>
 class DeLeTe2 : public learning_algorithm<answer> {
 	public:	// types
 		typedef typename knowledgebase<answer>::node node;
-		typedef pair<node*, node*> nodeppair;
+		typedef std::pair<node*, node*> nodeppair;
 
 	protected: // data
 
@@ -95,9 +93,9 @@ class DeLeTe2 : public learning_algorithm<answer> {
 			return true;
 		}}}
 
-		virtual basic_string<int32_t> serialize() const
+		virtual std::basic_string<int32_t> serialize() const
 		{{{
-			basic_string<int32_t> ret;
+			std::basic_string<int32_t> ret;
 
 			// we don't have any internal, persistent data
 			ret += ::serialize(1);
@@ -116,7 +114,7 @@ class DeLeTe2 : public learning_algorithm<answer> {
 			return (s == learning_algorithm<answer>::ALG_DELETE2);
 		}}}
 
-		virtual void print(ostream &os) const
+		virtual void print(std::ostream &os) const
 		{{{
 			os << "DeLeTe2 has no persistent data.\n";
 		}}}
@@ -133,9 +131,9 @@ class DeLeTe2 : public learning_algorithm<answer> {
 			// a warning if there are non-accepting leafs
 
 			if((this->my_knowledge != NULL) && (this->my_knowledge->count_answers() > 0)) {
-				list<int> sample;
+				std::list<int> sample;
 				if(leaf_is_non_accepting(this->my_knowledge->get_rootptr(), sample)) {
-					string s;
+					std::string s;
 					s = word2string(sample);
 					(*this->my_logger)(LOGGER_INFO, "DeLeTe2 expects a sample-set consisting of pref(S+). "
 							"but this sampleset has a non-accepting leaf \"%s\". "
@@ -153,17 +151,17 @@ class DeLeTe2 : public learning_algorithm<answer> {
 		}}}
 
 		// stubs for counterexample will throw a warning to the logger
-		virtual bool add_counterexample(list<int>)
+		virtual bool add_counterexample(std::list<int>)
 		{{{
 			(*this->my_logger)(LOGGER_ERROR, "DeLeTe2 does not support counter-examples, as it is an offline-algorithm. please add the counter-example directly to the knowledgebase and rerun the algorithm.\n");
 			return false;
 		}}}
 
 	protected:
-		bool leaf_is_non_accepting(node* n, list<int> & sample, bool prefix_accepting = false)
+		bool leaf_is_non_accepting(node* n, std::list<int> & sample, bool prefix_accepting = false)
 		// check if all leafs (i.e. states that have no suffixes that either accept or reject) accept
 		{{{
-			list<int> w;
+			std::list<int> w;
 			if(n->is_answered()) {
 				if(n->get_answer() == true)
 					prefix_accepting = true;
@@ -198,7 +196,7 @@ class DeLeTe2 : public learning_algorithm<answer> {
 			return true;
 		}}}
 
-		void generate_inclusion_relation(list<node*> & pref, set<nodeppair> & inclusions)
+		void generate_inclusion_relation(std::list<node*> & pref, std::set<nodeppair> & inclusions)
 		{{{
 			// calculate language inclusion:
 			// a « b iff. there is no word w
@@ -215,7 +213,7 @@ class DeLeTe2 : public learning_algorithm<answer> {
 			// pref MUST be sorted in ascending graded
 			// lexicographic order
 
-			typename list<node*>::iterator a, b, first, last;
+			typename std::list<node*>::iterator a, b, first, last;
 			first = pref.begin();
 			last = pref.end();
 			last--;
@@ -223,7 +221,7 @@ class DeLeTe2 : public learning_algorithm<answer> {
 			b = last;
 			while(true) {
 #ifdef DELETE2_DEBUG_INCLUSION_RELATION
-				list<int> wa,wb;
+				std::list<int> wa,wb;
 				wa = (*a)->get_word();
 				wb = (*b)->get_word();
 #endif
@@ -312,11 +310,11 @@ class DeLeTe2 : public learning_algorithm<answer> {
 				(*this->my_logger)(LOGGER_WARN, "DeLeTe2: differing alphabet size between this (%d) and knowledgebase (%d)!\n",
 						this->get_alphabet_size(), this->my_knowledge->get_largest_symbol());
 			// generate a graded-lex ordered list of words in the knowledgebase (i.e. pref(S+) )
-			list<node*> pref;
+			std::list<node*> pref;
 
 			kIterator_lex_graded<answer> klg(this->my_knowledge->get_rootptr());
 			while(!klg.end()) {
-				list<int> w = klg->get_word();
+				std::list<int> w = klg->get_word();
 				pref.push_back(&(*klg));
 				klg++;
 			}
@@ -324,15 +322,15 @@ class DeLeTe2 : public learning_algorithm<answer> {
 			(*this->my_logger)(LOGGER_INFO, "DeLeTe2: calculating inclusion relation.\n");
 
 			// generate inclusion relation
-			set<nodeppair> inclusions;
+			std::set<nodeppair> inclusions;
 
 			generate_inclusion_relation(pref, inclusions);
 
 #ifdef DELETE2_DEBUG_INCLUSION_RELATION
 			(*this->my_logger)(LOGGER_DEBUG, "\nDeLeTe2: Inclusion relation:\n");
-			typename set<nodeppair>::iterator si;
+			typename std::set<nodeppair>::iterator si;
 			for(si = inclusions.begin(); si != inclusions.end(); ++si) {
-				list<int> a,b;
+				std::list<int> a,b;
 				a = si->first->get_word();
 				b = si->second->get_word();
 				(*this->my_logger)(LOGGER_DEBUG, "%s  «  %s\n", word2string(a).c_str(), word2string(b).c_str());
@@ -343,32 +341,32 @@ class DeLeTe2 : public learning_algorithm<answer> {
 			(*this->my_logger)(LOGGER_INFO, "DeLeTe2: deriving automaton.\n");
 
 			// run DeLeTe2 algorithm
-			typename list<node*>::iterator pi;
+			typename std::list<node*>::iterator pi;
 
 			ret->is_deterministic = false;
 			ret->input_alphabet_size = this->alphabet_size;
 			ret->state_count = 0;
 
-			list<node*> state_candidates;	// the position in the list gives the numerical state-id. thus, only append new states.
+			std::list<node*> state_candidates;	// the position in the list gives the numerical state-id. thus, only append new states.
 			int sid = 0;
-			typename list<node*>::iterator sci;
+			typename std::list<node*>::iterator sci;
 			nodeppair r1,r2;
 
 			for(pi = pref.begin(); pi != pref.end(); ++pi) {
-				list<int> piw = (*pi)->get_word();
+				std::list<int> piw = (*pi)->get_word();
 				r1.first = r2.second = *pi;
 				bool equivalent_state_exists = false;
 				for(sci = state_candidates.begin(); sci != state_candidates.end() && !equivalent_state_exists; ++sci) {
 					r1.second = r2.first = *sci;
 					if(inclusions.find(r1) != inclusions.end() && inclusions.find(r2) != inclusions.end()) {
-						list<int> w = (*sci)->get_word();
+						std::list<int> w = (*sci)->get_word();
 						(*this->my_logger)(LOGGER_DEBUG, "DeLeTe2: removing suffixes(%s) ( = %s )\n", word2string(piw).c_str(), word2string(w).c_str());
 						equivalent_state_exists = true;
 					}
 				}
 				if(equivalent_state_exists) {
 					// delete *pi and all suffixes from pref
-					typename list<node*>::iterator prev, next;
+					typename std::list<node*>::iterator prev, next;
 					prev = pi;
 					next = prev; next++;
 					while(next != pref.end()) {
