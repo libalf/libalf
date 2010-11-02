@@ -13,11 +13,12 @@ svn-revision ** FIXME **
 - A lot of cleanup and bugfixes
 - all libraries: try to use better style to avoid cluttering namespace and other
 	library-related problems. this includes:
-	- using const keyword for functions that don't change anything
 	- avoiding "using namespace std" in headers
 	- checking/removing all warnings that occur
 	- serialization framework
 	- regular memory profiling, including for leaks
+	- if possible, use <const_iterator>s instead of <iterator>s
+	- using const keyword for functions that don't change anything
 - libalf: refactor of conjectures
 - libalf: New (generic) statistic type
 - libalf: New algorithm Rivest&Shapire (Angluin L* variant)
