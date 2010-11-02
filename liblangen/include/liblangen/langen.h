@@ -33,8 +33,6 @@
 
 namespace liblangen {
 
-using namespace std;
-
 const char* liblangen_version();
 
 }; // end of namespace liblangen

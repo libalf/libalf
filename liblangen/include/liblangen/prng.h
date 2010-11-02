@@ -27,11 +27,6 @@
  * functions for generation of random numbers of different kind.
  */
 
-#include <set>
-#include <map>
-#include <list>
-#include <vector>
-
 #include <gmpxx.h> // GNU Multiple Precision Arithmetic Library, C++ interface
 
 #ifndef __liblangen_prng_h__

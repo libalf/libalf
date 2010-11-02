@@ -40,13 +40,11 @@
 
 namespace liblangen {
 
-using namespace std;
-
 class dfa_randomgenerator {
 	private:
 		class table {
 			private:
-				map<mpz_class, map<mpz_class, mpz_class> > data;
+				std::map<mpz_class, std::map<mpz_class, mpz_class> > data;
 				int m;
 				mpz_class t, p;
 			public:
@@ -56,13 +54,13 @@ class dfa_randomgenerator {
 				mpz_class & getElement(mpz_class t, mpz_class p);
 		};
 	private:
-		vector<table*> tables;
+		std::vector<table*> tables;
 	protected:
 		// get table content for m,t,p
 		mpz_class & elementOfC(int m, mpz_class t, mpz_class p);
 
 		// get a random element of K(m,t,p)
-		list<int> randomElementOfK(int m, mpz_class t, mpz_class p);
+		std::list<int> randomElementOfK(int m, mpz_class t, mpz_class p);
 
 	public:
 		dfa_randomgenerator();
@@ -73,7 +71,7 @@ class dfa_randomgenerator {
 
 		// generate a random automaton
 		bool generate(int alphabet_size, int state_count,
-			      bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, std::set<int> &t_initial, std::set<int> &t_final, map<int, map<int, set<int> > > &t_transitions);
+			      bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, std::set<int> &t_initial, std::set<int> &t_final, std::map<int, std::map<int, std::set<int> > > &t_transitions);
 
 };
 

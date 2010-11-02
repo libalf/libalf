@@ -27,16 +27,12 @@
  * "F. Denis, A. Lemay and A. Terlutte - Learning regular languages using RFSAs"
  */
 
-#include <set>
-#include <map>
 #include <string>
 
 #ifndef __liblangen_regex_randomgenerator_h__
 # define __liblangen_regex_randomgenerator_h__
 
 namespace liblangen {
-
-using namespace std;
 
 class regex_randomgenerator {
 	private:
@@ -46,9 +42,9 @@ class regex_randomgenerator {
 
 		// create a random regular expression
 		// the sum of all probablities may be != 1, but >= 0. the algorithm will normalize.
-		string generate(int alphabet_size, int num_op, float p_concat, float p_union, float p_star);
+		std::string generate(int alphabet_size, int num_op, float p_concat, float p_union, float p_star);
 		// this version expects normalized probablilities
-		string normalized_generate(int & alphabet_size, int num_op, float & p_concat, float & p_union, float & p_star);
+		std::string normalized_generate(int & alphabet_size, int num_op, float & p_concat, float & p_union, float & p_star);
 };
 
 }; // end of namespace liblangen

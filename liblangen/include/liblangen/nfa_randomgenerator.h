@@ -30,17 +30,11 @@
 
 #include <set>
 #include <map>
-#include <list>
-#include <vector>
-
-#include <gmpxx.h> // GNU Multiple Precision Arithmetic Library, C++ interface
 
 #ifndef __liblangen_nfa_randomgenerator_h__
 # define __liblangen_nfa_randomgenerator_h__
 
 namespace liblangen {
-
-using namespace std;
 
 class nfa_randomgenerator {
 	public:
@@ -48,7 +42,7 @@ class nfa_randomgenerator {
 
 		// generate a random automaton
 		bool generate(int alphabet_size, int state_count, int transitions_p_state, float p_initial, float p_final,
-			      bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, std::set<int> &t_initial, std::set<int> &t_final, map<int, map<int, set<int> > > &t_transitions);
+			      bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, std::set<int> &t_initial, std::set<int> &t_final, std::map<int, std::map<int, std::set<int> > > &t_transitions);
 };
 
 }; // end of namespace liblangen
