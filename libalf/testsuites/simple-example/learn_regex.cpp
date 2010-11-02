@@ -44,10 +44,12 @@ using namespace libalf;
 
 int main(int argc, char**argv)
 {
-	amore::finite_automaton *model;
-	knowledgebase<bool> knowledge;
+	amore::finite_automaton *model;		// this is an automaton that we use both as oracle and teacher
+	knowledgebase<bool> knowledge;		// data storage for all queries and answered queries
 	ostream_logger log(&cerr, LOGGER_DEBUG);
 
+	// first, get a regular expression from the command-line and construct the model from it.
+	// for this, we use libAMoRE++.
 	bool regex_ok;
 	if(argc == 3) {
 		amore::finite_automaton *nfa;
@@ -65,10 +67,11 @@ int main(int argc, char**argv)
 
 	int alphabet_size = model->get_alphabet_size();
 
-	// create angluin_simple_table
+	// create learning algorithm for finite automata:
+	//   angluin_simple_table over boolean output alphabet (a state can accept=true or reject=false)
 	angluin_simple_table<bool> ot(&knowledge, &log, alphabet_size);
 
-	conjecture * cj;
+	conjecture * cj; // storage for the conjetures we get from the algorithm
 	list<int> counterexample;
 
 	// this is the main learning loop:
@@ -82,7 +85,7 @@ int main(int argc, char**argv)
 		if(amore_alf_glue::automaton_equivalence_query(*model, cj, counterexample))
 			break; // they are equal (according to libAMoRE++)
 
-		// tell algorithm about counterexample
+		// otherwise, tell algorithm the counterexample
 		ot.add_counterexample(counterexample);
 		delete cj;
 	}
