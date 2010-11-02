@@ -174,7 +174,7 @@ list<int> user_get_word(string msg, int alphabet_size)
 	return ret;
 }}};
 
-int main(int argc, char**argv)
+int main(void)
 {
 	ostream_logger log(&cout, LOGGER_DEBUG);
 	knowledgebase<my_answer> knowledge;

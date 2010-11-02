@@ -12,7 +12,12 @@ svn-revision ** FIXME **
 
 - A lot of cleanup and bugfixes
 - all libraries: try to use better style to avoid cluttering namespace and other
-	library-related problems.
+	library-related problems. this includes:
+	- using const keyword for functions that don't change anything
+	- avoiding "using namespace std" in headers
+	- checking/removing all warnings that occur
+	- serialization framework
+	- regular memory profiling, including for leaks
 - libalf: refactor of conjectures
 - libalf: New (generic) statistic type
 - libalf: New algorithm Rivest&Shapire (Angluin L* variant)
@@ -25,7 +30,7 @@ svn-revision ** FIXME **
 - libalf: Critical bug in Kearns&Vazirani algorithm fixed
 - libalf: introduced an example answer-type for learning mealy-machines
 	in answer.h: class fixed_count_answer.
-	however, in this simple case, one could also use int or char, i guess.
+	however, in simple cases, one can also use int or char.
 - libAMoRE++: Bug fixed that made antichains fail for deterministic automata
 
 
