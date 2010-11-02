@@ -46,6 +46,13 @@ bool basic_string_to_file(basic_string<int32_t> &str, const char* filename);
 
 bool file_to_basic_string(const char* filename, basic_string<int32_t> &str);
 
+// str[0] has to be the size of the string (otherwise operator>> won't work)
+// the content of str has to be in network byte order.
+std::ostream & operator<<(std::ostream& os, const basic_string<int32_t> &str);
+// the string in <is> has to be in network byte order, and the first element
+// has to be the size of the full string.
+std::istream & operator>>(std::istream& is, basic_string<int32_t> &str);
+
 }; // end of namespace libalf
 
 #endif // __libalf_basic_string_h__

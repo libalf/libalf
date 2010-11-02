@@ -701,7 +701,7 @@ fail:
 string simple_mVCA::write() const
 {
 	// TODO
-	return "bounded_simple_mVCA::write(): TODO.";
+	return "simple_mVCA::write(): TODO.";
 }
 bool simple_mVCA::read(string input)
 {

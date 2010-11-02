@@ -130,5 +130,45 @@ bool file_to_basic_string(const char* filename, basic_string<int32_t> &str)
 		return false;
 }}}
 
+std::ostream & operator<<(std::ostream& os, const basic_string<int32_t> &str)
+// str[0] has to be the size of the string (otherwise operator>> won't work)
+// the content of str has to be in network byte order.
+{{{
+	basic_string<int32_t>::const_iterator si;
+
+	for(si = str.begin(); si != str.end(); ++si) {
+		os.write((const char*)&(*si), sizeof(*si));
+		if(!os.good())
+			break;
+	}
+
+	return os;
+}}}
+
+std::istream & operator>>(std::istream& is, basic_string<int32_t> &str)
+// the string in <is> has to be in network byte order, and the first element
+// has to be the size of the full string.
+{{{
+	int32_t i, size;
+
+	is.read((char*)&i, sizeof(i));
+	if(!is.good())
+		return is;
+	size = ntohl(i);
+
+	str.clear();
+	str.reserve(size);
+
+	str += i;
+	for( /* nil */ ; size > 0; --size) {
+		is.read((char*)&i, sizeof(i));
+		if(!is.good())
+			break;
+		str += i;
+	}
+
+	return is;
+}}}
+
 }; // end of namespace libalf
 
