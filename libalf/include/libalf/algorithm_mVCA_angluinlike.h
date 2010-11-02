@@ -992,14 +992,14 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 
 		bool find_next_valid_m()
 		{
-//#error TODO
+#error TODO
 			
 			return false;
 		}
 
 		conjecture * create_full_equivalence_query()
 		{
-//#error TODO
+#error TODO
 			// FIXME
 			simple_mVCA * cj = new simple_mVCA;
 
