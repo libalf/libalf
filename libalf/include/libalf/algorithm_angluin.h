@@ -29,10 +29,7 @@
 #include <list>
 #include <vector>
 #include <string>
-#include <algorithm>
-#include <functional>
 #include <ostream>
-#include <sstream>
 #include <typeinfo>
 
 #include <stdio.h>
@@ -72,22 +69,18 @@ namespace libalf {
  *		this for now only supports learning of simple mVCAs.
  */
 
-
-
-using namespace std;
-
-	namespace algorithm_angluin {
-		template <class table>
-		class automaton_state {
-			public:
-				int id;
-				typename table::iterator tableentry;
-		};
+namespace algorithm_angluin {
+	template <class table>
+	class automaton_state {
+		public:
+			int id;
+			typename table::iterator tableentry;
 	};
+};
 
 /*
  * template-table for angluin learning algorithm
- * NEVER use this direclty. if you need an alguin-style learning algorithm,
+ * NEVER use this directly. if you need an alguin-style learning algorithm,
  * please stick to those declared below this template.
  */
 template <class answer, class table, class acceptances>
@@ -107,18 +100,18 @@ class angluin_table : public learning_algorithm<answer> {
 	 *		- has to provide swap(*(table::iterator).acceptance, *(table::iterator).acceptance)
 	 *	table::iterator->ut_timestamp has to be an int
 	 *	table::iterator->lt_timestamp has to be an int
-	 *	basic_string<int32_t> table::iterator->serialize()
-	 *	bool table::iterator->deserialize(basic_string<int32_t>::iterator it, basic_string<int32_t>::iterator limit);
+	 *	std::basic_string<int32_t> table::iterator->serialize()
+	 *	bool table::iterator->deserialize(std::basic_string<int32_t>::iterator it, std::basic_string<int32_t>::iterator limit);
 	 *	(see implementation notes on serialization members)
 	 *
-	 *	note: acceptance can e.g. be a member vector<answer> of the *(table::iterator) type
+	 *	note: acceptance can e.g. be a member std::vector<answer> of the *(table::iterator) type
 	\*/
 
 	public: // types
-		typedef vector< list<int> > columnlist;
+		typedef std::vector< std::list<int> > columnlist;
 	protected: // data
 		columnlist column_names;
-		list<unsigned int> column_timestamps;
+		std::list<unsigned int> column_timestamps;
 
 		table upper_table;
 		table lower_table;
@@ -161,13 +154,13 @@ class angluin_table : public learning_algorithm<answer> {
 		{ return true; }
 
 
-		virtual basic_string<int32_t> serialize() const
+		virtual std::basic_string<int32_t> serialize() const
 		{{{
-			basic_string<int32_t> ret;
-			basic_string<int32_t> temp;
+			std::basic_string<int32_t> ret;
+			std::basic_string<int32_t> temp;
 			typename table::const_iterator ti;
 			typename columnlist::const_iterator ci;
-			typename list<unsigned int>::const_iterator tsi;
+			typename std::list<unsigned int>::const_iterator tsi;
 
 			// length (filled in later)
 			ret += 0;
@@ -210,10 +203,10 @@ class angluin_table : public learning_algorithm<answer> {
 		// (implementation specific)
 		virtual bool deserialize(serial_stretch & serial) = 0;
 
-		virtual void print(ostream &os) const
+		virtual void print(std::ostream &os) const
 		{{{
 			typename columnlist::const_iterator ci;
-			typename list<unsigned int>::const_iterator tsi;
+			typename std::list<unsigned int>::const_iterator tsi;
 			typename table::const_iterator ti;
 			typename acceptances::const_iterator acci;
 			char buf[32];
@@ -269,13 +262,13 @@ class angluin_table : public learning_algorithm<answer> {
 			return initialized && columns_filled() && is_closed() && is_consistent();
 		}}}
 
-		virtual bool add_counterexample(list<int> word)
+		virtual bool add_counterexample(std::list<int> word)
 		{{{
 #ifdef DEBUG_ANGLUIN
 			(*this->my_logger)(LOGGER_DEBUG, "angluin_table: new counterexample %s.\n", word2string(word).c_str());
 #endif
 			typename table::const_iterator ti;
-			list<int>::const_iterator wi;
+			std::list<int>::const_iterator wi;
 
 			if(this->my_knowledge == NULL) {
 				(*this->my_logger)(LOGGER_ERROR, "angluin_table: add_counterexample() without knowledgebase!\n");
@@ -322,9 +315,9 @@ class angluin_table : public learning_algorithm<answer> {
 			return true;
 		}}}
 
-		virtual list< list<int> > *get_columns()
+		virtual std::list< std::list<int> > *get_columns()
 		{{{
-			list< list<int> > *l = new list< list<int> >();
+			std::list< std::list<int> > *l = new std::list< std::list<int> >();
 			typename columnlist::iterator ci;
 
 			for(ci = column_names.begin(); ci != column_names.end(); ci++)
@@ -337,10 +330,10 @@ class angluin_table : public learning_algorithm<answer> {
 
 	protected:
 		virtual void initialize_table() = 0;
-		virtual void add_word_to_upper_table(list<int> word, bool check_uniq = true) = 0;
+		virtual void add_word_to_upper_table(std::list<int> word, bool check_uniq = true) = 0;
 
 		// this expects a NORMALIZED word!
-		virtual typename table::iterator search_upper_table(const list<int> &word)
+		virtual typename table::iterator search_upper_table(const std::list<int> &word)
 		{{{
 			typename table::iterator uti;
 
@@ -352,7 +345,7 @@ class angluin_table : public learning_algorithm<answer> {
 		}}}
 
 		// this expects a NORMALIZED word!
-		virtual typename table::iterator search_upper_table(const list<int> &word, int &index)
+		virtual typename table::iterator search_upper_table(const std::list<int> &word, int &index)
 		{{{
 			typename table::iterator uti;
 			index = 0;
@@ -366,7 +359,7 @@ class angluin_table : public learning_algorithm<answer> {
 		}}}
 
 		// this expects a NORMALIZED word!
-		virtual typename table::iterator search_lower_table(const list<int> &word)
+		virtual typename table::iterator search_lower_table(const std::list<int> &word)
 		{{{
 			typename table::iterator lti;
 
@@ -377,7 +370,7 @@ class angluin_table : public learning_algorithm<answer> {
 		}}}
 
 		// this expects a NORMALIZED word!
-		virtual typename table::iterator search_lower_table(const list<int> &word, int &index)
+		virtual typename table::iterator search_lower_table(const std::list<int> &word, int &index)
 		{{{
 			typename table::iterator lti;
 			index = 0;
@@ -390,7 +383,7 @@ class angluin_table : public learning_algorithm<answer> {
 		}}}
 
 		// this expects a NORMALIZED word!
-		virtual typename table::iterator search_tables(const list<int> &word)
+		virtual typename table::iterator search_tables(const std::list<int> &word)
 		{{{
 			typename table::iterator it;
 
@@ -401,12 +394,12 @@ class angluin_table : public learning_algorithm<answer> {
 			return search_lower_table(word);
 		}}}
 
-		virtual bool add_column(const list<int> & word)
+		virtual bool add_column(const std::list<int> & word)
 		// returns true if column was added,
 		// false if column was there earlier
 		{{{
 			typename columnlist::iterator ci;
-			list<int> nw;
+			std::list<int> nw;
 
 			bool bottom;
 			if(this->norm) {
@@ -478,7 +471,7 @@ class angluin_table : public learning_algorithm<answer> {
 //printf("query for %s::%s: BOTTOM\n", word2string(ti->index).c_str(), word2string(*ci).c_str());
 								ti->acceptance.push_back(a);
 							} else {
-								list<int> *w;
+								std::list<int> *w;
 								w = concat(ti->index, *ci);
 								answer a;
 								if(this->my_knowledge->resolve_or_add_query(*w, a)) {
@@ -591,7 +584,7 @@ class angluin_table : public learning_algorithm<answer> {
 				for(ci = column_names.begin(),  ai = ti->acceptance.begin(), col = 0;
 				    ci != column_names.end() && ai != ti->acceptance.end();
 				    ci++, ai++, col++) {
-					list<int> *w;
+					std::list<int> *w;
 					answer a;
 					w = concat(ti->index, *ci);
 
@@ -696,8 +689,8 @@ class angluin_table : public learning_algorithm<answer> {
 					if(*uti_1 == *uti_2) {
 						// uti_1->acceptance == uti_2->acceptance
 						// -> test if all equal suffixes result in equal acceptance as well
-						list<int> word1 = uti_1->index;
-						list<int> word2 = uti_2->index;
+						std::list<int> word1 = uti_1->index;
+						std::list<int> word2 = uti_2->index;
 						typename table::iterator w1succ, w2succ;
 						int sigma;
 						for(sigma = 0; sigma < this->get_alphabet_size(); sigma++) {
@@ -708,7 +701,7 @@ class angluin_table : public learning_algorithm<answer> {
 
 							if(this->norm) {
 								bool bottom;
-								list<int> w1n, w2n;
+								std::list<int> w1n, w2n;
 								w1n = this->norm->prefix_normal_form(word1, bottom);
 								w2n = this->norm->prefix_normal_form(word2, bottom);
 								w1succ = search_tables(w1n);
@@ -759,8 +752,8 @@ class angluin_table : public learning_algorithm<answer> {
 					if(*uti_1 == *uti_2) {
 						// uti_1->acceptance == uti_2->acceptance
 						// -> test if all equal suffixes result in equal acceptance as well
-						list<int> word1 = uti_1->index;
-						list<int> word2 = uti_2->index;
+						std::list<int> word1 = uti_1->index;
+						std::list<int> word2 = uti_2->index;
 						typename table::iterator w1_succ, w2_succ;
 						for(int sigma = 0; sigma < this->get_alphabet_size(); sigma++) {
 							if(word1.front() != BOTTOM_CHAR)
@@ -769,7 +762,7 @@ class angluin_table : public learning_algorithm<answer> {
 								word2.push_back(sigma);
 							if(this->norm) {
 								bool bottom;
-								list<int> w1n, w2n;
+								std::list<int> w1n, w2n;
 								w1n = this->norm->prefix_normal_form(word1, bottom);
 								w2n = this->norm->prefix_normal_form(word2, bottom);
 								w1_succ = search_tables(w1n);
@@ -796,7 +789,7 @@ class angluin_table : public learning_algorithm<answer> {
 
 									while(w1_acc_it != w1_succ->acceptance.end()) {
 										if(*w1_acc_it != *w2_acc_it) {
-											list<int> newsuffix;
+											std::list<int> newsuffix;
 											// generate and add suffix
 											newsuffix = *ci;
 											newsuffix.push_front(sigma);
@@ -866,7 +859,7 @@ class angluin_table : public learning_algorithm<answer> {
 		virtual conjecture * derive_conjecture()
 		{{{
 			conjecture * cj;
-			list<algorithm_angluin::automaton_state<table> > states;
+			std::list<algorithm_angluin::automaton_state<table> > states;
 
 			cj = this->derive_conjecture_memorize(states);
 
@@ -874,7 +867,7 @@ class angluin_table : public learning_algorithm<answer> {
 		}}}
 
 		// derive an automaton and return it, such that a table<->automaton mapping is stored in states
-		virtual libalf::moore_machine<answer> * derive_conjecture_memorize(list<algorithm_angluin::automaton_state<table> > & states)
+		virtual libalf::moore_machine<answer> * derive_conjecture_memorize(std::list<algorithm_angluin::automaton_state<table> > & states)
 		{{{
 			libalf::moore_machine<answer> * ret;
 
@@ -889,7 +882,7 @@ class angluin_table : public learning_algorithm<answer> {
 			algorithm_angluin::automaton_state<table> state;
 			states.clear();
 			state.id = 0;
-			typename list<algorithm_angluin::automaton_state<table> >::iterator state_it, state_it2;
+			typename std::list<algorithm_angluin::automaton_state<table> >::iterator state_it, state_it2;
 
 			// list of states of automaton: each different acceptance-row
 			// in the upper table represents one DFA state
@@ -930,7 +923,7 @@ class angluin_table : public learning_algorithm<answer> {
 
 				// the transformation function is:
 				// \delta: (row, char) -> row : (row(s), a) -> row(sa)
-				list<int> index;
+				std::list<int> index;
 				typename table::iterator ri;
 				index = state_it->tableentry->index;
 				for(int i = 0; i < this->get_alphabet_size(); i++) {
@@ -938,7 +931,7 @@ class angluin_table : public learning_algorithm<answer> {
 					index.push_back(i);
 					if(this->norm) {
 						bool bottom;
-						list<int> nw;
+						std::list<int> nw;
 						nw = this->norm->prefix_normal_form(index, bottom);
 						ti = search_tables(nw);
 					} else {
@@ -971,7 +964,7 @@ class angluin_table : public learning_algorithm<answer> {
 		template <class answer, class acceptances>
 		class simple_row {
 			public:
-				list<int> index;
+				std::list<int> index;
 				acceptances acceptance;
 				unsigned int ut_timestamp;
 				unsigned int lt_timestamp;
@@ -1002,9 +995,9 @@ class angluin_table : public learning_algorithm<answer> {
 					return false;
 				}}}
 
-				basic_string<int32_t> serialize() const
+				std::basic_string<int32_t> serialize() const
 				{{{
-					basic_string<int32_t> ret;
+					std::basic_string<int32_t> ret;
 
 					ret += ::serialize(index);
 					ret += ::serialize(ut_timestamp);
@@ -1038,7 +1031,7 @@ class angluin_table : public learning_algorithm<answer> {
 // this is the classical table-base angluin learning algorithm, L*,
 // implemented in a table-fashion: prefix-closed rows and suffix-closed columns
 template <class answer>
-class angluin_simple_table : public angluin_table<answer, list< algorithm_angluin::simple_row<answer, vector<answer> > >, vector<answer> > {
+class angluin_simple_table : public angluin_table<answer, std::list< algorithm_angluin::simple_row<answer, std::vector<answer> > >, std::vector<answer> > {
 	public:
 		angluin_simple_table()
 		{{{
@@ -1059,8 +1052,8 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 		{{{
 			memory_statistics ret;
 
-			typename angluin_table<answer, list< algorithm_angluin::simple_row<answer, vector<answer> > >, vector<answer> >::columnlist::const_iterator ci;
-			typename list< algorithm_angluin::simple_row<answer, vector<answer> > >::const_iterator ti;
+			typename angluin_table<answer, std::list< algorithm_angluin::simple_row<answer, std::vector<answer> > >, std::vector<answer> >::columnlist::const_iterator ci;
+			typename std::list< algorithm_angluin::simple_row<answer, std::vector<answer> > >::const_iterator ti;
 
 			ret.columns = this->column_names.size();
 			ret.upper_table = this->upper_table.size();
@@ -1072,15 +1065,15 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 			// approx. memory usage:
 			ret.bytes = sizeof(*this);
 			// columns
-			ret.bytes += sizeof(vector<int>);
+			ret.bytes += sizeof(std::vector<int>);
 			for(ci = this->column_names.begin(); ci != this->column_names.end(); ci++)
-				ret.bytes += sizeof(int) * ci->size() + sizeof(list<int>);
+				ret.bytes += sizeof(int) * ci->size() + sizeof(std::list<int>);
 			// upper table bare rows
 			for(ti = this->upper_table.begin(); ti != this->upper_table.end(); ti++)
-				ret.bytes += sizeof(algorithm_angluin::simple_row<answer, vector<answer> >) + sizeof(int) * ti->index.size();
+				ret.bytes += sizeof(algorithm_angluin::simple_row<answer, std::vector<answer> >) + sizeof(int) * ti->index.size();
 			// lower table bare rows
 			for(ti = this->lower_table.begin(); ti != this->lower_table.end(); ti++)
-				ret.bytes += sizeof(algorithm_angluin::simple_row<answer, vector<answer> >) + sizeof(int) * ti->index.size();
+				ret.bytes += sizeof(algorithm_angluin::simple_row<answer, std::vector<answer> >) + sizeof(int) * ti->index.size();
 			// table fields
 			ret.bytes += sizeof(answer) * ret.members;
 
@@ -1091,8 +1084,8 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 		{{{
 			int c, ut, lt, bytes;
 
-			typename angluin_table<answer, list< algorithm_angluin::simple_row<answer, vector<answer> > >, vector<answer> >::columnlist::const_iterator ci;
-			typename list< algorithm_angluin::simple_row<answer, vector<answer> > >::const_iterator ti;
+			typename angluin_table<answer, std::list< algorithm_angluin::simple_row<answer, std::vector<answer> > >, std::vector<answer> >::columnlist::const_iterator ci;
+			typename std::list< algorithm_angluin::simple_row<answer, std::vector<answer> > >::const_iterator ti;
 
 			c = this->column_names.size();
 			ut = this->upper_table.size();
@@ -1105,15 +1098,15 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 			// approx. memory usage:
 			bytes = sizeof(this);
 			// columns
-			bytes += sizeof(vector<int>);
+			bytes += sizeof(std::vector<int>);
 			for(ci = this->column_names.begin(); ci != this->column_names.end(); ci++)
-				bytes += sizeof(int) * ci->size() + sizeof(list<int>);
+				bytes += sizeof(int) * ci->size() + sizeof(std::list<int>);
 			// upper table bare rows
 			for(ti = this->upper_table.begin(); ti != this->upper_table.end(); ti++)
-				bytes += sizeof(algorithm_angluin::simple_row<answer, vector<answer> >) + sizeof(int) * ti->index.size();
+				bytes += sizeof(algorithm_angluin::simple_row<answer, std::vector<answer> >) + sizeof(int) * ti->index.size();
 			// lower table bare rows
 			for(ti = this->lower_table.begin(); ti != this->lower_table.end(); ti++)
-				bytes += sizeof(algorithm_angluin::simple_row<answer, vector<answer> >) + sizeof(int) * ti->index.size();
+				bytes += sizeof(algorithm_angluin::simple_row<answer, std::vector<answer> >) + sizeof(int) * ti->index.size();
 			// table fields
 			bytes += sizeof(answer) * c * (ut+lt);
 
@@ -1163,7 +1156,7 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 			serial.current++; size--; if(size <= 0 || serial.current == serial.limit) goto deserialization_failed;
 			for(/* -- */; count > 0; count--) {
 				// column label
-				list<int> column_label;
+				std::list<int> column_label;
 				if(!::deserialize(column_label, serial))
 					goto deserialization_failed;
 				size -= column_label.size();
@@ -1185,7 +1178,7 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 			// rows for upper table
 			serial.current++; size--; if(size <= 0 || serial.current == serial.limit) goto deserialization_failed;
 			for(/* -- */; count > 0; count--) {
-				algorithm_angluin::simple_row<answer, vector<answer> > row;
+				algorithm_angluin::simple_row<answer, std::vector<answer> > row;
 				// peek size
 				if(serial.current == serial.limit) goto deserialization_failed;
 				size -= ntohl(*serial.current);
@@ -1206,7 +1199,7 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 			// rows for lower table
 			serial.current++; size--; if(size <= 0 || serial.current == serial.limit) goto deserialization_failed;
 			for(/* -- */; count > 0; count--) {
-				algorithm_angluin::simple_row<answer, vector<answer> > row;
+				algorithm_angluin::simple_row<answer, std::vector<answer> > row;
 				// peek size
 				if(serial.current == serial.limit) goto deserialization_failed;
 				size -= ntohl(*serial.current);
@@ -1237,13 +1230,13 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 			if(new_asize <= this->get_alphabet_size())
 				return;
 
-			typename list< algorithm_angluin::simple_row<answer, vector<answer> > >::iterator uti;
-			algorithm_angluin::simple_row<answer, vector<answer> > row;
+			typename std::list< algorithm_angluin::simple_row<answer, std::vector<answer> > >::iterator uti;
+			algorithm_angluin::simple_row<answer, std::vector<answer> > row;
 
 			if(this->norm) {
 				// for all words in the upper table,
 				for(uti = this->upper_table.begin(); uti != this->upper_table.end(); uti++) {
-					list<int> w = uti->index;
+					std::list<int> w = uti->index;
 
 					// add them suffixed with the new characters into the lower table.
 					for(int new_suffix = this->get_alphabet_size(); new_suffix < new_asize; new_suffix++) {
@@ -1274,7 +1267,7 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 	protected:
 		virtual void initialize_table()
 		{{{
-			list<int> word; // empty word!
+			std::list<int> word; // empty word!
 
 			// add epsilon as column
 			this->column_names.push_back(word);
@@ -1287,10 +1280,10 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 			this->initialized = true;
 		}}}
 
-		virtual void add_word_to_upper_table(list<int> word, bool check_uniq = true)
+		virtual void add_word_to_upper_table(std::list<int> word, bool check_uniq = true)
 		{{{
-			list<int> nw;
-			algorithm_angluin::simple_row<answer, vector<answer> > row;
+			std::list<int> nw;
+			algorithm_angluin::simple_row<answer, std::vector<answer> > row;
 			bool done = false;
 			bool bottom = false;
 
@@ -1307,7 +1300,7 @@ class angluin_simple_table : public angluin_table<answer, list< algorithm_anglui
 				}
 				if(!bottom) {
 					// check if in lower table. if so, move up.
-					typename list< algorithm_angluin::simple_row<answer, vector<answer> > >::iterator ti;
+					typename std::list< algorithm_angluin::simple_row<answer, std::vector<answer> > >::iterator ti;
 //printf("scanning for %s in lower.\n", word2string(nw).c_str());
 					ti = this->search_lower_table(nw);
 					if(ti != this->lower_table.end()) {
@@ -1408,10 +1401,10 @@ class angluin_col_table : public angluin_simple_table<answer> {
 			this->set_knowledge_source(base);
 		}}}
 
-		virtual bool add_counterexample(list<int> word)
+		virtual bool add_counterexample(std::list<int> word)
 		{{{
-			typename vector< list<int> >::iterator ci;
-			list<int>::iterator wi;
+			typename std::vector< std::list<int> >::iterator ci;
+			std::list<int>::iterator wi;
 
 			if(this->my_knowledge == NULL) {
 				(*this->my_logger)(LOGGER_ERROR, "angluin_col_table: add_counterexample() without knowledgebase!\n");
@@ -1420,8 +1413,7 @@ class angluin_col_table : public angluin_simple_table<answer> {
 
 			ci = this->search_columns(word);
 			if(ci != this->column_names.end()) {
-				string s = word2string(word);
-				(*this->my_logger)(LOGGER_ERROR, "angluin_col_table: add_counterexample(): you are trying to add a counterexample (%s) which is already contained in the table. trying to ignore...\n", s.c_str());
+				(*this->my_logger)(LOGGER_ERROR, "angluin_col_table: add_counterexample(): you are trying to add a counterexample (%s) which is already contained in the table. trying to ignore...\n", word2string(word).c_str());
 				return false;
 			}
 
@@ -1450,9 +1442,9 @@ class angluin_col_table : public angluin_simple_table<answer> {
 		}}}
 
 	protected:
-		virtual typename vector< list<int> >::iterator search_columns(list<int> &word)
+		virtual typename std::vector< std::list<int> >::iterator search_columns(std::list<int> &word)
 		{{{
-			typename vector< list<int> >::iterator ci;
+			typename std::vector< std::list<int> >::iterator ci;
 
 			for(ci = this->column_names.begin(); ci != this->column_names.end(); ++ci) {
 				if(*ci == word)
