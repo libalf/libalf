@@ -30,6 +30,7 @@
 #include <set>
 #include <string>
 #include <map>
+#include <vector>
 
 #include <libmVCA/pushdown.h>
 #include <libmVCA/transition_function.h>
@@ -37,8 +38,6 @@
 #include <libmVCA/serialize.h>
 
 namespace libmVCA {
-
-using namespace std;
 
 const char * libmVCA_version();
 
@@ -48,7 +47,7 @@ const char * libmVCA_version();
 
 class mVCA_run {
 	public:
-		list<int> prefix;
+		std::list<int> prefix;
 		int state;
 		int m;
 
@@ -62,7 +61,7 @@ class mVCA_run {
 // for mVCA_run:
 // NOTE: all comparison-functions don't care about the prefix! this way,
 // we can easily make a breadth-first search and remember visited
-// m/state tuples in a set<mVCA_run> this is used in mVCA::shortest_run
+// m/state tuples in a std::set<mVCA_run> this is used in mVCA::shortest_run
 bool operator<(const mVCA_run first, const mVCA_run second);
 bool operator==(const mVCA_run first, const mVCA_run second);
 bool operator>(const mVCA_run first, const mVCA_run second);
@@ -85,12 +84,12 @@ class mVCA {
 		unsigned int state_count;
 		pushdown_alphabet alphabet;
 		int initial_state;
-		set<int> final_states;
+		std::set<int> final_states;
 
 		int m_bound; // there exist m_bound+1 transition_functions
 //		transition_function :: implemented by deriving classes
 
-		friend mVCA * construct_mVCA(unsigned int state_count, const pushdown_alphabet & alphabet, int initial_state, const set<int> & final_states, int m_bound, const map<int, map<int, map<int, set<int> > > > & transitions);
+		friend mVCA * construct_mVCA(unsigned int state_count, const pushdown_alphabet & alphabet, int initial_state, const std::set<int> & final_states, int m_bound, const std::map<int, std::map<int, std::map<int, std::set<int> > > > & transitions);
 
 	public: // methods
 		mVCA();
@@ -112,42 +111,42 @@ class mVCA {
 
 		// INITIAL/FINAL STATES
 		int get_initial_state() const;
-		set<int> get_initial_states() const;
-		set<int> get_final_states() const;
+		std::set<int> get_initial_states() const;
+		std::set<int> get_final_states() const;
 		bool set_initial_state(unsigned int state);
-		bool set_final_state(const set<int> & states);
+		bool set_final_state(const std::set<int> & states);
 
-		bool contains_initial_states(const set<int> & states) const;
-		bool contains_final_states(const set<int> & states) const;
+		bool contains_initial_states(const std::set<int> & states) const;
+		bool contains_final_states(const std::set<int> & states) const;
 
 		// TRANSITIONS
 
 		// get mappings of all transitions
 		// the mapping works as follows: map[m][current_state][label] = { successor-states }.
-		virtual void get_transition_map(map<int, map<int, map<int, set<int> > > > & postmap) const = 0;
+		virtual void get_transition_map(std::map<int, std::map<int, std::map<int, std::set<int> > > > & postmap) const = 0;
 
-		set<int> transition(int from, int & m, int label) const;
-		virtual set<int> transition(const set<int> & from, int & m, int label) const = 0; // depends on transition function
-		virtual bool endo_transition(set<int> & states, int & m, int label) const = 0; // depends on transition function
+		std::set<int> transition(int from, int & m, int label) const;
+		virtual std::set<int> transition(const std::set<int> & from, int & m, int label) const = 0; // depends on transition function
+		virtual bool endo_transition(std::set<int> & states, int & m, int label) const = 0; // depends on transition function
 
-		set<int> run(const set<int> & from, int & m, list<int>::const_iterator word, list<int>::const_iterator word_limit) const;
+		std::set<int> run(const std::set<int> & from, int & m, std::list<int>::const_iterator word, std::list<int>::const_iterator word_limit) const;
 		// get shortest run from a state in <from> to a state in <to>.
 		// the run has to result in a configuration where the current state is a state in <to> and m is <to_m>.
-		list<int> shortest_run(const set<int> & from, int m, const set<int> & to, int to_m, bool &reachable) const;
+		std::list<int> shortest_run(const std::set<int> & from, int m, const std::set<int> & to, int to_m, bool &reachable) const;
 		// test if word is contained in language of automaton
-		bool contains(const list<int> & word) const;
-		bool contains(list<int>::const_iterator word, list<int>::const_iterator word_limit) const;
+		bool contains(const std::list<int> & word) const;
+		bool contains(std::list<int>::const_iterator word, std::list<int>::const_iterator word_limit) const;
 		// obtain shortest word in language resp. test if language is empty,
-		list<int> get_sample_word(bool & is_empty) const;
+		std::list<int> get_sample_word(bool & is_empty) const;
 		bool is_empty() const;
 
-		void get_bounded_behaviour_graph(int m_bound, bool & f_is_deterministic, int & f_alphabet_size, int & f_state_count, set<int> & f_initial_states, set<int> & f_final_states, map<int, map<int, set<int> > > & f_transitions) const;
+		void get_bounded_behaviour_graph(int m_bound, bool & f_is_deterministic, int & f_alphabet_size, int & f_state_count, std::set<int> & f_initial_states, std::set<int> & f_final_states, std::map<int, std::map<int, std::set<int> > > & f_transitions) const;
 
 		///-----------------------------------
 
-		bool lang_subset_of(mVCA & other, list<int> & counterexample); // both have to be deterministic. this implicitly calls complete_automaton() for this and other!
-		bool lang_equal(mVCA & other, list<int> & counterexample); // both have to be deterministic. this implicitly calls complete_automaton() for this and other!
-		bool lang_disjoint_to(const mVCA & other, list<int> & counterexample) const; // both have to be deterministic
+		bool lang_subset_of(mVCA & other, std::list<int> & counterexample); // both have to be deterministic. this implicitly calls complete_automaton() for this and other!
+		bool lang_equal(mVCA & other, std::list<int> & counterexample); // both have to be deterministic. this implicitly calls complete_automaton() for this and other!
+		bool lang_disjoint_to(const mVCA & other, std::list<int> & counterexample) const; // both have to be deterministic
 
 		mVCA * lang_intersect(const mVCA & other) const; // both have to be deterministic
 //		mVCA * lang_union(mVCA & other); // TODO: both may be nondeterministic. can be done efficiently.
@@ -174,10 +173,10 @@ class mVCA {
 		//	m_bound
 		//	<serialized derivate-specific data>
 		// </serialized automaton>
-		basic_string<int> serialize() const;
+		std::basic_string<int> serialize() const;
 		bool deserialize(serial_stretch & serial);
 
-		string visualize() const;
+		std::string visualize() const;
 
 		// create a complete automaton from this automaton. i.e. add the implicit sink state
 		// and transitions to it.
@@ -185,9 +184,9 @@ class mVCA {
 		// add (or overwrite, in case of deterministic) a transition
 		virtual void add_transition(int m, int src, int label, int dst) = 0;
 	protected:
-		virtual basic_string<int32_t> serialize_derivate() const = 0;
+		virtual std::basic_string<int32_t> serialize_derivate() const = 0;
 		virtual bool deserialize_derivate(serial_stretch & serial) = 0;
-		virtual string get_transition_dotfile() const = 0;
+		virtual std::string get_transition_dotfile() const = 0;
 
 
 		mVCA * crossproduct(const mVCA & other) const;
@@ -202,20 +201,20 @@ class mVCA {
 
 
 mVCA * construct_mVCA(	unsigned int state_count,
-			int alphabet_size, const vector<int> & alphabet_directions,
+			int alphabet_size, const std::vector<int> & alphabet_directions,
 			int initial_state,
-			const set<int> & final_states,
+			const std::set<int> & final_states,
 			int m_bound,
-			const map<int, map<int, map<int, set<int> > > > & transitions
+			const std::map<int, std::map<int, std::map<int, std::set<int> > > > & transitions
 			// transitions: m -> state -> sigma -> states
 		);
 
 mVCA * construct_mVCA(	unsigned int state_count,
 			const pushdown_alphabet & alphabet,
 			int initial_state,
-			const set<int> & final_states,
+			const std::set<int> & final_states,
 			int m_bound,
-			const map<int, map<int, map<int, set<int> > > > & transitions
+			const std::map<int, std::map<int, std::map<int, std::set<int> > > > & transitions
 			// transitions: m -> state -> sigma -> states
 		);
 

@@ -27,15 +27,12 @@
 # define __libmvca_pushdown_h__
 
 #include <list>
-#include <set>
 #include <string>
-#include <map>
+#include <vector>
 
 #include <libmVCA/serialize.h>
 
 namespace libmVCA {
-
-using namespace std;
 
 enum pushdown_direction {
 	DIR_UP = +1,			// add to stack
@@ -58,7 +55,7 @@ inline bool deserialize(enum pushdown_direction & into, serial_stretch & serial)
 class pushdown_alphabet {
 	private:
 		int alphabet_size;
-		vector<enum pushdown_direction> directions;
+		std::vector<enum pushdown_direction> directions;
 	public:
 		pushdown_alphabet();	// will initialise alphabet_size to 0.
 		pushdown_alphabet(int alphabet_size);
@@ -82,9 +79,9 @@ class pushdown_alphabet {
 		bool set_direction(int sigma, enum pushdown_direction direction);
 
 		// get the countervalue of this prefix. returns -1 for an invalid prefix under this alphabet.
-		int prefix_countervalue(list<int>::const_iterator word, list<int>::const_iterator limit, int initial_countervalue = 0) const;
+		int prefix_countervalue(std::list<int>::const_iterator word, std::list<int>::const_iterator limit, int initial_countervalue = 0) const;
 		// get countervalue of this word
-		int countervalue(const list<int> & word) const
+		int countervalue(const std::list<int> & word) const
 		{ return this->prefix_countervalue(word.begin(), word.end(), 0); }
 
 		// format for serialization:
@@ -94,10 +91,10 @@ class pushdown_alphabet {
 		//	alphabet_size
 		//	pushdown-directions[] (alphabet-size times)
 		// </serialized automaton>
-		basic_string<int32_t> serialize() const;
+		std::basic_string<int32_t> serialize() const;
 		bool deserialize(::serial_stretch serial);
 
-		string to_string() const;
+		std::string to_string() const;
 
 		bool operator==(const pushdown_alphabet & other) const
 		{ return ( (this->alphabet_size == other.alphabet_size) && (this->directions == other.directions) ); };

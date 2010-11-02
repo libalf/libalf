@@ -24,13 +24,14 @@
 #ifndef __libmvca_p_automaton_h__
 # define __libmvca_p_automaton_h__
 
-# include <vector>
+# include <set>
+# include <list>
+# include <map>
+# include <string>
 
 # include <libmVCA/mVCA.h>
 
 namespace libmVCA {
-
-using namespace std;
 
 /*
  * P-automata can be used to calculate Pre* of a regular set of configurations C of the underlying mVCA (or PDS).
@@ -53,7 +54,7 @@ using namespace std;
  * then, for any given mVCA configuration <q, m>, it can be checked if the set C is reachable:
  *
  *		bool reachable;
- *		list<int> run;
+ *		std::list<int> run;
  *
  *		run = get_shortest_valid_mVCA_run(q, m, reachable);
  *
@@ -68,7 +69,7 @@ using namespace std;
 class pa_transition_target {
 	public:
 		int dst;
-		list<int> mVCA_word; // accumulated transitions in mVCA (!) that are required for this configuration change
+		std::list<int> mVCA_word; // accumulated transitions in mVCA (!) that are required for this configuration change
 	public:
 		pa_transition_target()
 		{ dst = -1; };
@@ -84,9 +85,9 @@ class p_automaton {
 	private: // data
 		bool valid;
 		bool saturated;
-		set< pair<int, int> > added_configurations;
+		std::set< std::pair<int, int> > added_configurations;
 		const mVCA * base_automaton;
-		map<int, map<int, map<int, set<int> > > > mVCA_postmap; // m -> state -> label -> set<states>
+		std::map<int, std::map<int, std::map<int, std::set<int> > > > mVCA_postmap; // m -> state -> label -> std::set<states>
 
 		// the alphabet is different from the mVCA alphabet, as we operate over the
 		// mVCA configuration, i.e. over <state, m>. the alphabet is m+1 in size.
@@ -103,17 +104,17 @@ class p_automaton {
 		// notice that the first <n> state are the initial states,
 		// corresponding to states from the mVCA
 		int highest_initial_state;
-		set<int> final;
+		std::set<int> final;
 		// transitions :: state -> label -> destinations
-		map<int, map<int, set<pa_transition_target> > > transitions;
+		std::map<int, std::map<int, std::set<pa_transition_target> > > transitions;
 
 	private: // methods
 		int new_state();
-		list<int> get_config(int state, int m) const;
+		std::list<int> get_config(int state, int m) const;
 		bool transition_exists(int from_state, int label, int to_state);
-		set<int> run_transition(int from_state, int label);
-		set< pair<int, list<int> > > run_transition_accumulate(int from_state, int label, list<int> current_mVCA_run) const;
-		set< pair<int, list<int> > > run_transition_accumulate(int from_state, list<int> word) const;
+		std::set<int> run_transition(int from_state, int label);
+		std::set< std::pair<int, std::list<int> > > run_transition_accumulate(int from_state, int label, std::list<int> current_mVCA_run) const;
+		std::set< std::pair<int, std::list<int> > > run_transition_accumulate(int from_state, std::list<int> word) const;
 
 	public: // methods
 		p_automaton();
@@ -125,9 +126,9 @@ class p_automaton {
 
 		bool saturate_preSTAR();
 
-		list<int> get_shortest_valid_mVCA_run(int state, int m, bool & reachable) const;
+		std::list<int> get_shortest_valid_mVCA_run(int state, int m, bool & reachable) const;
 
-		string visualize() const;
+		std::string visualize() const;
 };
 
 

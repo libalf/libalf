@@ -32,6 +32,8 @@
 
 #include <libmVCA/pushdown.h>
 
+using namespace std;
+
 namespace libmVCA {
 
 pushdown_alphabet::pushdown_alphabet()
