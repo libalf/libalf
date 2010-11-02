@@ -29,6 +29,7 @@
 
 #include <list>
 #include <vector>
+#include <map>
 #include <set>
 
 #include <libalf/algorithm_biermann.h>
@@ -38,7 +39,6 @@
 namespace libalf {
 
 
-using namespace std;
 using namespace libalf::MiniSat;
 
 /*
@@ -66,22 +66,22 @@ class MiniSat_biermann : public basic_biermann<answer> {
 		}}}
 
 	protected:
-		virtual bool csp2sat(Solver & solver, map<node*, vector<Var>, typename knowledgebase<answer>::node_comparator > & vars)
+		virtual bool csp2sat(Solver & solver, std::map<node*, std::vector<Var>, typename knowledgebase<answer>::node_comparator > & vars)
 		{{{
-			typename set< node* >::iterator si;
+			typename std::set< node* >::iterator si;
 			int clausecount = 0;
 
 			// create vars
 			// and on the fly add clauses enforcing unary encoding
 			for(si = this->sources.begin(); si != this->sources.end(); si++) {
-				vector<Var> state_vars;
-				vector<Var>::iterator svi;
+				std::vector<Var> state_vars;
+				std::vector<Var>::iterator svi;
 				bool varcounter[this->mdfa_size];
 				bool carry;
 				int set_count;
 				int i;
 
-//list<int> word;
+//std::list<int> word;
 //string s;
 //word = (*si)->get_word();
 //s = word2string(word, '.');
@@ -152,9 +152,9 @@ class MiniSat_biermann : public basic_biermann<answer> {
 //printf("\n");
 
 			// add clauses for each constraint:
-			typename list<typename basic_biermann<answer>::constraint>::iterator csi;
+			typename std::list<typename basic_biermann<answer>::constraint>::iterator csi;
 			for(csi = this->constraints.begin(); csi != this->constraints.end(); csi++) {
-				vector<Var>::iterator svi1, svi2, svi1e, svi2e;
+				std::vector<Var>::iterator svi1, svi2, svi1e, svi2e;
 
 				svi1 = vars[csi->l1].begin();
 				svi1e = vars[csi->l1].end();
@@ -164,7 +164,7 @@ class MiniSat_biermann : public basic_biermann<answer> {
 				while(svi1 != svi1e && svi2 != svi2e) {
 					if(csi->has_second) {
 						vec<Lit> clause;
-						vector<Var>::iterator svi3, svi4, svi3e, svi4e;
+						std::vector<Var>::iterator svi3, svi4, svi3e, svi4e;
 
 						svi3 = vars[csi->l3].begin();
 						svi3e = vars[csi->l3].end();
@@ -215,7 +215,7 @@ class MiniSat_biermann : public basic_biermann<answer> {
 		virtual bool solve_constraints()
 		{{{
 			Solver solver;
-			map<node*, vector<Var>, typename knowledgebase<answer>::node_comparator > vars;
+			std::map<node*, std::vector<Var>, typename knowledgebase<answer>::node_comparator > vars;
 
 			//solver.verbosity = 1;
 
@@ -250,11 +250,11 @@ class MiniSat_biermann : public basic_biermann<answer> {
 				printf("\n");
 				*/
 
-				typename map<node*, vector<Var>, typename knowledgebase<answer>::node_comparator>::iterator vsi;
+				typename std::map<node*, std::vector<Var>, typename knowledgebase<answer>::node_comparator>::iterator vsi;
 				int vindex = 0;
 
 				for(vsi = vars.begin(); vsi != vars.end(); vsi++) {
-					vector<Var>::iterator vi;
+					std::vector<Var>::iterator vi;
 					bool assigned = false;
 					int stateid;
 					int i;

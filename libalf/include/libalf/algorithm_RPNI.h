@@ -39,17 +39,16 @@
 
 #include <stdio.h>
 
-#include <string>
+#include <set>
 #include <list>
-#include <map>
-#include <queue>
+#include <string>
+#include <ostream>
+#include <fstream>
 
 #include <libalf/knowledgebase.h>
 #include <libalf/learning_algorithm.h>
 
 namespace libalf {
-
-using namespace std;
 
 template <class answer>
 class RPNI : public learning_algorithm<answer> {
@@ -57,12 +56,12 @@ class RPNI : public learning_algorithm<answer> {
 		class equivalence_relation {
 			public: // types
 				typedef typename knowledgebase<answer>::node node;
-				typedef pair<node*, node*> nodeppair;
+				typedef std::pair<node*, node*> nodeppair;
 			public: // data
 				knowledgebase<answer> * base;
 				typename knowledgebase<answer>::equivalence_relation equivalences;
 			protected:
-				set<nodeppair> candidates;
+				std::set<nodeppair> candidates;
 
 			public: // member functions
 				equivalence_relation(knowledgebase<answer> * my_knowledge)
@@ -72,7 +71,7 @@ class RPNI : public learning_algorithm<answer> {
 					// add all trivial equivalences
 					kIterator_lex_graded<answer> kit(base->get_rootptr());
 					while(!kit.end()) {
-						equivalences.insert(pair<node*, node*>(&*kit, &*kit));
+						equivalences.insert(std::pair<node*, node*>(&*kit, &*kit));
 						kit++;
 					}
 				}}}
@@ -86,16 +85,16 @@ class RPNI : public learning_algorithm<answer> {
 					ok = add(a, b);
 
 					if(ok) {
-						typename set<nodeppair>::iterator ci;
+						typename std::set<nodeppair>::iterator ci;
 						for(ci = candidates.begin(); ci != candidates.end(); ci++)
-							equivalences.insert(pair<node*, node*>(ci->first, ci->second));
+							equivalences.insert(std::pair<node*, node*>(ci->first, ci->second));
 					}
 
 					candidates.clear();
 					return ok;
 				}}}
 
-				set<node*> get_equivalence_class(node * n)
+				std::set<node*> get_equivalence_class(node * n)
 				{{{
 					return equivalences.get_equivalence_class(n);
 				}}}
@@ -110,10 +109,10 @@ class RPNI : public learning_algorithm<answer> {
 					return equivalences.representative_graded_lex(n);
 				}}}
 			protected:
-				set<node*> get_equivalence_class_candidate(node * n)
+				std::set<node*> get_equivalence_class_candidate(node * n)
 				{{{
-					set<node*> ret;
-					typename set<nodeppair>::iterator eqi;
+					std::set<node*> ret;
+					typename std::set<nodeppair>::iterator eqi;
 
 					ret = equivalences.get_equivalence_class(n);
 					for(eqi = candidates.begin(); eqi != candidates.end(); eqi++)
@@ -127,7 +126,7 @@ class RPNI : public learning_algorithm<answer> {
 					if(equivalences.are_equivalent(a,b)) {
 						return true;
 					} else {
-						pair<node*, node*> p;
+						std::pair<node*, node*> p;
 						p.first = a;
 						p.second = b;
 
@@ -139,19 +138,19 @@ class RPNI : public learning_algorithm<answer> {
 				{{{
 					if(!are_candidate_equivalent(a, b)) {
 #ifdef RPNI_DEBUG_EQ_CLASSES
-						list<int> w1,w2;
+						std::list<int> w1,w2;
 						w1 = a->get_word(); w2 = b->get_word();
 						printf("\t[ %s , %s ]", word2string(w1).c_str(), word2string(w2).c_str());
 #endif
-						set<nodeppair> pending_equivalences;
-						typename set<nodeppair>::iterator pi;
+						std::set<nodeppair> pending_equivalences;
+						typename std::set<nodeppair>::iterator pi;
 
-						set<node*> ca, cb;
+						std::set<node*> ca, cb;
 
 						ca = get_equivalence_class_candidate(a);
 						cb = get_equivalence_class_candidate(b);
 
-						typename set<node*>::iterator cai, cbi;
+						typename std::set<node*>::iterator cai, cbi;
 
 						for(cai = ca.begin(); cai != ca.end(); cai++) {
 							for(cbi = cb.begin(); cbi != cb.end(); cbi++) {
@@ -231,9 +230,9 @@ class RPNI : public learning_algorithm<answer> {
 			return true;
 		}}}
 
-		virtual basic_string<int32_t> serialize() const
+		virtual std::basic_string<int32_t> serialize() const
 		{{{
-			basic_string<int32_t> ret;
+			std::basic_string<int32_t> ret;
 
 			// we don't have any internal, persistent data
 			ret += ::serialize(1); // size
@@ -252,7 +251,7 @@ class RPNI : public learning_algorithm<answer> {
 			return (s == learning_algorithm<answer>::ALG_RPNI);
 		}}}
 
-		virtual void print(ostream &os) const
+		virtual void print(std::ostream &os) const
 		{{{
 			os << "RPNI does not have any persistent data.\n";
 		}}}
@@ -269,13 +268,11 @@ class RPNI : public learning_algorithm<answer> {
 			// a warning if there are non-accepting leafs
 
 			if((this->my_knowledge != NULL) && (this->my_knowledge->count_answers() > 0)) {
-				list<int> sample;
+				std::list<int> sample;
 				if(leaf_is_non_accepting(this->my_knowledge->get_rootptr(), sample)) {
-					string s;
-					s = word2string(sample);
 					(*this->my_logger)(LOGGER_INFO, "RPNI expects a sample-set consisting of pref(S+). "
 							"but this sampleset has a non-accepting leaf \"%s\". "
-							"you may try anyway, this is just a sidenote.\n", s.c_str());
+							"you may try anyway, this is just a sidenote.\n", word2string(sample).c_str());
 				}
 
 				if(this->get_alphabet_size() != this->my_knowledge->get_largest_symbol())
@@ -289,17 +286,17 @@ class RPNI : public learning_algorithm<answer> {
 		}}}
 
 		// stubs for counterexample will throw a warning to the logger
-		virtual bool add_counterexample(list<int>)
+		virtual bool add_counterexample(std::list<int>)
 		{{{
 			(*this->my_logger)(LOGGER_ERROR, "RPNI does not support counter-examples, as it is an offline-algorithm. please add the counter-example directly to the knowledgebase and rerun the algorithm.\n");
 			return false;
 		}}}
 
 	protected:
-		bool leaf_is_non_accepting(typename knowledgebase<answer>::node* n, list<int> & sample, bool prefix_accepting = false)
+		bool leaf_is_non_accepting(typename knowledgebase<answer>::node* n, std::list<int> & sample, bool prefix_accepting = false)
 		// check if all leafs (i.e. states that have no suffixes that either accept or reject) accept
 		{{{
-			list<int> w;
+			std::list<int> w;
 			if(n->is_answered()) {
 				if(n->get_answer() == true)
 					prefix_accepting = true;
@@ -400,7 +397,7 @@ class RPNI : public learning_algorithm<answer> {
 					lgo2.set_root(this->my_knowledge->get_rootptr());
 					while(&*lgo != &*lgo2) {
 						if(eq.is_representative_graded_lex(&*lgo2)) {
-							list<int> w1, w2;
+							std::list<int> w1, w2;
 							w1 = lgo->get_word();
 							w2 = lgo2->get_word();
 #ifdef RPNI_DEBUG_EQ_CLASSES
@@ -411,7 +408,7 @@ class RPNI : public learning_algorithm<answer> {
 									word2string(w1).c_str(), word2string(w2).c_str());
 #ifdef RPNI_DEBUG_EQ_CLASSES
 								char filename[128];
-								ofstream file;
+								std::ofstream file;
 								snprintf(filename, 128, "eq-classes-%02d.dot", iteration);
 								file.open(filename);
 								file << this->my_knowledge->visualize(eq.equivalences);
@@ -434,11 +431,11 @@ class RPNI : public learning_algorithm<answer> {
 			}
 #ifdef RPNI_DEBUG_EQ_CLASSES
 			printf("\n");
-			set<typename knowledgebase<answer>::node*> representatives, eq_class;
-			typename set<typename knowledgebase<answer>::node*>::iterator ri, eqi;
+			std::set<typename knowledgebase<answer>::node*> representatives, eq_class;
+			typename std::set<typename knowledgebase<answer>::node*>::iterator ri, eqi;
 			representatives = eq.equivalences.representatives_graded_lex();
 			for(ri = representatives.begin(); ri != representatives.end(); ri++) {
-				list<int> word = (*ri)->get_word();
+				std::list<int> word = (*ri)->get_word();
 				printf("\tclass [%s]: { ", word2string(word).c_str());
 				eq_class = eq.equivalences.get_equivalence_class(*ri);
 				for(eqi = eq_class.begin(); eqi != eq_class.end(); eqi++) {

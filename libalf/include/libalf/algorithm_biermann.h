@@ -39,6 +39,7 @@
 #include <string>
 #include <list>
 #include <map>
+#include <ostream>
 
 #include <math.h>
 
@@ -49,8 +50,6 @@
 
 namespace libalf {
 
-using namespace std;
-
 // basic biermann functions. do not use this directly, use those derived from it
 // (declared below or in other files)
 template <class answer>
@@ -60,7 +59,7 @@ class basic_biermann : public learning_algorithm<answer> {
 
 		// mapping is the final solution, a mapping from the LFDFAs states to the final mDFAs states
 		// FIXME: migrate mapping to knowledgebase<answer>::equivalence_relation
-		typedef map<node*, int, typename knowledgebase<answer>::node_comparator> mapping;
+		typedef std::map<node*, int, typename knowledgebase<answer>::node_comparator> mapping;
 
 		class constraint {
 			// very reduced constraint: can only represent the following formulas:
@@ -71,12 +70,12 @@ class basic_biermann : public learning_algorithm<answer> {
 				node *l1, *l2, *l3, *l4;
 				bool has_second;
 
-				pair<bool, bool> verify(mapping & solution)
+				std::pair<bool, bool> verify(mapping & solution)
 				// return <true, true> if all (required) information is already set and the constraint is true.
 				// return <true, false> if all information is already set and the constraint is false.
 				// return <false, ignore> if information is missing.
 				{{{
-					pair<bool, bool> ret;
+					std::pair<bool, bool> ret;
 					typename mapping::iterator mi1, mi2;
 
 					if(has_second) {
@@ -112,12 +111,12 @@ class basic_biermann : public learning_algorithm<answer> {
 					return ret;
 				}}}
 
-				void print(ostream &os) const
+				void print(std::ostream &os) const
 				{{{
 					char buf1[64];
 					char buf2[64];
-					list<int> word;
-					string s1,s2;
+					std::list<int> word;
+					std::string s1,s2;
 
 					word = l1->get_word();
 					s1 = word2string(word);
@@ -143,8 +142,8 @@ class basic_biermann : public learning_algorithm<answer> {
 
 	protected: // data
 		int mdfa_size;
-		list<constraint> constraints;
-		set<node*> sources;
+		std::list<constraint> constraints;
+		std::set<node*> sources;
 		mapping solution;
 
 
@@ -183,9 +182,9 @@ class basic_biermann : public learning_algorithm<answer> {
 			return true;
 		}}}
 
-		virtual basic_string<int32_t> serialize() const
+		virtual std::basic_string<int32_t> serialize() const
 		{{{
-			basic_string<int32_t> ret;
+			std::basic_string<int32_t> ret;
 
 			// we don't have any internal, persistent data
 			ret += ::serialize(1);
@@ -204,15 +203,15 @@ class basic_biermann : public learning_algorithm<answer> {
 			return (s == learning_algorithm<answer>::ALG_BIERMANN);
 		}}}
 
-		virtual void print(ostream &os) const
+		virtual void print(std::ostream &os) const
 		{{{
-			typename set<node*>::const_iterator si;
-			typename list<constraint>::const_iterator ci;
+			typename std::set<node*>::const_iterator si;
+			typename std::list<constraint>::const_iterator ci;
 
 			os << "mapping sources {\n";
 			for(si = sources.begin(); si != sources.end(); si++) {
-				list<int> word;
-				string s;
+				std::list<int> word;
+				std::string s;
 				word = (*si)->get_word();
 				s = word2string(word);
 				os << "\t" << s << "\n";
@@ -243,7 +242,7 @@ class basic_biermann : public learning_algorithm<answer> {
 		}}}
 
 		// stubs for counterexample will throw a warning to the logger
-		virtual bool add_counterexample(list<int>)
+		virtual bool add_counterexample(std::list<int>)
 		{{{
 			(*this->my_logger)(LOGGER_ERROR, "biermann does not support counter-examples, as it is an offline-algorithm. please add the counter-example directly to the knowledgebase and rerun the algorithm.\n");
 			return false;
@@ -447,7 +446,7 @@ class basic_biermann : public learning_algorithm<answer> {
 		virtual finite_automaton * solution2automaton()
 		{{{
 			finite_automaton * ret = new finite_automaton;
-			typename set<node*>::iterator si;
+			typename std::set<node*>::iterator si;
 
 			ret->is_deterministic = true;
 			ret->input_alphabet_size = this->get_alphabet_size();

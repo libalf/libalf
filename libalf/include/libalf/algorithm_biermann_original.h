@@ -33,6 +33,7 @@
 #include <iostream>
 #include <string>
 #include <map>
+#include <list>
 
 #include <libalf/knowledgebase.h>
 #include <libalf/learning_algorithm.h>
@@ -42,8 +43,6 @@
 #endif
 
 namespace libalf {
-
-using namespace std;
 
 template <class answer>
 class original_biermann : public learning_algorithm<answer> {
@@ -103,7 +102,7 @@ class original_biermann : public learning_algorithm<answer> {
 		return true;
 	}
 
-	bool add_counterexample(list<int>) {
+	bool add_counterexample(std::list<int>) {
 		(*this->my_logger)(LOGGER_ERROR, "biermann does not support counter-examples, as it is an offline-algorithm. Please add the counter-example directly to the knowledgebase and rerun the algorithm.\n");
 		return false;
 	}
@@ -119,10 +118,10 @@ class original_biermann : public learning_algorithm<answer> {
 		automaton->valid = true;
 
 		// Create temporary variables
-		map<int, node*> *eq_classes = new map<int, node*>;
+		std::map<int, node*> *eq_classes = new std::map<int, node*>;
 
 		// Add sink state
-		eq_classes->insert(pair<int, node*>(0, NULL));
+		eq_classes->insert(std::pair<int, node*>(0, NULL));
 		automaton->state_count++;
 		for(int i=0; i<this->alphabet_size; i++)
 			automaton->transitions[0][i].insert(0);
@@ -144,8 +143,8 @@ class original_biermann : public learning_algorithm<answer> {
 		return automaton;
 	}
 
-	basic_string<int32_t> serialize() const {
-		basic_string<int32_t> ret;
+	std::basic_string<int32_t> serialize() const {
+		std::basic_string<int32_t> ret;
 
 		ret += ::serialize(2); // size
 		ret += ::serialize(learning_algorithm<answer>::ALG_BIERMANN_ORIGINAL);
@@ -164,7 +163,7 @@ class original_biermann : public learning_algorithm<answer> {
 		return ::deserialize(nondeterminism, serial);
 	}
 
-	bool deserialize_magic(basic_string<int32_t>::iterator &it, basic_string<int32_t>::iterator limit, basic_string<int32_t> & result)
+	bool deserialize_magic(std::basic_string<int32_t>::iterator &it, std::basic_string<int32_t>::iterator limit, std::basic_string<int32_t> & result)
 	// you may use magic to set the value of nondeterminism:
 	//
 	// expected data:
@@ -198,9 +197,9 @@ class original_biermann : public learning_algorithm<answer> {
 		return true;
 	}
 
-	void print(ostream &os) const {
+	void print(std::ostream &os) const {
 		os << "Biermann and Feldmann's offline algorithm. Alphabet size is " << this->alphabet_size;
-		os << " Nondeterminism is " + nondeterminism << endl;
+		os << " Nondeterminism is " + nondeterminism << std::endl;
 	}
 
 	private:
@@ -211,13 +210,13 @@ class original_biermann : public learning_algorithm<answer> {
 	 * set.
 	 *
 	 */
-	int compute_fingerprint(node *current, map<int, node*> *eq_classes) {
+	int compute_fingerprint(node *current, std::map<int, node*> *eq_classes) {
 
 		/*
 		 * There is no equivalence class yet.
 		 */
 		if(eq_classes->empty()) {
-			eq_classes->insert(pair<int, node*>(0, current));
+			eq_classes->insert(std::pair<int, node*>(0, current));
 			return 0;
 		}
 
@@ -225,19 +224,19 @@ class original_biermann : public learning_algorithm<answer> {
 		 * Search whether the equivalence class belonging to the current node is already existing.
 		 * If so, return its number.
 		 */
-		typename map<int, node*>::iterator it;
+		typename std::map<int, node*>::iterator it;
 		for (it=eq_classes->begin() ; it!=eq_classes->end(); it++ ) {
 			if(is_equivalent(current, (*it).second, nondeterminism)) {
 				// An equivalence class has been found
 				#ifdef DEBUG
-					cout << "Equivalent to class " << it->first << endl;
+					std::cout << "Equivalent to class " << it->first << std::endl;
 				#endif
 				return (*it).first;
 			}
 
 			#ifdef DEBUG
 				else {
-					cout << "NOT equivalent to class " << it->first << endl;
+					std::cout << "NOT equivalent to class " << it->first << std::endl;
 				}
 			#endif
 		}
@@ -247,7 +246,7 @@ class original_biermann : public learning_algorithm<answer> {
 		 */
 		int new_eq_number;
 		new_eq_number = eq_classes->size();
-		eq_classes->insert(pair<int, node*>(new_eq_number, current));
+		eq_classes->insert(std::pair<int, node*>(new_eq_number, current));
 
 		return new_eq_number;
 	}
@@ -263,7 +262,7 @@ class original_biermann : public learning_algorithm<answer> {
 		 */
 		if(n1 == NULL && n2 == NULL) {
 			#ifdef DEBUG
-				cout << "EQ-check: Both are NULL" << endl;
+				std::cout << "EQ-check: Both are NULL" << std::endl;
 			#endif
 			return true;
 		}
@@ -273,7 +272,7 @@ class original_biermann : public learning_algorithm<answer> {
 		 */
 		else if((n1 == NULL && n2 != NULL) || (n1 != NULL && n2 == NULL)) {
 			#ifdef DEBUG
-				cout << "EQ-check: One is NULL" << endl;
+				std::cout << "EQ-check: One is NULL" << std::endl;
 			#endif
 			if(n1 == NULL) {
 				// Swap
@@ -304,7 +303,7 @@ class original_biermann : public learning_algorithm<answer> {
 		 */
 		else {
 			#ifdef DEBUG
-				cout << "EQ-check: Both are NOT NULL" << endl;
+				std::cout << "EQ-check: Both are NOT NULL" << std::endl;
 			#endif
 
 			if((n1->is_answered() && !n2->is_answered()) || (!n1->is_answered() && n2->is_answered())) {
@@ -339,7 +338,7 @@ class original_biermann : public learning_algorithm<answer> {
 	/*
 	 * Recursivley computing a nodes equivalence class.
 	 */
-	int assign_equivalence_class(node *current, moore_machine<answer> * automaton, map<int, node*> *eq_classes) {
+	int assign_equivalence_class(node *current, moore_machine<answer> * automaton, std::map<int, node*> *eq_classes) {
 
 		/*
 		 * Recursively compute the equivalence classes of the current node's children
@@ -374,7 +373,7 @@ class original_biermann : public learning_algorithm<answer> {
 		// DEBUG
 #ifdef DEBUG
 		print_current(current);
-		cout << "Assigned equivalence class: " << current_eq << endl;
+		std::cout << "Assigned equivalence class: " << current_eq << std::endl;
 #endif
 
 		/*
@@ -395,7 +394,7 @@ class original_biermann : public learning_algorithm<answer> {
 		for(int i=0; i<this->alphabet_size; i++) {
 			automaton->transitions[current_eq][i].insert(child_eq[i]);
 #ifdef DEBUG
-			cout << "Adding transition (" <<current_eq << ", " << i << ", " << child_eq[i] << ")" << endl;
+			std::cout << "Adding transition (" <<current_eq << ", " << i << ", " << child_eq[i] << ")" << std::endl;
 #endif
 		}
 
@@ -403,14 +402,14 @@ class original_biermann : public learning_algorithm<answer> {
 	}
 
 	void print_current(node *current) {
-		cout << "Currenty processing: '";
+		std::cout << "Currenty processing: '";
 
-		list<int> w =  current->get_word();
+		std::list<int> w =  current->get_word();
 
-		for (list<int>::iterator it = w.begin(); it != w.end(); it++) {
-			cout << *it << " ";
+		for (std::list<int>::iterator it = w.begin(); it != w.end(); it++) {
+			std::cout << *it << " ";
 		}
-		cout << "'" << endl;
+		std::cout << "'" << std::endl;
 	}
 };
 

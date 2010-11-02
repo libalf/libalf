@@ -42,8 +42,6 @@
 
 namespace libalf {
 
-using namespace std;
-
 /*
  * NLstar, angluin-style learning algorithm for RFSA-automata,
  * as described in
@@ -56,13 +54,13 @@ using namespace std;
 template <class answer>
 class NLstar_table : public learning_algorithm<answer> {
 	public:
-		typedef list< list<int> > columnlist;
+		typedef std::list< std::list<int> > columnlist;
 
 		class table_row {
 			public:
-				typedef vector<answer> acceptances;
+				typedef std::vector<answer> acceptances;
 			public:
-				list<int> index;
+				std::list<int> index;
 				acceptances acceptance;
 			public:
 				bool __attribute__((const)) covers(table_row & other) const
@@ -121,7 +119,7 @@ class NLstar_table : public learning_algorithm<answer> {
 							*ai1 = true;
 				}}}
 
-				basic_string<int32_t> serialize() const
+				std::basic_string<int32_t> serialize() const
 				{{{
 					return ::serialize(index) + ::serialize(acceptance);
 				}}}
@@ -137,9 +135,9 @@ fail:
 
 				}}}
 
-				string to_string() const
+				std::string to_string() const
 				{{{
-					string s;
+					std::string s;
 					typename acceptances::const_iterator acci;
 
 					s = word2string(index);
@@ -160,16 +158,16 @@ fail:
 				size_t memory_usage() const
 				{{{
 					size_t s;
-					list< list<int> >::const_iterator acci;
+					std::list< std::list<int> >::const_iterator acci;
 
-					s = sizeof(list<int>) + sizeof(int) * index.size();
+					s = sizeof(std::list<int>) + sizeof(int) * index.size();
 					s += sizeof(acceptances) + sizeof(answer) * acceptance.size();
 
 					return s;
 				}}}
 		};
 
-		typedef list<table_row> table;
+		typedef std::list<table_row> table;
 
 	protected:
 		columnlist column_names;
@@ -221,7 +219,7 @@ fail:
 
 			ret.bytes = sizeof(this);
 			for(ci = column_names.begin(); ci != column_names.end(); ci++)
-				ret.bytes += sizeof(list<int>) + sizeof(int) * (ci->size());
+				ret.bytes += sizeof(std::list<int>) + sizeof(int) * (ci->size());
 			for(ti = upper_table.begin(); ti != upper_table.end(); ti++)
 				ret.bytes += ti->memory_usage();
 			for(ti = lower_table.begin(); ti != lower_table.end(); ti++)
@@ -254,7 +252,7 @@ fail:
 
 			bytes = sizeof(*this);
 			for(ci = column_names.begin(); ci != column_names.end(); ci++)
-				bytes += sizeof(list<int>) + sizeof(int) * (ci->size());
+				bytes += sizeof(std::list<int>) + sizeof(int) * (ci->size());
 			for(ti = upper_table.begin(); ti != upper_table.end(); ti++)
 				bytes += ti->memory_usage();
 			for(ti = lower_table.begin(); ti != lower_table.end(); ti++)
@@ -273,9 +271,9 @@ fail:
 			return false; // not for now.
 		}}}
 
-		virtual basic_string<int32_t> serialize() const
+		virtual std::basic_string<int32_t> serialize() const
 		{{{
-			basic_string<int32_t> ret;
+			std::basic_string<int32_t> ret;
 
 			ret += 0; // size - filled in later.
 			ret += htonl(learning_algorithm<answer>::ALG_NL_STAR);
@@ -322,14 +320,14 @@ deserialization_failed:
 			return false;
 		}}}
 
-		virtual void print(ostream &os) const
+		virtual void print(std::ostream &os) const
 		{{{
 			os << this->to_string();
 		}}}
 
-		virtual string to_string() const
+		virtual std::string to_string() const
 		{{{
-			string s;
+			std::string s;
 			typename columnlist::const_iterator ci;
 			typename table::const_iterator ti;
 
@@ -359,7 +357,7 @@ deserialization_failed:
 			return initialized && columns_filled() && is_closed() && is_consistent();
 		}}}
 
-		virtual bool add_counterexample(list<int> w)
+		virtual bool add_counterexample(std::list<int> w)
 		{{{
 			if(this->my_knowledge == NULL) {
 				(*this->my_logger)(LOGGER_ERROR, "NLstar_table: add_counterexample() without knowledgebase!\n");
@@ -371,7 +369,7 @@ deserialization_failed:
 			while(!w.empty()) { // epsilon is always in table
 				if(!add_column(w)) {
 					if(wsize ==  w.size()) {
-						string s;
+						std::string s;
 						s = word2string(w);
 						(*this->my_logger)(LOGGER_ERROR, "NLstar_table: add_counterexample(): you are trying to add a counterexample (%s) which is already contained in the table. trying to ignore...\n", s.c_str());
 						return false;
@@ -394,7 +392,7 @@ deserialization_failed:
 
 	protected:
 		// returns true if word was added, false if it was already in column_names
-		virtual bool add_column(list<int> word)
+		virtual bool add_column(std::list<int> word)
 		{{{
 			typename columnlist::reverse_iterator ci;
 
@@ -409,7 +407,7 @@ deserialization_failed:
 
 		virtual bool row_is_prime(typename table::iterator & row)
 		{{{
-//			string s,t;
+//			std::string s,t;
 //			s = word2string(row->index);
 //			(*this->my_logger)(LOGGER_DEBUG, "\tchecking if %s is prime:\n", s.c_str());
 			table_row merge;
@@ -452,7 +450,7 @@ deserialization_failed:
 			return (! (joined && (merge == *row)));
 		}}}
 
-		virtual void add_word_to_upper_table(list<int> & word, bool check_uniq = true)
+		virtual void add_word_to_upper_table(std::list<int> & word, bool check_uniq = true)
 		{{{
 			table_row row;
 			bool done = false;
@@ -495,7 +493,7 @@ deserialization_failed:
 			}
 		}}}
 
-		virtual typename table::iterator search_upper_table(list<int> &word)
+		virtual typename table::iterator search_upper_table(std::list<int> &word)
 		{{{
 			typename table::iterator uti;
 
@@ -506,7 +504,7 @@ deserialization_failed:
 			return upper_table.end();
 		}}}
 
-		virtual typename table::iterator search_lower_table(list<int> &word)
+		virtual typename table::iterator search_lower_table(std::list<int> &word)
 		{{{
 			typename table::iterator lti;
 
@@ -516,7 +514,7 @@ deserialization_failed:
 			return lower_table.end();
 		}}}
 
-		virtual typename table::iterator search_tables(list<int> &word)
+		virtual typename table::iterator search_tables(std::list<int> &word)
 		{{{
 			typename table::iterator it;
 
@@ -529,7 +527,7 @@ deserialization_failed:
 
 		virtual void initialize_table()
 		{{{
-			list<int> word; // empty word;
+			std::list<int> word; // empty word;
 
 			column_names.clear();
 			upper_table.clear();
@@ -570,7 +568,7 @@ deserialization_failed:
 								a = false;
 								ti->acceptance.push_back(a);
 							} else {
-								list<int> *w;
+								std::list<int> *w;
 								w = concat(ti->index, *ci);
 								answer a;
 								if(this->my_knowledge->resolve_or_add_query(*w, a)) {
@@ -615,7 +613,7 @@ deserialization_failed:
 		virtual bool is_closed()
 		{{{
 			typename table::iterator ti;
-			list<typename table::iterator> upper_primes;
+			std::list<typename table::iterator> upper_primes;
 			// prepare merge row
 			int i;
 			int cn = column_names.size();
@@ -643,7 +641,7 @@ deserialization_failed:
 						merge.acceptance[i] = a_false;
 
 				bool joined = false;
-				typename list<typename table::iterator>::iterator pri;
+				typename std::list<typename table::iterator>::iterator pri;
 				for(pri = upper_primes.begin(); pri != upper_primes.end(); pri++)
 					if(ti->covers(**pri)) {
 						merge |= **pri;
@@ -664,10 +662,10 @@ deserialization_failed:
 		// returns false if table was changed (and thus needs to be filled)
 		virtual bool close()
 		{{{
-//			string s,t;
+//			std::string s,t;
 //			(*this->my_logger)(LOGGER_DEBUG, "close() getting upper primes:\n");
 			typename table::iterator ti;
-			list<typename table::iterator> upper_primes;
+			std::list<typename table::iterator> upper_primes;
 			// prepare merge row
 			int i;
 			int cn = column_names.size();
@@ -701,7 +699,7 @@ deserialization_failed:
 						merge.acceptance[i] = a_false;
 
 				bool joined = false;
-				typename list<typename table::iterator>::iterator pri;
+				typename std::list<typename table::iterator>::iterator pri;
 				for(pri = upper_primes.begin(); pri != upper_primes.end(); pri++)
 					if(ti->covers(**pri)) {
 						merge |= **pri;
@@ -738,7 +736,7 @@ deserialization_failed:
 			return true;
 		}}}
 
-		virtual bool w1suffixes_cover_w2suffixes(list<int> w1, list<int> w2)
+		virtual bool w1suffixes_cover_w2suffixes(std::list<int> w1, std::list<int> w2)
 		{{{
 			for(int sigma = 0; sigma < this->get_alphabet_size(); sigma++) {
 				typename table::iterator suffix1, suffix2;
@@ -777,7 +775,7 @@ deserialization_failed:
 			return true;
 		}}}
 
-		virtual bool let_w1suffixes_cover_w2suffixes(list<int> w1, list<int> w2)
+		virtual bool let_w1suffixes_cover_w2suffixes(std::list<int> w1, std::list<int> w2)
 		// returns false if something was changed
 		{{{
 			for(int sigma = 0; sigma < this->get_alphabet_size(); sigma++) {
@@ -796,7 +794,7 @@ deserialization_failed:
 				for(ai1 = suffix1->acceptance.begin(), ai2 = suffix2->acceptance.begin(), ci = column_names.begin();
 				    ai1 != suffix1->acceptance.end(); ++ai1, ++ai2, ++ci) {
 					if(*ai1 == false && *ai2 == true) {
-						list<int> new_suffix;
+						std::list<int> new_suffix;
 						new_suffix = *ci;
 						new_suffix.push_front(sigma);
 						add_column(new_suffix);
@@ -834,7 +832,7 @@ deserialization_failed:
 				initialize_table();
 
 			if(fill_missing_columns(upper_table) && fill_missing_columns(lower_table)) {
-//				string s = this->to_string();
+//				std::string s = this->to_string();
 //				(*this->my_logger)(LOGGER_DEBUG, "----------------------- \n%s", s.c_str());
 				if(!close())
 					return complete();
@@ -860,7 +858,7 @@ deserialization_failed:
 			//			NOTE: epsilon is not in Q0 iff. epsilon is not prime (iff. epsilon not in Q)
 			//	F =		{ r \in Q | .r.epsilon. = + }
 			//	delta(u, a) =	{ r \in Q | r is covered by .u.a. for all u in Q }
-			vector<typename table::iterator> upper_primes;
+			std::vector<typename table::iterator> upper_primes;
 			typename table::iterator ti;
 			typename table::iterator epsilon = upper_table.begin();
 
@@ -874,7 +872,7 @@ deserialization_failed:
 			ret->state_count = upper_primes.size();
 
 			for(int i = 0; i < ret->state_count; i++) {
-				list<int> succ_w;
+				std::list<int> succ_w;
 				typename table::iterator successor;
 
 				// get initial states
@@ -903,7 +901,7 @@ deserialization_failed:
 			return ret;
 		}}}
 
-		basic_string<int32_t> serialize_table(const table & t) const
+		std::basic_string<int32_t> serialize_table(const table & t) const
 		{{{
 			std::basic_string<int32_t> serialized_list;
 			typename table::const_iterator ti;

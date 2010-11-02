@@ -24,12 +24,16 @@
 #ifndef __libalf_algorithm_rivest_shapire_h__
 # define __libalf_algorithm_rivest_shapire_h__
 
+#include <set>
+#include <list>
+#include <vector>
+#include <string>
+#include <sstream>
+
 #include <libalf/algorithm_angluin.h>
 #include <libalf/logger_terminalcolors.h>
 
 namespace libalf {
-
-using namespace std;
 
 /*
  * Rivest Shapire Extension of Angluins L* algorithm.
@@ -41,18 +45,18 @@ using namespace std;
 template <class answer>
 class rivest_shapire_table : public angluin_simple_table<answer> {
 	protected: // types
-		typedef list< algorithm_angluin::simple_row<answer, vector<answer> > > table_t;
+		typedef std::list< algorithm_angluin::simple_row<answer, std::vector<answer> > > table_t;
 
 	protected: // data
 		bool counterexample_mode;
-		list<int> counterexample;
+		std::list<int> counterexample;
 		answer cex_answer;
 		bool cex_answer_set;
 		int cex_front, cex_back, cex_latest_bad;
 
 		bool conjecture_stored;
 		libalf::moore_machine<answer> latest_cj;
-		list<algorithm_angluin::automaton_state<table_t> > latest_cj_statemapping;
+		std::list<algorithm_angluin::automaton_state<table_t> > latest_cj_statemapping;
 
 	protected: // methods
 		virtual conjecture * derive_conjecture()
@@ -115,7 +119,7 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 					missing_knowledge = true;
 				} else {
 					// check if cex really differs to hypothesis' answer
-					set<int> current_states = latest_cj.initial_states;
+					std::set<int> current_states = latest_cj.initial_states;
 					latest_cj.run(current_states, counterexample.begin(), counterexample.end());
 					int current_state = *( current_states.begin() );
 					if(latest_cj.output_mapping[current_state] == cex_answer) {
@@ -133,7 +137,7 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 			// binary search for the state that needs to be split
 			int current_index = (cex_front + cex_back) / 2;
 			int i;
-			list<int>::const_iterator current_pos, li;
+			std::list<int>::const_iterator current_pos, li;
 
 #ifdef DEBUG_RIVEST_SHAPIRE // {{{
 			(*this->my_logger)(LOGGER_DEBUG, "RS: CEX mode, picked index %d from [%d,%d]\n", current_index, cex_front, cex_back);
@@ -143,12 +147,12 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 			for(i = 0, current_pos = counterexample.begin(); (i < current_index) && (current_pos != counterexample.end()); ++i, ++current_pos)
 				/* nothing */ ;
 
-			list<int> new_word;
+			std::list<int> new_word;
 			// generate new word to test
 			{{{
 				// get different prefix from last hypothesis
-				set<int> current_states;
-				typename list<algorithm_angluin::automaton_state<table_t> >::const_iterator mi;
+				std::set<int> current_states;
+				typename std::list<algorithm_angluin::automaton_state<table_t> >::const_iterator mi;
 
 				current_states = latest_cj.initial_states;
 				latest_cj.run(current_states, counterexample.begin(), current_pos);
@@ -160,7 +164,7 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 				new_word = mi->tableentry->index;
 #ifdef DEBUG_RIVEST_SHAPIRE // {{{
 				(*this->my_logger)(LOGGER_DEBUG, "RS:     replacing prefix  .");
-				list<int>::const_iterator li;
+				std::list<int>::const_iterator li;
 				for(li = counterexample.begin(); li != current_pos; ++li)
 					(*this->my_logger)(LOGGER_DEBUG, "%d.", *li);
 				(*this->my_logger)(LOGGER_DEBUG, "  with  %s  ", word2string(new_word).c_str());
@@ -181,7 +185,7 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 			if(missing_knowledge)
 				return false;
 #ifdef DEBUG_RIVEST_SHAPIRE // {{{
-			stringstream str;
+			std::stringstream str;
 			str << "RS:     cex/new_word: ";
 			str << ( (cex_answer == a) ? COLOR(CFG_BLUE) : COLOR(CFG_RED) );
 			str << cex_answer << " " << a << "\n";
@@ -255,9 +259,9 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 			conjecture_stored = false;
 		}}}
 
-		virtual bool add_counterexample(list<int> word)
+		virtual bool add_counterexample(std::list<int> word)
 		{{{
-			list<int>::const_iterator li;
+			std::list<int>::const_iterator li;
 			if(this->my_knowledge == NULL) {
 				(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: add_counterexample() without knowledgebase!\n");
 				return false;
@@ -303,7 +307,7 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 			return true;
 		}}}
 
-		virtual basic_string<int32_t> serialize() const
+		virtual std::basic_string<int32_t> serialize() const
 		{{{
 			if(conjecture_stored)
 				(*this->my_logger)(LOGGER_WARN, "rivest_shapire_table: serialize during counterexample mode is a bad idea. please avoid it for now.\n");
