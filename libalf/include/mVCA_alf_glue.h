@@ -43,17 +43,16 @@
 
 namespace mVCA_alf_glue {
 
-using namespace std;
 using namespace libalf;
 using namespace libmVCA;
 
-inline bool automaton_partial_equivalence_query(mVCA & model, conjecture * cj, int m_bound, list<int> & counterexample)
+inline bool automaton_partial_equivalence_query(libmVCA::mVCA & model, conjecture * cj, int m_bound, std::list<int> & counterexample)
 // conjecture is expected to be a simple_automaton.
 {{{
 	bool f_is_deterministic;
 	int f_alphabet_size, f_state_count;
-	set<int> f_initial_states, f_final_states;
-	multimap<pair<int,int>, int> f_transitions;
+	std::set<int> f_initial_states, f_final_states;
+	std::map<int, std::map<int, std::set<int> > > f_transitions;
 
 	amore::finite_automaton *partial_model;
 
@@ -69,18 +68,18 @@ inline bool automaton_partial_equivalence_query(mVCA & model, conjecture * cj, i
 	return ret;
 }}}
 
-inline bool automaton_partial_equivalence_query(mVCA & model, mVCA & hypothesis, int m_bound, list<int> & counterexample)
+inline bool automaton_partial_equivalence_query(libmVCA::mVCA & model, libmVCA::mVCA & hypothesis, int m_bound, std::list<int> & counterexample)
 {{{
 	bool f_is_deterministic;
 	int f_alphabet_size, f_state_count;
-	set<int> f_initial_states, f_final_states;
-	multimap<pair<int,int>, int> f_transitions;
+	std::set<int> f_initial_states, f_final_states;
+	std::map<int, std::map<int, std::set<int> > > f_transitions;
 
 	amore::finite_automaton *partial_model, *partial_hypothesis;
 
 	pushdown_alphabet a = model.get_alphabet();
 	if(hypothesis.get_alphabet() != a) {
-		cerr << "mVCA_alf_glue::automaton_partial_equivalence_query(...): alphabet mismatch for model and hypothesis. aborting program.\n";
+		std::cerr << "mVCA_alf_glue::automaton_partial_equivalence_query(...): alphabet mismatch for model and hypothesis. aborting program.\n";
 		exit(-1);
 	}
 
@@ -100,31 +99,33 @@ inline bool automaton_partial_equivalence_query(mVCA & model, mVCA & hypothesis,
 	return ret;
 }}}
 
-inline bool automaton_equivalence_query(mVCA & model, mVCA & hypothesis, list<int> & counterexample)
+inline bool automaton_equivalence_query(libmVCA::mVCA & model, libmVCA::mVCA & hypothesis, std::list<int> & counterexample)
 {{{
 	counterexample.clear();
 
 	return model.lang_equal(hypothesis, counterexample);
 }}};
 
-inline bool automaton_equivalence_query(mVCA & model, conjecture *cj, list<int> & counterexample)
+inline bool automaton_equivalence_query(libmVCA::mVCA & model, conjecture *cj, std::list<int> & counterexample)
 {{{
 	simple_mVCA * a;
-	mVCA * hypothesis;
+	libmVCA::mVCA * hypothesis;
 	bool ret;
 
 	a = dynamic_cast<simple_mVCA*>(cj);
 	if(!a) {
-		cerr << "mVCA_alf_glue::automaton_equivalence_query(...): hypothesis is not an m-bounded visible 1-counter automaton. aborting program.\n";
+		std::cerr << "mVCA_alf_glue::automaton_equivalence_query(...): hypothesis is not an m-bounded visible 1-counter automaton. aborting program.\n";
 		exit(-1);
 	}
 	int initial_state;
 	if(a->initial_states.size() != 1) {
-		cerr << "mVCA_alf_glue::automaton_equivalence_query(...): hypothesis has " << a->initial_states.size() << " initial states. aborting program.\n";
+		std::cerr << "mVCA_alf_glue::automaton_equivalence_query(...): hypothesis has " << a->initial_states.size() << " initial states. aborting program.\n";
 		exit(-1);
 	}
 	initial_state = * (a->initial_states.begin());
-	hypothesis = construct_mVCA(a->state_count, a->input_alphabet_size, a->alphabet_directions, initial_state, a->final_states, a->m_bound, a->transitions);
+	std::set<int> final_states;
+	a->get_final_states(final_states);
+	hypothesis = construct_mVCA(a->state_count, a->input_alphabet_size, a->alphabet_directions, initial_state, final_states, a->m_bound, a->transitions);
 
 	ret = automaton_equivalence_query(model, *hypothesis, counterexample);
 
@@ -133,18 +134,18 @@ inline bool automaton_equivalence_query(mVCA & model, conjecture *cj, list<int> 
 	return ret;
 }}};
 
-inline bool automaton_membership_query(mVCA & model, list<int> & word)
+inline bool automaton_membership_query(libmVCA::mVCA & model, std::list<int> & word)
 { return model.contains(word); };
 
 
 template<class answer>
-inline int automaton_answer_knowledgebase(mVCA & model, knowledgebase<answer> & base)
+inline int automaton_answer_knowledgebase(libmVCA::mVCA & model, knowledgebase<answer> & base)
 {{{
 	int count = 0;
 	typename knowledgebase<answer>::iterator qi = base.qbegin();
 
 	while(qi != base.qend()) {
-		list<int> word;
+		std::list<int> word;
 		word = qi->get_word();
 		qi->set_answer( (answer) automaton_membership_query(model, word) );
 		qi = base.qbegin();

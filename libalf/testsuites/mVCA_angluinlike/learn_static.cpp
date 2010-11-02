@@ -53,7 +53,7 @@ pushdown_alphabet get_alphabet()
 	return ret;
 }}}
 
-mVCA * get_aNbcN3()
+libmVCA::mVCA * get_aNbcN3()
 {{{
 	map<int, map<int, map<int, set<int> > > > transitions;
 
@@ -77,7 +77,7 @@ mVCA * get_aNbcN3()
 	return construct_mVCA(/*state-count*/ 2, al, /*initial state*/ 0, final, /*m_bound*/ 3, transitions);
 }}};
 
-mVCA * get_aNbcN3_or_b()
+libmVCA::mVCA * get_aNbcN3_or_b()
 {{{
 	map<int, map<int, map<int, set<int> > > > transitions;
 	// m->state->sigma->states
@@ -116,7 +116,7 @@ int main()
 	alphabet_pushdown_directions[2] = -1;
 	table.indicate_pushdown_alphabet_directions(alphabet_pushdown_directions);
 
-	mVCA * teacher;
+	libmVCA::mVCA * teacher;
 	teacher = get_aNbcN3_or_b();
 
 	// real work with algorithm:

@@ -669,29 +669,9 @@ class finite_automaton : public moore_machine<bool> {
 
 		// checks if a word is accepted by this automaton.
 		virtual bool contains(const std::list<int> & word) const;
-		inline void get_final_states(std::set<int> & into) const
-		{{{
-			std::map<int, bool>::const_iterator oi;
-
-			into.clear();
-
-			for(oi = output_mapping.begin(); oi != output_mapping.end(); ++oi)
-				if(oi->second)
-					into.insert(oi->first);
-		}}}
-		inline std::set<int> get_final_states() const
-		{{{
-			std::set<int> final_states;
-			this->get_final_states(final_states);
-			return final_states;
-		}}}
-		inline void set_final_states(const std::set<int> &final)
-		{{{
-			std::set<int>::const_iterator si;
-			this->set_all_non_accepting();
-			for(si = final.begin(); si != final.end(); ++si)
-				this->output_mapping[*si] = true;
-		}}}
+		virtual void get_final_states(std::set<int> & into) const;
+		virtual std::set<int> get_final_states() const;
+		virtual void set_final_states(const std::set<int> &final);
 		virtual void set_all_non_accepting();
 	protected:
 		// parse a single, human readable transition and store it in this->transitions
@@ -721,22 +701,11 @@ class simple_mVCA : public mVCA<bool> {
 		virtual bool read(std::string input);
 		virtual std::string visualize() const;
 
-		inline void get_final_states(std::set<int> & into) const
-		{{{
-			std::map<int, bool>::const_iterator oi;
+		virtual void get_final_states(std::set<int> & into) const;
+		virtual std::set<int> get_final_states() const;
+		virtual void set_final_states(const std::set<int> &final);
+		virtual void set_all_non_accepting();
 
-			into.clear();
-
-			for(oi = output_mapping.begin(); oi != output_mapping.end(); ++oi)
-				if(oi->second)
-					into.insert(oi->first);
-		}}}
-		inline std::set<int> get_final_states() const
-		{{{
-			std::set<int> final_states;
-			this->get_final_states(final_states);
-			return final_states;
-		}}}
 };
 
 
@@ -747,10 +716,10 @@ class bounded_simple_mVCA : public finite_automaton {
 
 	// expects omega == false.
 	public:
-		int bound;
+		int m_bound;
 	public:
 		bounded_simple_mVCA()
-		{ bound = 0; this->omega = false; };
+		{ m_bound = 0; this->omega = false; };
 		virtual ~bounded_simple_mVCA()
 		{ };
 		virtual conjecture_type get_type() const

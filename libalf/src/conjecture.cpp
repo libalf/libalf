@@ -543,6 +543,30 @@ bool finite_automaton::contains(const list<int> & word) const
 
 	return false;
 }}}
+void finite_automaton::get_final_states(set<int> & into) const
+{{{
+	map<int, bool>::const_iterator oi;
+
+	into.clear();
+
+	for(oi = output_mapping.begin(); oi != output_mapping.end(); ++oi)
+		if(oi->second)
+			into.insert(oi->first);
+}}}
+set<int> finite_automaton::get_final_states() const
+{{{
+	set<int> final_states;
+	this->get_final_states(final_states);
+	return final_states;
+}}}
+void finite_automaton::set_final_states(const set<int> &final)
+{{{
+	set<int>::const_iterator si;
+	this->set_all_non_accepting();
+	for(si = final.begin(); si != final.end(); ++si)
+		this->output_mapping[*si] = true;
+}}}
+
 void finite_automaton::set_all_non_accepting()
 {{{
 	this->output_mapping.clear();
@@ -714,20 +738,49 @@ string simple_mVCA::visualize() const
 	return "simple_mVCA::visualize(): TODO.\n";
 }
 
+void simple_mVCA::get_final_states(set<int> & into) const
+{{{
+	map<int, bool>::const_iterator oi;
+
+	into.clear();
+
+	for(oi = output_mapping.begin(); oi != output_mapping.end(); ++oi)
+		if(oi->second)
+			into.insert(oi->first);
+}}}
+set<int> simple_mVCA::get_final_states() const
+{{{
+	set<int> final_states;
+	this->get_final_states(final_states);
+	return final_states;
+}}}
+void simple_mVCA::set_final_states(const set<int> &final)
+{{{
+	set<int>::const_iterator si;
+	this->set_all_non_accepting();
+	for(si = final.begin(); si != final.end(); ++si)
+		this->output_mapping[*si] = true;
+}}}
+void simple_mVCA::set_all_non_accepting()
+{{{
+	this->output_mapping.clear();
+	for(int i = 0; i < this->state_count; ++i)
+		output_mapping[i] = false;
+}}}
 
 
 
 void bounded_simple_mVCA::clear()
 {{{
 	finite_automaton::clear();
-	bound = 0;
+	m_bound = 0;
 }}}
 bool bounded_simple_mVCA::calc_validity()
 {{{
 	if(!finite_automaton::calc_validity())
 		goto invalid;
 
-	if(bound < 0)
+	if(m_bound < 0)
 		goto invalid;
 
 	return true;
@@ -743,7 +796,7 @@ basic_string<int32_t> bounded_simple_mVCA::serialize() const
 	if(valid) {
 		ret += 0;
 		ret += finite_automaton::serialize();
-		ret += ::serialize(bound);
+		ret += ::serialize(m_bound);
 		ret[0] = htonl(ret.length() - 1);
 	}
 
@@ -756,7 +809,7 @@ bool bounded_simple_mVCA::deserialize(serial_stretch & serial)
 	clear();
 	if(!::deserialize(size, serial)) goto failed;
 	if(!finite_automaton::deserialize(serial)) goto failed;
-	if(!::deserialize(bound, serial)) goto failed;
+	if(!::deserialize(m_bound, serial)) goto failed;
 
 	this->valid = true;
 	return true;
@@ -776,7 +829,7 @@ bool bounded_simple_mVCA::read(string input)
 }
 string bounded_simple_mVCA::visualize() const
 {
-	// TODO: add label with bound.
+	// TODO: add label with m_bound.
 	return finite_automaton::visualize();
 }
 

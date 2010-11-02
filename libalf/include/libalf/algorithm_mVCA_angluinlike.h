@@ -936,7 +936,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 			if(tested_equivalence_bound == known_equivalence_bound)
 				++tested_equivalence_bound;
 
-			cj->bound = tested_equivalence_bound;
+			cj->m_bound = tested_equivalence_bound;
 
 			std::map<fingerprint_t, int> states; // this is not really good. something better anyone?
 
@@ -961,12 +961,13 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 			}
 
 			// list all transitions
-			std::pair<std::pair<int, int>, int> new_transition; // state, sigma -> state
 			for(vi = table.begin(); vi != table.end(); ++vi) {
 				for(equi = vi->representatives().begin(); equi != vi->representatives().end(); ++equi) {
-					new_transition.first.first = states[equi->fingerprint()];
+
+					fingerprint_t fequi = equi->fingerprint();
 					std::list<int> rep;
 					rep = equi->prefix();
+
 					for(int sigma = 0; sigma < this->get_alphabet_size(); ++sigma) {
 						int dcv = pushdown_directions[sigma];
 						int ncv = equi->cv() + dcv;
@@ -974,15 +975,13 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 							continue;
 
 						rep.push_back(sigma);
-						new_transition.first.second = sigma;
 
-						fingerprint_t fingerprint = equi->fingerprint();
-						bool found;
+						bool found; // (ignored)
+						fingerprint_t fnew;
+						fnew = table.find_transition(rep, equi->cv(), dcv, found).second->fingerprint();
 
-						fingerprint = table.find_transition(rep, equi->cv(), dcv, found).second->fingerprint();
+						cj->transitions[ states[fequi] ][ sigma ].insert( states[fnew] );
 
-						new_transition.second = states[fingerprint];
-						cj->transitions.insert(new_transition);
 						rep.pop_back();
 					}
 				}
@@ -993,14 +992,14 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 
 		bool find_next_valid_m()
 		{
-#error TODO
+//#error TODO
 			
 			return false;
 		}
 
 		conjecture * create_full_equivalence_query()
 		{
-#error TODO
+//#error TODO
 			// FIXME
 			simple_mVCA * cj = new simple_mVCA;
 

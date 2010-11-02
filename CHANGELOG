@@ -11,19 +11,21 @@ v0.3   (FIXME SET DATE)
 svn-revision ** FIXME **
 
 - A lot of cleanup and bugfixes
+- all libraries: try to use better style to avoid cluttering namespace and other
+	library-related problems.
 - libalf: refactor of conjectures
 - libalf: New (generic) statistic type
 - libalf: New algorithm Rivest&Shapire (Angluin L* variant)
 - libalf: Extended algorithms to support learning of mealy-machines,
- 	not just finite automata:
+	not just finite automata:
 	- angluin_simple_table
 	- angluin_col_table
 	- rivest_shapire_table
 	- biermann_original
 - libalf: Critical bug in Kearns&Vazirani algorithm fixed
 - libalf: introduced an example answer-type for learning mealy-machines
-          in answer.h: class fixed_count_answer.
-	  however, in this simple case, one could also use int or char, i guess.
+	in answer.h: class fixed_count_answer.
+	however, in this simple case, one could also use int or char, i guess.
 - libAMoRE++: Bug fixed that made antichains fail for deterministic automata
 
 

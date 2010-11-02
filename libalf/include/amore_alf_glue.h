@@ -37,20 +37,18 @@
 
 namespace amore_alf_glue {
 
-using namespace std;
-
 
 
 inline amore::finite_automaton * automaton_libalf2amore(libalf::finite_automaton & automaton)
 {{{
-	set<int> final_states;
+	std::set<int> final_states;
 	automaton.get_final_states(final_states);
 	return amore::construct_amore_automaton(automaton.is_deterministic, automaton.input_alphabet_size, automaton.state_count, automaton.initial_states, final_states, automaton.transitions);
 }}}
 
 inline libalf::finite_automaton * automaton_amore2libalf(amore::finite_automaton & automaton)
 {{{
-	basic_string<int32_t> ser = automaton.serialize();
+	std::basic_string<int32_t> ser = automaton.serialize();
 	serial_stretch range(ser);
 	libalf::finite_automaton * ret = new libalf::finite_automaton;
 	if(!ret->deserialize(range)) {
@@ -62,14 +60,14 @@ inline libalf::finite_automaton * automaton_amore2libalf(amore::finite_automaton
 
 
 
-inline bool automaton_antichain_equivalence_query(amore::finite_automaton & model, amore::finite_automaton & hypothesis, list<int> & counterexample)
+inline bool automaton_antichain_equivalence_query(amore::finite_automaton & model, amore::finite_automaton & hypothesis, std::list<int> & counterexample)
 {{{
 	if(!model.antichain__is_superset_of(hypothesis, counterexample))
 		return false;
 	return hypothesis.antichain__is_superset_of(model, counterexample);
 }}};
 
-inline bool automaton_classic_equivalence_query(amore::finite_automaton & model, amore::finite_automaton & hypothesis, list<int> & counterexample)
+inline bool automaton_classic_equivalence_query(amore::finite_automaton & model, amore::finite_automaton & hypothesis, std::list<int> & counterexample)
 {{{
 	amore::finite_automaton * difference;
 	bool is_empty;
@@ -90,7 +88,7 @@ inline bool automaton_classic_equivalence_query(amore::finite_automaton & model,
 	return is_empty;
 }}};
 
-inline bool automaton_equivalence_query(amore::finite_automaton & model, amore::finite_automaton & hypothesis, list<int> & counterexample)
+inline bool automaton_equivalence_query(amore::finite_automaton & model, amore::finite_automaton & hypothesis, std::list<int> & counterexample)
 {
 	// use antichain-algorithm, if one of the automata is an NFA with size larger than 7
 	if(    ( dynamic_cast<amore::nondeterministic_finite_automaton*>(&model)      != NULL && model.get_state_count()      >= 8 )
@@ -101,7 +99,7 @@ inline bool automaton_equivalence_query(amore::finite_automaton & model, amore::
 	}
 };
 
-inline bool automaton_classic_equivalence_query(amore::finite_automaton & model, libalf::conjecture *cj, list<int> & counterexample)
+inline bool automaton_classic_equivalence_query(amore::finite_automaton & model, libalf::conjecture *cj, std::list<int> & counterexample)
 {{{
 	libalf::finite_automaton *ba;
 	amore::finite_automaton *hypothesis;
@@ -123,7 +121,7 @@ inline bool automaton_classic_equivalence_query(amore::finite_automaton & model,
 	return ret;
 }}};
 
-inline bool automaton_antichain_equivalence_query(amore::finite_automaton & model, libalf::conjecture *cj, list<int> & counterexample)
+inline bool automaton_antichain_equivalence_query(amore::finite_automaton & model, libalf::conjecture *cj, std::list<int> & counterexample)
 {{{
 	libalf::finite_automaton *ba;
 	amore::finite_automaton *hypothesis;
@@ -145,7 +143,7 @@ inline bool automaton_antichain_equivalence_query(amore::finite_automaton & mode
 	return ret;
 }}};
 
-inline bool automaton_equivalence_query(amore::finite_automaton & model, libalf::conjecture *cj, list<int> & counterexample)
+inline bool automaton_equivalence_query(amore::finite_automaton & model, libalf::conjecture *cj, std::list<int> & counterexample)
 {{{
 	libalf::finite_automaton *ba;
 	amore::finite_automaton *hypothesis;
@@ -169,7 +167,7 @@ inline bool automaton_equivalence_query(amore::finite_automaton & model, libalf:
 
 
 
-inline bool automaton_membership_query(amore::finite_automaton & model, list<int> & word)
+inline bool automaton_membership_query(amore::finite_automaton & model, std::list<int> & word)
 { return model.contains(word); };
 
 template<class answer>
@@ -179,7 +177,7 @@ inline int automaton_answer_knowledgebase(amore::finite_automaton & model, libal
 	typename libalf::knowledgebase<answer>::iterator qi = base.qbegin();
 
 	while(qi != base.qend()) {
-		list<int> word;
+		std::list<int> word;
 		word = qi->get_word();
 		qi->set_answer( (answer) automaton_membership_query(model, word) );
 		qi = base.qbegin();
