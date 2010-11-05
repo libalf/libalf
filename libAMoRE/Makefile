@@ -49,7 +49,7 @@ libtest: libtest.c libAMoRE.so
 	$(CC) $(CFLAGS) -o $@ $< -g -L. -lAMoRE
 
 libAMoRE.a: $(OBJ)
-	ar rs $@ $?
+	ar crs $@ $?
 
 libAMoRE.so: $(OBJ)
 	gcc ${LDFLAGS} -o $@ $?
