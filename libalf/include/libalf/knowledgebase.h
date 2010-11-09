@@ -32,14 +32,16 @@
 #include <set>
 #include <sstream>
 #include <algorithm>
+
 #ifdef _WIN32
-#include <winsock.h>
+# include <winsock.h>
 #else
-#include <arpa/inet.h>
+# include <arpa/inet.h>
 #endif
 #include <queue>
 #include <map>
 #include <typeinfo>
+#include <sys/types.h>
 
 // forward declaration for filter
 namespace libalf {

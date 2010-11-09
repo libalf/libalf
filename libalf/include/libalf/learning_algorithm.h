@@ -42,6 +42,7 @@
 #else
 # include <sys/resource.h>
 #endif
+#include <sys/types.h>
 
 #include <list>
 #include <string>

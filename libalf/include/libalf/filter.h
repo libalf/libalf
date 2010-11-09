@@ -28,6 +28,8 @@
 #include <list>
 #include <string>
 
+#include <sys/types.h>
+
 // forward declaration for knowledgebase
 namespace libalf {
 	template <class answer> class filter;

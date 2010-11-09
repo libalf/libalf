@@ -24,6 +24,8 @@
 #ifndef __helper_triple_h__
 # define __helper_triple_h__
 
+#include <sys/types.h>
+
 #include "serialize.h"
 
 template<class _T1, class _T2, class _T3>

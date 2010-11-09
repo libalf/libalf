@@ -25,10 +25,13 @@
 #ifndef __libalf_basic_string_h__
 #define __libalf_basic_string_h__
 
-#include <stdint.h>
-
 #include <ostream>
 #include <string>
+
+#include <sys/types.h>
+#ifdef _WIN32
+# include <stdint.h>
+#endif
 
 namespace libalf {
 

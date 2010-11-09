@@ -30,6 +30,8 @@
 #include <string>
 #include <queue>
 
+#include <sys/types.h>
+
 #include <libalf/normalizer.h>
 
 namespace libalf {

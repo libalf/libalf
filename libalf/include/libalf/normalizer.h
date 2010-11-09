@@ -26,6 +26,7 @@
 # define __libalf_normalizer_h__
 
 #include <stdint.h>
+#include <sys/types.h>
 
 #include <list>
 #include <string>

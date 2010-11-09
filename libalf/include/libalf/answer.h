@@ -28,9 +28,13 @@
 
 #include <ostream>
 #include <sstream>
-
-#include <stdint.h>
 #include <string>
+
+#include <sys/types.h>
+#ifdef _WIN32
+# include <stdint.h>
+#endif
+
 #include <libalf/serialize.h>
 
 namespace libalf {

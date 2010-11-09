@@ -33,6 +33,7 @@
 #include <typeinfo>
 
 #include <stdio.h>
+#include <sys/types.h>
 
 #include <libalf/serialize.h>
 #include <libalf/set.h>

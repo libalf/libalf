@@ -26,6 +26,7 @@
 # define __libalf_statistics_h__
 
 #include <stdint.h>
+#include <sys/types.h>
 
 #include <map>
 #include <string>
