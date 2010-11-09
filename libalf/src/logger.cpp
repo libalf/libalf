@@ -25,11 +25,8 @@
 #include <string>
 #include <ostream>
 
-#include <stdarg.h>
-
-#ifdef _WIN32
 #include <stdio.h>
-#endif
+#include <stdarg.h>
 
 #include "libalf/logger.h"
 #include "libalf/logger_terminalcolors.h"
