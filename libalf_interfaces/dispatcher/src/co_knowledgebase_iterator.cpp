@@ -31,10 +31,10 @@ co_knowledgebase_iterator::co_knowledgebase_iterator()
 {{{
 	referenced_knowledgebase = -1;
 
-	o = new knowledgebase<extended_bool>::iterator;
+	o = new knowledgebase<bool>::iterator;
 }}};
 
-co_knowledgebase_iterator::co_knowledgebase_iterator(knowledgebase<extended_bool>::iterator * o)
+co_knowledgebase_iterator::co_knowledgebase_iterator(knowledgebase<bool>::iterator * o)
 {{{
 	referenced_knowledgebase = -1;
 
@@ -121,7 +121,7 @@ bool co_knowledgebase_iterator::handle_command(int command, basic_string<int32_t
 			if(!this->sv->send_errno(ERR_SUCCESS))
 				return false;
 			if((*o)->is_answered()) {
-				extended_bool a;
+				bool a;
 				if(!this->sv->client->stream_send_int(1))
 					return false;
 				a = (*o)->get_answer();
@@ -143,7 +143,7 @@ bool co_knowledgebase_iterator::handle_command(int command, basic_string<int32_t
 				if(command_data.size() != 1)
 					return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 
-				extended_bool a;
+				bool a;
 
 				i = ntohl(command_data[0]);
 				if(i < 0 || i > 2)
@@ -181,6 +181,6 @@ bool co_knowledgebase_iterator::is_valid()
 void co_knowledgebase_iterator::invalidate()
 {{{
 	delete o;
-	o = new knowledgebase<extended_bool>::iterator;
+	o = new knowledgebase<bool>::iterator;
 }}};
 

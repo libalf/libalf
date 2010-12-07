@@ -27,10 +27,10 @@
 
 co_knowledgebase::co_knowledgebase()
 {{{
-	o = new knowledgebase<extended_bool>;
+	o = new knowledgebase<bool>;
 }}};
 
-co_knowledgebase::co_knowledgebase(knowledgebase<extended_bool> * o)
+co_knowledgebase::co_knowledgebase(knowledgebase<bool> * o)
 {{{
 	this->o = o;
 }}}
@@ -56,10 +56,10 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 	basic_string<int32_t> serial;
 	serial_stretch cmd_ser(command_data);
 	list<int> word;
-	extended_bool acceptance;
+	bool acceptance;
 	int i;
-	knowledgebase<extended_bool>::iterator * it;
-	knowledgebase<extended_bool>::iterator it2;
+	knowledgebase<bool>::iterator * it;
+	knowledgebase<bool>::iterator it2;
 
 	switch(command) {
 		case KNOWLEDGEBASE_SERIALIZE:
@@ -177,8 +177,6 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 				return this->sv->send_errno(ERR_BAD_PARAMETERS);
 			if(!deserialize(acceptance, cmd_ser))
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
-			if(!acceptance.valid())
-				return this->sv->send_errno(ERR_BAD_PARAMETERS);
 			if(!cmd_ser.empty())
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 			if(!this->sv->send_errno(ERR_SUCCESS))
@@ -189,7 +187,7 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 			{
 				// get query-tree
-				knowledgebase<extended_bool> * qry_tree;
+				knowledgebase<bool> * qry_tree;
 				qry_tree = o->create_query_tree();
 
 				if(!this->sv->send_errno(ERR_SUCCESS))
@@ -247,7 +245,7 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 			if(command_data.size() != 0)
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 
-			it = new knowledgebase<extended_bool>::iterator;
+			it = new knowledgebase<bool>::iterator;
 			*it = o->begin();
 			i = this->sv->store_object( new co_knowledgebase_iterator(it) );
 			this->sv->objects[i]->ref_knowledgebase(this->id);
@@ -260,7 +258,7 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 			if(command_data.size() != 0)
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 
-			it = new knowledgebase<extended_bool>::iterator;
+			it = new knowledgebase<bool>::iterator;
 			*it = o->end();
 			i = this->sv->store_object( new co_knowledgebase_iterator(it) );
 			this->sv->objects[i]->ref_knowledgebase(this->id);
@@ -273,7 +271,7 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 			if(command_data.size() != 0)
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 
-			it = new knowledgebase<extended_bool>::iterator;
+			it = new knowledgebase<bool>::iterator;
 			*it = o->qbegin();
 			i = this->sv->store_object( new co_knowledgebase_iterator(it) );
 			this->sv->objects[i]->ref_knowledgebase(this->id);
@@ -286,7 +284,7 @@ bool co_knowledgebase::handle_command(int command, basic_string<int32_t> & comma
 			if(command_data.size() != 0)
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 
-			it = new knowledgebase<extended_bool>::iterator;
+			it = new knowledgebase<bool>::iterator;
 			*it = o->qend();
 			i = this->sv->store_object( new co_knowledgebase_iterator(it) );
 			this->sv->objects[i]->ref_knowledgebase(this->id);

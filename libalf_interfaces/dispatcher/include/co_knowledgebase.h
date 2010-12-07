@@ -39,10 +39,10 @@ using namespace libalf;
 
 class co_knowledgebase : public client_object {
 	private:
-		co_knowledgebase(knowledgebase<extended_bool> * o);
+		co_knowledgebase(knowledgebase<bool> * o);
 
 	public:
-		knowledgebase<extended_bool> * o;
+		knowledgebase<bool> * o;
 
 		set<int> referring_learning_algorithms;
 		set<int> referring_iterators;

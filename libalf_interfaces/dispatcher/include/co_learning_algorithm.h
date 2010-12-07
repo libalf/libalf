@@ -33,14 +33,14 @@ using namespace libalf;
 
 class co_learning_algorithm : public client_object {
 	public:
-		learning_algorithm<extended_bool> * o;
+		learning_algorithm<bool> * o;
 
 		int referenced_knowledgebase;
 		int referenced_logger;
 		int referenced_normalizer;
 	public:
 		// alg MUST be valid.
-		co_learning_algorithm(enum libalf::learning_algorithm<extended_bool>::algorithm alg, int alphabet_size);
+		co_learning_algorithm(enum libalf::learning_algorithm<bool>::algorithm alg, int alphabet_size);
 
 		virtual ~co_learning_algorithm();
 

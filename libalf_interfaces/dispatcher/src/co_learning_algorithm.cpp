@@ -45,7 +45,7 @@
 using namespace std;
 using namespace libalf;
 
-co_learning_algorithm::co_learning_algorithm(enum libalf::learning_algorithm<extended_bool>::algorithm alg, int alphabet_size)
+co_learning_algorithm::co_learning_algorithm(enum libalf::learning_algorithm<bool>::algorithm alg, int alphabet_size)
 {{{
 	referenced_knowledgebase = -1;
 	referenced_logger = -1;
@@ -57,29 +57,29 @@ co_learning_algorithm::co_learning_algorithm(enum libalf::learning_algorithm<ext
 			fprintf(stderr, "somehow bad request reached co_learning_algorithm constructor (bad type of learning algorithm: %d). killing client.\n", (int)alg);
 			exit(-1);
 
-		case learning_algorithm<extended_bool>::ALG_ANGLUIN:
-			o = new angluin_simple_table<extended_bool>(NULL, NULL, alphabet_size);
+		case learning_algorithm<bool>::ALG_ANGLUIN:
+			o = new angluin_simple_table<bool>(NULL, NULL, alphabet_size);
 			break;
-		case learning_algorithm<extended_bool>::ALG_ANGLUIN_COLUMN:
-			o = new angluin_col_table<extended_bool>(NULL, NULL, alphabet_size);
+		case learning_algorithm<bool>::ALG_ANGLUIN_COLUMN:
+			o = new angluin_col_table<bool>(NULL, NULL, alphabet_size);
 			break;
-		case learning_algorithm<extended_bool>::ALG_NL_STAR:
-			o = new NLstar_table<extended_bool>(NULL, NULL, alphabet_size);
+		case learning_algorithm<bool>::ALG_NL_STAR:
+			o = new NLstar_table<bool>(NULL, NULL, alphabet_size);
 			break;
-		case learning_algorithm<extended_bool>::ALG_BIERMANN:
-			o = new MiniSat_biermann<extended_bool>(NULL, NULL, alphabet_size);
+		case learning_algorithm<bool>::ALG_BIERMANN:
+			o = new MiniSat_biermann<bool>(NULL, NULL, alphabet_size);
 			break;
-		case learning_algorithm<extended_bool>::ALG_RPNI:
-			o = new RPNI<extended_bool>(NULL, NULL, alphabet_size);
+		case learning_algorithm<bool>::ALG_RPNI:
+			o = new RPNI<bool>(NULL, NULL, alphabet_size);
 			break;
-		case learning_algorithm<extended_bool>::ALG_DELETE2:
-			o = new DeLeTe2<extended_bool>(NULL, NULL, alphabet_size);
+		case learning_algorithm<bool>::ALG_DELETE2:
+			o = new DeLeTe2<bool>(NULL, NULL, alphabet_size);
 			break;
-		case learning_algorithm<extended_bool>::ALG_BIERMANN_ORIGINAL:
-			o = new original_biermann<extended_bool>(NULL, NULL, alphabet_size, 1);
+		case learning_algorithm<bool>::ALG_BIERMANN_ORIGINAL:
+			o = new original_biermann<bool>(NULL, NULL, alphabet_size, 1);
 			break;
-		case learning_algorithm<extended_bool>::ALG_KEARNS_VAZIRANI:
-			o = new kearns_vazirani<extended_bool>(NULL, NULL, alphabet_size);
+		case learning_algorithm<bool>::ALG_KEARNS_VAZIRANI:
+			o = new kearns_vazirani<bool>(NULL, NULL, alphabet_size);
 			break;
 	}
 }}};

@@ -313,12 +313,12 @@ bool servant::reply_create_object()
 			t = ntohl(data[0]); // algorithm type
 			u = ntohl(data[1]); // alphabet_size
 
-			if(t <= learning_algorithm<extended_bool>::ALG_NONE || t >= learning_algorithm<extended_bool>::ALG_LAST_INVALID)
+			if(t <= learning_algorithm<bool>::ALG_NONE || t >= learning_algorithm<bool>::ALG_LAST_INVALID)
 				goto bad_parameters;
 			if(u <= 0)
 				goto bad_parameters;
 
-			new_id = store_object(new co_learning_algorithm( (enum libalf::learning_algorithm<extended_bool>::algorithm) t, u));
+			new_id = store_object(new co_learning_algorithm( (enum libalf::learning_algorithm<bool>::algorithm) t, u));
 			break;
 		case OBJ_NORMALIZER:
 			if(data.size() != 1)
