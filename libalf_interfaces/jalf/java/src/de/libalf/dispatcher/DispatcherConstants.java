@@ -178,11 +178,11 @@ enum DispatcherConstants implements Sendable {
 	ALG_RVA(3),
 	ALG_NL_STAR(4),
 
-	ALG_BIERMANN(5),
-	ALG_RPNI(6),
-	ALG_DELETE2(7),
-	ALG_BIERMANN_ORIGINAL(8),
-	ALG_KEARNS_VAZIRANI(9),
+	ALG_BIERMANN(6),
+	ALG_RPNI(7),
+	ALG_DELETE2(8),
+	ALG_BIERMANN_ORIGINAL(9),
+	ALG_KEARNS_VAZIRANI(10),
 
 	// enum acceptance
 	ACCEPTANCE_REJECT(0),
@@ -190,7 +190,7 @@ enum DispatcherConstants implements Sendable {
 	ACCEPTANCE_ACCEPT(2),
 
 	// enum conjecture_type
-	CONJECTURE_SIMPLE_AUTOMATON(1),
+	CONJECTURE_FINITE_AUTOMATON(4),
 
 	// enum normalizer_type
 	NORMALIZER_MSC(1),

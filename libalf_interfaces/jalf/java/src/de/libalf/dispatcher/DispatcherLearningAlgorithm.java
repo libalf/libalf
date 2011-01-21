@@ -83,7 +83,7 @@ public abstract class DispatcherLearningAlgorithm extends DispatcherObject imple
 		if (conjType == null)
 			throw new DispatcherProtocolException(String.format("Conjecture type %d (0x%08X) unknown!", conType, conType));
 		switch (conjType) {
-		case CONJECTURE_SIMPLE_AUTOMATON:
+		case CONJECTURE_FINITE_AUTOMATON:
 			return getBA(ints);
 		default:
 			throw new DispatcherProtocolException(String.format("Conjecture type " + conjType + " (%d, 0x%08X) unsupported!", conType, conType));
