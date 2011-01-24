@@ -270,7 +270,7 @@ int main()
 	cmd.push_back(CLCMD_CREATE_OBJECT);
 	cmd.push_back(OBJ_LEARNING_ALGORITHM);
 	cmd.push_back(2);
-	cmd.push_back(libalf::learning_algorithm<bool>::ALG_NL_STAR);
+	cmd.push_back(libalf::ALG_NL_STAR);
 	cmd.push_back(2);
 	send_blob(sock, cmd);
 
