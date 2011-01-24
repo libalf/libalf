@@ -346,23 +346,6 @@ public abstract class JNILearningAlgorithm extends JNIObject implements
 	private native void destroy(long pointer);
 
 	@Override
-	public String toString() {
-		check();
-		return tostring(this.pointer);
-	}
-
-	/**
-	 * <p>
-	 * <em>JNI method call:</em> See {@link JNILearningAlgorithm#toString()}.
-	 * </p>
-	 * 
-	 * @param pointer
-	 *            the pointer to the C++ object.
-	 * @return the result of the JNI call.
-	 */
-	private native String tostring(long pointer);
-
-	@Override
 	public void remove_logger() throws AlfException {
 		check();
 		this.logger = null;
@@ -422,6 +405,49 @@ public abstract class JNILearningAlgorithm extends JNIObject implements
 		this.normalizer = null;
 		remove_normalizer(this.pointer);
 	}
-	
+
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See
+	 * {@link JNILearningAlgorithm#remove_normalizer()}.
+	 * </p>
+	 * 
+	 * @param pointer
+	 *            the pointer to the learning_algorithm C++ object.
+	 */
 	private native void remove_normalizer(long pointer);
+
+	@Override
+	public String get_name() {
+		check();
+		return get_name(this.pointer);
+	}
+
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See {@link JNILearningAlgorithm#get_name()}.
+	 * </p>
+	 * 
+	 * @param pointer
+	 *            the pointer to the C++ object.
+	 * @return the result of the JNI call.
+	 */
+	private native String get_name(long pointer);
+
+	@Override
+	public String toString() {
+		check();
+		return tostring(this.pointer);
+	}
+
+	/**
+	 * <p>
+	 * <em>JNI method call:</em> See {@link JNILearningAlgorithm#toString()}.
+	 * </p>
+	 * 
+	 * @param pointer
+	 *            the pointer to the C++ object.
+	 * @return the result of the JNI call.
+	 */
+	private native String tostring(long pointer);
 }

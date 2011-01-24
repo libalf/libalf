@@ -213,7 +213,8 @@ public interface LearningAlgorithm extends LibALFObject {
 	/**
 	 * Performs some magic custom action (useful for easy self-made extensions).
 	 * 
-	 * @param data some data.
+	 * @param data
+	 *            some data.
 	 * @return some data.
 	 */
 	public int[] deserialize_magic(int[] data);
@@ -226,9 +227,45 @@ public interface LearningAlgorithm extends LibALFObject {
 	 */
 	public void set_logger(Logger logger);
 
+	/**
+	 * Returns the logger used by this learning algorithm.
+	 * 
+	 * @return the logger used by this learning algorithm.
+	 */
 	public Logger get_logger();
 
+	/**
+	 * Removes the logger used by this learning algorithm.
+	 */
 	public void remove_logger() throws AlfException;
+
+	/**
+	 * Sets the normalizer of this learning algorithm.
+	 * 
+	 * @param normalizer
+	 *            the new normalizer
+	 */
+	public void set_normalizer(Normalizer normalizer) throws AlfException;
+
+	/**
+	 * Returns the normalizer used by this learning algorithm.
+	 * 
+	 * @return the normalizer used by this learning algorithm.
+	 */
+	public Normalizer get_normalizer() throws AlfException;
+
+	/**
+	 * Removes the normalizer used by this learning algorithm.
+	 */
+	public void remove_normalizer() throws AlfException;
+
+	/**
+	 * Returns the name, i.e. an identification string, of this learning
+	 * algorithm.
+	 * 
+	 * @return the name of this learning algorithm.
+	 */
+	public String get_name() throws AlfException;
 
 	/**
 	 * Returns a textual representation of the learning algorithm.
@@ -236,10 +273,4 @@ public interface LearningAlgorithm extends LibALFObject {
 	 * @return a textual representation of the learning algorithm.
 	 */
 	public String toString();
-
-	public void set_normalizer(Normalizer normalizer) throws AlfException;
-
-	public Normalizer get_normalizer() throws AlfException;
-
-	public void remove_normalizer() throws AlfException;
 }

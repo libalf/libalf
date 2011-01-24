@@ -125,14 +125,6 @@ JNIEXPORT void JNICALL Java_de_libalf_jni_JNILearningAlgorithm_destroy
 
 /*
  * Class:     de_libalf_jni_JNILearningAlgorithm
- * Method:    tostring
- * Signature: (J)Ljava/lang/String;
- */
-JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNILearningAlgorithm_tostring
-  (JNIEnv *, jobject, jlong);
-
-/*
- * Class:     de_libalf_jni_JNILearningAlgorithm
  * Method:    set_normalizer
  * Signature: (JJ)V
  */
@@ -153,6 +145,22 @@ JNIEXPORT void JNICALL Java_de_libalf_jni_JNILearningAlgorithm_set_1normalizer_1
  * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_de_libalf_jni_JNILearningAlgorithm_remove_1normalizer
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     de_libalf_jni_JNILearningAlgorithm
+ * Method:    get_name
+ * Signature: (J)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNILearningAlgorithm_get_1name
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     de_libalf_jni_JNILearningAlgorithm
+ * Method:    tostring
+ * Signature: (J)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNILearningAlgorithm_tostring
   (JNIEnv *, jobject, jlong);
 
 #ifdef __cplusplus

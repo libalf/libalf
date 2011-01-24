@@ -200,20 +200,6 @@ JNIEXPORT void JNICALL Java_de_libalf_jni_JNILearningAlgorithm_destroy (JNIEnv *
 	delete (learning_algorithm<bool>*)pointer;
 }
 
-JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNILearningAlgorithm_tostring (JNIEnv *env, jobject obj, jlong pointer) {
-	// Get the algorithm object
-	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
-
-	// Get string
-	string str;
-	str = algorithm->to_string();
-
-	//Convert string
-	const char* c = str.c_str();
-
-	return env->NewStringUTF(c);
-}
-
 JNIEXPORT void JNICALL Java_de_libalf_jni_JNILearningAlgorithm_set_1normalizer (JNIEnv *env, jobject obj, jlong normalizer_pointer, jlong pointer) {
 	// Get the normalizer object
 	normalizer_msc* norm = (normalizer_msc*)normalizer_pointer;
@@ -239,4 +225,28 @@ JNIEXPORT void JNICALL Java_de_libalf_jni_JNILearningAlgorithm_remove_1normalize
 	
 	// Forward method call
 	algorithm->unset_normalizer();
+}
+
+JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNILearningAlgorithm_get_1name (JNIEnv *env, jobject obj, jlong pointer) {
+	// Get the algorithm object
+	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
+
+	//Convert string
+	const char* c = algorithm->get_name();
+
+	return env->NewStringUTF(c);
+}
+
+JNIEXPORT jstring JNICALL Java_de_libalf_jni_JNILearningAlgorithm_tostring (JNIEnv *env, jobject obj, jlong pointer) {
+	// Get the algorithm object
+	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
+
+	// Get string
+	string str;
+	str = algorithm->to_string();
+
+	//Convert string
+	const char* c = str.c_str();
+
+	return env->NewStringUTF(c);
 }
