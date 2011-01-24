@@ -32,7 +32,7 @@ endif
 CPPFLAGS += -I../include -I../../include
 CPPFLAGS += -shared -fPIC -I${PREFIX}/include -I${JAVA_INCLUDE}
 
-OBJECTS = jni_tools.o jni_object.o jni_knowledgebase.o jni_buffered_logger.o jni_normalizer.o jni_learning_algorithm.o jni_algorithm_angluin.o jni_algorithm_angluin_column.o jni_algorithm_nlstar.o jni_algorithm_kearns_vazirani.o jni_algorithm_rpni.o jni_algorithm_biermann_original.o jni_algorithm_biermann_minisat.o jni_algorithm_delete2.o 
+OBJECTS = jni_tools.o jni_object.o jni_knowledgebase.o jni_buffered_logger.o jni_normalizer.o jni_learning_algorithm.o jni_algorithm_angluin.o jni_algorithm_angluin_column.o jni_algorithm_nlstar.o jni_algorithm_kearns_vazirani.o jni_algorithm_rivest_schapire.o jni_algorithm_rpni.o jni_algorithm_biermann_original.o jni_algorithm_biermann_minisat.o jni_algorithm_delete2.o 
 
 all:	${TARGET}
 
