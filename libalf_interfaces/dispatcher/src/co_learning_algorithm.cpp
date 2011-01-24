@@ -146,6 +146,12 @@ bool co_learning_algorithm::handle_command(int command, basic_string<int32_t> & 
 			if(!this->sv->client->stream_send_int(serial.size()))
 				return false;
 			return this->sv->client->stream_send_raw_blob(serial);
+		case LEARNING_ALGORITHM_GET_NAME:
+			if(command_data.size() != 0)
+				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
+			if(!this->sv->send_errno(ERR_SUCCESS))
+				return false;
+			return this->sv->client->stream_send_string(o->get_name());
 		case LEARNING_ALGORITHM_ASSOCIATE_LOGGER:
 			// Checked.
 			if(command_data.size() != 1)

@@ -597,6 +597,12 @@ server returns:
 	serialized data[]
 
 
+get name of learning algorithm type (LEARNING_ALGORITHM_GET_NAME)
+parameters: none.
+returns:
+	character-string
+
+
 associate logger with algorithm (LEARNING_ALGORITHM_ASSOCIATE_LOGGER)
 parameters: 1
 	object-id (of logger)
