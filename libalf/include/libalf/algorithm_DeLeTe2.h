@@ -68,11 +68,11 @@ class DeLeTe2 : public learning_algorithm<answer> {
 			// nothing
 		}}}
 
-		virtual enum learning_algorithm<answer>::algorithm get_type() const
-		{ return learning_algorithm<answer>::ALG_DELETE2; };
+		virtual enum learning_algorithm_type get_type() const
+		{ return ALG_DELETE2; };
 
-		virtual enum learning_algorithm<answer>::algorithm get_basic_compatible_type() const
-		{ return learning_algorithm<answer>::ALG_DELETE2; };
+		virtual enum learning_algorithm_type get_basic_compatible_type() const
+		{ return ALG_DELETE2; };
 
 		virtual void increase_alphabet_size(int new_asize)
 		{{{
@@ -105,7 +105,7 @@ class DeLeTe2 : public learning_algorithm<answer> {
 
 			// we don't have any internal, persistent data
 			ret += ::serialize(1);
-			ret += ::serialize(learning_algorithm<answer>::ALG_DELETE2);
+			ret += ::serialize(ALG_DELETE2);
 
 			return ret;
 		}}}
@@ -117,7 +117,7 @@ class DeLeTe2 : public learning_algorithm<answer> {
 			if(s != 1) return false;
 			if(!::deserialize(s, serial)) return false;
 
-			return (s == learning_algorithm<answer>::ALG_DELETE2);
+			return (s == ALG_DELETE2);
 		}}}
 
 		virtual void print(std::ostream &os) const

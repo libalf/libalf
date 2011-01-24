@@ -59,15 +59,11 @@ class original_biermann : public learning_algorithm<answer> {
 		this->nondeterminism = nondeterminism;
 	}
 
-	virtual enum learning_algorithm<answer>::algorithm get_type() const
-	{
-		return learning_algorithm<answer>::ALG_BIERMANN_ORIGINAL;
-	};
+	virtual enum learning_algorithm_type get_type() const
+	{ return ALG_BIERMANN_ORIGINAL; };
 
-	virtual enum learning_algorithm<answer>::algorithm get_basic_compatible_type() const
-	{
-		return learning_algorithm<answer>::ALG_BIERMANN_ORIGINAL;
-	};
+	virtual enum learning_algorithm_type get_basic_compatible_type() const
+	{ return ALG_BIERMANN_ORIGINAL; };
 
 	void increase_alphabet_size(int new_alphabet_size) {
 		this->alphabet_size = new_alphabet_size;
@@ -157,7 +153,7 @@ class original_biermann : public learning_algorithm<answer> {
 		std::basic_string<int32_t> ret;
 
 		ret += ::serialize(2); // size
-		ret += ::serialize(learning_algorithm<answer>::ALG_BIERMANN_ORIGINAL);
+		ret += ::serialize(ALG_BIERMANN_ORIGINAL);
 		ret += ::serialize(nondeterminism);
 
 		return ret;
@@ -169,7 +165,7 @@ class original_biermann : public learning_algorithm<answer> {
 		if(!::deserialize(s, serial)) return false;
 		if(s != 2) return false;
 		if(!::deserialize(s, serial)) return false;
-		if(s != learning_algorithm<answer>::ALG_BIERMANN_ORIGINAL) return false;
+		if(s != ALG_BIERMANN_ORIGINAL) return false;
 		return ::deserialize(nondeterminism, serial);
 	}
 

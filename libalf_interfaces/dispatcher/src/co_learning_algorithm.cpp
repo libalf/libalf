@@ -35,6 +35,7 @@
 #include <libalf/algorithm_biermann_original.h>
 #include <libalf/algorithm_DeLeTe2.h>
 #include <libalf/algorithm_kearns_vazirani.h>
+#include <libalf/algorithm_rivest_schapire.h>
 
 #include "co_learning_algorithm.h"
 #include "co_logger.h"
@@ -45,7 +46,7 @@
 using namespace std;
 using namespace libalf;
 
-co_learning_algorithm::co_learning_algorithm(enum libalf::learning_algorithm<bool>::algorithm alg, int alphabet_size)
+co_learning_algorithm::co_learning_algorithm(enum libalf::learning_algorithm_type alg, int alphabet_size)
 {{{
 	referenced_knowledgebase = -1;
 	referenced_logger = -1;
@@ -54,32 +55,38 @@ co_learning_algorithm::co_learning_algorithm(enum libalf::learning_algorithm<boo
 	switch(alg) {
 		default:
 			// we can't use this->sv->clog here, as sv is not initialized yet.
-			fprintf(stderr, "somehow bad request reached co_learning_algorithm constructor (bad type of learning algorithm: %d). killing client.\n", (int)alg);
+			fprintf(stderr, "bad request reached co_learning_algorithm constructor\n"
+					"(bad type of learning algorithm: %d (%s). maybe not implemented yet?).\n"
+					"killing client.\n",
+				(int)alg, learning_algorithm_name(alg));
 			exit(-1);
 
-		case learning_algorithm<bool>::ALG_ANGLUIN:
+		case ALG_ANGLUIN:
 			o = new angluin_simple_table<bool>(NULL, NULL, alphabet_size);
 			break;
-		case learning_algorithm<bool>::ALG_ANGLUIN_COLUMN:
+		case ALG_ANGLUIN_COLUMN:
 			o = new angluin_col_table<bool>(NULL, NULL, alphabet_size);
 			break;
-		case learning_algorithm<bool>::ALG_NL_STAR:
+		case ALG_NL_STAR:
 			o = new NLstar_table<bool>(NULL, NULL, alphabet_size);
 			break;
-		case learning_algorithm<bool>::ALG_BIERMANN:
+		case ALG_BIERMANN:
 			o = new MiniSat_biermann<bool>(NULL, NULL, alphabet_size);
 			break;
-		case learning_algorithm<bool>::ALG_RPNI:
+		case ALG_RPNI:
 			o = new RPNI<bool>(NULL, NULL, alphabet_size);
 			break;
-		case learning_algorithm<bool>::ALG_DELETE2:
+		case ALG_DELETE2:
 			o = new DeLeTe2<bool>(NULL, NULL, alphabet_size);
 			break;
-		case learning_algorithm<bool>::ALG_BIERMANN_ORIGINAL:
+		case ALG_BIERMANN_ORIGINAL:
 			o = new original_biermann<bool>(NULL, NULL, alphabet_size, 1);
 			break;
-		case learning_algorithm<bool>::ALG_KEARNS_VAZIRANI:
+		case ALG_KEARNS_VAZIRANI:
 			o = new kearns_vazirani<bool>(NULL, NULL, alphabet_size);
+			break;
+		case ALG_RIVEST_SCHAPIRE:
+			o = new rivest_schapire_table<bool>(NULL, NULL, alphabet_size);
 			break;
 	}
 }}};

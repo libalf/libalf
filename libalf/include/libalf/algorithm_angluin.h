@@ -128,8 +128,8 @@ class angluin_table : public learning_algorithm<answer> {
 			initialized = false;
 		}}}
 
-		virtual enum learning_algorithm<answer>::algorithm get_basic_compatible_type() const
-		{ return learning_algorithm<answer>::ALG_ANGLUIN; };
+		virtual enum learning_algorithm_type get_basic_compatible_type() const
+		{ return ALG_ANGLUIN; };
 
 		virtual bool sync_to_knowledgebase()
 		{{{
@@ -168,7 +168,7 @@ class angluin_table : public learning_algorithm<answer> {
 			ret += 0;
 
 			// implementation type
-			ret += htonl(learning_algorithm<answer>::ALG_ANGLUIN);
+			ret += htonl(ALG_ANGLUIN);
 
 			// initialized
 			ret += ::serialize(initialized);
@@ -1048,8 +1048,8 @@ class angluin_simple_table : public angluin_table<answer, std::list< algorithm_a
 			this->set_knowledge_source(base);
 		}}}
 
-		virtual enum learning_algorithm<answer>::algorithm get_type() const
-		{ return learning_algorithm<answer>::ALG_ANGLUIN; };
+		virtual enum learning_algorithm_type get_type() const
+		{ return ALG_ANGLUIN; };
 
 		// (still compatible to ALG_ANGLUIN)
 
@@ -1124,7 +1124,7 @@ class angluin_simple_table : public angluin_table<answer, std::list< algorithm_a
 		virtual bool deserialize(serial_stretch & serial)
 		{{{
 			int size;
-			enum learning_algorithm<answer>::algorithm type;
+			int type;
 			int count;
 
 			this->column_names.clear();
@@ -1140,8 +1140,8 @@ class angluin_simple_table : public angluin_table<answer, std::list< algorithm_a
 
 			// check implementation type
 			serial.current++; if(size <= 0 || serial.current == serial.limit) goto deserialization_failed;
-			type = (enum learning_algorithm<answer>::algorithm) ntohl(*serial.current);
-			if(type != learning_algorithm<answer>::ALG_ANGLUIN)
+			type = ntohl(*serial.current);
+			if(type != ALG_ANGLUIN)
 				goto deserialization_failed;
 
 			// initialized
@@ -1408,8 +1408,8 @@ class angluin_col_table : public angluin_simple_table<answer> {
 			this->set_knowledge_source(base);
 		}}}
 
-		virtual enum learning_algorithm<answer>::algorithm get_type() const
-		{ return learning_algorithm<answer>::ALG_ANGLUIN_COLUMN; };
+		virtual enum learning_algorithm_type get_type() const
+		{ return ALG_ANGLUIN_COLUMN; };
 
 		// (still compatible to ALG_ANGLUIN)
 

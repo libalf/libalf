@@ -18,7 +18,7 @@ LDFLAGS+=-shared -L${PREFIX}/lib
 
 SONAME=libalf
 
-OBJECTS=alf.o alphabet.o conjecture.o basic_string.o logger.o minisat_solver.o normalizer_msc.o statistics.o
+OBJECTS=alf.o alphabet.o conjecture.o basic_string.o learning_algorithm.o logger.o minisat_solver.o normalizer_msc.o statistics.o
 
 ifeq (${OS}, Windows_NT)
   LDFLAGS += -lws2_32

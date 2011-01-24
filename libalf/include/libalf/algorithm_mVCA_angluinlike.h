@@ -1057,11 +1057,11 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 			this->set_alphabet_size(alphabet_size);
 		}}}
 
-		virtual enum learning_algorithm<answer>::algorithm get_type() const
-		{ return learning_algorithm<answer>::ALG_MVCA_ANGLUINLIKE; };
+		virtual enum learning_algorithm_type get_type() const
+		{ return ALG_MVCA_ANGLUINLIKE; };
 
-		virtual enum learning_algorithm<answer>::algorithm get_basic_compatible_type() const
-		{ return learning_algorithm<answer>::ALG_MVCA_ANGLUINLIKE; };
+		virtual enum learning_algorithm_type get_basic_compatible_type() const
+		{ return ALG_MVCA_ANGLUINLIKE; };
 
 		void clear()
 		{{{
@@ -1130,7 +1130,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 			std::basic_string<int32_t> ret;
 
 			ret += 0; // size, filled in later.
-			ret += ::serialize((int)learning_algorithm<answer>::ALG_MVCA_ANGLUINLIKE);
+			ret += ::serialize((int)ALG_MVCA_ANGLUINLIKE);
 			ret += ::serialize(initialized);
 			ret += ::serialize(this->get_alphabet_size());
 			ret += ::serialize(pushdown_directions);
@@ -1156,7 +1156,7 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 			if(!::deserialize(size, serial)) goto deserialization_failed;
 			// total size: we don't care.
 			if(!::deserialize(type, serial)) goto deserialization_failed;
-			if(type != (int)learning_algorithm<answer>::ALG_MVCA_ANGLUINLIKE)
+			if(type != (int)ALG_MVCA_ANGLUINLIKE)
 				goto deserialization_failed;
 			if(!::deserialize(initialized, serial)) goto deserialization_failed;
 			if(!::deserialize(size, serial)) goto deserialization_failed;

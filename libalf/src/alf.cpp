@@ -22,7 +22,7 @@
  *
  */
 
-#include <libalf/alf.h>
+#include "libalf/alf.h"
 
 namespace libalf {
 
@@ -35,5 +35,5 @@ const char* libalf_version()
 	return libalf_version_string;
 }}}
 
-}
+} // end of namespace libalf.
 

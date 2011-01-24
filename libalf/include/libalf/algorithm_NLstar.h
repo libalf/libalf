@@ -186,11 +186,11 @@ fail:
 			initialized = false;
 		}}}
 
-		virtual enum learning_algorithm<answer>::algorithm get_type() const
-		{ return learning_algorithm<answer>::ALG_NL_STAR; };
+		virtual enum learning_algorithm_type get_type() const
+		{ return ALG_NL_STAR; };
 
-		virtual enum learning_algorithm<answer>::algorithm get_basic_compatible_type() const
-		{ return learning_algorithm<answer>::ALG_NL_STAR; };
+		virtual enum learning_algorithm_type get_basic_compatible_type() const
+		{ return ALG_NL_STAR; };
 
 		virtual void increase_alphabet_size(int new_asize)
 		{{{
@@ -282,7 +282,7 @@ fail:
 			std::basic_string<int32_t> ret;
 
 			ret += 0; // size - filled in later.
-			ret += htonl(learning_algorithm<answer>::ALG_NL_STAR);
+			ret += htonl(ALG_NL_STAR);
 			ret += htonl(this->get_alphabet_size());
 
 			ret += ::serialize(column_names);
@@ -303,7 +303,7 @@ fail:
 			if(!::deserialize(size, serial)) goto deserialization_failed;
 			if(size < 1) goto deserialization_failed;
 			if(!::deserialize(type, serial)) goto deserialization_failed;
-			if(type != learning_algorithm<answer>::ALG_NL_STAR) goto deserialization_failed;
+			if(type != ALG_NL_STAR) goto deserialization_failed;
 			if(!::deserialize(size, serial)) goto deserialization_failed;
 			this->set_alphabet_size(size);
 

@@ -259,8 +259,8 @@ class rivest_schapire_table : public angluin_simple_table<answer> {
 			conjecture_stored = false;
 		}}}
 
-		virtual enum learning_algorithm<answer>::algorithm get_type() const
-		{ return learning_algorithm<answer>::ALG_RIVEST_SCHAPIRE; };
+		virtual enum learning_algorithm_type get_type() const
+		{ return ALG_RIVEST_SCHAPIRE; };
 
 		// (still compatible to ALG_ANGLUIN)
 

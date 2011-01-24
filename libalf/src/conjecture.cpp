@@ -38,8 +38,8 @@
 
 #include <stdlib.h>
 
-#include <libalf/conjecture.h>
-#include <libalf/serialize.h>
+#include "libalf/conjecture.h"
+#include "libalf/serialize.h"
 
 namespace libalf {
 

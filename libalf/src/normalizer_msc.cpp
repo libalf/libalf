@@ -36,10 +36,10 @@
 #include <arpa/inet.h>
 #endif
 
-#include <libalf/alphabet.h>
-#include <libalf/normalizer.h>
-#include <libalf/normalizer_msc.h>
-#include <libalf/serialize.h>
+#include "libalf/alphabet.h"
+#include "libalf/normalizer.h"
+#include "libalf/normalizer_msc.h"
+#include "libalf/serialize.h"
 
 namespace libalf {
 

@@ -16,8 +16,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with libalf.  If not, see <http://www.gnu.org/licenses/>.
  *
- * (c) 2008,2009,2010 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
- *                and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
+ * (c) 2008,2009,2010,2011 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
+ *                     and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
  * Author: David R. Piegdon <david-i2@piegdon.de>
  *
  */
@@ -58,6 +58,37 @@
 
 namespace libalf {
 
+enum learning_algorithm_type {
+	// if you add anything here, you should also add the
+	// name in learning_algorithm.cpp::learning_algorithm_typename_list.
+	ALG_NONE = 0,
+	// BEGIN
+
+	// online
+	ALG_ANGLUIN = 1,
+	ALG_ANGLUIN_COLUMN = 2,
+	ALG_RIVEST_SCHAPIRE = 3,	// Rivest and Schapire: reduced angluin
+	ALG_NL_STAR = 4,
+	ALG_MVCA_ANGLUINLIKE = 5,	// angluin-style learning of m-bounded visible 1counter automata
+	// offline
+	ALG_BIERMANN = 6,
+	ALG_RPNI = 7,
+	ALG_DELETE2 = 8,
+	ALG_BIERMANN_ORIGINAL = 9,
+	ALG_KEARNS_VAZIRANI = 10,
+
+	// END
+	ALG_LAST_INVALID = 11
+
+//	ALG_BIERMANN_ANGLUIN = ...,	//
+//	ALG_TB_INFERENCE = ...,		// Trakhtenbrot and Barzdin
+//	ALG_HSI = ...,			// homing sequence inference
+};
+
+// resolve type to its name
+const char * learning_algorithm_name(enum learning_algorithm_type type);
+
+
 // basic interface for different implementations (e.g. one table and one tree)
 template <class answer>
 class learning_algorithm {
@@ -76,32 +107,6 @@ class learning_algorithm {
 
 		int alphabet_size;
 
-	public:	// types
-		enum algorithm {
-			ALG_NONE = 0,
-			// BEGIN
-
-			// online
-			ALG_ANGLUIN = 1,
-			ALG_ANGLUIN_COLUMN = 2,
-			ALG_RIVEST_SCHAPIRE = 3,		// Rivest and Schapire: reduced angluin
-			ALG_NL_STAR = 4,
-			ALG_MVCA_ANGLUINLIKE = 5,	// angluin-style learning of m-bounded visible 1counter automata
-			// offline
-			ALG_BIERMANN = 6,
-			ALG_RPNI = 7,
-			ALG_DELETE2 = 8,
-			ALG_BIERMANN_ORIGINAL = 9,
-			ALG_KEARNS_VAZIRANI = 10,
-
-			// END
-			ALG_LAST_INVALID = 11
-
-//			ALG_BIERMANN_ANGLUIN = ...,	//
-//			ALG_TB_INFERENCE = ...,		// Trakhtenbrot and Barzdin
-//			ALG_HSI = ...,			// homing sequence inference
-		};
-
 	public: // methods
 		learning_algorithm()
 		{{{
@@ -115,12 +120,15 @@ class learning_algorithm {
 		virtual ~learning_algorithm() { };
 
 		// get type of algorithm
-		virtual enum learning_algorithm<answer>::algorithm get_type() const = 0;
+		virtual enum learning_algorithm_type get_type() const = 0;
 
 		// get the least complex type of algorithm (in terms of derivation)
 		// that is compatible with this one (can use the same table / serialized data)
-		virtual enum learning_algorithm<answer>::algorithm get_basic_compatible_type() const = 0;
+		virtual enum learning_algorithm_type get_basic_compatible_type() const = 0;
 
+		// give a string representation of the algorithm type
+		virtual const char * get_name()
+		{ return learning_algorithm_name(this->get_type()); }
 
 		// set_alphabet_size() is only for initial setting.
 		// once any data is in the structure, use increase_alphabet_size ONLY.

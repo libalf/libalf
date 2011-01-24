@@ -40,7 +40,7 @@ class co_learning_algorithm : public client_object {
 		int referenced_normalizer;
 	public:
 		// alg MUST be valid.
-		co_learning_algorithm(enum libalf::learning_algorithm<bool>::algorithm alg, int alphabet_size);
+		co_learning_algorithm(enum libalf::learning_algorithm_type alg, int alphabet_size);
 
 		virtual ~co_learning_algorithm();
 

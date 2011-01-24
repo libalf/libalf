@@ -205,11 +205,11 @@ class RPNI : public learning_algorithm<answer> {
 			// nothing
 		}}}
 
-		virtual enum learning_algorithm<answer>::algorithm get_type() const
-		{ return learning_algorithm<answer>::ALG_RPNI; };
+		virtual enum learning_algorithm_type get_type() const
+		{ return ALG_RPNI; };
 
-		virtual enum learning_algorithm<answer>::algorithm get_basic_compatible_type() const
-		{ return learning_algorithm<answer>::ALG_RPNI; };
+		virtual enum learning_algorithm_type get_basic_compatible_type() const
+		{ return ALG_RIVEST_SCHAPIRE; };
 
 		virtual void increase_alphabet_size(int new_asize)
 		{{{
@@ -242,7 +242,7 @@ class RPNI : public learning_algorithm<answer> {
 
 			// we don't have any internal, persistent data
 			ret += ::serialize(1); // size
-			ret += ::serialize(learning_algorithm<answer>::ALG_RPNI);
+			ret += ::serialize(ALG_RPNI);
 
 			return ret;
 		}}}
@@ -254,7 +254,7 @@ class RPNI : public learning_algorithm<answer> {
 			if(s != 1) return false;
 			if(!::deserialize(s, serial)) return false;
 
-			return (s == learning_algorithm<answer>::ALG_RPNI);
+			return (s == ALG_RPNI);
 		}}}
 
 		virtual void print(std::ostream &os) const

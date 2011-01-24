@@ -157,6 +157,12 @@ class basic_biermann : public learning_algorithm<answer> {
 			// nothing.
 		}}}
 
+		virtual enum learning_algorithm_type get_type() const
+		{ return ALG_BIERMANN; };
+
+		virtual enum learning_algorithm_type get_basic_compatible_type() const
+		{ return ALG_BIERMANN; };
+
 		virtual void increase_alphabet_size(int new_asize)
 		{{{
 			this->set_alphabet_size(new_asize);
@@ -188,7 +194,7 @@ class basic_biermann : public learning_algorithm<answer> {
 
 			// we don't have any internal, persistent data
 			ret += ::serialize(1);
-			ret += ::serialize(learning_algorithm<answer>::ALG_BIERMANN);
+			ret += ::serialize(ALG_BIERMANN);
 
 			return ret;
 		}}}
@@ -200,7 +206,7 @@ class basic_biermann : public learning_algorithm<answer> {
 			if(s != 1) return false;
 			if(!::deserialize(s, serial)) return false;
 
-			return (s == learning_algorithm<answer>::ALG_BIERMANN);
+			return (s == ALG_BIERMANN);
 		}}}
 
 		virtual void print(std::ostream &os) const
