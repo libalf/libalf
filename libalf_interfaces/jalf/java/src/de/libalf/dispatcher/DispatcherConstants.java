@@ -175,7 +175,7 @@ enum DispatcherConstants implements Sendable {
 	// enum algorithm
 	ALG_ANGLUIN(1),
 	ALG_ANGLUIN_COLUMN(2),
-	ALG_RVA(3),
+	ALG_RIVEST_SCHAPIRE(3),
 	ALG_NL_STAR(4),
 
 	ALG_BIERMANN(6),

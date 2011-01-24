@@ -394,6 +394,30 @@ public class DispatcherFactory implements LibALFFactory {
 			else
 				throw new AlfException("Invalid parameters for creating NL^* learning algorithm: " + args.length + ".");
 
+		case KEARNS_VAZIRANI:
+			/*
+			 * Create Kearns-Vazirani learning algorithm.
+			 */
+			if (args.length == 2)
+				return new DispatcherAlgorithmKearnsVazirani(this, (Knowledgebase) args[0], (Integer) args[1], null);
+			else if (args.length == 3)
+				return new DispatcherAlgorithmKearnsVazirani(this, (Knowledgebase) args[0], (Integer) args[1], (Logger) args[2]);
+			else if (args.length == 4)
+				return new DispatcherAlgorithmKearnsVazirani(this, (Knowledgebase) args[0], (Integer) args[1], (Logger) args[2], (Boolean) args[3]);
+			else
+				throw new AlfException("Invalid parameters for creating Kearns-Vazirani learning algorithm: " + args.length + ".");
+				
+		case RIVEST_SCHAPIRE:
+			/*
+			 * Create Rivest and Schapire's learning algorithm.
+			 */
+			if (args.length == 2)
+				return new DispatcherAlgorithmRivestSchapire(this, (Knowledgebase) args[0], (Integer) args[1], null);
+			else if (args.length == 3)
+				return new DispatcherAlgorithmRivestSchapire(this, (Knowledgebase) args[0], (Integer) args[1], (Logger) args[2]);
+			else
+				throw new AlfException("Invalid parameters for creating Rivest and Schapire's learning algorithm: " + args.length + ".");
+				
 		case RPNI:
 			/*
 			 * Create RPNI learning algorithm.
@@ -437,19 +461,6 @@ public class DispatcherFactory implements LibALFFactory {
 				return new DispatcherAlgorithmDeLeTe2(this, (Knowledgebase) args[0], (Integer) args[1], (Logger) args[2]);
 			else
 				throw new AlfException("Invalid parameters for creating DeLeTe2 inference algorithm: " + args.length + ".");
-
-		case KEARNS_VAZIRANI:
-			/*
-			 * Create Kearns-Vazirani learning algorithm.
-			 */
-			if (args.length == 2)
-				return new DispatcherAlgorithmKearnsVazirani(this, (Knowledgebase) args[0], (Integer) args[1], null);
-			else if (args.length == 3)
-				return new DispatcherAlgorithmKearnsVazirani(this, (Knowledgebase) args[0], (Integer) args[1], (Logger) args[2]);
-			else if (args.length == 4)
-				return new DispatcherAlgorithmKearnsVazirani(this, (Knowledgebase) args[0], (Integer) args[1], (Logger) args[2], (Boolean) args[3]);
-			else
-				throw new AlfException("Invalid parameters for creating Kearns-Vazirani learning algorithm: " + args.length + ".");
 
 		default:
 			/*

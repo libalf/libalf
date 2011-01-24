@@ -131,6 +131,20 @@ public enum JNIFactory implements LibALFFactory {
 						"Invalid parameters for creating Kearns / Vazirani learning algorithm: "
 								+ args.length + ".");
 								
+		/*
+		 * Create Rivest and Schapire's learning algorithm.
+		 */
+		case RIVEST_SCHAPIRE:
+			if (args.length == 2)
+				return new JNIAlgorithmRivestSchapire((JNIKnowledgebase) args[0],
+						(Integer) args[1]);
+			else if (args.length == 3)
+				return new JNIAlgorithmRivestSchapire((JNIKnowledgebase) args[0],
+						(Integer) args[1], (JNIBufferedLogger) args[2]);
+			else
+				throw new AlfException(
+						"Invalid parameters for creating Rivest and Schapire's learning algorithm: "
+								+ args.length + ".");
 			/*
 			 * Create RPNI inference algorithm.
 			 */
