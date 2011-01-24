@@ -56,8 +56,8 @@ namespace libalf {
  *		in this file, class angluin_simple_table
  *	- L* putting counterexamples into the columns
  *		in this file, class angluin_col_table
- *	- Rivest&Shapire extension that analyses the counterexample to find an optimal split
- *		in algorithm_rivest_shapire.h, class rivest_shapire_table
+ *	- Rivest&Schapire extension that analyses the counterexample to find an optimal split
+ *		in algorithm_rivest_schapire.h, class rivest_schapire_table
  *
  *	all the above do not just support learning of finite_automata, but of abstract
  *	moore_machine<answer> types. if you choose bool, the conjectures will be of type
@@ -128,6 +128,9 @@ class angluin_table : public learning_algorithm<answer> {
 			initialized = false;
 		}}}
 
+		virtual enum learning_algorithm<answer>::algorithm get_basic_compatible_type() const
+		{ return learning_algorithm<answer>::ALG_ANGLUIN; };
+
 		virtual bool sync_to_knowledgebase()
 		{{{
 			if(this->my_knowledge == NULL) {
@@ -152,7 +155,6 @@ class angluin_table : public learning_algorithm<answer> {
 
 		virtual bool supports_sync() const
 		{ return true; }
-
 
 		virtual std::basic_string<int32_t> serialize() const
 		{{{
@@ -1046,6 +1048,11 @@ class angluin_simple_table : public angluin_table<answer, std::list< algorithm_a
 			this->set_knowledge_source(base);
 		}}}
 
+		virtual enum learning_algorithm<answer>::algorithm get_type() const
+		{ return learning_algorithm<answer>::ALG_ANGLUIN; };
+
+		// (still compatible to ALG_ANGLUIN)
+
 		virtual memory_statistics get_memory_statistics() const
 		// get_memory_statistics() is obsolete and will be removed in the future.
 		// use receive_generic_statistics() instead.
@@ -1400,6 +1407,11 @@ class angluin_col_table : public angluin_simple_table<answer> {
 			this->set_logger(log);
 			this->set_knowledge_source(base);
 		}}}
+
+		virtual enum learning_algorithm<answer>::algorithm get_type() const
+		{ return learning_algorithm<answer>::ALG_ANGLUIN_COLUMN; };
+
+		// (still compatible to ALG_ANGLUIN)
 
 		virtual bool add_counterexample(std::list<int> word)
 		{{{

@@ -1,10 +1,10 @@
 # $Id$
 # libalf Makefile
 
-.PHONY: all clean  algorithm_analysis alphabet angluin_col_table angluin_generic angluin_simple_table biermann biermann_original conjecture DeLeTe2 kearns_vazirani mVCA_angluinlike NLstar_count_eq_queries NLstar_table normalizer online_performance_tester rivest_shapire_table RPNI simple-example statistics
+.PHONY: all clean  algorithm_analysis alphabet angluin_col_table angluin_generic angluin_simple_table biermann biermann_original conjecture DeLeTe2 kearns_vazirani mVCA_angluinlike NLstar_count_eq_queries NLstar_table normalizer online_performance_tester rivest_schapire_table RPNI simple-example statistics
 
 # all: mVCA_angluinlike excluded because algorithm is not ready yet.
-all: algorithm_analysis alphabet angluin_col_table angluin_generic angluin_simple_table biermann biermann_original conjecture DeLeTe2 kearns_vazirani NLstar_count_eq_queries NLstar_table normalizer online_performance_tester rivest_shapire_table RPNI simple-example statistics
+all: algorithm_analysis alphabet angluin_col_table angluin_generic angluin_simple_table biermann biermann_original conjecture DeLeTe2 kearns_vazirani NLstar_count_eq_queries NLstar_table normalizer online_performance_tester rivest_schapire_table RPNI simple-example statistics
 
 algorithm_analysis:
 	+make -C algorithm_analysis
@@ -51,8 +51,8 @@ normalizer:
 online_performance_tester:
 	+make -C online_performance_tester
 
-rivest_shapire_table:
-	+make -C rivest_shapire_table
+rivest_schapire_table:
+	+make -C rivest_schapire_table
 
 RPNI:
 	+make -C RPNI
@@ -80,7 +80,7 @@ clean:
 	make -C NLstar_table clean
 	make -C normalizer clean
 	make -C online_performance_tester clean
-	make -C rivest_shapire_table clean
+	make -C rivest_schapire_table clean
 	make -C RPNI clean
 	make -C simple-example clean
 	make -C statistics clean

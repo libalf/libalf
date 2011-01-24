@@ -186,6 +186,12 @@ fail:
 			initialized = false;
 		}}}
 
+		virtual enum learning_algorithm<answer>::algorithm get_type() const
+		{ return learning_algorithm<answer>::ALG_NL_STAR; };
+
+		virtual enum learning_algorithm<answer>::algorithm get_basic_compatible_type() const
+		{ return learning_algorithm<answer>::ALG_NL_STAR; };
+
 		virtual void increase_alphabet_size(int new_asize)
 		{{{
 			// add new suffixes for all words in upper table

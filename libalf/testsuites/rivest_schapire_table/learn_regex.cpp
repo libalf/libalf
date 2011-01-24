@@ -29,7 +29,7 @@
 #include <algorithm>
 
 #include <libalf/alf.h>
-#include <libalf/algorithm_rivest_shapire.h>
+#include <libalf/algorithm_rivest_schapire.h>
 
 #include <amore++/nondeterministic_finite_automaton.h>
 
@@ -100,7 +100,7 @@ int main(int argc, char**argv)
 
 
 	// create RV and teach it the automaton
-	rivest_shapire_table<bool> ot(&knowledge, &log, alphabet_size);
+	rivest_schapire_table<bool> ot(&knowledge, &log, alphabet_size);
 	amore::finite_automaton * hypothesis = NULL;
 
 	for(iteration = 1; iteration <= 100; iteration++) {

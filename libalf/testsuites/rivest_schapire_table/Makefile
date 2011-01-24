@@ -26,5 +26,5 @@ jpegs:
 learn_regex: learn_regex.cpp
 
 learn_file: learn_file.cpp
-#learn_file: CPPFLAGS += -DDEBUG_RIVEST_SHAPIRE
+#learn_file: CPPFLAGS += -DDEBUG_RIVEST_SCHAPIRE
 

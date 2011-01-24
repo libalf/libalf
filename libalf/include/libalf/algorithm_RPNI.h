@@ -205,6 +205,12 @@ class RPNI : public learning_algorithm<answer> {
 			// nothing
 		}}}
 
+		virtual enum learning_algorithm<answer>::algorithm get_type() const
+		{ return learning_algorithm<answer>::ALG_RPNI; };
+
+		virtual enum learning_algorithm<answer>::algorithm get_basic_compatible_type() const
+		{ return learning_algorithm<answer>::ALG_RPNI; };
+
 		virtual void increase_alphabet_size(int new_asize)
 		{{{
 			this->set_alphabet_size(new_asize);

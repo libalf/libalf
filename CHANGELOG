@@ -21,12 +21,12 @@ svn-revision ** FIXME **
 	- using const keyword for functions that don't change anything
 - libalf: refactor of conjectures
 - libalf: New (generic) statistic type
-- libalf: New algorithm Rivest&Shapire (Angluin L* variant)
+- libalf: New algorithm Rivest&Schapire (Angluin L* variant)
 - libalf: Extended algorithms to support learning of mealy-machines,
 	not just finite automata:
 	- angluin_simple_table
 	- angluin_col_table
-	- rivest_shapire_table
+	- rivest_schapire_table
 	- biermann_original
 - libalf: Critical bug in Kearns&Vazirani algorithm fixed
 - libalf: introduced an example answer-type for learning mealy-machines

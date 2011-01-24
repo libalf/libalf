@@ -65,6 +65,12 @@ class MiniSat_biermann : public basic_biermann<answer> {
 			return;
 		}}}
 
+		virtual enum learning_algorithm<answer>::algorithm get_type() const
+		{ return learning_algorithm<answer>::ALG_BIERMANN; };
+
+		virtual enum learning_algorithm<answer>::algorithm get_basic_compatible_type() const
+		{ return learning_algorithm<answer>::ALG_BIERMANN; };
+
 	protected:
 		virtual bool csp2sat(Solver & solver, std::map<node*, std::vector<Var>, typename knowledgebase<answer>::node_comparator > & vars)
 		{{{

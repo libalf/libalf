@@ -84,7 +84,7 @@ class learning_algorithm {
 			// online
 			ALG_ANGLUIN = 1,
 			ALG_ANGLUIN_COLUMN = 2,
-			ALG_RIVEST_SHAPIRO = 3,		// Rivest and Shapiro: reduced angluin
+			ALG_RIVEST_SCHAPIRE = 3,		// Rivest and Schapire: reduced angluin
 			ALG_NL_STAR = 4,
 			ALG_MVCA_ANGLUINLIKE = 5,	// angluin-style learning of m-bounded visible 1counter automata
 			// offline
@@ -113,6 +113,14 @@ class learning_algorithm {
 			set_logger(NULL);
 		}}}
 		virtual ~learning_algorithm() { };
+
+		// get type of algorithm
+		virtual enum learning_algorithm<answer>::algorithm get_type() const = 0;
+
+		// get the least complex type of algorithm (in terms of derivation)
+		// that is compatible with this one (can use the same table / serialized data)
+		virtual enum learning_algorithm<answer>::algorithm get_basic_compatible_type() const = 0;
+
 
 		// set_alphabet_size() is only for initial setting.
 		// once any data is in the structure, use increase_alphabet_size ONLY.

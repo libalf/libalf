@@ -29,7 +29,7 @@
 #include <algorithm>
 
 #include <libalf/alf.h>
-#include <libalf/algorithm_rivest_shapire.h>
+#include <libalf/algorithm_rivest_schapire.h>
 #include <libalf/basic_string.h>
 
 #include <libalf/normalizer_msc.h>
@@ -97,7 +97,7 @@ int main(int argc, char**argv)
 
 
 	// create algorithm and teach it the automaton
-	rivest_shapire_table<bool> ot(&knowledge, &log, alphabet_size);
+	rivest_schapire_table<bool> ot(&knowledge, &log, alphabet_size);
 	amore::finite_automaton * hypothesis = NULL;
 
 	for(iteration = 1; iteration <= 100; iteration++) {
@@ -140,7 +140,7 @@ int main(int argc, char**argv)
 			*/
 		}}}
 
-#ifdef DEBUG_RIVEST_SHAPIRE
+#ifdef DEBUG_RIVEST_SCHAPIRE
 		cout << ot.to_string();
 #endif
 

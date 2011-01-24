@@ -955,6 +955,16 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			delete root;
 	}
 
+	virtual enum learning_algorithm<answer>::algorithm get_type() const
+	{
+		return learning_algorithm<answer>::ALG_KEARNS_VAZIRANI;
+	};
+
+	virtual enum learning_algorithm<answer>::algorithm get_basic_compatible_type() const
+	{
+		return learning_algorithm<answer>::ALG_KEARNS_VAZIRANI;
+	};
+
 	//========== Methods =======================================================
 
 	/*

@@ -34,7 +34,7 @@
 #include <libalf/alf.h>
 #include <libalf/algorithm_angluin.h>
 #if ALGORITHM == 3
-# include <libalf/algorithm_rivest_shapire.h>
+# include <libalf/algorithm_rivest_schapire.h>
 #endif
 
 #include <libalf/answer.h>
@@ -194,7 +194,7 @@ int main(void)
 	angluin_col_table<my_answer> ot(&knowledge, &log, alphabet_size);
 # else
 #  if ALGORITHM == 3
-	rivest_shapire_table<my_answer> ot(&knowledge, &log, alphabet_size);
+	rivest_schapire_table<my_answer> ot(&knowledge, &log, alphabet_size);
 #  else
 #   error unknown algorithm specified. define ALGORITHM to be of 1, 2 or 3.
 #  endif

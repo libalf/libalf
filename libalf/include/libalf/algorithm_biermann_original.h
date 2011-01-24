@@ -59,6 +59,16 @@ class original_biermann : public learning_algorithm<answer> {
 		this->nondeterminism = nondeterminism;
 	}
 
+	virtual enum learning_algorithm<answer>::algorithm get_type() const
+	{
+		return learning_algorithm<answer>::ALG_BIERMANN_ORIGINAL;
+	};
+
+	virtual enum learning_algorithm<answer>::algorithm get_basic_compatible_type() const
+	{
+		return learning_algorithm<answer>::ALG_BIERMANN_ORIGINAL;
+	};
+
 	void increase_alphabet_size(int new_alphabet_size) {
 		this->alphabet_size = new_alphabet_size;
 	}

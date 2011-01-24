@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef __libalf_algorithm_rivest_shapire_h__
-# define __libalf_algorithm_rivest_shapire_h__
+#ifndef __libalf_algorithm_rivest_schapire_h__
+# define __libalf_algorithm_rivest_schapire_h__
 
 #include <set>
 #include <list>
@@ -36,14 +36,14 @@
 namespace libalf {
 
 /*
- * Rivest Shapire Extension of Angluins L* algorithm.
+ * Rivest Schapire Extension of Angluins L* algorithm.
  * It tries to find an optimal split in a given counterexample
  *
  * this implementation supports almost arbitrary <answer> types.
  */
 
 template <class answer>
-class rivest_shapire_table : public angluin_simple_table<answer> {
+class rivest_schapire_table : public angluin_simple_table<answer> {
 	protected: // types
 		typedef std::list< algorithm_angluin::simple_row<answer, std::vector<answer> > > table_t;
 
@@ -123,7 +123,7 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 					latest_cj.run(current_states, counterexample.begin(), counterexample.end());
 					int current_state = *( current_states.begin() );
 					if(latest_cj.output_mapping[current_state] == cex_answer) {
-						(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: my recent conjecture classifies your counterexample %s correctly. most likely you gave an invalid counterexample. aborting counterexample mode.\n", word2string(counterexample).c_str());
+						(*this->my_logger)(LOGGER_ERROR, "rivest_schapire_table: my recent conjecture classifies your counterexample %s correctly. most likely you gave an invalid counterexample. aborting counterexample mode.\n", word2string(counterexample).c_str());
 						counterexample_mode = false;
 						cex_front = -1;
 						cex_back = -1;
@@ -139,7 +139,7 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 			int i;
 			std::list<int>::const_iterator current_pos, li;
 
-#ifdef DEBUG_RIVEST_SHAPIRE // {{{
+#ifdef DEBUG_RIVEST_SCHAPIRE // {{{
 			(*this->my_logger)(LOGGER_DEBUG, "RS: CEX mode, picked index %d from [%d,%d]\n", current_index, cex_front, cex_back);
 #endif // }}}
 
@@ -162,7 +162,7 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 					if(mi->id == current_state)
 						break;
 				new_word = mi->tableentry->index;
-#ifdef DEBUG_RIVEST_SHAPIRE // {{{
+#ifdef DEBUG_RIVEST_SCHAPIRE // {{{
 				(*this->my_logger)(LOGGER_DEBUG, "RS:     replacing prefix  .");
 				std::list<int>::const_iterator li;
 				for(li = counterexample.begin(); li != current_pos; ++li)
@@ -175,7 +175,7 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 					new_word.push_back(*current_pos);
 					++current_pos;
 				};
-#ifdef DEBUG_RIVEST_SHAPIRE // {{{
+#ifdef DEBUG_RIVEST_SCHAPIRE // {{{
 				(*this->my_logger)(LOGGER_DEBUG, "thus new_word is  %s\n", word2string(new_word).c_str());
 #endif // }}}
 			}}}
@@ -184,7 +184,7 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 				return false;
 			if(missing_knowledge)
 				return false;
-#ifdef DEBUG_RIVEST_SHAPIRE // {{{
+#ifdef DEBUG_RIVEST_SCHAPIRE // {{{
 			std::stringstream str;
 			str << "RS:     cex/new_word: ";
 			str << ( (cex_answer == a) ? COLOR(CFG_BLUE) : COLOR(CFG_RED) );
@@ -208,7 +208,7 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 						return complete();
 				}
 
-				(*this->my_logger)(LOGGER_DEBUG, "rivest_shapire_table: from last counterexample %s, ", word2string(counterexample).c_str());
+				(*this->my_logger)(LOGGER_DEBUG, "rivest_schapire_table: from last counterexample %s, ", word2string(counterexample).c_str());
 
 				if(a != cex_answer)
 					cex_latest_bad = current_index;
@@ -221,7 +221,7 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 
 				(*this->my_logger)(LOGGER_DEBUG, " suffix %s was picked.\n", word2string(counterexample).c_str());
 				if(!this->add_column(counterexample))
-					(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: invalid counterexample or internal bug! suffix %s already contained in table.\n", word2string(counterexample).c_str());
+					(*this->my_logger)(LOGGER_ERROR, "rivest_schapire_table: invalid counterexample or internal bug! suffix %s already contained in table.\n", word2string(counterexample).c_str());
 
 				counterexample_mode = false;
 				cex_front = -1;
@@ -234,7 +234,7 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 		}}}
 
 	public: // methods
-		rivest_shapire_table()
+		rivest_schapire_table()
 		{{{
 			this->set_alphabet_size(0);
 			this->set_knowledge_source(NULL);
@@ -246,7 +246,7 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 			latest_cj.valid = false;
 			conjecture_stored = false;
 		}}}
-		rivest_shapire_table(knowledgebase<answer> *base, logger *log, int alphabet_size)
+		rivest_schapire_table(knowledgebase<answer> *base, logger *log, int alphabet_size)
 		{{{
 			this->set_alphabet_size(alphabet_size);
 			this->set_logger(log);
@@ -259,16 +259,21 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 			conjecture_stored = false;
 		}}}
 
+		virtual enum learning_algorithm<answer>::algorithm get_type() const
+		{ return learning_algorithm<answer>::ALG_RIVEST_SCHAPIRE; };
+
+		// (still compatible to ALG_ANGLUIN)
+
 		virtual bool add_counterexample(std::list<int> word)
 		{{{
 			std::list<int>::const_iterator li;
 			if(this->my_knowledge == NULL) {
-				(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: add_counterexample() without knowledgebase!\n");
+				(*this->my_logger)(LOGGER_ERROR, "rivest_schapire_table: add_counterexample() without knowledgebase!\n");
 				return false;
 			}
 
 			if(!conjecture_stored || !latest_cj.valid) {
-				(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: add_counterexample() without having a conjecture stored! did you ever advance until you had a conjecture?\n");
+				(*this->my_logger)(LOGGER_ERROR, "rivest_schapire_table: add_counterexample() without having a conjecture stored! did you ever advance until you had a conjecture?\n");
 				return false;
 			}
 
@@ -282,7 +287,7 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 				}
 			}
 			if(asize_changed) {
-				(*this->my_logger)(LOGGER_ALGORITHM, "rivest_shapire_table: add_counterexample(): increase of alphabet_size from %d to %d.\nNOTE: it is possible that the next hypothesis does not increase in state-count.\n", this->get_alphabet_size(), new_asize);
+				(*this->my_logger)(LOGGER_ALGORITHM, "rivest_schapire_table: add_counterexample(): increase of alphabet_size from %d to %d.\nNOTE: it is possible that the next hypothesis does not increase in state-count.\n", this->get_alphabet_size(), new_asize);
 				this->increase_alphabet_size(new_asize);
 				// don't store the cex, we need to re-run and generate a new cex before analysing it.
 				return true;
@@ -296,7 +301,7 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 			cex_latest_bad = -1;
 
 			if(cex_back < cex_front) {
-				(*this->my_logger)(LOGGER_ERROR, "rivest_shapire_table: you gave epsilon as a counterexample. why didn't you set the right answer in the beginning? aborting counterexample mode. if epsilon is really wrong, please restart with a fresh instance.\n");
+				(*this->my_logger)(LOGGER_ERROR, "rivest_schapire_table: you gave epsilon as a counterexample. why didn't you set the right answer in the beginning? aborting counterexample mode. if epsilon is really wrong, please restart with a fresh instance.\n");
 				counterexample_mode = false;
 				cex_front = cex_back = cex_latest_bad = -1;
 				latest_cj.clear();
@@ -310,7 +315,7 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 		virtual std::basic_string<int32_t> serialize() const
 		{{{
 			if(conjecture_stored)
-				(*this->my_logger)(LOGGER_WARN, "rivest_shapire_table: serialize during counterexample mode is a bad idea. please avoid it for now.\n");
+				(*this->my_logger)(LOGGER_WARN, "rivest_schapire_table: serialize during counterexample mode is a bad idea. please avoid it for now.\n");
 
 			return angluin_simple_table<answer>::serialize();
 		}}}
@@ -332,5 +337,5 @@ class rivest_shapire_table : public angluin_simple_table<answer> {
 
 }; // end of namespace libalf
 
-#endif // __libalf_algorithm_rivest_shapire_h__
+#endif // __libalf_algorithm_rivest_schapire_h__
 
