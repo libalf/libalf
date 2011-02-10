@@ -30,7 +30,14 @@ NOTE
 if you want to use the statically linked libAMoRE and libAMoRE++, you will need
 to link via:
 
-	--start-group libAMoRE.a libAMoRE++.a --end-group
+	ld <...>  --start-group libAMoRE.a libAMoRE++.a --end-group  <...>
+
+or using gcc, you have to escape the linker-parameters:
+
+	gcc <...>  -Xlinker --start-group
+		/home/neider/libalf/libAMoRE++/src/libAMoRE++.a
+		/home/neider/libalf/libAMoRE/libAMoRE.a -Xlinker --end-group
+		<...>
 
 otherwise you will get an error about unresolved symbols due to circular
 dependencies, because libAMoRE required the client application (in this case
