@@ -48,7 +48,7 @@ all: libAMoRE.a libAMoRE.so
 libtest: libtest.c libAMoRE.so
 	$(CC) $(CFLAGS) -o $@ $< -g -L. -lAMoRE
 
-libAMoRE.a: $(OBJ) static.o
+libAMoRE.a: $(OBJ)
 	ar crs $@ $?
 
 libAMoRE.so: $(OBJ)

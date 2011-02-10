@@ -84,3 +84,13 @@ most notable things NOT changed:
 	  then, if you're working with a pointer (which is reasonable), free it.
 	  the same goes for regex and freerex().
 
+	* include/amore/vars.h still needs to be included by client application,
+	  otherwise libAMoRE will have unresolved references. it expects the
+	  client to declare the variables defined in this header. note that to
+	  use libAMoRE.a (statically linked), together with libAMoRE++.a, you
+	  will have to link it via
+
+		--start-group libAMoRE.a libAMoRE++.a --end-group
+
+	  otherwise you get a linker error due to circular dependencies.
+
