@@ -5,8 +5,10 @@ libAMoRE++
 
 http://libalf.informatik.rwth-aachen.de/
 
-(c) 2008,2009,2010 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
-               and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
+(c) 2008,2009,2010,2011
+	Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
+    and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
+    and David R. Piegdon
 
 
 libAMoRE++ is a C++ interface to libAMoRE, implementing several extensions
@@ -22,4 +24,15 @@ and additional functionality. most notably:
 	  language inclusion and language universality
 	  (see "M. De Wulf, L. Doyen, J.-F. Raskin -
 	   Antichains: A New Algorithm for Checking Universality of Finite Automata"
+
+NOTE
+
+if you want to use the statically linked libAMoRE and libAMoRE++, you will need
+to link via:
+
+	--start-group libAMoRE.a libAMoRE++.a --end-group
+
+otherwise you will get an error about unresolved symbols due to circular
+dependencies, because libAMoRE required the client application (in this case
+libAMoRE++) to define some variables (see include/amore/vars.h).
 
