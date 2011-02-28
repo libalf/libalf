@@ -1,15 +1,15 @@
 # $Id$
 # libalf-interfaces testsuite Makefile
 
-.PHONY: all clean  dispatcher
+.PHONY: all clean  biermann_original
 
-all: dispatcher
+all: biermann_original
 
 
-dispatcher:
-	+make -C dispatcher
+biermann_original:
+	+make -C biermann_original
 
 
 clean:
-	make -C dispatcher clean
+	make -C biermann_original clean
 
