@@ -53,6 +53,7 @@ class original_biermann : public learning_algorithm<answer> {
 	typedef typename knowledgebase<answer>::node node;
 
 	original_biermann(knowledgebase<answer> *base, logger *log, int alphabet_size, unsigned int nondeterminism) {
+std::cerr << "original_biermann constructed.\n";
 		this->set_alphabet_size(alphabet_size);
 		this->set_logger(log);
 		this->set_knowledge_source(base);
@@ -169,7 +170,7 @@ class original_biermann : public learning_algorithm<answer> {
 		return ::deserialize(nondeterminism, serial);
 	}
 
-	bool deserialize_magic(std::basic_string<int32_t>::iterator &it, std::basic_string<int32_t>::iterator limit, std::basic_string<int32_t> & result)
+	bool deserialize_magic(serial_stretch & serial, std::basic_string<int32_t> & result)
 	// you may use magic to set the value of nondeterminism:
 	//
 	// expected data:
@@ -183,24 +184,24 @@ class original_biermann : public learning_algorithm<answer> {
 	// added 2010-02-06 by David R. Piegdon
 	{
 		result.clear();
+		if(serial.empty()) return false;
 
-		if(it == limit) return false;
-
-		if(ntohl(*it)) {
+		if(ntohl(*serial)) {
 			unsigned int val;
-			it++; if(it == limit) return false;
-			val = ntohl(*it);
+			++serial;
+			if(serial.empty()) return false;
+			val = ntohl(*serial);
 			if(val < 1)
 				this->set_nondeterminism(1);
 			else
 				this->set_nondeterminism(val);
 		}
 
-		it++;
+		++serial;
 
 		result += htonl((int) nondeterminism);
 
-		return true;
+		return serial.empty();
 	}
 
 	void print(std::ostream &os) const {

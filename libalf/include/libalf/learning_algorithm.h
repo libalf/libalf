@@ -231,6 +231,7 @@ class learning_algorithm {
 		// for algorithm-specific commands (e.g. parameter passing via dispatcher)
 		virtual bool deserialize_magic(serial_stretch & serial, std::basic_string<int32_t> & result)
 		{{{
+			(*my_logger)(LOGGER_WARN, "learning_algorithm::deserialize_magic(): called but not implemented by algorithm. Ignoring content.\n");
 			serial.empty(); /* <- this is just so we don't get a not-used warning */
 			result.clear();
 			return false;
