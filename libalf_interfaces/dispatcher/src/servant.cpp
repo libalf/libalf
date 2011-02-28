@@ -339,7 +339,6 @@ bool servant::reply_create_object()
 #ifdef VERBOSE_DEBUG
 	clog("created object %d type %s (%d).\n", new_id, obj2string(type), type);
 #endif
-	clog("created object %d type %s (%d).\n", new_id, obj2string(type), type);
 
 	return (client->stream_send_int(new_id));
 
