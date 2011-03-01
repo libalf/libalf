@@ -54,6 +54,8 @@ namespace amore {
  * -  set difference A\B
  * U  union
  *
+ * @  epsilon (empty word)
+ *
  * spaces in regex are ignored. for more information, please refer to AMoRE documentation, e.g.
  * ftp://ftp.informatik.uni-kiel.de/pub/kiel/amore/amore.ps.gz
  *
