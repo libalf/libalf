@@ -33,6 +33,8 @@ svn-revision ** FIXME **
 	in answer.h: class fixed_count_answer.
 	however, in simple cases, one can also use int or char.
 - libAMoRE++: Bug fixed that made antichains fail for deterministic automata
+- libAMoRE++: added regex functions for finite_automata.
+- finite automata tools: new output "regex".
 
 
 
