@@ -77,6 +77,8 @@ void usage()
 		"\t\t\tgenerate human readable version of automaton\n"
 		"\t-D or --dotfile\n"
 		"\t\t\tgenerate dotfile of automaton\n"
+		"\t-x or --regex\n"
+		"\t\t\tgenerate regular expression from automaton\n"
 		"\t-S or --sample <rpni|delete2|biermann|random|depth>[:<int>]\n"
 		"\t\t\tgenerate sample-set (knowledgebase) from automaton,\n"
 		"\t\t\tw.r.t. some criterion. <int> only is required for\n"
@@ -113,6 +115,7 @@ int main(int argc, char**argv)
 
 		{ "human_readable_output",  no_argument,            NULL, 'H' },	// use text-output (tostring() for knowledgebase, write() for automata)
 		{ "dotfile",                no_argument,            NULL, 'D' },	// generate dotfile
+		{ "regex",                  no_argument,            NULL, 'x' },	// generate regular expression
 		{ "sample",                 required_argument,      NULL, 'S' },	// create sample-set from automaton. parameter: rpni, delete2, biermann, random
 		{ "text_sample",            required_argument,      NULL, 'T' },	// create text-version of sample-set
 		{ 0,0,0,0 }
@@ -125,7 +128,7 @@ int main(int argc, char**argv)
 	enum output out = output_serial;
 
 	int c;
-	while(0 <= (c = getopt_long(argc, argv, "hg:mdcRrHDS:T:?", server_long_options, NULL)))
+	while(0 <= (c = getopt_long(argc, argv, "hg:mdcRrHDxS:T:?", server_long_options, NULL)))
 	{{{ // parse command line
 		switch (c) {
 			case 'h':
@@ -228,6 +231,16 @@ int main(int argc, char**argv)
 					return -1;
 				} else {
 					out = output_dotfile;
+				}
+
+				break;
+			case 'x':
+				if(out != output_serial) {
+					cerr << "invalid output constellation.\n\n";
+					usage();
+					return -1;
+				} else {
+					out = output_regex;
 				}
 
 				break;

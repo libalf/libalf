@@ -49,6 +49,7 @@ enum transformation {
 enum output {
 	output_serial,
 	output_dotfile,
+	output_regex,
 	output_human_readable,
 	output_sample,
 	output_sample_text

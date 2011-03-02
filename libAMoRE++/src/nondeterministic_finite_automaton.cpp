@@ -155,6 +155,37 @@ nondeterministic_finite_automaton * nondeterministic_finite_automaton::clone() c
 		return new nondeterministic_finite_automaton();
 }}}
 
+string nondeterministic_finite_automaton::to_regex() const
+{{{
+	if(this->is_empty()) {
+		// for empty languages,
+		//	* either nfa2rex generates invalid regular expressions,
+		//	* or freerex may not be called.
+		// i don't know which of both...
+		return "%";
+	} else {
+		regex r = nfa2rex(nfa_p);
+
+		string s;
+
+		char *p = r->rex;
+		while(*p != 0) {
+			if(*p != ' ') {
+				if(*p == 'U')
+					s += '|';
+				else
+					s += *p;
+			}
+			++p;
+		}
+
+		freerex(r);
+		free(r);
+
+		return s;
+	};
+}}}
+
 unsigned int nondeterministic_finite_automaton::get_state_count() const
 {{{
 	if(nfa_p)
@@ -912,29 +943,6 @@ void nondeterministic_finite_automaton::set_nfa(nfa a)
 nfa nondeterministic_finite_automaton::get_nfa()
 {{{
 	return nfa_p;
-}}}
-
-string nondeterministic_finite_automaton::to_regex() const
-{{{
-	regex r = nfa2rex(nfa_p);
-
-	string s;
-
-	char *p = r->rex;
-	while(*p != 0) {
-		if(*p != ' ') {
-			if(*p == 'U')
-				s += '|';
-			else
-				s += *p;
-		}
-		++p;
-	}
-
-	freerex(r);
-	free(r);
-
-	return s;
 }}}
 
 } // end namespace amore

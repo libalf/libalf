@@ -89,6 +89,18 @@ deterministic_finite_automaton * deterministic_finite_automaton::clone() const
 		return new deterministic_finite_automaton();
 }}}
 
+string deterministic_finite_automaton::to_regex() const
+{{{
+	string regex;
+	finite_automaton * n;
+
+	n = this->nondeterminize();
+	regex = n->to_regex();
+	delete n;
+
+	return regex;
+}}}
+
 unsigned int deterministic_finite_automaton::get_state_count() const
 {{{
 	if(dfa_p)
@@ -454,7 +466,7 @@ finite_automaton * deterministic_finite_automaton::lang_union(const finite_autom
 	finite_automaton * n;
 	finite_automaton * ret;
 
-	n = this->nondeterminize();	// 1st (2)
+	n = this->nondeterminize();
 	ret = n->lang_union(other);
 	delete n;
 
@@ -495,7 +507,7 @@ deterministic_finite_automaton * deterministic_finite_automaton::lang_difference
 		o_d = dynamic_cast<const deterministic_finite_automaton*>(other.determinize());
 	}
 
-	ret = new deterministic_finite_automaton(insecfa(dfa_p, o_d->dfa_p, true));	// XXX 2nd (2)
+	ret = new deterministic_finite_automaton(insecfa(dfa_p, o_d->dfa_p, true));
 
 	if(had_to_determinize)
 		delete o_d;
@@ -510,10 +522,10 @@ finite_automaton * deterministic_finite_automaton::lang_symmetric_difference(con
 	finite_automaton * L2_without_L1;
 	finite_automaton * ret = NULL;
 
-	L1_without_L2 = lang_difference(other);			// XXX 2nd (1)
+	L1_without_L2 = lang_difference(other);
 	L2_without_L1 = other.lang_difference(*this);
 
-	ret = L1_without_L2->lang_union(*L2_without_L1);	// XXX 1st (1)
+	ret = L1_without_L2->lang_union(*L2_without_L1);
 
 	delete L1_without_L2;
 	delete L2_without_L1;
@@ -855,7 +867,7 @@ deterministic_finite_automaton * deterministic_finite_automaton::determinize() c
 finite_automaton * deterministic_finite_automaton::nondeterminize() const
 {{{
 	nondeterministic_finite_automaton *a;
-	a = new nondeterministic_finite_automaton(dfa2nfa(dfa_p));	// XXX 1st (3)
+	a = new nondeterministic_finite_automaton(dfa2nfa(dfa_p));
 	return a;
 }}}
 

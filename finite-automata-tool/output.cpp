@@ -32,6 +32,8 @@
 #include <libalf/conjecture.h>
 #include <libalf/serialize.h>
 
+#include <amore++/nondeterministic_finite_automaton.h>
+
 // for knowledgebase:
 bool leaf_is_non_accepting(knowledgebase<bool>::node* n, list<int> & sample, bool prefix_accepting = false)
 // check if all leafs (i.e. states that have no suffixes that either accept or reject) accept
@@ -324,6 +326,9 @@ bool write_output(amore::finite_automaton *& automaton, output out, string sampl
 			}
 			cout << aut.write();
 
+			return true;
+		case output_regex:
+			cout << automaton->to_regex() << "\n";
 			return true;
 		case output_sample:
 		case output_sample_text:

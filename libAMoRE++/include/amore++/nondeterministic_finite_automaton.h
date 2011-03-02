@@ -78,6 +78,7 @@ class nondeterministic_finite_automaton : public finite_automaton {
 		virtual ~nondeterministic_finite_automaton();
 
 		virtual nondeterministic_finite_automaton * clone() const;
+		virtual std::string to_regex() const;
 
 		virtual unsigned int get_state_count() const;
 		virtual unsigned int get_alphabet_size() const;
@@ -123,9 +124,6 @@ class nondeterministic_finite_automaton : public finite_automaton {
 		// new
 		virtual void set_nfa(nfa a);
 		virtual nfa get_nfa();
-
-		// get regex for automaton
-		virtual std::string to_regex() const;
 
 	protected:
 //		std::set<std::set<int> > antichain_universality_cpre(std::set<int>);

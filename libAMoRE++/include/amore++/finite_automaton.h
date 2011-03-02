@@ -55,6 +55,8 @@ class finite_automaton {
 		virtual finite_automaton * clone() const = 0;
 		// check if automaton is deterministic
 		virtual bool is_deterministic() const = 0;
+		// get regex for language
+		virtual std::string to_regex() const = 0;
 
 		// LANGUAGE/AUTOMATON OPERATIONS
 

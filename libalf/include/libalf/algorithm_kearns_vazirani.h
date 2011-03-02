@@ -1,4 +1,4 @@
-/* $Id:
+/* $Id$
  * vim: fdm=marker
  *
  * This file is part of libalf.
