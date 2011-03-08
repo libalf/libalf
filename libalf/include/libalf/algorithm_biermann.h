@@ -270,6 +270,7 @@ class basic_biermann : public learning_algorithm<answer> {
 				// return automaton for empty language
 				ret->input_alphabet_size = 1;
 				ret->state_count = 1;
+				ret->set_all_non_accepting();
 				ret->initial_states.insert(0);
 				ret->valid = true;
 				for(int sigma = 0; sigma < ret->input_alphabet_size; sigma++)
