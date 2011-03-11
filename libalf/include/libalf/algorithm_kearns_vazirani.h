@@ -29,6 +29,9 @@
  * NOTE: this version does only support bool as <answer>.
  */
 
+#ifndef __ALGORITHM_KEARNS_VAZIRANI_H__
+#define __ALGORITHM_KEARNS_VAZIRANI_H__
+
 #include <list>
 #include <set>
 #include <map>
@@ -1263,18 +1266,24 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			automaton->is_deterministic = true;
 			automaton->input_alphabet_size = this->alphabet_size;
 			automaton->valid = true;
-
 			automaton->state_count = 1;
+			
+			// Transitions
 			for(int i=0; i<this->alphabet_size; i++)
 				automaton->transitions[0][i].insert(0);
 
+			// Initial state
 			automaton->initial_states.insert(0);
 
-			automaton->output_mapping[0] = (a == true);
+			// Final states
+			std::set<int> final;
 			// (a == true) because <a> is not necessarily a bool, but should provide a typecast-function to bool.
+			if(a == true) {
+				final.insert(0);
+			}
+			automaton->set_final_states(final);
 
 			return automaton;
-
 		}
 
 		/*
@@ -1282,22 +1291,26 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		 */
 		else {
 
+			// Prepare automaton
 			automaton->is_deterministic = true;
 			automaton->input_alphabet_size = this->alphabet_size;
 			automaton->valid = true;
-			automaton->state_count = 0;
 			automaton->initial_states.insert(0);	// Initial state is always nr. 0
 
-			// Iterate throug all leaf nodes to generate transitions,
-			// beginning with initial_state
+			// Give a name to all leaf nodes (because not all leaf nodes may be reachable)
 			int * state = new int[this->leaf_node_count]; // name of a state
-			for(int i=0; i<this->leaf_node_count; i++)
+			for(int i=0; i<this->leaf_node_count; i++) {
 				state[i] = -1; // Indicates that the node has not yet been visited
-			state[initial_state->id] = automaton->state_count; // initial state is always nr. 0
-			automaton->state_count = automaton->state_count + 1;
+			}
+			state[initial_state->id] = 0; // initial state is always nr. 0
+
+			std::set<int> final;
+			
+			// Iterate throug all leaf nodes to generate transitions,
+			// beginning with initial_state			
+			automaton->state_count = 1;
 			std::list<leaf_node*> to_process;
 			to_process.push_front(this->initial_state);
-
 			while (!to_process.empty()) {
 
 				// Get leaf node to process
@@ -1305,8 +1318,9 @@ class kearns_vazirani : public learning_algorithm<answer> {
 				to_process.pop_front();
 
 				// Add as final state if so
-				if(current->accepting)
-					automaton->output_mapping[state[current->id]] = true;
+				if(current->accepting) {
+					final.insert(state[current->id]);
+				}
 
 				// Process each transition
 				for(int i=0; i<this->alphabet_size; i++) {
@@ -1323,9 +1337,11 @@ class kearns_vazirani : public learning_algorithm<answer> {
 					// Add new transition
 					automaton->transitions[state[current->id]][i].insert(state[current->transitions[i]->id]);
 				}
-
 			}
 
+			// Add final states
+			automaton->set_final_states(final);
+			
 			// clean up
 			delete[] state;
 
@@ -1550,3 +1566,5 @@ class kearns_vazirani : public learning_algorithm<answer> {
 };
 
 };
+
+#endif

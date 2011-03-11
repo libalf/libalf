@@ -30,6 +30,9 @@
  * this implementation supports almost arbitrary <answer> types.
  */
 
+#ifndef __ALGORITHM_BIERMANN_ORIGINAL__
+#define __ALGORITHM_BIERMANN_ORIGINAL__
+ 
 #include <iostream>
 #include <string>
 #include <map>
@@ -421,3 +424,5 @@ std::cerr << "original_biermann constructed.\n";
 };
 
 }
+
+#endif
