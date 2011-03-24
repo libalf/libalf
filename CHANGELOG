@@ -8,7 +8,7 @@ liblangen, libmVCA and finite-automata-tools.
 
 v0.3 "birte" (2011-03-24) [Birtes Birthday Version]
 ---------------------------------------------------
-svn-revision 1458
+svn-revision 1459
 
 - A lot of cleanup and bugfixes
 - all libraries: try to use better style to avoid cluttering namespace and other
