@@ -12,19 +12,11 @@
         <delete dir="${bin.path}" failonerror="false"/>
     </target>
 
-    <target name="check-jalf.jar" description="Check whether jalf exists">
-        <condition property="jalf.not.exists">
- 	        <not>
-                    <available  file="${jalf.location}"/>
-                </not>
-        </condition>
+    <target name="build-jalf" description="Build the jalf library">
+	<ant dir=".."/>
     </target>
 
-    <target name="compile-jalf" depends="check-jalf.jar" if="${jalf.not.exists}">
-	<echo message="${jalf.not.exists}"/>
-    </target>
-
-    <target name="build" description="Builds the testsuite">
+    <target name="build" depends="build-jalf" description="Builds the testsuite">
         <mkdir dir="${bin.path}"/>
             <javac source="1.6" srcdir="${src.path}" destdir="${bin.path}">
                 <classpath>
