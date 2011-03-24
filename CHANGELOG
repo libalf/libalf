@@ -6,9 +6,9 @@ liblangen, libmVCA and finite-automata-tools.
 
 
 
-v0.3   (FIXME SET DATE)
-----------------------------
-svn-revision ** FIXME **
+v0.3 "birte" (2011-03-24) [Birtes Birthday Version]
+---------------------------------------------------
+svn-revision 1458
 
 - A lot of cleanup and bugfixes
 - all libraries: try to use better style to avoid cluttering namespace and other
@@ -40,19 +40,19 @@ svn-revision ** FIXME **
 
 v0.2   (2010-04-18 21:11:33)
 ----------------------------
-OLD-SVN-revision 1310
+svn-revision 1310
 
 not noted.
 
 v0.1a  (2010-02-04 16:06:08)
 ----------------------------
-OLD-SVN-revision 1139
+svn-revision 1139
 
 not noted.
 
 v0.1   (2009-10-13 11:03:25)
 ----------------------------
-OLD-SVN-revision 1005
+svn-revision 1005
 
 initial release
 

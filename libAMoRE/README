@@ -5,7 +5,8 @@ AMoRE - Automata, Monoid, and Regular Expressions
 
 
 original copyright see COPYING and README-old.
-all changes (c) 2008, 2009 by David R. Piegdon <david-i2@piegdon.de>
+all changes (c) 2008, 2009, 2010, 2011
+by David R. Piegdon <david-i2@piegdon.de>
 
 
 this once was libAMoRE-1.0. it was heavily changed during development of
