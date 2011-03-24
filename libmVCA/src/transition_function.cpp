@@ -25,10 +25,11 @@
 
 #ifdef _WIN32
 # include <winsock.h>
-# include <stdio.h>
 #else
 # include <arpa/inet.h>
 #endif
+
+#include <stdio.h>
 
 #include <libmVCA/transition_function.h>
 

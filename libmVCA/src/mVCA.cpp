@@ -24,13 +24,13 @@
  */
 
 #ifdef _WIN32
-# include <stdio.h>
 # include <winsock.h>
 #else
 # include <arpa/inet.h>
 #endif
 
 #include <stdlib.h>
+#include <stdio.h>
 
 #include <iostream>
 

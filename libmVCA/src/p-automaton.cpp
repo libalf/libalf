@@ -24,6 +24,8 @@
 #include <list>
 #include <set>
 
+#include <stdio.h>
+
 #include <iostream>
 
 #include <libmVCA/p-automaton.h>
