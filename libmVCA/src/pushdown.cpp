@@ -30,6 +30,8 @@
 # include <arpa/inet.h>
 #endif
 
+#include <stdio.h>
+
 #include <libmVCA/pushdown.h>
 
 using namespace std;
