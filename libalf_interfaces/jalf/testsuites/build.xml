@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="jalf testsuite" basedir="." default="build">
+
+    <property name="src.path" value="./src/"/>
+    <property name="bin.path" value="./bin/"/>
+    <property name="jalf.location" value="../jalf.jar"/>
+    <property name="brics.location" value="./lib/brics_1.11.jar"/>
+    <property name="junit.location" value="./lib/junit-4.8.2.jar"/>
+    <property name="library.path" value="."/> <!-- If you (and must) set this from outside, this statement has no effect -->
+
+    <target name="clean" description="Delete all generated files">
+        <delete dir="${bin.path}" failonerror="false"/>
+    </target>
+
+    <target name="check-jalf.jar" description="Check whether jalf exists">
+        <condition property="jalf.not.exists">
+ 	        <not>
+                    <available  file="${jalf.location}"/>
+                </not>
+        </condition>
+    </target>
+
+    <target name="compile-jalf" depends="check-jalf.jar" if="${jalf.not.exists}">
+	<echo message="${jalf.not.exists}"/>
+    </target>
+
+    <target name="build" description="Builds the testsuite">
+        <mkdir dir="${bin.path}"/>
+            <javac source="1.6" srcdir="${src.path}" destdir="${bin.path}">
+                <classpath>
+                    <pathelement location="${jalf.location}"/>
+                    <pathelement location="${brics.location}"/>
+                    <pathelement location="${junit.location}"/>
+                </classpath>
+            </javac>
+    </target>
+
+    <target name="test" depends="build">
+        <junit printsummary="true" fork="yes" haltonfailure="yes"> 
+            <classpath>
+                <pathelement location="${jalf.location}"/>
+                <pathelement location="${brics.location}"/>
+                <pathelement location="${junit.location}"/>
+		<pathelement path="${bin.path}"/>
+            </classpath>
+            <sysproperty key="server" value="localhost"/>
+            <sysproperty key="port" value="24940"/>
+	    <sysproperty key="java.library.path" value="${library.path}"/>
+            <formatter type="plain"/>
+            <test name="de.libalf.junit.ActiveLearning"/>
+            <test name="de.libalf.junit.PassiveLearning"/>
+        </junit>
+    </target>
+
+</project>
