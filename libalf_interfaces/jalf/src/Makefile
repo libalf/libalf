@@ -65,7 +65,7 @@ install: all
 # Linux targets
 libjalf.so: test_java_includes ${OBJECTS}
 	+make -C ../../../libalf/src libalf.a
-	g++ ${LDFLAGS}  -Xlinker -soname=libjalf -static -lalf  ${OBJECTS}  -o libjalf.so
+	g++ ${LDFLAGS}  -Xlinker -soname=libjalf ../../../libalf/src/libalf.a  ${OBJECTS}  -o libjalf.so
 
 libjalf.so-dynamic: test_java_includes ${OBJECTS}
 	+make -C ../../../libalf/src libalf.so
@@ -75,8 +75,8 @@ libjalf.so-dynamic: test_java_includes ${OBJECTS}
 # Windows targets
 jalf.dll: ${OBJECTS}
 	+make -C ../../../libalf/src libalf.a
-	g++ ${LDFLAGS}  -static -lalf  ${OBJECTS}  -o jalf.dll -Wl,--kill-at
-#	                                                       ^^^^^^^^^^^^^ needed for JNI-DLL (http://www.mingw.org/wiki/JNI-MinGW-DLL)
+	g++ ${LDFLAGS}  ../../../libalf/src/libalf.a  ${OBJECTS}  -o jalf.dll -Wl,--kill-at
+#	                                                                      ^^^^^^^^^^^^^ needed for JNI-DLL (http://www.mingw.org/wiki/JNI-MinGW-DLL)
 jalf.dll-dynamic: ${OBJECTS}
 	+make -C ../../src libalf.dll
 	g++ ${LDFLAGS}  -lalf  ${OBJECTS}  -o jalf.dll -Wl,--kill-at
