@@ -3,17 +3,23 @@
 
 .PHONY: install uninstall
 
-PREFIX ?= /usr/local/
+PREFIX?=/usr/local
+LIBDIR?=${PREFIX}/lib
+INCLUDEDIR?=${PREFIX}/include
+BINDIR?=${PREFIX}/bin
+DOCDIR?=${PREFIX}/share/doc
 
 install:
-	echo installing libAMoRE++ headers to ${PREFIX}/include/amore++
-	mkdir -p ${PREFIX}/include/amore++/
-	rm -f ${PREFIX}/include/amore++/*
-	cp -Rv amore++/*.h ${PREFIX}/include/amore++/
-	chmod 755 ${PREFIX}/include/amore++
-	chmod 644 ${PREFIX}/include/amore++/*.h
+	@echo
+	@echo installing libAMoRE++ headers to ${INCLUDEDIR} ...
+	@echo
+	-install -v -m 755 -d ${INCLUDEDIR}/amore++
+	rm -f ${INCLUDEDIR}/amore++/*
+	install -v -m 644 amore++/*.h ${INCLUDEDIR}/amore++
 
 uninstall:
-	echo removing libAMoRE++ headers from ${PREFIX}/include/amore++
-	rm -Rf ${PREFIX}/include/amore++
+	@echo
+	@echo removing libAMoRE++ headers from ${INCLUDEDIR} ...
+	@echo
+	rm -Rf ${INCLUDEDIR}/amore++
 

@@ -3,7 +3,11 @@
 
 .PHONY: all clean
 
-PREFIX ?= /usr/local/
+PREFIX?=/usr/local
+LIBDIR?=${PREFIX}/lib
+INCLUDEDIR?=${PREFIX}/include
+BINDIR?=${PREFIX}/bin
+DOCDIR?=${PREFIX}/share/doc
 
 CPPFLAGS+=-I../include
 CPPFLAGS+=-Wall -Wextra -ggdb3

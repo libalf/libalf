@@ -1,6 +1,6 @@
 # $Id$
 
-.PHONY: all clean install
+.PHONY: all clean install uninstall
 
 all:
 	+make -C libAMoRE
@@ -27,4 +27,12 @@ install:
 	+make -C liblangen install
 	+make -C libalf install
 	+make -C finite-automata-tool install
+
+uninstall:
+	+make -C libAMoRE uninstall
+	+make -C libAMoRE++ uninstall
+	+make -C libmVCA uninstall
+	+make -C liblangen uninstall
+	+make -C libalf uninstall
+	+make -C finite-automata-tool uninstall
 

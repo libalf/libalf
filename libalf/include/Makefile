@@ -3,21 +3,26 @@
 
 .PHONY: install uninstall
 
-PREFIX ?= /usr/local/
+PREFIX?=/usr/local
+LIBDIR?=${PREFIX}/lib
+INCLUDEDIR?=${PREFIX}/include
+BINDIR?=${PREFIX}/bin
+DOCDIR?=${PREFIX}/share/doc
 
 install:
-	echo installing libalf headers to ${PREFIX}/include/libalf...
-	mkdir -p ${PREFIX}/include/libalf/
-	rm -f ${PREFIX}/include/libalf/*
-	cp -Rv libalf/*.h ${PREFIX}/include/libalf/
-	cp -Rv amore_alf_glue.h ${PREFIX}/include/amore_alf_glue.h
-	cp -Rv mVCA_alf_glue.h ${PREFIX}/include/mVCA_alf_glue.h
-	chmod 755 ${PREFIX}/include/libalf
-	chmod 644 ${PREFIX}/include/libalf/*.h
+	@echo
+	@echo installing libalf headers to ${INCLUDEDIR} ...
+	@echo
+	-install -v -m 755 -d ${INCLUDEDIR}/libalf
+	rm -f ${INCLUDEDIR}/libalf/*
+	install -v -m 644 libalf/*.h ${INCLUDEDIR}/libalf 
+	install -v -m 644 amore_alf_glue.h mVCA_alf_glue.h ${INCLUDEDIR}/
 
 uninstall:
-	echo removing libalf headers from ${PREFIX}/include/libalf...
-	rm -Rf ${PREFIX}/include/libalf
-	rm -Rf ${PREFIX}/include/amore_alf_glue.h
-	rm -Rf ${PREFIX}/include/mVCA_alf_glue.h
+	@echo
+	@echo removing libalf headers from ${INCLUDEDIR}/libalf...
+	@echo
+	rm -Rf ${INCLUDEDIR}/libalf
+	rm -Rf ${INCLUDEDIR}/amore_alf_glue.h
+	rm -Rf ${INCLUDEDIR}/mVCA_alf_glue.h
 

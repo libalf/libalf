@@ -1,4 +1,4 @@
-# $Id: Makefile 823 2009-09-04 14:01:27Z davidpiegdon $
+# $Id$
 # libalf Makefile
 
 .PHONY: install all clean

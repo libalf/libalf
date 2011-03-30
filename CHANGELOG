@@ -4,12 +4,16 @@ CHANGELOG
 for libalf, libAMoRE (local branch for libAMoRE++), libAMoRE++,
 liblangen, libmVCA and finite-automata-tools.
 
+all those tools are released together and share their
+version numbers until further notice.
 
 
-v0.3 "birte" (2011-03-24) [Birtes Birthday Version]
+
+v0.3   ( TO-BE-RELEASED )
 ---------------------------------------------------
-svn-revision 1462
+svn-revision HEAD
 
+- better install routines and versioning of objects
 - A lot of cleanup and bugfixes
 - all libraries: try to use better style to avoid cluttering namespace and other
 	library-related problems. this includes:

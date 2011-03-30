@@ -4,11 +4,15 @@
 
 .PHONY: all clean nodata jpegs learn_generic
 
-PREFIX ?= /usr/local
+PREFIX?=/usr/local
+LIBDIR?=${PREFIX}/lib
+INCLUDEDIR?=${PREFIX}/include
+BINDIR?=${PREFIX}/bin
+DOCDIR?=${PREFIX}/share/doc
 
-CPPFLAGS+=-I../../include -I${PREFIX}/include -Wall -ggdb3
+CPPFLAGS+=-I../../include -I${INCLUDEDIR} Wall -ggdb3
 
-LDFLAGS+=-L../../src -L${PREFIX}/lib -lalf -lAMoRE++ -lreadline
+LDFLAGS+=-L../../src -L${LIBDIR} -lalf -lAMoRE++ -lreadline
 
 all: learn_generic
 

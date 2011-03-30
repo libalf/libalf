@@ -3,17 +3,23 @@
 
 .PHONY: install uninstall
 
-PREFIX ?= /usr/local/
+PREFIX?=/usr/local
+LIBDIR?=${PREFIX}/lib
+INCLUDEDIR?=${PREFIX}/include
+BINDIR?=${PREFIX}/bin
+DOCDIR?=${PREFIX}/share/doc
 
 install:
-	echo installing libmVCA headers to ${PREFIX}/include/libmVCA...
-	mkdir -p ${PREFIX}/include/libmVCA/
-	rm -f ${PREFIX}/include/libmVCA/*
-	cp -Rv libmVCA/*.h ${PREFIX}/include/libmVCA/
-	chmod 755 ${PREFIX}/include/libmVCA
-	chmod 644 ${PREFIX}/include/libmVCA/*.h
+	@echo
+	@echo installing libmVCA headers to ${INCLUDEDIR} ...
+	@echo
+	-install -v -m 755 -d ${INCLUDEDIR}/libmVCA
+	rm -f ${INCLUDEDIR}/libmVCA/*
+	install -v -m 644 libmVCA/*.h ${INCLUDEDIR}/libmVCA
 
 uninstall:
-	echo removing libmVCA headers from ${PREFIX}/include/libmVCA...
-	rm -Rf ${PREFIX}/include/libmVCA
+	@echo
+	@echo removing libmVCA headers from ${INCLUDEDIR} ...
+	@echo
+	rm -Rf ${INCLUDEDIR}/libmVCA
 

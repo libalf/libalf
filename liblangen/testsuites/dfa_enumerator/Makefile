@@ -1,13 +1,17 @@
-# $Id: Makefile 583 2009-05-05 19:24:10Z davidpiegdon $
+# $Id$
 # dfa_enumerator testsuite Makefile
 
 .PHONY: all clean run nodata jpegs
 
-PREFIX ?= /usr/local
+PREFIX?=/usr/local
+LIBDIR?=${PREFIX}/lib
+INCLUDEDIR?=${PREFIX}/include
+BINDIR?=${PREFIX}/bin
+DOCDIR?=${PREFIX}/share/doc
 
-CPPFLAGS+=-I../../include -I${PREFIX}/include -Wall -ggdb3
+CPPFLAGS+=-I../../include -I${INCLUDEDIR} -Wall -ggdb3
 
-LDFLAGS+=-L../../src -L${PREFIX}/lib -llangen -lalf
+LDFLAGS+=-L../../src -L${LIBDIR} -llangen -lalf
 
 all: dfa_enumerator
 

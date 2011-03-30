@@ -3,17 +3,23 @@
 
 .PHONY: install uninstall
 
-PREFIX ?= /usr/local/
+PREFIX?=/usr/local
+LIBDIR?=${PREFIX}/lib
+INCLUDEDIR?=${PREFIX}/include
+BINDIR?=${PREFIX}/bin
+DOCDIR?=${PREFIX}/share/doc
 
 install:
-	echo installing liblangen headers to ${PREFIX}/include/liblangen...
-	mkdir -p ${PREFIX}/include/liblangen/
-	rm -f ${PREFIX}/include/liblangen/*
-	cp -Rv liblangen/*.h ${PREFIX}/include/liblangen/
-	chmod 755 ${PREFIX}/include/liblangen
-	chmod 644 ${PREFIX}/include/liblangen/*.h
+	@echo
+	@echo installing liblangen headers to ${INCLUDEDIR} ...
+	@echo
+	-install -v -m 755 -d ${INCLUDEDIR}/liblangen
+	rm -f ${INCLUDEDIR}/liblangen/*
+	install -v -m 644 liblangen/*.h ${INCLUDEDIR}/liblangen
 
 uninstall:
-	echo removing liblangen headers from ${PREFIX}/include/liblangen...
-	rm -Rf ${PREFIX}/include/liblangen
+	@echo
+	@echo removing liblangen headers from ${INCLUDEDIR} ...
+	@echo
+	rm -Rf ${INCLUDEDIR}/liblangen
 

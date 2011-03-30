@@ -1,8 +1,13 @@
-# $Id: Makefile 814 2009-09-04 08:28:54Z stefanschulz $
+# $Id$
 # libalf JNI Makefile
 
 .PHONY: all test_java_dir clean install windows-deps
 
+PREFIX?=/usr/local
+LIBDIR?=${PREFIX}/lib
+INCLUDEDIR?=${PREFIX}/include
+BINDIR?=${PREFIX}/bin
+DOCDIR?=${PREFIX}/share/doc
 
 ifeq (${OS}, Windows_NT)
   # FOR WINDOWS:
@@ -21,11 +26,11 @@ else
 endif
 
 
-CPPFLAGS += -I../include -I../../include -I${PREFIX}/include -I${JAVA_INCLUDE}
+CPPFLAGS += -I../include -I../../include -I${INCLUDEDIR} -I${JAVA_INCLUDE}
 CPPFLAGS += -shared -fpic
 
 
-LDFLAGS += -L${PREFIX}/lib -L${PREFIX}/src -L../../../libalf/src
+LDFLAGS += -L${LIBDIR} -L../../../libalf/src
 LDFLAGS += -shared
 
 

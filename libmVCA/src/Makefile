@@ -3,18 +3,35 @@
 
 .PHONY: all clean install uninstall
 
-PREFIX ?= /usr/local/
+PREFIX?=/usr/local
+LIBDIR?=${PREFIX}/lib
+INCLUDEDIR?=${PREFIX}/include
+BINDIR?=${PREFIX}/bin
+DOCDIR?=${PREFIX}/share/doc
 
-LOCALCHANGES := $(shell test "`svn status | wc -c`" != "0" && echo "-LocalChanges")
-SVNREVISION := $(shell LC_ALL=POSIX svn info | awk '/^Revision:/ {print $$2}')
-VERSION ?= svn-r${SVNREVISION}${LOCALCHANGES}
+VERSIONTAG:=$(shell cat "../version")
+ifeq (${VERSIONTAG},)
+# subversion branch
+LOCALCHANGES:=$(shell test "`svn status | wc -c`" != "0" && echo "-LocalChanges")
+SVNREVISION:=$(shell LC_ALL=POSIX svn info | awk '/^Revision:/ {print $$2}')
+VERSION?=svn-r${SVNREVISION}${LOCALCHANGES}
+LIBVERSIONTAG?=.svn
+else
+# release branch
+VERSION?=v${VERSIONTAG}
+LIBVERSIONTAG?=.${VERSIONTAG}
+endif
 
-CPPFLAGS+=-Wall -I../include/ -I${PREFIX}/include -shared -fpic -ggdb3
+INSTALL_SO_NAME=libmVCA.so${LIBVERSIONTAG}
+INSTALL_A_NAME=libmVCA.a${LIBVERSIONTAG}
+
+
+CPPFLAGS+=-Wall -I../include/ -I${INCLUDEDIR} -shared -fpic -ggdb3
 CPPFLAGS+=-Wextra
 CPPFLAGS+=-D__cplusplus -DVERSION="\"${VERSION}\""
 # for ubuntu, try disabling stack-smashing due to linker failures:
 #CPPFLAGS+=-fno-stack-protector
-LDFLAGS+=-shared -L${PREFIX}/lib
+LDFLAGS+=-shared -L${LIBDIR}
 
 SONAME=libmVCA
 
@@ -41,15 +58,27 @@ libmVCA.a: ${OBJECTS}
 clean:
 	-rm -f *.o libmVCA.so libmVCA.a
 
-install: libmVCA.so
-	echo installing libmVCA library to ${PREFIX}/lib/
-	mkdir -p ${PREFIX}/lib/
-	cp libmVCA.so ${PREFIX}/lib/
-	chmod 755 ${PREFIX}/lib/libmVCA.so
+install: libmVCA.so libmVCA.a
+	@echo
+	@echo installing libmVCA library to ${LIBDIR} ...
+	@echo
+	-install -v -m 755 -d ${LIBDIR}
+	install -T -v -m 755 libmVCA.so ${LIBDIR}/${INSTALL_SO_NAME}
+	install -T -v -m 755 libmVCA.a  ${LIBDIR}/${INSTALL_A_NAME}
+	# symlinks
+	-rm -f ${LIBDIR}/libmVCA.so
+	ln -s ${LIBDIR}/${INSTALL_SO_NAME} ${LIBDIR}/libmVCA.so
+	-rm -f ${LIBDIR}/libmVCA.a
+	ln -s ${LIBDIR}/${INSTALL_A_NAME}  ${LIBDIR}/libmVCA.a
 	-test `id -u` -eq 0 && /sbin/ldconfig; true
 
 uninstall:
-	echo removing libmVCA library from ${PREFIX}/lib/
-	rm ${PREFIX}/lib/libmVCA.so
+	@echo
+	@echo removing libmVCA library from ${LIBDIR} ...
+	@echo
+	rm ${LIBDIR}/${INSTALL_SO_NAME}
+	rm ${LIBDIR}/${INSTALL_A_NAME}
+	rm ${LIBDIR}/libmVCA.so
+	rm ${LIBDIR}/libmVCA.a
 	-test `id -u` -eq 0 && /sbin/ldconfig; true
 

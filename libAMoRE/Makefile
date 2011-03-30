@@ -1,19 +1,29 @@
-#
-#  libAMoRE Makefile
-#
-#  Copyright (c) 2008, 2009 - David R. Piegdon <david-i2@piegdon.de>
-#
-############################################################################
+# $Id$
+# libAMoRE Makefile
 
-PREFIX ?= /usr/local
+.PHONY: all clean doc install uninstall installHeaders uninstallHeaders installDocs uninstallDocs
 
-LIBDIR ?= ${PREFIX}/lib
-DOCDIR ?= ${PREFIX}/share/doc
-HEADERDIR ?= ${PREFIX}/include
+PREFIX?=/usr/local
+LIBDIR?=${PREFIX}/lib
+INCLUDEDIR?=${PREFIX}/include
+BINDIR?=${PREFIX}/bin
+DOCDIR?=${PREFIX}/share/doc
 
+VERSIONTAG:=$(shell cat "version")
+ifeq (${VERSIONTAG},)
+# subversion branch
 LOCALCHANGES := $(shell test "`svn status | wc -c`" != "0" && echo "-LocalChanges")
 SVNREVISION := $(shell LC_ALL=POSIX svn info | awk '/^Revision:/ {print $$2}')
 VERSION ?= libalf-svn-r${SVNREVISION}${LOCALCHANGES}
+LIBVERSIONTAG?=.svn
+else
+# release branch
+VERSION?=v${VERSIONTAG}
+LIBVERSIONTAG?=.${VERSIONTAG}
+endif
+
+INSTALL_SO_NAME=libAMoRE.so${LIBVERSIONTAG}
+INSTALL_A_NAME=libAMoRE.a${LIBVERSIONTAG}
 
 CFLAGS += -DDEBUG -DJAVAEXCEPT -DLIBAMORE -DUNIX -DLINUX -DBIT32
 CFLAGS += -DVERSION="\"${VERSION}\""
@@ -54,36 +64,62 @@ libAMoRE.a: $(OBJ)
 libAMoRE.so: $(OBJ)
 	gcc ${LDFLAGS} -o $@ $?
 
-docs/html/index.html:
-	$(MAKE) doc
+clean:
+	-rm -f *~ */*~ $(OBJ) libAMoRE.a libAMoRE.so libtest
+	-rm -Rf docs/html docs/latex 
 
 doc:
 	doxygen docs/Doxyfile-libAMoRE
 
-install: exportHeaders
-	+make all
-	cp libAMoRE.a $(LIBDIR)
-	chmod 644 $(LIBDIR)/libAMoRE.a
-	cp libAMoRE.so $(LIBDIR)
-	#strip $(LIBDIR)/libAMoRE.so
-	chmod 644 $(LIBDIR)/libAMoRE.so
+
+install: installHeaders all
+	@echo
+	@echo installing libAMoRE library to ${INCLUDEDIR} ...
+	@echo
+	-install -v -m 755 -d ${LIBDIR}
+	install -T -v -m 755 libAMoRE.so ${LIBDIR}/${INSTALL_SO_NAME}
+	install -T -v -m 755 libAMoRE.a ${LIBDIR}/${INSTALL_A_NAME}
+	# symlinks
+	-rm -f ${LIBDIR}/libAMoRE.so
+	ln -s ${LIBDIR}/${INSTALL_SO_NAME} ${LIBDIR}/libAMoRE.so
+	-rm -f ${LIBDIR}/libAMoRE.a
+	ln -s ${LIBDIR}/${INSTALL_A_NAME} ${LIBDIR}/libAMoRE.a
 	-test `id -u` -eq 0 && /sbin/ldconfig; true
 
-install-docs: docs/html/index.html
-	install -d $(DOCDIR)/libAMoRE/html 
-	install docs/html/* $(DOCDIR)/libAMoRE/html
 
-uninstall:
-	rm -f $(LIBDIR)/libAMoRE.a
-	rm -f $(HEADERDIR)/amore/*.h
+uninstall: uninstallHeaders
+	@echo
+	@echo removing libAMoRE library from ${INCLUDEDIR} ...
+	@echo
+	rm -f ${LIBDIR}/${INSTALL_SO_NAME}
+	rm -f ${LIBDIR}/${INSTALL_A_NAME}
+	rm -f ${LIBDIR}/libAMoRE.so
+	rm -f ${LIBDIR}/libAMoRE.a
 	-test `id -u` -eq 0 && /sbin/ldconfig; true
 
-exportHeaders:
-	install -d $(HEADERDIR)/amore
-	cp include/amore/* $(HEADERDIR)/amore
-	chmod 644 ${HEADERDIR}/amore/*
 
-clean:
-	-rm -f *~ */*~ $(OBJ) libAMoRE.a libAMoRE.so
-	-rm -Rf docs/html docs/latex 
+installHeaders:
+	@echo
+	@echo installing libAMoRE headers to ${INCLUDEDIR} ...
+	@echo
+	install -v -m 755 -d ${INCLUDEDIR}/amore
+	install -v -m 644 include/amore/* ${INCLUDEDIR}/amore
+uninstallHeaders:
+	@echo
+	@echo removing libAMoRE headers from ${INCLUDEDIR} ...
+	@echo
+	rm -Rf ${INCLUDEDIR}/amore
+
+
+installDocs: doc
+	@echo
+	@echo installing libAMoRE doc to ${DOCDIR} ...
+	@echo
+	install -v -m 755 -d $(DOCDIR)/libAMoRE/html 
+	install -v -m 644 docs/html/* $(DOCDIR)/libAMoRE/html
+uninstallDocs:
+	@echo
+	@echo removing libAMoRE doc from ${DOCDIR} ...
+	@echo
+	rm -Rf ${DOCDIR}/libAMoRE
 

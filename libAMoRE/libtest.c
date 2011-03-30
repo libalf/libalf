@@ -16,7 +16,6 @@
 /* libtest.c
  */
 
-#include <amore/libtest.h>
 #include <stdio.h>
 
 /* #include "obj.h" */

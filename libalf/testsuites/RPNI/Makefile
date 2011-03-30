@@ -3,11 +3,15 @@
 
 .PHONY: all clean jpegs
 
-PREFIX ?= /usr/local
+PREFIX?=/usr/local
+LIBDIR?=${PREFIX}/lib
+INCLUDEDIR?=${PREFIX}/include
+BINDIR?=${PREFIX}/bin
+DOCDIR?=${PREFIX}/share/doc
 
-CPPFLAGS+=-I../../include -I${PREFIX}/include -Wall -ggdb3
+CPPFLAGS+=-I../../include -I${INCLUDEDIR} -Wall -ggdb3
 
-LDFLAGS+=-L../../src -L${PREFIX}/lib -lm -lalf -lAMoRE++ -llangen
+LDFLAGS+=-L../../src -L${LIBDIR} -lm -lalf -lAMoRE++ -llangen
 
 all: rpni_static rpni_regex rpni_file rpni_angluin_tester
 

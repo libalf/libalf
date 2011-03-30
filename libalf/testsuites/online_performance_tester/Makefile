@@ -3,11 +3,15 @@
 
 .PHONY: all clean run jpegs test plot
 
-PREFIX ?= /usr/local
+PREFIX?=/usr/local
+LIBDIR?=${PREFIX}/lib
+INCLUDEDIR?=${PREFIX}/include
+BINDIR?=${PREFIX}/bin
+DOCDIR?=${PREFIX}/share/doc
 
-CPPFLAGS+=-I../../include -I${PREFIX}/include -Wall -ggdb3
+CPPFLAGS+=-I../../include -I${INCLUDEDIR} -Wall -ggdb3
 
-LDFLAGS+=-L../../src -L${PREFIX}/lib -lalf -llangen -lAMoRE++
+LDFLAGS+=-L../../src -L${LIBDIR} -lalf -llangen -lAMoRE++
 
 all: performance_test
 

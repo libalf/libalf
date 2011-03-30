@@ -3,11 +3,15 @@
 
 .PHONY: all clean run jpegs
 
-PREFIX ?= /usr/local
+PREFIX?=/usr/local
+LIBDIR?=${PREFIX}/lib
+INCLUDEDIR?=${PREFIX}/include
+BINDIR?=${PREFIX}/bin
+DOCDIR?=${PREFIX}/share/doc
 
-CPPFLAGS+=-I../../include -I../../../libAMoRE++/include -I${PREFIX}/include -Wall -ggdb3
+CPPFLAGS+=-I../../include -I../../../libAMoRE++/include -I${INCLUDEDIR} -Wall -ggdb3
 
-LDFLAGS+=-L../../src -L../../../libAMoRE++/src -L${PREFIX}/lib -L${PREFIX}/src
+LDFLAGS+=-L../../src -L../../../libAMoRE++/src -L${LIBDIR}
 
 all: learn_regex learn_file
 

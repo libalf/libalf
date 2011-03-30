@@ -3,12 +3,16 @@
 
 .PHONY: all clean run jpegs test
 
-PREFIX ?= /usr/local
+PREFIX?=/usr/local
+LIBDIR?=${PREFIX}/lib
+INCLUDEDIR?=${PREFIX}/include
+BINDIR?=${PREFIX}/bin
+DOCDIR?=${PREFIX}/share/doc
 
-CPPFLAGS+=-I../../include -I${PREFIX}/include -Wall -ggdb3
+CPPFLAGS+=-I../../include -I${INCLUDEDIR} -Wall -ggdb3
 
 # -lrt needed for clock_gettime()
-LDFLAGS+=-L../../src -L${PREFIX}/lib -lalf -lAMoRE++ -llangen -lrt
+LDFLAGS+=-L../../src -L${LIBDIR} -lalf -lAMoRE++ -llangen -lrt
 
 all: algorithm_analysis
 

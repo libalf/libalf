@@ -3,11 +3,15 @@
 
 .PHONY: all clean run jpegs test
 
-PREFIX ?= /usr/local
+PREFIX?=/usr/local
+LIBDIR?=${PREFIX}/lib
+INCLUDEDIR?=${PREFIX}/include
+BINDIR?=${PREFIX}/bin
+DOCDIR?=${PREFIX}/share/doc
 
-CPPFLAGS+=-I../../include -I${PREFIX}/include -Wall -Wextra -ggdb3
+CPPFLAGS+=-I../../include -I${INCLUDEDIR} -Wall -Wextra -ggdb3
 
-LDFLAGS+=-L../../src -L${PREFIX}/lib -lalf
+LDFLAGS+=-L../../src -L${LIBDIR} -lalf
 
 all: finite_automaton_from_file
 
