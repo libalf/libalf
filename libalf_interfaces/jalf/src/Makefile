@@ -64,7 +64,14 @@ clean:
 	-rm -f *.o libjalf.so jalf.dll
 
 install: all
-	@echo -e "\n\nNO JNI INSTALLED. generic rule is missing."
+	@echo
+	@echo "NO JNI INSTALLED. you need to decide on your own where to put it."
+	@echo
+
+uninstall:
+	@echo
+	@echo "JNI WAS NOT INSTALLED AUTOMATICALLY. so you have to remove it manually from wherever you put it."
+	@echo
 
 
 

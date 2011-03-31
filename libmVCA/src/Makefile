@@ -76,9 +76,9 @@ uninstall:
 	@echo
 	@echo removing libmVCA library from ${LIBDIR} ...
 	@echo
-	rm ${LIBDIR}/${INSTALL_SO_NAME}
-	rm ${LIBDIR}/${INSTALL_A_NAME}
-	rm ${LIBDIR}/libmVCA.so
-	rm ${LIBDIR}/libmVCA.a
+	rm -f ${LIBDIR}/${INSTALL_SO_NAME}
+	rm -f ${LIBDIR}/${INSTALL_A_NAME}
+	rm -f ${LIBDIR}/libmVCA.so
+	rm -f ${LIBDIR}/libmVCA.a
 	-test `id -u` -eq 0 && /sbin/ldconfig; true
 

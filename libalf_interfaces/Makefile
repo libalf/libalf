@@ -17,8 +17,10 @@ clean:
 
 install:
 	+make -C dispatcher install
+	+make -C jalf install
 
 uninstall:
 	+make -C dispatcher uninstall
+	+make -C jalf uninstall
 
 
