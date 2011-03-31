@@ -33,10 +33,10 @@ OBJECTS=fat.o input.o transformation.o output.o
 all: fat fateq
 
 fat: $(OBJECTS)
-	g++ $(OBJECTS) ${LDFLAGS} -llangen -lalf -lAMoRE++ -o $@
+	g++ $(OBJECTS) ${LDFLAGS} -llangen -lalf -lAMoRE++ -lAMoRE -o $@
 
 fateq: fateq.o
-	g++ fateq.o ${LDFLAGS} -lalf -lAMoRE++ -o $@
+	g++ fateq.o ${LDFLAGS} -lalf -lAMoRE++ -lAMoRE -o $@
 
 clean: nodata
 	-rm -f fat fateq *.o
@@ -51,6 +51,7 @@ install: fat fateq
 	@echo
 	@echo installing fat to ${BINDIR} ...
 	@echo
+	-install -v -m 755 -d ${BINDIR}
 	install -v -m 755 fat fateq ${BINDIR}
 
 uninstall:
