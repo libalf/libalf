@@ -4,11 +4,8 @@
 
 .PHONY: all clean nodata jpegs learn_generic
 
-PREFIX?=/usr/local
-LIBDIR?=${PREFIX}/lib
-INCLUDEDIR?=${PREFIX}/include
-BINDIR?=${PREFIX}/bin
-DOCDIR?=${PREFIX}/share/doc
+include ../../config.mk
+CXXFLAGS+=-Xlinker -rpath=${LIBDIR}
 
 CPPFLAGS+=-I../../include -I${INCLUDEDIR} -Wall -ggdb3
 
@@ -29,14 +26,14 @@ learn_generic: learn_generic_L learn_generic_Lcol learn_generic_RV
 	
 learn_generic_L: CPPFLAGS += -DALGORITHM=1
 learn_generic_L: learn_generic.cpp
-	g++ ${CPPFLAGS} ${LDFLAGS} learn_generic.cpp -o learn_generic_L
+	g++ ${CXXFLAGS} ${CPPFLAGS} ${LDFLAGS} learn_generic.cpp -o learn_generic_L
 
 learn_generic_Lcol: CPPFLAGS += -DALGORITHM=2
 learn_generic_Lcol: learn_generic.cpp
-	g++ ${CPPFLAGS} ${LDFLAGS} learn_generic.cpp -o learn_generic_Lcol
+	g++ ${CXXFLAGS} ${CPPFLAGS} ${LDFLAGS} learn_generic.cpp -o learn_generic_Lcol
 
 learn_generic_RV: CPPFLAGS += -DALGORITHM=3
 learn_generic_RV: CPPFLAGS += -DDEBUG_RIVEST_SCHAPIRE
 learn_generic_RV: learn_generic.cpp
-	g++ ${CPPFLAGS} ${LDFLAGS} learn_generic.cpp -o learn_generic_RV
+	g++ ${CXXFLAGS} ${CPPFLAGS} ${LDFLAGS} learn_generic.cpp -o learn_generic_RV
 

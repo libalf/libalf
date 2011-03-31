@@ -3,15 +3,12 @@
 
 .PHONY: all clean run jpegs
 
-PREFIX?=/usr/local
-LIBDIR?=${PREFIX}/lib
-INCLUDEDIR?=${PREFIX}/include
-BINDIR?=${PREFIX}/bin
-DOCDIR?=${PREFIX}/share/doc
+include ../../config.mk
+CXXFLAGS+=-Xlinker -rpath=${LIBDIR}
 
 CPPFLAGS+=-I../../include -I../../../libAMoRE++/include -I${INCLUDEDIR} -Wall -ggdb3
 
-LDFLAGS+=-L../../src -L../../../libAMoRE++/src -L${LIBDIR}
+LDFLAGS+=-L../../src -L../../../libAMoRE++/src -L${LIBDIR} -lAMoRE++ -lalf
 
 all: learn_regex learn_file
 
@@ -28,7 +25,6 @@ jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;
 
 learn_regex: learn_regex.cpp
-	g++ ${CPPFLAGS} ${LDFLAGS} learn_regex.cpp -o learn_regex -lAMoRE++ -lalf
 
 learn_file: learn_file.cpp
-	g++ ${CPPFLAGS} ${LDFLAGS} learn_file.cpp -o learn_file -lAMoRE++ -lalf
+

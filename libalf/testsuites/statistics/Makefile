@@ -3,11 +3,8 @@
 
 .PHONY: all clean
 
-PREFIX?=/usr/local
-LIBDIR?=${PREFIX}/lib
-INCLUDEDIR?=${PREFIX}/include
-BINDIR?=${PREFIX}/bin
-DOCDIR?=${PREFIX}/share/doc
+include ../../config.mk
+CXXFLAGS+=-Xlinker -rpath=${LIBDIR}
 
 CPPFLAGS+=-I../../include -I${INCLUDEDIR} -Wall -ggdb3
 

@@ -3,11 +3,7 @@
 
 .PHONY: install uninstall
 
-PREFIX?=/usr/local
-LIBDIR?=${PREFIX}/lib
-INCLUDEDIR?=${PREFIX}/include
-BINDIR?=${PREFIX}/bin
-DOCDIR?=${PREFIX}/share/doc
+include ../config.mk
 
 install:
 	@echo
