@@ -37,7 +37,7 @@ dispatcher: ${OBJECTS}
 	g++ ${OBJECTS} ${LDFLAGS} -lalf -o dispatcher
 
 dispatcher-static: ${OBJECTS}
-	make -C ../../src libalf.a
+	make -C ../../../libalf/src libalf.a
 	g++ ${OBJECTS} ${LDFLAGS} -static -lalf -o dispatcher
 
 clean:

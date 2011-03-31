@@ -28,6 +28,7 @@ endif
 
 CPPFLAGS += -I../include -I../../include -I${INCLUDEDIR} -I${JAVA_INCLUDE}
 CPPFLAGS += -shared -fpic
+CPPFLAGS += -O3
 
 
 LDFLAGS += -L${LIBDIR} -L../../../libalf/src
@@ -60,7 +61,7 @@ test_java_includes:
 	@echo
 
 clean:
-	-rm *.o libjalf.so jalf.dll
+	-rm -f *.o libjalf.so jalf.dll
 
 install: all
 	@echo -e "\n\nNO JNI INSTALLED. generic rule is missing."
@@ -70,22 +71,22 @@ install: all
 # Linux targets
 libjalf.so: test_java_includes ${OBJECTS}
 	+make -C ../../../libalf/src libalf.a
-	g++ ${LDFLAGS}  -Xlinker -soname=libjalf ../../../libalf/src/libalf.a  ${OBJECTS}  -o libjalf.so
+	g++ ${LDFLAGS} -Xlinker -soname=libjalf ../../../libalf/src/libalf.a ${OBJECTS} -o libjalf.so
 
 libjalf.so-dynamic: test_java_includes ${OBJECTS}
 	+make -C ../../../libalf/src libalf.so
-	g++ ${LDFLAGS}  -Xlinker -soname=libjalf -lalf  ${OBJECTS}  -o libjalf.so
+	g++ ${LDFLAGS} -Xlinker -soname=libjalf -lalf ${OBJECTS} -o libjalf.so
 
 
 # Windows targets
 jalf.dll: ${OBJECTS}
 	+make -C ../../../libalf/src libalf.a
-	g++ ${LDFLAGS}  ../../../libalf/src/libalf.a  ${OBJECTS}  -o jalf.dll -Wl,--kill-at
-#	                                                                      ^^^^^^^^^^^^^ needed for JNI-DLL (http://www.mingw.org/wiki/JNI-MinGW-DLL)
+	g++ ${LDFLAGS} ${OBJECTS} ../../../libalf/src/libalf.a -o jalf.dll -Wl,--kill-at
+#	                                                                   ^^^^^^^^^^^^^ needed for JNI-DLL (http://www.mingw.org/wiki/JNI-MinGW-DLL)
 jalf.dll-dynamic: ${OBJECTS}
-	+make -C ../../src libalf.dll
-	g++ ${LDFLAGS}  -lalf  ${OBJECTS}  -o jalf.dll -Wl,--kill-at
-#	                                               ^^^^^^^^^^^^^ needed for JNI-DLL (http://www.mingw.org/wiki/JNI-MinGW-DLL)
+	+make -C ../../../libalf/src libalf.dll
+	g++ -L../../../libalf/src ${LDFLAGS} -lalf ${OBJECTS} -o jalf.dll -Wl,--kill-at
+#	                                                                  ^^^^^^^^^^^^^ needed for JNI-DLL (http://www.mingw.org/wiki/JNI-MinGW-DLL)
 
 
 
