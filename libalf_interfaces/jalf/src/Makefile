@@ -42,7 +42,7 @@ CPPFLAGS += -shared -fpic
 CPPFLAGS += -O3
 
 
-LDFLAGS += -L${LIBDIR} -L../../../libalf/src
+LDFLAGS += -L${LIBDIR}
 LDFLAGS += -shared
 
 
@@ -96,23 +96,18 @@ uninstall:
 
 # Linux targets
 libjalf.so: test_java_includes ${OBJECTS}
-	+make -C ../../../libalf/src libalf.a
-	${CXX} ${LDFLAGS} -Xlinker -soname=libjalf ../../../libalf/src/libalf.a ${OBJECTS} -o libjalf.so
+	${CXX} ${LDFLAGS} -Xlinker -soname=libjalf ${LIBDIR}/libalf.a ${OBJECTS} -o libjalf.so
 
 libjalf.so-dynamic: test_java_includes ${OBJECTS}
-	+make -C ../../../libalf/src libalf.so
 	${CXX} ${LDFLAGS} -Xlinker -soname=libjalf -lalf ${OBJECTS} -o libjalf.so
 
 
 # Windows targets
 jalf.dll: ${OBJECTS}
-	+make -C ../../../libalf/src libalf.a
-	${CXX} ${LDFLAGS} ${OBJECTS} ../../../libalf/src/libalf.a -o jalf.dll -Wl,--kill-at
-#	                                                                   ^^^^^^^^^^^^^ needed for JNI-DLL (http://www.mingw.org/wiki/JNI-MinGW-DLL)
+	${CXX} ${LDFLAGS} ${OBJECTS} ${LIBDIR}/libalf.a -o jalf.dll -Wl,--kill-at
+
 jalf.dll-dynamic: ${OBJECTS}
-	+make -C ../../../libalf/src libalf.dll
-	${CXX} -L../../../libalf/src ${LDFLAGS} -lalf ${OBJECTS} -o jalf.dll -Wl,--kill-at
-#	                                                                  ^^^^^^^^^^^^^ needed for JNI-DLL (http://www.mingw.org/wiki/JNI-MinGW-DLL)
+	${CXX} ${LDFLAGS} ${OBJECTS} -lalf -o jalf.dll -Wl,--kill-at
 
 
 
