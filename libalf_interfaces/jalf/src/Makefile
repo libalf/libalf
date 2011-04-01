@@ -97,21 +97,21 @@ uninstall:
 # Linux targets
 libjalf.so: test_java_includes ${OBJECTS}
 	+make -C ../../../libalf/src libalf.a
-	${CPP} ${LDFLAGS} -Xlinker -soname=libjalf ../../../libalf/src/libalf.a ${OBJECTS} -o libjalf.so
+	${CXX} ${LDFLAGS} -Xlinker -soname=libjalf ../../../libalf/src/libalf.a ${OBJECTS} -o libjalf.so
 
 libjalf.so-dynamic: test_java_includes ${OBJECTS}
 	+make -C ../../../libalf/src libalf.so
-	${CPP} ${LDFLAGS} -Xlinker -soname=libjalf -lalf ${OBJECTS} -o libjalf.so
+	${CXX} ${LDFLAGS} -Xlinker -soname=libjalf -lalf ${OBJECTS} -o libjalf.so
 
 
 # Windows targets
 jalf.dll: ${OBJECTS}
 	+make -C ../../../libalf/src libalf.a
-	${CPP} ${LDFLAGS} ${OBJECTS} ../../../libalf/src/libalf.a -o jalf.dll -Wl,--kill-at
+	${CXX} ${LDFLAGS} ${OBJECTS} ../../../libalf/src/libalf.a -o jalf.dll -Wl,--kill-at
 #	                                                                   ^^^^^^^^^^^^^ needed for JNI-DLL (http://www.mingw.org/wiki/JNI-MinGW-DLL)
 jalf.dll-dynamic: ${OBJECTS}
 	+make -C ../../../libalf/src libalf.dll
-	${CPP} -L../../../libalf/src ${LDFLAGS} -lalf ${OBJECTS} -o jalf.dll -Wl,--kill-at
+	${CXX} -L../../../libalf/src ${LDFLAGS} -lalf ${OBJECTS} -o jalf.dll -Wl,--kill-at
 #	                                                                  ^^^^^^^^^^^^^ needed for JNI-DLL (http://www.mingw.org/wiki/JNI-MinGW-DLL)
 
 

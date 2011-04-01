@@ -33,7 +33,7 @@ OBJECTS=dfa_enumerator.o dfa_randomgenerator.o nfa_randomgenerator.o prng.o rege
 all:	liblangen.so liblangen.a
 
 liblangen.so: ${OBJECTS}
-	${CPP} $(OBJECTS) $(LDFLAGS) -o $@
+	${CXX} $(OBJECTS) $(LDFLAGS) -o $@
 
 liblangen.a: ${OBJECTS}
 	ar rcs $@ $(OBJECTS)

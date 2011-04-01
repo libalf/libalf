@@ -35,7 +35,7 @@ OBJECTS=amore.o finite_automaton.o nondeterministic_finite_automaton.o determini
 all:	libAMoRE++.so
 
 libAMoRE++.so: ${OBJECTS}
-	${CPP} $(OBJECTS) $(LDFLAGS) -o $@
+	${CXX} $(OBJECTS) $(LDFLAGS) -o $@
 
 libAMoRE++.a: ${OBJECTS}
 	ar crs $@ $?

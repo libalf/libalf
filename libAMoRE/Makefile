@@ -52,7 +52,7 @@ OBJ = global.o buffer.o liberror.o parse.o fileIO.o \
 all: libAMoRE.a libAMoRE.so
 
 libtest: libtest.c libAMoRE.so
-	$(CC) $(CFLAGS) -o $@ $< -g -L. -lAMoRE
+	${CC} ${CFLAGS} -o $@ $< -g -L. -lAMoRE
 
 libAMoRE.a: $(OBJ)
 	ar crs $@ $?

@@ -30,11 +30,11 @@ OBJECTS=main.o serversocket.o servant.o co_learning_algorithm.o co_knowledgebase
 all:	dispatcher
 
 dispatcher: ${OBJECTS}
-	${CPP} ${OBJECTS} ${LDFLAGS} -lalf -o dispatcher
+	${CXX} ${OBJECTS} ${LDFLAGS} -lalf -o dispatcher
 
 dispatcher-static: ${OBJECTS}
 	make -C ../../../libalf/src libalf.a
-	${CPP} ${OBJECTS} ${LDFLAGS} -static -lalf -o dispatcher
+	${CXX} ${OBJECTS} ${LDFLAGS} -static -lalf -o dispatcher
 
 clean:
 	-rm -f dispatcher *.o

@@ -28,6 +28,7 @@ CPPFLAGS+=-D__cplusplus -DVERSION="\"${VERSION}\""
 #CPPFLAGS+=-fno-stack-protector
 LDFLAGS+=-shared -L${LIBDIR}
 
+
 OBJECTS=alf.o alphabet.o conjecture.o basic_string.o learning_algorithm.o logger.o minisat_solver.o normalizer_msc.o statistics.o
 
 ifeq (${OS}, Windows_NT)
@@ -40,10 +41,10 @@ endif
 all:	${TARGET}
 
 libalf.so: ${OBJECTS}
-	${CPP} $(OBJECTS) $(LDFLAGS) -o $@ 
+	${CXX} $(OBJECTS) $(LDFLAGS) -o $@ 
 
 libalf.dll: ${OBJECTS}
-	${CPP} $(OBJECTS) $(LDFLAGS) -o $@ 
+	${CXX} $(OBJECTS) $(LDFLAGS) -o $@ 
 
 libalf.a: ${OBJECTS}
 	ar rcs $@ $(OBJECTS)
