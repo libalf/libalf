@@ -40,10 +40,10 @@ endif
 all:	${TARGET}
 
 libalf.so: ${OBJECTS}
-	g++ $(OBJECTS) $(LDFLAGS) -o $@ 
+	${CPP} $(OBJECTS) $(LDFLAGS) -o $@ 
 
 libalf.dll: ${OBJECTS}
-	g++ $(OBJECTS) $(LDFLAGS) -o $@ 
+	${CPP} $(OBJECTS) $(LDFLAGS) -o $@ 
 
 libalf.a: ${OBJECTS}
 	ar rcs $@ $(OBJECTS)

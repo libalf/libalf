@@ -43,10 +43,10 @@ endif
 all:	${TARGET}
 
 libmVCA.so: ${OBJECTS}
-	g++ $(OBJECTS) $(LDFLAGS) -o $@ 
+	${CPP} $(OBJECTS) $(LDFLAGS) -o $@ 
 
 libmVCA.dll: ${OBJECTS}
-	g++ $(OBJECTS) $(LDFLAGS) -o $@ 
+	${CPP} $(OBJECTS) $(LDFLAGS) -o $@ 
 
 libmVCA.a: ${OBJECTS}
 	ar rcs $@ $(OBJECTS)

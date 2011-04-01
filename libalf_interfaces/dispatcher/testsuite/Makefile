@@ -9,7 +9,7 @@ LDFLAGS+=
 all:	protocol
 
 protocol: protocol.o
-	g++ protocol.o ${LDFLAGS} -o protocol
+	${CPP} protocol.o ${LDFLAGS} -o protocol
 
 clean:
 	-rm -f protocol *.o

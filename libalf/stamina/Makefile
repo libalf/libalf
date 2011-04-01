@@ -15,7 +15,7 @@ LDFLAGS+=-L../src -lalf
 all:	stamina
 
 stamina: stamina.cpp stamina.h
-	g++ ${CPPFLAGS} ${LDFLAGS} stamina.cpp -o stamina
+	${CPP} ${CPPFLAGS} ${LDFLAGS} stamina.cpp -o stamina
 
 clean:
 	-rm -f *.o stamina

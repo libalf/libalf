@@ -58,7 +58,7 @@ libAMoRE.a: $(OBJ)
 	ar crs $@ $?
 
 libAMoRE.so: $(OBJ)
-	gcc ${LDFLAGS} -o $@ $?
+	${CC} ${LDFLAGS} -o $@ $?
 
 clean:
 	-rm -f *~ */*~ $(OBJ) libAMoRE.a libAMoRE.so libtest

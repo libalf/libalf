@@ -26,14 +26,14 @@ learn_generic: learn_generic_L learn_generic_Lcol learn_generic_RV
 	
 learn_generic_L: CPPFLAGS += -DALGORITHM=1
 learn_generic_L: learn_generic.cpp
-	g++ ${CXXFLAGS} ${CPPFLAGS} ${LDFLAGS} learn_generic.cpp -o learn_generic_L
+	${CPP} ${CXXFLAGS} ${CPPFLAGS} ${LDFLAGS} learn_generic.cpp -o learn_generic_L
 
 learn_generic_Lcol: CPPFLAGS += -DALGORITHM=2
 learn_generic_Lcol: learn_generic.cpp
-	g++ ${CXXFLAGS} ${CPPFLAGS} ${LDFLAGS} learn_generic.cpp -o learn_generic_Lcol
+	${CPP} ${CXXFLAGS} ${CPPFLAGS} ${LDFLAGS} learn_generic.cpp -o learn_generic_Lcol
 
 learn_generic_RV: CPPFLAGS += -DALGORITHM=3
 learn_generic_RV: CPPFLAGS += -DDEBUG_RIVEST_SCHAPIRE
 learn_generic_RV: learn_generic.cpp
-	g++ ${CXXFLAGS} ${CPPFLAGS} ${LDFLAGS} learn_generic.cpp -o learn_generic_RV
+	${CPP} ${CXXFLAGS} ${CPPFLAGS} ${LDFLAGS} learn_generic.cpp -o learn_generic_RV
 

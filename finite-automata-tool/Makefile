@@ -29,10 +29,10 @@ OBJECTS=fat.o input.o transformation.o output.o
 all: fat fateq
 
 fat: $(OBJECTS)
-	g++ $(OBJECTS) ${LDFLAGS} -llangen -lalf -lAMoRE++ -lAMoRE -o $@
+	${CPP} $(OBJECTS) ${LDFLAGS} -llangen -lalf -lAMoRE++ -lAMoRE -o $@
 
 fateq: fateq.o
-	g++ fateq.o ${LDFLAGS} -lalf -lAMoRE++ -lAMoRE -o $@
+	${CPP} fateq.o ${LDFLAGS} -lalf -lAMoRE++ -lAMoRE -o $@
 
 clean: nodata
 	-rm -f fat fateq *.o
