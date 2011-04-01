@@ -8,6 +8,5 @@ LIBDIR?=${PREFIX}/lib
 INCLUDEDIR?=${PREFIX}/include
 BINDIR?=${PREFIX}/bin
 SHAREDIR?=${PREFIX}/share
-JARDIR?=${SHAREDIR}/libalf
-DOCDIR?=${SHAREDIR}/doc/libalf
+DOCDIR?=${SHAREDIR}/doc/libmVCA
 

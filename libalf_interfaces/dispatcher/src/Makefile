@@ -3,11 +3,7 @@
 
 .PHONY: all clean install uninstall
 
-PREFIX?=/usr/local
-LIBDIR?=${PREFIX}/lib
-INCLUDEDIR?=${PREFIX}/include
-BINDIR?=${PREFIX}/bin
-DOCDIR?=${PREFIX}/share/doc
+include ../../config.mk
 
 VERSIONTAG:=$(shell cat "../../version")
 ifeq (${VERSIONTAG},)
@@ -22,12 +18,12 @@ VERSION?=v${VERSIONTAG}
 LIBVERSIONTAG?=.${VERSIONTAG}
 endif
 
-CPPFLAGS+=-Wall -I../../include/ -I ../include/ -I${PREFIX}/include -ggdb3
+CPPFLAGS+=-Wall -I ../include/ -I${INCLUDEDIR} -ggdb3
 #CPPFLAGS+=-Wextra
 CPPFLAGS+=-D__cplusplus -DVERSION="\"${VERSION}\"" -DVERBOSE_DEBUG
 # for ubuntu, try disabling stack-smashing due to linker failures:
 CPPFLAGS+=-fno-stack-protector
-LDFLAGS+=-L${PREFIX}/lib -L../../../libalf/src
+LDFLAGS+=-L${LIBDIR} -L../../../libalf/src
 
 OBJECTS=main.o serversocket.o servant.o co_learning_algorithm.o co_knowledgebase.o co_knowledgebase_iterator.o co_logger.o co_normalizer.o
 

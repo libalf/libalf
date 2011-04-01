@@ -3,13 +3,9 @@
 
 .PHONY: all clean jpegs install uninstall
 
-PREFIX?=/usr/local
-LIBDIR?=${PREFIX}/lib
-INCLUDEDIR?=${PREFIX}/include
-BINDIR?=${PREFIX}/bin
-DOCDIR?=${PREFIX}/share/doc
+include config.mk
 
-VERSIONTAG:=$(shell cat "../version")
+VERSIONTAG:=$(shell cat "version")
 ifeq (${VERSIONTAG},)
 # subversion branch
 LOCALCHANGES:=$(shell test "`svn status | wc -c`" != "0" && echo "-LocalChanges")

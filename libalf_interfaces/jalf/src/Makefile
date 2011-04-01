@@ -3,11 +3,22 @@
 
 .PHONY: all test_java_dir clean install windows-deps
 
-PREFIX?=/usr/local
-LIBDIR?=${PREFIX}/lib
-INCLUDEDIR?=${PREFIX}/include
-BINDIR?=${PREFIX}/bin
-DOCDIR?=${PREFIX}/share/doc
+include ../../config.mk
+
+VERSIONTAG:=$(shell cat "../../version")
+ifeq (${VERSIONTAG},)
+# subversion branch
+LOCALCHANGES:=$(shell test "`svn status | wc -c`" != "0" && echo "-LocalChanges")
+SVNREVISION:=$(shell LC_ALL=POSIX svn info | awk '/^Revision:/ {print $$2}')
+VERSION?=svn-r${SVNREVISION}${LOCALCHANGES}
+LIBVERSIONTAG?=.svn
+else
+# release branch
+VERSION?=v${VERSIONTAG}
+LIBVERSIONTAG?=.${VERSIONTAG}
+endif
+
+INSTALL_SO_NAME=libjalf.so${LIBVERSIONTAG}
 
 ifeq (${OS}, Windows_NT)
   # FOR WINDOWS:
@@ -26,7 +37,7 @@ else
 endif
 
 
-CPPFLAGS += -I../include -I../../include -I${INCLUDEDIR} -I${JAVA_INCLUDE}
+CPPFLAGS += -I../include -I${INCLUDEDIR} -I${JAVA_INCLUDE}
 CPPFLAGS += -shared -fpic
 CPPFLAGS += -O3
 
@@ -65,14 +76,22 @@ clean:
 
 install: all
 	@echo
-	@echo "NO JNI INSTALLED. you need to decide on your own where to put it."
+	@echo installing libjalf.so to ${LIBDIR} ...
 	@echo
+	-install -v -m 755 -d ${LIBDIR}
+	install -T -v -m 755 libjalf.so ${LIBDIR}/${INSTALL_SO_NAME}
+	# symlinks
+	-rm -f ${LIBDIR}/libjalf.so
+	ln -s ${LIBDIR}/${INSTALL_SO_NAME} ${LIBDIR}/libjalf.so
+	-test `id -u` -eq 0 && /sbin/ldconfig; true
 
 uninstall:
 	@echo
-	@echo "JNI WAS NOT INSTALLED AUTOMATICALLY. so you have to remove it manually from wherever you put it."
+	@echo removing libjalf.so from ${LIBDIR} ...
 	@echo
-
+	rm -f ${LIBDIR}/${INSTALL_SO_NAME}
+	rm -f ${LIBDIR}/libjalf.so
+	-test `id -u` -eq 0 && /sbin/ldconfig; true
 
 
 # Linux targets

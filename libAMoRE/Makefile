@@ -3,11 +3,7 @@
 
 .PHONY: all clean doc install uninstall installHeaders uninstallHeaders installDocs uninstallDocs
 
-PREFIX?=/usr/local
-LIBDIR?=${PREFIX}/lib
-INCLUDEDIR?=${PREFIX}/include
-BINDIR?=${PREFIX}/bin
-DOCDIR?=${PREFIX}/share/doc
+include config.mk
 
 VERSIONTAG:=$(shell cat "version")
 ifeq (${VERSIONTAG},)

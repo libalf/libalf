@@ -1,8 +1,10 @@
 # Makefile for TeX->pdf
 #
 
+include config.mk
+
 TEX = /usr/bin/latex
-.PHONY : libalf.pdf all final clean
+.PHONY : all final clean
 
 TEXTS = $(shell echo *.tex)
 
@@ -19,4 +21,18 @@ libalf.pdf:
 	pdflatex libalf.tex
 	#-bibtex libalf
 	pdflatex libalf.tex
+
+install: libalf.pdf
+	@echo
+	@echo installing libalf manual to ${DOCDIR} ...
+	@echo
+	-install -v -m 755 -d ${DOCDIR}
+	install -v -m 755 libalf.pdf ${DOCDIR}
+
+uninstall:
+	@echo
+	@echo removing libalf manual from ${DOCDIR} ...
+	@echo
+	rm -f ${DOCDIR}/libalf.pdf
+	-rmdir ${DOCDIR}
 

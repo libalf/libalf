@@ -3,6 +3,8 @@
 
 .PHONY: all clean install uninstall testsuites
 
+include config.mk
+
 all:
 	+make -C dispatcher all
 	+make -C jalf all
@@ -22,5 +24,6 @@ install:
 uninstall:
 	+make -C dispatcher uninstall
 	+make -C jalf uninstall
+	-rmdir ${JARDIR}
 
 

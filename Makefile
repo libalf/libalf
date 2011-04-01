@@ -10,6 +10,7 @@ all:
 	+make -C libalf
 	+make -C finite-automata-tool
 	+make -C libalf_interfaces
+	+make -C manual all
 
 clean:
 	-rm *.tar.bz2
@@ -21,6 +22,7 @@ clean:
 	+make -C libalf clean
 	+make -C finite-automata-tool clean
 	+make -C libalf_interfaces clean
+	+make -C manual clean
 
 install:
 	+make -C libAMoRE install
@@ -30,6 +32,7 @@ install:
 	+make -C libalf install
 	+make -C finite-automata-tool install
 	+make -C libalf_interfaces install
+	+make -C manual install
 
 uninstall:
 	+make -C libAMoRE uninstall
@@ -39,4 +42,5 @@ uninstall:
 	+make -C libalf uninstall
 	+make -C finite-automata-tool uninstall
 	+make -C libalf_interfaces uninstall
+	+make -C manual uninstall
 
