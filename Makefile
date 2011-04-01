@@ -33,6 +33,9 @@ install:
 	+make -C finite-automata-tool install
 	+make -C libalf_interfaces install
 	+make -C manual install
+	@echo
+	@echo installation finished
+	@echo
 
 uninstall:
 	+make -C libAMoRE uninstall
@@ -43,4 +46,6 @@ uninstall:
 	+make -C finite-automata-tool uninstall
 	+make -C libalf_interfaces uninstall
 	+make -C manual uninstall
-
+	@echo
+	@echo deinstallation finished
+	@echo
