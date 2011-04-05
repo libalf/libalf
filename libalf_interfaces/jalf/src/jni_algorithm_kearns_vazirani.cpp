@@ -116,3 +116,4 @@ JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithmKearnsVazirani_set_1binary
 	// Forward method call
 	return algorithm->set_binary_search(use_binary_search);
 }
+

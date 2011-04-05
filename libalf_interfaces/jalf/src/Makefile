@@ -18,16 +18,16 @@ VERSION?=v${VERSIONTAG}
 LIBVERSIONTAG?=.${VERSIONTAG}
 endif
 
-INSTALL_SO_NAME=libjalf.so${LIBVERSIONTAG}
-
+# Choose OS
 ifeq (${OS}, Windows_NT)
   # FOR WINDOWS:
   # - use MinGW (tested with MinGW-GCC 3.4)
   # - get LibGMP (e.g. http://progressive-living.com/opensource/gmp/gmp-4.2.2_win_lib_h.zip)
   # - set JAVA_INCLUDE (at the top of this file) to your JDK include path
+  #   When cross-compiling, make sure that you point to the include path of the JDK of the target system!
   JAVA_INCLUDE ?= c:\Progra~1\Java\JDK16~1.0_1\include
   CPPFLAGS += -I${JAVA_INCLUDE}/win32
-  LDFLAGS += -lws2_32
+  #LDFLAGS += -lws2_32
   TARGET=jalf.dll
 else
   # assuming linux
@@ -36,15 +36,14 @@ else
   TARGET=libjalf.so
 endif
 
+INSTALL_SHARED_NAME=${TARGET}${LIBVERSIONTAG}
 
 CPPFLAGS += -I../include -I${INCLUDEDIR} -I${JAVA_INCLUDE}
 CPPFLAGS += -shared -fpic
 CPPFLAGS += -O3
 
-
 LDFLAGS += -L${LIBDIR}
 LDFLAGS += -shared
-
 
 OBJECTS =	jni_tools.o					\
 		jni_object.o 					\
@@ -76,21 +75,21 @@ clean:
 
 install: all
 	@echo
-	@echo installing libjalf.so to ${LIBDIR} ...
+	@echo installing ${TARGET} to ${LIBDIR} ...
 	@echo
 	-install -v -m 755 -d ${LIBDIR}
-	install -T -v -m 755 libjalf.so ${LIBDIR}/${INSTALL_SO_NAME}
+	install -T -v -m 755 ${TARGET} ${LIBDIR}/${INSTALL_SHARED_NAME}
 	# symlinks
-	-rm -f ${LIBDIR}/libjalf.so
-	ln -s ${LIBDIR}/${INSTALL_SO_NAME} ${LIBDIR}/libjalf.so
+	-rm -f ${LIBDIR}/${TARGET}
+	ln -s ${LIBDIR}/${INSTALL_SHARED_NAME} ${LIBDIR}/${TARGET}
 	-test `id -u` -eq 0 && /sbin/ldconfig; true
 
 uninstall:
 	@echo
-	@echo removing libjalf.so from ${LIBDIR} ...
+	@echo removing ${TARGET} from ${LIBDIR} ...
 	@echo
-	rm -f ${LIBDIR}/${INSTALL_SO_NAME}
-	rm -f ${LIBDIR}/libjalf.so
+	rm -f ${LIBDIR}/${INSTALL_SHARED_NAME}
+	rm -f ${LIBDIR}/${TARGET}
 	-test `id -u` -eq 0 && /sbin/ldconfig; true
 
 
@@ -104,10 +103,10 @@ libjalf.so-dynamic: test_java_includes ${OBJECTS}
 
 # Windows targets
 jalf.dll: ${OBJECTS}
-	${CXX} ${LDFLAGS} ${OBJECTS} ${LIBDIR}/libalf.a -o jalf.dll -Wl,--kill-at
+	${CXX} ${LDFLAGS} ${OBJECTS} ${LIBDIR}/libalf.a -lws2_32 -o jalf.dll -Wl,--kill-at
 
 jalf.dll-dynamic: ${OBJECTS}
-	${CXX} ${LDFLAGS} ${OBJECTS} -lalf -o jalf.dll -Wl,--kill-at
+	${CXX} ${LDFLAGS} ${OBJECTS} -lalf -lws2_32 -o jalf.dll -Wl,--kill-at
 
 
 

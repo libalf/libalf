@@ -69,3 +69,4 @@ JNIEXPORT jint JNICALL Java_de_libalf_jni_JNIAlgorithmBiermannOriginal_get_1nond
 	// Forward method call
 	return algorithm->get_nondeterminism();
 }
+
