@@ -45,7 +45,7 @@ all:	${TARGET}
 libmVCA.so: ${OBJECTS}
 	${CXX} $(OBJECTS) $(LDFLAGS) -o $@ 
 
-libmVCA.dll: ${OBJECTS}
+mVCA.dll: ${OBJECTS}
 	${CXX} $(OBJECTS) $(LDFLAGS) -o $@ -lws2_32
 
 libmVCA.a: ${OBJECTS}

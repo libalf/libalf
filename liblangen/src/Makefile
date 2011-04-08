@@ -42,6 +42,9 @@ all:	${TARGET} liblangen.a
 liblangen.so: ${OBJECTS}
 	${CXX} $(OBJECTS) $(LDFLAGS) -o $@
 
+langen.dll: ${OBJECTS}
+	${CXX} $(OBJECTS) $(LDFLAGS) -o $@
+
 liblangen.a: ${OBJECTS}
 	${AR} rcs $@ $(OBJECTS)
 
