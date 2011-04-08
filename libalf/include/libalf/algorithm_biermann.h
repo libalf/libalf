@@ -282,7 +282,7 @@ class basic_biermann : public learning_algorithm<answer> {
 				(*this->my_logger)(LOGGER_WARN, "biermann: differing alphabet size between this (%d) and knowledgebase (%d)!\n",
 						this->get_alphabet_size(), this->my_knowledge->get_largest_symbol());
 			mapping old_solution;
-			int old_size;
+			int old_size = -1;
 
 			// clear old data
 			constraints.clear();
@@ -403,6 +403,8 @@ class basic_biermann : public learning_algorithm<answer> {
 							constraint.l1 = ki1->get_selfptr();
 							constraint.l2 = ki2->get_selfptr();
 							constraint.has_second = false;
+							constraint.l3 = NULL;
+							constraint.l4 = NULL;
 
 							sources.insert(ki1->get_selfptr());
 							sources.insert(ki2->get_selfptr());

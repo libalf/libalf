@@ -256,7 +256,7 @@ class MiniSat_biermann : public basic_biermann<answer> {
 				for(vsi = vars.begin(); vsi != vars.end(); vsi++) {
 					std::vector<Var>::iterator vi;
 					bool assigned = false;
-					int stateid;
+					int stateid = -1;
 					int i;
 					for(i = 0, vi = vsi->second.begin(); vi != vsi->second.end(); i++, vi++, vindex++) {
 						if(solver.model[vindex] == l_True) {
