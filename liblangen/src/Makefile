@@ -36,7 +36,7 @@ liblangen.so: ${OBJECTS}
 	${CXX} $(OBJECTS) $(LDFLAGS) -o $@
 
 liblangen.a: ${OBJECTS}
-	ar rcs $@ $(OBJECTS)
+	${AR} rcs $@ $(OBJECTS)
 
 clean:
 	-rm -f *.o liblangen.so liblangen.a

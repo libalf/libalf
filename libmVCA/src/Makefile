@@ -49,7 +49,7 @@ libmVCA.dll: ${OBJECTS}
 	${CXX} $(OBJECTS) $(LDFLAGS) -o $@ 
 
 libmVCA.a: ${OBJECTS}
-	ar rcs $@ $(OBJECTS)
+	${AR} rcs $@ $(OBJECTS)
 
 clean:
 	-rm -f *.o libmVCA.so libmVCA.a

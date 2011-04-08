@@ -55,7 +55,7 @@ libtest: libtest.c libAMoRE.so
 	${CC} ${CFLAGS} -o $@ $< -g -L. -lAMoRE
 
 libAMoRE.a: $(OBJ)
-	ar crs $@ $?
+	${AR} crs $@ $?
 
 libAMoRE.so: $(OBJ)
 	${CC} ${LDFLAGS} -o $@ $?

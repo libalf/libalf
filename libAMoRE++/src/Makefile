@@ -38,7 +38,7 @@ libAMoRE++.so: ${OBJECTS}
 	${CXX} $(OBJECTS) $(LDFLAGS) -o $@
 
 libAMoRE++.a: ${OBJECTS}
-	ar crs $@ $?
+	${AR} crs $@ $?
 
 clean:
 	-rm -f *.o libAMoRE++.so libAMoRE++.a
