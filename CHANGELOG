@@ -9,9 +9,9 @@ version numbers until further notice.
 
 
 
-v0.3   (2011-04-08 16:40:00 )
+v0.3   (2011-04-08 17:00:00)
 ---------------------------------------------------
-svn-revision 1486
+svn-revision 1490
 
 - Better install routines and versioning of objects
 - Compilation on Windows improved
@@ -39,6 +39,7 @@ svn-revision 1486
 	however, in simple cases, one can also use int or char.
 - libAMoRE++: Bug fixed that made antichains fail for deterministic automata
 - libAMoRE++: added regex functions for finite_automata.
+- libAMoRE: automatically include vars required by libAMoRE that were defined in vars.h
 - finite automata tools: new output "regex".
 
 
