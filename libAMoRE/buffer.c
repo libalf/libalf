@@ -36,19 +36,10 @@
  */
 /******************************************************************/
 /******************************************************************/
-#ifdef DOS
-#define BUFPOS	    6		/* number of tries to fetch memory from the OS */
-#define BUFS_BIG    20000	/* buffer size */
-#define BUFS_SMALL  10000	/* buffer size */
-#define BUFSBSWITCH 2		/* switch from small to big */
-#endif
-
-#ifdef UNIX
 #define BUFPOS	     15		/* number of tries to fetch memory from the OS */
 #define BUFS_BIG     1048576	/* buffer size */
 #define BUFS_SMALL   524288	/* buffer size */
 #define BUFSBSWITCH  8		/* switch from small to big */
-#endif
 
 /* L2BITS: the two least sig. bits
  * MULTOF: addresses should start at numbers which are divisible by MULTOF 
