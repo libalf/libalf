@@ -31,7 +31,11 @@
 #include <set>
 #include <map>
 
-#include <arpa/inet.h>
+#ifdef _WIN32
+# include <winsock.h>
+#else
+# include <arpa/inet.h>
+#endif
 
 #include "amore++/finite_automaton.h"
 #include "amore++/deterministic_finite_automaton.h"

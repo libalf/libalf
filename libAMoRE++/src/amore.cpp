@@ -24,9 +24,6 @@
 
 #include <amore/ext.h>
 #include <amore/buffer.h>
-// <amore/vars> defines specific vars required by libAMoRE-1.0,
-// like the alphabet
-#include <amore/vars.h>
 
 void _init()
 {

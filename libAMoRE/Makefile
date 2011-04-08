@@ -18,17 +18,24 @@ VERSION?=v${VERSIONTAG}
 LIBVERSIONTAG?=.${VERSIONTAG}
 endif
 
-INSTALL_SO_NAME=libAMoRE.so${LIBVERSIONTAG}
-INSTALL_A_NAME=libAMoRE.a${LIBVERSIONTAG}
+# Choose OS
+ifeq (${OS}, Windows_NT)
+  LDFLAGS += -lws2_32
+  TARGET=AMoRE.dll
+else
+  TARGET=libAMoRE.so
+  CFLAGS += -DUNIX -DLINUX
+endif
 
-CFLAGS += -DDEBUG -DJAVAEXCEPT -DLIBAMORE -DUNIX -DLINUX -DBIT32
+INSTALL_SHARED_NAME=${TARGET}${LIBVERSIONTAG}
+INSTALL_STATIC_NAME=libAMoRE.a${LIBVERSIONTAG}
+
+CFLAGS += -DDEBUG -DJAVAEXCEPT -DLIBAMORE -DBIT32
 CFLAGS += -DVERSION="\"${VERSION}\""
 CFLAGS += -Wall -Iinclude -fpic
 CFLAGS += -fno-stack-protector
-CFLAGS += -ggdb3
 
 LDFLAGS += -fpic -shared
-LDFLAGS += -ggdb3
 
 # data objects
 LdoOBJ = nfa.o dfa.o regexp.o sfexp.o mon.o language.o rexFromString.o
@@ -47,9 +54,9 @@ OBJ = global.o buffer.o liberror.o parse.o fileIO.o \
 	$(addprefix ldo/,   $(LdoOBJ))       \
 	$(addprefix transf/,$(TransfOBJ))    \
 	$(addprefix test/,  $(TestOBJ))      \
-	atime.o debugPrint.o 
+	debugPrint.o 
 
-all: libAMoRE.a libAMoRE.so
+all: libAMoRE.a ${TARGET}
 
 libtest: libtest.c libAMoRE.so
 	${CC} ${CFLAGS} -o $@ $< -g -L. -lAMoRE
@@ -60,8 +67,11 @@ libAMoRE.a: $(OBJ)
 libAMoRE.so: $(OBJ)
 	${CC} ${LDFLAGS} -o $@ $?
 
+AMoRE.dll: $(OBJ)
+	${CC} ${LDFLAGS} -o $@ $?
+	
 clean:
-	-rm -f *~ */*~ $(OBJ) libAMoRE.a libAMoRE.so libtest
+	-rm -f *~ */*~ $(OBJ) libAMoRE.a libAMoRE.so AMoRE.dll libtest
 	-rm -Rf docs/html docs/latex 
 
 doc:
@@ -73,13 +83,13 @@ install: installHeaders all
 	@echo installing libAMoRE library to ${INCLUDEDIR} ...
 	@echo
 	-install -v -m 755 -d ${LIBDIR}
-	install -T -v -m 755 libAMoRE.so ${LIBDIR}/${INSTALL_SO_NAME}
-	install -T -v -m 755 libAMoRE.a ${LIBDIR}/${INSTALL_A_NAME}
+	install -T -v -m 755 ${TARGET} ${LIBDIR}/${INSTALL_SHARED_NAME}
+	install -T -v -m 755 libAMoRE.a ${LIBDIR}/${INSTALL_STATIC_NAME}
 	# symlinks
-	-rm -f ${LIBDIR}/libAMoRE.so
-	ln -s ${LIBDIR}/${INSTALL_SO_NAME} ${LIBDIR}/libAMoRE.so
+	-rm -f ${LIBDIR}/${TARGET}
+	ln -s ${LIBDIR}/${INSTALL_SHARED_NAME} ${LIBDIR}/${TARGET}
 	-rm -f ${LIBDIR}/libAMoRE.a
-	ln -s ${LIBDIR}/${INSTALL_A_NAME} ${LIBDIR}/libAMoRE.a
+	ln -s ${LIBDIR}/${INSTALL_STATIC_NAME} ${LIBDIR}/libAMoRE.a
 	-test `id -u` -eq 0 && /sbin/ldconfig; true
 
 
@@ -87,9 +97,9 @@ uninstall: uninstallHeaders
 	@echo
 	@echo removing libAMoRE library from ${INCLUDEDIR} ...
 	@echo
-	rm -f ${LIBDIR}/${INSTALL_SO_NAME}
-	rm -f ${LIBDIR}/${INSTALL_A_NAME}
-	rm -f ${LIBDIR}/libAMoRE.so
+	rm -f ${LIBDIR}/${INSTALL_SHARED_NAME}
+	rm -f ${LIBDIR}/${INSTALL_STATIC_NAME}
+	rm -f ${LIBDIR}/${TARGET}
 	rm -f ${LIBDIR}/libAMoRE.a
 	-test `id -u` -eq 0 && /sbin/ldconfig; true
 

@@ -20,6 +20,10 @@
 #include <amore/global.h>
 #include <amore/buffer.h>
 
+#ifndef EXTERN_VARS
+# include <amore/vars.h>
+#endif
+
 static const char* libamore_version_string = "libAMoRE version " VERSION;
 
 const char* libamore_version()

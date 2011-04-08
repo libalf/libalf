@@ -18,8 +18,16 @@ VERSION?=v${VERSIONTAG}
 LIBVERSIONTAG?=.${VERSIONTAG}
 endif
 
-INSTALL_SO_NAME=libAMoRE++.so${LIBVERSIONTAG}
-INSTALL_A_NAME=libAMoRE++.a${LIBVERSIONTAG}
+# Choose OS
+ifeq (${OS}, Windows_NT)
+  LDFLAGS += -lws2_32
+  TARGET=AMoRE++.dll
+else
+  TARGET=libAMoRE++.so
+endif
+
+INSTALL_SHARED_NAME=$(TARGET)${LIBVERSIONTAG}
+INSTALL_STATIC_NAME=libAMoRE++.a${LIBVERSIONTAG}
 
 CPPFLAGS+=-Wall -I../include/ -I${INCLUDEDIR} -shared -fpic -ggdb3
 CPPFLAGS+=-Wextra
@@ -32,38 +40,41 @@ LDFLAGS+=-shared -L${LIBDIR} -lAMoRE
 
 OBJECTS=amore.o finite_automaton.o nondeterministic_finite_automaton.o deterministic_finite_automaton.o
 
-all:	libAMoRE++.so
+all:	${TARGET}
 
 libAMoRE++.so: ${OBJECTS}
 	${CXX} $(OBJECTS) $(LDFLAGS) -o $@
 
+AMoRE++.dll: ${OBJECTS}
+	${CXX} $(OBJECTS) $(LDFLAGS) -o $@ -lws2_32
+	
 libAMoRE++.a: ${OBJECTS}
 	${AR} crs $@ $?
 
 clean:
-	-rm -f *.o libAMoRE++.so libAMoRE++.a
+	-rm -f *.o AMoRE.dll libAMoRE++.so libAMoRE++.a
 
-install: libAMoRE++.so libAMoRE++.a
+install: ${TARGET} libAMoRE++.a
 	@echo
-	@echo installing libAMoRE++ to ${LIBDIR} ...
+	@echo installing ${TARGET} to ${LIBDIR} ...
 	@echo
 	-install -v -m 755 -d ${LIBDIR}
-	install -T -v -m 755 libAMoRE++.so ${LIBDIR}/${INSTALL_SO_NAME}
-	install -T -v -m 755 libAMoRE++.a  ${LIBDIR}/${INSTALL_A_NAME}
+	install -T -v -m 755 ${TARGET} ${LIBDIR}/${INSTALL_SHARED_NAME}
+	install -T -v -m 755 libAMoRE++.a  ${LIBDIR}/${INSTALL_STATIC_NAME}
 	# symlinks
-	-rm -f ${LIBDIR}/libAMoRE++.so
-	ln -s ${LIBDIR}/${INSTALL_SO_NAME} ${LIBDIR}/libAMoRE++.so
+	-rm -f ${LIBDIR}/${TARGET}
+	ln -s ${LIBDIR}/${INSTALL_SHARED_NAME} ${LIBDIR}/${TARGET}
 	-rm -f ${LIBDIR}/libAMoRE++.a
-	ln -s ${LIBDIR}/${INSTALL_A_NAME}  ${LIBDIR}/libAMoRE++.a
+	ln -s ${LIBDIR}/${INSTALL_STATIC_NAME}  ${LIBDIR}/libAMoRE++.a
 	-test `id -u` -eq 0 && /sbin/ldconfig; true
 
 uninstall:
 	@echo
 	@echo removing libAMoRE++ library from ${LIBDIR} ...
 	@echo
-	rm -f ${LIBDIR}/${INSTALL_SO_NAME}
-	rm -f ${LIBDIR}/${INSTALL_A_NAME}
-	rm -f ${LIBDIR}/libAMoRE++.so
+	rm -f ${LIBDIR}/${INSTALL_SHARED_NAME}
+	rm -f ${LIBDIR}/${INSTALL_STATIC_NAME}
+	rm -f ${LIBDIR}/${TARGET}
 	rm -f ${LIBDIR}/libAMoRE++.a
 	-test `id -u` -eq 0 && /sbin/ldconfig; true
 

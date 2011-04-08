@@ -31,7 +31,11 @@
 #include <fstream>
 
 // for htonl / ntohl
+#ifdef _WIN32
+# include <winsock.h>
+#else
 # include <arpa/inet.h>
+#endif
 
 # define LIBAMORE_LIBRARY_COMPILATION
 # include "amore++/deterministic_finite_automaton.h"
