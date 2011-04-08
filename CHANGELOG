@@ -9,13 +9,14 @@ version numbers until further notice.
 
 
 
-v0.3   ( TO-BE-RELEASED )
+v0.3   (2011-04-08 16:40:00 )
 ---------------------------------------------------
-svn-revision HEAD
+svn-revision 1486
 
-- better install routines and versioning of objects
+- Better install routines and versioning of objects
+- Compilation on Windows improved
 - A lot of cleanup and bugfixes
-- all libraries: try to use better style to avoid cluttering namespace and other
+- All libraries: try to use better style to avoid cluttering namespace and other
 	library-related problems. this includes:
 	- avoiding "using namespace std" in headers
 	- checking/removing all warnings that occur
