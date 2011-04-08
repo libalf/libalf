@@ -18,8 +18,15 @@ VERSION?=v${VERSIONTAG}
 LIBVERSIONTAG?=.${VERSIONTAG}
 endif
 
-INSTALL_SO_NAME=libmVCA.so${LIBVERSIONTAG}
-INSTALL_A_NAME=libmVCA.a${LIBVERSIONTAG}
+# Choose OS
+ifeq (${OS}, Windows_NT)
+  TARGET=mVCA.dll
+else
+  TARGET=libmVCA.so
+endif
+
+INSTALL_SHARED_NAME=${TARGET}${LIBVERSIONTAG}
+INSTALL_STATIC_NAME=libmVCA.a${LIBVERSIONTAG}
 
 
 CPPFLAGS+=-Wall -I../include/ -I${INCLUDEDIR} -shared -fpic
@@ -33,48 +40,41 @@ SONAME=libmVCA
 
 OBJECTS=pushdown.o transition_function.o mVCA.o deterministic_mVCA.o nondeterministic_mVCA.o p-automaton.o
 
-ifeq (${OS}, Windows_NT)
-  LDFLAGS += -lws2_32
-  TARGET=libmVCA.dll
-else
-  TARGET=libmVCA.so
-endif
-
 all:	${TARGET}
 
 libmVCA.so: ${OBJECTS}
 	${CXX} $(OBJECTS) $(LDFLAGS) -o $@ 
 
 libmVCA.dll: ${OBJECTS}
-	${CXX} $(OBJECTS) $(LDFLAGS) -o $@ 
+	${CXX} $(OBJECTS) $(LDFLAGS) -o $@ -lws2_32
 
 libmVCA.a: ${OBJECTS}
 	${AR} rcs $@ $(OBJECTS)
 
 clean:
-	-rm -f *.o libmVCA.so libmVCA.a
+	-rm -f *.o libmVCA.so mVCA.dll libmVCA.a
 
-install: libmVCA.so libmVCA.a
+install: ${TARGET} libmVCA.a
 	@echo
 	@echo installing libmVCA library to ${LIBDIR} ...
 	@echo
 	-install -v -m 755 -d ${LIBDIR}
-	install -T -v -m 755 libmVCA.so ${LIBDIR}/${INSTALL_SO_NAME}
-	install -T -v -m 755 libmVCA.a  ${LIBDIR}/${INSTALL_A_NAME}
+	install -T -v -m 755 ${TARGET} ${LIBDIR}/${INSTALL_SHARED_NAME}
+	install -T -v -m 755 libmVCA.a  ${LIBDIR}/${INSTALL_STATIC_NAME}
 	# symlinks
-	-rm -f ${LIBDIR}/libmVCA.so
-	ln -s ${LIBDIR}/${INSTALL_SO_NAME} ${LIBDIR}/libmVCA.so
+	-rm -f ${LIBDIR}/${TARGET}
+	ln -s ${LIBDIR}/${INSTALL_SHARED_NAME} ${LIBDIR}/${TARGET}
 	-rm -f ${LIBDIR}/libmVCA.a
-	ln -s ${LIBDIR}/${INSTALL_A_NAME}  ${LIBDIR}/libmVCA.a
+	ln -s ${LIBDIR}/${INSTALL_STATIC_NAME}  ${LIBDIR}/libmVCA.a
 	-test `id -u` -eq 0 && /sbin/ldconfig; true
 
 uninstall:
 	@echo
 	@echo removing libmVCA library from ${LIBDIR} ...
 	@echo
-	rm -f ${LIBDIR}/${INSTALL_SO_NAME}
-	rm -f ${LIBDIR}/${INSTALL_A_NAME}
-	rm -f ${LIBDIR}/libmVCA.so
+	rm -f ${LIBDIR}/${INSTALL_SHARED_NAME}
+	rm -f ${LIBDIR}/${INSTALL_STATIC_NAME}
+	rm -f ${LIBDIR}/${TARGET}
 	rm -f ${LIBDIR}/libmVCA.a
 	-test `id -u` -eq 0 && /sbin/ldconfig; true
 
