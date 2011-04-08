@@ -13,7 +13,7 @@ cd release
 
 rm -Rf libalf/testsuites/sample-automata
 
-tar jcf libalf-${VERSIONSTRING}.tar.bz2                 libalf
+tar jcf libalf-${VERSIONSTRING}.tar.bz2                 libalf libalf_interfaces
 tar jcf "libAMoRE(++)-${VERSIONSTRING}.tar.bz2"         libAMoRE libAMoRE++ 
 tar jcf libmVCA-${VERSIONSTRING}.tar.bz2                libmVCA
 tar jcf liblangen-${VERSIONSTRING}.tar.bz2              liblangen 
