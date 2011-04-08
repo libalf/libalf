@@ -18,7 +18,7 @@ VERSION?=v${VERSIONTAG}
 LIBVERSIONTAG?=.${VERSIONTAG}
 endif
 
-CPPFLAGS+=-Wall -I ../include/ -I${INCLUDEDIR} -ggdb3
+CPPFLAGS+=-Wall -I ../include/ -I${INCLUDEDIR}
 #CPPFLAGS+=-Wextra
 CPPFLAGS+=-D__cplusplus -DVERSION="\"${VERSION}\"" -DVERBOSE_DEBUG
 # for ubuntu, try disabling stack-smashing due to linker failures:

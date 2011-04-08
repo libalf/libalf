@@ -22,7 +22,7 @@ INSTALL_SO_NAME=libmVCA.so${LIBVERSIONTAG}
 INSTALL_A_NAME=libmVCA.a${LIBVERSIONTAG}
 
 
-CPPFLAGS+=-Wall -I../include/ -I${INCLUDEDIR} -shared -fpic -ggdb3
+CPPFLAGS+=-Wall -I../include/ -I${INCLUDEDIR} -shared -fpic
 CPPFLAGS+=-Wextra
 CPPFLAGS+=-D__cplusplus -DVERSION="\"${VERSION}\""
 # for ubuntu, try disabling stack-smashing due to linker failures:
