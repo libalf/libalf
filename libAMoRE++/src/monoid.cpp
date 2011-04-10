@@ -195,6 +195,15 @@ std::map<unsigned int, std::map<unsigned int, unsigned int> > amore_monoid::get_
 	return table;
 }
 
+bool amore_monoid::is_idempotent(unsigned int no) {
+	if(monoid_p) {
+		if(no < monoid_p->mno) {
+			return (no == mult(monoid_p, no, no));
+		}
+	}
+	return false;
+}
+
 monoid amore_monoid::get_monoid() {
 	return monoid_p;
 }

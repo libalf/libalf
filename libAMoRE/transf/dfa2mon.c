@@ -183,7 +183,10 @@ monoid dfa2mon(dfa indfa)
 		mon->gensucc[state] = root->gensucc;
 	}
 	mon->word = newar(mon->no2length[mon->mno - 1]);
-	gen = mon->no2length[mon->mno - 1] + 1;	/* number of letters of longest element +1 */
+	// Daniel's fix
+	//gen = mon->no2length[mon->mno - 1] + 1;	/* number of letters of longest element +1 */
+	gen = mon->no2length[mon->mno - 1] + 2;	/* number of letters of longest element +1 AND one additional letter to store a '*' used to mark idempotent elements*/
+	// Daniel's fix end
 	gen *= (mon->alphabet_size <= 27) ? 1 : strlen(pi2a(mon->alphabet_size)) + 1;
 	mon->repr = (char*) calloc(gen, sizeof(char));
 	for (state = 0; state < gen;)

@@ -96,9 +96,14 @@ class amore_monoid {
 		virtual unsigned int multiplicate(unsigned int, unsigned int);
 
 		/**
-		 * FIXME
+		 * Returns the (smallest?) representative of the given monoid's element as <code>char *</code>.
+		 * Thereby, the symbols are translated using the \em itoc array.
+		 * 
+		 * @param no The element
+		 * @param with If true, the representative is preceeded by a * if it is an idempotent element.
+		 * @param zeroone If true, the representative of the 0 and 1 element not computed by 0 or 1 is returned.
 		 */
-		virtual char * get_representative(unsigned int, bool, bool);
+		virtual char * get_representative(unsigned int no, bool with, bool zeroone);
 
 		/**
 		 * Returns the (smallest?) representative of the given monoid's element.
@@ -109,6 +114,11 @@ class amore_monoid {
 		 * Returns the multiplication table.
 		 */
 		virtual std::map<unsigned int, std::map<unsigned int, unsigned int> > get_table();
+
+		/**
+		 * Check whether the given element is idempotent.
+		 */
+		virtual bool is_idempotent(unsigned int);
 
 		/**
 		 * Returns the AMoRE monoid structure encapsulated by this class.
