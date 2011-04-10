@@ -41,12 +41,15 @@
 # include "amore++/deterministic_finite_automaton.h"
 # include "amore++/nondeterministic_finite_automaton.h"
 # include "amore++/finite_automaton.h"
+# include "amore++/monoid.h"
 
 # include <amore/nfa.h>
 # include <amore/dfa.h>
+# include <amore/mon.h>
 # include <amore/nfa2dfa.h>
 # include <amore/dfa2nfa.h>
 # include <amore/dfamdfa.h>
+# include <amore/dfa2mon.h>
 # include <amore/testBinary.h>
 # include <amore/unaryB.h>
 # include <amore/binary.h>
@@ -888,6 +891,13 @@ dfa deterministic_finite_automaton::get_dfa()
 {{{
 	return dfa_p;
 }}}
+
+amore_monoid * deterministic_finite_automaton::to_monoid() {
+	
+	monoid m = dfa2mon(dfa_p);
+
+	return new amore_monoid(m);
+}
 
 } // end namespace amore
 

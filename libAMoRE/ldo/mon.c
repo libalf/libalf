@@ -31,6 +31,11 @@ void freemon(monoid mon)
 	dispose(mon->lastletter);
 	dispose(mon->no2length);
 	dispose(mon->word);
+	// Daniel's fix
+	if(mon->repr) {
+		free(mon->repr);
+	}
+	// Daniel's fix end
 	if(mon->relationcomputed) {
 		dispose(mon->rs->rside);
 		dispose(mon->rs->lside);

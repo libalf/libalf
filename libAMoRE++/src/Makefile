@@ -38,7 +38,7 @@ CPPFLAGS+=-fno-stack-protector
 LDFLAGS+=-shared -L${LIBDIR} -lAMoRE
 
 
-OBJECTS=amore.o finite_automaton.o nondeterministic_finite_automaton.o deterministic_finite_automaton.o
+OBJECTS=amore.o finite_automaton.o nondeterministic_finite_automaton.o deterministic_finite_automaton.o monoid.o
 
 all:	${TARGET}
 

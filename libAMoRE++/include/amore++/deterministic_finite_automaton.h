@@ -31,6 +31,7 @@
 #include <map>
 
 #include <amore++/finite_automaton.h>
+#include <amore++/monoid.h>
 
 #ifdef LIBAMORE_LIBRARY_COMPILATION
 # include <amore/nfa.h>
@@ -100,6 +101,9 @@ class deterministic_finite_automaton : public finite_automaton {
 		// new
 		virtual void set_dfa(dfa a);
 		virtual dfa get_dfa();
+
+		// Monoid stuff
+		virtual amore_monoid * to_monoid();
 };
 
 }; // end namespace amore
