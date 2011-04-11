@@ -95,10 +95,10 @@ uninstall:
 
 # Linux targets
 libjalf.so: test_java_includes ${OBJECTS}
-	${CXX} ${LDFLAGS} -Xlinker -soname=libjalf ${LIBDIR}/libalf.a ${OBJECTS} -o libjalf.so
+	${CXX} ${LDFLAGS} -Xlinker -soname=libjalf ${OBJECTS} ${LIBDIR}/libalf.a -o libjalf.so
 
 libjalf.so-dynamic: test_java_includes ${OBJECTS}
-	${CXX} ${LDFLAGS} -Xlinker -soname=libjalf -lalf ${OBJECTS} -o libjalf.so
+	${CXX} ${LDFLAGS} -Xlinker -soname=libjalf ${OBJECTS} -lalf -o libjalf.so
 
 
 # Windows targets
