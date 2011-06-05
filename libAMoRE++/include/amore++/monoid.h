@@ -28,17 +28,22 @@
 
 #include <amore/mon.h>
 
+/**
+ * Rename mononid (AMoRE)
+ */
+typedef monoid mon;
+
 namespace amore {
 
-class amore_monoid {
+class monoid {
 
 	private:
-		monoid monoid_p;
+		mon monoid_p;
 
 	public:
-		amore_monoid();
-		amore_monoid(monoid m);
-		~amore_monoid();
+		monoid();
+		monoid(mon);
+		~monoid();
 
     		/**
 		 * Returns the number of states of the unterlying DFA.
@@ -123,7 +128,7 @@ class amore_monoid {
 		/**
 		 * Returns the AMoRE monoid structure encapsulated by this class.
 		 */
-		virtual monoid get_monoid();
+		virtual mon get_monoid();
 };
 
 }; // end namespace amore

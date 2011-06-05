@@ -892,11 +892,16 @@ dfa deterministic_finite_automaton::get_dfa()
 	return dfa_p;
 }}}
 
-amore_monoid * deterministic_finite_automaton::to_monoid() {
-	
-	monoid m = dfa2mon(dfa_p);
+monoid * deterministic_finite_automaton::to_monoid() {
 
-	return new amore_monoid(m);
+	/**
+	 * Rename mononid (AMoRE)
+ 	 */
+	typedef monoid mon;
+	
+	mon m = dfa2mon(dfa_p);
+
+	return new monoid(m);
 }
 
 } // end namespace amore
