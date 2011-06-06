@@ -103,7 +103,7 @@ class deterministic_finite_automaton : public finite_automaton {
 		virtual dfa get_dfa();
 
 		// Monoid stuff
-		virtual monoid * to_monoid();
+		virtual amore_monoid * to_monoid();
 };
 
 }; // end namespace amore

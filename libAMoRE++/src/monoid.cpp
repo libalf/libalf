@@ -41,22 +41,22 @@ namespace amore {
 // libalf uses (in construct) -1 to indicate an epsilon transition and
 // uses [0 .. size-1] as the alphabet.
 
-monoid::monoid() {
+amore_monoid::amore_monoid() {
 	monoid_p = NULL;
 }
 
-monoid::monoid(mon m) {
+amore_monoid::amore_monoid(monoid m) {
 	monoid_p = m;
 }
 
-monoid::~monoid() {
+amore_monoid::~amore_monoid() {
 	if(monoid_p) {
 		freemon(monoid_p);
 		free(monoid_p);
 	}
 }
 
-unsigned int monoid::get_highest_state() {
+unsigned int amore_monoid::get_highest_state() {
 	if(monoid_p) {
 		return monoid_p->highest_state;
 	} else {
@@ -64,7 +64,7 @@ unsigned int monoid::get_highest_state() {
 	}
 }
 
-unsigned int monoid::get_alphabet_size() {
+unsigned int amore_monoid::get_alphabet_size() {
 	if(monoid_p) {
 		return monoid_p->alphabet_size;
 	} else {
@@ -72,7 +72,7 @@ unsigned int monoid::get_alphabet_size() {
 	}
 }
 
-unsigned int monoid::get_element_count() {
+unsigned int amore_monoid::get_element_count() {
 	if(monoid_p) {
 		return monoid_p->mno;
 	} else {
@@ -80,7 +80,7 @@ unsigned int monoid::get_element_count() {
 	}
 }
 
-unsigned int monoid::get_generator_count() {
+unsigned int amore_monoid::get_generator_count() {
 	if(monoid_p) {
 		return monoid_p->gno;
 	} else {
@@ -88,7 +88,7 @@ unsigned int monoid::get_generator_count() {
 	}
 }
 
-unsigned int monoid::get_zero() {
+unsigned int amore_monoid::get_zero() {
 	if(monoid_p) {
 		return monoid_p->zero;
 	} else {
@@ -96,7 +96,7 @@ unsigned int monoid::get_zero() {
 	}
 }
 
-bool monoid::mequals() {
+bool amore_monoid::mequals() {
 	if(monoid_p) {
 		return monoid_p->mequals;
 	} else {
@@ -104,7 +104,7 @@ bool monoid::mequals() {
 	}
 }
 
-bool monoid::dclass_iscomputed() {
+bool amore_monoid::dclass_iscomputed() {
 	if(monoid_p) {
 		return monoid_p->dclassiscomputed;
 	} else {
@@ -112,13 +112,13 @@ bool monoid::dclass_iscomputed() {
 	}
 }
 
-void monoid::compute_dclass() {
+void amore_monoid::compute_dclass() {
 	if(monoid_p) {
 		mon2dcl(monoid_p);
 	}
 }
 
-bool monoid::relation_iscomputed() {
+bool amore_monoid::relation_iscomputed() {
 	if(monoid_p) {
 		return monoid_p->relationcomputed;
 	} else {
@@ -126,13 +126,13 @@ bool monoid::relation_iscomputed() {
 	}
 }
 
-void monoid::compute_relation() {
+void amore_monoid::compute_relation() {
 	if(monoid_p) {
 		mon2rel(monoid_p);
 	}
 }
 
-unsigned int monoid::multiplicate(unsigned int a, unsigned int b) {
+unsigned int amore_monoid::multiplicate(unsigned int a, unsigned int b) {
 	if(monoid_p) {
 		if(a < monoid_p->mno && b < monoid_p->mno) {
 			return mult(monoid_p, a, b);
@@ -144,7 +144,7 @@ unsigned int monoid::multiplicate(unsigned int a, unsigned int b) {
 	}
 }
 
-char * monoid::get_representative(unsigned int no, bool with, bool zeroone) {
+char * amore_monoid::get_representative(unsigned int no, bool with, bool zeroone) {
 	if(monoid_p) {
 		return prword1((char **) NULL, FALSE, (posint *) NULL, no, monoid_p, with, zeroone);
 	} else {
@@ -155,7 +155,7 @@ char * monoid::get_representative(unsigned int no, bool with, bool zeroone) {
 /**
  * Daniel's hack
  */
-std::list<int> monoid::get_representative(unsigned int no) {
+std::list<int> amore_monoid::get_representative(unsigned int no) {
 
 	std::list<int> rep;
 
@@ -180,7 +180,7 @@ std::list<int> monoid::get_representative(unsigned int no) {
 	return rep;
 }
 
-std::map<unsigned int, std::map<unsigned int, unsigned int> > monoid::get_table() {
+std::map<unsigned int, std::map<unsigned int, unsigned int> > amore_monoid::get_table() {
 
 	std::map<unsigned int, std::map<unsigned int, unsigned int> > table;
 	
@@ -195,7 +195,7 @@ std::map<unsigned int, std::map<unsigned int, unsigned int> > monoid::get_table(
 	return table;
 }
 
-bool monoid::is_idempotent(unsigned int no) {
+bool amore_monoid::is_idempotent(unsigned int no) {
 	if(monoid_p) {
 		if(no < monoid_p->mno) {
 			return (no == mult(monoid_p, no, no));
@@ -204,7 +204,7 @@ bool monoid::is_idempotent(unsigned int no) {
 	return false;
 }
 
-mon monoid::get_monoid() {
+monoid amore_monoid::get_monoid() {
 	return monoid_p;
 }
 
