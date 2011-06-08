@@ -328,6 +328,7 @@ set<int> finite_automaton::negative_sink() const
 	while(pre != s) {
 		s = pre;
 		pre = predecessor_states(s);
+		inverted_epsilon_closure(pre);
 		for(si = s.begin(); si != s.end(); si++)
 			pre.insert(*si);
 	}
@@ -338,6 +339,7 @@ set<int> finite_automaton::negative_sink() const
 	while(post != s) {
 		s = post;
 		post = successor_states(s);
+		epsilon_closure(post);
 		for(si = s.begin(); si != s.end(); si++)
 			post.insert(*si);
 	}
