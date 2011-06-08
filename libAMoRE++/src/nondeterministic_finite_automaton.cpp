@@ -19,6 +19,7 @@
  * (c) 2008,2009 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
  *           and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
  * Author: David R. Piegdon <david-i2@piegdon.de>
+ *         Daniel Neider <neider@automata.rwth-aachen.de>
  *
  */
 
@@ -44,6 +45,7 @@
 # include <amore/nfa.h>
 # include <amore/dfa.h>
 # include <amore/nfa2dfa.h>
+# include <amore/enfa2nfa.h>
 # include <amore/dfa2nfa.h>
 # include <amore/dfamdfa.h>
 # include <amore/testBinary.h>
@@ -75,6 +77,11 @@ nondeterministic_finite_automaton::nondeterministic_finite_automaton()
 nondeterministic_finite_automaton::nondeterministic_finite_automaton(nfa a)
 {{{
 	nfa_p = a;
+}}}
+
+nondeterministic_finite_automaton::nondeterministic_finite_automaton(const nondeterministic_finite_automaton & other)
+{{{
+	nfa_p = clonenfa(other.nfa_p);
 }}}
 
 static void amore_insanitize_regex(char* regex)
@@ -626,6 +633,17 @@ void nondeterministic_finite_automaton::lang_complement()
 	free(b);
 }}}
 
+nondeterministic_finite_automaton * nondeterministic_finite_automaton::remove_epsilon_transitions() const
+{{{
+
+	// Check whether automaton has epsilon transitions
+	if(!nfa_p->is_eps) {
+		return new nondeterministic_finite_automaton(*this);
+	} else {
+		return new nondeterministic_finite_automaton(enfa2nfa(nfa_p));
+	}
+}}}
+
 nondeterministic_finite_automaton * nondeterministic_finite_automaton::reverse_language() const
 {{{
 	nfa rev_p;
@@ -926,7 +944,15 @@ bool nondeterministic_finite_automaton::is_deterministic() const
 finite_automaton * nondeterministic_finite_automaton::determinize() const
 {{{
 	deterministic_finite_automaton *a;
-	a = new deterministic_finite_automaton( nfa2dfa(nfa_p) );
+	
+	if(nfa_p->is_eps) {
+		nfa aa = enfa2nfa(nfa_p);
+		a = new deterministic_finite_automaton( nfa2dfa(aa) );
+		freenfa(aa);
+		free(aa);
+	} else {
+		a = new deterministic_finite_automaton( nfa2dfa(nfa_p) );
+	}
 	return a;
 }}}
 

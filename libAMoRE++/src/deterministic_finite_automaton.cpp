@@ -80,6 +80,11 @@ deterministic_finite_automaton::deterministic_finite_automaton(dfa a)
 	dfa_p = a;
 }}}
 
+deterministic_finite_automaton::deterministic_finite_automaton(const deterministic_finite_automaton & other)
+{{{
+	dfa_p = clonedfa(other.dfa_p);
+}}}
+
 deterministic_finite_automaton::~deterministic_finite_automaton()
 {{{
 	if(dfa_p) {

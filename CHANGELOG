@@ -12,8 +12,13 @@ version numbers until further notice.
 HEAD (today)
 ------------
 
+- libAMoRE: Fixed memory leak in enfa2nfa.c
 - libAMoRE++: consider epsilon-transitions in finite_automaton::negative_sink()
 	this fixes recognition of non-sink-states as sink-states in visualize().
+- libAMoRE++: Added copy constructur for NFA and DFA
+- libAMoRE++: Added method to remove epsilon transitions
+- libAMoRE++: Determize does now handle NFA with epsilon transitions correctly
+              (now these transitions are first removed)
 
 
 v0.3   (2011-04-08 17:00:00)

@@ -50,6 +50,7 @@ class deterministic_finite_automaton : public finite_automaton {
 	public:
 		deterministic_finite_automaton();
 		deterministic_finite_automaton(dfa a);
+		deterministic_finite_automaton(const deterministic_finite_automaton & other);
 
 		virtual ~deterministic_finite_automaton();
 

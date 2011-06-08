@@ -72,6 +72,7 @@ class nondeterministic_finite_automaton : public finite_automaton {
 	public:
 		nondeterministic_finite_automaton();
 		nondeterministic_finite_automaton(nfa a);
+		nondeterministic_finite_automaton(const nondeterministic_finite_automaton & other);
 		nondeterministic_finite_automaton(const char *regex, bool &success);
 		nondeterministic_finite_automaton(int alphabet_size, const char *regex, bool &success);
 
@@ -104,6 +105,7 @@ class nondeterministic_finite_automaton : public finite_automaton {
 		virtual bool lang_disjoint_to(const finite_automaton &other) const;
 		virtual void minimize();
 		virtual void lang_complement();
+		virtual nondeterministic_finite_automaton * remove_epsilon_transitions() const;
 		virtual nondeterministic_finite_automaton * reverse_language() const;
 		virtual nondeterministic_finite_automaton * lang_union(const finite_automaton &other) const;
 		virtual finite_automaton * lang_intersect(const finite_automaton &other) const;
