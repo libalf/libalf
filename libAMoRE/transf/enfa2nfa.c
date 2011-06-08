@@ -137,7 +137,7 @@ nfa enfa2nfa(nfa epsa)
 					}
 	}
 	
-	// Now free the buffer
+	// Now free the buffer (patched by Daniel)
 	freebuf();
 	
 	return result;
