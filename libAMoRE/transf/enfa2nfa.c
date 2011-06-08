@@ -136,5 +136,9 @@ nfa enfa2nfa(nfa epsa)
 							connect(result->delta, letter, state, goal);
 					}
 	}
+	
+	// Now free the buffer
+	freebuf();
+	
 	return result;
 }				/* enfa2nfa */
