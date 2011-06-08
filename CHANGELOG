@@ -9,8 +9,15 @@ version numbers until further notice.
 
 
 
+HEAD (today)
+------------
+
+- libAMoRE++: consider epsilon-transitions in finite_automaton::negative_sink()
+	this fixes recognition of non-sink-states as sink-states in visualize().
+
+
 v0.3   (2011-04-08 17:00:00)
----------------------------------------------------
+----------------------------
 svn-revision 1490
 
 - Better install routines and versioning of objects
