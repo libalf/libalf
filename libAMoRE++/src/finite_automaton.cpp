@@ -325,6 +325,7 @@ set<int> finite_automaton::negative_sink() const
 
 	// find states that can reach terminal states
 	pre = get_final_states();
+	inverted_epsilon_closure(pre);
 	while(pre != s) {
 		s = pre;
 		pre = predecessor_states(s);
@@ -333,9 +334,11 @@ set<int> finite_automaton::negative_sink() const
 			pre.insert(*si);
 	}
 
+	s.clear();
+
 	// find states reachable from initial states
 	post = get_initial_states();
-	s.clear();
+	epsilon_closure(post);
 	while(post != s) {
 		s = post;
 		post = successor_states(s);
