@@ -69,6 +69,7 @@ class deterministic_finite_automaton : public finite_automaton {
 		virtual std::set<int> successor_states(std::set<int> states, int label) const;
 		virtual std::set<int> predecessor_states(std::set<int> states) const;
 		virtual std::set<int> predecessor_states(std::set<int> states, int label) const;
+		virtual void get_transitions(std::map<int, std::map<int, std::set<int> > > & t) const;
 		virtual void epsilon_closure(std::set<int> & states) const;
 		virtual void inverted_epsilon_closure(std::set<int> & states) const;
 		virtual std::list<int> shortest_run(std::set<int> from, std::set<int> &to, bool &reachable) const;

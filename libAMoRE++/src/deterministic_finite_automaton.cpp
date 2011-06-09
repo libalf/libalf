@@ -251,6 +251,23 @@ set<int> deterministic_finite_automaton::predecessor_states(set<int> states, int
 	return ret;
 }}}
 
+void deterministic_finite_automaton::get_transitions(std::map<int, std::map<int, std::set<int> > > & t) const
+{{{
+
+	// Clear transition map
+	t.clear();
+	
+	// Copy transitions to map
+	for(unsigned int source = 0; source<this->get_state_count(); source++) {
+		// All labels from 0 (=epsilon) to alphabet size
+		for(unsigned int label=1; label<=get_alphabet_size(); label++) {
+			t[source][label-1].insert(dfa_p->delta[label][source]);
+		}
+	}
+
+}}}
+
+
 void deterministic_finite_automaton::epsilon_closure(set<int> & states) const
 { /* just do something so we don't get a warning about unused parameters: */ states.empty(); };
 void deterministic_finite_automaton::inverted_epsilon_closure(set<int> & states) const

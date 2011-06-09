@@ -382,6 +382,27 @@ abort:		;
 	return ret;
 }}}
 
+void nondeterministic_finite_automaton::get_transitions(std::map<int, std::map<int, std::set<int> > > & t) const
+{{{
+
+	// Clear transition map
+	t.clear();
+
+	// Copy transitions to map
+	for(unsigned int source = 0; source<this->get_state_count(); source++) {
+		// All labels from 0 (=epsilon) to alphabet size
+		for(unsigned int label=(nfa_p->is_eps ? 0 : 1); label<=get_alphabet_size(); label++) {
+			// All destinations
+			for(unsigned int dest = 0; dest<get_state_count(); dest++) {
+				// Add transition if existing
+				if(testcon(nfa_p->delta, label, source, dest)) {
+					t[source][label-1].insert(dest);
+				}
+			}
+		}
+	}
+}}}
+
 unsigned int nondeterministic_finite_automaton::get_alphabet_size() const
 {{{
 	if(nfa_p)

@@ -96,6 +96,9 @@ class finite_automaton {
 		// in predecessor_states() and successor_states().
 		virtual void get_transition_maps(std::map<int, std::map<int, std::set<int> > > & premap, std::map<int, std::map<int, std::set<int> > > & postmap) const;
 
+		// Returns all transitions (including epsilon-transitions)
+		virtual void get_transitions(std::map<int, std::map<int, std::set<int> > > & t) const = 0;
+
 		// calculate single-label transition or multiple-label run for a set of starting states
 		virtual std::set<int> transition(std::set<int> from, int label) const
 		{   return successor_states(from, label);   };
