@@ -105,7 +105,10 @@ class deterministic_finite_automaton : public finite_automaton {
 		virtual dfa get_dfa();
 
 		// Monoid stuff
-		virtual amore_monoid * to_monoid();
+		virtual amore_monoid * to_monoid() const;
+
+		// Check whether the language is FOLu definable
+		virtual bool is_folu() const;
 };
 
 }; // end namespace amore

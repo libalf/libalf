@@ -50,6 +50,7 @@
 # include <amore/dfa2nfa.h>
 # include <amore/dfamdfa.h>
 # include <amore/dfa2mon.h>
+# include <amore/testUnary.h>
 # include <amore/testBinary.h>
 # include <amore/unaryB.h>
 # include <amore/binary.h>
@@ -914,11 +915,27 @@ dfa deterministic_finite_automaton::get_dfa()
 	return dfa_p;
 }}}
 
-amore_monoid * deterministic_finite_automaton::to_monoid() {
-	
-	monoid m = dfa2mon(dfa_p);
+/*********************
+ * Monoid Stuff
+ ********************/
 
-	return new amore_monoid(m);
+amore_monoid * deterministic_finite_automaton::to_monoid() const {
+	
+	if(dfa_p) {
+		monoid m = dfa2mon(dfa_p);
+		return new amore_monoid(m);
+	} else {
+		return NULL;
+	}
+}
+
+bool deterministic_finite_automaton::is_folu() const {
+
+	if(dfa_p) {
+		return folutest(dfa_p);
+	} else {
+		return false;
+	}
 }
 
 } // end namespace amore

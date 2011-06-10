@@ -30,6 +30,7 @@
 # include <amore/dfa2mon.h>
 # include <amore/mon2dcl.h>
 # include <amore/mon2rel.h>
+# include <amore/testUnary.h>
 
 namespace amore {
 
@@ -56,7 +57,7 @@ amore_monoid::~amore_monoid() {
 	}
 }
 
-unsigned int amore_monoid::get_highest_state() {
+unsigned int amore_monoid::get_highest_state() const {
 	if(monoid_p) {
 		return monoid_p->highest_state;
 	} else {
@@ -64,7 +65,7 @@ unsigned int amore_monoid::get_highest_state() {
 	}
 }
 
-unsigned int amore_monoid::get_alphabet_size() {
+unsigned int amore_monoid::get_alphabet_size() const {
 	if(monoid_p) {
 		return monoid_p->alphabet_size;
 	} else {
@@ -72,7 +73,7 @@ unsigned int amore_monoid::get_alphabet_size() {
 	}
 }
 
-unsigned int amore_monoid::get_element_count() {
+unsigned int amore_monoid::get_element_count() const {
 	if(monoid_p) {
 		return monoid_p->mno;
 	} else {
@@ -80,7 +81,7 @@ unsigned int amore_monoid::get_element_count() {
 	}
 }
 
-unsigned int amore_monoid::get_generator_count() {
+unsigned int amore_monoid::get_generator_count() const {
 	if(monoid_p) {
 		return monoid_p->gno;
 	} else {
@@ -88,7 +89,7 @@ unsigned int amore_monoid::get_generator_count() {
 	}
 }
 
-unsigned int amore_monoid::get_zero() {
+unsigned int amore_monoid::get_zero() const {
 	if(monoid_p) {
 		return monoid_p->zero;
 	} else {
@@ -96,7 +97,7 @@ unsigned int amore_monoid::get_zero() {
 	}
 }
 
-bool amore_monoid::mequals() {
+bool amore_monoid::mequals() const {
 	if(monoid_p) {
 		return monoid_p->mequals;
 	} else {
@@ -104,7 +105,7 @@ bool amore_monoid::mequals() {
 	}
 }
 
-bool amore_monoid::dclass_iscomputed() {
+bool amore_monoid::dclass_iscomputed() const {
 	if(monoid_p) {
 		return monoid_p->dclassiscomputed;
 	} else {
@@ -118,7 +119,7 @@ void amore_monoid::compute_dclass() {
 	}
 }
 
-bool amore_monoid::relation_iscomputed() {
+bool amore_monoid::relation_iscomputed() const {
 	if(monoid_p) {
 		return monoid_p->relationcomputed;
 	} else {
@@ -132,7 +133,7 @@ void amore_monoid::compute_relation() {
 	}
 }
 
-unsigned int amore_monoid::multiplicate(unsigned int a, unsigned int b) {
+unsigned int amore_monoid::multiplicate(unsigned int a, unsigned int b) const {
 	if(monoid_p) {
 		if(a < monoid_p->mno && b < monoid_p->mno) {
 			return mult(monoid_p, a, b);
@@ -144,7 +145,7 @@ unsigned int amore_monoid::multiplicate(unsigned int a, unsigned int b) {
 	}
 }
 
-char * amore_monoid::get_representative(unsigned int no, bool with, bool zeroone) {
+char * amore_monoid::get_representative(unsigned int no, bool with, bool zeroone) const {
 	if(monoid_p) {
 		return prword1((char **) NULL, FALSE, (posint *) NULL, no, monoid_p, with, zeroone);
 	} else {
@@ -155,7 +156,7 @@ char * amore_monoid::get_representative(unsigned int no, bool with, bool zeroone
 /**
  * Daniel's hack
  */
-std::list<int> amore_monoid::get_representative(unsigned int no) {
+std::list<int> amore_monoid::get_representative(unsigned int no) const {
 
 	std::list<int> rep;
 
@@ -180,7 +181,7 @@ std::list<int> amore_monoid::get_representative(unsigned int no) {
 	return rep;
 }
 
-std::map<unsigned int, std::map<unsigned int, unsigned int> > amore_monoid::get_table() {
+std::map<unsigned int, std::map<unsigned int, unsigned int> > amore_monoid::get_table() const {
 
 	std::map<unsigned int, std::map<unsigned int, unsigned int> > table;
 	
@@ -195,7 +196,7 @@ std::map<unsigned int, std::map<unsigned int, unsigned int> > amore_monoid::get_
 	return table;
 }
 
-bool amore_monoid::is_idempotent(unsigned int no) {
+bool amore_monoid::is_idempotent(unsigned int no) const {
 	if(monoid_p) {
 		if(no < monoid_p->mno) {
 			return (no == mult(monoid_p, no, no));
@@ -204,7 +205,35 @@ bool amore_monoid::is_idempotent(unsigned int no) {
 	return false;
 }
 
-monoid amore_monoid::get_monoid() {
+bool amore_monoid::is_pwt() const {
+	if(monoid_p) {
+		return testpwt(monoid_p);
+	}
+	return false;
+}
+
+bool amore_monoid::is_dd1() const {
+	if(monoid_p) {
+		return testdd1(monoid_p);
+	}
+	return false;
+}
+
+bool amore_monoid::is_sf() const {
+	if(monoid_p) {
+		return sftest(monoid_p);
+	}
+	return false;
+}
+
+bool amore_monoid::is_groupfree() const {
+	if(monoid_p) {
+		return is_sf();
+	}
+	return false;
+}
+
+monoid amore_monoid::get_monoid() const {
 	return monoid_p;
 }
 
