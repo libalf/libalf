@@ -12,9 +12,12 @@ version numbers until further notice.
 HEAD (today)
 ------------
 
-- libAMoRE: Fixed memory leak in enfa2nfa.c
+- libAMoRE: Fixed memory leak (forgotten freebuf()) in enfa2nfa.c
+- libAMoRE: Fixed memory leak (forgotten freebuf()) in test_groupfree(...) in testUnary.c
 - libAMoRE++: Added new class amore_monoids to capture AMoRE's monoid
               functionality
+- libAMoRE++: Added monoid depending tests whether a language is dot-depth 1, starfree,
+              or piecewise testable to DFAs and NFAs.
 - libAMoRE++: Added function get_transitions that returs the transitions as they
               are stored in the AMoRE structs.
 - libAMoRE++: Consider epsilon-transitions in finite_automaton::negative_sink()

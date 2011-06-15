@@ -197,6 +197,15 @@ string nondeterministic_finite_automaton::to_regex() const
 	};
 }}}
 
+
+bool nondeterministic_finite_automaton::is_minimal() const
+{{{
+	if(nfa_p)
+		return nfa_p->minimal;
+	else
+		return 0;
+}}}
+
 unsigned int nondeterministic_finite_automaton::get_state_count() const
 {{{
 	if(nfa_p)
@@ -995,6 +1004,47 @@ nfa nondeterministic_finite_automaton::get_nfa()
 {{{
 	return nfa_p;
 }}}
+
+/*********************
+ * Monoid Stuff
+ ********************/
+
+bool nondeterministic_finite_automaton::is_dd1() const {
+
+	if(nfa_p) {
+		deterministic_finite_automaton * dfa = (deterministic_finite_automaton *)this->determinize();
+		bool dd1 = dfa->is_dd1();
+		delete dfa;
+		return dd1;
+		
+	} else {
+		return false;
+	}
+}
+
+bool nondeterministic_finite_automaton::is_sf() const {
+	if(nfa_p) {
+		deterministic_finite_automaton * dfa = (deterministic_finite_automaton *)this->determinize();
+		bool sf = dfa->is_sf();
+		delete dfa;
+		return sf;
+		
+	} else {
+		return false;
+	}
+}
+
+bool nondeterministic_finite_automaton::is_pwt() const {
+	if(nfa_p) {
+		deterministic_finite_automaton * dfa = (deterministic_finite_automaton *)this->determinize();
+		bool pwt = dfa->is_pwt();
+		delete dfa;
+		return pwt;
+		
+	} else {
+		return false;
+	}
+}
 
 } // end namespace amore
 

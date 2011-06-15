@@ -57,6 +57,7 @@ class deterministic_finite_automaton : public finite_automaton {
 		virtual deterministic_finite_automaton * clone() const;
 		virtual std::string to_regex() const;
 
+		virtual bool is_minimal() const;
 		virtual unsigned int get_state_count() const;
 		virtual unsigned int get_alphabet_size() const;
 		virtual std::set<int> get_initial_states() const;
@@ -104,8 +105,11 @@ class deterministic_finite_automaton : public finite_automaton {
 		virtual void set_dfa(dfa a);
 		virtual dfa get_dfa();
 
-		// Monoid stuff
+		// Monoid based algorithms
 		virtual amore_monoid * to_monoid() const;
+		virtual bool is_dd1() const;
+		virtual bool is_sf() const;
+		virtual bool is_pwt() const;
 
 		// Check whether the language is FOLu definable
 		virtual bool is_folu() const;

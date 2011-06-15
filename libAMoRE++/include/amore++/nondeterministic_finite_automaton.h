@@ -81,6 +81,7 @@ class nondeterministic_finite_automaton : public finite_automaton {
 		virtual nondeterministic_finite_automaton * clone() const;
 		virtual std::string to_regex() const;
 
+		virtual bool is_minimal() const;
 		virtual unsigned int get_state_count() const;
 		virtual unsigned int get_alphabet_size() const;
 		virtual std::set<int> get_initial_states() const;
@@ -127,6 +128,11 @@ class nondeterministic_finite_automaton : public finite_automaton {
 		// new
 		virtual void set_nfa(nfa a);
 		virtual nfa get_nfa();
+
+		// Monoid based algorithms
+		virtual bool is_dd1() const;
+		virtual bool is_sf() const;
+		virtual bool is_pwt() const;
 
 	protected:
 //		std::set<std::set<int> > antichain_universality_cpre(std::set<int>);

@@ -309,13 +309,16 @@ monoid mon;
 				break;
 			} else
 				image[a[i][help[j]]] = FALSE;
-		if(group && (!idempotent(i, mon)))	/* i is an element of a nontrivial group */
+		if(group && (!idempotent(i, mon))) {	/* i is an element of a nontrivial group */
+			freebuf();	// Daniel's fix
 			return (FALSE);
+		}
 		for (j = 0; j < rang; j++) {	/* set zero image and help */
 			image[help[j]] = FALSE;
 			help[j] = 0;
 		}
 	}
+	freebuf();	// Daniel's fix
 	return (TRUE);
 }
 

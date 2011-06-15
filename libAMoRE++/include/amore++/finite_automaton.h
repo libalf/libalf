@@ -58,7 +58,12 @@ class finite_automaton {
 		// get regex for language
 		virtual std::string to_regex() const = 0;
 
+		//
 		// LANGUAGE/AUTOMATON OPERATIONS
+		//
+
+		// Returns whether the automaton is minimal
+		virtual bool is_minimal() const = 0;
 
 		// count (all) states
 		virtual unsigned int get_state_count() const = 0;
@@ -201,6 +206,18 @@ class finite_automaton {
 		virtual std::string visualize(bool exclude_negative_sinks) const;
 		virtual std::string visualize() const
 		{ return visualize(false); };
+
+		//
+		// Monoid based algorithms
+		//
+
+		// Check whether the language represented by this automaton is dot-depth 1
+		virtual bool is_dd1() const = 0;
+		// Check the language represented by this automaton is starfree
+		virtual bool is_sf() const = 0;
+		// Check the language represented by this automaton is piecewise testable
+		virtual bool is_pwt() const = 0;
+
 
 	public:
 		// following are antichain-based algorithms for universality, inclusion and equality-tests for languages.

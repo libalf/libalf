@@ -19,6 +19,7 @@
  * (c) 2008,2009 Lehrstuhl Softwaremodellierung und Verifikation (I2), RWTH Aachen University
  *           and Lehrstuhl Logik und Theorie diskreter Systeme (I7), RWTH Aachen University
  * Author: David R. Piegdon <david-i2@piegdon.de>
+ *         Daniel Neider <neider@automata.rwth-aachen.de>
  *
  */
 
@@ -112,6 +113,14 @@ string deterministic_finite_automaton::to_regex() const
 	delete n;
 
 	return regex;
+}}}
+
+bool deterministic_finite_automaton::is_minimal() const
+{{{
+	if(dfa_p)
+		return dfa_p->minimal;
+	else
+		return 0;
 }}}
 
 unsigned int deterministic_finite_automaton::get_state_count() const
@@ -933,6 +942,96 @@ bool deterministic_finite_automaton::is_folu() const {
 
 	if(dfa_p) {
 		return folutest(dfa_p);
+	} else {
+		return false;
+	}
+}
+
+bool deterministic_finite_automaton::is_dd1() const {
+	if(dfa_p) {
+
+		amore_monoid * m = NULL;
+		
+		if(!is_minimal()) {
+			
+			// Get minimized automaton
+			deterministic_finite_automaton minimized = deterministic_finite_automaton(*this);
+			
+			// Derive monoid
+			m = minimized.to_monoid();
+
+		} else {
+			// Derive monoid
+			m = this->to_monoid();
+		}
+
+		// Check for dot-depth 1
+		bool dd1 = m->is_dd1();
+		
+		// Delete monoid
+		delete m;
+
+		return dd1;
+	} else {
+		return false;
+	}
+}
+
+bool deterministic_finite_automaton::is_sf() const {
+	if(dfa_p) {
+
+		amore_monoid * m = NULL;
+		
+		if(!is_minimal()) {
+			
+			// Get minimized automaton
+			deterministic_finite_automaton minimized = deterministic_finite_automaton(*this);
+			
+			// Derive monoid
+			m = minimized.to_monoid();
+
+		} else {
+			// Derive monoid
+			m = this->to_monoid();
+		}
+
+		// Check for starfree
+		bool sf = m->is_sf();
+		
+		// Delete monoid
+		delete m;
+
+		return sf;
+	} else {
+		return false;
+	}
+}
+
+bool deterministic_finite_automaton::is_pwt() const {
+	if(dfa_p) {
+
+		amore_monoid * m = NULL;
+		
+		if(!is_minimal()) {
+			
+			// Get minimized automaton
+			deterministic_finite_automaton minimized = deterministic_finite_automaton(*this);
+			
+			// Derive monoid
+			m = minimized.to_monoid();
+
+		} else {
+			// Derive monoid
+			m = this->to_monoid();
+		}
+
+		// Check for dot-depth 1
+		bool pwt = m->is_pwt();
+		
+		// Delete monoid
+		delete m;
+
+		return pwt;
 	} else {
 		return false;
 	}
