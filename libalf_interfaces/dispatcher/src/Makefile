@@ -41,14 +41,14 @@ clean:
 
 install: dispatcher
 	@echo
-	@echo installing dispatcher to ${BINDIR} ...
+	@echo installing dispatcher to ${DESTDIR}${BINDIR} ...
 	@echo
-	-install -v -m 755 -d ${BINDIR}
-	install -v -m 755 dispatcher ${BINDIR}
+	-install -v -m 755 -d ${DESTDIR}${BINDIR}
+	install -v -m 755 dispatcher ${DESTDIR}${BINDIR}
 
 uninstall:
 	@echo
-	@echo removing dispatcher from ${BINDIR} ...
+	@echo removing dispatcher from ${DESTDIR}${BINDIR} ...
 	@echo
-	rm -f ${BINDIR}/dispatcher
+	rm -f ${DESTDIR}${BINDIR}/dispatcher
 

@@ -80,16 +80,16 @@ doc:
 
 install: installHeaders all
 	@echo
-	@echo installing libAMoRE library to ${INCLUDEDIR} ...
+	@echo installing libAMoRE library to ${DESTDIR}${INCLUDEDIR} ...
 	@echo
-	-install -v -m 755 -d ${LIBDIR}
-	install -T -v -m 755 ${TARGET} ${LIBDIR}/${INSTALL_SHARED_NAME}
-	install -T -v -m 755 libAMoRE.a ${LIBDIR}/${INSTALL_STATIC_NAME}
+	-install -v -m 755 -d ${DESTDIR}${LIBDIR}
+	install -T -v -m 755 ${TARGET} ${DESTDIR}${LIBDIR}/${INSTALL_SHARED_NAME}
+	install -T -v -m 755 libAMoRE.a ${DESTDIR}${LIBDIR}/${INSTALL_STATIC_NAME}
 	# symlinks
-	-rm -f ${LIBDIR}/${TARGET}
-	ln -s ${LIBDIR}/${INSTALL_SHARED_NAME} ${LIBDIR}/${TARGET}
-	-rm -f ${LIBDIR}/libAMoRE.a
-	ln -s ${LIBDIR}/${INSTALL_STATIC_NAME} ${LIBDIR}/libAMoRE.a
+	-rm -f ${DESTDIR}${LIBDIR}/${TARGET}
+	ln -s ${DESTDIR}${LIBDIR}/${INSTALL_SHARED_NAME} ${DESTDIR}${LIBDIR}/${TARGET}
+	-rm -f ${DESTDIR}${LIBDIR}/libAMoRE.a
+	ln -s ${DESTDIR}${LIBDIR}/${INSTALL_STATIC_NAME} ${DESTDIR}${LIBDIR}/libAMoRE.a
 	-test `id -u` -eq 0 && /sbin/ldconfig; true
 
 
@@ -97,35 +97,35 @@ uninstall: uninstallHeaders
 	@echo
 	@echo removing libAMoRE library from ${INCLUDEDIR} ...
 	@echo
-	rm -f ${LIBDIR}/${INSTALL_SHARED_NAME}
-	rm -f ${LIBDIR}/${INSTALL_STATIC_NAME}
-	rm -f ${LIBDIR}/${TARGET}
-	rm -f ${LIBDIR}/libAMoRE.a
+	rm -f ${DESTDIR}${LIBDIR}/${INSTALL_SHARED_NAME}
+	rm -f ${DESTDIR}${LIBDIR}/${INSTALL_STATIC_NAME}
+	rm -f ${DESTDIR}${LIBDIR}/${TARGET}
+	rm -f ${DESTDIR}${LIBDIR}/libAMoRE.a
 	-test `id -u` -eq 0 && /sbin/ldconfig; true
 
 
 installHeaders:
 	@echo
-	@echo installing libAMoRE headers to ${INCLUDEDIR} ...
+	@echo installing libAMoRE headers to ${DESTDIR}${INCLUDEDIR} ...
 	@echo
-	install -v -m 755 -d ${INCLUDEDIR}/amore
-	install -v -m 644 include/amore/* ${INCLUDEDIR}/amore
+	install -v -m 755 -d ${DESTDIR}${INCLUDEDIR}/amore
+	install -v -m 644 include/amore/* ${DESTDIR}${INCLUDEDIR}/amore
 uninstallHeaders:
 	@echo
-	@echo removing libAMoRE headers from ${INCLUDEDIR} ...
+	@echo removing libAMoRE headers from ${DESTDIR}${INCLUDEDIR} ...
 	@echo
-	rm -Rf ${INCLUDEDIR}/amore
+	rm -Rf ${DESTDIR}${INCLUDEDIR}/amore
 
 
 installDocs: doc
 	@echo
-	@echo installing libAMoRE doc to ${DOCDIR} ...
+	@echo installing libAMoRE doc to ${DESTDIR}${DOCDIR} ...
 	@echo
-	install -v -m 755 -d $(DOCDIR)/libAMoRE/html 
-	install -v -m 644 docs/html/* $(DOCDIR)/libAMoRE/html
+	install -v -m 755 -d ${DESTDIR}$(DOCDIR)/libAMoRE/html 
+	install -v -m 644 docs/html/* ${DESTDIR}$(DOCDIR)/libAMoRE/html
 uninstallDocs:
 	@echo
-	@echo removing libAMoRE doc from ${DOCDIR} ...
+	@echo removing libAMoRE doc from ${DESTDIR}${DOCDIR} ...
 	@echo
-	rm -Rf ${DOCDIR}/libAMoRE
+	rm -Rf ${DESTDIR}${DOCDIR}/libAMoRE
 

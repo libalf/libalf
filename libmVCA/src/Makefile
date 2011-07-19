@@ -56,25 +56,25 @@ clean:
 
 install: ${TARGET} libmVCA.a
 	@echo
-	@echo installing libmVCA library to ${LIBDIR} ...
+	@echo installing libmVCA library to ${DESTDIR}${LIBDIR} ...
 	@echo
-	-install -v -m 755 -d ${LIBDIR}
-	install -T -v -m 755 ${TARGET} ${LIBDIR}/${INSTALL_SHARED_NAME}
-	install -T -v -m 755 libmVCA.a  ${LIBDIR}/${INSTALL_STATIC_NAME}
+	-install -v -m 755 -d ${DESTDIR}${LIBDIR}
+	install -T -v -m 755 ${TARGET} ${DESTDIR}${LIBDIR}/${INSTALL_SHARED_NAME}
+	install -T -v -m 755 libmVCA.a  ${DESTDIR}${LIBDIR}/${INSTALL_STATIC_NAME}
 	# symlinks
-	-rm -f ${LIBDIR}/${TARGET}
-	ln -s ${LIBDIR}/${INSTALL_SHARED_NAME} ${LIBDIR}/${TARGET}
-	-rm -f ${LIBDIR}/libmVCA.a
-	ln -s ${LIBDIR}/${INSTALL_STATIC_NAME}  ${LIBDIR}/libmVCA.a
+	-rm -f ${DESTDIR}${LIBDIR}/${TARGET}
+	ln -s ${DESTDIR}${LIBDIR}/${INSTALL_SHARED_NAME} ${DESTDIR}${LIBDIR}/${TARGET}
+	-rm -f ${DESTDIR}${LIBDIR}/libmVCA.a
+	ln -s ${DESTDIR}${LIBDIR}/${INSTALL_STATIC_NAME} ${DESTDIR}${LIBDIR}/libmVCA.a
 	-test `id -u` -eq 0 && /sbin/ldconfig; true
 
 uninstall:
 	@echo
-	@echo removing libmVCA library from ${LIBDIR} ...
+	@echo removing libmVCA library from ${DESTDIR}${LIBDIR} ...
 	@echo
-	rm -f ${LIBDIR}/${INSTALL_SHARED_NAME}
-	rm -f ${LIBDIR}/${INSTALL_STATIC_NAME}
-	rm -f ${LIBDIR}/${TARGET}
-	rm -f ${LIBDIR}/libmVCA.a
+	rm -f ${DESTDIR}${LIBDIR}/${INSTALL_SHARED_NAME}
+	rm -f ${DESTDIR}${LIBDIR}/${INSTALL_STATIC_NAME}
+	rm -f ${DESTDIR}${LIBDIR}/${TARGET}
+	rm -f ${DESTDIR}${LIBDIR}/libmVCA.a
 	-test `id -u` -eq 0 && /sbin/ldconfig; true
 

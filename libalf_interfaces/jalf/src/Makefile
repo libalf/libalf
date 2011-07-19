@@ -75,21 +75,21 @@ clean:
 
 install: all
 	@echo
-	@echo installing ${TARGET} to ${LIBDIR} ...
+	@echo installing ${TARGET} to ${DESTDIR}${LIBDIR} ...
 	@echo
-	-install -v -m 755 -d ${LIBDIR}
-	install -T -v -m 755 ${TARGET} ${LIBDIR}/${INSTALL_SHARED_NAME}
+	-install -v -m 755 -d ${DESTDIR}${LIBDIR}
+	install -T -v -m 755 ${TARGET} ${DESTDIR}${LIBDIR}/${INSTALL_SHARED_NAME}
 	# symlinks
-	-rm -f ${LIBDIR}/${TARGET}
-	ln -s ${LIBDIR}/${INSTALL_SHARED_NAME} ${LIBDIR}/${TARGET}
+	-rm -f ${DESTDIR}${LIBDIR}/${TARGET}
+	ln -s ${DESTDIR}${LIBDIR}/${INSTALL_SHARED_NAME} ${DESTDIR}${LIBDIR}/${TARGET}
 	-test `id -u` -eq 0 && /sbin/ldconfig; true
 
 uninstall:
 	@echo
-	@echo removing ${TARGET} from ${LIBDIR} ...
+	@echo removing ${TARGET} from ${DESTDIR}${LIBDIR} ...
 	@echo
-	rm -f ${LIBDIR}/${INSTALL_SHARED_NAME}
-	rm -f ${LIBDIR}/${TARGET}
+	rm -f ${DESTDIR}${LIBDIR}/${INSTALL_SHARED_NAME}
+	rm -f ${DESTDIR}${LIBDIR}/${TARGET}
 	-test `id -u` -eq 0 && /sbin/ldconfig; true
 
 

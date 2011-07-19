@@ -45,14 +45,14 @@ jpegs:
 
 install: fat fateq
 	@echo
-	@echo installing fat to ${BINDIR} ...
+	@echo installing fat to ${DESTDIR}${BINDIR} ...
 	@echo
-	-install -v -m 755 -d ${BINDIR}
-	install -v -m 755 fat fateq ${BINDIR}
+	-install -v -m 755 -d ${DESTDIR}${BINDIR}
+	install -v -m 755 fat fateq ${DESTDIR}${BINDIR}
 
 uninstall:
 	@echo
-	@echo removing fat from ${BINDIR} ...
+	@echo removing fat from ${DESTDIR}${BINDIR} ...
 	@echo
-	rm -f ${BINDIR}/fat ${BINDIR}/fateq
+	rm -f ${DESTDIR}${BINDIR}/fat ${DESTDIR}${BINDIR}/fateq
 
