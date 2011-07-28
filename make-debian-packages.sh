@@ -1,5 +1,9 @@
 #!/bin/sh
 
+make uninstall
+make clean
+sudo make install
+
 if [ "x$ARCH" = "x" ]; then
 	ARCH=`uname -m`
 fi;
@@ -38,7 +42,7 @@ prep_deb_sysroot() {
 }
 
 create_deb() {
-	dpkg -b "${DESTDIR}" "${DEPLOY}/$1${SVNTAG}_${VERSION}_${ARCH}.deb"
+	fakeroot dpkg -b "${DESTDIR}" "${DEPLOY}/$1${SVNTAG}_${VERSION}_${ARCH}.deb"
 }
 
 #
