@@ -1,8 +1,10 @@
 #!/bin/sh
 
-make uninstall
-make clean
-sudo make install
+PREFIX=/usr
+
+sudo make PREFIX=${PREFIX} uninstall	|| exit 1
+make clean				|| exit 1
+sudo make -j3 PREFIX=${PREFIX} install	|| exit 1
 
 if [ "x$ARCH" = "x" ]; then
 	ARCH=`uname -m`
@@ -16,8 +18,6 @@ mkdir "$DEPLOY"
 
 WORK="$TEMPDIR/work"
 mkdir "$WORK"
-
-PREFIX=/usr
 
 prep_env() {
 	DESTDIR="${WORK}/$1"
@@ -134,5 +134,6 @@ create_deb libalf-interfaces || exit 1
 #
 # done
 #
+sudo make PREFIX=${PREFIX} uninstall
 echo done. packages are in ${DEPLOY}
 
