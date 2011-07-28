@@ -63,9 +63,9 @@ install: ${TARGET} libAMoRE++.a
 	install -T -v -m 755 libAMoRE++.a ${DESTDIR}${LIBDIR}/${INSTALL_STATIC_NAME}
 	# symlinks
 	-rm -f ${DESTDIR}${LIBDIR}/${TARGET}
-	ln -s ${DESTDIR}${LIBDIR}/${INSTALL_SHARED_NAME} ${DESTDIR}${LIBDIR}/${TARGET}
+	ln -s ${LIBDIR}/${INSTALL_SHARED_NAME} ${DESTDIR}${LIBDIR}/${TARGET}
 	-rm -f ${DESTDIR}${LIBDIR}/libAMoRE++.a
-	ln -s ${DESTDIR}${LIBDIR}/${INSTALL_STATIC_NAME} ${DESTDIR}${LIBDIR}/libAMoRE++.a
+	ln -s ${LIBDIR}/${INSTALL_STATIC_NAME} ${DESTDIR}${LIBDIR}/libAMoRE++.a
 	-test `id -u` -eq 0 && /sbin/ldconfig; true
 
 uninstall:

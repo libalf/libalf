@@ -81,7 +81,7 @@ install: all
 	install -T -v -m 755 ${TARGET} ${DESTDIR}${LIBDIR}/${INSTALL_SHARED_NAME}
 	# symlinks
 	-rm -f ${DESTDIR}${LIBDIR}/${TARGET}
-	ln -s ${DESTDIR}${LIBDIR}/${INSTALL_SHARED_NAME} ${DESTDIR}${LIBDIR}/${TARGET}
+	ln -s ${LIBDIR}/${INSTALL_SHARED_NAME} ${DESTDIR}${LIBDIR}/${TARGET}
 	-test `id -u` -eq 0 && /sbin/ldconfig; true
 
 uninstall:
