@@ -13,10 +13,10 @@ LDFLAGS+=-L../../src -L${LIBDIR} -lm -lalf -lAMoRE++ -llangen
 all: rpni_static rpni_regex rpni_file rpni_angluin_tester
 
 nodata:
-	-rm -f *.dot *.jpg *.bs *.txt
+	-rm -f *.dot *.jpg *.bs *.txt 2>&1
 
 clean: nodata
-	-rm -f *.o rpni_regex rpni_static rpni_file rpni_angluin_tester
+	-rm -f *.o rpni_regex rpni_static rpni_file rpni_angluin_tester 2>&1
 
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;

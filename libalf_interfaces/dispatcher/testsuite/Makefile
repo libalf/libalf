@@ -12,5 +12,5 @@ protocol: protocol.o
 	${CXX} protocol.o ${LDFLAGS} -o protocol
 
 clean:
-	-rm -f protocol *.o
+	-rm -f protocol *.o 2>&1
 

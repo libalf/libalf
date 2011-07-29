@@ -14,10 +14,10 @@ LDFLAGS+=-L../../src -L${LIBDIR} -lalf -lAMoRE++ -lreadline
 all: learn_generic
 
 clean: nodata
-	-rm -f *.o learn_generic_L learn_generic_Lcol learn_generic_RV
+	-rm -f *.o learn_generic_L learn_generic_Lcol learn_generic_RV 2>&1
 
 nodata:
-	-rm -f *.dot *.jpg *.angluin *.ser
+	-rm -f *.dot *.jpg *.angluin *.ser 2>&1
 
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;

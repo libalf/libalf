@@ -13,10 +13,10 @@ LDFLAGS+=-L../../src -L${LIBDIR} -lalf -lAMoRE++
 all: learn_regex
 
 clean: nodata
-	-rm -f *.o learn_regex
+	-rm -f *.o learn_regex 2>&1
 
 nodata:
-	-rm -f *.dot *.jpg
+	-rm -f *.dot *.jpg 2>&1
 
 run:
 	LD_LIBRARY_PATH=../../src ./learn_regex

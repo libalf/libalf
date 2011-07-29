@@ -14,13 +14,13 @@ LDFLAGS+=-L../../src -L${LIBDIR} -lalf -lAMoRE++ -llangen -lrt
 all: algorithm_analysis
 
 clean: nodata
-	-rm -f *.o algorithm_analysis
+	-rm -f *.o algorithm_analysis 2>&1
 
 nodata: noresults
-	-rm -f *.dot statistics
+	-rm -f *.dot statistics 2>&1
 
 noresults:
-	-rm -f *.jpg split_data_a2m0 split_data_a2m1 split_data_a2m2 split_data_a3m0 split_data_a3m1 split_data_a3m2 split_data_a4m0 split_data_a4m1 split_data_a4m2
+	-rm -f *.jpg split_data_a2m0 split_data_a2m1 split_data_a2m2 split_data_a3m0 split_data_a3m1 split_data_a3m2 split_data_a4m0 split_data_a4m1 split_data_a4m2 2>&1
 
 split_data:
 	gawk '/^[^ ]+ 2 0/ { print $0 }' statistics > split_data_a2m0

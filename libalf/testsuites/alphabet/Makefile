@@ -13,7 +13,7 @@ LDFLAGS+=-L../../src -L${LIBDIR} -lalf -lAMoRE++ -llangen
 all: graded_inc_dec
 
 clean:
-	-rm -f *.o graded_inc_dec
+	-rm -f *.o graded_inc_dec 2>&1
 
 graded_inc_dec: graded_inc_dec.cpp
 

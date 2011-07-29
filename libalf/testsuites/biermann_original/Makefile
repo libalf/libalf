@@ -13,10 +13,10 @@ LDFLAGS+=-L../../src -L${LIBDIR} -lm -lalf -llangen
 all: learn_regex learn_generic
 
 nodata:
-	-rm -f *.dot *.jpg hypothesis knowledgebase
+	-rm -f *.dot *.jpg hypothesis knowledgebase 2>&1
 
 clean: nodata
-	-rm -f *.o learn_regex learn_generic
+	-rm -f *.o learn_regex learn_generic 2>&1
 
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;

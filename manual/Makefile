@@ -15,7 +15,7 @@ BIBS = $(shell echo *.bib)
 all: libalf.pdf
 
 clean:
-	-rm libalf.out libalf.pdf libalf.aux libalf.log libalf.idx libalf.lof libalf.toc libalf.bbl libalf.blg libalf.lot
+	-rm libalf.out libalf.pdf libalf.aux libalf.log libalf.idx libalf.lof libalf.toc libalf.bbl libalf.blg libalf.lot 2>&1
 
 libalf.pdf:
 	pdflatex libalf.tex
@@ -34,5 +34,5 @@ uninstall:
 	@echo removing libalf manual from ${DOCDIR} ...
 	@echo
 	rm -f ${DOCDIR}/libalf.pdf
-	-rmdir ${DOCDIR}
+	-rmdir ${DOCDIR} 2>&1
 

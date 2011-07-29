@@ -5,7 +5,7 @@
 
 include config.mk
 
-VERSIONTAG:=$(shell cat "version")
+VERSIONTAG:=$(shell cat "version" 2>/dev/null)
 ifeq (${VERSIONTAG},)
 # subversion branch
 LOCALCHANGES := $(shell test "`svn status | wc -c`" != "0" && echo "-LocalChanges")
@@ -71,8 +71,8 @@ AMoRE.dll: $(OBJ)
 	${CC} ${LDFLAGS} -o $@ $?
 	
 clean:
-	-rm -f *~ */*~ $(OBJ) libAMoRE.a libAMoRE.so AMoRE.dll libtest
-	-rm -Rf docs/html docs/latex 
+	-rm -f *~ */*~ $(OBJ) libAMoRE.a libAMoRE.so AMoRE.dll libtest 2>&1
+	-rm -Rf docs/html docs/latex  2>&1
 
 doc:
 	doxygen docs/Doxyfile-libAMoRE
@@ -86,9 +86,9 @@ install: installHeaders all
 	install -T -v -m 755 ${TARGET} ${DESTDIR}${LIBDIR}/${INSTALL_SHARED_NAME}
 	install -T -v -m 755 libAMoRE.a ${DESTDIR}${LIBDIR}/${INSTALL_STATIC_NAME}
 	# symlinks
-	-rm -f ${DESTDIR}${LIBDIR}/${TARGET}
+	-rm -f ${DESTDIR}${LIBDIR}/${TARGET} 2>&1
 	ln -s ${LIBDIR}/${INSTALL_SHARED_NAME} ${DESTDIR}${LIBDIR}/${TARGET}
-	-rm -f ${DESTDIR}${LIBDIR}/libAMoRE.a
+	-rm -f ${DESTDIR}${LIBDIR}/libAMoRE.a 2>&1
 	ln -s ${LIBDIR}/${INSTALL_STATIC_NAME} ${DESTDIR}${LIBDIR}/libAMoRE.a
 	-test `id -u` -eq 0 && /sbin/ldconfig; true
 

@@ -5,7 +5,7 @@
 
 include ../config.mk
 
-VERSIONTAG:=$(shell cat "../version")
+VERSIONTAG:=$(shell cat "../version" 2>/dev/null)
 ifeq (${VERSIONTAG},)
 # subversion branch
 LOCALCHANGES:=$(shell test "`svn status | wc -c`" != "0" && echo "-LocalChanges")
@@ -40,7 +40,7 @@ install: jalf.jar
 	-install -v -m 755 -d ${DESTDIR}${JARDIR}
 	install -T -v -m 755 jalf.jar ${DESTDIR}${JARDIR}/${INSTALL_JAR_NAME}
 	# symlinks
-	-rm -f ${DESTDIR}${JARDIR}/jalf.jar
+	-rm -f ${DESTDIR}${JARDIR}/jalf.jar 2>&1
 	ln -s ${JARDIR}/${INSTALL_JAR_NAME} ${DESTDIR}${JARDIR}/jalf.jar
 
 uninstall:

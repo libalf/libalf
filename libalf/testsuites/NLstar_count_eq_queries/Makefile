@@ -13,10 +13,10 @@ LDFLAGS+=-L../../src -L${LIBDIR} -lalf -lAMoRE++ -llangen
 all: count_eq_queries count_eq_queries_random count_eq_queries_file
 
 clean: nodata
-	-rm -f *.o count_eq_queries count_eq_queries_random count_eq_queries_file
+	-rm -f *.o count_eq_queries count_eq_queries_random count_eq_queries_file 2>&1
 
 nodata:
-	-rm -f *.dot *.jpg *.atm
+	-rm -f *.dot *.jpg *.atm 2>&1
 
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;

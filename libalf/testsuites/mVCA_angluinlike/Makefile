@@ -17,10 +17,10 @@ full_test: clean all
 	./learn_static
 
 clean: nodata
-	-rm -f *.o learn_static
+	-rm -f *.o learn_static 2>&1
 
 nodata:
-	-rm -f *.dot *.jpg *.NLstar testlog
+	-rm -f *.dot *.jpg *.NLstar testlog 2>&1
 
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;

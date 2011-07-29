@@ -13,10 +13,10 @@ LDFLAGS+=-L../../src -L${LIBDIR} -lAMoRE++
 all: amore_clone
 
 clean: nodata
-	-rm -f *.o amore_clone
+	-rm -f *.o amore_clone 2>&1
 
 nodata:
-	-rm -f *.dot *.jpg testlog
+	-rm -f *.dot *.jpg testlog 2>&1
 
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;

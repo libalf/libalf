@@ -15,5 +15,5 @@ all: regex_stuff
 regex_stuff: regex_stuff
 
 clean:
-	-rm regex_stuff
+	-rm regex_stuff 2>&1
 

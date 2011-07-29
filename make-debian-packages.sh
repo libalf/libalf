@@ -1,34 +1,22 @@
 #!/bin/sh
+# vim:fdm=marker
 
-PREFIX=/usr
+# functions for debian package builting {{{
 
-sudo make PREFIX=${PREFIX} uninstall	|| exit 1
-make clean				|| exit 1
-sudo make -j3 PREFIX=${PREFIX} install	|| exit 1
-
-if [ "x$ARCH" = "x" ]; then
-	ARCH=`uname -m`
-fi;
-
-TEMPDIR="`pwd`/tmp"
-mkdir "$TEMPDIR"
-
-DEPLOY="$TEMPDIR/deploy"
-mkdir "$DEPLOY"
-
-WORK="$TEMPDIR/work"
-mkdir "$WORK"
+log() {
+	echo -e "\033[1;34m$@\033[m"
+}
 
 prep_env() {
 	DESTDIR="${WORK}/$1"
 	mkdir "${DESTDIR}"
 	chmod 755 "${DESTDIR}"
 
-	if [ -f "$1/version" ]; then
+	if [[ -f "$1/version" ]]; then
 		export VERSION=`cat "$1/version"`
 		export SVNTAG=""
 	else
-		export VERSION=`cd $1; LC_ALL=POSIX svn info | awk '/^Revision:/ {print $2}'`
+		export VERSION=`cd $2; LC_ALL=POSIX svn info | awk '/^Revision:/ {print $2}'`
 		export SVNTAG="-svn"
 		export SVNDESC=" (svn version)"
 	fi;
@@ -45,12 +33,66 @@ create_deb() {
 	fakeroot dpkg -b "${DESTDIR}" "${DEPLOY}/$1${SVNTAG}_${VERSION}_${ARCH}.deb"
 }
 
-#
-# libalf
-#
-prep_env libalf
-make -C libalf DESTDIR=${DESTDIR} PREFIX=${PREFIX} install || exit 1
+# }}}
+
+log "all logfiles in ${LOGS}"
+log "preparing..."
+# prepare environment vars {{{
+
+if [[ "x$PREFIX" == "x" ]]; then
+	PREFIX=/usr
+fi;
+MAKEOPTS="-j3"
+
+TEMPDIR="`pwd`/tmp"
+DEPLOY="$TEMPDIR/deploy"
+WORK="$TEMPDIR/work"
+LOGS="$TEMPDIR/log"
+
+if [[ "x$ARCH" = "x" ]]; then
+	ARCH=`uname -m`
+fi;
+
+# }}}
+# prepare building directories {{{
+
+rm -Rf "$TEMPDIR"
+
+mkdir "$TEMPDIR" || exit 1
+mkdir "$DEPLOY"
+mkdir "$WORK"
+mkdir "$LOGS"
+
+# }}}
+
+log "installing deps for correct linking"
+# install libs for linking {{{
+
+# clean up so there are no bad linkings
+sudo make PREFIX="${PREFIX}" uninstall > "${LOGS}/0_0_cleanup" || exit 1
+sudo make clean > /dev/null >> "${LOGS}/0_cleanup" || exit 1
+
+# install dependencies
+for LIB in libalf liblangen libmVCA libAMoRE libAMoRE++; do
+	sudo make ${MAKEOPTS} -C ${LIB} PREFIX="${PREFIX}" install > "${LOGS}/0_1_install_deps" || exit 1
+done;
+
+# and clean again so user-rights do not conflict later
+rm "${LOGS}/2_clean_deps"
+for LIB in libalf liblangen libmVCA libAMoRE libAMoRE++; do
+	sudo make -C ${LIB} clean >> "${LOGS}/0_2_clean_deps" || exit 1
+done;
+
+# }}}
+
+log "creating packages:"
+log "libalf"
+# libalf {{{
+
+prep_env libalf libalf
+make -C libalf ${MAKEOPTS} DESTDIR=${DESTDIR} PREFIX=${PREFIX} install > "${LOGS}/1_0_libalf" || exit 1
 prep_deb_sysroot "${DESTDIR}"
+
 cat > "$DESTDIR/DEBIAN/control" << _eof_libalf
 Package: libalf${SVNTAG}
 Priority: optional
@@ -60,14 +102,17 @@ Architecture: ${ARCH}
 Version: ${VERSION}
 Description: The libalf learning framework${SVNDESC}
 _eof_libalf
-create_deb libalf || exit 1
 
-#
-# liblangen
-#
-prep_env liblangen
-make -C liblangen DESTDIR=${DESTDIR} PREFIX=${PREFIX} install || exit 1
+create_deb libalf >> "${LOGS}/1_0_libalf" || exit 1
+
+# }}}
+log "liblangen"
+# liblangen {{{
+
+prep_env liblangen liblangen
+make -C liblangen ${MAKEOPTS} DESTDIR=${DESTDIR} PREFIX=${PREFIX} install > "${LOGS}/1_1_liblangen" || exit 1
 prep_deb_sysroot "${DESTDIR}"
+
 cat > "$DESTDIR/DEBIAN/control" << _eof_liblangen
 Package: liblangen${SVNTAG}
 Priority: optional
@@ -77,14 +122,17 @@ Architecture: ${ARCH}
 Version: ${VERSION}
 Description: C++ library for generating (regular) languages by means of randomly drawn finite automata or regular expressions${SVNDESC}
 _eof_liblangen
-create_deb liblangen || exit 1
 
-#
-# libmVCA
-#
-prep_env libmVCA
-make -C libmVCA DESTDIR=${DESTDIR} PREFIX=${PREFIX} install || exit 1
+create_deb liblangen >> "${LOGS}/1_1_liblangen" || exit 1
+
+# }}}
+log "libmVCA"
+# libmVCA {{{
+
+prep_env libmVCA libmVCA
+make -C libmVCA ${MAKEOPTS} DESTDIR=${DESTDIR} PREFIX=${PREFIX} install > "${LOGS}/1_2_libmVCA" || exit 1
 prep_deb_sysroot "${DESTDIR}"
+
 cat > "$DESTDIR/DEBIAN/control" << _eof_libmVCA
 Package: libmVCA${SVNTAG}
 Priority: optional
@@ -94,15 +142,18 @@ Architecture: ${ARCH}
 Version: ${VERSION}
 Description: C++ library for visibly one-counter automata${SVNDESC}
 _eof_libmVCA
-create_deb libmVCA || exit 1
 
-#
-# libAMoRE (++)
-#
-prep_env libAMoRE-++
-make -C libAMoRE DESTDIR=${DESTDIR} PREFIX=${PREFIX} install || exit 1
-make -C libAMoRE++ DESTDIR=${DESTDIR} PREFIX=${PREFIX} install || exit 1
+create_deb libmVCA >> "${LOGS}/1_2_libmVCA" || exit 1
+
+# }}}
+log "libAMoRE-++"
+# libAMoRE (++) {{{
+
+prep_env libAMoRE-++ libAMoRE++
+make -C libAMoRE ${MAKEOPTS} DESTDIR=${DESTDIR} PREFIX=${PREFIX} install > "${LOGS}/1_3_libAMoRE-++" || exit 1
+make -C libAMoRE++ ${MAKEOPTS} DESTDIR=${DESTDIR} PREFIX=${PREFIX} install >> "${LOGS}/1_3_libAMoRE-++" || exit 1
 prep_deb_sysroot "${DESTDIR}"
+
 cat > "$DESTDIR/DEBIAN/control" << _eof_libAMoRE
 Package: libAMoRE-++${SVNTAG}
 Priority: optional
@@ -112,14 +163,17 @@ Architecture: ${ARCH}
 Version: ${VERSION}
 Description: comprehensive automata library and its c++ interface${SVNDESC}
 _eof_libAMoRE
-create_deb libAMoRE-++ || exit 1
 
-#
-# libalf-interfaces
-#
-prep_env libalf-interfaces
-make -C libalf_interfaces DESTDIR=${DESTDIR} PREFIX=${PREFIX} install || exit 1
+create_deb libAMoRE-++ >> "${LOGS}/1_3_libAMoRE-++" || exit 1
+
+# }}}
+log "libalf-interfaces"
+# libalf-interfaces {{{
+
+prep_env libalf-interfaces libalf_interfaces
+make -C libalf_interfaces ${MAKEOPTS} DESTDIR=${DESTDIR} PREFIX=${PREFIX} install > "${LOGS}/1_4_libalf-interfaces" || exit 1
 prep_deb_sysroot "${DESTDIR}"
+
 cat > "$DESTDIR/DEBIAN/control" << _eof_libalf-interfaces
 Package: libalf-interfaces${SVNTAG}
 Priority: optional
@@ -129,11 +183,38 @@ Architecture: ${ARCH}
 Version: ${VERSION}
 Description: The libalf learning framework interfaces${SVNDESC}
 _eof_libalf-interfaces
-create_deb libalf-interfaces || exit 1
 
-#
-# done
-#
-sudo make PREFIX=${PREFIX} uninstall
-echo done. packages are in ${DEPLOY}
+create_deb libalf-interfaces >> "${LOGS}/1_4_libalf-interfaces" || exit 1
+
+# }}}
+log "finite-automata-tools"
+# finite-automata-tools {{{
+
+prep_env finite-automata-tool finite-automata-tools
+make -C finite-automata-tool ${MAKEOPTS} DESTDIR=${DESTDIR} PREFIX=${PREFIX} install > "${LOGS}/1_5_finite-automata-tools" || exit 1
+prep_deb_sysroot "${DESTDIR}"
+
+cat > "$DESTDIR/DEBIAN/control" << _eof_libalf-interfaces
+Package: finite-automata-tool${SVNTAG}
+Priority: optional
+Section: devel
+Maintainer: David R. Piegdon <david-i2@piegdon.de>
+Architecture: ${ARCH}
+Version: ${VERSION}
+Description: finite-automata-tool${SVNDESC}
+_eof_libalf-interfaces
+
+create_deb finite-automata-tool >> "${LOGS}/1_5_finite-automata-tools" || exit 1
+
+# }}}
+
+log "cleanup"
+# cleanup {{{
+
+sudo make PREFIX=${PREFIX} uninstall > "${LOGS}/2_cleanup"
+
+# }}}
+
+log "done"
+log "packages are in ${DEPLOY}"
 

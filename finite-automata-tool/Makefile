@@ -5,7 +5,7 @@
 
 include config.mk
 
-VERSIONTAG:=$(shell cat "version")
+VERSIONTAG:=$(shell cat "version" 2>/dev/null)
 ifeq (${VERSIONTAG},)
 # subversion branch
 LOCALCHANGES:=$(shell test "`svn status | wc -c`" != "0" && echo "-LocalChanges")
@@ -35,10 +35,10 @@ fateq: fateq.o
 	${CXX} fateq.o ${LDFLAGS} -lalf -lAMoRE++ -lAMoRE -o $@
 
 clean: nodata
-	-rm -f fat fateq *.o
+	-rm -f fat fateq *.o 2>&1
 
 nodata:
-	-rm -f *.dot *.jpg
+	-rm -f *.dot *.jpg 2>&1
 
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;

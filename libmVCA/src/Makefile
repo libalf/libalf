@@ -5,7 +5,7 @@
 
 include ../config.mk
 
-VERSIONTAG:=$(shell cat "../version")
+VERSIONTAG:=$(shell cat "../version" 2>/dev/null)
 ifeq (${VERSIONTAG},)
 # subversion branch
 LOCALCHANGES:=$(shell test "`svn status | wc -c`" != "0" && echo "-LocalChanges")
@@ -52,7 +52,7 @@ libmVCA.a: ${OBJECTS}
 	${AR} rcs $@ $(OBJECTS)
 
 clean:
-	-rm -f *.o libmVCA.so mVCA.dll libmVCA.a
+	-rm -f *.o libmVCA.so mVCA.dll libmVCA.a 2>&1
 
 install: ${TARGET} libmVCA.a
 	@echo
@@ -62,9 +62,9 @@ install: ${TARGET} libmVCA.a
 	install -T -v -m 755 ${TARGET} ${DESTDIR}${LIBDIR}/${INSTALL_SHARED_NAME}
 	install -T -v -m 755 libmVCA.a  ${DESTDIR}${LIBDIR}/${INSTALL_STATIC_NAME}
 	# symlinks
-	-rm -f ${DESTDIR}${LIBDIR}/${TARGET}
+	-rm -f ${DESTDIR}${LIBDIR}/${TARGET} 2>&1
 	ln -s ${LIBDIR}/${INSTALL_SHARED_NAME} ${DESTDIR}${LIBDIR}/${TARGET}
-	-rm -f ${DESTDIR}${LIBDIR}/libmVCA.a
+	-rm -f ${DESTDIR}${LIBDIR}/libmVCA.a 2>&1
 	ln -s ${LIBDIR}/${INSTALL_STATIC_NAME} ${DESTDIR}${LIBDIR}/libmVCA.a
 	-test `id -u` -eq 0 && /sbin/ldconfig; true
 

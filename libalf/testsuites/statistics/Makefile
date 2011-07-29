@@ -13,7 +13,7 @@ LDFLAGS+=-L../../src -L${LIBDIR} -lalf
 all: stat
 
 clean:
-	-rm -f *.o stat
+	-rm -f *.o stat 2>&1
 
 stat: stat.cpp
 

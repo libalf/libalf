@@ -5,7 +5,7 @@
 
 include ../config.mk
 
-VERSIONTAG:=$(shell cat "../version")
+VERSIONTAG:=$(shell cat "../version" 2>/dev/null)
 ifeq (${VERSIONTAG},)
 # subversion branch
 LOCALCHANGES:=$(shell test "`svn status | wc -c`" != "0" && echo "-LocalChanges")
@@ -49,7 +49,7 @@ liblangen.a: ${OBJECTS}
 	${AR} rcs $@ $(OBJECTS)
 
 clean:
-	-rm -f *.o liblangen.so langen.dll liblangen.a
+	-rm -f *.o liblangen.so langen.dll liblangen.a 2>&1
 
 install: ${TARGET} liblangen.a
 	@echo
@@ -59,9 +59,9 @@ install: ${TARGET} liblangen.a
 	install -T -v -m 755 ${TARGET} ${DESTDIR}${LIBDIR}/${INSTALL_SHARED_NAME}
 	install -T -v -m 755 liblangen.a ${DESTDIR}${LIBDIR}/${INSTALL_STATIC_NAME}
 	# symlinks
-	-rm -f ${DESTDIR}${LIBDIR}/${TARGET}
+	-rm -f ${DESTDIR}${LIBDIR}/${TARGET} 2>&1
 	ln -s ${LIBDIR}/${INSTALL_SHARED_NAME} ${DESTDIR}${LIBDIR}/${TARGET}
-	-rm -f ${DESTDIR}${LIBDIR}/liblangen.a
+	-rm -f ${DESTDIR}${LIBDIR}/liblangen.a 2>&1
 	ln -s ${LIBDIR}/${INSTALL_STATIC_NAME} ${DESTDIR}${LIBDIR}/liblangen.a
 	-test `id -u` -eq 0 && /sbin/ldconfig; true
 

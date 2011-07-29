@@ -13,10 +13,10 @@ LDFLAGS+=-L../../src -L${LIBDIR} -lalf
 all: finite_automaton_from_file
 
 clean: nodata
-	-rm -f *.o finite_automaton_from_file
+	-rm -f *.o finite_automaton_from_file 2>&1
 
 nodata:
-	-rm -f *.dot *.jpg *.ser
+	-rm -f *.dot *.jpg *.ser 2>&1
 
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;

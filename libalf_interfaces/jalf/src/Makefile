@@ -5,7 +5,7 @@
 
 include ../../config.mk
 
-VERSIONTAG:=$(shell cat "../../version")
+VERSIONTAG:=$(shell cat "../../version" 2>/dev/null)
 ifeq (${VERSIONTAG},)
 # subversion branch
 LOCALCHANGES:=$(shell test "`svn status | wc -c`" != "0" && echo "-LocalChanges")
@@ -71,7 +71,7 @@ test_java_includes:
 	@echo
 
 clean:
-	-rm -f *.o libjalf.so jalf.dll
+	-rm -f *.o libjalf.so jalf.dll 2>&1
 
 install: all
 	@echo
@@ -80,7 +80,7 @@ install: all
 	-install -v -m 755 -d ${DESTDIR}${LIBDIR}
 	install -T -v -m 755 ${TARGET} ${DESTDIR}${LIBDIR}/${INSTALL_SHARED_NAME}
 	# symlinks
-	-rm -f ${DESTDIR}${LIBDIR}/${TARGET}
+	-rm -f ${DESTDIR}${LIBDIR}/${TARGET} 2>&1
 	ln -s ${LIBDIR}/${INSTALL_SHARED_NAME} ${DESTDIR}${LIBDIR}/${TARGET}
 	-test `id -u` -eq 0 && /sbin/ldconfig; true
 

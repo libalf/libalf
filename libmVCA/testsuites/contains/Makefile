@@ -12,7 +12,7 @@ LDFLAGS+=-L../../src -L${LIBDIR} -lmVCA
 all: contains
 
 clean:
-	-rm -f *.o contains *.png *.dot
+	-rm -f *.o contains *.png *.dot 2>&1
 
 contains: contains.cpp
 

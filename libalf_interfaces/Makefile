@@ -24,6 +24,6 @@ install:
 uninstall:
 	+make -C dispatcher uninstall
 	+make -C jalf uninstall
-	-rmdir ${JARDIR}
+	-rmdir ${JARDIR} 2>&1
 
 

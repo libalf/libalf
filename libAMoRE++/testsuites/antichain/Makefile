@@ -13,10 +13,10 @@ LDFLAGS+=-L../../src -L${LIBDIR} -lAMoRE++ -lalf
 all: subseteq_regex subseteq_file massive_antichain
 
 clean: nodata
-	-rm -f *.o subseteq_regex subseteq_file massive_antichain
+	-rm -f *.o subseteq_regex subseteq_file massive_antichain 2>&1
 
 nodata:
-	-rm -f *.dot *.jpg *-info *.ser
+	-rm -f *.dot *.jpg *-info *.ser 2>&1
 
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;

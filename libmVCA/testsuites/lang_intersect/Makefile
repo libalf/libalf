@@ -12,7 +12,7 @@ LDFLAGS+=-L../../src -L${LIBDIR} -lmVCA
 all: intersect
 
 clean:
-	-rm -f *.o intersect *.png *.dot
+	-rm -f *.o intersect *.png *.dot 2>&1
 
 pngs:
 	for EACH in *.dot; do dot -Tpng $$EACH > `echo $$EACH | sed 's/dot$$/png/'`; done

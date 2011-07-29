@@ -5,7 +5,7 @@
 
 include ../../config.mk
 
-VERSIONTAG:=$(shell cat "../../version")
+VERSIONTAG:=$(shell cat "../../version" 2>/dev/null)
 ifeq (${VERSIONTAG},)
 # subversion branch
 LOCALCHANGES:=$(shell test "`svn status | wc -c`" != "0" && echo "-LocalChanges")
@@ -37,7 +37,7 @@ dispatcher-static: ${OBJECTS}
 	${CXX} ${OBJECTS} ${LDFLAGS} -static -lalf -o dispatcher
 
 clean:
-	-rm -f dispatcher *.o
+	-rm -f dispatcher *.o 2>&1
 
 install: dispatcher
 	@echo

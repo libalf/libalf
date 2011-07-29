@@ -13,10 +13,10 @@ LDFLAGS+=-L../../src -L${LIBDIR} -lalf -llangen -lAMoRE++
 all: performance_test
 
 clean: nodata
-	-rm -f *.o performance_test
+	-rm -f *.o performance_test 2>&1
 
 nodata:
-	-rm -f *.dot *.jpg *.stat
+	-rm -f *.dot *.jpg *.stat 2>&1
 
 run:
 	LD_LIBRARY_PATH=../../src ./performance_test

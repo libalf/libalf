@@ -13,8 +13,8 @@ all:
 	+make -C manual all
 
 clean:
-	-rm *.tar.bz2
-	-rm -Rf release
+	-rm *.tar.bz2 2>&1
+	-rm -Rf release 2>&1
 	+make -C libAMoRE clean
 	+make -C libAMoRE++ clean
 	+make -C libmVCA clean

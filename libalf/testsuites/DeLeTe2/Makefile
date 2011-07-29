@@ -13,10 +13,10 @@ LDFLAGS+=-L../../src -L${LIBDIR} -lm -lalf -lAMoRE++ -llangen
 all: delete2_static delete2_regex delete2_file
 
 nodata:
-	-rm -f *.dot *.jpg
+	-rm -f *.dot *.jpg 2>&1
 
 clean: nodata
-	-rm -f *.o delete2_regex delete2_static delete2_file
+	-rm -f *.o delete2_regex delete2_static delete2_file 2>&1
 
 jpegs:
 	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;

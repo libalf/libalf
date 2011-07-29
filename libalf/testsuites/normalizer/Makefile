@@ -13,7 +13,7 @@ LDFLAGS+=-L../../src -L${LIBDIR} -lalf
 all: normalizer
 
 clean:
-	-rm -f *.o normalizer
+	-rm -f *.o normalizer 2>&1
 
 normalizer: normalizer.cpp
 
