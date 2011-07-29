@@ -8,34 +8,39 @@ log() {
 }
 
 prep_env() {
-	DESTDIR="${WORK}/$1"
+	PNAME="$1"
+	SDIR="$2"
+	DESTDIR="${WORK}/$PNAME"
+
 	mkdir "${DESTDIR}"
 	chmod 755 "${DESTDIR}"
 
-	if [[ -f "$1/version" ]]; then
-		export VERSION=`cat "$1/version"`
+	if [[ -f "$SDIR/version" ]]; then
+		export VERSION=`cat "$SDIR/version"`
 		export SVNTAG=""
 	else
-		export VERSION=`cd $2; LC_ALL=POSIX svn info | awk '/^Revision:/ {print $2}'`
+		export VERSION=`cd $SDIR; LC_ALL=POSIX svn info | awk '/^Revision:/ {print $2}'`
 		export SVNTAG="-svn"
 		export SVNDESC=" (svn version)"
 	fi;
 }
 
 prep_deb_sysroot() {
-	mkdir "$1/DEBIAN"
-	chmod 755 "$1/DEBIAN"
-	touch "$1/DEBIAN/control"
-	chmod 644 "$1/DEBIAN/control"
+	rm -Rf "$DESTDIR/DEBIAN" > /dev/null 2>&1
+	mkdir "$DESTDIR/DEBIAN"
+	chmod 755 "$DESTDIR/DEBIAN"
+	touch "$DESTDIR/DEBIAN/control"
+	chmod 644 "$DESTDIR/DEBIAN/control"
 }
 
 create_deb() {
-	fakeroot dpkg -b "${DESTDIR}" "${DEPLOY}/$1${SVNTAG}_${VERSION}_${ARCH}.deb"
+	PNAME="$1"
+	fakeroot dpkg -b "${DESTDIR}" "${DEPLOY}/${PNAME}${SVNTAG}_${VERSION}_${ARCH}.deb"
 }
 
 # }}}
 
-log "all logfiles in ${LOGS}"
+log ""
 log "preparing..."
 # prepare environment vars {{{
 
@@ -44,6 +49,7 @@ if [[ "x$PREFIX" == "x" ]]; then
 fi;
 MAKEOPTS="-j3"
 
+# TEMPDIR has to be an absolute path
 TEMPDIR="`pwd`/tmp"
 DEPLOY="$TEMPDIR/deploy"
 WORK="$TEMPDIR/work"
@@ -64,19 +70,25 @@ mkdir "$WORK"
 mkdir "$LOGS"
 
 # }}}
+log "all logfiles in ${LOGS}"
+log "you may be required to give your password for sudo"
 
+log ""
 log "installing deps for correct linking"
 # install libs for linking {{{
 
 # clean up so there are no bad linkings
+log " + initial clean"
 sudo make PREFIX="${PREFIX}" uninstall > "${LOGS}/0_0_cleanup" || exit 1
 sudo make clean > /dev/null >> "${LOGS}/0_cleanup" || exit 1
 
 # install dependencies
 for LIB in libalf liblangen libmVCA libAMoRE libAMoRE++; do
+	log " + ${LIB}"
 	sudo make ${MAKEOPTS} -C ${LIB} PREFIX="${PREFIX}" install > "${LOGS}/0_1_install_deps" || exit 1
 done;
 
+log " + cleanup"
 # and clean again so user-rights do not conflict later
 rm "${LOGS}/2_clean_deps"
 for LIB in libalf liblangen libmVCA libAMoRE libAMoRE++; do
@@ -85,8 +97,9 @@ done;
 
 # }}}
 
+log ""
 log "creating packages:"
-log "libalf"
+log " + libalf"
 # libalf {{{
 
 prep_env libalf libalf
@@ -106,7 +119,7 @@ _eof_libalf
 create_deb libalf >> "${LOGS}/1_0_libalf" || exit 1
 
 # }}}
-log "liblangen"
+log " + liblangen"
 # liblangen {{{
 
 prep_env liblangen liblangen
@@ -126,7 +139,7 @@ _eof_liblangen
 create_deb liblangen >> "${LOGS}/1_1_liblangen" || exit 1
 
 # }}}
-log "libmVCA"
+log " + libmVCA"
 # libmVCA {{{
 
 prep_env libmVCA libmVCA
@@ -146,7 +159,7 @@ _eof_libmVCA
 create_deb libmVCA >> "${LOGS}/1_2_libmVCA" || exit 1
 
 # }}}
-log "libAMoRE-++"
+log " + libAMoRE-++"
 # libAMoRE (++) {{{
 
 prep_env libAMoRE-++ libAMoRE++
@@ -167,7 +180,7 @@ _eof_libAMoRE
 create_deb libAMoRE-++ >> "${LOGS}/1_3_libAMoRE-++" || exit 1
 
 # }}}
-log "libalf-interfaces"
+log " + libalf-interfaces"
 # libalf-interfaces {{{
 
 prep_env libalf-interfaces libalf_interfaces
@@ -187,10 +200,10 @@ _eof_libalf-interfaces
 create_deb libalf-interfaces >> "${LOGS}/1_4_libalf-interfaces" || exit 1
 
 # }}}
-log "finite-automata-tools"
+log " + finite-automata-tools"
 # finite-automata-tools {{{
 
-prep_env finite-automata-tool finite-automata-tools
+prep_env finite-automata-tool finite-automata-tool
 make -C finite-automata-tool ${MAKEOPTS} DESTDIR=${DESTDIR} PREFIX=${PREFIX} install > "${LOGS}/1_5_finite-automata-tools" || exit 1
 prep_deb_sysroot "${DESTDIR}"
 
@@ -208,6 +221,7 @@ create_deb finite-automata-tool >> "${LOGS}/1_5_finite-automata-tools" || exit 1
 
 # }}}
 
+log ""
 log "cleanup"
 # cleanup {{{
 
@@ -215,6 +229,7 @@ sudo make PREFIX=${PREFIX} uninstall > "${LOGS}/2_cleanup"
 
 # }}}
 
+log ""
 log "done"
 log "packages are in ${DEPLOY}"
 
