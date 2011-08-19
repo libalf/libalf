@@ -94,6 +94,9 @@ class extended_bool {
 		inline extended_bool(const extended_bool & e)
 		{ value = e.value; };
 
+		inline extended_bool(const enum e_extended_bool e)
+		{ value = e; };
+
 		inline bool __attribute__((const)) valid() const
 		{{{
 			  return (value == EBOOL_FALSE || value == EBOOL_UNKNOWN || value == EBOOL_TRUE);
