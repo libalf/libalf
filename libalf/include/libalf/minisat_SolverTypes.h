@@ -107,7 +107,7 @@ public:
     bool      learnt      ()      const { return size_learnt & 1; }
     Lit       operator [] (int i) const { return data[i]; }
     Lit&      operator [] (int i)       { return data[i]; }
-    float&    activity    ()      const { return *((float*)&data[size()]); }
+    float&    activity    ()      const { float * ret; ret = (float*)&data[size()]; return *ret; }
 };
 inline Clause* Clause_new(bool learnt, const vec<Lit>& ps) {
     assert(sizeof(Lit)      == sizeof(uint));
