@@ -334,7 +334,6 @@ failed:
 
 			if(this->valid) {
 				std::set<int>::iterator sti;
-				//bool header_written;
 
 				// head
 				str << "digraph moore_machine__"
@@ -345,7 +344,6 @@ failed:
 					   "\tsize=8;\n\n";
 
 				// mark final states
-				//bool header_written = false;
 				typename std::map<int, output_alphabet>::const_iterator oi;
 
 				// normal states
