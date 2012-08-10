@@ -347,5 +347,21 @@ class learning_algorithm {
 
 }; // end namespace libalf
 
+/**
+ * Defines the << operator for learning algorithms, i.e., writes a string
+ * representation of the learning algorithm to the given output stream. Calls
+ * the print(std::ostream &os) method internally.
+ *
+ * @param out The output stream to write the string representation to
+ * @param alg The algorithm to print
+ *
+ * @return Returns the given output stream as usual.
+ */
+template <class answer>
+std::ostream & operator<<(std::ostream & out, const libalf::learning_algorithm<answer> & alg) {
+	alg.print(out);
+	return out;
+}
+
 #endif
 

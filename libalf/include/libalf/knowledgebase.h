@@ -1433,6 +1433,19 @@ class knowledgebase {
 		{{{
 			return root->find_or_create_descendant(word.begin(), word.end())->set_answer(acceptance);
 		}}}
+
+		/**
+		 * Add new knowledge to the knowledgebase. If the word is already in the
+		 * knowledgebase (either as query or as a normal word), the current
+		 * classification is overriden by the given new one, i.e., the stored
+		 * data is altered.
+		 */
+		void add_or_alter_knowledge(std::list<int> & word, answer acceptance) {
+			node * n = root->find_or_create_descendant(word.begin(), word.end());
+			n->ignore();
+			n->set_answer(acceptance);
+		}
+
 		int add_query(std::list<int> & word, int prefix_count = 0)
 		// returns the number of new required nodes (excluding
 		// those already known.
@@ -1738,6 +1751,24 @@ class kIterator_lex_graded {
 }; // end of kIterator_lex_graded
 
 }; // end of namespace libalf
+
+/**
+ * Defines the << operator for the knowledgebase, i.e., writes a string
+ * representation of the knowledgebase to the given output stream. Calls
+ * the visualize() method internally.
+ *
+ * Note that this method does not change the knowledgebase.
+ *
+ * @param out The output stream to write the string representation to
+ * @param base The knowledgebase to print
+ *
+ * @return Returns the given output stream as usual.
+ */
+template <class answer>
+std::ostream & operator<<(std::ostream & out, libalf::knowledgebase<answer> & base) {
+	out << base.visualize();
+	return out;
+}
 
 #endif // __libalf_knowledgebase_h__
 

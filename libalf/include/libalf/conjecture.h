@@ -732,9 +732,20 @@ class bounded_simple_mVCA : public finite_automaton {
 		virtual std::string visualize() const;
 };
 
-
-
 }; // end of namespace libalf
+
+
+/**
+ * Defines the << operator for conjectures, i.e., writes a string representation
+ * of a conjecture to the given output stream. Calls the visualize() method
+ * internally.
+ *
+ * @param out The output stream to write the string representation to
+ * @param c The conjecture to print
+ *
+ * @return Returns the given output stream as usual.
+ */
+std::ostream & operator<<(std::ostream & out, const libalf::conjecture & c);
 
 #endif // __libalf_conjecture_h__
 

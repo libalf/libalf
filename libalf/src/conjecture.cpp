@@ -727,7 +727,7 @@ string simple_mVCA::write() const
 	// TODO
 	return "simple_mVCA::write(): TODO.";
 }
-bool simple_mVCA::read(string input)
+bool simple_mVCA::read(string __attribute__ ((__unused__)) input)
 {
 	// TODO
 	return false;
@@ -822,7 +822,7 @@ string bounded_simple_mVCA::write() const
 	// TODO
 	return "bounded_simple_mVCA::write(): TODO.";
 }
-bool bounded_simple_mVCA::read(string input)
+bool bounded_simple_mVCA::read(string __attribute__ ((__unused__)) input)
 {
 	// TODO
 	return false;
@@ -833,7 +833,19 @@ string bounded_simple_mVCA::visualize() const
 	return finite_automaton::visualize();
 }
 
+}; // enf of namespace libalf.
 
-
-} // enf of namespace libalf.
-
+/**
+ * Defines the << operator for conjectures, i.e., writes a string representation
+ * of a conjecture to the given output stream. Calls the visualize() method
+ * internally.
+ *
+ * @param out The output stream to write the string representation to
+ * @param c The conjecture to print
+ *
+ * @return Returns the given output stream as usual.
+ */
+std::ostream & operator<<(std::ostream & out, const libalf::conjecture & c) {
+	out << c.visualize();
+	return out;
+}
