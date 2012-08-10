@@ -18,7 +18,7 @@
  */
 
 #include <amore/rexFromString.h>
-#include <error.h>
+//#include <error.h>
 
 #include <amore/parse.h>
 
