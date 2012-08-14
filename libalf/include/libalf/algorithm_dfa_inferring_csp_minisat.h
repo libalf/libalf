@@ -71,7 +71,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 	/**
 	 * Creates a new learning algorithm.
 	 */
-	deterministic_inferring_csp_MiniSat(knowledgebase<answer> * base, logger * log, int alphabet_size, bool unary_encoding = true) {
+	deterministic_inferring_csp_MiniSat(knowledgebase<answer> * base, logger * log, int alphabet_size, bool unary_encoding = true) : automata_inferring<answer>() {
 
 		this->set_alphabet_size(alphabet_size);
 		this->set_logger(log);
@@ -396,6 +396,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 		for(unsigned int u=0; u<t.node_count; u++) {
 			if(t.specified[u]) {
 			
+				// Get value from model
 				int state = -1;
 				for(unsigned int q=0; q<n; q++) {
 				
@@ -410,6 +411,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 
 				}
 		
+				// Add
 				assert(state >= 0 && state < (int)n);
 				if(output_mapping.count(state) > 0) {
 					assert(output_mapping[state] == t.output[u]);
@@ -422,7 +424,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 		//Add missing outputs
 		for(unsigned int q=0; q<n; q++) {
 			if(output_mapping.count(q) == 0) {
-				output_mapping[q] = false;
+				output_mapping[q] = this->default_output;
 			}
 		}
 		
@@ -733,7 +735,13 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 				
 			}
 		}
-
+		//Add missing outputs
+		for(unsigned int q=0; q<n; q++) {
+			if(output_mapping.count(q) == 0) {
+				output_mapping[q] = this->default_output;
+			}
+		}
+		
 		// Construct and return automaton
 		moore_machine<answer> * automaton;
 		if(typeid(answer) == typeid(bool)) {

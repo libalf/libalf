@@ -41,8 +41,8 @@
  * This implementation supports Boolean values as the only <answer> type.
  */
 
-#ifndef __ALGORITHM_DFA_INFERRING_CSP_Z3__
-#define __ALGORITHM_DFA_INFERRING_CSP_Z3__
+#ifndef __ALGORITHM_DETERMINISTIC_INFERRING_CSP_Z3__
+#define __ALGORITHM_DETERMINISTIC_INFERRING_CSP_Z3__
 
 // Standard includes 
 #include <iostream>
@@ -63,7 +63,8 @@
 
 namespace libalf {
 
-class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
+template <class answer>
+class deterministic_inferring_csp_Z3 : public automata_inferring<answer> {
 
 	private:
 	
@@ -87,7 +88,7 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 	/**
 	 * Creates a new learning algorithm.
 	 */
-	dfa_inferring_csp_Z3(knowledgebase<bool> * base, logger * log, int alphabet_size, bool use_variables = false, bool use_enum = false) {
+	deterministic_inferring_csp_Z3(knowledgebase<answer> * base, logger * log, int alphabet_size, bool use_variables = false, bool use_enum = false) : automata_inferring<answer>() {
 
 		this->set_alphabet_size(alphabet_size);
 		this->set_logger(log);
@@ -126,7 +127,7 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 	
 	void print(std::ostream & os) const {
 	
-		os << "(Minimal) DFA inferring algorithm via Biermann's CSP using Microsoft's Z3 SMT Solver. ";
+		os << "(Minimal) " << (typeid(answer)==typeid(bool) ? "DFA" : "deterministic Moore machine" ) << " inferring algorithm via Biermann's CSP using Microsoft's Z3 SMT Solver. ";
 		os << "Alphabet size is " << this->alphabet_size << ", using " << (use_variables ? "variables" : "undefined functions") << " to encode the states reached after reading samples, ";
 		os << "using " << (use_enum ? "enums" : "integers") << " to model states.";
 		
@@ -134,7 +135,7 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 
 	private:
 
-	virtual conjecture * __infer(const prefix_tree<bool> & t, unsigned int n) const {
+	virtual conjecture * __infer(const prefix_tree<answer> & t, unsigned int n) const {
 	
 		// Check value for n
 		if(n == 0) {
@@ -155,7 +156,7 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 
 	}
 	
-	libalf::finite_automaton * infer_CSP_Z3(const prefix_tree<bool> & t, unsigned int n) const {
+	libalf::moore_machine<answer> * infer_CSP_Z3(const prefix_tree<answer> & t, unsigned int n) const {
 	
 		/*========================================
 		 *
@@ -168,7 +169,7 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 		}
 		assert(n > 0);
 		assert(this->alphabet_size > 0);
-		(*this->my_logger)(LOGGER_ALGORITHM, "Running Z3 to find a solution for the CSP with n=%d and alphabet size=%d.\n", n, this->alphabet_size);
+		(*this->my_logger)(LOGGER_ALGORITHM, "Running Z3 to find a solution for the CSP with %u states and alphabet size %d.\n", n, this->alphabet_size);
 		
 	
 		/*========================================
@@ -210,7 +211,7 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 			for(unsigned int v=0; v<t.node_count; v++) {
 				for(int a=0; a<this->alphabet_size; a++) {
 				
-					if(t.edges[u][a] != prefix_tree<bool>::no_edge && t.edges[v][a] != prefix_tree<bool>::no_edge) {
+					if(t.edges[u][a] != prefix_tree<answer>::no_edge && t.edges[v][a] != prefix_tree<answer>::no_edge) {
 				
 						z3::expr assertion = implies(x(u) == x(v), x(t.edges[u][a]) == x(t.edges[v][a]));
 						s.add(assertion);
@@ -247,7 +248,7 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 		 * Solve
 		 *
 		 *========================================*/
-		(*this->my_logger)(LOGGER_DEBUG, "Created %d assertions.\n", assertion_count);
+		(*this->my_logger)(LOGGER_DEBUG, "Created %u assertions.\n", assertion_count);
 		(*this->my_logger)(LOGGER_ALGORITHM, "Solving ...\n");
 		if(s.check() != z3::sat) {
 			(*this->my_logger)(LOGGER_DEBUG, "Formula is unsatisfiable.\n");
@@ -277,7 +278,7 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 			assert(conversion_ok == true);
 
 			for(int a=0; a<this->alphabet_size; a++) {
-				if(t.edges[u][a] != prefix_tree<bool>::no_edge) {
+				if(t.edges[u][a] != prefix_tree<answer>::no_edge) {
 				
 					// Get model value for destination
 					unsigned int dest;
@@ -303,8 +304,8 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 		std::set<int> initial;
 		initial.insert(tmp_initial);
 		
-		// Final states
-		std::set<int> final;
+		// Output
+		std::map<int, answer> output_mapping;
 		for(unsigned int u=0; u<t.node_count; u++) {
 			if(t.specified[u]) {
 
@@ -314,31 +315,43 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 				assert(conversion_ok == true);
 				
 				// Add
-				if(t.output[u] == true) {
-					final.insert(state);
+				assert(state < (int)n);
+				if(output_mapping.count(state) > 0) {
+					assert(output_mapping[state] == t.output[u]);
 				} else {
-					assert(find(final.begin(), final.end(), state) == final.end());
+					output_mapping[state] = t.output[u];
 				}
-			
+				
+			}
+		}
+		//Add missing outputs
+		for(unsigned int q=0; q<n; q++) {
+			if(output_mapping.count(q) == 0) {
+				output_mapping[q] = this->default_output;
 			}
 		}
 		
 		// Construct and return automaton
-		finite_automaton * dfa = new finite_automaton;
-		dfa->input_alphabet_size = this->alphabet_size;
-		dfa->state_count = n;
-		dfa->initial_states = initial;
-		dfa->set_final_states(final);
-		dfa->transitions = transitions;
-		dfa->valid = true;
-		dfa->calc_determinism();
+		moore_machine<answer> * automaton;
+		if(typeid(answer) == typeid(bool)) {
+			automaton = dynamic_cast<moore_machine<answer> * >(new finite_automaton);
+		} else {
+			automaton = new moore_machine<answer>;
+		}
+		automaton->input_alphabet_size = this->alphabet_size;
+		automaton->state_count = n;
+		automaton->initial_states = initial;
+		automaton->output_mapping = output_mapping;
+		automaton->transitions = transitions;
+		automaton->valid = true;
+		automaton->calc_determinism();
 
-		assert(dfa->calc_validity());
-		return dfa;
+		assert(automaton->calc_validity());
+		return automaton;
 		
 	}
 	
-	libalf::finite_automaton * infer_CSP_variables_Z3(const prefix_tree<bool> & t, unsigned int n) const {
+	libalf::moore_machine<answer> * infer_CSP_variables_Z3(const prefix_tree<answer> & t, unsigned int n) const {
 		
 		/*========================================
 		 *
@@ -351,7 +364,7 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 		}
 		assert(n > 0);
 		assert(this->alphabet_size > 0);
-		(*this->my_logger)(LOGGER_ALGORITHM, "Running Z3 using variables to find a solution for the CSP with n=%d and alphabet size=%d.\n", n, this->alphabet_size);
+		(*this->my_logger)(LOGGER_ALGORITHM, "Running Z3 using variables to find a solution for the CSP with %u states and alphabet size %d.\n", n, this->alphabet_size);
 		
 		
 		/*========================================
@@ -402,7 +415,7 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 			for(unsigned int v=0; v<t.node_count; v++) {
 				for(int a=0; a<this->alphabet_size; a++) {
 				
-					if(t.edges[u][a] != prefix_tree<bool>::no_edge && t.edges[v][a] != prefix_tree<bool>::no_edge) {
+					if(t.edges[u][a] != prefix_tree<answer>::no_edge && t.edges[v][a] != prefix_tree<answer>::no_edge) {
 				
 						z3::expr assertion = implies(state_vars[u] == state_vars[v], state_vars[t.edges[u][a]] == state_vars[t.edges[v][a]]);
 						s.add(assertion);
@@ -439,7 +452,7 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 		 * Solve
 		 *
 		 *========================================*/
-		(*this->my_logger)(LOGGER_DEBUG, "Created %d assertions.\n", assertion_count);
+		(*this->my_logger)(LOGGER_DEBUG, "Created %u assertions.\n", assertion_count);
 		(*this->my_logger)(LOGGER_ALGORITHM, "Solving ...\n");
 		if(s.check() != z3::sat) {
 			(*this->my_logger)(LOGGER_DEBUG, "Formula is unsatisfiable.\n");
@@ -469,7 +482,7 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 			assert(conversion_ok == true);
 
 			for(int a=0; a<this->alphabet_size; a++) {
-				if(t.edges[u][a] != prefix_tree<bool>::no_edge) {
+				if(t.edges[u][a] != prefix_tree<answer>::no_edge) {
 				
 					// Get model value for destination
 					unsigned int dest;
@@ -495,8 +508,8 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 		std::set<int> initial;
 		initial.insert(tmp_initial);
 		
-		// Final states
-		std::set<int> final;
+		// Output
+		std::map<int, answer> output_mapping;
 		for(unsigned int u=0; u<t.node_count; u++) {
 			if(t.specified[u]) {
 
@@ -506,31 +519,43 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 				assert(conversion_ok == true);
 				
 				// Add
-				if(t.output[u] == true) {
-					final.insert(state);
+				assert(state <= (int)n);
+				if(output_mapping.count(state) > 0) {
+					assert(output_mapping[state] == t.output[u]);
 				} else {
-					assert(find(final.begin(), final.end(), state) == final.end());
+					output_mapping[state] = t.output[u];
 				}
-			
+				
+			}
+		}
+		//Add missing outputs
+		for(unsigned int q=0; q<n; q++) {
+			if(output_mapping.count(q) == 0) {
+				output_mapping[q] = this->default_output;;
 			}
 		}
 		
 		// Construct and return automaton
-		finite_automaton * dfa = new finite_automaton;
-		dfa->input_alphabet_size = this->alphabet_size;
-		dfa->state_count = n;
-		dfa->initial_states = initial;
-		dfa->set_final_states(final);
-		dfa->transitions = transitions;
-		dfa->valid = true;
-		dfa->calc_determinism();
+		moore_machine<answer> * automaton;
+		if(typeid(answer) == typeid(bool)) {
+			automaton = dynamic_cast<moore_machine<answer> * >(new finite_automaton);
+		} else {
+			automaton = new moore_machine<answer>;
+		}
+		automaton->input_alphabet_size = this->alphabet_size;
+		automaton->state_count = n;
+		automaton->initial_states = initial;
+		automaton->output_mapping = output_mapping;
+		automaton->transitions = transitions;
+		automaton->valid = true;
+		automaton->calc_determinism();
 
-		assert(dfa->calc_validity());
-		return dfa;
+		assert(automaton->calc_validity());
+		return automaton;
 		
 	}
 	
-	libalf::finite_automaton * infer_CSP_enum_Z3(const prefix_tree<bool> & t, unsigned int n) const {
+	libalf::moore_machine<answer> * infer_CSP_enum_Z3(const prefix_tree<answer> & t, unsigned int n) const {
 
 		/*========================================
 		 *
@@ -543,7 +568,7 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 		}
 		assert(n > 0);
 		assert(this->alphabet_size > 0);
-		(*this->my_logger)(LOGGER_ALGORITHM, "Running Z3 using enums to find a solution for the CSP with n=%d and alphabet size=%d.\n", n, this->alphabet_size);
+		(*this->my_logger)(LOGGER_ALGORITHM, "Running Z3 using enums to find a solution for the CSP with %u states and alphabet size %d.\n", n, this->alphabet_size);
 
 
 		/*========================================
@@ -589,7 +614,7 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 		unsigned long long assertion_count = 0;
 	
 		// (1) The initial state is 0
-		s.add(state_testers[0](x(prefix_tree<bool>::root)));
+		s.add(state_testers[0](x(prefix_tree<answer>::root)));
 		assertion_count++;
 	
 		// (2) Transition function is applied correctly
@@ -597,7 +622,7 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 			for(unsigned int v=0; v<t.node_count; v++) {
 				for(int a=0; a<this->alphabet_size; a++) {
 			
-					if(t.edges[u][a] != prefix_tree<bool>::no_edge && t.edges[v][a] != prefix_tree<bool>::no_edge) {
+					if(t.edges[u][a] != prefix_tree<answer>::no_edge && t.edges[v][a] != prefix_tree<answer>::no_edge) {
 			
 						z3::expr assertion = implies(x(u) == x(v), x(t.edges[u][a]) == x(t.edges[v][a]));
 						s.add(assertion);
@@ -634,7 +659,7 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 		 * Solve
 		 *
 		 *========================================*/
-		(*this->my_logger)(LOGGER_DEBUG, "Created %d assertions.\n", assertion_count);
+		(*this->my_logger)(LOGGER_DEBUG, "Created %u assertions.\n", assertion_count);
 		(*this->my_logger)(LOGGER_ALGORITHM, "Solving ...\n");
 		if(s.check() != z3::sat) {
 			(*this->my_logger)(LOGGER_DEBUG, "Formula is unsatisfiable.\n");
@@ -680,7 +705,7 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 			assert(source >=0 && source < (int)n);
 		
 			for(int a=0; a<this->alphabet_size; a++) {
-				if(t.edges[u][a] != prefix_tree<bool>::no_edge) {
+				if(t.edges[u][a] != prefix_tree<answer>::no_edge) {
 			
 					// Get model value for destination
 					int dest = -1;
@@ -720,7 +745,7 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 		{
 			for(unsigned int p=0; p<n; p++) {
 					
-				Z3_bool v = Z3_get_bool_value(c, m.eval(state_testers[p](x(prefix_tree<bool>::root))));
+				Z3_bool v = Z3_get_bool_value(c, m.eval(state_testers[p](x(prefix_tree<answer>::root))));
 				assert(v != Z3_L_UNDEF);
 		
 				if(v == Z3_L_TRUE) {
@@ -741,7 +766,7 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 		initial.insert(tmp_initial);
 
 		// Final states
-		std::set<int> final;
+		std::map<int, answer> output_mapping;
 		for(unsigned int u=0; u<t.node_count; u++) {
 			if(t.specified[u]) {
 
@@ -755,44 +780,51 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 			
 					if(v == Z3_L_TRUE) {
 				
-						if(state == -1) {
-							state = p;
-						} else {
-							(*this->my_logger)(LOGGER_ERROR, "Detected error in final states!\n");
-							return NULL;
-						}
+						assert(state == -1);
+						state = p;
 				
 					}
 			
 				}
-				assert(state >= 0 && state < (int)n);
 			
 				// Add
-				if(t.output[u] == true) {
-					final.insert(state);
+				assert(state >= 0 && state < (int)n);
+				if(output_mapping.count(state) > 0) {
+					assert(output_mapping[state] == t.output[u]);
 				} else {
-					assert(find(final.begin(), final.end(), state) == final.end());
+					output_mapping[state] = t.output[u];
 				}
-		
+				
+			}
+		}
+		//Add missing outputs
+		for(unsigned int q=0; q<n; q++) {
+			if(output_mapping.count(q) == 0) {
+				output_mapping[q] = this->default_output;
 			}
 		}
 
 		// Construct and return automaton
-		finite_automaton * dfa = new finite_automaton;
-		dfa->input_alphabet_size = this->alphabet_size;
-		dfa->state_count = n;
-		dfa->initial_states = initial;
-		dfa->set_final_states(final);
-		dfa->transitions = transitions;
-		dfa->valid = true;
-		dfa->calc_determinism();
+		moore_machine<answer> * automaton;
+		if(typeid(answer) == typeid(bool)) {
+			automaton = dynamic_cast<moore_machine<answer> * >(new finite_automaton);
+		} else {
+			automaton = new moore_machine<answer>;
+		}
+		automaton->input_alphabet_size = this->alphabet_size;
+		automaton->state_count = n;
+		automaton->initial_states = initial;
+		automaton->output_mapping = output_mapping;
+		automaton->transitions = transitions;
+		automaton->valid = true;
+		automaton->calc_determinism();
 
-		assert(dfa->calc_validity());
-		return dfa;
+		assert(automaton->calc_validity());
+		return automaton;
 
 	}
 	
-	libalf::finite_automaton * infer_CSP_variables_enum_Z3(const prefix_tree<bool> & t, unsigned int n) const {
+	libalf::moore_machine<answer> * infer_CSP_variables_enum_Z3(const prefix_tree<answer> & t, unsigned int n) const {
 		
 		/*========================================
 		 *
@@ -805,7 +837,7 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 		}
 		assert(n > 0);
 		assert(this->alphabet_size > 0);
-		(*this->my_logger)(LOGGER_ALGORITHM, "Running Z3 using variables and enums to find a solution for the CSP with n=%d and alphabet size=%d.\n", n, this->alphabet_size);
+		(*this->my_logger)(LOGGER_ALGORITHM, "Running Z3 using variables and enums to find a solution for the CSP with %u states and alphabet size %d.\n", n, this->alphabet_size);
 		
 		
 		/*========================================
@@ -859,7 +891,7 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 		unsigned long long assertion_count = 0;
 		
 		// (1) The initial state is 0
-		s.add(state_testers[0](state_vars[prefix_tree<bool>::root]));
+		s.add(state_testers[0](state_vars[prefix_tree<answer>::root]));
 		assertion_count++;
 		
 		// (2) Transition function is applied correctly
@@ -867,7 +899,7 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 			for(unsigned int v=0; v<t.node_count; v++) {
 				for(int a=0; a<this->alphabet_size; a++) {
 				
-					if(t.edges[u][a] != prefix_tree<bool>::no_edge && t.edges[v][a] != prefix_tree<bool>::no_edge) {
+					if(t.edges[u][a] != prefix_tree<answer>::no_edge && t.edges[v][a] != prefix_tree<answer>::no_edge) {
 				
 						z3::expr assertion = implies(state_vars[u] == state_vars[v], state_vars[t.edges[u][a]] == state_vars[t.edges[v][a]]);
 						s.add(assertion);
@@ -903,7 +935,7 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 		 * Solve
 		 *
 		 *========================================*/
-		(*this->my_logger)(LOGGER_DEBUG, "Created %d assertions.\n", assertion_count);
+		(*this->my_logger)(LOGGER_DEBUG, "Created %u assertions.\n", assertion_count);
 		(*this->my_logger)(LOGGER_ALGORITHM, "Solving ...\n");
 		if(s.check() != z3::sat) {
 			(*this->my_logger)(LOGGER_DEBUG, "Formula is unsatisfiable.\n");
@@ -936,12 +968,8 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 			
 				if(v == Z3_L_TRUE) {
 				
-					if(source == -1) {
-						source = p;
-					} else {
-						(*this->my_logger)(LOGGER_ERROR, "Detected error in model.\n");
-						return NULL;
-					}
+					assert(source == -1);
+					source = p;
 				
 				}
 				
@@ -949,7 +977,7 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 			assert(source >=0 && source < (int)n);
 			
 			for(int a=0; a<this->alphabet_size; a++) {
-				if(t.edges[u][a] != prefix_tree<bool>::no_edge) {
+				if(t.edges[u][a] != prefix_tree<answer>::no_edge) {
 				
 					// Get model value for destination
 					int dest = -1;
@@ -960,12 +988,8 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 					
 						if(v == Z3_L_TRUE) {
 						
-							if(dest == -1) {
-								dest = p;
-							} else {
-								(*this->my_logger)(LOGGER_ERROR, "Detected error in model.\n");
-								return NULL;
-							}
+							assert(dest == -1);
+							dest = p;
 						
 						} 
 
@@ -989,17 +1013,13 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 		{
 			for(unsigned int p=0; p<n; p++) {
 						
-				Z3_bool v = Z3_get_bool_value(c, m.eval(state_testers[p](state_vars[prefix_tree<bool>::root])));
+				Z3_bool v = Z3_get_bool_value(c, m.eval(state_testers[p](state_vars[prefix_tree<answer>::root])));
 				assert(v != Z3_L_UNDEF);
 			
 				if(v == Z3_L_TRUE) {
 				
-					if(tmp_initial == -1) {
-						tmp_initial = p;
-					} else {
-						(*this->my_logger)(LOGGER_ERROR, "Detected error in model.\n");
-						return NULL;
-					}
+					assert(tmp_initial == -1);
+					tmp_initial = p;
 				
 				} 
 
@@ -1010,7 +1030,7 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 		initial.insert(tmp_initial);
 		
 		// Final states
-		std::set<int> final;
+		std::map<int, answer> output_mapping;
 		for(unsigned int u=0; u<t.node_count; u++) {
 			if(t.specified[u]) {
 
@@ -1024,40 +1044,47 @@ class dfa_inferring_csp_Z3 : public automata_inferring<bool> {
 				
 					if(v == Z3_L_TRUE) {
 					
-						if(state == -1) {
-							state = p;
-						} else {
-							(*this->my_logger)(LOGGER_ERROR, "Detected error in model.\n");
-							return NULL;
-						}
+						assert(state == -1);
+						state = p;
 					
 					}
 				
 				}
-				assert(state >= 0 && state < (int)n);
 				
 				// Add
-				if(t.output[u] == true) {
-					final.insert(state);
+				assert(state >= 0 && state < (int)n);
+				if(output_mapping.count(state) > 0) {
+					assert(output_mapping[state] == t.output[u]);
 				} else {
-					assert(find(final.begin(), final.end(), state) == final.end());
+					output_mapping[state] = t.output[u];
 				}
 			
 			}
 		}
+		//Add missing outputs
+		for(unsigned int q=0; q<n; q++) {
+			if(output_mapping.count(q) == 0) {
+				output_mapping[q] = this->default_output;
+			}
+		}
 		
 		// Construct and return automaton
-		finite_automaton * dfa = new finite_automaton;
-		dfa->input_alphabet_size = this->alphabet_size;
-		dfa->state_count = n;
-		dfa->initial_states = initial;
-		dfa->set_final_states(final);
-		dfa->transitions = transitions;
-		dfa->valid = true;
-		dfa->calc_determinism();
+		moore_machine<answer> * automaton;
+		if(typeid(answer) == typeid(bool)) {
+			automaton = dynamic_cast<moore_machine<answer> * >(new finite_automaton);
+		} else {
+			automaton = new moore_machine<answer>;
+		}
+		automaton->input_alphabet_size = this->alphabet_size;
+		automaton->state_count = n;
+		automaton->initial_states = initial;
+		automaton->output_mapping = output_mapping;
+		automaton->transitions = transitions;
+		automaton->valid = true;
+		automaton->calc_determinism();
 
-		assert(dfa->calc_validity());
-		return dfa;
+		assert(automaton->calc_validity());
+		return automaton;
 		
 	}
 	

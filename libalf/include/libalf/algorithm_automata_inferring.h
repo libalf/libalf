@@ -45,6 +45,19 @@ namespace libalf {
 template <class answer>
 class automata_inferring : public learning_algorithm<answer> {
 
+	protected:
+	
+	/**
+	 * The default output of a conjecture Moore machine (or DFA) on states that
+	 * are not determined by the sample, i.e., because the sample specifies no
+	 * word leading to such this state.
+	 */
+	answer default_output;
+
+	automata_inferring() : learning_algorithm<answer>() {
+		default_output = answer();
+	}
+	
 	public:
 
 	/**
@@ -171,6 +184,26 @@ class automata_inferring : public learning_algorithm<answer> {
 	
 	}
 
+	/**
+	 * Returns the default output used for conjectures if the output of a state
+	 * is not determined by the given sample.
+	 *
+	 * @return Returns the default output used for conjectures.
+	 */
+	answer get_default_output() {
+		return default_output;
+	}
+	
+	/**
+	 * Sets the default output used for conjectures if the output of a state
+	 * is not determined by the given sample.
+	 *
+	 * @param new_default_output The new default output used for conjectures
+	 */
+	void set_default_output(answer new_default_output) {
+		this->default_output = new_default_output;
+	}
+	
 	private:
 	
 	virtual conjecture * __infer(const prefix_tree<answer> & t, unsigned int n) const = 0;
@@ -253,6 +286,7 @@ class automata_inferring : public learning_algorithm<answer> {
 	
 };
 
+
 /**
  * Checks whether a given Moore machine is consistent with a prefix_tree,
  * i.e., whether the Moore machine classifies the words stored in the
@@ -279,7 +313,7 @@ class automata_inferring : public learning_algorithm<answer> {
  *         words represented by the given prefix tree.
  */
 template <class answer>
-inline bool is_consistent(const prefix_tree<answer> & t, const moore_machine<answer> & machine, answer default_output = answer()) {
+bool is_consistent(const prefix_tree<answer> & t, const moore_machine<answer> & machine, answer default_output = answer()) {
 
 	// Run through all nodes of the prefix tree and check whether the
 	// corresponding word is classified correctly.
@@ -477,7 +511,7 @@ bool is_consistent(libalf::knowledgebase<answer> & base, const libalf::moore_mac
  *         of the given sample.
  */
 template <class answer>
-inline bool is_consistent(const std::map<std::list<int>, answer> & sample, const libalf::moore_machine<answer> & machine, answer default_output = answer()) {
+bool is_consistent(const std::map<std::list<int>, answer> & sample, const libalf::moore_machine<answer> & machine, answer default_output = answer()) {
 
 	// Check all word in the sample
 	for(typename std::map<std::list<int>, answer>::const_iterator it1=sample.begin(); it1!=sample.end(); it1++) {
