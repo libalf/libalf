@@ -151,7 +151,7 @@ class dfa_inferring_csp_MiniSat : public automata_inferring<bool> {
 		}
 		assert(n > 0);
 		assert(this->alphabet_size > 0);
-		(*this->my_logger)(LOGGER_ALGORITHM, "Running MiniSat using the unary encoding of the CSP to find a solution with n=%d and alphabet size=%d.\n", n, this->alphabet_size);
+		(*this->my_logger)(LOGGER_ALGORITHM, "Running MiniSat using the 'unary encoding' of the CSP to find a DFA with %u states and alphabet size %d.\n", n, this->alphabet_size);
 		
 		
 		/*========================================
@@ -281,7 +281,7 @@ class dfa_inferring_csp_MiniSat : public automata_inferring<bool> {
 		 * Solve
 		 *
 		 *========================================*/
-		(*this->my_logger)(LOGGER_ALGORITHM, "Created %d variables and %d clauses.\n", var_count, clause_count);
+		(*this->my_logger)(LOGGER_ALGORITHM, "Created %u variables and %u clauses.\n", var_count, clause_count);
 		(*this->my_logger)(LOGGER_ALGORITHM, "Solving ... ");
 		if(!solver.solve()) {
 			(*this->my_logger)(LOGGER_ALGORITHM, "Formula is unsatisfiable.\n");
@@ -302,7 +302,7 @@ class dfa_inferring_csp_MiniSat : public automata_inferring<bool> {
 			(*this->my_logger)(LOGGER_ALGORITHM, "Model:\n");
 			for(unsigned int u=0; u<t.node_count; u++) {
 				for(unsigned int q=0; q<n; q++) {
-					(*this->my_logger)(LOGGER_ALGORITHM, "x[%d][%d] = %s\n", u, q, (solver.model[x[u][q]] == MiniSat::l_True ? "1" : (solver.model[x[u][q]] == MiniSat::l_False ? "0" : "?")));
+					(*this->my_logger)(LOGGER_ALGORITHM, "x[%u][%u] = %s\n", u, q, (solver.model[x[u][q]] == MiniSat::l_True ? "1" : (solver.model[x[u][q]] == MiniSat::l_False ? "0" : "?")));
 				}
 			}
 			
@@ -315,59 +315,44 @@ class dfa_inferring_csp_MiniSat : public automata_inferring<bool> {
 				if(t.edges[u][a] != prefix_tree<bool>::no_edge) {
 				
 					// Search for source state
-					bool source_found = false;
-					int source = 0;
+					int source = -1;
 					for(unsigned int q=0; q<n; q++) {
+
+						assert(solver.model[x[u][q]] != MiniSat::l_Undef);
+
 						if(solver.model[x[u][q]] == MiniSat::l_True) {
-							if(!source_found) {
-								source_found = true;
-								source = q;
-							} else {
-								std::cerr << "infer_DFA_unary: found bad value in transition model (source)" << std::endl;
-								return NULL;
-							}
-						} else if(solver.model[x[u][q]] == MiniSat::l_Undef) {
-							std::cerr << "infer_DFA_unary: found undefined value in transition model (source)" << std::endl;
-							return NULL;
+
+							assert(source == -1);
+							source = q;
+
 						}
+
 					}
-					if(!source_found) {
-						std::cerr << "infer_DFA_unary: no source state found in transition model" << std::endl;
-						return NULL;
-					}
+					assert(source >= 0 && source <= (int)n);
 
 					// Search for destination state
-					bool dest_found = false;
-					int dest = 0;
+					int dest = -1;
 					for(unsigned int q=0; q<n; q++) {
+					
+						assert(solver.model[x[t.edges[u][a]][q]] != MiniSat::l_Undef);
+					
 						if(solver.model[x[t.edges[u][a]][q]] == MiniSat::l_True) {
-							if(!dest_found) {
-								dest_found = true;
-								dest = q;
-							} else {
-								std::cerr << "infer_DFA_unary: found bad value in transition model (destination)" << std::endl;
-								return NULL;
-							}
-						} else if(solver.model[x[t.edges[u][a]][q]] == MiniSat::l_Undef) {
-							std::cerr << "infer_DFA_unary: found undefined value in transition model (destination)" << std::endl;
-							return NULL;
+
+							assert(dest == -1);
+							dest = q;
+
 						}
+
 					}
-					if(!dest_found) {
-						std::cerr << "infer_DFA_unary: no destination state found in transition model" << std::endl;
-						return NULL;
-					}
+					assert(dest >= 0 && dest <= (int)n);
 					
 					// Check if a transition is defined and if so whether it is the same
 					if(transitions.count(source) > 0) {
 					
+						assert(transitions[source].count(a) <= 1);
+					
 						if(transitions[source].count(a) > 0) {
-
-							if(*(transitions[source][a].begin()) != dest) {
-								std::cerr << "infer_DFA_unary: detected nondeterministic transition function in model" << std::endl;
-								return NULL;
-							}
-						
+							assert(*(transitions[source][a].begin()) == dest);
 						} else {
 							transitions[source][a].insert(dest);
 						}
@@ -383,45 +368,50 @@ class dfa_inferring_csp_MiniSat : public automata_inferring<bool> {
 		// Initial state
 		int tmp_initial = -1;
 		for(unsigned int q=0; q<n; q++) {
+			
+			assert(solver.model[x[0][q]] != MiniSat::l_Undef);
+			
 			if(solver.model[x[0][q]] == MiniSat::l_True) {
-				if(tmp_initial == -1) {
-					tmp_initial = q;
-				} else {
-					std::cerr << "infer_DFA_unary: found bad value in initial state model" << std::endl;
-					return NULL;
-				}
-			} else if(solver.model[x[0][q]] == MiniSat::l_Undef) {
-				std::cerr << "infer_DFA_unary: found undefined value in initial states model" << std::endl;
-				return NULL;
+				
+				assert(tmp_initial == -1);
+				tmp_initial = q;
+
+				
 			}
+
 		}
 		assert(tmp_initial >= 0 && tmp_initial < (int)n);
 		std::set<int> initial;
 		initial.insert(tmp_initial);
 		
-		// Final states
-		std::set<int> final;
+		// Output
+		std::map<int, bool> output_mapping;
 		for(unsigned int u=0; u<t.node_count; u++) {
 			if(t.output[u] == true && t.output[u] == true) {
 			
 				int state = -1;
 				for(unsigned int q=0; q<n; q++) {
+				
+					assert(solver.model[x[u][q]] != MiniSat::l_Undef);
+				
 					if(solver.model[x[u][q]] == MiniSat::l_True) {
-						if(state == -1) {
-							state = q;
-						} else {
-							std::cerr << "infer_DFA_unary: found bad value in final state model" << std::endl;
-							return NULL;
-						}
-					} else if(solver.model[x[u][q]] == MiniSat::l_Undef) {
-						std::cerr << "infer_DFA_unary: found undefined value in final states model" << std::endl;
-						return NULL;
+						
+						assert(state == -1);
+						state = q;
+
 					}
+
 				}
 		
 				assert(state >= 0 && state < (int)n);
-				final.insert(state);
+				output_mapping[state] = true;
 
+			}
+		}
+		//Add missing outputs
+		for(unsigned int q=0; q<n; q++) {
+			if(output_mapping.count(q) == 0) {
+				output_mapping[q] = false;
 			}
 		}
 		
@@ -430,7 +420,7 @@ class dfa_inferring_csp_MiniSat : public automata_inferring<bool> {
 		dfa->input_alphabet_size = this->alphabet_size;
 		dfa->state_count = n;
 		dfa->initial_states = initial;
-		dfa->set_final_states(final);
+		dfa->output_mapping = output_mapping;
 		dfa->transitions = transitions;
 		dfa->valid = true;
 		dfa->calc_determinism();
@@ -453,7 +443,7 @@ class dfa_inferring_csp_MiniSat : public automata_inferring<bool> {
 		}
 		assert(n > 0);
 		assert(this->alphabet_size > 0);
-				(*this->my_logger)(LOGGER_ALGORITHM, "Running MiniSat using the binary encoding of the CSP to find a solution with n=%d and alphabet size=%d.\n", n, this->alphabet_size);
+				(*this->my_logger)(LOGGER_ALGORITHM, "Running MiniSat using the 'binary encoding' of the CSP to find a DFA with %u states and alphabet size %d.\n", n, this->alphabet_size);
 
 
 		/*========================================
@@ -613,7 +603,7 @@ class dfa_inferring_csp_MiniSat : public automata_inferring<bool> {
 		 * Solve
 		 *
 		 *========================================*/
-		(*this->my_logger)(LOGGER_ALGORITHM, "Created %d variables and %d clauses.\n", var_count, clause_count);
+		(*this->my_logger)(LOGGER_ALGORITHM, "Created %u variables and %u clauses.\n", var_count, clause_count);
 		(*this->my_logger)(LOGGER_ALGORITHM, "Solving ... ");
 		if(!solver.solve()) {
 			(*this->my_logger)(LOGGER_ALGORITHM, "Formula is unsatisfiable.\n");
@@ -634,7 +624,7 @@ class dfa_inferring_csp_MiniSat : public automata_inferring<bool> {
 			(*this->my_logger)(LOGGER_ALGORITHM, "Model:\n");
 			for(unsigned int u=0; u<t.node_count; u++) {
 				for(unsigned int m=0; m<log_n; m++) {
-					(*this->my_logger)(LOGGER_ALGORITHM, "x[%d][%d] = %s\n", u, m, (solver.model[x[u][m]] == MiniSat::l_True ? "1" : (solver.model[x[u][m]] == MiniSat::l_False ? "0" : "?")));
+					(*this->my_logger)(LOGGER_ALGORITHM, "x[%u][%u] = %s\n", u, m, (solver.model[x[u][m]] == MiniSat::l_True ? "1" : (solver.model[x[u][m]] == MiniSat::l_False ? "0" : "?")));
 				}
 			}
 			

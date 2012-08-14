@@ -262,16 +262,24 @@ class automata_inferring : public learning_algorithm<answer> {
  * output stored in the prefix tree is produced by one of the runs of the
  * Moore machine on the given word.
  *
+ * For nondeterministic machines it might happen that no state is reached after
+ * reading a word from the sample. In this case, the function compares the
+ * output of the sample on this particular word with the default output, which
+ * can be specified as a (non-mandatory) parameter.
+ *
  * This method is mainly intended for debuging.
  *
  * @param t The prefix tree to compare the Moore machine with
  * @param machine The Moore machine to test
+ * @param default_output The default output if no state is reached. Defaults to
+ *                       the default constructor of the template class. (For
+ *                       bools this is false.)
  *
  * @return Returns whether the given Moore machine agrees on all classified
  *         words represented by the given prefix tree.
  */
 template <class answer>
-inline bool is_consistent(const prefix_tree<answer> & t, const moore_machine<answer> & machine) {
+inline bool is_consistent(const prefix_tree<answer> & t, const moore_machine<answer> & machine, answer default_output = answer()) {
 
 	// Run through all nodes of the prefix tree and check whether the
 	// corresponding word is classified correctly.
@@ -287,32 +295,45 @@ inline bool is_consistent(const prefix_tree<answer> & t, const moore_machine<ans
 	
 		// Check current node
 		if(t.specified[current_node]) {
-		
+			
 			// Get the states reached by the machine on the given word
 			std::set<int> states = machine.initial_states;
 			machine.run(states, current_word.begin(), current_word.end());
-		
-			// Check whether the output stored in the prefix tree is also
-			// produced by the machine
-			bool output_found = false;
-			for(std::set<int>::const_iterator it1=states.begin(); it1!=states.end(); it1++) {
 			
-				// Get output
-				typename std::map<int, answer>::const_iterator it2 = machine.output_mapping.find(*it1);
-				if(it2 != machine.output_mapping.end() && it2->second == t.output[current_node]) {
-					
-					output_found = true;
-					break;
-					
+			// At least one state is reached
+			if(states.size() > 0) {	
+
+				// Check whether the output stored in the prefix tree is also
+				// produced by the machine
+				bool output_found = false;
+				for(std::set<int>::const_iterator it1=states.begin(); it1!=states.end(); it1++) {
+				
+					// Get output
+					typename std::map<int, answer>::const_iterator it2 = machine.output_mapping.find(*it1);
+					if(it2 != machine.output_mapping.end() && it2->second == t.output[current_node]) {
+						
+						output_found = true;
+						break;
+						
+					}
+				
+				}
+
+				if(!output_found) {
+					return false;
 				}
 			
 			}
-
-			if(!output_found) {
-				return false;
+			// No state is reached
+			else {
+			
+				if(t.output[current_node] != default_output) {
+					return false;
+				}
+			
 			}
 		
-		}
+		}	
 
 		// Process children
 		for(unsigned int a=0; a<t.get_alphabet_size(); a++) {
@@ -343,18 +364,26 @@ inline bool is_consistent(const prefix_tree<answer> & t, const moore_machine<ans
  * output stored in the knowledgebase is produced by one of the runs of the
  * Moore machine on the given word.
  *
+ * For nondeterministic machines it might happen that no state is reached after
+ * reading a word from the sample. In this case, the function compares the
+ * output of the sample on this particular word with the default output, which
+ * can be specified as a (non-mandatory) parameter.
+ *
  * Note that this function does not change the knowledgebase.
  *
  * This method is mainly intended for debuging.
  *
  * @param base The knowledgebase to compare the Moore machine with
  * @param machine The Moore machine to test
+ * @param default_output The default output if no state is reached. Defaults to
+ *                       the default constructor of the template class. (For
+ *                       bools this is false.)
  *
  * @return Returns whether the given Moore machine agrees on all classified
  *         words represented by the given knowledgebase.
  */
 template <class answer>
-bool is_consistent(libalf::knowledgebase<answer> & base, const libalf::moore_machine<answer> & machine) {
+bool is_consistent(libalf::knowledgebase<answer> & base, const libalf::moore_machine<answer> & machine, answer default_output = answer()) {
 
 	// Run through all nodes of the knowledgebase and check whether the
 	// corresponding word is classified correctly.
@@ -368,24 +397,37 @@ bool is_consistent(libalf::knowledgebase<answer> & base, const libalf::moore_mac
 	
 		// Check whether word is classified correctly by machine
 		if(n->is_answered()) {
-		
+			
 			std::list<int> word = n->get_word();
 			std::set<int> states = machine.initial_states;
 			machine.run(states, word.begin(), word.end());
 
-			bool output_found = false;
-			for(std::set<int>::const_iterator it=states.begin(); it!=states.end(); it++) {
+			// At least one state is reached
+			if(states.size() > 0) {
 
-				typename std::map<int, answer>::const_iterator it2 = machine.output_mapping.find(*it);
-				if(it2 != machine.output_mapping.end() && it2->second==n->get_answer()) {
-					output_found = true;
-					break;
+				bool output_found = false;
+				for(std::set<int>::const_iterator it=states.begin(); it!=states.end(); it++) {
+
+					typename std::map<int, answer>::const_iterator it2 = machine.output_mapping.find(*it);
+					if(it2 != machine.output_mapping.end() && it2->second==n->get_answer()) {
+						output_found = true;
+						break;
+					}
+					
+				}
+				if(!output_found) {
+					return false;
 				}
 				
 			}
-			if(!output_found) {
-				return false;
-			}
+			// No state is reached
+			else {
+			
+				if(n->get_answer() != default_output) {
+					return false;
+				}
+			
+			}			
 			
 		}
 	
@@ -418,16 +460,24 @@ bool is_consistent(libalf::knowledgebase<answer> & base, const libalf::moore_mac
  * output stored in the sample is produced by one of the runs of the
  * Moore machine on the given word.
  *
+ * For nondeterministic machines it might happen that no state is reached after
+ * reading a word from the sample. In this case, the function compares the
+ * output of the sample on this particular word with the default output, which
+ * can be specified as a (non-mandatory) parameter.
+ *
  * This method is mainly intended for debuging.
  *
  * @param sample The sample to compare the Moore machine with
  * @param machine The Moore machine to test
+ * @param default_output The default output if no state is reached. Defaults to
+ *                       the default constructor of the template class. (For
+ *                       bools this is false.)
  *
  * @return Returns whether the given Moore machine agrees on all words
  *         of the given sample.
  */
 template <class answer>
-inline bool is_consistent(const std::map<std::list<int>, answer> & sample, const libalf::moore_machine<answer> & machine) {
+inline bool is_consistent(const std::map<std::list<int>, answer> & sample, const libalf::moore_machine<answer> & machine, answer default_output = answer()) {
 
 	// Check all word in the sample
 	for(typename std::map<std::list<int>, answer>::const_iterator it1=sample.begin(); it1!=sample.end(); it1++) {
@@ -436,22 +486,35 @@ inline bool is_consistent(const std::map<std::list<int>, answer> & sample, const
 		std::set<int> states = machine.initial_states;
 		machine.run(states, it1->first.begin(), it1->first.end());	
 	
-		// Check whether output of prefix tree is contained in the output of the reached states 
-		bool found_output = false;
-		for(std::set<int>::const_iterator it2=states.begin(); it2!=states.end(); it2++) {
-		
-			// Get and check output
-			typename std::map<int, answer>::const_iterator it3 = machine.output_mapping.find(*it2);
-			if(it3!=machine.output_mapping.end() && it3->second==it1->second) {
-				found_output = true;
-				break;
-			}
-			
-		}
-		if(!found_output) {
-			return false;
-		}
+		// At least one state is reached
+		if(states.size() > 0) {
 	
+			// Check whether output of prefix tree is contained in the output of the reached states 
+			bool found_output = false;
+			for(std::set<int>::const_iterator it2=states.begin(); it2!=states.end(); it2++) {
+
+				// Get and check output
+				typename std::map<int, answer>::const_iterator it3 = machine.output_mapping.find(*it2);
+				if(it3!=machine.output_mapping.end() && it3->second==it1->second) {
+					found_output = true;
+					break;
+				}
+				
+			}
+			if(!found_output) {
+				return false;
+			}
+
+		}
+		// No state is reached
+		else {
+		
+			if(it1->second != default_output) {
+				return false;
+			}
+		
+		}
+		
 	}
 
 	return true;
