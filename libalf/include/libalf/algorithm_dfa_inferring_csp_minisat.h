@@ -26,8 +26,8 @@
  * This implementation supports Boolean values as the only <answer> type.
  */
 
-#ifndef __ALGORITHM_DFA_INFERRING_CSP_MINISAT__
-#define __ALGORITHM_DFA_INFERRING_CSP_MINISAT__
+#ifndef __ALGORITHM_DETERMINISTIC_INFERRING_CSP_MINISAT__
+#define __ALGORITHM_DETERMINISTIC_INFERRING_CSP_MINISAT__
 
 // Standard includes 
 #include <iostream>
@@ -50,7 +50,8 @@
 
 namespace libalf {
 
-class dfa_inferring_csp_MiniSat : public automata_inferring<bool> {
+template <class answer>
+class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 
 	private:
 
@@ -70,7 +71,7 @@ class dfa_inferring_csp_MiniSat : public automata_inferring<bool> {
 	/**
 	 * Creates a new learning algorithm.
 	 */
-	dfa_inferring_csp_MiniSat(knowledgebase<bool> * base, logger * log, int alphabet_size, bool unary_encoding = true) {
+	deterministic_inferring_csp_MiniSat(knowledgebase<answer> * base, logger * log, int alphabet_size, bool unary_encoding = true) {
 
 		this->set_alphabet_size(alphabet_size);
 		this->set_logger(log);
@@ -121,7 +122,7 @@ class dfa_inferring_csp_MiniSat : public automata_inferring<bool> {
 
 	private:
 
-	virtual conjecture * __infer(const prefix_tree<bool> & t, unsigned int n) const {
+	virtual conjecture * __infer(const prefix_tree<answer> & t, unsigned int n) const {
 	
 		// Check value for n
 		if(n == 0) {
@@ -138,7 +139,7 @@ class dfa_inferring_csp_MiniSat : public automata_inferring<bool> {
 
 	}
 	
-	libalf::finite_automaton * infer_unary_MiniSat(const prefix_tree<bool> & t, unsigned int n) const {
+	libalf::moore_machine<answer> * infer_unary_MiniSat(const prefix_tree<answer> & t, unsigned int n) const {
 
 		/*========================================
 		 *
@@ -151,7 +152,13 @@ class dfa_inferring_csp_MiniSat : public automata_inferring<bool> {
 		}
 		assert(n > 0);
 		assert(this->alphabet_size > 0);
-		(*this->my_logger)(LOGGER_ALGORITHM, "Running MiniSat using the 'unary encoding' of the CSP to find a DFA with %u states and alphabet size %d.\n", n, this->alphabet_size);
+		(*this->my_logger)(LOGGER_ALGORITHM, "Running MiniSat using the 'unary encoding' of the CSP to find a ");
+		if(typeid(answer) == typeid(bool)) {
+			(*this->my_logger)(LOGGER_ALGORITHM, "DFA");
+		} else {
+			(*this->my_logger)(LOGGER_ALGORITHM, "deterministic Moore machine");
+		}
+		(*this->my_logger)(LOGGER_ALGORITHM, " with %u states and alphabet size %d.\n", n, this->alphabet_size);
 		
 		
 		/*========================================
@@ -217,7 +224,7 @@ class dfa_inferring_csp_MiniSat : public automata_inferring<bool> {
 		for(unsigned int u=0; u<t.node_count; u++) {
 			for(unsigned int v=0; v<u; v++) {
 				for(int a=0; a<this->alphabet_size; a++) {
-					if(t.edges[u][a] != prefix_tree<bool>::no_edge && t.edges[v][a] != prefix_tree<bool>::no_edge) {
+					if(t.edges[u][a] != prefix_tree<answer>::no_edge && t.edges[v][a] != prefix_tree<answer>::no_edge) {
 
 						for(unsigned int p=0; p<n; p++) {
 							for(unsigned int q=0; q<n; q++) {
@@ -312,7 +319,7 @@ class dfa_inferring_csp_MiniSat : public automata_inferring<bool> {
 		std::map<int, std::map<int, std::set<int> > > transitions;
 		for(unsigned int u=0; u<t.node_count; u++) {
 			for(int a=0; a<this->alphabet_size; a++) {
-				if(t.edges[u][a] != prefix_tree<bool>::no_edge) {
+				if(t.edges[u][a] != prefix_tree<answer>::no_edge) {
 				
 					// Search for source state
 					int source = -1;
@@ -385,9 +392,9 @@ class dfa_inferring_csp_MiniSat : public automata_inferring<bool> {
 		initial.insert(tmp_initial);
 		
 		// Output
-		std::map<int, bool> output_mapping;
+		std::map<int, answer> output_mapping;
 		for(unsigned int u=0; u<t.node_count; u++) {
-			if(t.output[u] == true && t.output[u] == true) {
+			if(t.specified[u]) {
 			
 				int state = -1;
 				for(unsigned int q=0; q<n; q++) {
@@ -404,7 +411,11 @@ class dfa_inferring_csp_MiniSat : public automata_inferring<bool> {
 				}
 		
 				assert(state >= 0 && state < (int)n);
-				output_mapping[state] = true;
+				if(output_mapping.count(state) > 0) {
+					assert(output_mapping[state] == t.output[u]);
+				} else {
+					output_mapping[state] = t.output[u];
+				}
 
 			}
 		}
@@ -416,21 +427,26 @@ class dfa_inferring_csp_MiniSat : public automata_inferring<bool> {
 		}
 		
 		// Construct and return automaton
-		finite_automaton * dfa = new finite_automaton;
-		dfa->input_alphabet_size = this->alphabet_size;
-		dfa->state_count = n;
-		dfa->initial_states = initial;
-		dfa->output_mapping = output_mapping;
-		dfa->transitions = transitions;
-		dfa->valid = true;
-		dfa->calc_determinism();
+		moore_machine<answer> * automaton;
+		if(typeid(answer) == typeid(bool)) {
+			automaton = dynamic_cast<moore_machine<answer> * >(new finite_automaton);
+		} else {
+			automaton = new moore_machine<answer>;
+		}
+		automaton->input_alphabet_size = this->alphabet_size;
+		automaton->state_count = n;
+		automaton->initial_states = initial;
+		automaton->output_mapping = output_mapping;
+		automaton->transitions = transitions;
+		automaton->valid = true;
+		automaton->calc_determinism();
 
-		assert(dfa->calc_validity());
-		return dfa;
+		assert(automaton->calc_validity());
+		return automaton;
 		
 	}
 	
-	libalf::finite_automaton * infer_binary_MiniSat(const prefix_tree<bool> & t, unsigned int n) const {
+	libalf::moore_machine<answer> * infer_binary_MiniSat(const prefix_tree<answer> & t, unsigned int n) const {
 
 		/*========================================
 		 *
@@ -443,7 +459,13 @@ class dfa_inferring_csp_MiniSat : public automata_inferring<bool> {
 		}
 		assert(n > 0);
 		assert(this->alphabet_size > 0);
-				(*this->my_logger)(LOGGER_ALGORITHM, "Running MiniSat using the 'binary encoding' of the CSP to find a DFA with %u states and alphabet size %d.\n", n, this->alphabet_size);
+		(*this->my_logger)(LOGGER_ALGORITHM, "Running MiniSat using the 'binary encoding' of the CSP to find a ");
+		if(typeid(answer) == typeid(bool)) {
+			(*this->my_logger)(LOGGER_ALGORITHM, "DFA");
+		} else {
+			(*this->my_logger)(LOGGER_ALGORITHM, "deterministic Moore machine");
+		}
+		(*this->my_logger)(LOGGER_ALGORITHM, " with %u states and alphabet size %d.\n", n, this->alphabet_size);
 
 
 		/*========================================
@@ -547,7 +569,7 @@ class dfa_inferring_csp_MiniSat : public automata_inferring<bool> {
 		for(unsigned int u=0; u<t.node_count; u++) {
 			for(unsigned int v=0; v<u; v++) {
 				for(int a=0; a<this->alphabet_size; a++) {
-					if(t.edges[u][a] != prefix_tree<bool>::no_edge && t.edges[v][a] != prefix_tree<bool>::no_edge) {
+					if(t.edges[u][a] != prefix_tree<answer>::no_edge && t.edges[v][a] != prefix_tree<answer>::no_edge) {
 
 						for(unsigned int q=0; q<n; q++) {
 
@@ -648,7 +670,7 @@ class dfa_inferring_csp_MiniSat : public automata_inferring<bool> {
 			}
 
 			for(int a=0; a<this->alphabet_size; a++) {
-				if(t.edges[u][a] != prefix_tree<bool>::no_edge) {
+				if(t.edges[u][a] != prefix_tree<answer>::no_edge) {
 
 					// Decode destination state
 					unsigned int dest = 0;
@@ -685,10 +707,10 @@ class dfa_inferring_csp_MiniSat : public automata_inferring<bool> {
 		std::set<int> initial;
 		initial.insert(tmp_initial);
 	
-		// Final states
-		std::set<int> final;
+		// Output
+		std::map<int, answer> output_mapping;
 		for(unsigned int u=0; u<t.node_count; u++) {
-			if(t.specified[u] && t.output[u] == true) {
+			if(t.specified[u]) {
 
 				// Decode state
 				unsigned int state = 0;
@@ -702,22 +724,33 @@ class dfa_inferring_csp_MiniSat : public automata_inferring<bool> {
 					
 				}
 
-				final.insert(state);
+				assert(state < (int)n);
+				if(output_mapping.count(state) > 0) {
+					assert(output_mapping[state] == t.output[u]);
+				} else {
+					output_mapping[state] = t.output[u];
+				}
+				
 			}
 		}
 
 		// Construct and return automaton
-		finite_automaton * dfa = new finite_automaton;
-		dfa->input_alphabet_size = this->alphabet_size;
-		dfa->state_count = n;
-		dfa->initial_states = initial;
-		dfa->set_final_states(final);
-		dfa->transitions = transitions;
-		dfa->valid = true;
-		dfa->calc_determinism();
+		moore_machine<answer> * automaton;
+		if(typeid(answer) == typeid(bool)) {
+			automaton = dynamic_cast<moore_machine<answer> * >(new finite_automaton);
+		} else {
+			automaton = new moore_machine<answer>;
+		}
+		automaton->input_alphabet_size = this->alphabet_size;
+		automaton->state_count = n;
+		automaton->initial_states = initial;
+		automaton->output_mapping = output_mapping;
+		automaton->transitions = transitions;
+		automaton->valid = true;
+		automaton->calc_determinism();
 
-		assert(dfa->calc_validity());
-		return dfa;
+		assert(automaton->calc_validity());
+		return automaton;
 
 	}
 
