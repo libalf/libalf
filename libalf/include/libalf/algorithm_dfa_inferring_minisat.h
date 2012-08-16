@@ -145,7 +145,7 @@ class dfa_inferring_MiniSat : public automata_inferring<bool> {
 		}
 		assert(n > 0);
 		assert(this->alphabet_size > 0);
-		(*this->my_logger)(LOGGER_ALGORITHM, "Running MiniSat using the unary encoding of the CSP to find a solution with n=%d and alphabet size=%d.\n", n, this->alphabet_size);
+		(*this->my_logger)(LOGGER_ALGORITHM, "Running MiniSat using the 'transition encoding' to find a solution with %u states and alphabet size %d.\n", n, this->alphabet_size);
 		
 		
 		/*========================================
@@ -209,6 +209,7 @@ class dfa_inferring_MiniSat : public automata_inferring<bool> {
 			}
 				
 			solver.addClause(clause);
+
 			clause_count++;
 
 		}
@@ -221,6 +222,8 @@ class dfa_inferring_MiniSat : public automata_inferring<bool> {
 					for(unsigned int q2=0; q2<q1; q2++) {
 
 						solver.addBinary(~MiniSat::Lit(d[p][a][q1]), ~MiniSat::Lit(d[p][a][q2]));
+
+						clause_count++;
 
 					}
 				}
@@ -238,6 +241,8 @@ class dfa_inferring_MiniSat : public automata_inferring<bool> {
 
 							solver.addTernary(~MiniSat::Lit(x[u][p]), MiniSat::Lit(d[p][a][q]), ~MiniSat::Lit(x[t.edges[u][a]][q]));
 
+							clause_count++;
+
 						}
 					}
 
@@ -251,6 +256,7 @@ class dfa_inferring_MiniSat : public automata_inferring<bool> {
 				for(unsigned int q=0; q<n; q++) {
 
 					solver.addBinary(~MiniSat::Lit(x[u][q]), MiniSat::Lit(f[q]));
+
 					clause_count++;
 
 				}
@@ -262,6 +268,7 @@ class dfa_inferring_MiniSat : public automata_inferring<bool> {
 				for(unsigned int q=0; q<n; q++) {
 
 					solver.addBinary(~MiniSat::Lit(x[u][q]), ~MiniSat::Lit(f[q]));
+
 					clause_count++;
 					
 				}
@@ -277,6 +284,7 @@ class dfa_inferring_MiniSat : public automata_inferring<bool> {
 				for(unsigned int q=0; q<p; q++) {
 
 					solver.addBinary(~MiniSat::Lit(x[u][p]), ~MiniSat::Lit(x[u][q]));
+
 					clause_count++;
 
 				}
@@ -295,6 +303,7 @@ class dfa_inferring_MiniSat : public automata_inferring<bool> {
 				}
 
 				solver.addClause(clause);
+
 				clause_count++;
 
 			}
@@ -309,6 +318,7 @@ class dfa_inferring_MiniSat : public automata_inferring<bool> {
 						for(unsigned int q=0; q<n; q++) {
 
 							solver.addTernary(~MiniSat::Lit(x[u][p]), ~MiniSat::Lit(d[p][a][q]), MiniSat::Lit(x[t.edges[u][a]][q]));
+
 							clause_count++;
 
 						}
@@ -348,18 +358,18 @@ class dfa_inferring_MiniSat : public automata_inferring<bool> {
 			for(unsigned int p=0; p<n; p++) {
 				for(int a=0; a<this->alphabet_size; a++) {
 					for(unsigned int q=0; q<n; q++) {
-						(*this->my_logger)(LOGGER_ALGORITHM, "d[%d][%d][%d] = %s\n", p, a, q, (solver.model[d[p][a][q]] == MiniSat::l_True ? "1" : (solver.model[d[p][a][q]] == MiniSat::l_False ? "0" : "?")));
+						(*this->my_logger)(LOGGER_ALGORITHM, "d[%u][%u][%u] = %s\n", p, a, q, (solver.model[d[p][a][q]] == MiniSat::l_True ? "1" : (solver.model[d[p][a][q]] == MiniSat::l_False ? "0" : "?")));
 					}
 				}
 			}
 			// Final states
 			for(unsigned int q=0; q<n; q++) {
-				(*this->my_logger)(LOGGER_ALGORITHM, "f[%d] = %s\n", q, (solver.model[f[q]] == MiniSat::l_True ? "1" : (solver.model[f[q]] == MiniSat::l_False ? "0" : "?")));
+				(*this->my_logger)(LOGGER_ALGORITHM, "f[%u] = %s\n", q, (solver.model[f[q]] == MiniSat::l_True ? "1" : (solver.model[f[q]] == MiniSat::l_False ? "0" : "?")));
 			}
 			// States
 			for(unsigned int u=0; u<t.node_count; u++) {
 				for(unsigned int q=0; q<n; q++) {
-					(*this->my_logger)(LOGGER_ALGORITHM, "x[%d][%d] = %s\n", u, q, (solver.model[x[u][q]] == MiniSat::l_True ? "1" : (solver.model[x[u][q]] == MiniSat::l_False ? "0" : "?")));
+					(*this->my_logger)(LOGGER_ALGORITHM, "x[%u][%u] = %s\n", u, q, (solver.model[x[u][q]] == MiniSat::l_True ? "1" : (solver.model[x[u][q]] == MiniSat::l_False ? "0" : "?")));
 				}
 			}
 			
@@ -371,41 +381,45 @@ class dfa_inferring_MiniSat : public automata_inferring<bool> {
 			for(int a=0; a<this->alphabet_size; a++) {
 
 				// Find (unique) q such that d[p][a][q] is true
-				int dest = -1;
+				bool dest_found = false;
+				unsigned int dest = 0;
 				for(unsigned int q=0; q<n; q++) {
 
 					assert(solver.model[d[p][a][q]] != MiniSat::l_Undef);
 				
 					if(solver.model[d[p][a][q]] == MiniSat::l_True) {
 		
-						assert(dest == -1);
+						assert(!dest_found);
+						dest_found = true;
 						dest = q;
 						
 					} 
 
 				}
 
-				assert(dest >= 0 && dest < (int)n);
+				assert(dest_found && dest < n);
 				transitions[p][a].insert(dest);
 
 			}
 		}
 		
 		// Initial state
-		int tmp_initial = -1;
+		bool initial_found = false;
+		unsigned int tmp_initial = 0;
 		for(unsigned int q=0; q<n; q++) {
 
 			assert(solver.model[x[0][q]] != MiniSat::l_Undef);
 		
 			if(solver.model[x[0][q]] == MiniSat::l_True) {
 			
-				assert(tmp_initial == -1);
+				assert(!initial_found);
+				initial_found = true;
 				tmp_initial = q;
 			
 			}
 
 		}
-		assert(tmp_initial >= 0 && tmp_initial < (int)n);
+		assert(initial_found && tmp_initial < n);
 		std::set<int> initial;
 		initial.insert(tmp_initial);
 		

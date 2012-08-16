@@ -202,7 +202,7 @@ class deterministic_inferring_csp_Z3 : public automata_inferring<answer> {
 			s.add(x(u) >= 0);
 			s.add(x(u) < c.int_val(n));
 
-			assertion_count++;
+			assertion_count += 2;
 
 		}
 		
@@ -233,6 +233,7 @@ class deterministic_inferring_csp_Z3 : public automata_inferring<answer> {
 						if(t.output[u] != t.output[v]) {
 						
 							s.add(x(u) != x(v));
+
 							assertion_count++;
 						
 						}
@@ -315,7 +316,7 @@ class deterministic_inferring_csp_Z3 : public automata_inferring<answer> {
 				assert(conversion_ok == true);
 				
 				// Add
-				assert(state < (int)n);
+				assert(state < n);
 				if(output_mapping.count(state) > 0) {
 					assert(output_mapping[state] == t.output[u]);
 				} else {
@@ -404,7 +405,7 @@ class deterministic_inferring_csp_Z3 : public automata_inferring<answer> {
 			s.add(state_vars[u] >= 0);
 			s.add(state_vars[u] < c.int_val(n));
 
-			assertion_count++;
+			assertion_count += 2;
 
 		}
 		
@@ -437,6 +438,7 @@ class deterministic_inferring_csp_Z3 : public automata_inferring<answer> {
 						if(t.output[u] != t.output[v]) {
 						
 							s.add(state_vars[u] != state_vars[v]);
+
 							assertion_count++;
 						
 						}
@@ -519,7 +521,7 @@ class deterministic_inferring_csp_Z3 : public automata_inferring<answer> {
 				assert(conversion_ok == true);
 				
 				// Add
-				assert(state <= (int)n);
+				assert(state <= n);
 				if(output_mapping.count(state) > 0) {
 					assert(output_mapping[state] == t.output[u]);
 				} else {
@@ -684,7 +686,8 @@ class deterministic_inferring_csp_Z3 : public automata_inferring<answer> {
 		for(unsigned int u=0; u<t.node_count; u++) {
 
 			// Get model value for source
-			int source = -1;
+			bool source_found = false;
+			unsigned int source = 0;
 			for(unsigned int p=0; p<n; p++) {
 		
 				Z3_bool v = Z3_get_bool_value(c, m.eval(state_testers[p](x(u))));
@@ -692,23 +695,21 @@ class deterministic_inferring_csp_Z3 : public automata_inferring<answer> {
 		
 				if(v == Z3_L_TRUE) {
 			
-					if(source == -1) {
-						source = p;
-					} else {
-						(*this->my_logger)(LOGGER_ERROR, "Detected error in model!\n");
-						return NULL;
-					}
-			
+					assert(!source_found);
+					source_found = true;
+					source = p;
+
 				}
 			
 			}
-			assert(source >=0 && source < (int)n);
+			assert(source_found && source < n);
 		
 			for(int a=0; a<this->alphabet_size; a++) {
 				if(t.edges[u][a] != prefix_tree<answer>::no_edge) {
 			
 					// Get model value for destination
-					int dest = -1;
+					bool dest_found = false;
+					unsigned int dest = 0;
 					for(unsigned int p=0; p<n; p++) {
 				
 						Z3_bool v = Z3_get_bool_value(c, m.eval(state_testers[p](x(t.edges[u][a]))));
@@ -716,21 +717,18 @@ class deterministic_inferring_csp_Z3 : public automata_inferring<answer> {
 				
 						if(v == Z3_L_TRUE) {
 					
-							if(dest == -1) {
-								dest = p;
-							} else {
-								(*this->my_logger)(LOGGER_ERROR, "Detected error in model!\n");
-								return NULL;
-							}
+							assert(!dest_found);
+							dest_found = true;
+							dest = p;
 					
 						} 
 
 					}
-					assert(dest >=0 && dest < (int)n);
+					assert(dest_found && dest < n);
 			
 					// Check for nondeterminism
 					assert(transitions[source][a].size() <= 1);
-					assert(transitions[source][a].size() == 0 || *(transitions[source][a].begin()) == dest);
+					assert(transitions[source][a].size() == 0 || *(transitions[source][a].begin()) == (int)dest);
 			
 					// Add transition
 					transitions[source][a].insert(dest);
@@ -741,37 +739,34 @@ class deterministic_inferring_csp_Z3 : public automata_inferring<answer> {
 		}
 	
 		// Initial state
-		int tmp_initial = -1;
-		{
-			for(unsigned int p=0; p<n; p++) {
+		bool initial_found = false;
+		unsigned int tmp_initial = 0;
+		for(unsigned int p=0; p<n; p++) {
 					
-				Z3_bool v = Z3_get_bool_value(c, m.eval(state_testers[p](x(prefix_tree<answer>::root))));
-				assert(v != Z3_L_UNDEF);
+			Z3_bool v = Z3_get_bool_value(c, m.eval(state_testers[p](x(prefix_tree<answer>::root))));
+			assert(v != Z3_L_UNDEF);
 		
-				if(v == Z3_L_TRUE) {
+			if(v == Z3_L_TRUE) {
 			
-					if(tmp_initial == -1) {
-						tmp_initial = p;
-					} else {
-						(*this->my_logger)(LOGGER_ERROR, "Detected error in model!\n");
-						return NULL;
-					}
+				assert(!initial_found);
+				initial_found = true;
+				tmp_initial = p;
 			
-				} 
+			} 
 
-			}
 		}
-		assert(tmp_initial >= 0 && tmp_initial < (int)n);
+		assert(initial_found && tmp_initial < n);
 		std::set<int> initial;
 		initial.insert(tmp_initial);
 
-		// Final states
+		// Output
 		std::map<int, answer> output_mapping;
 		for(unsigned int u=0; u<t.node_count; u++) {
 			if(t.specified[u]) {
 
 				// Get model value for state
-				int state = -1;
+				bool state_found = false;
+				unsigned int state = 0;
 				for(unsigned int p=0; p<n; p++) {
 				
 					// Identify which enum is assigned to this variable
@@ -780,7 +775,8 @@ class deterministic_inferring_csp_Z3 : public automata_inferring<answer> {
 			
 					if(v == Z3_L_TRUE) {
 				
-						assert(state == -1);
+						assert(!state_found);
+						state_found = true;
 						state = p;
 				
 					}
@@ -788,7 +784,7 @@ class deterministic_inferring_csp_Z3 : public automata_inferring<answer> {
 				}
 			
 				// Add
-				assert(state >= 0 && state < (int)n);
+				assert(state_found && state < n);
 				if(output_mapping.count(state) > 0) {
 					assert(output_mapping[state] == t.output[u]);
 				} else {
@@ -960,7 +956,8 @@ class deterministic_inferring_csp_Z3 : public automata_inferring<answer> {
 		for(unsigned int u=0; u<t.node_count; u++) {
 
 			// Get model value for source
-			int source = -1;
+			bool source_found = false;
+			unsigned int source = 0;
 			for(unsigned int p=0; p<n; p++) {
 			
 				Z3_bool v = Z3_get_bool_value(c, m.eval(state_testers[p](state_vars[u])));
@@ -968,19 +965,21 @@ class deterministic_inferring_csp_Z3 : public automata_inferring<answer> {
 			
 				if(v == Z3_L_TRUE) {
 				
-					assert(source == -1);
+					assert(!source_found);
+					source_found = true;
 					source = p;
 				
 				}
 				
 			}
-			assert(source >=0 && source < (int)n);
+			assert(source_found && source < n);
 			
 			for(int a=0; a<this->alphabet_size; a++) {
 				if(t.edges[u][a] != prefix_tree<answer>::no_edge) {
 				
 					// Get model value for destination
-					int dest = -1;
+					bool dest_found = false;
+					unsigned int dest = 0;
 					for(unsigned int p=0; p<n; p++) {
 					
 						Z3_bool v = Z3_get_bool_value(c, m.eval(state_testers[p](state_vars[t.edges[u][a]])));
@@ -988,17 +987,18 @@ class deterministic_inferring_csp_Z3 : public automata_inferring<answer> {
 					
 						if(v == Z3_L_TRUE) {
 						
-							assert(dest == -1);
+							assert(!dest_found);
+							dest_found = true;
 							dest = p;
 						
 						} 
 
 					}
-					assert(dest >=0 && dest < (int)n);
+					assert(dest_found && dest < n);
 				
 					// Check for nondeterminism
 					assert(transitions[source][a].size() <= 1);
-					assert(transitions[source][a].size() == 0 || *(transitions[source][a].begin()) == dest);
+					assert(transitions[source][a].size() == 0 || *(transitions[source][a].begin()) == (int)dest);
 				
 					// Add transition
 					transitions[source][a].insert(dest);
@@ -1009,23 +1009,23 @@ class deterministic_inferring_csp_Z3 : public automata_inferring<answer> {
 		}
 		
 		// Initial state
-		int tmp_initial = -1;
-		{
-			for(unsigned int p=0; p<n; p++) {
+		bool initial_found = false;
+		unsigned int tmp_initial = 0;
+		for(unsigned int p=0; p<n; p++) {
 						
-				Z3_bool v = Z3_get_bool_value(c, m.eval(state_testers[p](state_vars[prefix_tree<answer>::root])));
-				assert(v != Z3_L_UNDEF);
+			Z3_bool v = Z3_get_bool_value(c, m.eval(state_testers[p](state_vars[prefix_tree<answer>::root])));
+			assert(v != Z3_L_UNDEF);
 			
-				if(v == Z3_L_TRUE) {
+			if(v == Z3_L_TRUE) {
 				
-					assert(tmp_initial == -1);
-					tmp_initial = p;
+				assert(initial_found == -1);
+				initial_found = true;
+				tmp_initial = p;
 				
-				} 
+			} 
 
-			}
 		}
-		assert(tmp_initial >= 0 && tmp_initial < (int)n);
+		assert(initial_found && tmp_initial < n);
 		std::set<int> initial;
 		initial.insert(tmp_initial);
 		
@@ -1035,7 +1035,8 @@ class deterministic_inferring_csp_Z3 : public automata_inferring<answer> {
 			if(t.specified[u]) {
 
 				// Get model value for state
-				int state = -1;
+				bool state_found = false;
+				unsigned int state = 0;
 				for(unsigned int p=0; p<n; p++) {
 					
 					// Identify which enum is assigned to this variable
@@ -1044,7 +1045,8 @@ class deterministic_inferring_csp_Z3 : public automata_inferring<answer> {
 				
 					if(v == Z3_L_TRUE) {
 					
-						assert(state == -1);
+						assert(!state_found);
+						state_found = true;
 						state = p;
 					
 					}
@@ -1052,7 +1054,7 @@ class deterministic_inferring_csp_Z3 : public automata_inferring<answer> {
 				}
 				
 				// Add
-				assert(state >= 0 && state < (int)n);
+				assert(state_found && state < n);
 				if(output_mapping.count(state) > 0) {
 					assert(output_mapping[state] == t.output[u]);
 				} else {

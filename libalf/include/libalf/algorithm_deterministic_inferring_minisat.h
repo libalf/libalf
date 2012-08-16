@@ -420,7 +420,7 @@ class deterministic_inferring_MiniSat : public automata_inferring<answer> {
 
 				// Find (unique) q such that d[p][a][q] is true
 				bool found_dest = false;
-				unsigned int dest;
+				unsigned int dest = 0;
 				for(unsigned int q=0; q<n; q++) {
 
 					assert(solver.model[d[p][a][q]] != MiniSat::l_Undef);
@@ -443,7 +443,7 @@ class deterministic_inferring_MiniSat : public automata_inferring<answer> {
 		
 		// Initial state
 		bool initial_found = false;
-		unsigned int tmp_initial;
+		unsigned int tmp_initial = 0;
 		for(unsigned int q=0; q<n; q++) {
 
 			assert(solver.model[x[0][q]] != MiniSat::l_Undef);
@@ -466,7 +466,7 @@ class deterministic_inferring_MiniSat : public automata_inferring<answer> {
 		for(unsigned int q=0; q<n; q++) {
 
 			bool found_output = false;
-			unsigned int output;
+			unsigned int output = 0;
 			for(unsigned int i=0; i<output_count; i++) {
 
 				assert(solver.model[f[q][i]] != MiniSat::l_Undef);

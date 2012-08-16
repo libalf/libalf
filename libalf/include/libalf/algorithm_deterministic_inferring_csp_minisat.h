@@ -204,6 +204,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 			}
 			
 			solver.addClause(clause);
+
 			clause_count++;
 
 		}
@@ -214,6 +215,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 				for(unsigned int q=0; q<p; q++) {
 
 					solver.addBinary(~MiniSat::Lit(x[u][p]), ~MiniSat::Lit(x[u][q]));
+
 					clause_count++;
 
 				}
@@ -240,6 +242,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 									clause[3] = ~MiniSat::Lit(x[t.edges[v][a]][p]);
 										
 									solver.addClause(clause);
+
 									clause_count++;
 
 								}
@@ -255,6 +258,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 									clause[3] = MiniSat::Lit(x[t.edges[v][a]][p]);
 										
 									solver.addClause(clause);
+
 									clause_count++;
 
 								}
@@ -274,6 +278,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 					for(unsigned int q=0; q<n; q++) {
 						
 						solver.addBinary(~MiniSat::Lit(x[u][q]), ~MiniSat::Lit(x[v][q]));
+
 						clause_count++;
 						
 					}
@@ -322,36 +327,40 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 				if(t.edges[u][a] != prefix_tree<answer>::no_edge) {
 				
 					// Search for source state
-					int source = -1;
+					bool source_found = false;
+					unsigned int source = 0;
 					for(unsigned int q=0; q<n; q++) {
 
 						assert(solver.model[x[u][q]] != MiniSat::l_Undef);
 
 						if(solver.model[x[u][q]] == MiniSat::l_True) {
 
-							assert(source == -1);
+							assert(!source_found);
+							source_found = true;
 							source = q;
 
 						}
 
 					}
-					assert(source >= 0 && source <= (int)n);
+					assert(source_found && source <= n);
 
 					// Search for destination state
-					int dest = -1;
+					bool dest_found = false;
+					unsigned int dest = 0;
 					for(unsigned int q=0; q<n; q++) {
 					
 						assert(solver.model[x[t.edges[u][a]][q]] != MiniSat::l_Undef);
 					
 						if(solver.model[x[t.edges[u][a]][q]] == MiniSat::l_True) {
 
-							assert(dest == -1);
+							assert(!dest_found);
+							dest_found = true;
 							dest = q;
 
 						}
 
 					}
-					assert(dest >= 0 && dest <= (int)n);
+					assert(dest_found && dest <= n);
 					
 					// Check if a transition is defined and if so whether it is the same
 					if(transitions.count(source) > 0) {
@@ -359,7 +368,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 						assert(transitions[source].count(a) <= 1);
 					
 						if(transitions[source].count(a) > 0) {
-							assert(*(transitions[source][a].begin()) == dest);
+							assert(*(transitions[source][a].begin()) == (int)dest);
 						} else {
 							transitions[source][a].insert(dest);
 						}
@@ -373,21 +382,22 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 		}
 		
 		// Initial state
-		int tmp_initial = -1;
+		bool initial_found = false;
+		unsigned int tmp_initial = 0;
 		for(unsigned int q=0; q<n; q++) {
 			
 			assert(solver.model[x[0][q]] != MiniSat::l_Undef);
 			
 			if(solver.model[x[0][q]] == MiniSat::l_True) {
 				
-				assert(tmp_initial == -1);
+				assert(!initial_found);
+				initial_found = true;
 				tmp_initial = q;
 
-				
 			}
 
 		}
-		assert(tmp_initial >= 0 && tmp_initial < (int)n);
+		assert(initial_found && tmp_initial < n);
 		std::set<int> initial;
 		initial.insert(tmp_initial);
 		
@@ -397,14 +407,16 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 			if(t.specified[u]) {
 			
 				// Get value from model
-				int state = -1;
+				bool state_found = false;
+				unsigned int state = 0;
 				for(unsigned int q=0; q<n; q++) {
 				
 					assert(solver.model[x[u][q]] != MiniSat::l_Undef);
 				
 					if(solver.model[x[u][q]] == MiniSat::l_True) {
 						
-						assert(state == -1);
+						assert(!state_found);
+						state_found = true;
 						state = q;
 
 					}
@@ -412,7 +424,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 				}
 		
 				// Add
-				assert(state >= 0 && state < (int)n);
+				assert(state_found && state < n);
 				if(output_mapping.count(state) > 0) {
 					assert(output_mapping[state] == t.output[u]);
 				} else {
@@ -533,6 +545,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 				}
 
 				solver.addClause(clause);
+
 				clause_count++;
 
 			}
@@ -560,6 +573,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 
 						// Add clause
 						solver.addClause(clause);
+
 						clause_count++;
 
 					}
@@ -594,6 +608,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 
 								// Add clause 1
 								solver.addClause(clause1);
+
 								clause_count++;
 
 
@@ -611,6 +626,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 
 								// Add clause 2
 								solver.addClause(clause2);
+
 								clause_count++;
 
 							}
@@ -726,7 +742,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 					
 				}
 
-				assert(state < (int)n);
+				assert(state < n);
 				if(output_mapping.count(state) > 0) {
 					assert(output_mapping[state] == t.output[u]);
 				} else {

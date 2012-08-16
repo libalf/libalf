@@ -678,8 +678,8 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 			for(int a=0; a<this->alphabet_size; a++) {
 				
 				// Check which of the finite many states is defined by the model
-				unsigned int dest;
 				bool dest_found = false;
+				unsigned int dest = 0;
 				for(unsigned int p=0; p<n; p++) {
 				
 					// Get info from model
@@ -913,8 +913,8 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 			for(int a=0; a<this->alphabet_size; a++) {
 				
 				// Check which of the finite many states is defined by the model
-				unsigned int dest;
 				bool dest_found = false;
+				unsigned int dest = 0;
 				for(unsigned int p=0; p<n; p++) {
 				
 					// Get info from model

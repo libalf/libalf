@@ -325,7 +325,7 @@ class deterministic_inferring_Z3 : public automata_inferring<answer> {
 			assert(conversion_ok == true);
 			
 			// Add output
-			assert(output >= 0 && output < output_count);
+			assert(output < output_count);
 			output_mapping[q] = find_key(output_id, output);
 			
 		}
@@ -528,7 +528,7 @@ class deterministic_inferring_Z3 : public automata_inferring<answer> {
 			assert(conversion_ok != Z3_L_UNDEF);
 			
 			// Add output
-			assert(output >= 0 && output < output_count);
+			assert(output < output_count);
 			output_mapping[q] = find_key(output_id, output);
 			
 		}
@@ -736,7 +736,8 @@ class deterministic_inferring_Z3 : public automata_inferring<answer> {
 			for(int a=0; a<this->alphabet_size; a++) {
 				
 				// Check which of the finite many states is defined by the model
-				int dest = -1;
+				bool dest_found = false;
+				unsigned int dest = 0;
 				for(unsigned int p=0; p<n; p++) {
 				
 					// Get info from model
@@ -751,13 +752,14 @@ class deterministic_inferring_Z3 : public automata_inferring<answer> {
 					// Check destination
 					if(conversion_ok == Z3_L_TRUE) {
 					
-						assert(dest == -1);
+						assert(!dest_found);
+						dest_found = true;
 						dest = p;
 					
 					}
 					
 				}
-				assert(dest >= 0 && dest < (int)n);
+				assert(dest_found && dest < n);
 				
 				// Add transition
 				transitions[q][a].insert(dest);
@@ -774,7 +776,8 @@ class deterministic_inferring_Z3 : public automata_inferring<answer> {
 		for(unsigned int q=0; q<n; q++) {
 			
 			// Retrive value from model
-			int output = -1;
+			bool output_found = false;
+			unsigned int output = 0;
 			for(unsigned int i=0; i<output_count; i++) {
 
 				z3::ast tmp (c, Z3_mk_app(c, s_consts[q], 0, NULL));
@@ -784,13 +787,14 @@ class deterministic_inferring_Z3 : public automata_inferring<answer> {
 				// Add final state
 				if(result == Z3_L_TRUE) {
 
-					assert(output == -1);
+					assert(!output_found);
+					output_found = true;
 					output = i;
 
 				}
 
 			}
-			assert(output >= 0 && output < (int)output_count);
+			assert(output_found && output < output_count);
 
 			output_mapping[q] = find_key(output_id, output);
 			
@@ -1007,7 +1011,8 @@ class deterministic_inferring_Z3 : public automata_inferring<answer> {
 			for(int a=0; a<this->alphabet_size; a++) {
 				
 				// Check which of the finite many states is defined by the model
-				int dest = -1;
+				bool dest_found = false;
+				unsigned int dest = 0;
 				for(unsigned int p=0; p<n; p++) {
 				
 					// Get info from model
@@ -1022,13 +1027,14 @@ class deterministic_inferring_Z3 : public automata_inferring<answer> {
 					// Check destination
 					if(conversion_ok == Z3_L_TRUE) {
 					
-						assert(dest == -1);
+						assert(!dest_found);
+						dest_found = true;
 						dest = p;
 
 					}
 					
 				}
-				assert(dest >= 0 && (unsigned int)dest < n);
+				assert(dest_found && dest < n);
 				
 				// Add transition
 				transitions[q][a].insert(dest);
@@ -1045,7 +1051,8 @@ class deterministic_inferring_Z3 : public automata_inferring<answer> {
 		for(unsigned int q=0; q<n; q++) {
 			
 			// Retrive value from model
-			int output = -1;
+			bool output_found = false;
+			unsigned int output = 0;
 			for(unsigned int i=0; i<output_count; i++) {
 
 				z3::ast tmp (c, Z3_mk_app(c, s_consts[q], 0, NULL));
@@ -1055,13 +1062,14 @@ class deterministic_inferring_Z3 : public automata_inferring<answer> {
 				// Add final state
 				if(result == Z3_L_TRUE) {
 
-					assert(output == -1);
+					assert(!output_found);
+					output_found = true;
 					output = i;
 
 				}
 
 			}
-			assert(output >= 0 && output < (int)output_count);
+			assert(output_found && output < output_count);
 
 			output_mapping[q] = find_key(output_id, output);
 			
