@@ -1018,7 +1018,7 @@ class deterministic_inferring_csp_Z3 : public automata_inferring<answer> {
 			
 			if(v == Z3_L_TRUE) {
 				
-				assert(initial_found == -1);
+				assert(!initial_found);
 				initial_found = true;
 				tmp_initial = p;
 				
