@@ -397,8 +397,14 @@ class dfa_inferring_MiniSat : public automata_inferring<bool> {
 
 				}
 
-				assert(dest_found && dest < n);
-				transitions[p][a].insert(dest);
+				// If no symmetry breaking, then there might be undefined transitions
+				if(symmetry_breaking) {
+					assert(found_dest && dest < n);
+				}
+				
+				if(found_dest) {
+					transitions[p][a].insert(dest);
+				}
 
 			}
 		}
