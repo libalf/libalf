@@ -63,7 +63,7 @@
 #include <libalf/learning_algorithm.h>
 #include <libalf/algorithm_angluin.h>
 #include "libalf/algorithm_automata_inferring.h"
-#include "libalf/algorithm_deterministic_inferring_minisat.h"
+#include "libalf/algorithm_dfa_inferring_minisat.h"
 
 namespace libalf {
 
@@ -337,14 +337,81 @@ inline std::ostream & operator<<(std::ostream& os, const weak_bool & a) {
  * @author Daniel Neider (neider@automata.rwth-aachen.de)
  * @version 1.0
  */
-template <class automata_inferring>
+//template <class automata_inferring>
 class angluin_inexperienced_teacher : public angluin_simple_table<weak_bool> {
+
+	private:
+
+	/**
+	 * Stores a ponter to the DFA inferring algorithm.
+	 */
+	automata_inferring<bool> * inferring_algorithm;
+	
+	/**
+	 * Indicates whether the DFA inferring algorithm has been set from 
+	 * outside or from whitin this algorithm.
+	 */
+	bool inferring_algorithm_externally_set;
 
 	public:
 	
-	angluin_inexperienced_teacher() : angluin_simple_table<weak_bool>() {}
+	/**
+	 * Creates an empty algorithm. This migt be useful if you want to set
+	 * all parameters later.
+	 */
+	angluin_inexperienced_teacher() : angluin_simple_table<weak_bool>() {
+		this->inferring_algorithm = NULL;
+		inferring_algorithm_externally_set = false;
+	}
 
-	angluin_inexperienced_teacher(knowledgebase<weak_bool> * base, logger * log, int alphabet_size) : angluin_simple_table<weak_bool>(base, log, alphabet_size) {}
+	angluin_inexperienced_teacher(knowledgebase<weak_bool> * base, logger * log, int alphabet_size) : angluin_simple_table<weak_bool>(base, log, alphabet_size) {
+		this->inferring_algorithm = new dfa_inferring_MiniSat(NULL, NULL, alphabet_size);
+		inferring_algorithm_externally_set = false;
+	}
+
+	angluin_inexperienced_teacher(knowledgebase<weak_bool> * base, logger * log, int alphabet_size, automata_inferring<bool> * inferring_algorithm) : angluin_simple_table<weak_bool>(base, log, alphabet_size) {
+		this->inferring_algorithm = inferring_algorithm;
+		inferring_algorithm_externally_set = true;
+	}
+
+	/**
+	 * Destructor.
+	 */
+	~angluin_inexperienced_teacher() {
+		
+		/*
+		 * If the DFA inferring algorithm has been set by this algorithm
+		 * on creation to the default algorithm, then we need to care 
+		 * about proper memory management.
+		 */	
+		if(!inferring_algorithm_externally_set) {
+			delete inferring_algorithm;
+			inferring_algorithm = NULL;
+			inferring_algorithm_externally_set = false;
+		}
+
+	}
+
+	/**
+	 * Sets the internal DFA inferring algorithm used to derive conjectures.
+	 *
+	 * @param inferring_algorithm The new DFA inferring algorithm to use
+	 */
+	void set_inferring_algorithm(automata_inferring<bool> * inferring_algorithm) {
+
+		/*
+		 * If the DFA inferring algorithm has been set by this algorithm
+		 * on creation to the default algorithm, then we need to care 
+		 * about proper memory management.
+		 */	
+		if(!inferring_algorithm_externally_set) {
+			delete inferring_algorithm;
+			inferring_algorithm_externally_set = false;
+		}
+
+		this->inferring_algorithm = inferring_algorithm;
+
+	}
 
 	/**
 	 * Derives a smallest deterministic finite automaton from a (not
@@ -360,6 +427,17 @@ class angluin_inexperienced_teacher : public angluin_simple_table<weak_bool> {
 	 */
 	virtual conjecture * derive_conjecture() {
 		
+		/*
+		 * First, check whether a DFA inferring algorithm has been
+		 * selected.
+		 */
+		if(!inferring_algorithm) {
+			(*this->my_logger)(LOGGER_ERROR, "No DFA inferring algorithm is given.\n");
+			return NULL;
+		}
+		assert(inferring_algorithm != NULL);
+
+		// Create knowledgebase 
 		knowledgebase<bool> base;
 		
 		/*
@@ -417,10 +495,20 @@ class angluin_inexperienced_teacher : public angluin_simple_table<weak_bool> {
 		}
 		
 		/*
-		 * Invoke inferring algorithm
+		 * Prepare inferring algorithm
 		 */
-		automata_inferring inferring_algorithm(&base, this->my_logger, this->alphabet_size);
-		conjecture * result = inferring_algorithm.derive_conjecture();
+		#if 0
+		inferring_algorithm->set_alphabet_size(this->alphabet_size);
+		inferring_algorithm->set_knowledge_source(&base);
+		inferring_algorithm->set_logger(this->my_logger);
+		#endif
+		
+		// DEBUG: REMOVE
+		dfa_inferring_MiniSat ia(&base, this->my_logger, this->alphabet_size);
+		conjecture * result = ia.derive_conjecture();
+
+		// Infer		
+		//conjecture * result = this->inferring_algorithm->derive_conjecture();
 		
 		return result;
 		
