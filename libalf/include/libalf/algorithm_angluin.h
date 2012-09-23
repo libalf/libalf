@@ -758,10 +758,16 @@ class angluin_table : public learning_algorithm<answer> {
 						std::list<int> word2 = uti_2->index;
 						typename table::iterator w1_succ, w2_succ;
 						for(int sigma = 0; sigma < this->get_alphabet_size(); sigma++) {
-							if(word1.front() != BOTTOM_CHAR)
+							bool changed_word1 = false;
+							bool changed_word2 = false;
+							if(word1.size() == 0 || word1.front() != BOTTOM_CHAR) {
+								changed_word1 = true;
 								word1.push_back(sigma);
-							if(word2.front() != BOTTOM_CHAR)
+							}
+							if(word2.size() == 0 || word2.front() != BOTTOM_CHAR) {
+								changed_word2 = true;
 								word2.push_back(sigma);
+							}
 							if(this->norm) {
 								bool bottom;
 								std::list<int> w1n, w2n;
@@ -773,9 +779,9 @@ class angluin_table : public learning_algorithm<answer> {
 								w1_succ = search_tables(word1);
 								w2_succ = search_tables(word2);
 							}
-							if(word1.front() != BOTTOM_CHAR)
+							if(changed_word1)
 								word1.pop_back();
-							if(word2.front() != BOTTOM_CHAR)
+							if(changed_word2)
 								word2.pop_back();
 
 							if(*w1_succ != *w2_succ) {
