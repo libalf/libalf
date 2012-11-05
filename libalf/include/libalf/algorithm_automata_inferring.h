@@ -164,7 +164,7 @@ class automata_inferring : public learning_algorithm<answer> {
 		
 			unsigned int mid = left + (right - left) / 2;
 		
-			conjecture * tmp_result = infer(t, mid);
+			conjecture * tmp_result = __infer(t, mid);
 			
 			if(tmp_result == NULL) {
 				left = mid + 1;

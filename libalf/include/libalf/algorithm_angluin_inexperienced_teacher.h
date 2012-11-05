@@ -497,18 +497,18 @@ class angluin_inexperienced_teacher : public angluin_simple_table<weak_bool> {
 		/*
 		 * Prepare inferring algorithm
 		 */
-		#if 0
+		#if 1
 		inferring_algorithm->set_alphabet_size(this->alphabet_size);
 		inferring_algorithm->set_knowledge_source(&base);
 		inferring_algorithm->set_logger(this->my_logger);
-		#endif
-		
+
+		// Infer
+		conjecture * result = this->inferring_algorithm->derive_conjecture();
+		#else		
 		// DEBUG: REMOVE
 		dfa_inferring_MiniSat ia(&base, this->my_logger, this->alphabet_size);
 		conjecture * result = ia.derive_conjecture();
-
-		// Infer		
-		//conjecture * result = this->inferring_algorithm->derive_conjecture();
+		#endif
 		
 		return result;
 		
