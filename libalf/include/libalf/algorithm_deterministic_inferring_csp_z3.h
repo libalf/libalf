@@ -41,8 +41,8 @@
  * This implementation supports Boolean values as the only <answer> type.
  */
 
-#ifndef __ALGORITHM_DETERMINISTIC_INFERRING_CSP_Z3__
-#define __ALGORITHM_DETERMINISTIC_INFERRING_CSP_Z3__
+#ifndef __ALGORITHM_DETERMINISTIC_INFERRING_CSP_Z3_H__
+#define __ALGORITHM_DETERMINISTIC_INFERRING_CSP_Z3_H__
 
 // Standard includes 
 #include <iostream>
@@ -154,6 +154,12 @@ class deterministic_inferring_csp_Z3 : public automata_inferring<answer> {
 			return infer_CSP_variables_enum_Z3(t, n);
 		}
 
+	}
+	
+	virtual conjecture * infer_simple_conjecture(prefix_tree<answer> const & t) const {
+	
+		return infer_simple_moore_machine(t);
+		
 	}
 	
 	libalf::moore_machine<answer> * infer_CSP_Z3(const prefix_tree<answer> & t, unsigned int n) const {

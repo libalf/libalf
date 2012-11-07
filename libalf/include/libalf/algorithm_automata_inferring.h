@@ -24,14 +24,15 @@
  * PUT Description of algorithm here (minimal automata)
  */
 
-#ifndef __ALGORITHM_AUTOMATA_INFERRING__
-#define __ALGORITHM_AUTOMATA_INFERRING__
+#ifndef __libalf__algorithm_automata_inferring_h__
+#define __libalf__algorithm_automata_inferring_h__
 
 // Standard includes 
 #include <iostream>
 #include <sstream>
 #include <list>
 #include <map>
+#include <set>
 #include <assert.h>
 
 // libALF includes
@@ -74,6 +75,12 @@ class automata_inferring : public learning_algorithm<answer> {
 		// Copy the data from the knowledgebase into our own internal data structure
 		prefix_tree<answer> t(*this->my_knowledge, this->alphabet_size);
 	
+		// Check whether we can easily compute a conjecture
+		conjecture * simple_conjecture = infer_simple_conjecture(t);
+		if(simple_conjecture != NULL) {
+			return simple_conjecture;
+		}
+	
 		return __infer(t, n);
 		
 	}
@@ -88,6 +95,12 @@ class automata_inferring : public learning_algorithm<answer> {
 		
 		// Copy the data from the knowledgebase into our own internal data structure
 		prefix_tree<answer> t(*this->my_knowledge, this->alphabet_size);
+		
+		// Check whether we can easily compute a conjecture
+		conjecture * simple_conjecture = infer_simple_conjecture(t);
+		if(simple_conjecture != NULL) {
+			return simple_conjecture;
+		}
 		
 		unsigned int left = 1;
 		unsigned int right = 1;
@@ -140,6 +153,12 @@ class automata_inferring : public learning_algorithm<answer> {
 
 		// Copy the data from the knowledgebase into our own internal data structure
 		prefix_tree<answer> t(*this->my_knowledge, this->alphabet_size);
+	
+		// Check whether we can easily compute a conjecture
+		conjecture * simple_conjecture = infer_simple_conjecture(t);
+		if(simple_conjecture != NULL) {
+			return simple_conjecture;
+		}
 	
 		unsigned int left = 1;
 		unsigned int right = 1;
@@ -208,6 +227,184 @@ class automata_inferring : public learning_algorithm<answer> {
 	
 	virtual conjecture * __infer(const prefix_tree<answer> & t, unsigned int n) const = 0;
 
+	/**
+	 * This method constructs a "simple" conjecture from a prefix tree with only
+	 * don't cares or with don't cares and only one other output. In any other
+	 * case, this method should return NULL.
+	 *
+	 * This method always returns NULL. If you want to provide your own
+	 * implementation in a derived class, you need to override this method. If
+	 * you do not want to do this, simply do nothing ;-)
+	 *
+	 * @param t The prefix tree to construct a simple conjecture from if
+	 *          possible
+	 *
+	 * @return Returns a simple conjecture.
+	 */
+	virtual conjecture * infer_simple_conjecture(prefix_tree<answer> const & t) const {
+	
+		return NULL;
+	
+	}
+
+	protected:
+	
+	/**
+	 * This method constructs a one-state Moore machine from a prefix tree with
+	 * only don't cares or with don't cares and only one other output. The
+	 * output of this machine is the default output if no output is specified
+	 * in the tree, or the unique specified output.
+	 *
+	 * @param t The prefix tree to construct a simple Moore machine from the
+	 *          prefix tree if possible
+	 *
+	 * @return Returns a one-state Moore machine consistent with the prefix tree.
+	 */
+	moore_machine<answer> * infer_simple_moore_machine(prefix_tree<answer> const & t) const {
+	
+		/*
+		 * Check for classification
+		 */
+		bool has_output_specified = false;
+		answer output = default_output;
+		for(unsigned int i=0; i<t.node_count; i++) {
+		
+			if(t.specified[i]) {
+			
+				// First output discovered
+				if(!has_output_specified) {
+
+					has_output_specified = true;
+					output = t.output[i];
+					
+				}
+				
+				// Another output encountered
+				else {
+				
+					// Check whether the outputs are the same
+					if(output != t.output[i]) {
+						return NULL;
+					}
+				
+				}
+				
+			}
+		
+		}
+	
+		/*
+		 *Create one state automaton with found output
+		 */
+		
+		// Initial state
+		std::set<int> initial;
+		initial.insert(0);
+		
+		// Output mapping
+		std::map<int, answer> output_mapping;
+		output_mapping[0] = output;
+		
+		// Transitions
+		std::map<int, std::map<int, std::set<int> > > transitions;
+		for(unsigned int a=0; a<this->alphabet_size; a++) {
+			transitions[0][a].insert(0);
+		}
+		
+		// Create automaton
+		moore_machine<answer> * m = new moore_machine<answer>;
+		m->state_count = 1;
+		m->input_alphabet_size = this->alphabet_size;
+		m->initial_states = initial;
+		m->output_mapping = output_mapping;
+		m->transitions = transitions;
+		m->is_deterministic = true;
+		m->valid = true;
+		
+		assert(m->calc_validity());
+		return m;
+		
+	}
+	
+	/**
+	 * This method constructs a one-state DFA from a prefix tree with only don't
+	 * cares or with don't cares and only one other output. The output of this
+	 * machine is the default output if no output is specified in the tree, or
+	 * the unique specified output.
+	 *
+	 * @param t The prefix tree to construct a DFA from the prefix tree if
+	 *          possible
+	 *
+	 * @return Returns a one-state DFA consistent with the prefix tree.
+	 */
+	finite_automaton * infer_simple_dfa(prefix_tree<bool> const & t) const {
+	
+		/*
+		 * Check for classification
+		 */
+		bool has_output_specified = false;
+		bool output = false;
+		for(unsigned int i=0; i<t.node_count; i++) {
+		
+			if(t.specified[i]) {
+			
+				// First output discovered
+				if(!has_output_specified) {
+
+					has_output_specified = true;
+					output = t.output[i];
+					
+				}
+				
+				// Another output encountered
+				else {
+				
+					// Check whether the outputs are the same
+					if(output != t.output[i]) {
+						return NULL;
+					}
+				
+				}
+				
+			}
+		
+		}
+	
+		/*
+		 * Create one state automaton with found output
+		 */
+		
+		// Initial state
+		std::set<int> initial;
+		initial.insert(0);
+		
+		// Output mapping
+		std::set<int> final;
+		if(output) {
+			final.insert(0);
+		}
+		
+		// Transitions
+		std::map<int, std::map<int, std::set<int> > > transitions;
+		for(unsigned int a=0; a<this->alphabet_size; a++) {
+			transitions[0][a].insert(0);
+		}
+		
+		// Create automaton
+		finite_automaton * dfa = new finite_automaton;
+		dfa->state_count = 1;
+		dfa->input_alphabet_size = this->alphabet_size;
+		dfa->initial_states = initial;
+		dfa->set_final_states(final);
+		dfa->transitions = transitions;
+		dfa->is_deterministic = true;
+		dfa->valid = true;
+		
+		assert(dfa->calc_validity());
+		return dfa;
+		
+	}
+	
 	
 	/*
 	 * The following code are method stubs for much of libALF's functionality
@@ -222,7 +419,7 @@ class automata_inferring : public learning_algorithm<answer> {
 	virtual enum learning_algorithm_type get_basic_compatible_type() const
 	{ return ALG_BIERMANN_ORIGINAL; };
 
-		void increase_alphabet_size(int new_alphabet_size) {
+	void increase_alphabet_size(int new_alphabet_size) {
 		this->alphabet_size = new_alphabet_size;
 	}
 

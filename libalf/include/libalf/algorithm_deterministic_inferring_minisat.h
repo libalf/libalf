@@ -26,8 +26,8 @@
  * This implementation supports Boolean values as the only <answer> type.
  */
 
-#ifndef __ALGORITHM_DETERMINISTIC_INFERRING_MINISAT__
-#define __ALGORITHM_DETERMINISTIC_INFERRING_MINISAT__
+#ifndef __ALGORITHM_DETERMINISTIC_INFERRING_MINISAT_H__
+#define __ALGORITHM_DETERMINISTIC_INFERRING_MINISAT_H__
 
 // Standard includes 
 #include <iostream>
@@ -131,6 +131,12 @@ class deterministic_inferring_MiniSat : public automata_inferring<answer> {
 
 		return infer_MiniSat(t, n);
 
+	}
+	
+	virtual conjecture * infer_simple_conjecture(prefix_tree<answer> const & t) const {
+	
+		return infer_simple_moore_machine(t);
+		
 	}
 	
 	libalf::moore_machine<answer> * infer_MiniSat(const prefix_tree<answer> & t, unsigned int n) const {

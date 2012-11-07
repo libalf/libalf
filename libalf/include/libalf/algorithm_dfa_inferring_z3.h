@@ -155,6 +155,12 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 
 	}
 	
+	virtual conjecture * infer_simple_conjecture(prefix_tree<bool> const & t) const {
+	
+		return infer_simple_dfa(t);
+		
+	}
+	
 	libalf::finite_automaton * infer_Z3(const prefix_tree<bool> & t, unsigned int n) const {
 
 		/*========================================
