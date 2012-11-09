@@ -54,6 +54,8 @@ class deterministic_finite_automaton : public finite_automaton {
 
 		virtual ~deterministic_finite_automaton();
 
+		deterministic_finite_automaton & operator=(const deterministic_finite_automaton &);
+		
 		virtual deterministic_finite_automaton * clone() const;
 		virtual std::string to_regex() const;
 

@@ -78,6 +78,8 @@ class nondeterministic_finite_automaton : public finite_automaton {
 
 		virtual ~nondeterministic_finite_automaton();
 
+		nondeterministic_finite_automaton & operator=(const nondeterministic_finite_automaton &);
+		
 		virtual nondeterministic_finite_automaton * clone() const;
 		virtual std::string to_regex() const;
 

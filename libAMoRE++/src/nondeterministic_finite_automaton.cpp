@@ -166,6 +166,22 @@ nondeterministic_finite_automaton * nondeterministic_finite_automaton::clone() c
 		return new nondeterministic_finite_automaton();
 }}}
 
+nondeterministic_finite_automaton & nondeterministic_finite_automaton::operator=(const nondeterministic_finite_automaton & other) {
+
+	if(nfa_p) {
+		freenfa(nfa_p);
+		free(nfa_p);
+	}
+	
+	if(other.nfa_p != NULL) {
+		nfa_p = clonenfa(other.nfa_p);
+	} else {
+		nfa_p = NULL;
+	}
+
+	return *this;
+}
+
 string nondeterministic_finite_automaton::to_regex() const
 {{{
 	if(this->is_empty()) {

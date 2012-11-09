@@ -103,6 +103,22 @@ deterministic_finite_automaton * deterministic_finite_automaton::clone() const
 		return new deterministic_finite_automaton();
 }}}
 
+deterministic_finite_automaton & deterministic_finite_automaton::operator=(const deterministic_finite_automaton & other) {
+
+	if(dfa_p) {
+		freedfa(dfa_p);
+		free(dfa_p);
+	}
+	
+	if(other.dfa_p != NULL) {
+		dfa_p = clonedfa(other.dfa_p);
+	} else {
+		dfa_p = NULL;
+	}
+
+	return *this;
+}
+
 string deterministic_finite_automaton::to_regex() const
 {{{
 	string regex;
