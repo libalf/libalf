@@ -159,7 +159,13 @@ public:
 
    ~Solver() {
        for (int i = 0; i < learnts.size(); i++) remove(learnts[i], true);
-       for (int i = 0; i < clauses.size(); i++) if (clauses[i] != NULL) remove(clauses[i], true); }
+       for (int i = 0; i < clauses.size(); i++) if (clauses[i] != NULL) remove(clauses[i], true);
+	   // Begin Daniel's fix
+	   xfree(propagate_tmpbin);
+	   xfree(analyze_tmpbin);
+	   xfree(solve_tmpunit);
+	   // End Daniel's fix
+	}
 
     // Helpers: (semi-internal)
     //
