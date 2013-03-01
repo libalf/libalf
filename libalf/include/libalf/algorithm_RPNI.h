@@ -343,7 +343,10 @@ class RPNI : public learning_algorithm<answer> {
 			if(this->my_knowledge->count_answers() == 0) {
 				(*this->my_logger)(LOGGER_WARN, "RPNI: you started an offline-algorithm with an empty knowledgebase. that does not make very much sense, does it?\n");
 				// return automaton for empty language
-				ret->input_alphabet_size = 1;
+				/* Florian's fix*/
+				ret->input_alphabet_size = this->get_alphabet_size();
+				//ret->input_alphabet_size = 1;
+				/* End Florian's fix*/
 				ret->state_count = 1;
 				ret->set_all_non_accepting();
 				ret->initial_states.insert(0);
@@ -351,7 +354,7 @@ class RPNI : public learning_algorithm<answer> {
 				ret->valid = true;
 				return ret;
 			}
-
+			
 			if(this->get_alphabet_size() != this->my_knowledge->get_largest_symbol())
 				(*this->my_logger)(LOGGER_WARN, "RPNI: differing alphabet size between this (%d) and knowledgebase (%d)!\n",
 						this->get_alphabet_size(), this->my_knowledge->get_largest_symbol());
@@ -364,13 +367,23 @@ class RPNI : public learning_algorithm<answer> {
 
 			ret->is_deterministic = true;
 
+			/* 
+			 * Florian's fix
+			 * Set alphabet size the desired alphabet size even if the sample
+			 * contains only symbols smaller than the desired one.
+			 */
+			if(ret->input_alphabet_size < this->get_alphabet_size()) {
+				ret->input_alphabet_size = this->get_alphabet_size();
+			}
+			// End Florian's fix
+	
 			if(!ok) {
 				delete ret;
 				ret = NULL;
 			} else {
 				ret->valid = true;
 			}
-
+			
 			return ret;
 		}}}
 		virtual void merge_states(equivalence_relation & eq)
