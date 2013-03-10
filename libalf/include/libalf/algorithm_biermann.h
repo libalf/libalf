@@ -32,9 +32,10 @@
  * NOTE: this version does only support bool as <answer>.
  */
 
-
 #ifndef __libalf_algorithm_biermann_h__
 # define __libalf_algorithm_biermann_h__
+
+#warning algorithm_biermann is obsolete. use algorithm_deterministic_inferring_csp_*.h instead.
 
 #include <string>
 #include <list>
