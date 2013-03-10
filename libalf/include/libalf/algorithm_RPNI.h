@@ -78,14 +78,14 @@ class RPNI : public learning_algorithm<answer> {
 				~equivalence_relation()
 				{ }
 
-				bool add_if_possible(node * a, node * b)
+				bool add_if_possible(node * a, node * b, RPNI * callback)
 				{{{
 					bool ok;
 
 					ok = add(a, b);
 
 					if(ok) 
-						ok = consistency_check(equivalences, candidates);
+						ok = callback->consistency_check(equivalences, candidates);
 
 					candidates.clear();
 					return ok;
@@ -197,15 +197,15 @@ class RPNI : public learning_algorithm<answer> {
 		 *
 		 * if you want to do that, use the RPNI_extended_consistencies class below!
 		 */
-		virtual bool consistency_check(typename knowledgebase<answer>::equivalence_relation & equivalences, const std::set<nodeppair> & candidates)
+		virtual bool consistency_check(typename knowledgebase<answer>::equivalence_relation & equivalences, const std::set<typename equivalence_relation::nodeppair> & candidates)
 		{
-			typename std::set<nodeppair>::iterator ci;
+			typename std::set<equivalence_relation::nodeppair>::iterator ci;
 
 			for(ci = candidates.begin(); ci != candidates.end(); ci++)
 				equivalences.insert(std::pair<node*, node*>(ci->first, ci->second));
 
 			return true;
-		}	
+		}
 
 	protected: // data
 
@@ -439,7 +439,7 @@ class RPNI : public learning_algorithm<answer> {
 #ifdef RPNI_DEBUG_EQ_CLASSES
 							printf("\n\n");
 #endif
-							if(eq.add_if_possible(&*lgo, &*lgo2)) {
+							if(eq.add_if_possible(&*lgo, &*lgo2, this)) {
 								(*this->my_logger)(LOGGER_DEBUG, "RPNI: merge ok:  ( %s , %s )\n",
 									word2string(w1).c_str(), word2string(w2).c_str());
 #ifdef RPNI_DEBUG_EQ_CLASSES
@@ -494,9 +494,9 @@ public:
 	virtual bool do_extended_consistency_check(typename knowledgebase<answer>::equivalence_relation & equivalences) = 0;
 	// TODO: do your specific check here.
 
-	virtual bool consistency_check(typename knowledgebase<answer>::equivalence_relation & equivalences, const std::set<nodeppair> & candidates)
+	virtual bool consistency_check(typename knowledgebase<answer>::equivalence_relation & equivalences, const std::set<equivalence_relation::nodeppair> & candidates)
 	{
-		typename std::set<nodeppair>::iterator ci;
+		typename std::set<equivalence_relation::nodeppair>::iterator ci;
 		typename knowledgebase<answer>::equivalence_relation tmp_equivalences = equivalences;
 
 		for(ci = candidates.begin(); ci != candidates.end(); ci++)
