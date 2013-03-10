@@ -62,7 +62,7 @@ class automata_inferring : public learning_algorithm<answer> {
 	public:
 
 	/**
-	 * By default, we use the linear seach method. with increment 1.
+	 * By default, we use the linear seach method with increment 1.
 	 */
 	conjecture * derive_conjecture() {
 
@@ -412,13 +412,7 @@ class automata_inferring : public learning_algorithm<answer> {
 	 * That might change in the future.
 	 */
 	public:
-	 
-	virtual enum learning_algorithm_type get_type() const
-	{ return ALG_BIERMANN_ORIGINAL; };
-
-	virtual enum learning_algorithm_type get_basic_compatible_type() const
-	{ return ALG_BIERMANN_ORIGINAL; };
-
+	
 	void increase_alphabet_size(int new_alphabet_size) {
 		this->alphabet_size = new_alphabet_size;
 	}
@@ -475,12 +469,6 @@ class automata_inferring : public learning_algorithm<answer> {
 		return false;
 	}
 
-	// Not implemented
-	bool deserialize_magic(serial_stretch __attribute__ ((__unused__)) & serial, std::basic_string<int32_t> __attribute__ ((__unused__)) & result) {
-		(*this->my_logger)(LOGGER_WARN, "This feature is not implemented.\n");
-		return false;
-	}
-	
 };
 
 

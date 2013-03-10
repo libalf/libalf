@@ -64,25 +64,28 @@ enum learning_algorithm_type {
 	ALG_NONE = 0,
 	// BEGIN
 
-	// online
 	ALG_ANGLUIN = 1,
 	ALG_ANGLUIN_COLUMN = 2,
 	ALG_RIVEST_SCHAPIRE = 3,	// Rivest and Schapire: reduced angluin
 	ALG_NL_STAR = 4,
 	ALG_MVCA_ANGLUINLIKE = 5,	// angluin-style learning of m-bounded visible 1counter automata
-	// offline
-	ALG_BIERMANN = 6,
+	ALG_BIERMANN = 6,               // (obsolete)
 	ALG_RPNI = 7,
 	ALG_DELETE2 = 8,
 	ALG_BIERMANN_ORIGINAL = 9,
 	ALG_KEARNS_VAZIRANI = 10,
+	ALG_CEGAR = 11,
+	ALG_CEGAR_ANGLUIN = 12,
+	ALG_INFERRING_MINISAT = 13,
+	ALG_INFERRING_Z3 = 14,
+	ALG_INFERRING_CSP_MINISAT = 15,
+	ALG_INFERRING_CSP_Z3 = 16,
+
 
 	// END
-	ALG_LAST_INVALID = 11
+	ALG_LAST_INVALID = 15
 
 //	ALG_BIERMANN_ANGLUIN = ...,	//
-//	ALG_TB_INFERENCE = ...,		// Trakhtenbrot and Barzdin
-//	ALG_HSI = ...,			// homing sequence inference
 };
 
 // resolve type to its name

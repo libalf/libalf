@@ -481,6 +481,21 @@ class weak_bool {
 		}
 };
 
+inline std::basic_string<int32_t> serialize(weak_bool e)
+{{{
+	std::basic_string<int32_t> ret;
+	ret += htonl((int32_t)e.value);
+	return ret;
+}}}
+
+inline bool deserialize(weak_bool & e, serial_stretch & serial)
+{{{
+	int i;
+	if(!::deserialize(i, serial)) return false;
+	e.value = ( (int32_t)i );
+	return true;
+}}}
+
 /**
  * Serializes a weak_bool according to libALF's serialization scheme.
  *

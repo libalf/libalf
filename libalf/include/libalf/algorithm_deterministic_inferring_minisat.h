@@ -541,6 +541,13 @@ class deterministic_inferring_MiniSat : public automata_inferring<answer> {
 
 	}
 
+
+	virtual enum learning_algorithm_type get_type() const
+	{ return ALG_INFERRING_MINISAT; };
+
+	virtual enum learning_algorithm_type get_basic_compatible_type() const
+	{ return ALG_INFERRING_MINISAT; };
+
 };
 
 }; // End libalf namespace

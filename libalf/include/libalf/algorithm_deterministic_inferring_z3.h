@@ -1124,7 +1124,14 @@ class deterministic_inferring_Z3 : public automata_inferring<answer> {
 		return answer();
 
 	}
-	
+
+
+	virtual enum learning_algorithm_type get_type() const
+	{ return ALG_INFERRING_Z3; };
+
+	virtual enum learning_algorithm_type get_basic_compatible_type() const
+	{ return ALG_INFERRING_Z3; };
+
 };
 
 }; // End libalf namespace

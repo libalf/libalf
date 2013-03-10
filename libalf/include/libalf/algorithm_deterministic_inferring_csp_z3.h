@@ -1096,6 +1096,12 @@ class deterministic_inferring_csp_Z3 : public automata_inferring<answer> {
 		
 	}
 	
+	virtual enum learning_algorithm_type get_type() const
+	{ return ALG_INFERRING_CSP_Z3; };
+
+	virtual enum learning_algorithm_type get_basic_compatible_type() const
+	{ return ALG_INFERRING_CSP_Z3; };
+
 };
 
 }; // End libalf namespace
