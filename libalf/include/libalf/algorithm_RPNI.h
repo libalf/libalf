@@ -84,11 +84,8 @@ class RPNI : public learning_algorithm<answer> {
 
 					ok = add(a, b);
 
-					if(ok) {
-						typename std::set<nodeppair>::iterator ci;
-						for(ci = candidates.begin(); ci != candidates.end(); ci++)
-							equivalences.insert(std::pair<node*, node*>(ci->first, ci->second));
-					}
+					if(ok) 
+						ok = consistency_check(equivalences, candidates);
 
 					candidates.clear();
 					return ok;
@@ -190,6 +187,25 @@ class RPNI : public learning_algorithm<answer> {
 					return true;
 				}}}
 		}; // end of equivalence_relation
+
+
+		/** standard RPNI does only check that the equivalence class is consistent.
+		 * if your instance requires specific extra checks, overload this function.
+		 * if the candidates are ok, you MUST then merge the candidates manually into the equivalences,
+		 * as seen in this function, and return true.
+		 * otherwise return false.
+		 *
+		 * if you want to do that, use the RPNI_extended_consistencies class below!
+		 */
+		virtual bool consistency_check(typename knowledgebase<answer>::equivalence_relation & equivalences, const std::set<nodeppair> & candidates)
+		{
+			typename std::set<nodeppair>::iterator ci;
+
+			for(ci = candidates.begin(); ci != candidates.end(); ci++)
+				equivalences.insert(std::pair<node*, node*>(ci->first, ci->second));
+
+			return true;
+		}	
 
 	protected: // data
 
@@ -470,6 +486,30 @@ class RPNI : public learning_algorithm<answer> {
 
 };
 
+
+/* implementation of RPNI with extra consistency check in recursive merging of states */
+class RPNI_extended_consistencies : public RPNI
+{
+public:
+	virtual bool do_extended_consistency_check(typename knowledgebase<answer>::equivalence_relation & equivalences) = 0;
+	// TODO: do your specific check here.
+
+	virtual bool consistency_check(typename knowledgebase<answer>::equivalence_relation & equivalences, const std::set<nodeppair> & candidates)
+	{
+		typename std::set<nodeppair>::iterator ci;
+		typename knowledgebase<answer>::equivalence_relation tmp_equivalences = equivalences;
+
+		for(ci = candidates.begin(); ci != candidates.end(); ci++)
+			tmp_equivalences.insert(std::pair<node*, node*>(ci->first, ci->second));
+
+		if(do_extended_consistency_check(tmp_equivalences)) {
+			equivalences.swap(tmp_equivalences);
+			return true;
+		} else {
+			return false;
+		}
+	}
+};
 
 }; // end namespace libalf
 
