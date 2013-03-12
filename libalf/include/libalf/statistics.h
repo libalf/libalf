@@ -137,6 +137,9 @@ class generic_statistics : public std::map<std::string, statistic_data> {
 		inline bool get_string_property(const std::string & key, std::string & into)	{ return (*this)[key].get_string(into); }
 };
 
+// -------------------------------------------------------------------------------------------------- //
+// EVERYTHING BELOW THIS LINE IS OBSOLETE AND WILL BE REMOVED AFTER ALL INTERFACES HAVE BEEN CHANGED. //
+// -------------------------------------------------------------------------------------------------- //
 
 class timing_statistics {
 	public:	// data
@@ -150,10 +153,6 @@ class timing_statistics {
 		std::basic_string<int32_t> serialize() const;
 		bool deserialize(serial_stretch & serial);
 };
-
-// -------------------------------------------------------------------------------------------------- //
-// EVERYTHING BELOW THIS LINE IS OBSOLETE AND WILL BE REMOVED AFTER ALL INTERFACES HAVE BEEN CHANGED. //
-// -------------------------------------------------------------------------------------------------- //
 
 class query_statistics {
 	public:	// data
