@@ -454,7 +454,7 @@ class weak_bool {
 		 * @return Returns whether this weak_bool represents the value
 		 *         <em>TRUE</em>.
 		 */
-		inline const bool is_true() const {
+		inline bool is_true() const {
 			return value == WBOOL_TRUE;
 		}
 
@@ -465,7 +465,7 @@ class weak_bool {
 		 * @return Returns whether this weak_bool represents the value
 		 *         <em>FALSE</em>.
 		 */		
-		inline const bool is_false() const {
+		inline bool is_false() const {
 			return value == WBOOL_FALSE;
 		}
 
@@ -476,25 +476,10 @@ class weak_bool {
 		 * @return Returns whether this weak_bool represents the value
 		 *         <em>UNKNOWN</em>.
 		 */		
-		inline const bool is_unknown() const {
+		inline bool is_unknown() const {
 			return value == WBOOL_UNKNOWN;
 		}
 };
-
-inline std::basic_string<int32_t> serialize(weak_bool e)
-{{{
-	std::basic_string<int32_t> ret;
-	ret += htonl((int32_t)e.value);
-	return ret;
-}}}
-
-inline bool deserialize(weak_bool & e, serial_stretch & serial)
-{{{
-	int i;
-	if(!::deserialize(i, serial)) return false;
-	e.value = ( (int32_t)i );
-	return true;
-}}}
 
 /**
  * Serializes a weak_bool according to libALF's serialization scheme.
@@ -505,7 +490,7 @@ inline bool deserialize(weak_bool & e, serial_stretch & serial)
  */
 inline std::basic_string<int32_t> serialize(weak_bool w) {
 	std::basic_string<int32_t> ret;
-	ret += htonl((int32_t)w);
+	ret += htonl(int32_t(w));
 	return ret;
 }
 
@@ -520,7 +505,7 @@ inline std::basic_string<int32_t> serialize(weak_bool w) {
 inline bool deserialize(weak_bool & w, serial_stretch & serial) {
 	int i;
 	if(!::deserialize(i, serial)) return false;
-	w = ( (int32_t)i );
+	w = ( weak_bool::e_weak_bool(i) );
 	return true;
 }
 

@@ -1,6 +1,5 @@
-/* $Id$
- * vim: fdm=marker
- *
+/* vim: fdm=syntax foldlevel=1 foldnestmax=2
+ * $Id$
  * This file is part of libAMoRE++
  *
  * libAMoRE++ is free software: you can redistribute it and/or modify
@@ -49,7 +48,7 @@ using namespace std;
 
 
 finite_automaton * construct_amore_automaton(bool is_dfa, int alphabet_size, int state_count, set<int> &initial, set<int> &final, map<int, map<int, set<int> > > &transitions)
-{{{
+{
 	finite_automaton * ret;
 	if(is_dfa)
 		ret = new deterministic_finite_automaton;
@@ -61,10 +60,10 @@ finite_automaton * construct_amore_automaton(bool is_dfa, int alphabet_size, int
 
 	delete ret;
 	return NULL;
-}}}
+}
 
 finite_automaton * deserialize_amore_automaton(basic_string<int32_t>::const_iterator &it, basic_string<int32_t>::const_iterator limit)
-{{{
+{
 	finite_automaton * ret;
 
 	basic_string<int32_t>::const_iterator si;
@@ -86,7 +85,7 @@ finite_automaton * deserialize_amore_automaton(basic_string<int32_t>::const_iter
 	ret->deserialize(it, limit);
 
 	return ret;
-}}}
+}
 
 
 
@@ -97,7 +96,7 @@ finite_automaton::~finite_automaton()
 
 void finite_automaton::get_transition_maps(map<int, map<int, set<int> > > & premap, map<int, map<int, set<int> > > & postmap) const
 // mapping: state -> sigma -> stateset
-{{{
+{
 	premap.clear();
 	postmap.clear();
 
@@ -142,19 +141,19 @@ void finite_automaton::get_transition_maps(map<int, map<int, set<int> > > & prem
 		printf("}\n");
 	}
 */
-}}}
+}
 
 set<int> finite_automaton::run(set<int> from, list<int>::const_iterator word, list<int>::const_iterator word_limit) const
-{{{
+{
 	while(word != word_limit) {
 		from = this->transition(from, *word);
 		word++;
 	}
 	return from;
-}}}
+}
 
 bool finite_automaton::contains(list<int> & word) const
-{{{
+{
 	set<int> states, final_states;
 	set<int>::const_iterator si;
 
@@ -166,10 +165,10 @@ bool finite_automaton::contains(list<int> & word) const
 		if(final_states.find(*si) != final_states.end())
 			return true;
 	return false;
-}}}
+}
 
 string finite_automaton::visualize(bool exclude_negative_sinks) const
-{{{
+{
 	basic_string<int32_t> serialized;
 	basic_string<int32_t>::const_iterator si;
 	int n;
@@ -302,10 +301,10 @@ string finite_automaton::visualize(bool exclude_negative_sinks) const
 	ret += "};\n";
 
 	return ret;
-}}}
+}
 
 finite_automaton *finite_automaton::co_determinize(bool minimize) const
-{{{
+{
 	finite_automaton *r, *rcod, *cod;
 	r = this->reverse_language();
 	rcod = r->determinize();
@@ -316,10 +315,10 @@ finite_automaton *finite_automaton::co_determinize(bool minimize) const
 	delete rcod;
 
 	return cod;
-}}}
+}
 
 set<int> finite_automaton::negative_sink() const
-{{{
+{
 	set<int> s, pre, post;
 	set<int>::const_iterator si;
 
@@ -354,14 +353,14 @@ set<int> finite_automaton::negative_sink() const
 			s.insert(i);
 
 	return s;
-}}}
+}
 
 
 // inefficient (as it only wraps another interface), but it works for all automata implementations
 // that implement serialize and deserialize. implementations may provide their own, more performant
 // implementation of construct().
 bool finite_automaton::construct(bool is_dfa, int alphabet_size, int state_count, set<int> &initial, set<int> &final, map<int, map<int, set<int> > > &transitions)
-{{{
+{
 	basic_string<int32_t> ser;
 	set<int>::const_iterator sit;
 
@@ -406,7 +405,7 @@ bool finite_automaton::construct(bool is_dfa, int alphabet_size, int state_count
 	basic_string<int32_t>::const_iterator ser_begin = ser.begin();
 
 	return this->deserialize(ser_begin, ser.end());
-}}}
+}
 
 
 
@@ -425,31 +424,31 @@ bool antichain__is_universal(list<int> & counterexample)
 */
 
 bool finite_automaton::antichain__is_equal(const finite_automaton &other, list<int> & counterexample) const
-{{{
+{
 	if(!this->antichain__is_superset_of(other, counterexample))
 		return false;
 	return other.antichain__is_superset_of(*this, counterexample);
-}}}
+}
 
 
 static inline void print_word(ostream &os, const list<int> &word)
-{{{
+{
 	ostream_iterator<int> out(os, ".");
 	os << ".";
 	copy(word.begin(), word.end(), out);
-}}}
+}
 
 static inline void print_gamestate(ostream &con, const pair<int, pair< set<int>, list<int> > > & gamestate)
-{{{
+{
 	con << "( " << gamestate.first << ", ";
 	print_set(con, gamestate.second.first);
 	con << ", ";
 	print_word(con, gamestate.second.second);
 	con << " )";
-}}}
+}
 
 static inline void antichain_attractor_remove_obsolete(multimap<int, pair<set<int>, list<int> > > & attractor, const list< pair<int, pair< set<int>, list<int> > > > & obsolete)
-{{{
+{
 	typedef multimap<int, pair<set<int>, list<int> > > attractor_t;
 	typedef pair<int, pair< set<int>, list<int> > > gamestate_t;
 
@@ -467,14 +466,14 @@ static inline void antichain_attractor_remove_obsolete(multimap<int, pair<set<in
 			}
 		}
 	}
-}}}
+}
 
 //#define ANTICHAIN_DEBUG
 
 bool finite_automaton::antichain__is_superset_of(const finite_automaton &other, list<int> & counterexample) const
 // FIXME: this version does not work for automata with epsilon-transitions.
 // they induce many special cases that need to be taken care of very thoroughly
-{{{
+{
 	if(this->get_alphabet_size() != other.get_alphabet_size()) {
 		cerr << "libamore++::finite_automaton::antichain__is_superset_of() expects that you only feed automata to it that have the same alphabet size!\n"
 			<< "now i will just return false, without any further checks!\n";
@@ -517,19 +516,19 @@ bool finite_automaton::antichain__is_superset_of(const finite_automaton &other, 
 	for(unsigned int i = 0; i < this->get_state_count(); ++i)
 		if(this_final.find(i) == this_final.end())
 			gamestate.second.first.insert(i); // A \ FinA
-#ifdef ANTICHAIN_DEBUG // {{{
+#ifdef ANTICHAIN_DEBUG // {
 	cout << "initial attractor: {\n";
-#endif // }}}
+#endif // }
 	for(si = other_final.begin(); si != other_final.end(); ++si) {
 		gamestate.first = *si;
 		attractor.insert(gamestate);
-#ifdef ANTICHAIN_DEBUG // {{{
+#ifdef ANTICHAIN_DEBUG // {
 		cout << "\t"; print_gamestate(cout, gamestate); cout << "\n";
-#endif // }}}
+#endif // }
 	}
-#ifdef ANTICHAIN_DEBUG // {{{
+#ifdef ANTICHAIN_DEBUG // {
 	cout << "};\n\n";
-#endif // }}}
+#endif // }
 
 	// check if (already) we're not a superset of other
 	for(ati = attractor.begin(); ati != attractor.end(); ++ati)
@@ -550,22 +549,22 @@ bool finite_automaton::antichain__is_superset_of(const finite_automaton &other, 
 	while(!extension.empty()) {
 		attractor_t new_extension;
 
-#ifdef ANTICHAIN_DEBUG // {{{
+#ifdef ANTICHAIN_DEBUG // {
 		cout << "\nNEW CYCLE:\n";
-#endif // }}}
+#endif // }
 
 		// iterate over all gamestates and extend the attractor
 		for(ati = extension.begin(); ati != extension.end(); ++ati) {
-#ifdef ANTICHAIN_DEBUG // {{{
+#ifdef ANTICHAIN_DEBUG // {
 			cout << "checking attr element ";
 			print_gamestate(cout, *ati);
 			cout << " :\n";
-#endif // }}}
+#endif // }
 			for(unsigned int sigma = 0; sigma < other.get_alphabet_size(); ++sigma) {
 				if( ! other_premap[ati->first][sigma].empty()) {
-#ifdef ANTICHAIN_DEBUG // {{{
+#ifdef ANTICHAIN_DEBUG // {
 					cout << "\t for label: " << sigma << "\n";
-#endif // }}}
+#endif // }
 					// get all predecessors
 					set<int> this_pre;
 					for(si = ati->second.first.begin(); si != ati->second.first.end(); ++si)
@@ -586,21 +585,21 @@ bool finite_automaton::antichain__is_superset_of(const finite_automaton &other, 
 					ti = other_premap[ati->first][sigma].end(); // for fast access
 					for(si = other_premap[ati->first][sigma].begin(); si != ti; ++si) {
 						gamestate.first = *si;
-#ifdef ANTICHAIN_DEBUG // {{{
+#ifdef ANTICHAIN_DEBUG // {
 						cout << "\t\tnew   ";
 						print_gamestate(cout, gamestate);
 						cout << ": ";
 						// check winning condition for new gamestate
-#endif // }}}
+#endif // }
 						if(antichain__superset_check_winning_condition(this_initial, other_initial, gamestate, counterexample)) {
-#ifdef ANTICHAIN_DEBUG // {{{
+#ifdef ANTICHAIN_DEBUG // {
 							cout << "is winning.\n";
-#endif // }}}
+#endif // }
 							return false;
 						}
 
 						// insert it into extension of attractor, so that the extension still is an antichain
-						{{{
+						{
 							attractor_range_t nex_range = new_extension.equal_range(*si);
 							list<gamestate_t> obsolete;
 							bool antichain_new_is_obsolete = false;
@@ -616,16 +615,16 @@ bool finite_automaton::antichain__is_superset_of(const finite_automaton &other, 
 							obsolete.unique();
 							antichain_attractor_remove_obsolete(new_extension, obsolete);
 							if(!antichain_new_is_obsolete) {
-#ifdef ANTICHAIN_DEBUG // {{{
+#ifdef ANTICHAIN_DEBUG // {
 								cout << "was added.\n";
-#endif // }}}
+#endif // }
 								new_extension.insert(gamestate);
-#ifdef ANTICHAIN_DEBUG // {{{
+#ifdef ANTICHAIN_DEBUG // {
 							} else {
 								cout << "is obsolete.\n";
-#endif // }}}
+#endif // }
 							}
-						}}}
+						}
 					}
 
 				}
@@ -644,13 +643,13 @@ bool finite_automaton::antichain__is_superset_of(const finite_automaton &other, 
 				bool superficial = false;
 				for(ati = attr_range.first; ati != attr_range.second; ++ati) {
 					if(set_includes(ati->second.first, xti->second.first)) {
-#ifdef ANTICHAIN_DEBUG // {{{
+#ifdef ANTICHAIN_DEBUG // {
 						cout << "gamestate ";
 						print_gamestate(cout, *xti);
 						cout << " is superficial due to known attractor-state ";
 						print_gamestate(cout, *ati);
 						cout << ".\n";
-#endif // }}}
+#endif // }
 						superficial = true;
 						break;
 					}
@@ -658,11 +657,11 @@ bool finite_automaton::antichain__is_superset_of(const finite_automaton &other, 
 						obsolete.push_back(*ati);
 				}
 				if(!superficial) {
-#ifdef ANTICHAIN_DEBUG // {{{
+#ifdef ANTICHAIN_DEBUG // {
 					cout << "scheduling new state ";
 					print_gamestate(cout, *xti);
 					cout << ".\n";
-#endif // }}}
+#endif // }
 					attractor.insert(*xti);
 					extension.insert(*xti);
 				}
@@ -676,14 +675,14 @@ bool finite_automaton::antichain__is_superset_of(const finite_automaton &other, 
 	// thus this is really a superset of other.
 	counterexample.clear();
 	return true;
-}}}
+}
 
 // antichain helper functions:
 
 bool finite_automaton::antichain__superset_check_winning_condition(set<int> & this_initial, set<int> & other_initial, const pair<int, pair< set<int>, list<int> > > & gamestate, list<int> & counterexample) const
 // checks if the given <gamestate> is a winning state, i.e. <this> can NOT be a superset of <other>.
 // the specific run is copied to <counterexample>.
-{{{
+{
 	// gamestate.first has to be an initial state of other.
 	if(other_initial.find(gamestate.first) == other_initial.end())
 		return false;
@@ -694,7 +693,7 @@ bool finite_automaton::antichain__superset_check_winning_condition(set<int> & th
 
 	counterexample = gamestate.second.second;
 	return true;
-}}}
+}
 
 } // end namespace amore
 

@@ -1,6 +1,5 @@
 /* $Id$
  * vim: fdm=marker
- *
  * serialize functions
  *
  * this file is free software: you can redistribute it and/or modify
@@ -38,7 +37,6 @@
 #  include <map>
 #  include <iterator>
 #  include <vector>
-
 #  include <stdint.h>
 #  include <sys/types.h>
 

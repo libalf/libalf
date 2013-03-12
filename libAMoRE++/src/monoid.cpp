@@ -1,4 +1,5 @@
-/*
+/* vim: fdm=syntax foldlevel=1 foldnestmax=2
+ * $Id$
  * This file is part of libAMoRE++
  *
  * libAMoRE++ is free software: you can redistribute it and/or modify
@@ -42,22 +43,26 @@ namespace amore {
 // libalf uses (in construct) -1 to indicate an epsilon transition and
 // uses [0 .. size-1] as the alphabet.
 
-amore_monoid::amore_monoid() {
+amore_monoid::amore_monoid()
+{
 	monoid_p = NULL;
 }
 
-amore_monoid::amore_monoid(monoid m) {
+amore_monoid::amore_monoid(monoid m)
+{
 	monoid_p = m;
 }
 
-amore_monoid::~amore_monoid() {
+amore_monoid::~amore_monoid()
+{
 	if(monoid_p) {
 		freemon(monoid_p);
 		free(monoid_p);
 	}
 }
 
-unsigned int amore_monoid::get_highest_state() const {
+unsigned int amore_monoid::get_highest_state() const
+{
 	if(monoid_p) {
 		return monoid_p->highest_state;
 	} else {
@@ -65,7 +70,8 @@ unsigned int amore_monoid::get_highest_state() const {
 	}
 }
 
-unsigned int amore_monoid::get_alphabet_size() const {
+unsigned int amore_monoid::get_alphabet_size() const
+{
 	if(monoid_p) {
 		return monoid_p->alphabet_size;
 	} else {
@@ -73,7 +79,8 @@ unsigned int amore_monoid::get_alphabet_size() const {
 	}
 }
 
-unsigned int amore_monoid::get_element_count() const {
+unsigned int amore_monoid::get_element_count() const
+{
 	if(monoid_p) {
 		return monoid_p->mno;
 	} else {
@@ -81,7 +88,8 @@ unsigned int amore_monoid::get_element_count() const {
 	}
 }
 
-unsigned int amore_monoid::get_generator_count() const {
+unsigned int amore_monoid::get_generator_count() const
+{
 	if(monoid_p) {
 		return monoid_p->gno;
 	} else {
@@ -89,7 +97,8 @@ unsigned int amore_monoid::get_generator_count() const {
 	}
 }
 
-unsigned int amore_monoid::get_zero() const {
+unsigned int amore_monoid::get_zero() const
+{
 	if(monoid_p) {
 		return monoid_p->zero;
 	} else {
@@ -97,7 +106,8 @@ unsigned int amore_monoid::get_zero() const {
 	}
 }
 
-bool amore_monoid::mequals() const {
+bool amore_monoid::mequals() const
+{
 	if(monoid_p) {
 		return monoid_p->mequals;
 	} else {
@@ -105,7 +115,8 @@ bool amore_monoid::mequals() const {
 	}
 }
 
-bool amore_monoid::dclass_iscomputed() const {
+bool amore_monoid::dclass_iscomputed() const
+{
 	if(monoid_p) {
 		return monoid_p->dclassiscomputed;
 	} else {
@@ -113,13 +124,15 @@ bool amore_monoid::dclass_iscomputed() const {
 	}
 }
 
-void amore_monoid::compute_dclass() {
+void amore_monoid::compute_dclass()
+{
 	if(monoid_p) {
 		mon2dcl(monoid_p);
 	}
 }
 
-bool amore_monoid::relation_iscomputed() const {
+bool amore_monoid::relation_iscomputed() const
+{
 	if(monoid_p) {
 		return monoid_p->relationcomputed;
 	} else {
@@ -127,13 +140,15 @@ bool amore_monoid::relation_iscomputed() const {
 	}
 }
 
-void amore_monoid::compute_relation() {
+void amore_monoid::compute_relation()
+{
 	if(monoid_p) {
 		mon2rel(monoid_p);
 	}
 }
 
-unsigned int amore_monoid::multiplicate(unsigned int a, unsigned int b) const {
+unsigned int amore_monoid::multiplicate(unsigned int a, unsigned int b) const
+{
 	if(monoid_p) {
 		if(a < monoid_p->mno && b < monoid_p->mno) {
 			return mult(monoid_p, a, b);
@@ -145,7 +160,8 @@ unsigned int amore_monoid::multiplicate(unsigned int a, unsigned int b) const {
 	}
 }
 
-char * amore_monoid::get_representative(unsigned int no, bool with, bool zeroone) const {
+char * amore_monoid::get_representative(unsigned int no, bool with, bool zeroone) const
+{
 	if(monoid_p) {
 		return prword1((char **) NULL, FALSE, (posint *) NULL, no, monoid_p, with, zeroone);
 	} else {
@@ -156,7 +172,8 @@ char * amore_monoid::get_representative(unsigned int no, bool with, bool zeroone
 /**
  * Daniel's hack
  */
-std::list<int> amore_monoid::get_representative(unsigned int no) const {
+std::list<int> amore_monoid::get_representative(unsigned int no) const
+{
 
 	std::list<int> rep;
 
@@ -177,14 +194,15 @@ std::list<int> amore_monoid::get_representative(unsigned int no) const {
 			}
 		}
 	}
-	
+
 	return rep;
 }
 
-std::map<unsigned int, std::map<unsigned int, unsigned int> > amore_monoid::get_table() const {
+std::map<unsigned int, std::map<unsigned int, unsigned int> > amore_monoid::get_table() const
+{
 
 	std::map<unsigned int, std::map<unsigned int, unsigned int> > table;
-	
+
 	if(monoid_p) {
 		for(unsigned int i=0; i<monoid_p->mno; i++) {
 			for(unsigned int j=0; j<monoid_p->mno; j++) {
@@ -196,7 +214,8 @@ std::map<unsigned int, std::map<unsigned int, unsigned int> > amore_monoid::get_
 	return table;
 }
 
-bool amore_monoid::is_idempotent(unsigned int no) const {
+bool amore_monoid::is_idempotent(unsigned int no) const
+{
 	if(monoid_p) {
 		if(no < monoid_p->mno) {
 			return (no == mult(monoid_p, no, no));
@@ -205,35 +224,40 @@ bool amore_monoid::is_idempotent(unsigned int no) const {
 	return false;
 }
 
-bool amore_monoid::is_pwt() const {
+bool amore_monoid::is_pwt() const
+{
 	if(monoid_p) {
 		return testpwt(monoid_p);
 	}
 	return false;
 }
 
-bool amore_monoid::is_dd1() const {
+bool amore_monoid::is_dd1() const
+{
 	if(monoid_p) {
 		return testdd1(monoid_p);
 	}
 	return false;
 }
 
-bool amore_monoid::is_sf() const {
+bool amore_monoid::is_sf() const
+{
 	if(monoid_p) {
 		return sftest(monoid_p);
 	}
 	return false;
 }
 
-bool amore_monoid::is_groupfree() const {
+bool amore_monoid::is_groupfree() const
+{
 	if(monoid_p) {
 		return is_sf();
 	}
 	return false;
 }
 
-monoid amore_monoid::get_monoid() const {
+monoid amore_monoid::get_monoid() const
+{
 	return monoid_p;
 }
 

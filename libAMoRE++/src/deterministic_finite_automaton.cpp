@@ -1,6 +1,5 @@
-/* $Id$
- * vim: fdm=marker
- *
+/* vim: fdm=syntax foldlevel=1 foldnestmax=2
+ * $Id$
  * This file is part of libAMoRE++
  *
  * libAMoRE++ is free software: you can redistribute it and/or modify
@@ -73,35 +72,35 @@ using namespace std;
 
 
 deterministic_finite_automaton::deterministic_finite_automaton()
-{{{
+{
 	dfa_p = NULL;
-}}}
+}
 
 deterministic_finite_automaton::deterministic_finite_automaton(dfa a)
-{{{
+{
 	dfa_p = a;
-}}}
+}
 
 deterministic_finite_automaton::deterministic_finite_automaton(const deterministic_finite_automaton & other)
-{{{
+{
 	dfa_p = clonedfa(other.dfa_p);
-}}}
+}
 
 deterministic_finite_automaton::~deterministic_finite_automaton()
-{{{
+{
 	if(dfa_p) {
 		freedfa(dfa_p);
 		free(dfa_p);
 	}
-}}}
+}
 
 deterministic_finite_automaton * deterministic_finite_automaton::clone() const
-{{{
+{
 	if(dfa_p)
 		return new deterministic_finite_automaton(clonedfa(dfa_p));
 	else
 		return new deterministic_finite_automaton();
-}}}
+}
 
 deterministic_finite_automaton & deterministic_finite_automaton::operator=(const deterministic_finite_automaton & other) {
 
@@ -109,7 +108,7 @@ deterministic_finite_automaton & deterministic_finite_automaton::operator=(const
 		freedfa(dfa_p);
 		free(dfa_p);
 	}
-	
+
 	if(other.dfa_p != NULL) {
 		dfa_p = clonedfa(other.dfa_p);
 	} else {
@@ -120,7 +119,7 @@ deterministic_finite_automaton & deterministic_finite_automaton::operator=(const
 }
 
 string deterministic_finite_automaton::to_regex() const
-{{{
+{
 	string regex;
 	finite_automaton * n;
 
@@ -129,36 +128,36 @@ string deterministic_finite_automaton::to_regex() const
 	delete n;
 
 	return regex;
-}}}
+}
 
 bool deterministic_finite_automaton::is_minimal() const
-{{{
+{
 	if(dfa_p)
 		return dfa_p->minimal;
 	else
 		return 0;
-}}}
+}
 
 unsigned int deterministic_finite_automaton::get_state_count() const
-{{{
+{
 	if(dfa_p)
 		return dfa_p->highest_state + 1;
 	else
 		return 0;
-}}}
+}
 
 bool deterministic_finite_automaton::is_empty() const
-{{{
+{
 	bool ret;
 	// libAMoRE-1.0 has empty_full_lan(), but it says
 	// that it requires a minimized DFA as input
 	get_sample_word(ret);
 	return ret;
-}}}
+}
 
 bool deterministic_finite_automaton::is_universal() const
 // NOTE: checks for emptiness of complement, as complementing DFAs is efficient.
-{{{
+{
 	bool is_uni;
 	dfa c;
 	deterministic_finite_automaton * C;
@@ -171,45 +170,45 @@ bool deterministic_finite_automaton::is_universal() const
 	// c is deleted by ~C.
 
 	return is_uni;
-}}}
+}
 
 set<int> deterministic_finite_automaton::get_initial_states() const
-{{{
+{
 	set<int> ret;
 	ret.insert(dfa_p->init);
 	return ret;
-}}}
+}
 set<int> deterministic_finite_automaton::get_final_states() const
-{{{
+{
 	set<int> ret;
 	for(unsigned int i = 0; i <= dfa_p->highest_state; i++)
 		if(dfa_p->final[i])
 			ret.insert(i);
 	return ret;
-}}}
+}
 
 void deterministic_finite_automaton::set_initial_states(set<int> &states)
-{{{
+{
 	set<int>::const_iterator si;
 	for(si = states.begin(); si != states.end(); si++)
 		dfa_p->init = *si;
-}}}
+}
 void deterministic_finite_automaton::set_final_states(set<int> &states)
-{{{
+{
 	for(unsigned int s = 0; s <= dfa_p->highest_state; s++)
 		if(states.find(s) != states.end())
 			dfa_p->final[s] = TRUE;
 		else
 			dfa_p->final[s] = FALSE;
-}}}
+}
 
 
 bool deterministic_finite_automaton::contains_initial_states(set<int> states) const
-{{{
+{
 	return (states.find(dfa_p->init) != states.end());
-}}}
+}
 bool deterministic_finite_automaton::contains_final_states(set<int> states) const
-{{{
+{
 	set<int>::const_iterator si;
 
 	for(si = states.begin(); si != states.end(); si++)
@@ -217,10 +216,10 @@ bool deterministic_finite_automaton::contains_final_states(set<int> states) cons
 			return true;
 
 	return false;
-}}}
+}
 
 set<int> deterministic_finite_automaton::successor_states(set<int> states) const
-{{{
+{
 	set<int> ret;
 	set<int>::const_iterator si;
 	unsigned int sigma;
@@ -230,9 +229,9 @@ set<int> deterministic_finite_automaton::successor_states(set<int> states) const
 			ret.insert(dfa_p->delta[sigma+1][*si]);
 
 	return ret;
-}}}
+}
 set<int> deterministic_finite_automaton::successor_states(set<int> states, int label) const
-{{{
+{
 	set<int> ret;
 	set<int>::const_iterator si;
 
@@ -243,9 +242,9 @@ set<int> deterministic_finite_automaton::successor_states(set<int> states, int l
 		ret.insert(dfa_p->delta[label+1][*si]);
 
 	return ret;
-}}}
+}
 set<int> deterministic_finite_automaton::predecessor_states(set<int> states) const
-{{{
+{
 	set<int> ret;
 	unsigned int state;
 	unsigned int sigma;
@@ -259,9 +258,9 @@ set<int> deterministic_finite_automaton::predecessor_states(set<int> states) con
 	}
 
 	return ret;
-}}}
+}
 set<int> deterministic_finite_automaton::predecessor_states(set<int> states, int label) const
-{{{
+{
 	set<int> ret;
 	unsigned int state;
 
@@ -275,14 +274,14 @@ set<int> deterministic_finite_automaton::predecessor_states(set<int> states, int
 	}
 
 	return ret;
-}}}
+}
 
 void deterministic_finite_automaton::get_transitions(std::map<int, std::map<int, std::set<int> > > & t) const
-{{{
+{
 
 	// Clear transition map
 	t.clear();
-	
+
 	// Copy transitions to map
 	for(unsigned int source = 0; source<this->get_state_count(); source++) {
 		// All labels from 0 (=epsilon) to alphabet size
@@ -291,7 +290,7 @@ void deterministic_finite_automaton::get_transitions(std::map<int, std::map<int,
 		}
 	}
 
-}}}
+}
 
 
 void deterministic_finite_automaton::epsilon_closure(set<int> & states) const
@@ -300,15 +299,15 @@ void deterministic_finite_automaton::inverted_epsilon_closure(set<int> & states)
 { /* just do something so we don't get a warning about unused parameters: */ states.empty(); };
 
 unsigned int deterministic_finite_automaton::get_alphabet_size() const
-{{{
+{
 	if(dfa_p)
 		return dfa_p->alphabet_size;
 	else
 		return 0;
-}}}
+}
 
 list<int> deterministic_finite_automaton::shortest_run(set<int> from, set<int> &to, bool &reachable) const
-{{{
+{
 	set<int>::const_iterator si;
 	queue<automaton_run> run_fifo;
 	automaton_run current;
@@ -349,17 +348,17 @@ list<int> deterministic_finite_automaton::shortest_run(set<int> from, set<int> &
 	reachable = false;
 	list<int> empty;
 	return empty;
-}}}
+}
 
 bool deterministic_finite_automaton::is_reachable(set<int> &from, set<int> &to) const
-{{{
+{
 	bool reachable;
 	shortest_run(from, to, reachable);
 	return reachable;
-}}}
+}
 
 list<int> deterministic_finite_automaton::get_sample_word(bool & is_empty) const
-{{{
+{
 	set<int> initial_states, final_states;
 	list<int> ret;
 	bool reachable;
@@ -371,10 +370,10 @@ list<int> deterministic_finite_automaton::get_sample_word(bool & is_empty) const
 	is_empty = !reachable;
 
 	return ret;
-}}}
+}
 
 bool deterministic_finite_automaton::operator==(const finite_automaton &other) const
-{{{
+{
 	bool ret = false;
 
 	const deterministic_finite_automaton * o_d;
@@ -406,10 +405,10 @@ bool deterministic_finite_automaton::operator==(const finite_automaton &other) c
 		delete o_d;
 
 	return ret;
-}}}
+}
 
 bool deterministic_finite_automaton::lang_subset_of(const finite_automaton &other) const
-{{{
+{
 	bool ret;
 
 	const deterministic_finite_automaton * o_d;
@@ -428,10 +427,10 @@ bool deterministic_finite_automaton::lang_subset_of(const finite_automaton &othe
 		delete o_d;
 
 	return ret;
-}}}
+}
 
 bool deterministic_finite_automaton::lang_disjoint_to(const finite_automaton &other) const
-{{{
+{
 	bool ret;
 
 	const deterministic_finite_automaton * o_d;
@@ -450,10 +449,10 @@ bool deterministic_finite_automaton::lang_disjoint_to(const finite_automaton &ot
 		delete o_d;
 
 	return ret;
-}}}
+}
 
 bool deterministic_finite_automaton::contains(list<int> &word) const
-{{{
+{
 	if(dfa_p) {
 		set<int> states;
 		set<int>::const_iterator si;
@@ -469,25 +468,25 @@ bool deterministic_finite_automaton::contains(list<int> &word) const
 	} else {
 		return false;
 	}
-}}}
+}
 
 void deterministic_finite_automaton::minimize()
-{{{
+{
 	dfa_p = dfamdfa(dfa_p, TRUE);
-}}}
+}
 
 void deterministic_finite_automaton::lang_complement()
-{{{
+{
 	dfa a;
 
 	a = compldfa(dfa_p);
 	freedfa(dfa_p);
 	free(dfa_p);
 	dfa_p = a;
-}}}
+}
 
 finite_automaton * deterministic_finite_automaton::reverse_language() const
-{{{
+{
 	nfa rev_p;
 
 	rev_p = newnfa();
@@ -513,11 +512,11 @@ finite_automaton * deterministic_finite_automaton::reverse_language() const
 	}
 
 	return new nondeterministic_finite_automaton(rev_p);
-}}}
+}
 
 finite_automaton * deterministic_finite_automaton::lang_union(const finite_automaton &other) const
 // libAMoRE says: alphabets need to be the same
-{{{
+{
 	finite_automaton * n;
 	finite_automaton * ret;
 
@@ -526,10 +525,10 @@ finite_automaton * deterministic_finite_automaton::lang_union(const finite_autom
 	delete n;
 
 	return ret;
-}}}
+}
 
 finite_automaton * deterministic_finite_automaton::lang_intersect(const finite_automaton &other) const
-{{{
+{
 	deterministic_finite_automaton * ret;
 	const deterministic_finite_automaton * o_d;
 	bool had_to_determinize = false;
@@ -547,10 +546,10 @@ finite_automaton * deterministic_finite_automaton::lang_intersect(const finite_a
 		delete o_d;
 
 	return ret;
-}}}
+}
 
 deterministic_finite_automaton * deterministic_finite_automaton::lang_difference(const finite_automaton &other) const
-{{{
+{
 	deterministic_finite_automaton * ret;
 	const deterministic_finite_automaton * o_d;
 	bool had_to_determinize = false;
@@ -568,10 +567,10 @@ deterministic_finite_automaton * deterministic_finite_automaton::lang_difference
 		delete o_d;
 
 	return ret;
-}}}
+}
 
 finite_automaton * deterministic_finite_automaton::lang_symmetric_difference(const finite_automaton &other) const
-{{{
+{
 	// return L1\L2 + L2\L1
 	finite_automaton * L1_without_L2;
 	finite_automaton * L2_without_L1;
@@ -586,10 +585,10 @@ finite_automaton * deterministic_finite_automaton::lang_symmetric_difference(con
 	delete L2_without_L1;
 
 	return ret;
-}}}
+}
 
 finite_automaton * deterministic_finite_automaton::lang_concat(const finite_automaton &other) const
-{{{
+{
 	finite_automaton * ret;
 	finite_automaton * n;
 
@@ -598,10 +597,10 @@ finite_automaton * deterministic_finite_automaton::lang_concat(const finite_auto
 	delete n;
 
 	return ret;
-}}}
+}
 
 std::basic_string<int32_t> deterministic_finite_automaton::serialize() const
-{{{
+{
 	basic_string<int32_t> ret;
 	basic_string<int32_t> temp;
 
@@ -647,10 +646,10 @@ std::basic_string<int32_t> deterministic_finite_automaton::serialize() const
 	ret[0] = htonl(ret.length() - 1);
 
 	return ret;
-}}}
+}
 
 bool deterministic_finite_automaton::deserialize(basic_string<int32_t>::const_iterator &it, basic_string<int32_t>::const_iterator limit)
-{{{
+{
 	int size;
 	int s, count;
 	bool sink_required = false;
@@ -786,10 +785,10 @@ dfaa_deserialization_failed:
 dfaa_deserialization_failed_fast:
 	dfa_p = NULL;
 	return false;
-}}}
+}
 
 bool deterministic_finite_automaton::construct(bool is_dfa, int alphabet_size, int state_count, set<int> &initial, set<int> &final, map<int, map<int, set<int> > > &transitions)
-{{{
+{
 	if(!is_dfa)
 		return false;
 	dfa a;
@@ -840,7 +839,7 @@ bool deterministic_finite_automaton::construct(bool is_dfa, int alphabet_size, i
 			int label = msi->first;
 			for(si = msi->second.begin(); si != msi->second.end(); ++si) {
 				int dst = *si;
-#ifdef DEBUG // sanity-check transitions {{{
+#ifdef DEBUG // sanity-check transitions {
 				if(src >= state_count) {
 					printf("deterministic_finite_automaton::construct(): in transition %d-(%d)->%d: bad src %d with state_count %d\n",
 							src, label, dst,
@@ -868,7 +867,7 @@ bool deterministic_finite_automaton::construct(bool is_dfa, int alphabet_size, i
 					fflush(stdout);
 					is_dfa = *((int*)NULL); // panik
 				}
-#endif // }}}
+#endif // }
 
 				a->delta[label + 1][src] = dst;
 			}
@@ -909,43 +908,44 @@ bool deterministic_finite_automaton::construct(bool is_dfa, int alphabet_size, i
 	dfa_p = a;
 
 	return true;
-}}}
+}
 
 bool deterministic_finite_automaton::is_deterministic() const
 { return true; };
 
 deterministic_finite_automaton * deterministic_finite_automaton::determinize() const
-{{{
+{
 	return this->clone();
-}}}
+}
 
 finite_automaton * deterministic_finite_automaton::nondeterminize() const
-{{{
+{
 	nondeterministic_finite_automaton *a;
 	a = new nondeterministic_finite_automaton(dfa2nfa(dfa_p));
 	return a;
-}}}
+}
 
 void deterministic_finite_automaton::set_dfa(dfa a)
-{{{
+{
 	if(dfa_p) {
 		freedfa(dfa_p);
 		free(dfa_p);
 	}
 	dfa_p = clonedfa(a);
-}}}
+}
 
 dfa deterministic_finite_automaton::get_dfa()
-{{{
+{
 	return dfa_p;
-}}}
+}
 
 /*********************
  * Monoid Stuff
  ********************/
 
-amore_monoid * deterministic_finite_automaton::to_monoid() const {
-	
+amore_monoid * deterministic_finite_automaton::to_monoid() const
+{
+
 	if(dfa_p) {
 		monoid m = dfa2mon(dfa_p);
 		return new amore_monoid(m);
@@ -954,7 +954,8 @@ amore_monoid * deterministic_finite_automaton::to_monoid() const {
 	}
 }
 
-bool deterministic_finite_automaton::is_folu() const {
+bool deterministic_finite_automaton::is_folu() const
+{
 
 	if(dfa_p) {
 		return folutest(dfa_p);
@@ -963,16 +964,17 @@ bool deterministic_finite_automaton::is_folu() const {
 	}
 }
 
-bool deterministic_finite_automaton::is_dd1() const {
+bool deterministic_finite_automaton::is_dd1() const
+{
 	if(dfa_p) {
 
 		amore_monoid * m = NULL;
-		
+
 		if(!is_minimal()) {
-			
+
 			// Get minimized automaton
 			deterministic_finite_automaton minimized = deterministic_finite_automaton(*this);
-			
+
 			// Derive monoid
 			m = minimized.to_monoid();
 
@@ -983,7 +985,7 @@ bool deterministic_finite_automaton::is_dd1() const {
 
 		// Check for dot-depth 1
 		bool dd1 = m->is_dd1();
-		
+
 		// Delete monoid
 		delete m;
 
@@ -993,16 +995,17 @@ bool deterministic_finite_automaton::is_dd1() const {
 	}
 }
 
-bool deterministic_finite_automaton::is_sf() const {
+bool deterministic_finite_automaton::is_sf() const
+{
 	if(dfa_p) {
 
 		amore_monoid * m = NULL;
-		
+
 		if(!is_minimal()) {
-			
+
 			// Get minimized automaton
 			deterministic_finite_automaton minimized = deterministic_finite_automaton(*this);
-			
+
 			// Derive monoid
 			m = minimized.to_monoid();
 
@@ -1013,7 +1016,7 @@ bool deterministic_finite_automaton::is_sf() const {
 
 		// Check for starfree
 		bool sf = m->is_sf();
-		
+
 		// Delete monoid
 		delete m;
 
@@ -1023,16 +1026,17 @@ bool deterministic_finite_automaton::is_sf() const {
 	}
 }
 
-bool deterministic_finite_automaton::is_pwt() const {
+bool deterministic_finite_automaton::is_pwt() const
+{
 	if(dfa_p) {
 
 		amore_monoid * m = NULL;
-		
+
 		if(!is_minimal()) {
-			
+
 			// Get minimized automaton
 			deterministic_finite_automaton minimized = deterministic_finite_automaton(*this);
-			
+
 			// Derive monoid
 			m = minimized.to_monoid();
 
@@ -1043,7 +1047,7 @@ bool deterministic_finite_automaton::is_pwt() const {
 
 		// Check for dot-depth 1
 		bool pwt = m->is_pwt();
-		
+
 		// Delete monoid
 		delete m;
 

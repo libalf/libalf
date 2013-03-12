@@ -1,6 +1,5 @@
-/* $Id$
- * vim: fdm=marker
- *
+/* vim: fdm=syntax foldlevel=1 foldnestmax=2
+ * $Id$
  * This file is part of libAMoRE++
  *
  * libAMoRE++ is free software: you can redistribute it and/or modify
@@ -70,22 +69,22 @@ using namespace std;
 
 
 nondeterministic_finite_automaton::nondeterministic_finite_automaton()
-{{{
+{
 	nfa_p = NULL;
-}}}
+}
 
 nondeterministic_finite_automaton::nondeterministic_finite_automaton(nfa a)
-{{{
+{
 	nfa_p = a;
-}}}
+}
 
 nondeterministic_finite_automaton::nondeterministic_finite_automaton(const nondeterministic_finite_automaton & other)
-{{{
+{
 	nfa_p = clonenfa(other.nfa_p);
-}}}
+}
 
 static void amore_insanitize_regex(char* regex)
-{{{
+{
 	while(*regex) {
 		switch(*regex) {
 			case '|':
@@ -96,10 +95,10 @@ static void amore_insanitize_regex(char* regex)
 		}
 		regex++;
 	}
-}}}
+}
 
 nondeterministic_finite_automaton::nondeterministic_finite_automaton(const char *rex, bool &success)
-{{{
+{
 	const char *p;
 	char c = 'a';
 	int alphabet_size;
@@ -129,9 +128,9 @@ nondeterministic_finite_automaton::nondeterministic_finite_automaton(const char 
 		free(r);
 		success = (nfa_p != NULL);
 	}
-}}}
+}
 nondeterministic_finite_automaton::nondeterministic_finite_automaton(int alphabet_size, const char *rex, bool &success)
-{{{
+{
 	regex r;
 	char *local_rex = strdup(rex);
 
@@ -148,31 +147,32 @@ nondeterministic_finite_automaton::nondeterministic_finite_automaton(int alphabe
 		free(r);
 		success = (nfa_p != NULL);
 	}
-}}}
+}
 
 nondeterministic_finite_automaton::~nondeterministic_finite_automaton()
-{{{
+{
 	if(nfa_p) {
 		freenfa(nfa_p);
 		free(nfa_p);
 	}
-}}}
+}
 
 nondeterministic_finite_automaton * nondeterministic_finite_automaton::clone() const
-{{{
+{
 	if(nfa_p)
 		return new nondeterministic_finite_automaton(clonenfa(nfa_p));
 	else
 		return new nondeterministic_finite_automaton();
-}}}
+}
 
-nondeterministic_finite_automaton & nondeterministic_finite_automaton::operator=(const nondeterministic_finite_automaton & other) {
+nondeterministic_finite_automaton & nondeterministic_finite_automaton::operator=(const nondeterministic_finite_automaton & other)
+{
 
 	if(nfa_p) {
 		freenfa(nfa_p);
 		free(nfa_p);
 	}
-	
+
 	if(other.nfa_p != NULL) {
 		nfa_p = clonenfa(other.nfa_p);
 	} else {
@@ -183,7 +183,7 @@ nondeterministic_finite_automaton & nondeterministic_finite_automaton::operator=
 }
 
 string nondeterministic_finite_automaton::to_regex() const
-{{{
+{
 	if(this->is_empty()) {
 		// for empty languages,
 		//	* either nfa2rex generates invalid regular expressions,
@@ -211,36 +211,36 @@ string nondeterministic_finite_automaton::to_regex() const
 
 		return s;
 	};
-}}}
+}
 
 
 bool nondeterministic_finite_automaton::is_minimal() const
-{{{
+{
 	if(nfa_p)
 		return nfa_p->minimal;
 	else
 		return 0;
-}}}
+}
 
 unsigned int nondeterministic_finite_automaton::get_state_count() const
-{{{
+{
 	if(nfa_p)
 		return nfa_p->highest_state + 1;
 	else
 		return 0;
-}}}
+}
 
 bool nondeterministic_finite_automaton::is_empty() const
-{{{
+{
 	bool ret;
 	// libAMoRE-1.0 has empty_full_lan(), but it requires
 	// a minimized DFA as input
 	get_sample_word(ret);
 	return ret;
-}}}
+}
 
 bool nondeterministic_finite_automaton::is_universal() const
-{{{
+{
 	bool ret;
 	finite_automaton * d;
 
@@ -249,44 +249,44 @@ bool nondeterministic_finite_automaton::is_universal() const
 	delete d;
 
 	return ret;
-}}}
+}
 
 set<int> nondeterministic_finite_automaton::get_initial_states() const
-{{{
+{
 	set<int> ret;
 	for(unsigned int i = 0; i <= nfa_p->highest_state; i++)
 		if(isinit(nfa_p->infin[i]))
 			ret.insert(i);
 	return ret;
-}}}
+}
 set<int> nondeterministic_finite_automaton::get_final_states() const
-{{{
+{
 	set<int> ret;
 	for(unsigned int i = 0; i <= nfa_p->highest_state; i++)
 		if(isfinal(nfa_p->infin[i]))
 			ret.insert(i);
 	return ret;
-}}}
+}
 
 void nondeterministic_finite_automaton::set_initial_states(set<int> &states)
-{{{
+{
 	for(unsigned int s = 0; s <= nfa_p->highest_state; s++)
 		if(states.find(s) != states.end())
 			setinit(nfa_p->infin[s]);
 		else
 			rminit(nfa_p->infin[s]);
-}}}
+}
 void nondeterministic_finite_automaton::set_final_states(set<int> &states)
-{{{
+{
 	for(unsigned int s = 0; s <= nfa_p->highest_state; s++)
 		if(states.find(s) != states.end())
 			setfinalT(nfa_p->infin[s]);
 		else
 			setfinalF(nfa_p->infin[s]);
-}}}
+}
 
 bool nondeterministic_finite_automaton::contains_initial_states(set<int> states) const
-{{{
+{
 	set<int>::const_iterator si;
 
 	epsilon_closure(states);
@@ -296,9 +296,9 @@ bool nondeterministic_finite_automaton::contains_initial_states(set<int> states)
 			return true;
 
 	return false;
-}}}
+}
 bool nondeterministic_finite_automaton::contains_final_states(set<int> states) const
-{{{
+{
 	set<int>::const_iterator si;
 
 	epsilon_closure(states);
@@ -308,10 +308,10 @@ bool nondeterministic_finite_automaton::contains_final_states(set<int> states) c
 			return true;
 
 	return false;
-}}}
+}
 
 set<int> nondeterministic_finite_automaton::successor_states(set<int> states) const
-{{{
+{
 	set<int> ret;
 	set<int>::const_iterator si;
 	unsigned int sigma;
@@ -334,9 +334,9 @@ abort:		;
 	epsilon_closure(ret);
 
 	return ret;
-}}}
+}
 set<int> nondeterministic_finite_automaton::successor_states(set<int> states, int label) const
-{{{
+{
 	// very much like successor_states
 	set<int> ret;
 	set<int>::const_iterator si;
@@ -355,9 +355,9 @@ set<int> nondeterministic_finite_automaton::successor_states(set<int> states, in
 	epsilon_closure(ret);
 
 	return ret;
-}}}
+}
 set<int> nondeterministic_finite_automaton::predecessor_states(set<int> states) const
-{{{
+{
 	set<int> ret;
 	set<int>::const_iterator si;
 	unsigned int sigma;
@@ -380,9 +380,9 @@ abort:		;
 	inverted_epsilon_closure(ret);
 
 	return ret;
-}}}
+}
 set<int> nondeterministic_finite_automaton::predecessor_states(set<int> states, int label) const
-{{{
+{
 	set<int> ret;
 	set<int>::const_iterator si;
 	unsigned int src;
@@ -405,10 +405,10 @@ abort:		;
 	inverted_epsilon_closure(ret);
 
 	return ret;
-}}}
+}
 
 void nondeterministic_finite_automaton::get_transitions(std::map<int, std::map<int, std::set<int> > > & t) const
-{{{
+{
 
 	// Clear transition map
 	t.clear();
@@ -426,18 +426,18 @@ void nondeterministic_finite_automaton::get_transitions(std::map<int, std::map<i
 			}
 		}
 	}
-}}}
+}
 
 unsigned int nondeterministic_finite_automaton::get_alphabet_size() const
-{{{
+{
 	if(nfa_p)
 		return nfa_p->alphabet_size;
 	else
 		return 0;
-}}}
+}
 
 list<int> nondeterministic_finite_automaton::shortest_run(set<int> from, set<int> & to, bool &reachable) const
-{{{
+{
 	set<int>::const_iterator si;
 	list<automaton_run> run_fifo;
 	automaton_run current, next;
@@ -498,17 +498,17 @@ list<int> nondeterministic_finite_automaton::shortest_run(set<int> from, set<int
 	list<int> ret;
 	reachable = false;
 	return ret; // empty word
-}}}
+}
 
 bool nondeterministic_finite_automaton::is_reachable(set<int> &from, set<int> &to) const
-{{{
+{
 	bool reachable;
 	shortest_run(from, to, reachable);
 	return reachable;
-}}}
+}
 
 list<int> nondeterministic_finite_automaton::get_sample_word(bool & is_empty) const
-{{{
+{
 	unsigned int s;
 	list<int> ret;
 	set<int> initial_states, final_states;
@@ -526,10 +526,10 @@ list<int> nondeterministic_finite_automaton::get_sample_word(bool & is_empty) co
 	is_empty = !reachable;
 
 	return ret;
-}}}
+}
 
 bool nondeterministic_finite_automaton::operator==(const finite_automaton &other) const
-{{{
+{
 	bool ret;
 	finite_automaton * d;
 
@@ -538,10 +538,10 @@ bool nondeterministic_finite_automaton::operator==(const finite_automaton &other
 	delete d;
 
 	return ret;
-}}}
+}
 
 bool nondeterministic_finite_automaton::lang_subset_of(const finite_automaton &other) const
-{{{
+{
 	bool ret;
 
 	finite_automaton * d;
@@ -551,10 +551,10 @@ bool nondeterministic_finite_automaton::lang_subset_of(const finite_automaton &o
 	delete d;
 
 	return ret;
-}}}
+}
 
 bool nondeterministic_finite_automaton::lang_disjoint_to(const finite_automaton &other) const
-{{{
+{
 	bool ret;
 
 	finite_automaton * d;
@@ -564,11 +564,11 @@ bool nondeterministic_finite_automaton::lang_disjoint_to(const finite_automaton 
 	delete d;
 
 	return ret;
-}}}
+}
 
 void nondeterministic_finite_automaton::epsilon_closure(set<int> & states) const
 // add states reachable via an epsilon-transition
-{{{
+{
 	if(nfa_p->is_eps == FALSE)
 		return;
 
@@ -592,11 +592,11 @@ void nondeterministic_finite_automaton::epsilon_closure(set<int> & states) const
 					new_states.push(s);
 				};
 	};
-}}}
+}
 
 void nondeterministic_finite_automaton::inverted_epsilon_closure(set<int> & states) const
 // add states from whom these states can be reached via an epsilon-transition
-{{{
+{
 	if(nfa_p->is_eps == FALSE)
 		return;
 
@@ -619,10 +619,10 @@ void nondeterministic_finite_automaton::inverted_epsilon_closure(set<int> & stat
 					new_states.push(s);
 				};
 	};
-}}}
+}
 
 bool nondeterministic_finite_automaton::contains(list<int> &word) const
-{{{
+{
 	if(nfa_p) {
 		set<int> states;
 		set<int>::const_iterator si;
@@ -638,10 +638,10 @@ bool nondeterministic_finite_automaton::contains(list<int> &word) const
 	} else {
 		return false;
 	}
-}}}
+}
 
 void nondeterministic_finite_automaton::minimize()
-{{{
+{
 	dfa d;
 	nfa n;
 
@@ -658,10 +658,10 @@ void nondeterministic_finite_automaton::minimize()
 	}
 
 	nfa_p = n;
-}}}
+}
 
 void nondeterministic_finite_automaton::lang_complement()
-{{{
+{
 	dfa a,b;
 
 	a = nfa2dfa(nfa_p);
@@ -677,10 +677,10 @@ void nondeterministic_finite_automaton::lang_complement()
 
 	freedfa(b);
 	free(b);
-}}}
+}
 
 nondeterministic_finite_automaton * nondeterministic_finite_automaton::remove_epsilon_transitions() const
-{{{
+{
 
 	// Check whether automaton has epsilon transitions
 	if(!nfa_p->is_eps) {
@@ -688,10 +688,10 @@ nondeterministic_finite_automaton * nondeterministic_finite_automaton::remove_ep
 	} else {
 		return new nondeterministic_finite_automaton(enfa2nfa(nfa_p));
 	}
-}}}
+}
 
 nondeterministic_finite_automaton * nondeterministic_finite_automaton::reverse_language() const
-{{{
+{
 	nfa rev_p;
 
 	rev_p = newnfa();
@@ -723,11 +723,11 @@ nondeterministic_finite_automaton * nondeterministic_finite_automaton::reverse_l
 	}
 
 	return new nondeterministic_finite_automaton(rev_p);
-}}}
+}
 
 nondeterministic_finite_automaton * nondeterministic_finite_automaton::lang_union(const finite_automaton &other) const
 // libAMoRE says: alphabets need to be the same
-{{{
+{
 	nondeterministic_finite_automaton * ret;
 	const nondeterministic_finite_automaton * o_n;
 	bool had_to_nfa = false;
@@ -748,10 +748,10 @@ nondeterministic_finite_automaton * nondeterministic_finite_automaton::lang_unio
 		delete o_n;
 
 	return ret;
-}}}
+}
 
 finite_automaton * nondeterministic_finite_automaton::lang_intersect(const finite_automaton &other) const
-{{{
+{
 	finite_automaton * ret;
 	finite_automaton * d;
 
@@ -760,10 +760,10 @@ finite_automaton * nondeterministic_finite_automaton::lang_intersect(const finit
 	delete d;
 
 	return ret;
-}}}
+}
 
 finite_automaton * nondeterministic_finite_automaton::lang_difference(const finite_automaton &other) const
-{{{
+{
 	finite_automaton * ret;
 	finite_automaton * d;
 
@@ -772,10 +772,10 @@ finite_automaton * nondeterministic_finite_automaton::lang_difference(const fini
 	delete d;
 
 	return ret;
-}}}
+}
 
 finite_automaton * nondeterministic_finite_automaton::lang_symmetric_difference(const finite_automaton &other) const
-{{{
+{
 	finite_automaton * L1_without_L2;
 	finite_automaton * L2_without_L1;
 	finite_automaton * ret = NULL;
@@ -789,10 +789,10 @@ finite_automaton * nondeterministic_finite_automaton::lang_symmetric_difference(
 	delete L2_without_L1;
 
 	return ret;
-}}}
+}
 
 nondeterministic_finite_automaton * nondeterministic_finite_automaton::lang_concat(const finite_automaton &other) const
-{{{
+{
 	nondeterministic_finite_automaton * ret;
 	const nondeterministic_finite_automaton * o_n;
 
@@ -811,10 +811,10 @@ nondeterministic_finite_automaton * nondeterministic_finite_automaton::lang_conc
 		delete o_n;
 
 	return ret;
-}}}
+}
 
 std::basic_string<int32_t> nondeterministic_finite_automaton::serialize() const
-{{{
+{
 	basic_string<int32_t> ret;
 	basic_string<int32_t> temp;
 	unsigned int s;
@@ -872,10 +872,10 @@ std::basic_string<int32_t> nondeterministic_finite_automaton::serialize() const
 	ret[0] = htonl(ret.length() - 1);
 
 	return ret;
-}}}
+}
 
 bool nondeterministic_finite_automaton::deserialize(basic_string<int32_t>::const_iterator &it, basic_string<int32_t>::const_iterator limit)
-{{{
+{
 	int size;
 	int s, count;
 
@@ -982,15 +982,15 @@ nfaa_deserialization_failed:
 nfaa_deserialization_failed_fast:
 	nfa_p = NULL;
 	return false;
-}}}
+}
 
 bool nondeterministic_finite_automaton::is_deterministic() const
 { return false; };
 
 finite_automaton * nondeterministic_finite_automaton::determinize() const
-{{{
+{
 	deterministic_finite_automaton *a;
-	
+
 	if(nfa_p->is_eps) {
 		nfa aa = enfa2nfa(nfa_p);
 		a = new deterministic_finite_automaton( nfa2dfa(aa) );
@@ -1000,63 +1000,66 @@ finite_automaton * nondeterministic_finite_automaton::determinize() const
 		a = new deterministic_finite_automaton( nfa2dfa(nfa_p) );
 	}
 	return a;
-}}}
+}
 
 nondeterministic_finite_automaton * nondeterministic_finite_automaton::nondeterminize() const
-{{{
+{
 	return this->clone();
-}}}
+}
 
 void nondeterministic_finite_automaton::set_nfa(nfa a)
-{{{
+{
 	if(nfa_p) {
 		freenfa(nfa_p);
 		free(nfa_p);
 	}
 	nfa_p = clonenfa(a);
-}}}
+}
 
 nfa nondeterministic_finite_automaton::get_nfa()
-{{{
+{
 	return nfa_p;
-}}}
+}
 
 /*********************
  * Monoid Stuff
  ********************/
 
-bool nondeterministic_finite_automaton::is_dd1() const {
+bool nondeterministic_finite_automaton::is_dd1() const
+{
 
 	if(nfa_p) {
 		deterministic_finite_automaton * dfa = (deterministic_finite_automaton *)this->determinize();
 		bool dd1 = dfa->is_dd1();
 		delete dfa;
 		return dd1;
-		
+
 	} else {
 		return false;
 	}
 }
 
-bool nondeterministic_finite_automaton::is_sf() const {
+bool nondeterministic_finite_automaton::is_sf() const
+{
 	if(nfa_p) {
 		deterministic_finite_automaton * dfa = (deterministic_finite_automaton *)this->determinize();
 		bool sf = dfa->is_sf();
 		delete dfa;
 		return sf;
-		
+
 	} else {
 		return false;
 	}
 }
 
-bool nondeterministic_finite_automaton::is_pwt() const {
+bool nondeterministic_finite_automaton::is_pwt() const
+{
 	if(nfa_p) {
 		deterministic_finite_automaton * dfa = (deterministic_finite_automaton *)this->determinize();
 		bool pwt = dfa->is_pwt();
 		delete dfa;
 		return pwt;
-		
+
 	} else {
 		return false;
 	}

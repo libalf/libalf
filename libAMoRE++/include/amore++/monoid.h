@@ -1,4 +1,4 @@
-/* 
+/*
  * This file is part of libAMoRE++
  *
  * libAMoRE++ is free software: you can redistribute it and/or modify
@@ -40,12 +40,12 @@ class amore_monoid {
 		amore_monoid(monoid m);
 		~amore_monoid();
 
-    		/**
+		/**
 		 * Returns the number of states of the unterlying DFA.
 		 */
 		virtual unsigned int get_highest_state() const;
 
-    		/**
+		/**
 		 * Returns the alphabet size (of the unterlying DFA).
 		 */
 		virtual unsigned int get_alphabet_size() const;
@@ -98,7 +98,7 @@ class amore_monoid {
 		/**
 		 * Returns the (smallest?) representative of the given monoid's element as <code>char *</code>.
 		 * Thereby, the symbols are translated using the \em itoc array.
-		 * 
+		 *
 		 * @param no The element
 		 * @param with If true, the representative is preceeded by a * if it is an idempotent element.
 		 * @param zeroone If true, the representative of the 0 and 1 element not computed by 0 or 1 is returned.

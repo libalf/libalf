@@ -1,5 +1,5 @@
-/* $Id$
- * vim: fdm=marker
+/* vim: fdm=syntax foldlevel=0 foldnestmax=1
+ * $Id$
  *
  * set<> helper functions
  *
@@ -34,7 +34,7 @@
 
 // set_includes uses the order of both sets for optimizations.
 template <class T>	bool set_includes(const std::set<T> &superset, const std::set<T> &subset)
-{{{
+{
 	typename std::set<T>::const_iterator Si, si;
 
 	Si = superset.begin();
@@ -56,7 +56,7 @@ template <class T>	bool set_includes(const std::set<T> &superset, const std::set
 	}
 
 	return ( Si != superset.end() || si == subset.end() );
-}}}
+}
 
 template <class T>	std::set<T> set_union(std::set<T> s, const std::set<T> &t)
 { s.insert(t.begin(), t.end()); return s; }
@@ -66,7 +66,7 @@ template <class T>	std::set<T> set_union(std::set<T> s, const std::set<T> &t)
 
 // set_intersect uses the order of both sets for optimizations.
 template <class T>	std::set<T> set_intersect(const std::set<T> &s, const std::set<T> &t)
-{{{
+{
 	std::set<T> ret;
 
 	typename std::set<T>::const_iterator si;
@@ -79,11 +79,11 @@ template <class T>	std::set<T> set_intersect(const std::set<T> &s, const std::se
 	}
 
 	return ret;
-}}}
+}
 
 // set_without uses the order of both sets for optimizations. thus it is more efficient than set::erase(...)
 template <class T>	std::set<T> set_without(const std::set<T> &s, const std::set<T> &remove)
-{{{
+{
 	std::set<T> ret;
 	typename std::set<T>::const_iterator si, rmi;
 
@@ -109,10 +109,10 @@ template <class T>	std::set<T> set_without(const std::set<T> &s, const std::set<
 	}
 
 	return ret;
-}}}
+}
 
 template <class T>	void print_set(std::ostream &con, const std::set<T> &s)
-{{{
+{
 	std::set<int>::const_iterator si;
 
         con << "{ ";
@@ -126,17 +126,17 @@ template <class T>	void print_set(std::ostream &con, const std::set<T> &s)
                 };
         }
         con << " }";
-}}};
+};
 
 template <class T>	std::string set2string(const std::set<T> &s)
-{{{
+{
 	std::stringstream str;
 	std::set<int>::const_iterator si;
 
 	print_set(str, s);
 
 	return str.str();
-}}};
+};
 
 #endif // __helper_set_h__
 

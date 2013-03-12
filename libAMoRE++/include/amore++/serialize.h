@@ -1,6 +1,5 @@
 /* $Id$
  * vim: fdm=marker
- *
  * serialize functions
  *
  * this file is free software: you can redistribute it and/or modify
@@ -39,6 +38,7 @@
 #  include <iterator>
 #  include <vector>
 #  include <stdint.h>
+#  include <sys/types.h>
 
 class  serial_stretch {
 	public:
@@ -111,6 +111,7 @@ template <typename S>			bool deserialize(std::basic_string<S> & s, serial_stretc
 #  else
 #   include <arpa/inet.h>
 #  endif
+#  include <sys/types.h>
 
 // SERIALIZATION OF BASIC TYPES
 
