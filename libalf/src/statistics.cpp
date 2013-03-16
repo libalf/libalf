@@ -185,7 +185,9 @@ void generic_statistics::print(ostream & os) const
 	os << "}; ";
 }}}
 
-
+// -------------------------------------------------------------------------------------------------- //
+// EVERYTHING BELOW THIS LINE IS OBSOLETE AND WILL BE REMOVED AFTER ALL INTERFACES HAVE BEEN CHANGED. //
+// -------------------------------------------------------------------------------------------------- //
 
 timing_statistics::timing_statistics()
 {{{
@@ -227,10 +229,6 @@ deserialization_failed:
 	reset();
 	return false;
 }}}
-
-// -------------------------------------------------------------------------------------------------- //
-// EVERYTHING BELOW THIS LINE IS OBSOLETE AND WILL BE REMOVED AFTER ALL INTERFACES HAVE BEEN CHANGED. //
-// -------------------------------------------------------------------------------------------------- //
 
 
 query_statistics::query_statistics()

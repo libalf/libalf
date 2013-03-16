@@ -214,32 +214,7 @@ fail:
 			}
 		}}}
 
-		virtual memory_statistics get_memory_statistics() const
-		// get_memory_statistics() is obsolete and will be removed in the future.
-		// use receive_generic_statistics() instead.
-		{{{
-			memory_statistics ret;
-			// get memory footprint:
-			typename columnlist::const_iterator ci;
-			typename table::const_iterator ti;
-
-			ret.bytes = sizeof(this);
-			for(ci = column_names.begin(); ci != column_names.end(); ci++)
-				ret.bytes += sizeof(std::list<int>) + sizeof(int) * (ci->size());
-			for(ti = upper_table.begin(); ti != upper_table.end(); ti++)
-				ret.bytes += ti->memory_usage();
-			for(ti = lower_table.begin(); ti != lower_table.end(); ti++)
-				ret.bytes += ti->memory_usage();
-			// members
-			ret.columns = column_names.size();
-			ret.upper_table = upper_table.size();
-			ret.lower_table = lower_table.size();
-			ret.members = ret.columns * (ret.upper_table + ret.lower_table);
-			ret.words = ret.members;
-			return ret;
-		}}}
-
-		virtual void receive_generic_statistics(generic_statistics & stat) const
+		virtual void generate_statistics(void)
 		{{{
 			int bytes = 0;
 			int c, ut, lt;
@@ -251,10 +226,10 @@ fail:
 			ut = upper_table.size();
 			lt = lower_table.size();
 
-			stat["columns"] = c;
-			stat["upper_table"] = ut;
-			stat["lower_table"] = lt;
-			stat["words"] = c*(ut+lt);
+			this->statistics["columns"] = c;
+			this->statistics["upper_table"] = ut;
+			this->statistics["lower_table"] = lt;
+			this->statistics["words"] = c*(ut+lt);
 
 			bytes = sizeof(*this);
 			for(ci = column_names.begin(); ci != column_names.end(); ci++)
@@ -264,7 +239,7 @@ fail:
 			for(ti = lower_table.begin(); ti != lower_table.end(); ti++)
 				bytes += ti->memory_usage();
 
-			stat["bytes"] = bytes;
+			this->statistics["bytes"] = bytes;
 		}}}
 
 		virtual bool sync_to_knowledgebase()

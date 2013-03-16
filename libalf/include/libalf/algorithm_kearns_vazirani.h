@@ -1054,18 +1054,6 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: Increasing alphabet size is not supported by this implementation!\n");
 	}
 
-	memory_statistics get_memory_statistics() const {
-		// get_memory_statistics() is obsolete and will be removed in the future.
-		// use receive_generic_statistics() instead.
-		memory_statistics ret;
-		return ret;
-	}
-
-	virtual void receive_generic_statistics(generic_statistics & stat) const
-	{
-
-	}
-
 	bool sync_to_knowledgebase() {
 		(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: syncing to a knowledgebase is not supported by this implementation!\n");
 		return false;

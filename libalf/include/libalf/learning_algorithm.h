@@ -102,7 +102,8 @@ class learning_algorithm {
 		bool do_timing; // create timing statistics?
 		bool in_timing;	// currently measuring timing information?
 		struct timeval start_utime, start_stime; // when measuring did begin
-		timing_statistics current_stats;
+
+		generic_statistics statistics;
 
 		knowledgebase<answer> * my_knowledge;
 
@@ -111,7 +112,7 @@ class learning_algorithm {
 		int alphabet_size;
 
 	public: // methods
-		learning_algorithm()
+		learning_algorithm(void)
 		{{{
 			my_knowledge = NULL;
 			norm = NULL;
@@ -120,17 +121,17 @@ class learning_algorithm {
 			reset_timing();
 			set_logger(NULL);
 		}}}
-		virtual ~learning_algorithm() { };
+		virtual ~learning_algorithm(void) { };
 
 		// get type of algorithm
-		virtual enum learning_algorithm_type get_type() const = 0;
+		virtual enum learning_algorithm_type get_type(void) const = 0;
 
 		// get the least complex type of algorithm (in terms of derivation)
 		// that is compatible with this one (can use the same table / serialized data)
-		virtual enum learning_algorithm_type get_basic_compatible_type() const = 0;
+		virtual enum learning_algorithm_type get_basic_compatible_type(void) const = 0;
 
 		// give a string representation of the algorithm type
-		virtual const char * get_name()
+		virtual const char * get_name(void)
 		{ return learning_algorithm_name(this->get_type()); }
 
 		// set_alphabet_size() is only for initial setting.
@@ -140,7 +141,7 @@ class learning_algorithm {
 		{{{
 			this->alphabet_size = alphabet_size;
 		}}}
-		virtual int get_alphabet_size() const
+		virtual int get_alphabet_size(void) const
 		{{{
 			return alphabet_size;
 		}}}
@@ -155,7 +156,7 @@ class learning_algorithm {
 			else
 				my_logger = (&this->ignore);
 		}}}
-		virtual logger * get_logger()
+		virtual logger * get_logger(void)
 		{{{
 			if(my_logger == (&this->ignore))
 				return NULL;
@@ -169,7 +170,7 @@ class learning_algorithm {
 			my_knowledge = base;
 		}}}
 
-		virtual knowledgebase<answer> * get_knowledge_source()
+		virtual knowledgebase<answer> * get_knowledge_source(void)
 		{{{
 			return my_knowledge;
 		}}}
@@ -178,35 +179,44 @@ class learning_algorithm {
 		{{{
 			this->norm = norm;
 		}}}
-		virtual normalizer * get_normalizer()
+		virtual normalizer * get_normalizer(void)
 		{{{
 			  return norm;
 		}}}
-		virtual void unset_normalizer()
+		virtual void unset_normalizer(void)
 		{{{
 			norm = NULL;
 		}}}
 
-		virtual void receive_generic_statistics(generic_statistics & stat) const = 0;
-
-		virtual memory_statistics get_memory_statistics() const __attribute__((deprecated)) = 0;
-
-		virtual timing_statistics get_timing_statistics() const __attribute__((deprecated))
+		virtual const generic_statistics & get_statistics(void)
 		{{{
-			return current_stats;
-		}}} __attribute__((deprecated));
+			generate_statistics();
+			return statistics;
+		}}}
 
-		virtual void enable_timing()
+		/** for deriving classes: generate statistics upon request */
+		virtual void generate_statistics(void)
+		{ };
+
+		virtual void receive_generic_statistics(generic_statistics & stat) const __attribute__((deprecated))
+		{ };
+		virtual memory_statistics get_memory_statistics(void) const __attribute__((deprecated))
+		{ };
+		virtual timing_statistics get_timing_statistics(void) const __attribute__((deprecated))
+		{ /* STUB! */ timing_statistics blank; return blank; };
+
+		virtual void enable_timing(void)
 		{{{
 			do_timing = true;
 		}}}
-		virtual void disable_timing()
+		virtual void disable_timing(void)
 		{{{
 			do_timing = false;
 		}}}
-		virtual void reset_timing()
+		virtual void reset_timing(void)
 		{{{
-			current_stats.reset();
+			statistics["time.system"] = double(0.);
+			statistics["time.user"] = double(0.);
 		}}}
 
 		// knowledgebase supports undo-operations. this callback should be called after
@@ -216,10 +226,10 @@ class learning_algorithm {
 		// if you are implementing a new algorithm, please use
 		// knowledgebase->get_timestamp() for book-keeping and to check which changes to revert.
 		// you may choose not to support undo operations. then supports_sync must return false.
-		virtual bool sync_to_knowledgebase() = 0;
+		virtual bool sync_to_knowledgebase(void) = 0;
 
 		// supports_sync() must return true, if undo/sync is supported. false otherwise.
-		virtual bool supports_sync() const = 0;
+		virtual bool supports_sync(void) const = 0;
 
 		/*
 		 * format for serialization:
@@ -230,7 +240,16 @@ class learning_algorithm {
 		 *	algorithm-specific data
 		 * </serialized learning algorithm data>
 		 */
-		virtual std::basic_string<int32_t> serialize() const = 0;
+		virtual std::basic_string<int32_t> serialize(void) const = 0;
+		/* FIXME:
+		 * serialization should be more generic.
+		 *
+		 * create a wrapper for algo-specific serialization that
+		 *   a) serializes the algorithm type
+		 *   b) in deserialization checks this against basic compatible algorithm type
+		 *   c) serializes common data (statistics, do_timing)
+		 *   d) auto-stores / checks size
+		 */
 		virtual bool deserialize(serial_stretch & serial) = 0;
 
 		// for algorithm-specific commands (e.g. parameter passing via dispatcher)
@@ -243,7 +262,7 @@ class learning_algorithm {
 		}}};
 
 		virtual void print(std::ostream &os) const = 0;
-		virtual std::string to_string() const
+		virtual std::string to_string(void) const
 		{{{
 			std::stringstream str;
 			this->print(str);
@@ -251,7 +270,7 @@ class learning_algorithm {
 		}}}
 
 		// check if a hypothesis can be constructed without any further queries
-		virtual bool conjecture_ready() = 0;
+		virtual bool conjecture_ready(void) = 0;
 
 		// complete internal data structures and then derive automaton:
 		//
@@ -261,7 +280,7 @@ class learning_algorithm {
 		//
 		// if all knowledge was found and a conjecture is ready, it will be returned.
 		// otherwise, NULL will be returned.
-		virtual conjecture * advance()
+		virtual conjecture * advance(void)
 		{{{
 			conjecture * ret = NULL;
 
@@ -290,18 +309,13 @@ class learning_algorithm {
 		// complete table in such a way that an automaton can be derived
 		// return true if table is complete.
 		// return false if table could not be completed due to missing knowledge
-		virtual bool complete() = 0;
+		virtual bool complete(void) = 0;
 		// derive an automaton from data structure
-		virtual conjecture * derive_conjecture() = 0;
+		virtual conjecture * derive_conjecture(void) = 0;
 
-// FIXME: is _LINUX defined on linux?
-#ifdef _LINUX
-#error OK!
-# define USAGE_SPECIFIER RUSAGE_THREAD
-#else
-# define USAGE_SPECIFIER RUSAGE_SELF
-#endif
-		virtual void start_timing()
+//#define USAGE_SPECIFIER RUSAGE_THREAD
+#define USAGE_SPECIFIER RUSAGE_SELF
+		virtual void start_timing(void)
 		{{{
 			if(do_timing && !in_timing) {
 #ifdef _WIN32
@@ -320,17 +334,20 @@ class learning_algorithm {
 				in_timing = true;
 			}
 		}}}
-		virtual void stop_timing()
+		virtual void stop_timing(void)
 		{{{
 			if(do_timing && in_timing) {
+				double time_user = statistics["time.user"];
+				double time_system = statistics["time.system"];
+
 				in_timing = false;
 #ifdef _WIN32
 				struct timeval tmp1, tmp2;
 				if(0 != gettimeofday(&tmp1, NULL))
 					return;
 				timersub(&tmp1, &start_utime, &tmp2);
-				current_stats.user_sec += tmp2.tv_sec;
-				current_stats.user_usec += tmp2.tv_usec;
+				time_user += tmp2.tv_sec;
+				time_user += tmp2.tv_usec / 1000000;
 #else
 				struct rusage ru;
 				struct timeval tmp;
@@ -339,13 +356,15 @@ class learning_algorithm {
 					return;
 
 				timersub(&(ru.ru_utime), &start_utime, &tmp);
-				current_stats.user_sec += tmp.tv_sec;
-				current_stats.user_usec += tmp.tv_usec;
+				time_user += tmp.tv_sec;
+				time_user += tmp.tv_usec / 1000000;
 
 				timersub(&(ru.ru_stime), &start_stime, &tmp);
-				current_stats.sys_sec += tmp.tv_sec;
-				current_stats.sys_usec += tmp.tv_usec;
+				time_system += tmp.tv_sec;
+				time_system += tmp.tv_usec / 1000000;
 #endif
+				statistics["time.user"] = time_user;
+				statistics["time.system"] = time_system;
 			}
 		}}}
 };

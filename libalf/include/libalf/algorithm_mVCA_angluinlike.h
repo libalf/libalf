@@ -1084,24 +1084,9 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 		virtual void increase_alphabet_size(int new_asize)
 		{ this->set_alphabet_size(new_asize); }
 
-		virtual memory_statistics get_memory_statistics() const
-		// get_memory_statistics() is obsolete and will be removed in the future.
-		// use receive_generic_statistics() instead.
+		virtual void generate_statistics(void)
 		{{{
-			generic_statistics stat;
-			memory_statistics ret;
-
-			receive_generic_statistics(stat);
-
-			ret.bytes = stat["bytes"];
-			ret.words = stat["words"];
-
-			return ret;
-		}}}
-
-		virtual void receive_generic_statistics(generic_statistics & stat) const
-		{{{
-			stat["initialized"] = initialized;
+			statistics["initialized"] = initialized;
 			if(initialized) {
 				int words = 0; // words that are stored in the tables
 				int bytes = 0; // bytes this algorithm consumes over all
@@ -1110,10 +1095,10 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 				bytes += table.get_dynamic_memory_consumption();
 				words = table.count_words();
 
-				stat["words"] = words;
-				stat["bytes"] = bytes;
-				stat["table bound"] = (int)table.size() - 1;
-				stat["known equivalence bound"] = known_equivalence_bound;
+				this->statistics["words"] = words;
+				this->statistics["bytes"] = bytes;
+				this->statistics["table bound"] = (int)table.size() - 1;
+				this->statistics["known equivalence bound"] = known_equivalence_bound;
 			}
 		}}}
 

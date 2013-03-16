@@ -1056,44 +1056,9 @@ class angluin_simple_table : public angluin_table<answer, std::list< algorithm_a
 
 		virtual enum learning_algorithm_type get_type() const
 		{ return ALG_ANGLUIN; };
-
 		// (still compatible to ALG_ANGLUIN)
 
-		virtual memory_statistics get_memory_statistics() const
-		// get_memory_statistics() is obsolete and will be removed in the future.
-		// use receive_generic_statistics() instead.
-		{{{
-			memory_statistics ret;
-
-			typename angluin_table<answer, std::list< algorithm_angluin::simple_row<answer, std::vector<answer> > >, std::vector<answer> >::columnlist::const_iterator ci;
-			typename std::list< algorithm_angluin::simple_row<answer, std::vector<answer> > >::const_iterator ti;
-
-			ret.columns = this->column_names.size();
-			ret.upper_table = this->upper_table.size();
-			ret.lower_table = this->lower_table.size();
-
-			ret.members = ret.columns * ( ret.upper_table + ret.lower_table );
-			ret.words = ret.members;
-
-			// approx. memory usage:
-			ret.bytes = sizeof(*this);
-			// columns
-			ret.bytes += sizeof(std::vector<int>);
-			for(ci = this->column_names.begin(); ci != this->column_names.end(); ci++)
-				ret.bytes += sizeof(int) * ci->size() + sizeof(std::list<int>);
-			// upper table bare rows
-			for(ti = this->upper_table.begin(); ti != this->upper_table.end(); ti++)
-				ret.bytes += sizeof(algorithm_angluin::simple_row<answer, std::vector<answer> >) + sizeof(int) * ti->index.size();
-			// lower table bare rows
-			for(ti = this->lower_table.begin(); ti != this->lower_table.end(); ti++)
-				ret.bytes += sizeof(algorithm_angluin::simple_row<answer, std::vector<answer> >) + sizeof(int) * ti->index.size();
-			// table fields
-			ret.bytes += sizeof(answer) * ret.members;
-
-			return ret;
-		}}}
-
-		virtual void receive_generic_statistics(generic_statistics & stat) const
+		virtual void generate_statistics(void)
 		{{{
 			int c, ut, lt, bytes;
 
@@ -1103,10 +1068,10 @@ class angluin_simple_table : public angluin_table<answer, std::list< algorithm_a
 			c = this->column_names.size();
 			ut = this->upper_table.size();
 			lt = this->lower_table.size();
-			stat["columns"] = c;
-			stat["upper_table"] = ut;
-			stat["lower_table"] = lt;
-			stat["words"] = c*(ut+lt);
+			this->statistics["columns"] = c;
+			this->statistics["upper_table"] = ut;
+			this->statistics["lower_table"] = lt;
+			this->statistics["words"] = c*(ut+lt);
 
 			// approx. memory usage:
 			bytes = sizeof(this);
@@ -1123,8 +1088,8 @@ class angluin_simple_table : public angluin_table<answer, std::list< algorithm_a
 			// table fields
 			bytes += sizeof(answer) * c * (ut+lt);
 
-			stat.set_integer_property("bytes", bytes);
-			stat["bytes"] = bytes;
+			this->statistics.set_integer_property("bytes", bytes);
+			this->statistics["bytes"] = bytes;
 		}}}
 
 		virtual bool deserialize(serial_stretch & serial)

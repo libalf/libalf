@@ -199,10 +199,10 @@ class RPNI : public learning_algorithm<answer> {
 		 */
 		virtual bool consistency_check(typename knowledgebase<answer>::equivalence_relation & equivalences, const std::set<typename equivalence_relation::nodeppair> & candidates)
 		{
-			typename std::set<equivalence_relation::nodeppair>::iterator ci;
+			typename std::set<typename equivalence_relation::nodeppair>::iterator ci;
 
 			for(ci = candidates.begin(); ci != candidates.end(); ci++)
-				equivalences.insert(std::pair<node*, node*>(ci->first, ci->second));
+				equivalences.insert(std::pair<typename equivalence_relation::node*, typename equivalence_relation::node*>(ci->first, ci->second));
 
 			return true;
 		}
@@ -232,13 +232,9 @@ class RPNI : public learning_algorithm<answer> {
 			this->set_alphabet_size(new_asize);
 		}}}
 
-		virtual memory_statistics get_memory_statistics() const
-		// get_memory_statistics() is obsolete and will be removed in the future.
-		// use receive_generic_statistics() instead.
-		{ memory_statistics ret; return ret; }
-
-		virtual void receive_generic_statistics(generic_statistics & stat) const
+		virtual void generate_statistics(void)
 		{
+			// FIXME
 			
 		}
 
@@ -488,19 +484,20 @@ class RPNI : public learning_algorithm<answer> {
 
 
 /* implementation of RPNI with extra consistency check in recursive merging of states */
-class RPNI_extended_consistencies : public RPNI
+template <class answer>
+class RPNI_extended_consistencies : public RPNI<answer>
 {
 public:
 	virtual bool do_extended_consistency_check(typename knowledgebase<answer>::equivalence_relation & equivalences) = 0;
 	// TODO: do your specific check here.
 
-	virtual bool consistency_check(typename knowledgebase<answer>::equivalence_relation & equivalences, const std::set<equivalence_relation::nodeppair> & candidates)
+	virtual bool consistency_check(typename knowledgebase<answer>::equivalence_relation & equivalences, const std::set<typename RPNI<answer>::equivalence_relation::nodeppair> & candidates)
 	{
-		typename std::set<equivalence_relation::nodeppair>::iterator ci;
+		typename std::set<typename RPNI<answer>::equivalence_relation::nodeppair>::iterator ci;
 		typename knowledgebase<answer>::equivalence_relation tmp_equivalences = equivalences;
 
 		for(ci = candidates.begin(); ci != candidates.end(); ci++)
-			tmp_equivalences.insert(std::pair<node*, node*>(ci->first, ci->second));
+			tmp_equivalences.insert(std::pair<typename RPNI<answer>::node*, typename RPNI<answer>::node*>(ci->first, ci->second));
 
 		if(do_extended_consistency_check(tmp_equivalences)) {
 			equivalences.swap(tmp_equivalences);
