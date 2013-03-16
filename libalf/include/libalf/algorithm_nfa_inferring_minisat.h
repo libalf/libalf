@@ -45,7 +45,7 @@
 #include "libalf/algorithm_automata_inferring.h"
 
 // MiniSat includes
-#include "libalf/minisat_Solver.h"
+#include "libalf/minisat/Solver.h"
 
 namespace libalf {
 

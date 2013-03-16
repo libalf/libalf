@@ -25,7 +25,8 @@ CPPFLAGS+=-D__cplusplus -DVERSION="\"${VERSION}\""
 #CPPFLAGS+=-fno-stack-protector
 LDFLAGS+=-shared -L${LIBDIR}
 
-OBJECTS=alf.o alphabet.o conjecture.o basic_string.o learning_algorithm.o logger.o minisat_solver.o normalizer_msc.o statistics.o
+MINISAT_OBJECTS=minisat/Solver.o
+OBJECTS=alf.o alphabet.o conjecture.o basic_string.o learning_algorithm.o logger.o normalizer_msc.o statistics.o ${MINISAT_OBJECTS}
 
 # Choose OS
 ifeq (${OS}, Windows_NT)

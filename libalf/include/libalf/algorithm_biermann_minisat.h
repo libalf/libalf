@@ -34,7 +34,7 @@
 
 #include <libalf/algorithm_biermann.h>
 
-#include <libalf/minisat_Solver.h>
+#include <libalf/minisat/Solver.h>
 
 namespace libalf {
 
