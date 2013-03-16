@@ -1,6 +1,5 @@
-/* $Id$
- * vim: fdm=marker
- *
+/* vim: fdm=syntax foldlevel=1 foldnestmax=2
+ * $Id$
  * This file is part of liblangen (LANguageGENerator)
  *
  * liblangen is free software: you can redistribute it and/or modify
@@ -38,13 +37,13 @@ using namespace std;
 using namespace liblangen::prng;
 
 nfa_randomgenerator::nfa_randomgenerator()
-{{{
+{
 	seed_prng();
-}}}
+}
 
 bool nfa_randomgenerator::generate(int alphabet_size, int state_count, int transitions_p_state, float p_initial, float p_final,
 	      bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, std::set<int> &t_initial, std::set<int> &t_final, map<int, map<int, set<int> > > &t_transitions)
-{{{
+{
 	float x;
 
 	t_initial.clear();
@@ -73,7 +72,7 @@ bool nfa_randomgenerator::generate(int alphabet_size, int state_count, int trans
 	t_state_count = state_count;
 
 	return true;
-}}}
+}
 
 }; // end of namespace liblangen
 

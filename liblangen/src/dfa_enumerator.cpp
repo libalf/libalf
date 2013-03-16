@@ -1,6 +1,5 @@
-/* $Id$
- * vim: fdm=marker
- *
+/* vim: fdm=syntax foldlevel=1 foldnestmax=2
+ * $Id$
  * This file is part of liblangen (LANguageGENerator)
  *
  * liblangen is free software: you can redistribute it and/or modify
@@ -35,7 +34,7 @@ namespace liblangen {
 using namespace std;
 
 dfa_enumerator::dfa_enumerator(int state_count, int alphabet_size)
-{{{
+{
 	transition tr;
 	int state;
 	int sigma;
@@ -69,10 +68,10 @@ dfa_enumerator::dfa_enumerator(int state_count, int alphabet_size)
 
 		final.push_back(false);
 	}
-}}}
+}
 
 bool dfa_enumerator::next(bool exact_state_count)
-{{{
+{
 	int i;
 	bool aborted = false;
 
@@ -139,10 +138,10 @@ check_reachable:
 				return false;
 	}
 	return true;
-}}}
+}
 
 bool dfa_enumerator::derive(bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, std::set<int> &t_initial, std::set<int> &t_final, map<int, map<int, set<int> > > &t_transitions)
-{{{
+{
 	unsigned int i;
 
 	t_initial.clear();
@@ -162,7 +161,7 @@ bool dfa_enumerator::derive(bool &t_is_dfa, int &t_alphabet_size, int &t_state_c
 	t_alphabet_size = alphabet_size;
 	t_state_count = state_count;
 	return true;
-}}}
+}
 
 }; // end of namespace liblangen
 

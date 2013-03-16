@@ -1,6 +1,5 @@
-/* $Id$
- * vim: fdm=marker
- *
+/* vim: fdm=syntax foldlevel=1 foldnestmax=2
+ * $Id$
  * This file is part of liblangen (LANguageGENerator)
  *
  * liblangen is free software: you can redistribute it and/or modify
@@ -29,9 +28,9 @@ using namespace std;
 static const char* liblangen_version_string = "liblangen version " VERSION;
 
 const char* liblangen_version()
-{{{
+{
 	return liblangen_version_string;
-}}}
+}
 
 
 }; // end of namespace liblangen;

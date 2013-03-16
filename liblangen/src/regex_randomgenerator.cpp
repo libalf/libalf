@@ -1,6 +1,5 @@
-/* $Id$
- * vim: fdm=marker
- *
+/* vim: fdm=syntax foldlevel=1 foldnestmax=2
+ * $Id$
  * This file is part of liblangen (LANguageGENerator)
  *
  * liblangen is free software: you can redistribute it and/or modify
@@ -38,12 +37,12 @@ using namespace std;
 using namespace prng;
 
 regex_randomgenerator::regex_randomgenerator()
-{{{
+{
 	seed_prng();
-}}}
+}
 
 string regex_randomgenerator::normalized_generate(int & alphabet_size, int num_op, float & p_concat, float & p_union, float & p_star)
-{{{
+{
 	if(num_op <= 0) {
 		// just return a terminal, i.e. an element from the alphabet
 		string s;
@@ -79,10 +78,10 @@ string regex_randomgenerator::normalized_generate(int & alphabet_size, int num_o
 	s = normalized_generate(alphabet_size, num_op-1, p_concat, p_union, p_star);
 
 	return "(" + s + ")*";
-}}}
+}
 
 string regex_randomgenerator::generate(int alphabet_size, int num_op, float p_concat, float p_union, float p_star)
-{{{
+{
 	float p_concat_norm;
 	float p_union_norm;
 	float p_star_norm;
@@ -98,7 +97,7 @@ string regex_randomgenerator::generate(int alphabet_size, int num_op, float p_co
 	p_star_norm = p_star / p_sum;
 
 	return normalized_generate(alphabet_size, num_op, p_concat_norm, p_union_norm, p_star_norm);
-}}}
+}
 
 }; // end of namespace liblangen
 

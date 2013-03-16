@@ -1,6 +1,5 @@
-/* $Id$
- * vim: fdm=marker
- *
+/* vim: fdm=syntax foldlevel=1 foldnestmax=2
+ * $Id$
  * This file is part of liblangen (LANguageGENerator)
  *
  * liblangen is free software: you can redistribute it and/or modify
@@ -51,7 +50,7 @@ int dfa_randomgenerator::table::get_m()
 { return m; }
 
 mpz_class & dfa_randomgenerator::table::getElement(mpz_class t, mpz_class p)
-{{{
+{
 	static mpz_class zero;
 	map<mpz_class, mpz_class>::iterator field;
 
@@ -70,25 +69,25 @@ mpz_class & dfa_randomgenerator::table::getElement(mpz_class t, mpz_class p)
 	}
 
 	return data[t][p];
-}}}
+}
 
 
 
 
 
 dfa_randomgenerator::dfa_randomgenerator()
-{{{
+{
 	seed_prng();
-}}}
+}
 
 dfa_randomgenerator::~dfa_randomgenerator()
-{{{
+{
 	discard_tables();
-}}}
+}
 
 mpz_class & dfa_randomgenerator::elementOfC(int m, mpz_class t, mpz_class p)
 // (where m is alphabet size)
-{{{
+{
 	if(m < 2) {
 		static mpz_class zero;
 		return zero;
@@ -103,10 +102,10 @@ mpz_class & dfa_randomgenerator::elementOfC(int m, mpz_class t, mpz_class p)
 
 	// return table element
 	return tables[m-1]->getElement(t,p);
-}}}
+}
 
 list<int> dfa_randomgenerator::randomElementOfK(int m, mpz_class t, mpz_class p)
-{{{
+{
 	list<int> ret;
 
 	if(m < 2)
@@ -143,20 +142,20 @@ list<int> dfa_randomgenerator::randomElementOfK(int m, mpz_class t, mpz_class p)
 			return ret;
 		}
 	}
-}}}
+}
 
 void dfa_randomgenerator::discard_tables()
-{{{
+{
 	while(!tables.empty()) {
 		table * t = tables.back();
 		tables.pop_back();
 		if(t)
 			delete t;
 	}
-}}}
+}
 
 bool dfa_randomgenerator::generate(int alphabet_size, int state_count, bool &t_is_dfa, int &t_alphabet_size, int &t_state_count, std::set<int> &t_initial, std::set<int> &t_final, map<int, map<int, set<int> > > &t_transitions)
-{{{
+{
 	t_initial.clear();
 	t_final.clear();
 	t_transitions.clear();
@@ -239,7 +238,7 @@ bool dfa_randomgenerator::generate(int alphabet_size, int state_count, bool &t_i
 	t_state_count = state_count;
 
 	return true;
-}}}
+}
 
 
 }; // end of namespace liblangen

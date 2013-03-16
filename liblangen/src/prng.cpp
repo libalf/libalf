@@ -1,6 +1,5 @@
-/* $Id$
- * vim: fdm=marker
- *
+/* vim: fdm=syntax foldlevel=1 foldnestmax=2
+ * $Id$
  * This file is part of liblangen (LANguageGENerator)
  *
  * liblangen is free software: you can redistribute it and/or modify
@@ -43,7 +42,7 @@ namespace liblangen {
 namespace prng {
 
 	bool seed_prng()
-	{{{
+	{
 		if(!seeded) {
 			// seed PRNG: init GMP random number generator state
 			unsigned long int gmp_seed;
@@ -71,37 +70,37 @@ namespace prng {
 			seeded = true;
 		}
 		return true;
-	}}}
+	}
 
 	int random_int(int limit)
 	// will return a random integer in [0,limit)
-	{{{
+	{
 		float t = RAND_MAX;
 		while(t == RAND_MAX)
 			t = rand();
 		t /= RAND_MAX;
 		t *= limit;
 		return (int)t;
-	}}}
+	}
 
 	float random_float()
 	// will return a random float [0,1)
-	{{{
+	{
 		float r = rand();
 		r /= ((float)RAND_MAX)+1;
 		return r;
-	}}}
+	}
 
 	float random_float1()
 	// will return a random float [0,1]
-	{{{
+	{
 		return ((float)rand()) / ((float)RAND_MAX);
-	}}}
+	}
 
 	void random_mpz_class(mpz_class & into, mpz_class & limit)
-	{{{
+	{
 		mpz_urandomm(into.get_mpz_t(), grstate, limit.get_mpz_t());
-	}}}
+	}
 
 }; // end of namespace prng;
 }; // end of namespace liblangen;
