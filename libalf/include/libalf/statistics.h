@@ -152,7 +152,7 @@ class timing_statistics {
 		void reset();
 		std::basic_string<int32_t> serialize() const;
 		bool deserialize(serial_stretch & serial);
-};
+} __attribute__((deprecated));
 
 class query_statistics {
 	public:	// data
@@ -164,7 +164,7 @@ class query_statistics {
 		void reset();
 		std::basic_string<int32_t> serialize();
 		bool deserialize(std::basic_string<int32_t>::const_iterator & it, std::basic_string<int32_t>::const_iterator limit);
-};
+} __attribute__((deprecated));
 
 class memory_statistics {
 	public:	// data
@@ -179,7 +179,7 @@ class memory_statistics {
 		void reset();
 		std::basic_string<int32_t> serialize();
 		bool deserialize(std::basic_string<int32_t>::const_iterator & it, std::basic_string<int32_t>::const_iterator limit);
-};
+} __attribute__((deprecated));
 
 class statistics {
 	public: // data
@@ -191,7 +191,7 @@ class statistics {
 		void reset();
 		std::basic_string<int32_t> serialize();
 		bool deserialize(std::basic_string<int32_t>::const_iterator & it, std::basic_string<int32_t>::const_iterator limit);
-};
+} __attribute__((deprecated));
 
 }; // end namespace libalf
 

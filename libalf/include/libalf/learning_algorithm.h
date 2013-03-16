@@ -187,13 +187,15 @@ class learning_algorithm {
 			norm = NULL;
 		}}}
 
-		virtual memory_statistics get_memory_statistics() const = 0;
 		virtual void receive_generic_statistics(generic_statistics & stat) const = 0;
 
-		virtual timing_statistics get_timing_statistics() const
+		virtual memory_statistics get_memory_statistics() const __attribute__((deprecated)) = 0;
+
+		virtual timing_statistics get_timing_statistics() const __attribute__((deprecated))
 		{{{
 			return current_stats;
-		}}}
+		}}} __attribute__((deprecated));
+
 		virtual void enable_timing()
 		{{{
 			do_timing = true;
