@@ -1,6 +1,5 @@
-/* $Id$
- * vim: fdm=marker
- *
+/* vim: fdm=syntax foldlevel=1 foldnestmax=2
+ * $Id$
  * This file is part of libmVCA.
  *
  * libmVCA is free software: you can redistribute it and/or modify
@@ -42,16 +41,16 @@ using namespace std;
 // INTERFACE
 
 void transition_function::endo_transmute(set<int> & states,int sigma) const
-{{{
+{
 	set<int> s;
 	s = this->transmute(states, sigma);
 	states.swap(s); // swap is O(1)
-}}}
+}
 
 // DETERMINISTIC
 
 set<int> deterministic_transition_function::transmute(const set<int> & states, int sigma) const
-{{{
+{
 	set<int>::const_iterator si;
 	set<int> dst;
 	map<int, map<int, int> >::const_iterator statei;
@@ -69,9 +68,9 @@ set<int> deterministic_transition_function::transmute(const set<int> & states, i
 	}
 
 	return dst;
-}}}
+}
 set<int> deterministic_transition_function::transmute(int state, int sigma) const
-{{{
+{
 	set<int> dst;
 	map<int, map<int, int> >::const_iterator statei;
 	map<int, int>::const_iterator labeli;
@@ -86,20 +85,20 @@ set<int> deterministic_transition_function::transmute(int state, int sigma) cons
 	//dst.insert(this->transitions[state][sigma]);
 
 	return dst;
-}}}
+}
 
 basic_string<int32_t> deterministic_transition_function::serialize() const
-{{{
+{
 	return ::serialize(transitions);
-}}}
+}
 bool deterministic_transition_function::deserialize(::serial_stretch serial)
-{{{
+{
 	return ::deserialize(transitions, serial);
-}}}
+}
 bool deterministic_transition_function::is_deterministic() const
 { return true; };
 string deterministic_transition_function::get_transition_dotfile(int m, int m_bound) const
-{{{
+{
 	string ret;
 	char buf[128];
 	map<int, map<int, int> >::const_iterator mmi;
@@ -115,12 +114,12 @@ string deterministic_transition_function::get_transition_dotfile(int m, int m_bo
 		}
 	}
 	return ret;
-}}}
+}
 
 // NONDETERMINISTIC
 
 set<int> nondeterministic_transition_function::transmute(const set<int> & states, int sigma) const
-{{{
+{
 	set<int>::const_iterator si;
 	set<int> dst;
 
@@ -136,9 +135,9 @@ set<int> nondeterministic_transition_function::transmute(const set<int> & states
 	}
 
 	return dst;
-}}}
+}
 set<int> nondeterministic_transition_function::transmute(int state, int sigma) const
-{{{
+{
 	set<int> dst;
 
 	const_iterator i;
@@ -151,20 +150,20 @@ set<int> nondeterministic_transition_function::transmute(int state, int sigma) c
 	}
 
 	return dst;
-}}}
+}
 
 basic_string<int32_t> nondeterministic_transition_function::serialize() const
-{{{
+{
 	return ::serialize(transitions);
-}}}
+}
 bool nondeterministic_transition_function::deserialize(::serial_stretch serial)
-{{{
+{
 	return ::deserialize(transitions, serial);
-}}}
+}
 bool nondeterministic_transition_function::is_deterministic() const
 { return false; }; // TODO: check on the fly
 string nondeterministic_transition_function::get_transition_dotfile(int m, int m_bound) const
-{{{
+{
 	string ret;
 	char buf[128];
 	map<int, map<int, set<int> > >::const_iterator mmsi;
@@ -183,7 +182,7 @@ string nondeterministic_transition_function::get_transition_dotfile(int m, int m
 		}
 	}
 	return ret;
-}}}
+}
 
 } // end of namespace libmVCA
 

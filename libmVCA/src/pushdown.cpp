@@ -1,6 +1,5 @@
-/* $Id$
- * vim: fdm=marker
- *
+/* vim: fdm=syntax foldlevel=1 foldnestmax=2
+ * $Id$
  * This file is part of libmVCA.
  *
  * libmVCA is free software: you can redistribute it and/or modify
@@ -47,36 +46,36 @@ pushdown_alphabet::~pushdown_alphabet()
 { /* nothing */ };
 
 void pushdown_alphabet::set_alphabet_size(int alphabet_size)
-{{{
+{
 	if(alphabet_size < 0)
 		alphabet_size = 0;
 	directions.resize(alphabet_size, DIR_STAY);
 	this->alphabet_size = alphabet_size;
-}}}
+}
 
 int pushdown_alphabet::get_alphabet_size() const
 { return this->alphabet_size; };
 
 enum pushdown_direction pushdown_alphabet::get_direction(int sigma) const
-{{{
+{
 	if(sigma >= 0 && sigma < alphabet_size)
 		return directions[sigma];
 	else
 		return DIR_INDEFINITE;
-}}}
+}
 
 bool pushdown_alphabet::set_direction(int sigma, enum pushdown_direction direction)
-{{{
+{
 	if(sigma >= 0 && sigma < alphabet_size && (direction == DIR_UP || direction == DIR_STAY || direction == DIR_DOWN)) {
 		directions[sigma] = direction;
 		return true;
 	} else {
 		return false;
 	}
-}}}
+}
 
 int pushdown_alphabet::prefix_countervalue(list<int>::const_iterator word, list<int>::const_iterator limit, int initial_countervalue) const
-{{{
+{
 	for(/* nothing */; word != limit; ++word) {
 		enum pushdown_direction d = get_direction(*word);
 		if(d != DIR_INDEFINITE) {
@@ -89,25 +88,25 @@ int pushdown_alphabet::prefix_countervalue(list<int>::const_iterator word, list<
 		}
 	}
 	return initial_countervalue;
-}}}
+}
 
 std::basic_string<int32_t> pushdown_alphabet::serialize() const
-{{{
+{
 	return ::serialize(alphabet_size) + ::serialize(directions);
-}}}
+}
 
 bool pushdown_alphabet::deserialize(::serial_stretch serial)
-{{{
+{
 	clear();
 
 	if(!::deserialize(alphabet_size, serial)) return false;
 	if(!::deserialize(directions, serial)) return false;
 
 	return true;
-}}}
+}
 
 string pushdown_alphabet::to_string() const
-{{{
+{
 	string ret;
 	char buf[128];
 
@@ -121,7 +120,7 @@ string pushdown_alphabet::to_string() const
 	ret += "\n";
 
 	return ret;
-}}}
+}
 
 } // end of namespace libmVCA
 

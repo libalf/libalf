@@ -45,12 +45,12 @@ enum pushdown_direction {
 };
 
 inline bool deserialize(enum pushdown_direction & into, serial_stretch & serial)
-{{{
+{
 	if(serial.empty()) return false;
 	into = (enum pushdown_direction)ntohl(*serial);
 	serial.current++;
 	return true;
-}}}
+}
 
 class pushdown_alphabet {
 	private:

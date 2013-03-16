@@ -1,6 +1,5 @@
-/* $Id$
- * vim: fdm=marker
- *
+/* vim: fdm=syntax foldlevel=1 foldnestmax=2
+ * $Id$
  * This file is part of libmVCA.
  *
  * libmVCA is free software: you can redistribute it and/or modify
@@ -44,7 +43,7 @@ nondeterministic_mVCA::~nondeterministic_mVCA()
 { };
 
 set<int> nondeterministic_mVCA::transition(const set<int> & from, int & m, int label) const
-{{{
+{
 	enum pushdown_direction dir;
 	set<int> ret;
 
@@ -61,10 +60,10 @@ set<int> nondeterministic_mVCA::transition(const set<int> & from, int & m, int l
 	}
 
 	return ret;
-}}}
+}
 
 bool nondeterministic_mVCA::endo_transition(set<int> & states, int & m, int label) const
-{{{
+{
 	enum pushdown_direction dir;
 
 	dir = this->alphabet.get_direction(label);
@@ -84,20 +83,20 @@ bool nondeterministic_mVCA::endo_transition(set<int> & states, int & m, int labe
 		m = -1;
 		return false;
 	}
-}}}
+}
 
 basic_string<int32_t> nondeterministic_mVCA::serialize_derivate() const
-{{{
+{
 	return ::serialize(transition_function);
-}}}
+}
 
 bool nondeterministic_mVCA::deserialize_derivate(serial_stretch & serial)
-{{{
+{
 	return ::deserialize(transition_function, serial);
-}}}
+}
 
 void nondeterministic_mVCA::get_transition_map(map<int, map<int, map<int, set<int> > > > & postmap) const
-{{{
+{
 	// create mappings with:
 	// map[m][current_state][label] = { successor-states }
 
@@ -108,10 +107,10 @@ void nondeterministic_mVCA::get_transition_map(map<int, map<int, map<int, set<in
 
 	for(tri = transition_function.begin(); tri != transition_function.end(); ++tri)
 		postmap[tri->first] = tri->second.transitions;
-}}}
+}
 
 string nondeterministic_mVCA::get_transition_dotfile() const
-{{{
+{
 	string ret;
 
 	const_iterator tri;
@@ -119,7 +118,7 @@ string nondeterministic_mVCA::get_transition_dotfile() const
 		ret += tri->second.get_transition_dotfile(tri->first, this->m_bound);
 
 	return ret;
-}}}
+}
 
 void nondeterministic_mVCA::add_transition(int m, int src, int label, int dst)
 { transition_function[m].transitions[src][label].insert(dst); }

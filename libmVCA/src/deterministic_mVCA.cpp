@@ -1,6 +1,5 @@
-/* $Id$
- * vim: fdm=marker
- *
+/* vim: fdm=syntax foldlevel=1 foldnestmax=2
+ * $Id$
  * This file is part of libmVCA.
  *
  * libmVCA is free software: you can redistribute it and/or modify
@@ -43,7 +42,7 @@ deterministic_mVCA::~deterministic_mVCA()
 { };
 
 set<int> deterministic_mVCA::transition(const set<int> & from, int & m, int label) const
-{{{
+{
 	enum pushdown_direction dir;
 	set<int> ret;
 
@@ -60,10 +59,10 @@ set<int> deterministic_mVCA::transition(const set<int> & from, int & m, int labe
 	}
 
 	return ret;
-}}}
+}
 
 bool deterministic_mVCA::endo_transition(set<int> & states, int & m, int label) const
-{{{
+{
 	enum pushdown_direction dir;
 
 	dir = this->alphabet.get_direction(label);
@@ -82,20 +81,20 @@ bool deterministic_mVCA::endo_transition(set<int> & states, int & m, int label) 
 		m = -1;
 		return false;
 	}
-}}}
+}
 
 basic_string<int32_t> deterministic_mVCA::serialize_derivate() const
-{{{
+{
 	return ::serialize(transition_function);
-}}}
+}
 
 bool deterministic_mVCA::deserialize_derivate(serial_stretch & serial)
-{{{
+{
 	return ::deserialize(transition_function, serial);
-}}}
+}
 
 void deterministic_mVCA::get_transition_map(map<int, map<int, map<int, set<int> > > > & postmap) const
-{{{
+{
 	// create mappings with:
 	// map[m][current_state][label] = { successor-states }
 	postmap.clear();
@@ -108,10 +107,10 @@ void deterministic_mVCA::get_transition_map(map<int, map<int, map<int, set<int> 
 		for(tfii = tfi->second.transitions.begin(); tfii != tfi->second.transitions.end(); ++tfii) // current_state
 			for(tfiii = tfii->second.begin(); tfiii != tfii->second.end(); ++tfiii) // label
 				postmap[tfi->first][tfii->first][tfiii->first].insert(tfiii->second);
-}}}
+}
 
 string deterministic_mVCA::get_transition_dotfile() const
-{{{
+{
 	string ret;
 
 	const_iterator tri;
@@ -119,7 +118,7 @@ string deterministic_mVCA::get_transition_dotfile() const
 		ret += tri->second.get_transition_dotfile(tri->first, this->m_bound);
 
 	return ret;
-}}}
+}
 
 void deterministic_mVCA::add_transition(int m, int src, int label, int dst)
 { transition_function[m].transitions[src][label] = dst; }

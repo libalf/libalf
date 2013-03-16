@@ -1,6 +1,5 @@
-/* $Id$
- * vim: fdm=marker
- *
+/* vim: fdm=syntax foldlevel=1 foldnestmax=2
+ * $Id$
  * This file is part of libmVCA.
  *
  * libmVCA is free software: you can redistribute it and/or modify
@@ -38,15 +37,15 @@ using namespace std;
 
 // local helper functions
 static inline list<int> operator+(list<int> prefix, list<int> suffix)
-{{{
+{
 	list<int> ret;
 	ret = prefix;
 	for(list<int>::iterator wi = suffix.begin(); wi != suffix.end(); ++wi)
 		ret.push_back(*wi);
 	return ret;
-}}}
+}
 static inline string word2string(list<int> word, char separator = '.')
-{{{
+{
 	string ret;
 	char buf[32];
 
@@ -59,7 +58,7 @@ static inline string word2string(list<int> word, char separator = '.')
 	}
 
 	return ret;
-}}}
+}
 
 
 
@@ -75,16 +74,16 @@ bool operator>(const pa_transition_target first, const pa_transition_target seco
 
 
 p_automaton::p_automaton()
-{{{
+{
 	clear();
-}}}
+}
 p_automaton::p_automaton(const mVCA * base_automaton)
-{{{
+{
 	clear();
 	initialize(base_automaton);
-}}}
+}
 void p_automaton::clear()
-{{{
+{
 	valid = false;
 	saturated = false;
 	added_configurations.clear();
@@ -95,10 +94,10 @@ void p_automaton::clear()
 	highest_initial_state = -1;
 	final.clear();
 	transitions.clear();
-}}}
+}
 
 bool p_automaton::initialize(const mVCA * base_automaton)
-{{{
+{
 	clear();
 
 	if(NULL == base_automaton)
@@ -116,10 +115,10 @@ bool p_automaton::initialize(const mVCA * base_automaton)
 	saturated = false;
 
 	return true;
-}}}
+}
 
 bool p_automaton::add_accepting_configuration(int state, int m)
-{{{
+{
 	if(!valid)
 		return false;
 
@@ -157,11 +156,11 @@ bool p_automaton::add_accepting_configuration(int state, int m)
 	saturated = false;
 
 	return true;
-}}}
+}
 
 static inline list<int> get_next_stack_top(int topmost_symbol, int m_bound, enum pushdown_direction dir)
 // given the topmost PDS config symbol from_m and a direction, calculate the successor configuration.
-{{{
+{
 	list<int> ret;
 
 	int next_m;
@@ -196,10 +195,10 @@ static inline list<int> get_next_stack_top(int topmost_symbol, int m_bound, enum
 	}
 
 	return ret;
-}}}
+}
 
 bool p_automaton::saturate_preSTAR()
-{{{
+{
 	if(!valid)
 		return false;
 
@@ -283,10 +282,10 @@ bool p_automaton::saturate_preSTAR()
 	}
 
 	return true;
-}}}
+}
 
 list<int> p_automaton::get_shortest_valid_mVCA_run(int state, int m, bool & reachable) const
-{{{
+{
 	list<int> ret;
 
 	reachable = false;
@@ -313,10 +312,10 @@ list<int> p_automaton::get_shortest_valid_mVCA_run(int state, int m, bool & reac
 	}
 
 	return ret;
-}}}
+}
 
 string p_automaton::visualize() const
-{{{
+{
 	string ret;
 	char buf[128];
 	set<int>::iterator si;
@@ -394,7 +393,7 @@ string p_automaton::visualize() const
 	ret += "};\n"; // footer
 
 	return ret;
-}}}
+}
 
 
 
@@ -402,16 +401,16 @@ string p_automaton::visualize() const
 
 
 int p_automaton::new_state()
-{{{
+{
 	int n = state_count;
 	++state_count;
 	return n;
-}}}
+}
 list<int> p_automaton::get_config(int state, int m) const
 // calculates a PDS configuration for given <state, m>.
 // the result is a list<int> where ret.front() is the state and
 // the rest of the list is the PDS stack (front is top).
-{{{
+{
 	list<int> config;
 
 	if(state < 0 || state >= base_automaton->get_state_count())
@@ -432,26 +431,26 @@ list<int> p_automaton::get_config(int state, int m) const
 	config.push_back(0); // stack-bottom-symbol
 
 	return config;
-}}}
+}
 bool p_automaton::transition_exists(int from_state, int label, int to_state)
-{{{
+{
 	set<pa_transition_target>::const_iterator tri;
 	for(tri = transitions[from_state][label].begin(); tri != transitions[from_state][label].end(); ++tri)
 		if(tri->dst == to_state)
 			return true;
 	return false;
-}}}
+}
 set<int> p_automaton::run_transition(int from_state, int label)
-{{{
+{
 	set<int> ret;
 	set<pa_transition_target>::iterator tri;
 	for(tri = transitions[from_state][label].begin(); tri != transitions[from_state][label].end(); ++tri)
 		ret.insert(tri->dst);
 	return ret;
-}}}
+}
 
 set< pair<int, list<int> > > p_automaton::run_transition_accumulate(int from_state, int label, list<int> current_mVCA_run) const
-{{{
+{
 	set< pair<int, list<int> > > ret;
 
 	map<int, map<int, set<pa_transition_target> > >::const_iterator mmsi;
@@ -468,9 +467,9 @@ set< pair<int, list<int> > > p_automaton::run_transition_accumulate(int from_sta
 	}
 
 	return ret;
-}}}
+}
 set< pair<int, list<int> > > p_automaton::run_transition_accumulate(int from_state, list<int> word) const
-{{{
+{
 	list<int>::iterator wi;
 
 	map<int, list<int> > current;
@@ -505,7 +504,7 @@ set< pair<int, list<int> > > p_automaton::run_transition_accumulate(int from_sta
 		ret.insert(*ci);
 
 	return ret;
-}}}
+}
 
 
 }; // end  of namespace libmVCA
