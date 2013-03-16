@@ -189,10 +189,9 @@ int main()
 //	print_basic_string_2hl(ser, cout);
 //	cout << " }\n\n";
 
-	generic_statistics stat;
-	table.receive_generic_statistics(stat);
+	generic_statistics statistics = table.get_statistics();
 	cout << "statistics:\n\t";
-	stat.print(cout);
+	statistics.print(cout);
 	cout << "\n";
 
 	return 0;

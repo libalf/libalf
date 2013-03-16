@@ -1068,10 +1068,10 @@ class angluin_simple_table : public angluin_table<answer, std::list< algorithm_a
 			c = this->column_names.size();
 			ut = this->upper_table.size();
 			lt = this->lower_table.size();
-			this->statistics["columns"] = c;
-			this->statistics["upper_table"] = ut;
-			this->statistics["lower_table"] = lt;
-			this->statistics["words"] = c*(ut+lt);
+			this->statistics["size.table.columns"] = c;
+			this->statistics["size.table.upper_rows"] = ut;
+			this->statistics["size.table.lower_rows"] = lt;
+			this->statistics["size.known_words"] = c*(ut+lt);
 
 			// approx. memory usage:
 			bytes = sizeof(this);
@@ -1088,8 +1088,7 @@ class angluin_simple_table : public angluin_table<answer, std::list< algorithm_a
 			// table fields
 			bytes += sizeof(answer) * c * (ut+lt);
 
-			this->statistics.set_integer_property("bytes", bytes);
-			this->statistics["bytes"] = bytes;
+			this->statistics["memory.bytes"] = bytes;
 		}}}
 
 		virtual bool deserialize(serial_stretch & serial)

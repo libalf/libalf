@@ -198,8 +198,6 @@ class learning_algorithm {
 		virtual void generate_statistics(void)
 		{ };
 
-		virtual void receive_generic_statistics(generic_statistics & stat) const __attribute__((deprecated))
-		{ };
 		virtual memory_statistics get_memory_statistics(void) const __attribute__((deprecated))
 		{ };
 		virtual timing_statistics get_timing_statistics(void) const __attribute__((deprecated))

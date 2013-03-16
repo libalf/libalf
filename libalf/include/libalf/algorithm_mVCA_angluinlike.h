@@ -1095,10 +1095,10 @@ class mVCA_angluinlike : public learning_algorithm<answer> {
 				bytes += table.get_dynamic_memory_consumption();
 				words = table.count_words();
 
-				this->statistics["words"] = words;
-				this->statistics["bytes"] = bytes;
-				this->statistics["table bound"] = (int)table.size() - 1;
-				this->statistics["known equivalence bound"] = known_equivalence_bound;
+				this->statistics["table_bound"] = (int)table.size() - 1;
+				this->statistics["known_equivalence_bound"] = known_equivalence_bound;
+				this->statistics["size.table.words"] = words;
+				this->statistics["memory.bytes"] = bytes;
 			}
 		}}}
 

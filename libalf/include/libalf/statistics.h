@@ -52,7 +52,9 @@ enum statistic_type {
 
 extern const char * statistic_typenames[];
 
-class statistic_data_bad_typecast_e : public std::exception {
+/** exception that will be thrown if a statistic_data is casted to the wrong type */
+class statistic_data_bad_typecast_e : public std::exception
+{
 	private:
 		char buf[128];
 	public:
@@ -60,7 +62,12 @@ class statistic_data_bad_typecast_e : public std::exception {
 		virtual const char * what() const throw();
 };
 
-class statistic_data {
+/** generic data type
+ *
+ *  this can be one of int, double, bool or string, depending on what is assigned to it.
+ */
+class statistic_data
+{
 	private:
 		enum statistic_type type;
 
@@ -112,7 +119,22 @@ inline std::basic_string<int32_t> serialize(const statistic_data & s)		{ return 
 inline bool deserialize(statistic_data & into, serial_stretch & serial)		{ return into.deserialize(serial); };
 
 
-class generic_statistics : public std::map<std::string, statistic_data> {
+/** anymap-style statistic collection
+ *
+ *  collection of statistic data that is indexed by name.
+ *
+ *  convention for names: (optional, but a good idea)
+ *	- avoid abbreviations
+ *	- avoid spaces
+ *	- stick to lower case
+ *	- use period ``.'' to impose tree-structure
+ *	- basic tree-branches:
+ *	   `time'		used for processor time resource consumed e.g. by algorithm
+ *	   `memory'		used for memory resource consumed
+ *	   `size'		size-specific entries (e.g. table-size, knowledge size)
+ */
+class generic_statistics : public std::map<std::string, statistic_data>
+{
 	public: // types
 		typedef std::map<std::string, statistic_data>::iterator iterator;
 		typedef std::map<std::string, statistic_data>::const_iterator const_iterator;

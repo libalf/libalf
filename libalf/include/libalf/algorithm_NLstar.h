@@ -226,10 +226,10 @@ fail:
 			ut = upper_table.size();
 			lt = lower_table.size();
 
-			this->statistics["columns"] = c;
-			this->statistics["upper_table"] = ut;
-			this->statistics["lower_table"] = lt;
-			this->statistics["words"] = c*(ut+lt);
+			this->statistics["size.table.columns"] = c;
+			this->statistics["size.table.upper_rows"] = ut;
+			this->statistics["size.table.lower_rows"] = lt;
+			this->statistics["size.known_words"] = c*(ut+lt);
 
 			bytes = sizeof(*this);
 			for(ci = column_names.begin(); ci != column_names.end(); ci++)
@@ -239,7 +239,7 @@ fail:
 			for(ti = lower_table.begin(); ti != lower_table.end(); ti++)
 				bytes += ti->memory_usage();
 
-			this->statistics["bytes"] = bytes;
+			this->statistics["memory.bytes"] = bytes;
 		}}}
 
 		virtual bool sync_to_knowledgebase()

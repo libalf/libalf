@@ -193,7 +193,7 @@ class counterexample_learning : public learning_algorithm<bool> {
 	 * That might change in the future.
 	 */
 	public:
-	 
+
 	virtual enum learning_algorithm_type get_type() const
 	{ return ALG_BIERMANN_ORIGINAL; };
 
@@ -202,18 +202,6 @@ class counterexample_learning : public learning_algorithm<bool> {
 
 		void increase_alphabet_size(int new_alphabet_size) {
 		this->alphabet_size = new_alphabet_size;
-	}
-
-	memory_statistics get_memory_statistics() const {
-		// get_memory_statistics() is obsolete and will be removed in the future.
-		// use receive_generic_statistics() instead.
-		memory_statistics ret;
-		return ret;
-	}
-
-	// Not implemented
-	virtual void receive_generic_statistics(generic_statistics __attribute__ ((__unused__)) & stat) const {
-		(*this->my_logger)(LOGGER_WARN, "This feature is not implemented.\n");
 	}
 
 	// Not implemented

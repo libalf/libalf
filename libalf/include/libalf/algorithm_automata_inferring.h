@@ -417,18 +417,6 @@ class automata_inferring : public learning_algorithm<answer> {
 		this->alphabet_size = new_alphabet_size;
 	}
 
-	memory_statistics get_memory_statistics() const {
-		// get_memory_statistics() is obsolete and will be removed in the future.
-		// use receive_generic_statistics() instead.
-		memory_statistics ret;
-		return ret;
-	}
-
-	// Not implemented
-	virtual void receive_generic_statistics(generic_statistics __attribute__ ((__unused__)) & stat) const {
-		(*this->my_logger)(LOGGER_WARN, "This feature is not implemented.\n");
-	}
-
 	// Not implemented
 	bool sync_to_knowledgebase() {
 		(*this->my_logger)(LOGGER_WARN, "This feature is not implemented.\n");
