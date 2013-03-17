@@ -199,7 +199,7 @@ class learning_algorithm {
 		{ };
 
 		virtual memory_statistics get_memory_statistics(void) const __attribute__((deprecated))
-		{ };
+		{ /* STUB */ memory_statistics blank; return blank; };
 		virtual timing_statistics get_timing_statistics(void) const __attribute__((deprecated))
 		{ /* STUB! */ timing_statistics blank; return blank; };
 
