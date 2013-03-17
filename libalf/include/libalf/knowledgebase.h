@@ -55,37 +55,43 @@ namespace libalf {
 
 #include <libalf/serialize.h>
 
-// the knowledgebase holds membership information about a language
-// (or samples for offline-algorithms). to obtain information about a
-// word w, use kb::resolve_query(). if the requested information is not
-// known, false will be returned. if you wish it to be marked as to be
-// acquired (status==NODE_REQUIRED), use kb::resolve_or_add_query().
-//
-// all membership information can be iterated via kb::begin() .. kb::end().
-// all queries via kb::qbegin() .. kb::qend(). the iterators resolve to a
-// kb::node. each node represents a word kb::nodekb::get_word().
-//
-// all nodes are arranged in a single tree-like structure, with kb::root
-// representing epsilon. you can use kb::nodekb::parent() or
-// kb::nodekb::find_child() to find all prefixes of w or all words prefixed
-// by w. if kb::nodekb::find_child() returns NULL, the concat is not yet
-// contained in the tree. using find_or_create_child() solves this by
-// adding a new node marked kb::nodekb::status==NODE_IGNORE and returning
-// it. for this task, you can also use kb::add_knowledge().
-//
-// kb::create_query_tree() creates a new knowledgebase containing only the
-// queries.
-//
-// kb::merge_knowledgebase() merges membership information (no queries)
-// from another knowledgebase into this (e.g. an answered query tree
-// created before)
-
 namespace libalf {
 
+/** Knowledgebase - collection of all known language information
+ *
+ *  the knowledgebase holds membership information about a language
+ *  (or samples for offline-algorithms). to obtain information about a
+ *  word w, use kb::resolve_query(). if the requested information is not
+ *  known, false will be returned. if you wish it to be marked as to be
+ *  acquired (status==NODE_REQUIRED), use kb::resolve_or_add_query().
+ *
+ *  all membership information can be iterated via kb::begin() .. kb::end().
+ *  all queries via kb::qbegin() .. kb::qend(). the iterators resolve to a
+ *  kb::node. each node represents a word kb::nodekb::get_word().
+ *
+ *  all nodes are arranged in a single tree-like structure, with kb::root
+ *  representing epsilon. you can use kb::nodekb::parent() or
+ *  kb::nodekb::find_child() to find all prefixes of w or all words prefixed
+ *  by w. if kb::nodekb::find_child() returns NULL, the concat is not yet
+ *  contained in the tree. using find_or_create_child() solves this by
+ *  adding a new node marked kb::nodekb::status==NODE_IGNORE and returning
+ *  it. for this task, you can also use kb::add_knowledge().
+ *
+ *  kb::create_query_tree() creates a new knowledgebase containing only the
+ *  queries.
+ *
+ *  kb::merge_knowledgebase() merges membership information (no queries)
+ *  from another knowledgebase into this (e.g. an answered query tree
+ *  created before)
+ */
 template <class answer>
-class knowledgebase {
+class knowledgebase
+{
 	public: // types
-		class node {
+
+		/** single node in knowledgebase tree */
+		class node
+		{
 			friend class knowledgebase<answer>;
 			friend class knowledgebase<answer>::iterator;
 			public: // types
@@ -503,42 +509,42 @@ class knowledgebase {
 
 		}; // end of knowledgebase::node
 
-		// for efficient node* containers like map and multimap, a
-		// comparator object is required.
+		/** comparator for efficient node* containers */
 		class node_comparator {
 			public:
 				bool operator() (node * a, node * b) const
 				{ return a < b; };
 		};
 
-		// definition of an equivalence relation over nodes in this
-		// knowledgebase. you can use
-		// knowledgebase::equivalence_relation2automaton to construct
-		// a modulo-automaton from this.
-		//
-		// NOTE: YOU have to take care that this is a true eq.
-		// relation, i.e. if you create and maintain it, you have to
-		// take care, that the following is fulfilled:
-		//
-		//	1) reflexivity:		a ~ a
-		//
-		//	2) symmetry:		a ~ b <=> b ~ a
-		//
-		//	3) transitivity:	a ~ b && b ~ c => a ~ c
-		//
-		// nothing (not even #1) is done automatically for you. but
-		// all of these rules are required to be fulfilled. otherwise,
-		// the functions given here may not work as expected.
-		//
-		// FIXME: define:
-		//	template <order>
-		//	class equivalence_class : public std::set<node*>;
-		//	here overload operator[] to give &representative
-		//
-		//	template <order>
-		//	class equivalence_relation : public std::set<equivalence_class<order> >;
-		//	here overlode operator[] to give &equivalence_class.
-		class equivalence_relation : public std::multimap<node*, node*, node_comparator> {
+		/** structure to define equivalence relation over words in a knowledgebase
+		 *
+		 *  you can use knowledgebase::equivalence_relation2automaton
+		 *  to construct a modulo-automaton from this.
+		 *
+		 *  NOTE: YOU have to take care that this is a true equivalence relation,
+		 *  i.e. if you create and maintain it, you have to take care that
+		 *  the following is fulfilled:
+		 *
+		 *	1) reflexivity:		a ~ a
+		 *
+		 *	2) symmetry:		a ~ b <=> b ~ a
+		 *
+		 *	3) transitivity:	a ~ b && b ~ c => a ~ c
+		 *
+		 *  none of these are done automatically for you,  but all of them are
+		 *  required for the member functions to work as expected!
+		 *
+		 *  FIXME: define:
+		 *	template <order>
+		 *	class equivalence_class : public std::set<node*>;
+		 *	here overload operator[] to give &representative
+		 *
+		 *	template <order>
+		 *	class equivalence_relation : public std::set<equivalence_class<order> >;
+		 *	here overlode operator[] to give &equivalence_class.
+		 */
+		class equivalence_relation : public std::multimap<node*, node*, node_comparator>
+		{
 			public: // types
 				typedef typename std::multimap<node*, node*, node_comparator>::iterator iterator;
 				typedef std::pair<iterator, iterator> range;
@@ -769,10 +775,11 @@ class knowledgebase {
 				}}}
 		}; // end of knowledgebase::equivalence_relation
 
-	/*
-	 * future replacement of equivalence_relation:
-	 *
-		class eq_class : public std::set<int> {
+		/** possible future replacement for equivalence_relation:
+		 *
+
+		class equivalence_class : public std::set<int>
+		{
 			public: // types
 				typedef typename std::set<node*>::iterator iterator;
 				typedef typename std::set<node*>::const_iterator const_iterator;
@@ -801,7 +808,8 @@ class knowledgebase {
 				}}}
 		};
 
-		class eq_relation : public std::set<eq_class> {
+		class equivalence_relation : public std::set<eq_class>
+		{
 			public: // types
 				typedef typename std::set<eq_class>::iterator iterator;
 				typedef typename std::set<eq_class>::const_iterator const_iterator;
@@ -862,11 +870,12 @@ class knowledgebase {
 					return str.str();
 				}}}
 		};
-	*/
 
-		// this class can be used to iterate over all nodes markes as known
-		// or all nodes marked as required
-		class iterator : std::iterator<std::forward_iterator_tag, node> {
+		 */
+
+		/** iterator for known OR required nodes */
+		class iterator : std::iterator<std::forward_iterator_tag, node>
+		{
 			private:
 				knowledgebase * base;
 
@@ -1192,7 +1201,7 @@ class knowledgebase {
 			return str.str();
 		}}}
 		std::string visualize(equivalence_relation & eq)
-		// FIXME: use operator<< fot it->get_answer().
+		// FIXME: use operator<< for it->get_answer().
 		{{{
 			std::string ret;
 
@@ -1678,13 +1687,16 @@ bool deserialize(typename knowledgebase<answer>::node * & into, knowledgebase<an
 }}}
 
 
-// classes to iterate over a full subtree, in graded lexicographic order:
-// PURE FORWARD ITERATOR
-
-// iterate in graded lex. order:
-// a < b  iff  |a| < |b| or |a|==|b| && (a <[LEX] b)
+/** iterator for full subtree in graded lexicographic order
+ *
+ *  NOTE this only iterates forward!
+ *
+ *  iterate in graded lex. order:
+ *  a < b  iff  |a| < |b| or |a|==|b| && (a <[LEX] b)
+ */
 template <class answer>
-class kIterator_lex_graded {
+class kIterator_lex_graded
+{
 	private:
 		std::queue<typename knowledgebase<answer>::node*> pending;
 	public:
@@ -1752,10 +1764,9 @@ class kIterator_lex_graded {
 
 }; // end of namespace libalf
 
-/**
- * Defines the << operator for the knowledgebase, i.e., writes a string
- * representation of the knowledgebase to the given output stream. Calls
- * the visualize() method internally.
+/** operator<< for printing knowledgebase to output stream
+ *
+ * Calls the visualize() method internally.
  *
  * Note that this method does not change the knowledgebase.
  *
@@ -1765,7 +1776,8 @@ class kIterator_lex_graded {
  * @return Returns the given output stream as usual.
  */
 template <class answer>
-std::ostream & operator<<(std::ostream & out, libalf::knowledgebase<answer> & base) {
+std::ostream & operator<<(std::ostream & out, libalf::knowledgebase<answer> & base)
+{
 	out << base.visualize();
 	return out;
 }
