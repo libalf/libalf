@@ -28,8 +28,8 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #ifndef Solver_h
 #define Solver_h
 
-#include "libalf/minisat_SolverTypes.h"
-#include "libalf/minisat_VarOrder.h"
+#include "libalf/minisat/SolverTypes.h"
+#include "libalf/minisat/VarOrder.h"
 
 namespace libalf {
 	namespace MiniSat {

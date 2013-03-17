@@ -10,8 +10,12 @@ install:
 	@echo installing libalf headers to ${DESTDIR}${INCLUDEDIR} ...
 	@echo
 	-install -v -m 755 -d ${DESTDIR}${INCLUDEDIR}/libalf
+	rm -f ${DESTDIR}${INCLUDEDIR}/libalf/minisat/*
+	-rmdir ${DESTDIR}${INCLUDEDIR}/libalf/minisat
 	rm -f ${DESTDIR}${INCLUDEDIR}/libalf/*
-	install -v -m 644 libalf/*.h ${DESTDIR}${INCLUDEDIR}/libalf 
+	-install -v -m 755 -d ${DESTDIR}${INCLUDEDIR}/libalf/minisat
+	install -v -m 644 libalf/*.h ${DESTDIR}${INCLUDEDIR}/libalf
+	install -v -m 644 libalf/minisat/*.h ${DESTDIR}${INCLUDEDIR}/libalf/minisat/
 	install -v -m 644 amore_alf_glue.h mVCA_alf_glue.h ${DESTDIR}${INCLUDEDIR}/
 
 uninstall:

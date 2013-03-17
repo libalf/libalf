@@ -30,7 +30,7 @@ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWA
 #define SolverTypes_h
 
 #ifndef MiniSat_Global_h
-#include "libalf/minisat_Global.h"
+#include "libalf/minisat/Global.h"
 #endif
 
 #ifdef _WIN32
