@@ -237,7 +237,7 @@ class prefix_tree {
 	 * @param word The word to add
 	 * @param classification The classification of the word to add
 	 */
-	void add(const std::list<int> & word, bool classification) {
+	void add(const std::list<int> & word, bool answer) {
 		
 		unsigned int current_state = 0;
 		

@@ -64,13 +64,13 @@ class automata_inferring : public learning_algorithm<answer> {
 	/**
 	 * By default, we use the linear seach method with increment 1.
 	 */
-	conjecture * derive_conjecture() {
+	virtual conjecture * derive_conjecture() {
 
 		return infer_linear(1);
 
 	}
 
-	conjecture * infer(unsigned int n) const {
+	virtual conjecture * infer(unsigned int n) const {
 	
 		// Copy the data from the knowledgebase into our own internal data structure
 		prefix_tree<answer> t(*this->my_knowledge, this->alphabet_size);
@@ -85,7 +85,7 @@ class automata_inferring : public learning_algorithm<answer> {
 		
 	}
 	
-	conjecture * infer_linear(unsigned int increment = 1) const {
+	virtual conjecture * infer_linear(unsigned int increment = 1) const {
 	
 		// Check increment
 		if(increment == 0) {
@@ -149,7 +149,7 @@ class automata_inferring : public learning_algorithm<answer> {
 	
 	}
 	
-	conjecture * infer_binarysearch() const {
+	virtual conjecture * infer_binarysearch() const {
 
 		// Copy the data from the knowledgebase into our own internal data structure
 		prefix_tree<answer> t(*this->my_knowledge, this->alphabet_size);
