@@ -1,0 +1,11 @@
+TODO:
+
+- Serialisierung PrefixTree und Tests
+- Kearns-Vazirani
+
+--------------------------
+
+Done:
+//#include "libalf/algorithm_deterministic_inferring_csp_minisat.h" auskommentiert in algorithm_automata_inferring.h
+7 inferring_algorithms
+counter-example-learning
