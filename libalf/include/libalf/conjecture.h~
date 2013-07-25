@@ -660,7 +660,17 @@ class finite_automaton : public moore_machine<bool> {
 		{ return CONJECTURE_FINITE_AUTOMATON; }
 		virtual bool calc_validity();
 
-		virtual std::basic_string<int32_t> serialize() const;
+		virtual std::basic_string<int32_t> serialize() const {
+			std::basic_string<int32_t> ret;
+			if(this->valid) {
+				ret += 0; // size, filled in later.
+				//ret += moore_machine<bool>::serialize();
+				
+				ret[0] = htonl(ret.length() - 1);
+			}
+
+			return ret;
+		}
 		virtual bool deserialize(serial_stretch & serial);
 		virtual std::string write() const;
 		virtual bool read(std::string input);

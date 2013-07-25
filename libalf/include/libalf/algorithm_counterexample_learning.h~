@@ -264,7 +264,7 @@ class counterexample_learning : public learning_algorithm<bool> {
 		//alphabet size
 		if(!::deserialize(s, serial)) return deserialization_failed();
 		this->set_alphabet_size(s);
-
+std::cout << "test" << std::endl;
 		//inferring-algorithm
 		int is_valid;
 		::deserialize(is_valid, serial);

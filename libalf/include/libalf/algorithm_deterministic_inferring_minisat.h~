@@ -581,6 +581,7 @@ class deterministic_inferring_MiniSat : public automata_inferring<answer> {
 
 		// Parse size
 		if(!::deserialize(s, serial)) return false;
+		if(s != 5) return false;
 
 		// Implementation type
 		if(!::deserialize(s, serial)) return false;

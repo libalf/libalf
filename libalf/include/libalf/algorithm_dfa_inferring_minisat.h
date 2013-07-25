@@ -462,11 +462,64 @@ class dfa_inferring_MiniSat : public automata_inferring<bool> {
 
 	}
 
+	public:
+
 	virtual enum learning_algorithm_type get_type() const
 	{ return ALG_INFERRING_MINISAT; };
 
 	virtual enum learning_algorithm_type get_basic_compatible_type() const
 	{ return ALG_INFERRING_MINISAT; };
+
+	virtual std::basic_string<int32_t> serialize() const
+	{
+		std::basic_string<int32_t> ret;
+
+		// length (filled in later)
+		ret += 0;
+
+		// implementation type
+		ret += ::serialize(ALG_INFERRING_CSP_MINISAT);
+
+		// alphabet size
+		ret += ::serialize(this->get_alphabet_size());
+
+		// symmetry_breaking
+		ret += ::serialize(symmetry_breaking);
+
+		// log model
+		ret += ::serialize(log_model);
+
+		// Set length
+		ret[0] = htonl(ret.length() - 1);
+
+		return ret;
+	}
+
+
+	virtual bool deserialize(serial_stretch & serial)
+	{
+		int s;
+
+		// Parse size
+		if(!::deserialize(s, serial)) return false;
+
+		// Implementation type
+		if(!::deserialize(s, serial)) return false;
+		if(s != ALG_INFERRING_CSP_MINISAT) return false;
+
+		// alphabet size
+		if(!::deserialize(s, serial)) return false;
+		if(s <= 0) return false;
+		this->set_alphabet_size(s);
+
+		// use variables
+		if(!::deserialize(symmetry_breaking, serial)) return false;
+
+		// log model
+		if(!::deserialize(log_model, serial)) return false;
+
+		return true;
+	}
 
 };
 

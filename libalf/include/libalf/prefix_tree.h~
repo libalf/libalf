@@ -326,7 +326,7 @@ class prefix_tree {
 	}
 
 	public:
-/*
+
 	virtual std::basic_string<int32_t> serialize() const {
 		std::basic_string<int32_t> ret;
 		ret += 0;
@@ -349,7 +349,7 @@ class prefix_tree {
 		if(!::deserialize(output, serial)) return false;
 		return true;
 	}
-	*/
+	
 };
 
 }; // End of libalf namespace

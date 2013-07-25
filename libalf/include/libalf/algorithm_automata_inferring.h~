@@ -40,7 +40,7 @@
 #include "libalf/learning_algorithm.h"
 #include "libalf/conjecture.h"
 #include "libalf/prefix_tree.h"
-//#include "libalf/algorithm_deterministic_inferring_csp_minisat.h"
+#include "libalf/algorithm_deterministic_inferring_csp_minisat.h"
 
 
 namespace libalf {

@@ -1125,12 +1125,70 @@ class deterministic_inferring_Z3 : public automata_inferring<answer> {
 
 	}
 
+	public:
 
 	virtual enum learning_algorithm_type get_type() const
 	{ return ALG_INFERRING_Z3; };
 
 	virtual enum learning_algorithm_type get_basic_compatible_type() const
 	{ return ALG_INFERRING_Z3; };
+
+	virtual std::basic_string<int32_t> serialize() const
+	{
+		std::basic_string<int32_t> ret;
+
+		// length (filled in later)
+		ret += 0;
+
+		// implementation type
+		ret += ::serialize(ALG_INFERRING_CSP_MINISAT);
+
+		// alphabet size
+		ret += ::serialize(this->get_alphabet_size());
+
+		// use variables
+		ret += ::serialize(use_variables);
+
+		// use enum
+		ret += ::serialize(use_enum);
+
+		// log model
+		ret += ::serialize(log_model);
+
+		// Set length
+		ret[0] = htonl(ret.length() - 1);
+
+		return ret;
+	}
+
+
+	virtual bool deserialize(serial_stretch & serial)
+	{
+		int s;
+
+		// Parse size
+		if(!::deserialize(s, serial)) return false;
+
+		// Implementation type
+		if(!::deserialize(s, serial)) return false;
+		if(s != ALG_INFERRING_CSP_MINISAT) return false;
+
+		// alphabet size
+		if(!::deserialize(s, serial)) return false;
+		if(s <= 0) return false;
+		this->set_alphabet_size(s);
+
+		// use variables
+		if(!::deserialize(use_variables, serial)) return false;
+
+		// use enum
+		if(!::deserialize(use_enum, serial)) return false;
+
+		// log model
+		if(!::deserialize(log_model, serial)) return false;
+
+		return true;
+	}
 
 };
 
