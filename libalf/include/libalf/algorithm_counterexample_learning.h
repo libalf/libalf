@@ -230,13 +230,13 @@ class counterexample_learning : public learning_algorithm<bool> {
 		ret += htonl(this->get_alphabet_size());
 		
 		// inferring_algorithm
-		if(inferring_algorithm == NULL) {
+		/*if(inferring_algorithm == NULL) {
 			ret += htonl(0);
 		} else {
 			ret += htonl(1);
 			ret += htonl(inferring_algorithm->get_type());
 			ret += inferring_algorithm->serialize();
-		}
+		}*/
 
 		// last conjecture
 		if(last_conjecture == NULL) {
@@ -266,7 +266,7 @@ class counterexample_learning : public learning_algorithm<bool> {
 		this->set_alphabet_size(s);
 
 		//inferring-algorithm
-		int is_valid;
+		/*int is_valid;
 		::deserialize(is_valid, serial);
 		if(is_valid == 1) {
 			int type;
@@ -275,7 +275,7 @@ class counterexample_learning : public learning_algorithm<bool> {
 				inferring_algorithm = new deterministic_inferring_csp_MiniSat<bool>(NULL, NULL, 0);
 			}
 			if(!inferring_algorithm->deserialize(serial)) return deserialization_failed();
-		}
+		}*/
 
 		//last conjecture
 		::deserialize(is_valid, serial);

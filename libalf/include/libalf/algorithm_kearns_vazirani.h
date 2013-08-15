@@ -185,9 +185,9 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		/*
 		 * Serialisation methods
 		 */
-		virtual std::basic_string<int32_t> serialize(std::map<node*,int> & ids) const = 0;
-		virtual bool deserialize(serial_stretch & serial, std::map<node*, int> & ids) const = 0;		
-		virtual int get_task_type() const = 0;
+		virtual std::basic_string<int32_t> serialize(std::map<node*,int> * ids) = 0;
+		virtual bool deserialize(serial_stretch & serial, std::map<int, node*> * ids) = 0;		
+		virtual int get_task_type() = 0;
 	};
 
 	/*
@@ -223,6 +223,11 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			// Create transition label
 			transition_label = new std::list<int>(source->label);
 			transition_label->push_back(symbol);
+		}
+
+
+		compute_transition_task(kearns_vazirani *kv) {
+			this->kv = kv;
 		}
 
 		/*
@@ -284,35 +289,33 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			return descr.str();
 		}
 
-		virtual bool deserialize(serial_stretch & serial, std::map<node*, int> & ids) {
+		bool deserialize(serial_stretch & serial, std::map<int, node*> * ids) {
 			int n;
 			if(!::deserialize(n, serial)) return false;
 			if(!::deserialize(n, serial)) return false;
-			this->source = ids[n];						
+			source = dynamic_cast<leaf_node*>((*ids)[n]);						
 			if(!::deserialize(n, serial)) return false;
-			this->current_node = ids[n];
+			current_node = (*ids)[n];
 			if(!::deserialize(n, serial)) return false;
 			this->symbol = n;
-			
+
 			delete transition_label;
 			transition_label = new std::list<int>(source->label);
 			transition_label->push_back(symbol);
-
 			return true;
 		}
 
-		virtual std::basic_string<int32_t> serialize(std::map<node*,int> & ids) {
+		std::basic_string<int32_t> serialize(std::map<node*,int> * ids) {
 			std::basic_string<int32_t> ret;
 			ret += 0;
-			ret += ::serialize(ids[source]);
-			ret += ::serialize(ids[current_node]);
+			ret += ::serialize((source != NULL?(*ids)[source]:-1));
 			ret += ::serialize(symbol);
-
+			ret += ::serialize((current_node != NULL?(*ids)[current_node]:-1));
 			ret[0] = htonl(ret.length() - 1);
 			return ret;
 		}
 
-		virtual int get_task_type() {return 0;}
+		int get_task_type() {return 0;}
 
 	};
 
@@ -350,6 +353,10 @@ class kearns_vazirani : public learning_algorithm<answer> {
 
 			// Make initial prefix
 			make_prefix();
+		}
+
+		add_counterexample_linearsearch_task(kearns_vazirani *kv) {
+			this->kv = kv;
 		}
 
 		/*
@@ -451,31 +458,31 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			return descr.str();
 		}
 
-		virtual bool deserialize(serial_stretch & serial, std::map<node*, int> & ids) {
+		bool deserialize(serial_stretch & serial, std::map<int, node*> * ids) {
 			int n;
 			if(!::deserialize(n, serial)) return false;
-			if(!::deserialize(counterexample, serial)) return false;				
+			if(!::deserialize(counterexample, serial)) return false;
+							
 			if(!::deserialize(position, serial)) return false;
 			if(!::deserialize(*prefix, serial)) return false;
 			if(!::deserialize(n, serial)) return false;
-			this->sift_node = ids[n];
+			this->sift_node = (*ids)[n];
 			return true;
 		}	
 
-		virtual std::basic_string<int32_t> serialize(std::map<node*,int> ids) {
+		std::basic_string<int32_t> serialize(std::map<node*,int> *ids) {
 			std::basic_string<int32_t> ret;
 			ret += 0;
-
 			ret += ::serialize(counterexample);
 			ret += ::serialize(position);
+			this->prefix = new std::list<int>;	
 			ret += ::serialize(*prefix);
-			ret += ::serialize(ids[sift_node]);
-						
+			ret += ::serialize((sift_node != NULL?(*ids)[sift_node]:-1));			
 			ret[0] = htonl(ret.length() - 1);
 			return ret;
 		}
 
-		virtual int get_task_type() {return 1;}
+		int get_task_type() {return 1;}
 
 		private:
 
@@ -528,7 +535,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		/*
 		 * Constructor:
 		 */
-		add_counterexample_binarysearch_task(std::list<int> &counterexample, kearns_vazirani *kv) {
+		add_counterexample_binarysearch_task(const std::list<int> &counterexample, kearns_vazirani *kv) {
 			// Store and initialize parameters
 			this->counterexample = counterexample;
 			this->kv = kv;
@@ -550,6 +557,10 @@ class kearns_vazirani : public learning_algorithm<answer> {
 
 			// Create initial prefix
 			this->make_prefix();
+		}
+
+		add_counterexample_binarysearch_task(kearns_vazirani *kv) {
+			this->kv = kv;
 		}
 
 		/*
@@ -707,21 +718,33 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			return descr.str();
 		}
 
-		virtual bool deserialize(serial_stretch & serial, std::map<node*, int> & ids) {
+		bool deserialize(serial_stretch & serial, std::map<int, node*> * ids) {
 			int n;
 			if(!::deserialize(n, serial)) return false;
 			if(!::deserialize(counterexample, serial)) return false;				
+
+			// Store and initialize parameters
+			sift_buffer = new node*[counterexample.size() + 1];
+			run_buffer = new leaf_node*[counterexample.size() + 1];
+			for(unsigned int i=1; i<=counterexample.size(); i++) {
+				sift_buffer[i] = kv->root;
+				run_buffer[i] = NULL;
+			}
+			sift_buffer[0] = run_buffer[0] = kv->initial_state;
+				
 			if(!::deserialize(position, serial)) return false;
+			
+			this->prefix = new std::list<int>;
+			this->prefix_m1 = new std::list<int>;		
+
 			if(!::deserialize(*prefix, serial)) return false;
 			if(!::deserialize(*prefix_m1, serial)) return false;
-			if(!::deserialize(n, serial)) return false;
-			this->left = ids[n];
-			if(!::deserialize(n, serial)) return false;
-			this->right = ids[n];
+			if(!::deserialize(left, serial)) return false;
+			if(!::deserialize(right, serial)) return false;
 			return true;
 		}	
 
-		virtual std::basic_string<int32_t> serialize(std::map<node*,int> ids) {
+		std::basic_string<int32_t> serialize(std::map<node*,int> * ids) {
 			std::basic_string<int32_t> ret;
 			ret += 0;
 
@@ -736,7 +759,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			return ret;
 		}
 
-		virtual int get_task_type() {return 2;}
+		int get_task_type() {return 2;}
 
 		private:
 
@@ -783,10 +806,14 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		 * Takes a pointer to the node to split, the labels of the new leaf and
 		 * inner nodes, and the pointer to the learning algorithm as arguments.
 		 */
-		split_node_task(leaf_node *node_to_split, std::list<int> &new_leaf_node_label, std::list<int> &new_inner_node_label, kearns_vazirani *kv) {
+		split_node_task(leaf_node *node_to_split, const std::list<int> &new_leaf_node_label, const std::list<int> &new_inner_node_label, kearns_vazirani *kv) {
 			this->node_to_split = node_to_split;
 			this->new_leaf_node_label = new_leaf_node_label;
 			this->new_inner_node_label = new_inner_node_label;
+			this->kv = kv;
+		}
+
+		split_node_task(kearns_vazirani *kv) {
 			this->kv = kv;
 		}
 
@@ -876,22 +903,22 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			return descr.str();
 		}
 
-		virtual bool deserialize(serial_stretch & serial, std::map<node*, int> & ids) {
+		bool deserialize(serial_stretch & serial, std::map<int, node*> * ids) {
 			int n;
 			if(!::deserialize(n, serial)) return false;
 			if(!::deserialize(n, serial)) return false;
-			this->node_to_split = ids[n];
+			this->node_to_split = dynamic_cast<leaf_node*>((*ids)[n]);
 			if(!::deserialize(new_leaf_node_label, serial)) return false;				
 			if(!::deserialize(new_inner_node_label, serial)) return false;
 		
 			return true;
 		}	
 
-		virtual std::basic_string<int32_t> serialize(std::map<node*,int> ids) {
+		std::basic_string<int32_t> serialize(std::map<node*,int> * ids) {
 			std::basic_string<int32_t> ret;
 			ret += 0;
 
-			ret += ::serialize(ids[node_to_split]);
+			ret += ::serialize((node_to_split != NULL?(*ids)[node_to_split]:-1));
 			ret += ::serialize(new_leaf_node_label);
 			ret += ::serialize(new_inner_node_label);
 						
@@ -899,7 +926,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			return ret;
 		}
 
-		virtual int get_task_type() {return 3;}
+		int get_task_type() {return 3;}
 	};
 
 	//========== List of tasks =================================================
@@ -941,14 +968,14 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		/*
 		 * Returns the first element of the list.
 		 */
-		task *get_first() {
+		task *get_first() const {
 			return first;
 		}
 
 		/*
 		 * Returns the number of elements in the list.
 		 */
-		int size() {
+		int size() const {
 			int i=0;
 			task *t = first;
 			while(t != NULL) {
@@ -1187,9 +1214,42 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		return false;
 	}
 
+	virtual void generate_statistics(void) {
+		int bytes;
+
+		// approx. memory usage:
+		bytes = sizeof(this);
+		// tree
+		int bytes_leaf_node = sizeof(bool) + sizeof(std::set<leaf_node*>) + sizeof(leaf_node**) + sizeof(int);
+		int bytes_inner_node = sizeof(node*)*2;
+		bytes += leaf_node_count*bytes_leaf_node;
+		bytes += inner_node_count*bytes_inner_node;
+		this->statistics["memory.bytes.leaf_nodes"] = leaf_node_count*bytes_leaf_node;
+		this->statistics["memory.bytes.inner_nodes"] = inner_node_count*bytes_inner_node;
+
+		// tasks
+		this->statistics["tasks.size"] = tasks.size();
+		
+		task *t = tasks.get_first();
+		int count[] = {0,0,0,0};
+		while(t != NULL) {
+			count[t->get_task_type()]++;
+			bytes += sizeof(*t);
+			t = t->next;
+		}
+		this->statistics["tasks.count.compute_transition"] = count[0];
+		this->statistics["tasks.count.add_counterexample_linearsearch"] = count[1];
+		this->statistics["tasks.count.add_counterexample_binarysearch"] = count[2];
+		this->statistics["tasks.count.split_node"] = count[3];
+	
+		this->statistics["memory.bytes"] = bytes;
+	}
+
 	bool deserialize(serial_stretch & serial) {
+
 		int n;
 		bool b;
+		std::map<int, node*> ids;
 
 		// size
 		if(!::deserialize(n, serial)) return false;
@@ -1211,147 +1271,156 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		// tree
 		if(!::deserialize(n, serial)) return false;
 		int node_count = n;
-		if(!::deserialize(n, serial)) return false;
-		if(n >= 0) 
-			leaf_node_count = n;
-		else
-			return false;
-		if(!::deserialize(n, serial)) return false;
-		if(n >= 0) 
-			inner_node_count = n;
-		else
-			return false;
+		if(node_count > 0) {
+			if(!::deserialize(n, serial)) return false;
+			if(n >= 0) 
+				leaf_node_count = n;
+			else
+				return false;
+			if(!::deserialize(n, serial)) return false;
+			if(n >= 0) 
+				inner_node_count = n;
+			else
+				return false;
 
-		int id_root, id_initial;
-		if(!::deserialize(id_root, serial)) return false;
-		if(!::deserialize(id_initial, serial)) return false;
+			int id_root, id_initial;
+			if(!::deserialize(id_root, serial)) return false;
+			if(!::deserialize(id_initial, serial)) return false;
 
-		std::map<int, node*> ids;
-
-		// pointer to related nodes will be set afterwards. so keep them in mind here.
-		std::map<node*, int> left_child_nodes;
-		std::map<node*, int> right_child_nodes;
-		std::map<node*, int> parent_nodes;
-		typename std::map<node*, int>::const_iterator it;
+			
+			// pointer to related nodes will be set afterwards. so keep them in mind here.
+			std::map<node*, int> left_child_nodes;
+			std::map<node*, int> right_child_nodes;
+			std::map<node*, int> parent_nodes;
+			typename std::map<node*, int>::const_iterator it;
 		
-		int node_id;
-		std::list<int> label;
-		int parent_id;
-		int level;
-		bool is_leaf;
+			int node_id;
+			std::list<int> label;
+			int parent_id;
+			int level;
+			bool is_leaf;
 
-		// only for leaves
-		bool accepting;
-		int id;	
-		int count_incoming_transitions;
-		std::map<node*, std::set<int> > incoming_transitions_buffer;
-		typename std::map<node*, std::set<int> >::const_iterator incoming_transitions_buffer_it;
-		std::map<node*, std::vector<int> > transitions_buffer;
-		typename std::map<node*, std::vector<int> >::const_iterator transitions_buffer_it;
+			// only for leaves
+			bool accepting;
+			int id;	
+			int count_incoming_transitions;
+			std::map<node*, std::set<int> > incoming_transitions_buffer;
+			typename std::map<node*, std::set<int> >::const_iterator incoming_transitions_buffer_it;
+			std::map<node*, std::map<int,int> > transitions_buffer;
+			typename std::map<node*, std::map<int,int> >::const_iterator transitions_buffer_it;
 
-		// only for inner nodes
-		int left, right;
+			// only for inner nodes
+			int left, right;
 			
 
-		node* node;
-		for(int i = 0; i < node_count; i++) {
-			if(!::deserialize(node_id, serial)) return false;
-			if(!::deserialize(label, serial)) return false;
-			if(!::deserialize(parent_id, serial)) return false;
-			if(!::deserialize(level, serial)) return false;
-			if(!::deserialize(is_leaf, serial)) return false;
-			if(is_leaf) {
-				if(!::deserialize(accepting, serial)) return false;
-				if(!::deserialize(id, serial)) return false;
-				node = new leaf_node (label, level, id, accepting, alphabet_size);
-				// incoming transitions				
-				if(!::deserialize(count_incoming_transitions, serial)) return false;
-				for(int j = 0; j < count_incoming_transitions; j++) {
-					int temp_id;
-					if(!::deserialize(temp_id, serial)) return false;
-					incoming_transitions_buffer[node].insert(temp_id);
+			node* node;
+			for(int i = 0; i < node_count; i++) {
+				if(!::deserialize(node_id, serial)) return false;
+				if(!::deserialize(label, serial)) return false;
+				if(!::deserialize(parent_id, serial)) return false;
+				if(!::deserialize(level, serial)) return false;
+				if(!::deserialize(is_leaf, serial)) return false;
+				if(is_leaf) {
+					if(!::deserialize(accepting, serial)) return false;
+					if(!::deserialize(id, serial)) return false;
+					node = new leaf_node(label, level, id, accepting, alphabet_size);
+					// incoming transitions				
+					if(!::deserialize(count_incoming_transitions, serial)) return false;
+					for(int j = 0; j < count_incoming_transitions; j++) {
+						int temp_id;
+						if(!::deserialize(temp_id, serial)) return false;
+						incoming_transitions_buffer[node].insert(temp_id);
+					}
+
+					// transitions
+					std::map<int,int> temp_map;
+					for(int j = 0; j < alphabet_size; j++) {
+						int temp_id;
+						if(!::deserialize(temp_id, serial)) return false;
+						temp_map[j] = temp_id;
+					}
+					transitions_buffer[node] = temp_map;
 				}
-				// transitions
-				std::vector<int> temp_vec;
-				for(int j = 0; j < alphabet_size; j++) {
-					int temp_id;
-					if(!::deserialize(temp_id, serial)) return false;
-					temp_vec[j] = temp_id;
+				else {
+					if(!::deserialize(left, serial)) return false;
+					if(!::deserialize(right, serial)) return false;
+					node = new inner_node (label, level, NULL, NULL);
+					left_child_nodes[node] = left;
+					right_child_nodes[node] = right;
 				}
-				transitions_buffer[node] = temp_vec;
+				ids[node_id] = node;
+				parent_nodes[node] = parent_id;
+				
 			}
-			else {
-				if(!::deserialize(left, serial)) return false;
-				if(!::deserialize(right, serial)) return false;
-				node = new inner_node (label, level, NULL, NULL);
-				left_child_nodes[node] = left;
-				right_child_nodes[node] = right;
+
+			// all nodes should be set now. Solve null-pointers with node ids.
+
+			root = dynamic_cast<inner_node*>((id_root != -1 ? ids[id_root] : NULL));
+			initial_state = dynamic_cast<leaf_node*>((id_initial != -1 ? ids[id_initial] : NULL));
+
+			
+
+			// left child nodes
+			for(it = left_child_nodes.begin(); it != left_child_nodes.end(); it++) {
+				inner_node *n = dynamic_cast<inner_node*>(it->first);
+				n->left_child = (it->second != -1 ? ids[it->second] : NULL);
 			}
-			ids[node_id] = node;
-			parent_nodes[node] = parent_id;
-		}
-
-		// all nodes should be set now. Solve null-pointers with node ids.
-
-		root = ids[id_root];
-		initial_state = ids[id_initial];
-
 		
+			// right child nodes
+			for(it = right_child_nodes.begin(); it != right_child_nodes.end(); it++) {
+				inner_node *n = dynamic_cast<inner_node*>(it->first);
+				n->right_child = (it->second != -1 ? ids[it->second] : NULL);
+			}
 
-		// left child nodes
-		for(it = left_child_nodes.begin(); it != left_child_nodes.end(); it++) {
-			inner_node *node = it->first;
-			node->left = ids[it->second];
-		}
-		
-		// right child nodes
-		for(it = right_child_nodes.begin(); it != right_child_nodes.end(); it++) {
-			inner_node *node = it->first;
-			node->right = ids[it->second];
-		}
-
-		// parent nodes
-		for(it = parent_nodes.begin(); it != parent_nodes.end(); it++) {
-			node *node = it->first;
-			node->parent = ids[it->second];
-			if(node->is_leaf()) {
-				std::set<int> incoming_trans = incoming_transitions_buffer[node];
-				for(std::set<int>::const_iterator it2 = incoming_trans.begin(); it2 != incoming_trans.end(); it2++) {
-					node->incoming_transitions.insert(ids[*it2]);
-				}
-				//leaf_node** transitions;
-				std::vector<int> transitions = transitions_buffer[node];
-				node->transitions = (leaf_node**)calloc(alphabet_size, sizeof(leaf_node*));
-				for(int i = 0; i < alphabet_size; i++) {
-					node->transitions[i] = ids[transitions[i]];
-				}
+			// parent nodes
+			for(it = parent_nodes.begin(); it != parent_nodes.end(); it++) {
+				node = it->first;
+				node->parent = (it->second != -1 ? ids[it->second] : NULL);
+				if(node->is_leaf()) {
+					leaf_node* leaf = dynamic_cast<leaf_node*>(node);
+					std::set<int> incoming_trans = incoming_transitions_buffer[node];
+					for(std::set<int>::const_iterator it2 = incoming_trans.begin(); it2 != incoming_trans.end(); it2++) {
+						leaf->incoming_transitions.insert(dynamic_cast<leaf_node*>(ids[*it2]));
+					}
+					//leaf_node** transitions;
+					std::map<int,int> transitions = transitions_buffer[node];
+					for(int i = 0; i < alphabet_size; i++) {
+						leaf->transitions[i] = dynamic_cast<leaf_node*>(ids[transitions[i]]);
+					}
+				} 
 			}
 		}
-
+			
+			
 		// task list
 		int tasks_count;
 		int task_type;
-		task* current, prev = NULL;
+		task* task;
 		if(!::deserialize(tasks_count, serial)) return false;
 		for(int i = 0; i < tasks_count; i++) {
-			prev = current;
 			if(!::deserialize(task_type, serial)) return false;
 			switch(task_type) {
-				case 0:	//transition task
-					current = new compute_transition_task(NULL, 0, this);
-					current->deserialize(&ids);
-					
+				case 0:	{// compute_transition_task
+					task = new compute_transition_task(this);
+					break;
+					}
+				case 1: {//add_counterexample_linearsearch_task
+					task = new add_counterexample_linearsearch_task(this);
+					break;
+					}
+				case 2: {//add_counterexample_binarysearch_task
+					task = new add_counterexample_binarysearch_task(this);
+					break;
+					}
+				case 3: {//split_node_task
+					task = new split_node_task(this);
+					break;
+					}
 				default: if(task_type < 0 || task_type > 3) return false; 
 			}
-			if(prev != NULL) prev->next = current;
-			current->prev = prev;
-			if(i == 0) tasks.first = current;				
+			task->deserialize(serial, &ids);
+			tasks.add_last(task);
 		}
-		tasks.last = current;
-		delete current;
-		delete prev;
-
-		//(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: this implementation does not support serialization!\n");
 		return true;
 	}
 
@@ -1359,8 +1428,8 @@ class kearns_vazirani : public learning_algorithm<answer> {
 
 		// define id for every node
 		int * id = new int(0);
-		std::map<node*, int> ids;
-		collect_nodes(&ids, root, id);
+		std::map<node*, int> * ids = new std::map<node*,int>();
+		collect_nodes(ids, root, id);
 		delete id;
 
 		std::basic_string<int32_t> ret;
@@ -1381,67 +1450,96 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		// tree
 
 		// should be leaf+inner nodes
-		ret += ::serialize(ids.size());
+		ret += ::serialize(ids->size());
+		
 
-		ret += ::serialize(leaf_node_count);
-		ret += ::serialize(inner_node_count);
+		if(ids->size() > 0) {
+			ret += ::serialize(leaf_node_count);
+			ret += ::serialize(inner_node_count);
 	
-		// root, initial state
-		ret += ::serialize(ids[*root]); 
-		ret += ::serialize(ids[*initial_state]);
+			// root, initial state
+			ret += ::serialize(get_node_id(ids,root));
+			ret += ::serialize(get_node_id(ids,initial_state));
 
-		node *n;
-		for(typename std::map<node*,int>::const_iterator it = ids.begin(); it != ids.end(); it++) {
-			ret += ::serialize(it->second);
-			n = it->first;
-			ret += ::serialize(n->label);
-			ret += ::serialize(ids[*(n->parent)]);
-			ret += ::serialize(n->level);
-			if(n->is_leaf) {
-				ret += ::serialize(true);
-				ret += ::serialize(n->accepting);
-				ret += ::serialize(n->id);
-				ret += ::serialize(n->incoming_transitions.size());
-				for(typename std::set<leaf_node*>::const_iterator it2 = n->incoming_transitions.begin(); it2 != n->incoming_transitions.end(); it2++) {
-					ret += ::serialize(ids[*it2]);
+			for(typename std::map<node*,int>::const_iterator it = ids->begin(); it != ids->end(); it++) {
+				ret += ::serialize(it->second);
+				node* n = it->first;
+				ret += ::serialize(n->label);
+				if(n == root) ret += ::serialize(-1);
+				else ret += ::serialize(get_node_id(ids,n->parent));	
+				ret += ::serialize(n->level);
+				if(n->is_leaf()) {
+					leaf_node *leaf = dynamic_cast<leaf_node*>(n);
+					ret += ::serialize(true);
+					ret += ::serialize(leaf->accepting);
+					ret += ::serialize(leaf->id);
+					ret += ::serialize(leaf->incoming_transitions.size());
+					for(typename std::set<leaf_node*>::const_iterator it2 = leaf->incoming_transitions.begin(); it2 != leaf->incoming_transitions.end(); it2++) {
+						ret += ::serialize(get_node_id(ids,*it2));
+					}
+					//leaf_node** transitions
+					for(int i = 0; i < this->alphabet_size; i++) {
+						ret += ::serialize(get_node_id(ids,leaf->transitions[i]));
+					}
 				}
-				//leaf_node** transitions
-				for(int i = 0; i < this->alphabet_size; i++) {
-					ret += ::serialize(ids[n->tranitions[i]]);
+				else {
+					inner_node *inner = dynamic_cast<inner_node*>(n);
+					ret += ::serialize(false);
+					if((*ids)[inner->left_child] != NULL) {
+						ret += ::serialize(get_node_id(ids,inner->left_child));
+					} else {
+						ret += ::serialize(0);
+					}
+					if((*ids)[inner->right_child] != NULL) {
+						ret += ::serialize(get_node_id(ids,inner->right_child));
+					} else {
+						ret += ::serialize(0);
+					}
 				}
-			}
-			else {
-				ret += ::serialize(false);
-				ret += ::serialize(ids[n->left_child]);
-				ret += ::serialize(ids[n->right_child]);
-			}
 				
+			
+
+
+				
+			}
 		}
-		delete n;
 
 		//tasks
 		ret += ::serialize(tasks.size());
-		task *t = tasks.first;
-		while(t != NULL) {
-			ret += ::serialize(t->get_task_type());
-			ret += t->serialize(ids);
-			t = t->next;
+		if(tasks.size() != 0) {
+			task *t = tasks.get_first();
+			while(t != NULL) {
+				ret += ::serialize(t->get_task_type());
+				ret += t->serialize(ids);
+				t = t->next;
+			}
 		}
 
 		// Set length
 		ret[0] = htonl(ret.length() - 1);
-		//(*this->my_logger)(LOGGER_WARN, "kearns_vazirani: this implementation does not support serialization!\n");
+		
+		delete ids;
 		return ret;
 	}
 
-	void collect_nodes(std::map<node*, int> * ids, node *n, int *id) {
-		if(!n->is_leaf) {
-			collect_nodes(ids, n->left_child);
-			collect_nodes(ids, n->right_child);
+	void collect_nodes(std::map<node*, int> * ids, node* n, int * id) const{
+		if(n == NULL || ids == NULL) {
+			return;
+		}
+		if(!n->is_leaf()) {
+			inner_node *inner = dynamic_cast<inner_node*>(n);
+			collect_nodes(ids, inner->left_child, id);
+			collect_nodes(ids, inner->right_child, id);
 		} 
-		ids[n] = *id;
+		(*ids)[n] = *id;
 		(*id)++;
 		return;
+	}
+
+	int get_node_id(std::map<node*,int> * ids, node* n) const {
+		if(ids != NULL && n != NULL && ids->find(n) != ids->end()) 
+			return ids->find(n)->second;
+		return -1;
 	}
 
 	bool deserialize_magic(serial_stretch & serial, std::basic_string<int32_t> & result)
@@ -1728,7 +1826,7 @@ class kearns_vazirani : public learning_algorithm<answer> {
 
 		// Nodes
 		std::map<node*, int> *nodes = new std::map<node*, int>();
-
+		
 		// Number
 		int *id = new int(0);
 
