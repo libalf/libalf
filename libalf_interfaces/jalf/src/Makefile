@@ -59,7 +59,14 @@ OBJECTS =	jni_tools.o					\
 		jni_algorithm_rpni.o				\
 		jni_algorithm_biermann_original.o		\
 		jni_algorithm_biermann_minisat.o		\
-		jni_algorithm_delete2.o
+		jni_algorithm_delete2.o				\
+		jni_algorithm_deterministic_inferring_csp_minisat.o \
+		jni_algorithm_deterministic_inferring_csp_z3.o 	\
+		jni_algorithm_deterministic_inferring_minisat.o	\
+		jni_algorithm_deterministic_inferring_z3.o 	\
+		jni_algorithm_dfa_inferring_minisat.o 		\
+		jni_algorithm_dfa_inferring_z3.o	 	\
+		jni_algorithm_nfa_inferring_minisat.o	
 
 
 all:	${TARGET}
