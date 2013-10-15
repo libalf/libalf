@@ -26,11 +26,17 @@ int main(int argc, char**argv)
 	kearns_vazirani<bool> alg1(&base, NULL, 2, true);
 	kearns_vazirani<bool> alg2(NULL, NULL, 0, false);
 
+	
 	amore::finite_automaton * hypothesis = NULL;
 
 	for(int iteration = 1; iteration <= 5; iteration++) {
 		int c = 'a';
 		conjecture * cj;
+
+		std::basic_string<int32_t> serial2 = alg1.serialize();
+		serial_stretch ss2(serial2);
+		alg1.deserialize(ss2);
+
 
 		while( NULL == (cj = alg1.advance()) ) {
 			// resolve missing knowledge:

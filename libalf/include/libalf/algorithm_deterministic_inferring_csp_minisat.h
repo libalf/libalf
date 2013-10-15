@@ -834,6 +834,10 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 	virtual enum learning_algorithm_type get_basic_compatible_type() const
 	{ return ALG_INFERRING_CSP_MINISAT; };
 
+	virtual void generate_statistics(void) {
+		this->statistics["memory.bytes"] = sizeof(this);
+	}
+
 	virtual std::basic_string<int32_t> serialize() const
 	{
 		std::basic_string<int32_t> ret;

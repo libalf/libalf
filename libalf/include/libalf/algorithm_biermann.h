@@ -179,6 +179,22 @@ class basic_biermann : public learning_algorithm<answer> {
 			return true;
 		}}}
 
+		virtual void generate_statistics(void) {
+			// approx. memory usage:			
+			int bytes = sizeof(this);
+			typename std::list<constraint>::const_iterator ci;
+			for(ci = constraints.begin(); ci != constraints.end(); ci++) {
+				bytes += sizeof(ci->l1)+sizeof(ci->l2)+sizeof(ci->l3)+sizeof(ci->l4);
+				bytes += sizeof(bool);
+			}
+			typename std::set<node*>::const_iterator sit;
+			for(sit = sources.begin(); sit != sources.end(); sit++) {
+				bytes += sizeof(sit);
+			}
+			
+			this->statistics["memory.bytes"] = bytes;
+		}
+
 		virtual std::basic_string<int32_t> serialize() const
 		{{{
 			std::basic_string<int32_t> ret;

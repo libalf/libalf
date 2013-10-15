@@ -293,15 +293,26 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			int n;
 			if(!::deserialize(n, serial)) return false;
 			if(!::deserialize(n, serial)) return false;
-			source = dynamic_cast<leaf_node*>((*ids)[n]);						
+			if(n != -1)
+				source = dynamic_cast<leaf_node*>((*ids)[n]);
+			else 
+				source = NULL;						
 			if(!::deserialize(n, serial)) return false;
-			current_node = (*ids)[n];
+			if(n != -1) 
+				current_node = (*ids)[n];
+			else 
+				current_node = NULL;
 			if(!::deserialize(n, serial)) return false;
-			this->symbol = n;
+			symbol = n;
 
-			delete transition_label;
-			transition_label = new std::list<int>(source->label);
-			transition_label->push_back(symbol);
+			if(source != NULL) {
+				transition_label = new std::list<int>(source->label);
+				transition_label->push_back(symbol);
+			}
+			else {
+				transition_label = new std::list<int>();
+				transition_label->push_back(symbol);
+			}
 			return true;
 		}
 
@@ -309,8 +320,8 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			std::basic_string<int32_t> ret;
 			ret += 0;
 			ret += ::serialize((source != NULL?(*ids)[source]:-1));
-			ret += ::serialize(symbol);
 			ret += ::serialize((current_node != NULL?(*ids)[current_node]:-1));
+			ret += ::serialize(symbol);
 			ret[0] = htonl(ret.length() - 1);
 			return ret;
 		}
@@ -1246,6 +1257,8 @@ class kearns_vazirani : public learning_algorithm<answer> {
 	}
 
 	bool deserialize(serial_stretch & serial) {
+		if(root)
+			delete root;
 
 		int n;
 		bool b;
@@ -1390,9 +1403,15 @@ class kearns_vazirani : public learning_algorithm<answer> {
 				} 
 			}
 		}
-			
-			
+	
 		// task list
+
+		// cleanup existing list
+		while(!tasks.is_empty()) {
+			tasks.remove(tasks.get_first());
+		}
+		
+
 		int tasks_count;
 		int task_type;
 		task* task;
@@ -1497,10 +1516,6 @@ class kearns_vazirani : public learning_algorithm<answer> {
 					}
 				}
 				
-			
-
-
-				
 			}
 		}
 
@@ -1522,6 +1537,8 @@ class kearns_vazirani : public learning_algorithm<answer> {
 		return ret;
 	}
 
+	private:
+
 	void collect_nodes(std::map<node*, int> * ids, node* n, int * id) const{
 		if(n == NULL || ids == NULL) {
 			return;
@@ -1541,6 +1558,8 @@ class kearns_vazirani : public learning_algorithm<answer> {
 			return ids->find(n)->second;
 		return -1;
 	}
+
+	public: 
 
 	bool deserialize_magic(serial_stretch & serial, std::basic_string<int32_t> & result)
 	{

@@ -232,10 +232,8 @@ class RPNI : public learning_algorithm<answer> {
 			this->set_alphabet_size(new_asize);
 		}}}
 
-		virtual void generate_statistics(void)
-		{
-			// FIXME
-			
+		virtual void generate_statistics(void) {
+			this->statistics["memory.bytes"] = sizeof(this);
 		}
 
 		virtual bool sync_to_knowledgebase()

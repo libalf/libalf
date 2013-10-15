@@ -312,6 +312,34 @@ class rivest_schapire_table : public angluin_simple_table<answer> {
 			return true;
 		}}}
 
+		virtual void generate_statistics(void) {
+			angluin_simple_table<answer>::generate_statistics();
+			int bytes = this->statistics["memory.bytes"];
+			bytes += sizeof(this);
+			bytes += counterexample.size()*sizeof(int);
+			
+			// conjecture
+			bytes += sizeof(latest_cj);
+			bytes += latest_cj.output_mapping.size()*(sizeof(int)+sizeof(output_alphabet));
+			std::map<int, std::map<int, std::set<int> > >::const_iterator ci;
+			std::map<int, std::set<int> >::const_iterator ci2;
+			for(ci = transitions.begin(); ci != transitions.end(); ci++) {
+				for(ci2 = ci->second.begin(); ci2 != ci->second.end(); ci2++) {
+					bytes += ci2->second.size()*sizeof(int);
+					bytes += sizeof(int);
+				}
+				bytes += sizeof(int);
+			}
+
+			// latest_cj_statemapping
+			std::list<algorithm_angluin::automaton_state<table_t> >::const_iterator ci3;
+			for(ci3 = latest_cj_statemapping; ci3 != latest_cj_statemapping; ci3++) {
+				bytes += sizeof(int);
+				bytes += sizeof(table_t::iterator);
+			}
+			this->statistics["memory.bytes"] = bytes;
+		}
+
 		virtual std::basic_string<int32_t> serialize() const
 		{{{
 			if(conjecture_stored)
