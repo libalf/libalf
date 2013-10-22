@@ -996,7 +996,7 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 	{ return ALG_INFERRING_Z3; };
 
 	virtual void generate_statistics(void) {
-		this->statistics["memory.bytes"] = sizeof(this);
+		this->statistics["memory.bytes"] = (int)sizeof(this);
 	}
 
 	virtual std::basic_string<int32_t> serialize() const

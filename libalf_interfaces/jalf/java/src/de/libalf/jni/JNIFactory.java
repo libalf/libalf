@@ -209,6 +209,106 @@ public enum JNIFactory implements LibALFFactory {
 								+ args.length + ".");
 
 			/*
+			 * Create inference deterministic csp minisat algorithm.
+			 */
+		case INFER_DETERMINISTIC_CSP_MINISAT:
+			if (args.length == 3)
+				return new JNIAlgorithmDeterministicInferringCSPMinisat((JNIKnowledgebase) args[0],
+						(JNIBufferedLogger) args[1], (Integer) args[2]);
+			else if (args.length == 4)
+				return new JNIAlgorithmDeterministicInferringCSPMinisat((JNIKnowledgebase) args[0],
+						(JNIBufferedLogger) args[1], (Integer) args[2], (Boolean) args[3]);
+			else
+				throw new AlfException(
+						"Invalid parameters for creating DeterministicInferringCSPMinisat algorithm: "
+								+ args.length + ".");
+
+			/*
+			 * Create inference deterministic csp z3 algorithm.
+			 */
+		case INFER_DETERMINISTIC_CSP_Z3:
+			if (args.length == 5)
+				return new JNIAlgorithmDeterministicInferringCSPZ3((JNIKnowledgebase) args[0],
+						(JNIBufferedLogger) args[1], (Integer) args[2], (Boolean) args[3], (Boolean) args[4]);
+			else
+				throw new AlfException(
+						"Invalid parameters for creating DeterministicInferringCSPZ3 algorithm: "
+								+ args.length + ".");
+
+			/*
+			 * Create inference deterministic minisat algorithm.
+			 */
+		case INFER_DETERMINISTIC_MINISAT:
+			if (args.length == 4)
+				return new JNIAlgorithmDeterministicInferringMinisat((JNIKnowledgebase) args[0],
+						(JNIBufferedLogger) args[1], (Integer) args[2], (Boolean) args[3]);
+			else
+				throw new AlfException(
+						"Invalid parameters for creating DeterministicInferringMinisat algorithm: "
+								+ args.length + ".");
+
+			/*
+			 * Create inference deterministic z3 algorithm.
+			 */
+		case INFER_DETERMINISTIC_Z3:
+			if (args.length == 5)
+				return new JNIAlgorithmDeterministicInferringZ3((JNIKnowledgebase) args[0],
+						(JNIBufferedLogger) args[1], (Integer) args[2], (Boolean) args[3], (Boolean) args[4]);
+			else
+				throw new AlfException(
+						"Invalid parameters for creating DeterministicInferringZ3 algorithm: "
+								+ args.length + ".");
+
+			/*
+			 * Create inference dfa minisat algorithm.
+			 */
+		case INFER_DFA_MINISAT:
+			if (args.length == 4)
+				return new JNIAlgorithmDFAInferringMinisat((JNIKnowledgebase) args[0],
+						(JNIBufferedLogger) args[1], (Integer) args[2], (Boolean) args[3]);
+			else
+				throw new AlfException(
+						"Invalid parameters for creating DFAInferringMinisat algorithm: "
+								+ args.length + ".");
+
+			/*
+			 * Create inference dfa z3 algorithm.
+			 */
+		case INFER_DFA_Z3:
+			if (args.length == 5)
+				return new JNIAlgorithmDFAInferringZ3((JNIKnowledgebase) args[0],
+						(JNIBufferedLogger) args[1], (Integer) args[2], (Boolean) args[3], (Boolean) args[4]);
+			else
+				throw new AlfException(
+						"Invalid parameters for creating DFAInferringZ3 algorithm: "
+								+ args.length + ".");
+
+			/*
+			 * Create inference nfa minisat algorithm.
+			 */
+		case INFER_NFA_MINISAT:
+			if (args.length == 4)
+				return new JNIAlgorithmNFAInferringMinisat((JNIKnowledgebase) args[0],
+						(JNIBufferedLogger) args[1], (Integer) args[2], (Boolean) args[3]);
+			else
+				throw new AlfException(
+						"Invalid parameters for creating NFAInferringMinisat algorithm: "
+								+ args.length + ".");
+
+			/*
+			 * Create counterexample learning algorithm.
+			 */
+		case COUNTEREXAMPLE_LEARNING:
+			if (args.length == 4)
+				return new JNIAlgorithmCounterexampleLearning((JNIKnowledgebase) args[0],
+						(JNIBufferedLogger) args[1], (Integer) args[2], (Long) args[3]);
+			else
+				throw new AlfException(
+						"Invalid parameters for creating counterexample learning algorithm: "
+								+ args.length + ".");
+
+
+			/*
 			 * Default switch: Should never happen.
 			 */
 		default:

@@ -46,7 +46,7 @@ JNIEXPORT jlong JNICALL Java_de_libalf_jni_JNIAlgorithmDeterministicInferringZ3_
 	/*
 	 * Return the new object
 	 */
-	learning_algorithm<bool>* algorithm = new deterministic_inferring_z3<bool>(base, logger, alphabet_size, use_variables, use_enum;
+	learning_algorithm<bool>* algorithm = new deterministic_inferring_Z3<bool>(base, logger, alphabet_size, use_variables, use_enum);
 	return ((jlong)algorithm);
 }
 
@@ -57,13 +57,13 @@ JNIEXPORT jlong JNICALL Java_de_libalf_jni_JNIAlgorithmDeterministicInferringZ3_
 	/*
 	 * Return the new object
 	 */
-	learning_algorithm<bool>* algorithm = new deterministic_inferring_z3<bool>(base, NULL, alphabet_size, use_variables, use_enum;
+	learning_algorithm<bool>* algorithm = new deterministic_inferring_Z3<bool>(base, NULL, alphabet_size, use_variables, use_enum);
 	return ((jlong)algorithm);
 }
 
 JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithmDeterministicInferringZ3_is_1using_1variables (JNIEnv * env, jobject obj, jlong pointer) {
 	// Get the algorithm object
-	deterministic_inferring_z3<bool>* algorithm = (deterministic_inferring_z3<bool>*)pointer;
+	deterministic_inferring_Z3<bool>* algorithm = (deterministic_inferring_Z3<bool>*)pointer;
 
 	// Forward method call
 	return algorithm->is_using_variables();
@@ -71,7 +71,7 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithmDeterministicInferring
 
 JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithmDeterministicInferringZ3_set_1using_1variables (JNIEnv * env, jobject obj, jlong pointer, jboolean using_variables) {
 	// Get the algorithm object
-	deterministic_inferring_z3<bool>* algorithm = (deterministic_inferring_z3<bool>*)pointer;
+	deterministic_inferring_Z3<bool>* algorithm = (deterministic_inferring_Z3<bool>*)pointer;
 
 	// Forward method call
 	algorithm->set_using_variables(using_variables);
@@ -79,7 +79,7 @@ JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithmDeterministicInferringZ3_s
 
 JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithmDeterministicInferringZ3_is_1using_1enum (JNIEnv * env, jobject obj, jlong pointer) {
 	// Get the algorithm object
-	deterministic_inferring_z3<bool>* algorithm = (deterministic_inferring_z3<bool>*)pointer;
+	deterministic_inferring_Z3<bool>* algorithm = (deterministic_inferring_Z3<bool>*)pointer;
 
 	// Forward method call
 	return algorithm->is_using_enum();
@@ -87,7 +87,7 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithmDeterministicInferring
 
 JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithmDeterministicInferringZ3_set_1using_1enum (JNIEnv * env, jobject obj, jlong pointer, jboolean using_enum) {
 	// Get the algorithm object
-	deterministic_inferring_z3<bool>* algorithm = (deterministic_inferring_z3<bool>*)pointer;
+	deterministic_inferring_Z3<bool>* algorithm = (deterministic_inferring_Z3<bool>*)pointer;
 
 	// Forward method call
 	algorithm->set_using_enum(using_enum);
@@ -95,7 +95,7 @@ JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithmDeterministicInferringZ3_s
 
 JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithmDeterministicInferringZ3_is_1logging_1model (JNIEnv * env, jobject obj, jlong pointer) {
 	// Get the algorithm object
-	deterministic_inferring_z3<bool>* algorithm = (deterministic_inferring_z3<bool>*)pointer;
+	deterministic_inferring_Z3<bool>* algorithm = (deterministic_inferring_Z3<bool>*)pointer;
 
 	// Forward method call
 	return algorithm->is_logging_model();
@@ -103,7 +103,7 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithmDeterministicInferring
 
 JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithmDeterministicInferringZ3_set_1log_1model (JNIEnv * env, jobject obj, jlong pointer, jboolean log_model) {
 	// Get the algorithm object
-	deterministic_inferring_z3<bool>* algorithm = (deterministic_inferring_z3<bool>*)pointer;
+	deterministic_inferring_Z3<bool>* algorithm = (deterministic_inferring_Z3<bool>*)pointer;
 
 	// Forward method call
 	algorithm->set_log_model(log_model);

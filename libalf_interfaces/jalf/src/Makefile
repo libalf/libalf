@@ -66,7 +66,8 @@ OBJECTS =	jni_tools.o					\
 		jni_algorithm_deterministic_inferring_z3.o 	\
 		jni_algorithm_dfa_inferring_minisat.o 		\
 		jni_algorithm_dfa_inferring_z3.o	 	\
-		jni_algorithm_nfa_inferring_minisat.o	
+		jni_algorithm_nfa_inferring_minisat.o		\
+		jni_algorithm_counterexample_learning.o
 
 
 all:	${TARGET}

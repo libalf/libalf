@@ -84,9 +84,9 @@ public abstract class JNILearningAlgorithm extends JNIObject implements
 	}
 
 	@Override
-	public void add_counterexample(int[] counterexample) {
+	public boolean add_counterexample(int[] counterexample) {
 		check();
-		add_counterexample(counterexample, this.pointer);
+		return add_counterexample(counterexample, this.pointer);
 	}
 
 	/**
@@ -101,7 +101,7 @@ public abstract class JNILearningAlgorithm extends JNIObject implements
 	 *            the pointer to the C++ object.
 	 * @return the result of the JNI call.
 	 */
-	private native void add_counterexample(int[] counterexample, long pointer);
+	private native boolean add_counterexample(int[] counterexample, long pointer);
 
 	@Override
 	public BasicAutomaton advance() {

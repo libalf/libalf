@@ -332,7 +332,12 @@ class prefix_tree {
 		ret += 0;
 		ret += ::serialize(alphabet_size);
 		ret += ::serialize(node_count);
-		ret += ::serialize(edges);
+		//std::vector<unsigned int *> edges
+		for(unsigned int i=0; i<node_count; i++) {
+			for(unsigned int j=0; j<alphabet_size; j++) {
+				ret += ::serialize(edges[i][j]);
+			}
+		}
 		ret += ::serialize(specified);
  		ret += ::serialize(output);
 		ret[0] = htonl(ret.length() - 1);
@@ -344,7 +349,11 @@ class prefix_tree {
 		if(!::deserialize(size, serial)) return false;
 		if(!::deserialize(alphabet_size, serial)) return false;
 		if(!::deserialize(node_count, serial)) return false;
-		if(!::deserialize(edges, serial)) return false;
+		for(unsigned int i=0; i<node_count; i++) {
+			for(unsigned int j=0; j<alphabet_size; j++) {
+				if(!::deserialize(edges[i][j], serial)) return false;
+			}
+		}
 		if(!::deserialize(specified, serial)) return false;
 		if(!::deserialize(output, serial)) return false;
 		return true;

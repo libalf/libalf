@@ -27,8 +27,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-import java.util.List;
-
 import de.libalf.Knowledgebase;
 import de.libalf.Logger;
 
@@ -89,29 +87,6 @@ public class JNIAlgorithmCounterexampleLearning extends JNILearningAlgorithm {
 			long logger_pointer,  int alphabet_size, long inferring_algorithm_pointer);
 
 	native long init(long knowledgebase_pointer, int alphabet_size, long inferring_algorithm_pointer);
-	
-	/**
-	 * <p>
-	 * Adds a counterexample and returns whether operation was successful.
-	 * </p>
-	 *
-	 * @return <code>true</code> if adding was successful and <code>false</code> otherwise.
-	 */
-	public boolean add_counterexample(List<Integer> word) {
-		return add_counterexample(pointer, word);
-	}
-	
-	/**
-	 * <p>
-	 * <em>JNI method call:</em> See
-	 * {@link JNIAlgorithmCounterexampleLearning#add_counterexample()}.
-	 * </p>
-	 * 
-	 * @param pointer
-	 *            the pointer to the C++ object.
-	 * @return the result of the JNI call.
-	 */
-	private native boolean add_counterexample(long pointer, List<Integer> word);
 
 	/**
 	 * <p>

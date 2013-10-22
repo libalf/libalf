@@ -550,7 +550,7 @@ class deterministic_inferring_MiniSat : public automata_inferring<answer> {
 	{ return ALG_INFERRING_MINISAT; };
 
 	virtual void generate_statistics(void) {
-		this->statistics["memory.bytes"] = sizeof(this);
+		this->statistics["memory.bytes"] = (int)sizeof(this);
 	}
 
 	virtual std::basic_string<int32_t> serialize() const

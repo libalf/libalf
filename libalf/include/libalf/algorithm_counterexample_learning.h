@@ -266,8 +266,8 @@ class counterexample_learning : public learning_algorithm<bool> {
 		this->set_alphabet_size(s);
 
 		//inferring-algorithm
-		/*int is_valid;
-		::deserialize(is_valid, serial);
+
+		/*
 		if(is_valid == 1) {
 			int type;
 			::deserialize(type, serial);
@@ -278,6 +278,7 @@ class counterexample_learning : public learning_algorithm<bool> {
 		}*/
 
 		//last conjecture
+		int is_valid;
 		::deserialize(is_valid, serial);
 		if(is_valid == 1) {
 			last_conjecture = new finite_automaton();

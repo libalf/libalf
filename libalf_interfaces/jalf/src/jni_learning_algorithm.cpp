@@ -41,7 +41,7 @@
 using namespace std;
 using namespace libalf;
 
-JNIEXPORT void JNICALL Java_de_libalf_jni_JNILearningAlgorithm_add_1counterexample (JNIEnv *env , jobject obj, jintArray counterexample, jlong pointer) {
+JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNILearningAlgorithm_add_1counterexample (JNIEnv *env , jobject obj, jintArray counterexample, jlong pointer) {
 	// Get Java array info
 	jsize length = env->GetArrayLength(counterexample);
 	jint *entry = env->GetIntArrayElements(counterexample, 0);
@@ -55,7 +55,7 @@ JNIEXPORT void JNICALL Java_de_libalf_jni_JNILearningAlgorithm_add_1counterexamp
 	// Get the algorithm object
 	learning_algorithm<bool>* algorithm = (learning_algorithm<bool>*)pointer;
 	// Forward method call
-	algorithm->add_counterexample(ce);
+	return algorithm->add_counterexample(ce);
 }
 
 JNIEXPORT jobject JNICALL Java_de_libalf_jni_JNILearningAlgorithm_advance (JNIEnv *env, jobject obj, jlong pointer) {

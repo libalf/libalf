@@ -835,7 +835,8 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 	{ return ALG_INFERRING_CSP_MINISAT; };
 
 	virtual void generate_statistics(void) {
-		this->statistics["memory.bytes"] = sizeof(this);
+		int bytes = sizeof(this);
+		this->statistics["memory.bytes"] = bytes;
 	}
 
 	virtual std::basic_string<int32_t> serialize() const

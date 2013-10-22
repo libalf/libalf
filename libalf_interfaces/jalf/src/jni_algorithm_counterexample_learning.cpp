@@ -27,6 +27,7 @@
 #include <libalf/knowledgebase.h>
 #include <libalf/learning_algorithm.h>
 #include <libalf/algorithm_counterexample_learning.h>
+#include <libalf/algorithm_automata_inferring.h>
 
 #include <jni.h>
 
@@ -34,7 +35,7 @@
 
 using namespace std;
 using namespace libalf;
-JNIEXPORT jlong JNICALL Java_de_libalf_jni_JNIAlgorithmCounterexampleLearning_init__JJIJ (JNIEnv * env, jobject obj, jlong kb_pointer, jlong log_pointer, jint alphabet_size, jlong inferring_algorithm) {
+JNIEXPORT jlong JNICALL Java_de_libalf_jni_JNIAlgorithmCounterexampleLearning_init__JJIJ (JNIEnv * env, jobject obj, jlong kb_pointer, jlong log_pointer, jint alphabet_size, jlong inferring_algorithm_pointer) {
 	// Get the knowledgebase object
 	knowledgebase<bool> *base = (knowledgebase<bool>*) kb_pointer;
 
@@ -42,67 +43,32 @@ JNIEXPORT jlong JNICALL Java_de_libalf_jni_JNIAlgorithmCounterexampleLearning_in
 	buffered_logger *logger = (buffered_logger*) log_pointer;
 
 	// Get the inferring algorithm object
-	inferring_algorithm<bool> * inferring_alg = (inferring_algorithm<bool>*) inferring_algorithm;
+	automata_inferring<bool> *inferring_alg = (automata_inferring<bool>*) inferring_algorithm_pointer;
 
 	/*
 	 * Return the new object
 	 */
-	learning_algorithm<bool>* algorithm = new algorithm_counterexample_learning(base, logger, alphabet_size, inferring_alg);
+	learning_algorithm<bool>* algorithm = new counterexample_learning(base, logger, alphabet_size, inferring_alg);
 	return ((jlong)algorithm);
 }
 
-JNIEXPORT jlong JNICALL Java_de_libalf_jni_JNIAlgorithmCounterexampleLearning_init__JIJ (JNIEnv * env, jobject obj, jlong kb_pointer, jlong log_pointer, jint alphabet_size, jlong inferring_algorithm) {
+JNIEXPORT jlong JNICALL Java_de_libalf_jni_JNIAlgorithmCounterexampleLearning_init__JIJ (JNIEnv * env, jobject obj, jlong kb_pointer, jlong log_pointer, jint alphabet_size, jlong inferring_algorithm_pointer) {
 	// Get the knowledgebase object
 	knowledgebase<bool> *base = (knowledgebase<bool>*) kb_pointer;
 
 	// Get the inferring algorithm object
-	inferring_algorithm<bool> * inferring_alg = (inferring_algorithm<bool>*) inferring_algorithm;
+	automata_inferring<bool> * inferring_alg = (automata_inferring<bool>*) inferring_algorithm_pointer;
 
 	/*
 	 * Return the new object
 	 */
-	learning_algorithm<bool>* algorithm = new algorithm_counterexample_learning(base, NULL, alphabet_size, inferring_alg);
+	learning_algorithm<bool>* algorithm = new counterexample_learning(base, NULL, alphabet_size, inferring_alg);
 	return ((jlong)algorithm);
-}
-
-JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithmCounterexampleLearning_add_1counterexample (JNIEnv * env, jobject obj, jlong pointer, jobject word) {
-	// Get the algorithm object
-	algorithm_counterexample_learning* algorithm = (algorithm_counterexample_learning*)pointer;
-
-	// Decoding word from Java:List<Integer> to C++:list<int>
-	std::list<int> list_word;
-	jclass clsList = env->FindClass("java/util/List");
-	jmethodID midListSize = 0;
-	jmethodID midListGet = 0;
-	if(clsList != 0){
-		midListSize = env->GetMethodID(clsList, "size", "()I");
-		midListGet = env->GetMethodID(clsList, "get", "(I)Ljava/lang/Object;");
-	}
-	jclass clsInteger = env->FindClass("java/lang/Integer");
-	jmethodID midIntegerIntValue = 0;
-	if(clsInteger != 0){
-		midIntegerIntValue = env->GetMethodID(clsInteger, "intValue", "()I");
-	}
-
-	if((clsList != 0) && (midListSize != 0)){
-		int list_size = env->CallIntMethod(word,  midListSize );
-		if((list_size > 0) && (midListGet != 0) && (clsInteger != 0) && (midIntegerIntValue != 0)){
-
-			for(int i=0; i < list_size; i++){
-				jobject listElement = env->CallObjectMethod(word, midListGet, i);
-				int value = env->CallIntMethod(listElement, midIntegerIntValue);                              
-				list_word.push_back(value);
-			}      
-		}
-	} 
-
-	// Forward method call
-	return algorithm->add_counter_example(list_word);
 }
 
 JNIEXPORT jlong JNICALL Java_de_libalf_jni_JNIAlgorithmCounterexampleLearning_derive_1conjecture (JNIEnv * env, jobject obj, jlong pointer) {
 	// Get the algorithm object
-	algorithm_counterexample_learning* algorithm = (algorithm_counterexample_learning*)pointer;
+	counterexample_learning* algorithm = (counterexample_learning*)pointer;
 
 	// Forward method call
 	return ((jlong)(algorithm->derive_conjecture()));

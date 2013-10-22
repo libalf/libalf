@@ -44,7 +44,7 @@ JNIEXPORT jlong JNICALL Java_de_libalf_jni_JNIAlgorithmDFAInferringMinisat_init_
 	/*
 	 * Return the new object
 	 */
-	learning_algorithm<bool>* algorithm = new dfa_inferring_MiniSat<bool>(base, logger, alphabet_size, symmetry_breaking);
+	learning_algorithm<bool>* algorithm = new dfa_inferring_MiniSat(base, logger, alphabet_size, symmetry_breaking);
 	return ((jlong)algorithm);
 }
 
@@ -55,13 +55,13 @@ JNIEXPORT jlong JNICALL Java_de_libalf_jni_JNIAlgorithmDFAInferringMinisat_init_
 	/*
 	 * Return the new object
 	 */
-	learning_algorithm<bool>* algorithm = new dfa_inferring_MiniSat<bool>(base, NULL, alphabet_size, symmetry_breaking);
+	learning_algorithm<bool>* algorithm = new dfa_inferring_MiniSat(base, NULL, alphabet_size, symmetry_breaking);
 	return ((jlong)algorithm);
 }
 
 JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithmDFAInferringMinisat_uses_1symmetry_1breaking (JNIEnv * env, jobject obj, jlong pointer) {
 	// Get the algorithm object
-	dfa_inferring_MiniSat<bool>* algorithm = (dfa_inferring_MiniSat<bool>*)pointer;
+	dfa_inferring_MiniSat* algorithm = (dfa_inferring_MiniSat*)pointer;
 
 	// Forward method call
 	return algorithm->uses_symmetry_breaking();
@@ -69,7 +69,7 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithmDFAInferringMinisat_us
 
 JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithmDFAInferringMinisat_set_1symmetry_1breaking (JNIEnv * env, jobject obj, jlong pointer, jboolean symmetry_breaking) {
 	// Get the algorithm object
-	dfa_inferring_MiniSat<bool>* algorithm = (dfa_inferring_MiniSat<bool>*)pointer;
+	dfa_inferring_MiniSat* algorithm = (dfa_inferring_MiniSat*)pointer;
 
 	// Forward method call
 	algorithm->set_symmetry_breaking(symmetry_breaking);
@@ -77,7 +77,7 @@ JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithmDFAInferringMinisat_set_1s
 
 JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithmDFAInferringMinisat_is_1logging_1model (JNIEnv * env, jobject obj, jlong pointer) {
 	// Get the algorithm object
-	dfa_inferring_MiniSat<bool>* algorithm = (dfa_inferring_MiniSat<bool>*)pointer;
+	dfa_inferring_MiniSat* algorithm = (dfa_inferring_MiniSat*)pointer;
 
 	// Forward method call
 	return algorithm->is_logging_model();
@@ -85,7 +85,7 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithmDFAInferringMinisat_is
 
 JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithmDFAInferringMinisat_set_1log_1model (JNIEnv * env, jobject obj, jlong pointer, jboolean log_model) {
 	// Get the algorithm object
-	dfa_inferring_MiniSat<bool>* algorithm = (dfa_inferring_MiniSat<bool>*)pointer;
+	dfa_inferring_MiniSat* algorithm = (dfa_inferring_MiniSat*)pointer;
 
 	// Forward method call
 	algorithm->set_log_model(log_model);

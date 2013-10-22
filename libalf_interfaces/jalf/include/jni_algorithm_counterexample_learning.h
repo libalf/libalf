@@ -31,14 +31,6 @@ JNIEXPORT jlong JNICALL Java_de_libalf_jni_JNIAlgorithmCounterexampleLearning_in
 
 /*
  * Class:     de_libalf_jni_JNIAlgorithmCounterexampleLearning
- * Method:    add_counterexample
- * Signature: (JLjava/util/List;)Z
- */
-JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithmCounterexampleLearning_add_1counterexample
-  (JNIEnv *, jobject, jlong, jobject);
-
-/*
- * Class:     de_libalf_jni_JNIAlgorithmCounterexampleLearning
  * Method:    derive_conjecture
  * Signature: (J)J
  */

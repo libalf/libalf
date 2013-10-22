@@ -165,8 +165,12 @@ public interface LearningAlgorithm extends LibALFObject {
 	 * 
 	 * @param counterexample
 	 *            the new counter-example to add
+	 * @return <ul>
+	 *         <li>True if adding of counterexample was successful or</li>
+	 *         <li><code>false</code>, otherwise.</li>
+	 *         </ul>
 	 */
-	public void add_counterexample(int[] counterexample);
+	public boolean add_counterexample(int[] counterexample);
 
 	/**
 	 * Synchronizes the learning algorithm with the associated knowledge base.

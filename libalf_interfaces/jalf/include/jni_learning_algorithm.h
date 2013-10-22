@@ -16,7 +16,7 @@ extern "C" {
  * Method:    add_counterexample
  * Signature: ([IJ)V
  */
-JNIEXPORT void JNICALL Java_de_libalf_jni_JNILearningAlgorithm_add_1counterexample
+JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNILearningAlgorithm_add_1counterexample
   (JNIEnv *, jobject, jintArray, jlong);
 
 /*
