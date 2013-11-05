@@ -59,7 +59,7 @@ JNIEXPORT jlong JNICALL Java_de_libalf_jni_JNIAlgorithmNFAInferringMinisat_init_
 	return ((jlong)algorithm);
 }
 
-JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithmDeterministicInferringMinisat_uses_1symmetry_1breaking (JNIEnv * env, jobject obj, jlong pointer) {
+JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithmNFAInferringMinisat_uses_1symmetry_1breaking (JNIEnv * env, jobject obj, jlong pointer) {
 	// Get the algorithm object
 	nfa_inferring_MiniSat* algorithm = (nfa_inferring_MiniSat*)pointer;
 
@@ -67,7 +67,7 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithmDeterministicInferring
 	return algorithm->uses_symmetry_breaking();
 }
 
-JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithmDeterministicInferringMinisat_set_1symmetry_1breaking (JNIEnv * env, jobject obj, jlong pointer, jboolean symmetry_breaking) {
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithmNFAInferringMinisat_set_1symmetry_1breaking (JNIEnv * env, jobject obj, jlong pointer, jboolean symmetry_breaking) {
 	// Get the algorithm object
 	nfa_inferring_MiniSat* algorithm = (nfa_inferring_MiniSat*)pointer;
 
@@ -75,7 +75,7 @@ JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithmDeterministicInferringMini
 	algorithm->set_symmetry_breaking(symmetry_breaking);
 }
 
-JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithmDeterministicInferringMinisat_is_1logging_1model (JNIEnv * env, jobject obj, jlong pointer) {
+JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithmNFAInferringMinisat_is_1logging_1model (JNIEnv * env, jobject obj, jlong pointer) {
 	// Get the algorithm object
 	nfa_inferring_MiniSat* algorithm = (nfa_inferring_MiniSat*)pointer;
 
@@ -83,7 +83,7 @@ JNIEXPORT jboolean JNICALL Java_de_libalf_jni_JNIAlgorithmDeterministicInferring
 	return algorithm->is_logging_model();
 }
 
-JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithmDeterministicInferringMinisat_set_1log_1model (JNIEnv * env, jobject obj, jlong pointer, jboolean log_model) {
+JNIEXPORT void JNICALL Java_de_libalf_jni_JNIAlgorithmNFAInferringMinisat_set_1log_1model (JNIEnv * env, jobject obj, jlong pointer, jboolean log_model) {
 	// Get the algorithm object
 	nfa_inferring_MiniSat* algorithm = (nfa_inferring_MiniSat*)pointer;
 

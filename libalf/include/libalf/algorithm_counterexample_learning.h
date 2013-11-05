@@ -296,9 +296,9 @@ class counterexample_learning : public learning_algorithm<bool> {
 	}
 
 	// Not implemented
-	bool deserialize_magic(serial_stretch __attribute__ ((__unused__)) & serial, std::basic_string<int32_t> __attribute__ ((__unused__)) & result) {
-		(*this->my_logger)(LOGGER_WARN, "This feature is not implemented.\n");
-		return false;
+	bool deserialize_magic(serial_stretch & serial, std::basic_string<int32_t> & result) {
+		//nothing to do, all cmds handled already
+		return true;
 	}
 
 };

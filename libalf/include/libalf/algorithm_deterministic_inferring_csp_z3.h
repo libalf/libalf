@@ -1165,6 +1165,32 @@ class deterministic_inferring_csp_Z3 : public automata_inferring<answer> {
 		return true;
 	}
 
+	bool deserialize_magic(serial_stretch & serial, std::basic_string<int32_t> & result) {
+		result.clear();
+		if(serial.empty()) return false;
+		switch(ntohl(*serial)) {
+			case 0:
+				result += htonl(is_using_variables());
+				break;
+			case 1:
+				++serial;
+				if(serial.empty()) return false;
+				set_using_variables(ntohl(*serial) != 0);
+				break;
+			case 2:
+				result += htonl(is_using_enum());
+				break;
+			case 3:
+				++serial;
+				if(serial.empty()) return false;
+				set_using_enum(ntohl(*serial) != 0);
+				break;
+			default:
+				return false;
+		}
+		return true;
+	}
+
 };
 
 }; // End libalf namespace

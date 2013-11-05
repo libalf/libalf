@@ -547,6 +547,25 @@ class nfa_inferring_MiniSat : public automata_inferring<bool> {
 		return true;
 	}
 
+	bool deserialize_magic(serial_stretch & serial, std::basic_string<int32_t> & result) {
+		result.clear();
+		if(serial.empty()) return false;
+		switch(ntohl(*serial)) {
+			case 0:
+				result += htonl(uses_symmetry_breaking());
+				break;
+			case 1:
+				++serial;
+				if(serial.empty()) return false;
+				set_symmetry_breaking(ntohl(*serial) != 0);
+				break;
+			default:
+				return false;
+		}
+		return true;
+	}
+
+
 
 };
 

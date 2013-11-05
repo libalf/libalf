@@ -38,6 +38,18 @@
 #include <libalf/algorithm_kearns_vazirani.h>
 #include <libalf/algorithm_rivest_schapire.h>
 
+//Inferring
+#include <libalf/algorithm_deterministic_inferring_csp_minisat.h>
+#include <libalf/algorithm_deterministic_inferring_csp_z3.h>
+#include <libalf/algorithm_deterministic_inferring_minisat.h>
+#include <libalf/algorithm_deterministic_inferring_z3.h>
+#include <libalf/algorithm_dfa_inferring_minisat.h>
+#include <libalf/algorithm_dfa_inferring_z3.h>
+#include <libalf/algorithm_nfa_inferring_minisat.h>
+#include <libalf/algorithm_counterexample_learning.h>
+
+
+
 #include "co_learning_algorithm.h"
 #include "co_logger.h"
 #include "co_normalizer.h"
@@ -89,6 +101,30 @@ co_learning_algorithm::co_learning_algorithm(enum libalf::learning_algorithm_typ
 		case ALG_RIVEST_SCHAPIRE:
 			o = new rivest_schapire_table<bool>(NULL, NULL, alphabet_size);
 			break;
+		case ALG_INFERRING_MINISAT:
+			o = new deterministic_inferring_MiniSat<bool>(NULL, NULL, alphabet_size);
+			break;
+		case ALG_INFERRING_Z3: 
+			o = new deterministic_inferring_Z3<bool>(NULL, NULL, alphabet_size);
+			break;
+		case ALG_INFERRING_CSP_MINISAT:
+			o = new deterministic_inferring_csp_MiniSat<bool>(NULL, NULL, alphabet_size);
+			break;
+		case ALG_INFERRING_CSP_Z3:
+			o = new deterministic_inferring_csp_Z3<bool>(NULL, NULL, alphabet_size);
+			break; 
+		case ALG_INFERRING_DFA_MINISAT:
+			o = new dfa_inferring_MiniSat<bool>(NULL, NULL, alphabet_size);
+			break; 
+		case ALG_INFERRING_DFA_Z3:
+			o = new dfa_inferring_Z3<bool>(NULL, NULL, alphabet_size);
+			break; 
+		case ALG_INFERRING_NFA_MINISAT:
+			o = new nfa_inferring_MiniSat<bool>(NULL, NULL, alphabet_size);
+			break;
+		case ALG_COUNTEREXAMPLE_LEARNING:
+			o = new counterexample_learning(NULL, NULL, alphabet_size, NULL);
+			break; 
 	}
 }}};
 
