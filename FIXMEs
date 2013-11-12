@@ -1,0 +1,39 @@
+libalf/include/libalf/algorithm_biermann.h
+// FIXME: migrate mapping to knowledgebase<answer>::equivalence_relation
+// pick an initial mDFA size [FIXME]
+// FIXME: if normalizer, normalize suffixes and find corresponding node!
+
+
+libalf/include/libalf/algorithm_mVCA_angluinlike.h
+
+
+libalf/include/libalf/knowledgebase.h
+// FIXME: efficiency
+// FIXME: use operator<< for it->get_answer().
+
+
+libalf/include/libalf/filter.h
+* deserialization
+
+
+libalf/include/libalf/learning_algorithm.h
+// FIXME: increase + decrease alphabet-size, check initialized.
+
+
+libalf/include/libalf/algorithm_biermann_minisat.h
+// FIXME: this is far too inefficient
+
+
+libalf/include/libalf/algorithm_angluin.h
+// FIXME: <= or < ?
+
+
+libalf_interfaces/dispatcher/src/serversocket.cpp
+// FIXME: use listen_address, not INADDR_ANY
+
+
+libalf_interfaces/jalf/java/src/de/libalf/dispatcher/DispatcherLearningAlgorithm.java
+// FIXME: SET not INCR
+// TODO: assert check_logger();
+// FIXME: return something
+
