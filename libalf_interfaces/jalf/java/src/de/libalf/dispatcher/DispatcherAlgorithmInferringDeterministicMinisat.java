@@ -24,14 +24,14 @@ package de.libalf.dispatcher;
 import de.libalf.Knowledgebase;
 import de.libalf.Logger;
 
-public class DispatcherAlgorithmInferringMinisat extends DispatcherLearningAlgorithm {
+public class DispatcherAlgorithmInferringDeterministicMinisat extends DispatcherLearningAlgorithm {
 	private static final long serialVersionUID = 1L;
 
-	public DispatcherAlgorithmInferringMinisat(DispatcherFactory factory, Knowledgebase base, int alphabet_size, Logger logger) {
+	public DispatcherAlgorithmInferringDeterministicMinisat(DispatcherFactory factory, Knowledgebase base, int alphabet_size, Logger logger) {
 		super(factory, DispatcherConstants.ALG_INFERRING_CSP_MINISAT, base, alphabet_size, logger);
 	}
 	
-	public DispatcherAlgorithmInferringMinisat(DispatcherFactory factory, Knowledgebase base, int alphabet_size, Logger logger, boolean symmetry_breaking) {
+	public DispatcherAlgorithmInferringDeterministicMinisat(DispatcherFactory factory, Knowledgebase base, int alphabet_size, Logger logger, boolean symmetry_breaking) {
 		super(factory, DispatcherConstants.ALG_INFERRING_CSP_MINISAT, base, alphabet_size, logger);
 		
 		set_symmetry_breaking(symmetry_breaking);

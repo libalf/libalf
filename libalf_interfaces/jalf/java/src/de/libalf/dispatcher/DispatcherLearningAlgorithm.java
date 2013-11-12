@@ -68,11 +68,12 @@ public abstract class DispatcherLearningAlgorithm extends DispatcherObject
 	}
 
 	@Override
-	public void add_counterexample(int[] counterexample) throws AlfException {
+	public boolean add_counterexample(int[] counterexample) throws AlfException {
 		synchronized (this.factory) {
 			this.factory.writeObjectCommandThrowing(this,
 					DispatcherConstants.LEARNING_ALGORITHM_ADD_COUNTEREXAMPLE,
 					counterexample);
+			return this.factory.readBool();
 		}
 	}
 

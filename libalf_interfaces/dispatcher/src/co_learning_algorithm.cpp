@@ -330,10 +330,11 @@ bool co_learning_algorithm::handle_command(int command, basic_string<int32_t> & 
 				return this->sv->send_errno(ERR_BAD_PARAMETERS);
 			if(!cd.empty())
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
-			if(o->add_counterexample(word))
+			/*if(o->add_counterexample(word)) 
 				return this->sv->send_errno(ERR_SUCCESS);
 			else
-				return this->sv->send_errno(ERR_COMMAND_FAILED);
+				return this->sv->send_errno(ERR_COMMAND_FAILED);1*/
+			return this->sv->client->stream_send_int(o->add_counterexample(word) ? 1 : 0);
 		case LEARNING_ALGORITHM_SUPPORTS_SYNC:
 			if(command_data.size() != 0)
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);

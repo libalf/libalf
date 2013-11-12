@@ -24,14 +24,14 @@ package de.libalf.dispatcher;
 import de.libalf.Knowledgebase;
 import de.libalf.Logger;
 
-public class DispatcherAlgorithmInferringCSPMinisat extends DispatcherLearningAlgorithm {
+public class DispatcherAlgorithmInferringDeterministicCSPMinisat extends DispatcherLearningAlgorithm {
 	private static final long serialVersionUID = 1L;
 
-	public DispatcherAlgorithmInferringCSPMinisat(DispatcherFactory factory, Knowledgebase base, int alphabet_size, Logger logger) {
+	public DispatcherAlgorithmInferringDeterministicCSPMinisat(DispatcherFactory factory, Knowledgebase base, int alphabet_size, Logger logger) {
 		super(factory, DispatcherConstants.ALG_INFERRING_CSP_MINISAT, base, alphabet_size, logger);
 	}
 	
-	public DispatcherAlgorithmInferringCSPMinisat(DispatcherFactory factory, Knowledgebase base, int alphabet_size, Logger logger, boolean use_unary_encoding) {
+	public DispatcherAlgorithmInferringDeterministicCSPMinisat(DispatcherFactory factory, Knowledgebase base, int alphabet_size, Logger logger, boolean use_unary_encoding) {
 		super(factory, DispatcherConstants.ALG_INFERRING_CSP_MINISAT, base, alphabet_size, logger);
 		
 		set_unary_encoding(use_unary_encoding);

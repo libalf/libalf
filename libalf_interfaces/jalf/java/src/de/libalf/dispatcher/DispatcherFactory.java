@@ -462,6 +462,94 @@ public class DispatcherFactory implements LibALFFactory {
 			else
 				throw new AlfException("Invalid parameters for creating DeLeTe2 inference algorithm: " + args.length + ".");
 
+		case ALG_INFERRING_CSP_MINISAT:
+			/*
+			 * Create deterministic CSP MiniSat inference algorithm.
+			 */
+			if (args.length == 2)
+				return new DispatcherAlgorithmInferringDeterministicCSPMinisat(this, (Knowledgebase) args[0], (Integer) args[1], null);
+			else if (args.length == 3)
+				return new DispatcherAlgorithmInferringDeterministicCSPMinisat(this, (Knowledgebase) args[0], (Integer) args[1], (Logger) args[2]);
+			else
+				throw new AlfException("Invalid parameters for creating deterministic CSP MiniSat inference algorithm: " + args.length + ".");
+
+		case ALG_INFERRING_CSP_Z3:
+			/*
+			 * Create deterministic CSP MiniSat inference algorithm.
+			 */
+			if (args.length == 2)
+				return new DispatcherAlgorithmInferringDeterministicCSPZ3(this, (Knowledgebase) args[0], (Integer) args[1], null);
+			else if (args.length == 3)
+				return new DispatcherAlgorithmInferringDeterministicCSPZ3(this, (Knowledgebase) args[0], (Integer) args[1], (Logger) args[2]);
+			else
+				throw new AlfException("Invalid parameters for creating deterministic CSP Z3 inference algorithm: " + args.length + ".");
+
+		case ALG_INFERRING_MINISAT:
+			/*
+			 * Create deterministic MiniSat inference algorithm.
+			 */
+			if (args.length == 2)
+				return new DispatcherAlgorithmInferringDeterministicMinisat(this, (Knowledgebase) args[0], (Integer) args[1], null);
+			else if (args.length == 3)
+				return new DispatcherAlgorithmInferringDeterministicMinisat(this, (Knowledgebase) args[0], (Integer) args[1], (Logger) args[2]);
+			else
+				throw new AlfException("Invalid parameters for creating deterministic MiniSat inference algorithm: " + args.length + ".");
+
+		case ALG_INFERRING_Z3:
+			/*
+			 * Create deterministic CSP MiniSat inference algorithm.
+			 */
+			if (args.length == 2)
+				return new DispatcherAlgorithmInferringDeterministicZ3(this, (Knowledgebase) args[0], (Integer) args[1], null);
+			else if (args.length == 3)
+				return new DispatcherAlgorithmInferringDeterministicZ3(this, (Knowledgebase) args[0], (Integer) args[1], (Logger) args[2]);
+			else
+				throw new AlfException("Invalid parameters for creating deterministic Z3 inference algorithm: " + args.length + ".");
+
+		case ALG_INFERRING_DFA_MINISAT:
+			/*
+			 * Create deterministic MiniSat inference algorithm.
+			 */
+			if (args.length == 2)
+				return new DispatcherAlgorithmInferringDFAMinisat(this, (Knowledgebase) args[0], (Integer) args[1], null);
+			else if (args.length == 3)
+				return new DispatcherAlgorithmInferringDFAMinisat(this, (Knowledgebase) args[0], (Integer) args[1], (Logger) args[2]);
+			else
+				throw new AlfException("Invalid parameters for creating DFA MiniSat inference algorithm: " + args.length + ".");
+
+		case ALG_INFERRING_DFA_Z3:
+			/*
+			 * Create deterministic CSP MiniSat inference algorithm.
+			 */
+			if (args.length == 2)
+				return new DispatcherAlgorithmInferringDFAZ3(this, (Knowledgebase) args[0], (Integer) args[1], null);
+			else if (args.length == 3)
+				return new DispatcherAlgorithmInferringDFAZ3(this, (Knowledgebase) args[0], (Integer) args[1], (Logger) args[2]);
+			else
+				throw new AlfException("Invalid parameters for creating DFA Z3 inference algorithm: " + args.length + ".");
+
+		case ALG_INFERRING_NFA_MINISAT:
+			/*
+			 * Create deterministic MiniSat inference algorithm.
+			 */
+			if (args.length == 2)
+				return new DispatcherAlgorithmInferringNFAMinisat(this, (Knowledgebase) args[0], (Integer) args[1], null);
+			else if (args.length == 3)
+				return new DispatcherAlgorithmInferringNFAMinisat(this, (Knowledgebase) args[0], (Integer) args[1], (Logger) args[2]);
+			else
+				throw new AlfException("Invalid parameters for creating NFA MiniSat inference algorithm: " + args.length + ".");
+
+		case ALG_COUNTEREXAMPLE_LEARNING:
+			/*
+			 * Create deterministic MiniSat inference algorithm.
+			 */
+			if (args.length == 2)
+				return new DispatcherAlgorithmCounterexampleLearning(this, (Knowledgebase) args[0], (Integer) args[1], null);
+			else if (args.length == 3)
+				return new DispatcherAlgorithmCounterexampleLearning(this, (Knowledgebase) args[0], (Integer) args[1], (Logger) args[2]);
+			else
+				throw new AlfException("Invalid parameters for creating counterexample learning algorithm: " + args.length + ".");
+
 		default:
 			/*
 			 * Default switch: Should never happen.

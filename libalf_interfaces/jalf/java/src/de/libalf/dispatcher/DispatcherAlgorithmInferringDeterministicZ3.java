@@ -24,14 +24,14 @@ package de.libalf.dispatcher;
 import de.libalf.Knowledgebase;
 import de.libalf.Logger;
 
-public class DispatcherAlgorithmInferringZ3 extends DispatcherLearningAlgorithm {
+public class DispatcherAlgorithmInferringDeterministicZ3 extends DispatcherLearningAlgorithm {
 	private static final long serialVersionUID = 1L;
 
-	public DispatcherAlgorithmInferringZ3(DispatcherFactory factory, Knowledgebase base, int alphabet_size, Logger logger) {
+	public DispatcherAlgorithmInferringDeterministicZ3(DispatcherFactory factory, Knowledgebase base, int alphabet_size, Logger logger) {
 		super(factory, DispatcherConstants.ALG_INFERRING_Z3, base, alphabet_size, logger);
 	}
 	
-	public DispatcherAlgorithmInferringZ3(DispatcherFactory factory, Knowledgebase base, int alphabet_size, Logger logger, boolean use_variables, boolean use_enum) {
+	public DispatcherAlgorithmInferringDeterministicZ3(DispatcherFactory factory, Knowledgebase base, int alphabet_size, Logger logger, boolean use_variables, boolean use_enum) {
 		super(factory, DispatcherConstants.ALG_INFERRING_Z3, base, alphabet_size, logger);
 		
 		set_using_variables(use_variables);
