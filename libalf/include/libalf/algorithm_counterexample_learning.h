@@ -85,6 +85,16 @@ class counterexample_learning : public learning_algorithm<bool> {
 		}
 	
 	}
+
+	void set_inferring_algorithm(automata_inferring<bool> * inferring_algorithm) {
+		if(inferring_algorithm == NULL)
+			(*this->my_logger)(LOGGER_WARN, "Not a valid inferring algorithm.\n");
+		this->inferring_algorithm = inferring_algorithm;
+	}
+
+	automata_inferring<bool> * get_inferring_algorithm() {
+		return inferring_algorithm;
+	}
 	
 	void print(std::ostream & os) const {
 	
@@ -163,6 +173,12 @@ class counterexample_learning : public learning_algorithm<bool> {
 			(*this->my_logger)(LOGGER_WARN, "No knowledgebase given.\n");
 			return false;
 		}
+
+		// Check inferring algorithm
+		if(this->inferring_algorithm == NULL) {
+			(*this->my_logger)(LOGGER_WARN, "No inferring algorithm given.\n");
+			return false;
+		}
 	
 		// Check whether we should wait for a counter-example
 		if(last_conjecture != NULL) {
@@ -186,12 +202,6 @@ class counterexample_learning : public learning_algorithm<bool> {
 		
 	}
 
-
-	/*
-	 * The following code are method stubs for much of libALF's functionality
-	 * that is not (yet) supported the the automata inferring algorithms.
-	 * That might change in the future.
-	 */
 	public:
 
 	virtual enum learning_algorithm_type get_type() const
@@ -228,15 +238,6 @@ class counterexample_learning : public learning_algorithm<bool> {
 
 		// alphabet size
 		ret += htonl(this->get_alphabet_size());
-		
-		// inferring_algorithm
-		/*if(inferring_algorithm == NULL) {
-			ret += htonl(0);
-		} else {
-			ret += htonl(1);
-			ret += htonl(inferring_algorithm->get_type());
-			ret += inferring_algorithm->serialize();
-		}*/
 
 		// last conjecture
 		if(last_conjecture == NULL) {
@@ -264,18 +265,6 @@ class counterexample_learning : public learning_algorithm<bool> {
 		//alphabet size
 		if(!::deserialize(s, serial)) return deserialization_failed();
 		this->set_alphabet_size(s);
-
-		//inferring-algorithm
-
-		/*
-		if(is_valid == 1) {
-			int type;
-			::deserialize(type, serial);
-			if(type == ALG_INFERRING_CSP_MINISAT) {
-				inferring_algorithm = new deterministic_inferring_csp_MiniSat<bool>(NULL, NULL, 0);
-			}
-			if(!inferring_algorithm->deserialize(serial)) return deserialization_failed();
-		}*/
 
 		//last conjecture
 		int is_valid;

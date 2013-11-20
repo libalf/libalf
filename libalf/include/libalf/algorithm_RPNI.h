@@ -238,12 +238,14 @@ class RPNI : public learning_algorithm<answer> {
 
 		virtual bool sync_to_knowledgebase()
 		{{{
-			return true;
+			(*this->my_logger)(LOGGER_WARN, "This feature is not supported.\n");
+			return false;
 		}}}
 
 		virtual bool supports_sync() const
 		{{{
-			return true;
+			(*this->my_logger)(LOGGER_WARN, "This feature is not supported.\n");
+			return false;
 		}}}
 
 		virtual std::basic_string<int32_t> serialize() const

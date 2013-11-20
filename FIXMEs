@@ -1,39 +1,60 @@
 libalf/include/libalf/algorithm_biermann.h
-// FIXME: migrate mapping to knowledgebase<answer>::equivalence_relation
-// pick an initial mDFA size [FIXME]
-// FIXME: if normalizer, normalize suffixes and find corresponding node!
+* FIXME: migrate mapping to knowledgebase<answer>::equivalence_relation
+for: typedef std::map<node*, int, typename knowledgebase<answer>::node_comparator> mapping;
+* pick an initial mDFA size [FIXME]
+in: virtual conjecture * derive_conjecture()
+* FIXME: if normalizer, normalize suffixes and find corresponding node!
+in: virtual void create_constraints()
 
 
 libalf/include/libalf/algorithm_mVCA_angluinlike.h
+* FIXME
+in: conjecture * create_full_equivalence_query()
+
+
+libalf/include/libalf/algorithm_RPNI.h
+* FIXME: do your specific check here.
+in class RPNI_extended_consistencies
 
 
 libalf/include/libalf/knowledgebase.h
-// FIXME: efficiency
-// FIXME: use operator<< for it->get_answer().
+* FIXME: efficiency
+* FIXME: use operator<< for it->get_answer().
+in: std::string visualize(equivalence_relation & eq)
 
 
 libalf/include/libalf/filter.h
-* deserialization
+* FIXME
+in: virtual bool deserialize(std::basic_string<int32_t>::iterator &it, std::basic_string<int32_t>::iterator limit)
 
 
 libalf/include/libalf/learning_algorithm.h
-// FIXME: increase + decrease alphabet-size, check initialized.
+* FIXME: increase + decrease alphabet-size, check initialized.
+virtual void set_alphabet_size(int alphabet_size)
 
 
 libalf/include/libalf/algorithm_biermann_minisat.h
-// FIXME: this is far too inefficient
+* FIXME: this is far too inefficient
+virtual bool csp2sat(Solver & solver, std::map<node*, std::vector<Var>, typename knowledgebase<answer>::node_comparator > & vars)
+-> increment: try next clause
 
 
 libalf/include/libalf/algorithm_angluin.h
-// FIXME: <= or < ?
+* FIXME: <= or < ?
+virtual bool sync_columns()
 
 
 libalf_interfaces/dispatcher/src/serversocket.cpp
-// FIXME: use listen_address, not INADDR_ANY
+* FIXME: use listen_address, not INADDR_ANY
+bool serversocket::bind(string & listen_address, uint16_t listen_port)
+-> my_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
 
 libalf_interfaces/jalf/java/src/de/libalf/dispatcher/DispatcherLearningAlgorithm.java
-// FIXME: SET not INCR
-// TODO: assert check_logger();
-// FIXME: return something
+* FIXME: SET not INCR
+public void set_alphabet_size(int alphabet_size)
+* TODO: assert check_logger();
+public DispatcherLogger get_logger()
+* FIXME: return something
+public boolean sync_to_knowledgebase()
 

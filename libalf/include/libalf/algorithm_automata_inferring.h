@@ -40,7 +40,6 @@
 #include "libalf/learning_algorithm.h"
 #include "libalf/conjecture.h"
 #include "libalf/prefix_tree.h"
-//#include "libalf/algorithm_deterministic_inferring_csp_minisat.h"
 
 
 namespace libalf {
@@ -421,13 +420,13 @@ class automata_inferring : public learning_algorithm<answer> {
 
 	// Not implemented
 	bool sync_to_knowledgebase() {
-		(*this->my_logger)(LOGGER_WARN, "This feature is not implemented.\n");
+		(*this->my_logger)(LOGGER_WARN, "This feature is not supported.\n");
 		return false;
 	}
 
 	// Not implemented
 	bool supports_sync() const {
-		(*this->my_logger)(LOGGER_WARN, "This feature is not implemented.\n");
+		(*this->my_logger)(LOGGER_WARN, "This feature is not supported.\n");
 		return false;
 	}
 
