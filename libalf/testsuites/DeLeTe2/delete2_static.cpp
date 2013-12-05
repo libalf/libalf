@@ -51,7 +51,7 @@ int main(int argc, char**argv)
 		// F. Denis, A. Lemay, A. Terlutte: "Learning regular languages using RFSAs" [1]
 		list<int> w;
 
-		alphabet_size = 2;
+		/*alphabet_size = 2;
 
 		knowledge.add_knowledge(w, true);	// .
 		w.push_back(0);
@@ -60,10 +60,11 @@ int main(int argc, char**argv)
 		knowledge.add_knowledge(w, true);	// .0.0.
 		w.push_back(1);
 		knowledge.add_knowledge(w, false);	// .0.0.1.
-	//
-//		w.push_back(1);
-//		knowledge.add_knowledge(w, true);	// .0.0.1.1.
-	//
+	
+		w.push_back(1);
+		knowledge.add_knowledge(w, true);	// .0.0.1.1.
+	
+		w.pop_back();
 		w.pop_back();
 		w.pop_back();
 		w.push_back(1);
@@ -78,6 +79,26 @@ int main(int argc, char**argv)
 		w.pop_back();
 		w.push_back(1);
 		knowledge.add_knowledge(w, true);	// .1.1.
+		*/
+
+		/*
+		alphabet_size = 2;
+
+		knowledge.add_knowledge(w, true);	
+		w.push_back(0);
+		knowledge.add_knowledge(w, false);
+		w.push_back(1);
+		knowledge.add_knowledge(w, true);
+		w.pop_back();
+		w.push_back(0);
+		knowledge.add_knowledge(w, false);
+		*/
+
+		alphabet_size = 1;
+		knowledge.add_knowledge(w, false);
+		w.push_back(0);
+		knowledge.add_knowledge(w, true);
+		
 	};
 
 	cout << "\n";
@@ -88,13 +109,13 @@ int main(int argc, char**argv)
 	conjecture *cj;
 
 	if(!rm.conjecture_ready()) {
-		log(LOGGER_WARN, "RPNI says that no conjecture is ready! trying anyway...\n");
+		log(LOGGER_WARN, "DELETE2 says that no conjecture is ready! trying anyway...\n");
 	}
 
 	if( NULL == (cj = rm.advance()) ) {
 		log(LOGGER_ERROR, "advance() returned false!\n");
 	} else {
-//		rm.print(cout);
+		//rm.print(cout);
 		snprintf(filename, 128, "hypothesis.dot");
 		file.open(filename);
 

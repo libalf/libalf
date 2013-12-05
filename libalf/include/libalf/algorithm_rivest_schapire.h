@@ -320,10 +320,10 @@ class rivest_schapire_table : public angluin_simple_table<answer> {
 			
 			// conjecture
 			bytes += sizeof(latest_cj);
-			bytes += latest_cj.output_mapping.size()*(sizeof(int)+sizeof(output_alphabet));
+			bytes += latest_cj.output_mapping.size()*(sizeof(int)+sizeof(answer));
 			std::map<int, std::map<int, std::set<int> > >::const_iterator ci;
 			std::map<int, std::set<int> >::const_iterator ci2;
-			for(ci = transitions.begin(); ci != transitions.end(); ci++) {
+			for(ci = latest_cj.transitions.begin(); ci != latest_cj.transitions.end(); ci++) {
 				for(ci2 = ci->second.begin(); ci2 != ci->second.end(); ci2++) {
 					bytes += ci2->second.size()*sizeof(int);
 					bytes += sizeof(int);
@@ -332,10 +332,10 @@ class rivest_schapire_table : public angluin_simple_table<answer> {
 			}
 
 			// latest_cj_statemapping
-			std::list<algorithm_angluin::automaton_state<table_t> >::const_iterator ci3;
-			for(ci3 = latest_cj_statemapping; ci3 != latest_cj_statemapping; ci3++) {
+			typename std::list<algorithm_angluin::automaton_state<table_t> >::const_iterator ci3;
+			for(ci3 = latest_cj_statemapping.begin(); ci3 != latest_cj_statemapping.end(); ci3++) {
 				bytes += sizeof(int);
-				bytes += sizeof(table_t::iterator);
+				bytes += sizeof(typename libalf::rivest_schapire_table<answer>::table_t::iterator);
 			}
 			this->statistics["memory.bytes"] = bytes;
 		}

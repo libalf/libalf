@@ -81,12 +81,14 @@ class DeLeTe2 : public learning_algorithm<answer> {
 
 		virtual bool sync_to_knowledgebase()
 		{{{
-			return true;
+			(*this->my_logger)(LOGGER_WARN, "This feature is not supported.\n");
+			return false;
 		}}}
 
 		virtual bool supports_sync() const
 		{{{
-			return true;
+			(*this->my_logger)(LOGGER_WARN, "This feature is not supported.\n");
+			return false;
 		}}}
 
 		virtual std::basic_string<int32_t> serialize() const
@@ -322,8 +324,8 @@ class DeLeTe2 : public learning_algorithm<answer> {
 			std::set<nodeppair> inclusions;
 
 			generate_inclusion_relation(pref, inclusions);
-
-#ifdef DELETE2_DEBUG_INCLUSION_RELATION
+			
+//#ifdef DELETE2_DEBUG_INCLUSION_RELATION
 			(*this->my_logger)(LOGGER_DEBUG, "\nDeLeTe2: Inclusion relation:\n");
 			typename std::set<nodeppair>::iterator si;
 			for(si = inclusions.begin(); si != inclusions.end(); ++si) {
@@ -333,7 +335,7 @@ class DeLeTe2 : public learning_algorithm<answer> {
 				(*this->my_logger)(LOGGER_DEBUG, "%s  «  %s\n", word2string(a).c_str(), word2string(b).c_str());
 			}
 			(*this->my_logger)(LOGGER_DEBUG, "\n");
-#endif
+//#endif
 
 			(*this->my_logger)(LOGGER_INFO, "DeLeTe2: deriving automaton.\n");
 
