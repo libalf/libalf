@@ -19,8 +19,6 @@
 #include <stdio.h>
 
 /* #include "obj.h" */
-#include <amore/vars.h>
-
 #include <amore/rexFromString.h>
 
 #include <amore/buffer.h>
