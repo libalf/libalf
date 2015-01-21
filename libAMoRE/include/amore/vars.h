@@ -24,31 +24,6 @@
 extern "C" {
 #endif
 
-/** ( global ), for transition arrays */
-char itoc[28] = "@abcdefghijklmnopqrstuvwxyz";
-
-/** ( global ) enviroment place for jmp's / Lu-Go */
-jmp_buf _jmp;
-
-/** ( global ), dummy values */
-char dummy[PILEN];
-
-/** ( global ), ?? */
-unsigned long comptime = 0;
-
-
-/* these were used in the ncurses version... maybe gets reactivated ?*/
-/* #ifndef LIBAMORE */
-/* * ( global ), ?? */
-/* int plines; */
-/*  ( global ), ?? */
-/* int pcols; */
-/* #endif */
-
-
-/** ( global ), ?? */
-/* char *lpdest; */
-
 #ifdef __cplusplus
 } // extern "C"
 #endif

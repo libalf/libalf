@@ -20,9 +20,8 @@ static FILE *amrp;
 /** header line           V0             V1.0      */
 static char *versiontext[] = { "\n", " VERSION 1.0\n", };
 
-#ifdef DEBUG
 #include <stdio.h>
-#endif
+#include <sys/stat.h>
 
 /** header lines of parts */
 static char *text[] = {
@@ -149,15 +148,10 @@ static char *text[] = {
 
 static char *i2a(int i)
 {
-	(void) sprintf(dummy, IFMT, i);
-	return dummy;
+	static char buffer[PILEN];
+	(void) sprintf(buffer, IFMT, i);
+	return buffer;
 }				/* i2a */
-
-/* MOVED TO global.c
-char* pi2a(posint pi) {
-  (void)sprintf(dummy,PIF,pi);
-  return dummy;
-}  pi2a */
 
 static char *be2a(boole bval)
 {

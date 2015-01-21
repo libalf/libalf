@@ -17,6 +17,8 @@
 /* rexnfa.c 3.21 (KIEL) 12.96 */
 /* 04.Dez. 96:  bug fixed concerning empty string */
 
+#include <ctype.h>
+
 #include <amore/rex2nfa.h>
 
 #include <amore/parser_types.h>

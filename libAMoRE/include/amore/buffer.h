@@ -23,6 +23,8 @@
 extern "C" {
 #endif
 
+#include "typedefs.h"
+
 /** inits the buffer
  */ void initbuf();
 

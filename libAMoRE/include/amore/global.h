@@ -19,18 +19,15 @@
 extern "C" {
 #endif
 
-#ifdef DEBUG
-#include<stdio.h>		/* perror, printf */
-#endif
+
+#include <setjmp.h>		/* calloc */
+#include <stdlib.h>
+#include <string.h>
+
+#include <amore/buffer.h>	/* newbuf */
+#include <amore/liberror.h>
 
 #include "typedefs.h"		/* basic type definitions */
-
-#include <malloc.h>		/* calloc */
-#include <setjmp.h>		/* calloc */
-#include <amore/buffer.h>	/* newbuf */
-extern jmp_buf _jmp;
-
-#include <amore/liberror.h>
 
 void OUT_OF_MEM();
 
@@ -41,7 +38,41 @@ const char* libamore_version();
 
 /* ------------------------------------------------- extern variables */
 
-#include <amore/ext.h>
+extern jmp_buf _jmp;
+extern char itoc[28];
+
+/* memory management with the buffer */
+
+/** <b>(array_of_int)newbuf((posint)(A),(posint)sizeof(posint))
+ *  @memo allocates new {@link array_of_int array_of_int} of posint via newbuf
+ */
+#define newarray_of_int(A)	(array_of_int)newbuf((posint)(A),(posint)sizeof(posint))
+/** <b>(mrkfin)newbuf((posint)(A),(posint)sizeof(boolx))
+ *  @memo allocates new {@link mrkfin mrkfin} via newbuf
+ */
+#define newfin(A)		(mrkfin)newbuf((posint)(A),(posint)sizeof(boolx))
+/** <b>(b_array)newbuf((posint)(A),(posint)sizeof(boole))
+ *  @memo allocates new {@link b_array b_array} via newbuf
+ */
+#define newb_array(A)		(b_array)newbuf((posint)(A),(posint)sizeof(boole))
+/** <b>(array_of_int_array)newbuf((posint)(A),(posint)sizeof(array_of_int))
+ *  @memo allocates new {@link array_of_int_array array_of_int_array} via newbuf
+ */
+#define newarray_of_int_array(A)	(array_of_int_array)newbuf((posint)(A),(posint)sizeof(array_of_int))
+/** <b>(arrayofb_array)newbuf((posint)(A),(posint)sizeof(b_array))
+ *  @memo allocates new {@link arrayofb_array arrayofb_array} via newbuf
+ */
+#define newarrayofb_array(A)	(arrayofb_array)newbuf((posint)(A),(posint)sizeof(b_array))
+/** <b>(char*)newbuf((posint)(A),(posint)sizeof(char))
+ *  @memo allocates new {@link char* string} via newbuf
+ */
+#define newarray_of_char(A)		(char*)newbuf((posint)(A),(posint)sizeof(char))
+/** <b>(array_of_c_string)newbuf((posint)(A),(posint)sizeof(char*))
+ *  @memo allocates {@link new array_of_c_string array_of_c_string} via newbuf
+ */
+#define newarray_of_c_string(A)	(array_of_c_string)newbuf((posint)(A),(posint)sizeof(char*))
+
+#define newdlist() (d_list)newbuf((posint)1,(posint)sizeof(struct dlist))
 
 /* ------------------------------------  some funcs for basic typedefs */
 

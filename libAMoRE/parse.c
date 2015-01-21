@@ -16,9 +16,11 @@
 /* parse.c
  */
 
-#include <amore/parse.h>
 
+#include <ctype.h>
 #include <stdlib.h>		/* for qsort, bsearch */
+
+#include <amore/parse.h>
 #include <amore/global.h>	/* for pi2s */
 
 /* static arrayofb_array new_bfield()

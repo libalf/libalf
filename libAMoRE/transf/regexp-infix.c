@@ -16,6 +16,8 @@
 /* regexp-infix.c
  */
 
+#include <ctype.h>
+
 #include <amore/regexp-infix.h>
 #include <amore/parser_types.h>
 

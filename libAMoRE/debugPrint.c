@@ -18,7 +18,7 @@
 
 #include <amore/debugPrint.h>
 
-#include<stdio.h>		/* for printf */
+#include <stdio.h>		/* for printf */
 
 #include <amore/nfa.h>
 

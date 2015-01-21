@@ -17,12 +17,22 @@
  * error handling, unconditional jumps...
  */
 
+#include <stdio.h>
+
 #include <amore/global.h>
 #include <amore/buffer.h>
 
 #ifndef EXTERN_VARS
-# include <amore/vars.h>
+
+/** ( global ), for transition arrays */
+char itoc[28] = "@abcdefghijklmnopqrstuvwxyz";
+
+/** ( global ) enviroment place for jmp's / Lu-Go */
+jmp_buf _jmp;
+
 #endif
+
+
 
 static const char* libamore_version_string = "libAMoRE version " VERSION;
 
@@ -93,8 +103,9 @@ array_of_int_array newarray_of_int1(posint a)
 
 char *pi2a(posint pi)
 {
-	(void) sprintf(dummy, PIF, pi);
-	return dummy;
+	static char buffer[PILEN];
+	(void) sprintf(buffer, PIF, pi);
+	return buffer;
 }				/* pi2a */
 
 

@@ -41,21 +41,18 @@ most notable changes:
 		(include/amore/typedefs.h>
 	  macro newstring
 		renamed to newarray_of_char
-		(include/amore/ext.h>
 
 	  macro arrayofstring
 		renamed to array_of_c_string
 		(include/amore/typedefs.h>
 	  macro newarrayofstring
 		renamed to newarray_of_c_string
-		(include/amore/ext.h)
 
 	  macro array
 		renamed to array_of_int
 		(include/amore/typedefs.h>
 	  macro newarray
 		renamed to newarray_of_int
-		(include/amore/ext.h>
 	  function newarray1
 		renamed to newarray_of_int1
 		(global.c and include/amore/global.h)
@@ -65,7 +62,6 @@ most notable changes:
 		(include/amore/typedefs.h>
 	  macro newarrayofarray
 		renamed to newarray_of_int_array
-		(include/amore/ext.h>
 
 	* initial fixes to make the source compile
 	  (some extern declaration problems: "amrp", "text")
