@@ -31,7 +31,7 @@ INSTALL_STATIC_NAME=libAMoRE++.a${LIBVERSIONTAG}
 
 CPPFLAGS+=-Wall -I../include/ -I${INCLUDEDIR} -shared -fpic
 CPPFLAGS+=-Wextra
-CPPFLAGS+=-D__cplusplus -DVERSION="\"${VERSION}\""
+CPPFLAGS+=-DVERSION="\"${VERSION}\""
 # for ubuntu, try disabling stack-smashing due to linker failures:
 CPPFLAGS+=-fno-stack-protector
 #CPPFLAGS+=-DANTICHAIN_DEBUG

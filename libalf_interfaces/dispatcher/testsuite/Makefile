@@ -3,7 +3,7 @@
 
 .PHONY: all clean
 
-CPPFLAGS+=-Wall -ggdb3 -D__cplusplus -fno-stack-protector
+CPPFLAGS+=-Wall -ggdb3 -fno-stack-protector
 LDFLAGS+=
 
 all:	protocol

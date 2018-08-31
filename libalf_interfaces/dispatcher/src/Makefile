@@ -20,7 +20,7 @@ endif
 
 CPPFLAGS+=-Wall -I ../include/ -I${INCLUDEDIR}
 #CPPFLAGS+=-Wextra
-CPPFLAGS+=-D__cplusplus -DVERSION="\"${VERSION}\"" -DVERBOSE_DEBUG
+CPPFLAGS+=-DVERSION="\"${VERSION}\"" -DVERBOSE_DEBUG
 # for ubuntu, try disabling stack-smashing due to linker failures:
 CPPFLAGS+=-fno-stack-protector
 LDFLAGS+=-L${LIBDIR} -L../../../libalf/src
