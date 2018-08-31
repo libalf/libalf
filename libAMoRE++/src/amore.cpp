@@ -22,7 +22,6 @@
  *
  */
 
-#include <amore/ext.h>
 #include <amore/buffer.h>
 
 void _init()
