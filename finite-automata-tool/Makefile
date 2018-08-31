@@ -21,7 +21,7 @@ endif
 
 CPPFLAGS+=-Wall -I${INCLUDEDIR}
 CPPFLAGS+=-Wextra
-CPPFLAGS+=-D__cplusplus -DVERSION="\"${VERSION}\""
+CPPFLAGS+=-DVERSION="\"${VERSION}\""
 LDFLAGS+=-L${LIBDIR}
 
 OBJECTS=fat.o input.o transformation.o output.o

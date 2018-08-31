@@ -108,10 +108,10 @@ class statistic_data
 		inline statistic_data & operator=(const std::string & s) { set_string(s);  return *this; };
 		inline statistic_data & operator=(const char * c)        { set_string(c);  return *this; };
 
-		inline operator int()	      throw (statistic_data_bad_typecast_e) { if(type == INTEGER) return i; else throw statistic_data_bad_typecast_e(type, INTEGER); };
-		inline operator double()      throw (statistic_data_bad_typecast_e) { if(type == DOUBLE)  return d; else throw statistic_data_bad_typecast_e(type, DOUBLE);  };
-		inline operator bool()	      throw (statistic_data_bad_typecast_e) { if(type == BOOL)    return b; else throw statistic_data_bad_typecast_e(type, BOOL);    };
-		inline operator std::string() throw (statistic_data_bad_typecast_e) { if(type == STRING)  return s; else throw statistic_data_bad_typecast_e(type, STRING);  };
+		inline operator int()	      { if(type == INTEGER) return i; else throw statistic_data_bad_typecast_e(type, INTEGER); };
+		inline operator double()      { if(type == DOUBLE)  return d; else throw statistic_data_bad_typecast_e(type, DOUBLE);  };
+		inline operator bool()	      { if(type == BOOL)    return b; else throw statistic_data_bad_typecast_e(type, BOOL);    };
+		inline operator std::string() { if(type == STRING)  return s; else throw statistic_data_bad_typecast_e(type, STRING);  };
 };
 
 // required for generic serialisation:
