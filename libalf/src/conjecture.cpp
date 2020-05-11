@@ -514,7 +514,7 @@ string finite_automaton::visualize() const
 					str << "\tq" << mmsi->first << " -> q" << *si << " [label=\"" << msi->first << "\"];\n";
 
 		// end
-		str << "};\n";
+		str << "}\n";
 	}
 
 	return str.str();
