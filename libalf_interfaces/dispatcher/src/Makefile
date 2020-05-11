@@ -22,7 +22,7 @@ CPPFLAGS+=-Wall -I ../include/ -I${INCLUDEDIR}
 CPPFLAGS+=-DVERSION="\"${VERSION}\"" -DVERBOSE_DEBUG
 # for ubuntu, try disabling stack-smashing due to linker failures:
 CPPFLAGS+=-fno-stack-protector
-LDFLAGS+=-L${LIBDIR} -L../../../libalf/src
+LDFLAGS+=-L${LIBDIR} -L../../../libalf/src -lz3
 
 OBJECTS=main.o serversocket.o servant.o co_learning_algorithm.o co_knowledgebase.o co_knowledgebase_iterator.o co_logger.o co_normalizer.o
 
