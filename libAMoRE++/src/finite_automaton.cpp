@@ -70,16 +70,18 @@ finite_automaton * deserialize_amore_automaton(basic_string<int32_t>::const_iter
 	int is_det;
 
 	si = it;
-	if(si == limit) return NULL;
+	if(si == limit)
+		return NULL;
 	si++;
-	if(si == limit) return NULL;
+	if(si == limit)
+		return NULL;
 	is_det = ntohl(*si);
-	if(is_det != 0 && is_det != 1) return NULL;
+	if(is_det != 0 && is_det != 1)
+		return NULL;
 
 	if(is_det == 0)
 		ret = new nondeterministic_finite_automaton;
-
-	if(is_det == 1)
+	else
 		ret = new deterministic_finite_automaton;
 
 	ret->deserialize(it, limit);

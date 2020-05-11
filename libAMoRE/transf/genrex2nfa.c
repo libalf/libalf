@@ -49,45 +49,67 @@
 #define regch 'r'
 #define boolech 'b'
 #define headch ' '
-#define newt_elem()             (t_elem)newbuf((posint)1,(posint)sizeof(struct tree_element))
-#define newt_ar(A)              (t_elem*)newbuf((posint)A,(posint)sizeof(t_elem))
-#define newb_t_elem()           (b_t_elem)newbuf((posint)1,(posint)sizeof(struct bin_tree_element))
-#define neww_elem()             (w_elem)newbuf((posint)1,(posint)sizeof(struct waiting_element))
 
-#define is_letter(CH) (('a' <= CH) && (CH <= 'z'))
-#define is_digit(D) (('0' <= D) && (D <= '9'))
-#define is_leftson(N) (N->father->son[0] == N)
-#define searchnoson(V) while (V->sons_no != 0) V = V->son[0]
-#define godown(V) while (V->op == op) v = v->son[0]
-#define passps(V) while ((V->op == plusch) || (V->op == starch)) V = V->son[0]
-#define searchcil(V) while (!(((V->op == boolech) &&\
-				(V->expr[0] != unionch)) ||\
-			(V->sons_no == 0))) V = V->son[0]
-#define searchreg(V) while (V->op != regch) V = V->son[0]
-#define searchauto(V) while ((V->na == NULL) && (V->da == NULL)) V = V->son[0]
-#define epstrans(F, T, B, E)\
-	for (s = 1; s <= S; ++s)\
-		for (p = B; p != E; ++p)\
-			if testcon(delta, s, T, p) connect(delta, s, F, p);\
-	if isfinal(infin[T]) setfinalT(infin[F])
-#define copyddelta(ND, Q1, DD, Q2) \
-	for (l = 1; l <= alphabet_size; ++l) connect(ND, l, Q1, DD[l][Q2]);
+#define newt_elem()		(t_elem)newbuf((posint)1,(posint)sizeof(struct tree_element))
 
-#define copyda(DA) \
-	for (q = 0; q <= DA->highest_state; ++q) \
-	{ \
-		if (DA->final[q]) setfinalT(infin[q + offset]); \
-		for (s = 1; s <= S; ++s) \
-			connect(delta, s, q + offset, DA->delta[s][q] + offset); \
+#define newt_ar(A)		(t_elem*)newbuf((posint)A,(posint)sizeof(t_elem))
+
+#define newb_t_elem()		(b_t_elem)newbuf((posint)1,(posint)sizeof(struct bin_tree_element))
+
+#define neww_elem()		(w_elem)newbuf((posint)1,(posint)sizeof(struct waiting_element))
+
+#define is_letter(CH)		(('a' <= CH) && (CH <= 'z'))
+
+#define is_digit(D)		(('0' <= D) && (D <= '9'))
+
+#define is_leftson(N)		(N->father->son[0] == N)
+
+#define searchnoson(V)		{ while (V->sons_no != 0) V = V->son[0]; }
+
+#define godown(V)		{ while (V->op == op) v = v->son[0]; }
+
+#define passps(V)		{ while ((V->op == plusch) || (V->op == starch)) V = V->son[0]; }
+
+#define searchcil(V) { \
+		while (!(((V->op == boolech) && (V->expr[0] != unionch)) || (V->sons_no == 0))) \
+			V = V->son[0]; \
 	}
-#define copyna(NA) \
-	for (p = 0; p <= NA->highest_state; ++p) \
+
+#define searchreg(V)		{ while (V->op != regch) V = V->son[0]; }
+
+#define searchauto(V)		{ while ((V->na == NULL) && (V->da == NULL)) V = V->son[0]; }
+
+#define epstrans(F, T, B, E) { \
+		for (s = 1; s <= S; ++s) \
+			for (p = B; p != E; ++p) \
+				if testcon(delta, s, T, p) connect(delta, s, F, p); \
+		if isfinal(infin[T]) \
+			setfinalT(infin[F]); \
+	}
+
+#define copyddelta(ND, Q1, DD, Q2) { \
+		for (l = 1; l <= alphabet_size; ++l) \
+			connect(ND, l, Q1, DD[l][Q2]); \
+	} \
+
+#define copyda(DA) { \
+		for (q = 0; q <= DA->highest_state; ++q) \
 		{ \
-			if isfinal(NA->infin[p]) setfinalT(infin[p + offset]); \
-				for (s = 1; s <= S; ++s) \
-					for (q = 0; q <= NA->highest_state; ++q) \
-						cpdelta(delta, s, p + offset, q + offset, NA->delta, s, p, q); \
-		}
+			if (DA->final[q]) setfinalT(infin[q + offset]); \
+			for (s = 1; s <= S; ++s) \
+				connect(delta, s, q + offset, DA->delta[s][q] + offset); \
+		} \
+	}
+
+#define copyna(NA) { \
+		for (p = 0; p <= NA->highest_state; ++p) \
+			{ \
+				if isfinal(NA->infin[p]) setfinalT(infin[p + offset]); \
+					for (s = 1; s <= S; ++s) \
+						for (q = 0; q <= NA->highest_state; ++q) \
+							cpdelta(delta, s, p + offset, q + offset, NA->delta, s, p, q); \
+			} \
+	}
 
 
 typedef struct bin_tree_element
@@ -532,7 +554,7 @@ static void reorder_tree(head)
 				       }
 				       if (v->son_passed < (v->sons_no - 1))
 				       { v = v->son[++v->son_passed];
-					       if (strlen(v->father->expr) > (size_t) 1) passps(v);
+					       if (strlen(v->father->expr) > (size_t) 1) passps(v)
 					       else searchcil(v);
 				       }
 				       else
@@ -799,27 +821,32 @@ static dfa boole_dfa(dfa_list, expr)
 
 	current = first;
 	length = strlen(expr);
-	for (no = 0; no <= max_no; ++no)
-	{ for (s = 1; s <= alphabet_size; ++s)
-		outdfa->delta[s][no] = current->delta_s[s];
+	for (no = 0; no <= max_no; ++no) {
+		for (s = 1; s <= alphabet_size; ++s)
+			outdfa->delta[s][no] = current->delta_s[s];
 		sc = 0;
 		i = 0;
-		for (s = 0; s < length ; ++s)
-		{ switch (expr[s])
-			{ case 'x' : b_stack[sc++] = h_da[i]->final[current->tupel[i]];
-				++i;
-				break;
-				case complch: b_stack[sc - 1] = !b_stack[sc - 1];
-					      break;
-				case unionch: --sc;
-					      b_stack[sc - 1] = b_stack[sc - 1] || b_stack[sc];
-					      break;
-				case insecch: --sc;
-					      b_stack[sc - 1] = b_stack[sc - 1] && b_stack[sc];
-					      break;
-				case minusch: --sc;
-					      b_stack[sc - 1] = b_stack[sc - 1] && (!b_stack[sc]);
-					      break;
+		for (s = 0; s < length ; ++s) {
+			switch (expr[s]) {
+				case 'x':
+					b_stack[sc++] = h_da[i]->final[current->tupel[i]];
+					++i;
+					break;
+				case complch:
+					b_stack[sc - 1] = !b_stack[sc - 1];
+					break;
+				case unionch:
+					--sc;
+					b_stack[sc - 1] = b_stack[sc - 1] || b_stack[sc];
+					break;
+				case insecch:
+					--sc;
+					b_stack[sc - 1] = b_stack[sc - 1] && b_stack[sc];
+					break;
+				case minusch:
+					--sc;
+					b_stack[sc - 1] = b_stack[sc - 1] && (!b_stack[sc]);
+					break;
 				default: /* Should not happen */;
 			}
 		}
@@ -945,12 +972,14 @@ static void second_run(head, innfa)
 	{ switch (v->op)
 		{ case plusch: init = v->son[0]->init;
 			for (q = lastoffset; q != offset; ++q)
-				if isfinal(infin[q])epstrans(q, init, lastoffset, offset);
+				if isfinal(infin[q])
+					epstrans(q, init, lastoffset, offset);
 			v->init = init;
 			break;
 			case starch: init = v->son[0]->init;
 				     for (q = lastoffset; q != offset; ++q)
-					     if isfinal(infin[q]) epstrans(q, init, lastoffset, offset);
+					     if isfinal(infin[q])
+						     epstrans(q, init, lastoffset, offset);
 				     epstrans(offset, init, lastoffset, offset);
 				     setfinalT(infin[offset]);
 				     v->init = offset;

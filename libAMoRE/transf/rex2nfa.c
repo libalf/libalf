@@ -200,7 +200,7 @@ static boole compfirst(ndelta buf)
  * else             : count the number of symbols
  */
 
-static void getexpr(copy)
+static void getexpr(int copy)
 {
 	char op;		/* act. symbol */
 	switch (op = rex[getrex--]) {

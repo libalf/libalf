@@ -146,7 +146,7 @@ static char* init_idline_alphanum(int maxlet)
 /** populates identifier line.
  *  letters are simply @,a,b,c,d ... 
  */
-static char* init_idline_alphabet(maxlet)
+static char* init_idline_alphabet(int maxlet)
 {
 	char* IdLine;		/*< identifier line */
 	posint IdLineSize;

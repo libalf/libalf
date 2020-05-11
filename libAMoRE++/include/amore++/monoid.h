@@ -38,7 +38,7 @@ class amore_monoid {
 	public:
 		amore_monoid();
 		amore_monoid(monoid m);
-		~amore_monoid();
+		virtual ~amore_monoid();
 
 		/**
 		 * Returns the number of states of the unterlying DFA.
