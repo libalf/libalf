@@ -11,8 +11,15 @@ CPPFLAGS+=-I../../include -I${INCLUDEDIR} -Wall -ggdb3
 
 LDFLAGS+=-L../../src -L${LIBDIR} -lalf
 
-all: offline_DeLeTe2 offline_RPNI
+all: offline
 
 clean: nodata
-	-rm -f *.o offline_DeLeTe2 offline_RPNI 2>&1
+	-rm -f *.o offline 2>&1
+
+nodata:
+	-rm -f *.dot *.jpg *.angluin *.ser 2>&1
+
+jpegs:
+	for EACH in *.dot; do dot -Tjpg "$$EACH" -o "$$EACH.jpg"; done;
+
 

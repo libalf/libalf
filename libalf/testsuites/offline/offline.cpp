@@ -26,7 +26,7 @@
  * classified examples.
  *
  * The program takes the sample words and their classifications as the input,
- * computes the conjecture and produces a Graphviz representation of the 
+ * computes the conjecture and produces a Graphviz representation of the
  * conjecture as output.
  *
  * In the beginning, knowledgebase is created. The user is first required to
@@ -37,17 +37,25 @@
  * learning algorithm is created with the algorithm type, the knowledgebase, and
  * the alphabet size as parameters. The learning algorithm is then made to advance
  * by which it constructs a conjecture from the information available in the
- * knowledgebase. In this demo, the RPNI algorithm is used.
+ * knowledgebase. To change the algorithm, change LEARNING_ALGO and include
+ * the corresponding header.
  */
 
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <list>
 
 // Used to define the libalf name space.
 #include <libalf/alf.h>
-// The RPNI algorithm
-#include <libalf/algorithm_RPNI.h>
+
+#if 0
+# define LEARNING_ALGO RPNI
+# include <libalf/algorithm_RPNI.h>
+#else
+# include <libalf/algorithm_DeLeTe2.h>
+# define LEARNING_ALGO DeLeTe2
+#endif
 
 using namespace std;
 using namespace libalf;
@@ -157,7 +165,7 @@ string enough_Samples()
  * The main method
  */
 int main(int argc, char**argv) {
-	
+
 	// Print short help message
 	print_Help();
 
@@ -178,7 +186,7 @@ int main(int argc, char**argv) {
 
 	//Information about the size of the alphabet is obtained from the user.
 	alphabetsize = get_AlphabetSize();
-	
+
 	/*
 	 * The loop iterates until the user responds "y" (implying "yes") or "n" (implying "no)
 	 * when asked whether more samples are to be added.
@@ -193,10 +201,10 @@ int main(int argc, char**argv) {
 	}
 
 	/*
-	 * Create learning algorithm (RPNI L*) without a logger (2nd argument is NULL)
+	 * Create learning algorithm (LEARNING_ALGO L*) without a logger (2nd argument is NULL)
 	 * and alphabet size alphabet_size
 	 */
-	RPNI<bool> algorithm(&base, NULL, alphabetsize);
+	LEARNING_ALGO<bool> algorithm(&base, NULL, alphabetsize);
 
 	/*
 	 * The method "advance" of the learning algorithm computes the conjecture which
@@ -206,6 +214,9 @@ int main(int argc, char**argv) {
 
 	//The conjecture in the ".dot" code is presented to the user.
 	cout << endl << "Result:" << endl << cj->visualize() << endl;
+
+	ofstream file;
+	file.open("result.dot"); file << cj->visualize(); file.close();
 
 	// Delete
 	delete cj;
