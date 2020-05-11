@@ -1,4 +1,4 @@
-/* 
+/*
  * This file is part of libalf.
  *
  * libalf is free software: you can redistribute it and/or modify
@@ -29,7 +29,7 @@
 #ifndef __ALGORITHM_DETERMINISTIC_INFERRING_MINISAT_H__
 #define __ALGORITHM_DETERMINISTIC_INFERRING_MINISAT_H__
 
-// Standard includes 
+// Standard includes
 #include <iostream>
 #include <sstream>
 #include <list>
@@ -59,12 +59,12 @@ class deterministic_inferring_MiniSat : public automata_inferring<answer> {
 	 * breaking.
 	 */
 	bool symmetry_breaking;
-	
+
 	/**
 	 * Indicates whether the computed model should be logged (to the algorithm loglevel)
 	 */
 	bool log_model;
-	
+
 	public:
 
 	/**
@@ -75,7 +75,7 @@ class deterministic_inferring_MiniSat : public automata_inferring<answer> {
 		this->set_alphabet_size(alphabet_size);
 		this->set_logger(log);
 		this->set_knowledge_source(base);
-		
+
 		this->symmetry_breaking = symmetry_breaking;
 
 		this->log_model = false;
@@ -106,23 +106,23 @@ class deterministic_inferring_MiniSat : public automata_inferring<answer> {
 	bool is_logging_model() {
 		return log_model;
 	}
-	
+
 	void set_log_model(bool log_model) {
 		this->log_model = log_model;
 	}
-	
+
 	void print(std::ostream & os) const {
-	
+
 		os << "(Minimal) Moore machine inferring algorithm via transitions encoding using the MiniSat SAT Solver. ";
 		os << "Alphabet size is " << this->alphabet_size;
 		os << (symmetry_breaking ? " using symmetry breaking" : "") << ".";
-		
+
 	}
 
 	private:
 
 	virtual conjecture * __infer(const prefix_tree<answer> & t, unsigned int n) const {
-	
+
 		// Check value for n
 		if(n == 0) {
 			(*this->my_logger)(LOGGER_ERROR, "The number 'n' of states has to be greater than 0.\n");
@@ -132,13 +132,13 @@ class deterministic_inferring_MiniSat : public automata_inferring<answer> {
 		return infer_MiniSat(t, n);
 
 	}
-	
+
 	virtual conjecture * infer_simple_conjecture(prefix_tree<answer> const & t) const {
-	
-		return infer_simple_moore_machine(t);
-		
+
+		return this->infer_simple_moore_machine(t);
+
 	}
-	
+
 	libalf::moore_machine<answer> * infer_MiniSat(const prefix_tree<answer> & t, unsigned int n) const {
 
 		/*========================================
@@ -153,7 +153,7 @@ class deterministic_inferring_MiniSat : public automata_inferring<answer> {
 		assert(n > 0);
 		assert(this->alphabet_size > 0);
 		(*this->my_logger)(LOGGER_ALGORITHM, "Running MiniSat using the 'transition encoding' to find a solution with %u states and alphabet size %d.\n", n, this->alphabet_size);
-		
+
 
 		/*========================================
 		 *
@@ -169,22 +169,22 @@ class deterministic_inferring_MiniSat : public automata_inferring<answer> {
 			}
 		}
 
-		
+
 		/*========================================
 		 *
 		 * Create solver
 		 *
 		 *========================================*/
 		MiniSat::Solver solver;
-		
-		
+
+
 		/*========================================
 		 *
 		 * Create variables
 		 *
 		 *========================================*/
 		unsigned long var_count = 0;
-			
+
 		// Labeling of the prefixes
 		std::map<int, std::map<int, MiniSat::Var> > x; // x_{u, q}
 		for(unsigned int u=0; u<t.node_count; u++) {
@@ -193,7 +193,7 @@ class deterministic_inferring_MiniSat : public automata_inferring<answer> {
 				var_count++;
 			}
 		}
-		
+
 		// Transitions
 		std::map<int, std::map<int, std::map<int, MiniSat::Var> > > d; // d(p, a) = q
 		for(unsigned int p=0; p<n; p++) {
@@ -214,30 +214,30 @@ class deterministic_inferring_MiniSat : public automata_inferring<answer> {
 			var_count += output_count;
 		}
 
-		
+
 		/*========================================
 		 *
 		 * Create clauses
 		 *
 		 *========================================*/
 		unsigned long long clause_count = 0;
-		
+
 		// (1) For each prefix, at least one state is assumed
 		for(unsigned int u=0; u<t.node_count; u++) {
-			
+
 			MiniSat::vec<MiniSat::Lit> clause;
 			clause.growTo(n);
 
 			for(unsigned int q=0; q<n; q++) {
 				clause[q] = MiniSat::Lit(x[u][q]);
 			}
-				
+
 			solver.addClause(clause);
 
 			clause_count++;
 
 		}
-		
+
 		// (2) The variables d encode a function (not a relation)
 		for(unsigned int p=0; p<n; p++) {
 			for(int a=0; a<this->alphabet_size; a++) {
@@ -254,7 +254,7 @@ class deterministic_inferring_MiniSat : public automata_inferring<answer> {
 
 			}
 		}
-		
+
 		// (3) Transitions are applied correctly: (x[u][p] && x[ua][q]) => d[p][a][q]
 		for(unsigned int u=0; u<t.node_count; u++) {
 			for(int a=0; a<this->alphabet_size; a++) {
@@ -273,7 +273,7 @@ class deterministic_inferring_MiniSat : public automata_inferring<answer> {
 				}
 			}
 		}
-		
+
 		// (4a) At leat one output is defined
 		for(unsigned int q=0; q<n; q++) {
 
@@ -285,7 +285,7 @@ class deterministic_inferring_MiniSat : public automata_inferring<answer> {
 			}
 
 			solver.addClause(clause);
-			
+
 			clause_count++;
 
 		}
@@ -321,7 +321,7 @@ class deterministic_inferring_MiniSat : public automata_inferring<answer> {
 		if(symmetry_breaking) {
 
 		// (6) For each prefix, at most one state is assumed
-		for(unsigned int u=0; u<t.node_count; u++) {	
+		for(unsigned int u=0; u<t.node_count; u++) {
 			for(unsigned int p=0; p<n; p++) {
 				for(unsigned int q=0; q<p; q++) {
 
@@ -332,7 +332,7 @@ class deterministic_inferring_MiniSat : public automata_inferring<answer> {
 				}
 			}
 		}
-		
+
 		// (7) The transition function is completely defined
 		for(unsigned int p=0; p<n; p++) {
 			for(int a=0; a<this->alphabet_size; a++) {
@@ -350,7 +350,7 @@ class deterministic_inferring_MiniSat : public automata_inferring<answer> {
 
 			}
 		}
-		
+
 		// (8) Transitions are applied correctly: (x[u][p] && d[p][a][q]) => x[ua][q]
 		for(unsigned int u=0; u<t.node_count; u++) {
 			for(int a=0; a<this->alphabet_size; a++) {
@@ -369,9 +369,9 @@ class deterministic_inferring_MiniSat : public automata_inferring<answer> {
 				}
 			}
 		}
-		
+
 		} // End adding redundant clauses
-		
+
 		/*========================================
 		 *
 		 * Solve
@@ -386,7 +386,7 @@ class deterministic_inferring_MiniSat : public automata_inferring<answer> {
 			(*this->my_logger)(LOGGER_ALGORITHM, "Formula is satisfiable.\n");
 		}
 
-		
+
 		/*========================================
 		 *
 		 * Compute result
@@ -416,9 +416,9 @@ class deterministic_inferring_MiniSat : public automata_inferring<answer> {
 					(*this->my_logger)(LOGGER_ALGORITHM, "x[%u][%u] = %s\n", u, q, (solver.model[x[u][q]] == MiniSat::l_True ? "1" : (solver.model[x[u][q]] == MiniSat::l_False ? "0" : "?")));
 				}
 			}
-			
+
 		}
-		
+
 		// Transitions
 		std::map<int, std::map<int, std::set<int> > > transitions;
 		for(unsigned int p=0; p<n; p++) {
@@ -430,49 +430,49 @@ class deterministic_inferring_MiniSat : public automata_inferring<answer> {
 				for(unsigned int q=0; q<n; q++) {
 
 					assert(solver.model[d[p][a][q]] != MiniSat::l_Undef);
-				
+
 					if(solver.model[d[p][a][q]] == MiniSat::l_True) {
-		
+
 						assert(!found_dest);
 						found_dest = true;
 						dest = q;
-						
-					} 
+
+					}
 
 				}
-				
+
 				// If no symmetry breaking, then there might be undefined transitions
 				if(symmetry_breaking) {
 					assert(found_dest && dest < n);
 				}
-				
+
 				if(found_dest) {
 					transitions[p][a].insert(dest);
 				}
 
 			}
 		}
-		
+
 		// Initial state
 		bool initial_found = false;
 		unsigned int tmp_initial = 0;
 		for(unsigned int q=0; q<n; q++) {
 
 			assert(solver.model[x[0][q]] != MiniSat::l_Undef);
-		
+
 			if(solver.model[x[0][q]] == MiniSat::l_True) {
-			
+
 				assert(!initial_found);
 				initial_found = true;
 				tmp_initial = q;
-			
+
 			}
 
 		}
 		assert(initial_found && tmp_initial < (int)n);
 		std::set<int> initial;
 		initial.insert(tmp_initial);
-		
+
 		// Output
 		std::map<int, answer> output_mapping;
 		for(unsigned int q=0; q<n; q++) {
@@ -482,9 +482,9 @@ class deterministic_inferring_MiniSat : public automata_inferring<answer> {
 			for(unsigned int i=0; i<output_count; i++) {
 
 				assert(solver.model[f[q][i]] != MiniSat::l_Undef);
-			
+
 				if(solver.model[f[q][i]] == MiniSat::l_True) {
-					
+
 					assert(!found_output);
 					found_output = true;
 					output = i;
@@ -498,7 +498,7 @@ class deterministic_inferring_MiniSat : public automata_inferring<answer> {
 
 		}
 		assert(output_mapping.size() == n);
-		
+
 		// Construct and return automaton
 		moore_machine<answer> * automaton;
 		if(typeid(answer) == typeid(bool)) {
@@ -528,7 +528,7 @@ class deterministic_inferring_MiniSat : public automata_inferring<answer> {
 	 *
 	 */
 	answer find_key(const std::map<answer, unsigned int> & m, unsigned value) const {
-	
+
 		for(typename std::map<answer, unsigned int>::const_iterator it=m.begin(); it!=m.end(); it++) {
 			if(it->second == value) {
 				return it->first;

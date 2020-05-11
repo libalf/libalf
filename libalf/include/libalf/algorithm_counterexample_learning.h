@@ -171,13 +171,13 @@ class counterexample_learning : public learning_algorithm<bool> {
 		// Check knowledgebase
 		if(this->my_knowledge == NULL) {
 			(*this->my_logger)(LOGGER_WARN, "No knowledgebase given.\n");
-			return false;
+			return NULL;
 		}
 
 		// Check inferring algorithm
 		if(this->inferring_algorithm == NULL) {
 			(*this->my_logger)(LOGGER_WARN, "No inferring algorithm given.\n");
-			return false;
+			return NULL;
 		}
 	
 		// Check whether we should wait for a counter-example

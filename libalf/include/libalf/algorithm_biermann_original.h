@@ -315,11 +315,11 @@ std::cerr << "original_biermann constructed.\n";
 			if(level == 0)
 				return true;
 
-				int max;
-				max = MAX(this->alphabet_size, n1->max_child_count());
-				max = MAX(max, n2->max_child_count());
+			int max;
+			max = MAX(this->alphabet_size, n1->max_child_count());
+			max = MAX(max, n2->max_child_count());
 
-				for(int i=0; i<max; i++) {
+			for(int i=0; i<max; i++) {
 				// Get child i
 				node *child1, *child2;
 				child1 = n1->find_child(i);

@@ -1,4 +1,4 @@
-/* 
+/*
  * This file is part of libalf.
  *
  * libalf is free software: you can redistribute it and/or modify
@@ -44,7 +44,7 @@
 #ifndef __ALGORITHM_DFA_INFERRING_Z3__
 #define __ALGORITHM_DFA_INFERRING_Z3__
 
-// Standard includes 
+// Standard includes
 #include <iostream>
 #include <sstream>
 #include <list>
@@ -57,7 +57,7 @@
 #include "libalf/prefix_tree.h"
 #include "libalf/algorithm_automata_inferring.h"
 
-// Z3 includes
+// Z3 includes -- you need to install the z3 theorem prover to get these.
 #include "z3.h"
 #include "z3++.h"
 
@@ -66,7 +66,7 @@ namespace libalf {
 class dfa_inferring_Z3 : public automata_inferring<bool> {
 
 	private:
-	
+
 	/**
 	 * Indicates whether we use variables of an undefined function to model the states reached on reading words.
 	 */
@@ -76,12 +76,12 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 	 * Indicates whether we use integers or enums to model the states and the alphabet.
 	 */
 	bool use_enum;
-	
+
 	/**
 	 * Indicates whether the computed model should be logged (to the algorithm loglevel)
 	 */
 	bool log_model;
-	
+
 	public:
 
 	/**
@@ -92,50 +92,50 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 		this->set_alphabet_size(alphabet_size);
 		this->set_logger(log);
 		this->set_knowledge_source(base);
-		
+
 		this->use_variables = use_variables;
 		this->use_enum = use_enum;
-		
+
 		this->log_model = false;
-		
+
 	}
 
 	bool is_using_variables() {
 		return use_variables;
 	}
-	
+
 	void set_using_variables(bool use_variables) {
 		this->use_variables = use_variables;
 	}
-	
+
 	bool is_using_enum() {
 		return use_enum;
 	}
-	
+
 	void set_using_enum(bool use_enum) {
 		this->use_enum = use_enum;
 	}
-	
+
 	bool is_logging_model() {
 		return log_model;
 	}
-	
+
 	void set_log_model(bool log_model) {
 		this->log_model = log_model;
 	}
-	
+
 	void print(std::ostream & os) const {
-	
+
 		os << "(Minimal) DFA inferring algorithm using Microsoft's Z3 SMT Solver. ";
 		os << "Alphabet size is " << this->alphabet_size << ", using " << (use_variables ? "variables" : "undefined functions") << " to encode the states reached after reading samples, ";
 		os << "using " << (use_enum ? "enums" : "integers") << " to model states and alphabet symbols.";
-		
+
 	}
 
 	private:
 
 	virtual conjecture * __infer(const prefix_tree<bool> & t, unsigned int n) const {
-	
+
 		// Check value for n
 		if(n == 0) {
 			(*this->my_logger)(LOGGER_ERROR, "The number 'n' of states has to be greater than 0.\n");
@@ -154,13 +154,13 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 		}
 
 	}
-	
+
 	virtual conjecture * infer_simple_conjecture(prefix_tree<bool> const & t) const {
-	
+
 		return infer_simple_dfa(t);
-		
+
 	}
-	
+
 	libalf::finite_automaton * infer_Z3(const prefix_tree<bool> & t, unsigned int n) const {
 
 		/*========================================
@@ -175,8 +175,8 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 		assert(n > 0);
 		assert(this->alphabet_size > 0);
 		(*this->my_logger)(LOGGER_ALGORITHM, "Running Z3 to find a solution with n=%d and alphabet size=%d.\n", n, this->alphabet_size);
-		
-		
+
+
 		/*========================================
 		 *
 		 * Create solver
@@ -184,8 +184,8 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 		 *========================================*/
 		z3::context c;
 		z3::solver s(c);
-		
-		
+
+
 		/*========================================
 		 *
 		 * Create undefined functions
@@ -194,15 +194,15 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 		z3::func_decl d = function("d", c.int_sort(), c.int_sort(), c.int_sort());
 		z3::func_decl f = function("f", c.int_sort(), c.bool_sort());
 		z3::func_decl x = function("x", c.int_sort(), c.int_sort());
-		
-		
+
+
 		/*========================================
 		 *
 		 * Create assertions
 		 *
 		 *========================================*/
 		unsigned long long assertion_count = 0;
-			
+
 		// (1) Transition function is valid, i.e.,  0 <= d(q, a) < n
 		for(unsigned int q=0; q<n; q++) {
 			for(int a=0; a<this->alphabet_size; a++) {
@@ -210,54 +210,54 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 				z3::expr args[] = {c.int_val(q), c.int_val(a)};
 				s.add(d(2, args) >= 0);
 				s.add(d(2, args) < n);
-		
+
 				assertion_count += 2;
 			}
 		}
-		
+
 		// (2) The initial state is 0
 		s.add(x(0) == prefix_tree<bool>::root);
 		assertion_count++;
-		
+
 		// (3) Transitions are applied correctly
 		for(unsigned int u=0; u<t.node_count; u++) {
 			for(int a=0; a<this->alphabet_size; a++) {
-			
+
 				if(t.edges[u][a] != prefix_tree<bool>::no_edge) {
-				
+
 					z3::expr args[] = {x(u), c.int_val(a)};
 					s.add(x(t.edges[u][a]) == d(2, args));
-		
+
 					assertion_count++;
-					
+
 				}
-			
+
 			}
 		}
-		
+
 		// (4) Words are classified correctly
 		for(unsigned int u=0; u<t.node_count; u++) {
-				
+
 				if(t.specified[u]) {
-				
+
 					// Word has to be accepted
 					if(t.output[u] == true) {
-					
+
 						s.add(f(x(u)) == c.bool_val(true));
-					
+
 						assertion_count++;
-					
+
 					}
-					
+
 					// Word has to be rejected
 					else {
-					
+
 						s.add(f(x(u)) == c.bool_val(false));
-					
+
 						assertion_count++;
-					
+
 					}
-				
+
 				}
 		}
 
@@ -273,7 +273,7 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 			return NULL;
 		}
 
-		
+
 		/*========================================
 		 *
 		 * Compute result
@@ -285,46 +285,46 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 			out << m;
 			(*this->my_logger)(LOGGER_ALGORITHM, "Model:\n%s\n", out.str().c_str());
 		}
-		
+
 		// Transitions
 		std::map<int, std::map<int, std::set<int> > > transitions;
 		for(unsigned int q=0; q<n; q++) {
 			for(int a=0; a<this->alphabet_size; a++) {
-				
+
 				// Get info from model
 				z3::expr args[] = {c.int_val(q), c.int_val(a)};
 				z3::expr result = m.eval(d(2, args));
 				int dest;
 				Z3_bool conversion_ok = Z3_get_numeral_int(c, result, &dest);
 				assert(conversion_ok == true);
-				
+
 				// Add transition
 				transitions[q][a].insert(dest);
 
 			}
 		}
-		
+
 		// Initial state
 		std::set<int> initial;
 		initial.insert(prefix_tree<bool>::root);
-		
+
 		// Final states
 		std::set<int> final;
 		for(unsigned int q=0; q<n; q++) {
-			
+
 			// Retrive value from model
 			Z3_lbool result = Z3_get_bool_value(c, m.eval(f(q)));
 			assert(result != Z3_L_UNDEF);
-			
+
 			// Add final state
 			if(result == Z3_L_TRUE) {
-				
+
 				final.insert(q);
-				
+
 			}
-			
+
 		}
-		
+
 		// Construct and return automaton
 		finite_automaton * dfa = new finite_automaton;
 		dfa->input_alphabet_size = this->alphabet_size;
@@ -337,9 +337,9 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 
 		assert(dfa->calc_validity());
 		return dfa;
-		
+
 	}
-	
+
 	libalf::finite_automaton * infer_Z3_variables(const prefix_tree<bool> & t, unsigned int n) const {
 
 		/*========================================
@@ -354,8 +354,8 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 		assert(n > 0);
 		assert(this->alphabet_size > 0);
 		(*this->my_logger)(LOGGER_ALGORITHM, "Running Z3 using undefined functions and variables to find a solution with n=%d and alphabet size=%d.\n", n, this->alphabet_size);
-		
-		
+
+
 		/*========================================
 		 *
 		 * Create solver
@@ -363,7 +363,7 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 		 *========================================*/
 		z3::context c;
 		z3::solver s(c);
-		
+
 
 		/*========================================
 		 *
@@ -374,21 +374,21 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 		z3::func_decl f = function("f", c.int_sort(), c.bool_sort());
 		std::vector<z3::expr> state_vars;
 		for(unsigned int u=0; u<t.node_count; u++) {
-			
+
 			std::stringstream s;
 			s << "x" << u;
 			state_vars.push_back(c.int_const(s.str().c_str()));
-			
+
 		}
-		
-		
+
+
 		/*========================================
 		 *
 		 * Create assertions
 		 *
 		 *========================================*/
 		unsigned long long assertion_count = 0;
-			
+
 		// (1) Transition function is valid, i.e.,  0 <= d(q, a) < n
 		for(unsigned int q=0; q<n; q++) {
 			for(int a=0; a<this->alphabet_size; a++) {
@@ -396,54 +396,54 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 				z3::expr args[] = {c.int_val(q), c.int_val(a)};
 				s.add(d(2, args) >= 0);
 				s.add(d(2, args) < n);
-		
+
 				assertion_count += 2;
 			}
 		}
-		
+
 		// (2) The initial state is 0
 		s.add(state_vars[0] == prefix_tree<bool>::root);
 		assertion_count++;
-		
+
 		// (3) Transitions are applied correctly
 		for(unsigned int u=0; u<t.node_count; u++) {
 			for(int a=0; a<this->alphabet_size; a++) {
-			
+
 				if(t.edges[u][a] != prefix_tree<bool>::no_edge) {
-				
+
 					z3::expr args[] = {state_vars[u], c.int_val(a)};
 					s.add(state_vars[t.edges[u][a]] == d(2, args));
-		
+
 					assertion_count++;
-					
+
 				}
-			
+
 			}
 		}
-		
+
 		// (4) Words are classified correctly
 		for(unsigned int u=0; u<t.node_count; u++) {
-				
+
 				if(t.specified[u]) {
-				
+
 					// Word has to be accepted
 					if(t.output[u] == true) {
-					
+
 						s.add(f(state_vars[u]) == c.bool_val(true));
-					
+
 						assertion_count++;
-					
+
 					}
-					
+
 					// Word has to be rejected
 					else {
-					
+
 						s.add(f(state_vars[u]) == c.bool_val(false));
-					
+
 						assertion_count++;
-					
+
 					}
-				
+
 				}
 		}
 
@@ -459,7 +459,7 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 			return NULL;
 		}
 
-		
+
 		/*========================================
 		 *
 		 * Compute result
@@ -471,46 +471,46 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 			out << m;
 			(*this->my_logger)(LOGGER_ALGORITHM, "Model:\n%s\n", out.str().c_str());
 		}
-		
+
 		// Transitions
 		std::map<int, std::map<int, std::set<int> > > transitions;
 		for(unsigned int q=0; q<n; q++) {
 			for(int a=0; a<this->alphabet_size; a++) {
-				
+
 				// Get info from model
 				z3::expr args[] = {c.int_val(q), c.int_val(a)};
 				z3::expr result = m.eval(d(2, args));
 				unsigned int dest;
 				Z3_bool conversion_ok = Z3_get_numeral_uint(c, result, &dest);
 				assert(conversion_ok == true);
-				
+
 				// Add transition
 				transitions[q][a].insert(dest);
 
 			}
 		}
-		
+
 		// Initial state
 		std::set<int> initial;
 		initial.insert(prefix_tree<bool>::root);
-		
+
 		// Final states
 		std::set<int> final;
 		for(unsigned int q=0; q<n; q++) {
-			
+
 			// Retrive value from model
 			Z3_lbool result = Z3_get_bool_value(c, m.eval(f(q)));
 			assert(result != Z3_L_UNDEF);
-			
+
 			// Add final state
 			if(result == Z3_L_TRUE) {
-				
+
 				final.insert(q);
-				
+
 			}
-			
+
 		}
-		
+
 		// Construct and return automaton
 		finite_automaton * dfa = new finite_automaton;
 		dfa->input_alphabet_size = this->alphabet_size;
@@ -523,9 +523,9 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 
 		assert(dfa->calc_validity());
 		return dfa;
-		
+
 	}
-	
+
 	libalf::finite_automaton * infer_Z3_enum(const prefix_tree<bool> & t, unsigned int n) const {
 
 		/*========================================
@@ -541,7 +541,7 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 		assert(this->alphabet_size > 0);
 		(*this->my_logger)(LOGGER_ALGORITHM, "Running Z3 using undefined functions and enums to find a solution with n=%d and alphabet size=%d.\n", n, this->alphabet_size);
 
-		
+
 		/*========================================
 		 *
 		 * Create solver
@@ -549,8 +549,8 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 		 *========================================*/
 		z3::context c;
 		z3::solver s(c);
-		
-		
+
+
 		/*========================================
 		 *
 		 * Create enum and functions
@@ -573,18 +573,18 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 			state_consts.push_back(z3::func_decl(c, s_consts[i]));
 			state_testers.push_back(z3::func_decl(c, s_testers[i]));
 		}
-		
+
 		// Create alphabet enum
 		Z3_symbol a_name = Z3_mk_string_symbol(c, "alphabet");
 		Z3_symbol a_names[alphabet_size];
 		Z3_func_decl a_consts[alphabet_size];
 		Z3_func_decl a_testers[alphabet_size];
 		for(int i=0; i<this->alphabet_size; i++) {
-		
+
 			std::stringstream tmp;
 			tmp << "a" << i;
 			a_names[i] = Z3_mk_string_symbol(c, tmp.str().c_str());
-		
+
 		}
 		z3::sort alphabet_sort(c, Z3_mk_enumeration_sort(c, a_name, alphabet_size, a_names, a_consts, a_testers));
 		std::vector<z3::func_decl> alphabet_consts;
@@ -593,66 +593,66 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 			alphabet_consts.push_back(z3::func_decl(c, a_consts[i]));
 			alphabet_testers.push_back(z3::func_decl(c, a_testers[i]));
 		}
-		
+
 		// Functions
 		z3::func_decl d = function("d", state_sort, alphabet_sort, state_sort);
 		z3::func_decl f = function("f", state_sort, c.bool_sort());
 		z3::func_decl x = function("x", c.int_sort(), state_sort);
 
-		
+
 		/*========================================
 		 *
 		 * Create assertions
 		 *
 		 *========================================*/
 		unsigned long long assertion_count = 0;
-			
+
 		// (1) The initial state is 0
 		s.add(state_testers[prefix_tree<bool>::root](x(0)));
 		assertion_count++;
-		
+
 		// (2) Transitions are applied correctly
 		for(unsigned int u=0; u<t.node_count; u++) {
 			for(int a=0; a<this->alphabet_size; a++) {
-			
+
 				if(t.edges[u][a] != prefix_tree<bool>::no_edge) {
-				
+
 					z3::ast tmp (c, Z3_mk_app(c, a_consts[a], 0, NULL));
 					z3::expr args[] = {x(u), to_expr(c, tmp)};
 					s.add(x(t.edges[u][a]) == d(2, args));
-		
+
 					assertion_count++;
-					
+
 				}
-			
+
 			}
 		}
-		
+
 		// (3) Words are classified correctly
 		for(unsigned int u=0; u<t.node_count; u++) {
-				
+
 			if(t.specified[u]) {
-			
+
 				// Word has to be accepted
 				if(t.output[u] == true) {
-				
+
 					s.add(f(x(u)) == c.bool_val(true));
 					assertion_count++;
-				
+
 				}
-				
+
 				// Word has to be rejected
 				else {
-				
+
 					s.add(f(x(u)) == c.bool_val(false));
 					assertion_count++;
-				
+
 				}
-			
+
 			}
 		}
-		
-		
+
+
 		/*========================================
 		 *
 		 * Solve
@@ -665,7 +665,7 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 			return NULL;
 		}
 
-		
+
 		/*========================================
 		 *
 		 * Compute result
@@ -677,17 +677,17 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 			out << m;
 			(*this->my_logger)(LOGGER_ALGORITHM, "Model:\n%s\n", out.str().c_str());
 		}
-		
+
 		// Transitions
 		std::map<int, std::map<int, std::set<int> > > transitions;
 		for(unsigned int q=0; q<n; q++) {
 			for(int a=0; a<this->alphabet_size; a++) {
-				
+
 				// Check which of the finite many states is defined by the model
 				bool dest_found = false;
 				unsigned int dest = 0;
 				for(unsigned int p=0; p<n; p++) {
-				
+
 					// Get info from model
 					z3::ast tmp1 (c, Z3_mk_app(c, s_consts[q], 0, NULL));
 					z3::ast tmp2 (c, Z3_mk_app(c, a_consts[a], 0, NULL));
@@ -699,44 +699,44 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 
 					// Check destination
 					if(conversion_ok == Z3_L_TRUE) {
-					
+
 						assert(!dest_found);
 						dest_found = true;
 						dest = p;
-					
+
 					}
-					
+
 				}
 				assert(dest_found && dest < (int)n);
-				
+
 				// Add transition
 				transitions[q][a].insert(dest);
 
 			}
 		}
-		
+
 		// Initial state
 		std::set<int> initial;
 		initial.insert(prefix_tree<bool>::root);
-		
+
 		// Final states
 		std::set<int> final;
 		for(unsigned int q=0; q<n; q++) {
-			
+
 			// Retrive value from model
 			z3::ast tmp (c, Z3_mk_app(c, s_consts[q], 0, NULL));
 			Z3_lbool result = Z3_get_bool_value(c, m.eval(f(to_expr(c, tmp))));
 			assert(result != Z3_L_UNDEF);
-			
+
 			// Add final state
 			if(result == Z3_L_TRUE) {
-				
+
 				final.insert(q);
-				
+
 			}
-			
+
 		}
-		
+
 		// Construct and return automaton
 		finite_automaton * dfa = new finite_automaton;
 		dfa->input_alphabet_size = this->alphabet_size;
@@ -749,9 +749,9 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 
 		assert(dfa->calc_validity());
 		return dfa;
-		
+
 	}
-	
+
 	libalf::finite_automaton * infer_Z3_variables_enum(const prefix_tree<bool> & t, unsigned int n) const {
 
 		/*========================================
@@ -766,8 +766,8 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 		assert(n > 0);
 		assert(this->alphabet_size > 0);
 		(*this->my_logger)(LOGGER_ALGORITHM, "Running Z3 using undefined functions, variables, and enums to find a solution with n=%d and alphabet size=%d.\n", n, this->alphabet_size);
-	
-	
+
+
 		/*========================================
 		 *
 		 * Create solver
@@ -775,8 +775,8 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 		 *========================================*/
 		z3::context c;
 		z3::solver s(c);
-		
-		
+
+
 		/*========================================
 		 *
 		 * Create enum, functions, and variables
@@ -799,18 +799,18 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 			state_consts.push_back(z3::func_decl(c, s_consts[i]));
 			state_testers.push_back(z3::func_decl(c, s_testers[i]));
 		}
-		
+
 		// Create alphabet enum
 		Z3_symbol a_name = Z3_mk_string_symbol(c, "alphabet");
 		Z3_symbol a_names[alphabet_size];
 		Z3_func_decl a_consts[alphabet_size];
 		Z3_func_decl a_testers[alphabet_size];
 		for(int i=0; i<this->alphabet_size; i++) {
-		
+
 			std::stringstream tmp;
 			tmp << "a" << i;
 			a_names[i] = Z3_mk_string_symbol(c, tmp.str().c_str());
-		
+
 		}
 		z3::sort alphabet_sort(c, Z3_mk_enumeration_sort(c, a_name, alphabet_size, a_names, a_consts, a_testers));
 		std::vector<z3::func_decl> alphabet_consts;
@@ -819,75 +819,75 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 			alphabet_consts.push_back(z3::func_decl(c, a_consts[i]));
 			alphabet_testers.push_back(z3::func_decl(c, a_testers[i]));
 		}
-		
+
 		// Functions
 		z3::func_decl d = function("d", state_sort, alphabet_sort, state_sort);
 		z3::func_decl f = function("f", state_sort, c.bool_sort());
-		
+
 		// Variables
 		std::vector<z3::expr> state_vars;
 		for(unsigned int u=0; u<t.node_count; u++) {
-			
+
 			std::stringstream s;
 			s << "x" << u;
 			state_vars.push_back(c.constant(s.str().c_str(), state_sort));
-			
+
 		}
 
-		
+
 		/*========================================
 		 *
 		 * Create assertions
 		 *
 		 *========================================*/
 		unsigned long long assertion_count = 0;
-		
+
 		// (1) The initial state is 0
 		s.add(state_testers[prefix_tree<bool>::root](state_vars[0]));
 		assertion_count++;
-		
+
 		// (2) Transitions are applied correctly
 		for(unsigned int u=0; u<t.node_count; u++) {
 			for(int a=0; a<this->alphabet_size; a++) {
-			
+
 				if(t.edges[u][a] != prefix_tree<bool>::no_edge) {
-				
+
 					z3::ast tmp (c, Z3_mk_app(c, a_consts[a], 0, NULL));
 					z3::expr args[] = {state_vars[u], to_expr(c, tmp)};
 					s.add(state_vars[t.edges[u][a]] == d(2, args));
-		
+
 					assertion_count++;
-					
+
 				}
-			
+
 			}
 		}
-		
+
 		// (3) Words are classified correctly
 		for(unsigned int u=0; u<t.node_count; u++) {
-				
+
 			if(t.specified[u]) {
-			
+
 				// Word has to be accepted
 				if(t.output[u] == true) {
-				
+
 					s.add(f(state_vars[u]) == c.bool_val(true));
 					assertion_count++;
-				
+
 				}
-				
+
 				// Word has to be rejected
 				else {
-				
+
 					s.add(f(state_vars[u]) == c.bool_val(false));
 					assertion_count++;
-				
+
 				}
-			
+
 			}
 		}
-		
-		
+
+
 		/*========================================
 		 *
 		 * Solve
@@ -900,7 +900,7 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 			return NULL;
 		}
 
-		
+
 		/*========================================
 		 *
 		 * Compute result
@@ -912,17 +912,17 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 			out << m;
 			(*this->my_logger)(LOGGER_ALGORITHM, "Model:\n%s\n", out.str().c_str());
 		}
-		
+
 		// Transitions
 		std::map<int, std::map<int, std::set<int> > > transitions;
 		for(unsigned int q=0; q<n; q++) {
 			for(int a=0; a<this->alphabet_size; a++) {
-				
+
 				// Check which of the finite many states is defined by the model
 				bool dest_found = false;
 				unsigned int dest = 0;
 				for(unsigned int p=0; p<n; p++) {
-				
+
 					// Get info from model
 					z3::ast tmp1 (c, Z3_mk_app(c, s_consts[q], 0, NULL));
 					z3::ast tmp2 (c, Z3_mk_app(c, a_consts[a], 0, NULL));
@@ -934,44 +934,44 @@ class dfa_inferring_Z3 : public automata_inferring<bool> {
 
 					// Check destination
 					if(conversion_ok == Z3_L_TRUE) {
-					
+
 						assert(!dest_found);
 						dest_found = true;
 						dest = p;
-					
+
 					}
-					
+
 				}
 				assert(dest_found && (unsigned int)dest < n);
-				
+
 				// Add transition
 				transitions[q][a].insert(dest);
 
 			}
 		}
-		
+
 		// Initial state
 		std::set<int> initial;
 		initial.insert(prefix_tree<bool>::root);
-		
+
 		// Final states
 		std::set<int> final;
 		for(unsigned int q=0; q<n; q++) {
-			
+
 			// Retrive value from model
 			z3::ast tmp (c, Z3_mk_app(c, s_consts[q], 0, NULL));
 			Z3_lbool result = Z3_get_bool_value(c, m.eval(f(to_expr(c, tmp))));
 			assert(result != Z3_L_UNDEF);
-			
+
 			// Add final state
 			if(result == Z3_L_TRUE) {
-				
+
 				final.insert(q);
-				
+
 			}
-			
+
 		}
-		
+
 		// Construct and return automaton
 		finite_automaton * dfa = new finite_automaton;
 		dfa->input_alphabet_size = this->alphabet_size;

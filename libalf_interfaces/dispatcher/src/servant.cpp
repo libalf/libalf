@@ -364,7 +364,7 @@ bool servant::reply_delete_object()
 		else
 			r = ERR_SUCCESS;
 #ifdef VERBOSE_DEBUG
-		clog("deleting object %d type %s[%d].\n", id, obj2string(objects[id]->get_type()), objects[id]->get_type(), err2string(r));
+		clog("deleting object %d type %s[%s].\n", id, obj2string(objects[id]->get_type()), objects[id]->get_type(), err2string(r));
 #endif
 		delete objects[id];
 		objects[id] = NULL;

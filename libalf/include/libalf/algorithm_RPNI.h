@@ -233,7 +233,7 @@ class RPNI : public learning_algorithm<answer> {
 		}}}
 
 		virtual void generate_statistics(void) {
-			this->statistics["memory.bytes"] = sizeof(this);
+			this->statistics["memory.bytes"] = (int)sizeof(this);
 		}
 
 		virtual bool sync_to_knowledgebase()

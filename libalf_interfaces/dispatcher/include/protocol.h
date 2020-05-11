@@ -55,40 +55,40 @@ enum command_error_code {
 	ERR_INTERNAL_ERROR = 1001,
 };
 
-inline const char* err2string(int errno)
+inline const char* err2string(enum command_error_code)
 {{{
 	switch(errno) {
-		case 0:
+		case ERR_SUCCESS:
 			return "success";
-		case 1:
+		case ERR_NO_OBJECT:
 			return "object does not exist";
-		case 2:
+		case ERR_BAD_OBJECT:
 			return "bad object";
-		case 3:
+		case ERR_BAD_OBJECT_STATE:
 			return "object is in bad state";
-		case 10:
+		case ERR_BAD_COMMAND:
 			return "bad command";
-		case 11:
+		case ERR_NOT_IMPLEMENTED:
 			return "command not implemented";
-		case 15:
+		case ERR_BAD_PARAMETER_COUNT:
 			return "bad parameter count";
-		case 16:
+		case ERR_BAD_PARAMETERS:
 			return "bad parameters";
-		case 20:
+		case ERR_COMMAND_FAILED:
 			return "command failed";
-		case 40:
+		case ERR_UNRESOLVED_REFERENCES_REMOVED:
 			return "unresolved references removed during deletion";
-		case 41:
+		case ERR_REMAINING_OBJECTS:
 			return "disconnecting with remaining objects";
-		case 100:
+		case ERR_AUTHENTICATION_REQUIRED:
 			return "authentication required";
-		case 101:
+		case ERR_AUTHENTICATION_FAILED:
 			return "authentication failed";
-		case 110:
+		case ERR_TLS_REQUIRED:
 			return "TLS required";
-		case 1000:
+		case ERR_OUT_OF_MEM:
 			return "out of memory";
-		case 1001:
+		case ERR_INTERNAL_ERROR:
 			return "internal error";
 		default:
 			return "unknown error";

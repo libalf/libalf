@@ -1,4 +1,4 @@
-/* 
+/*
  * This file is part of libalf.
  *
  * libalf is free software: you can redistribute it and/or modify
@@ -27,7 +27,7 @@
 #ifndef __libalf__algorithm_automata_inferring_h__
 #define __libalf__algorithm_automata_inferring_h__
 
-// Standard includes 
+// Standard includes
 #include <iostream>
 #include <sstream>
 #include <list>
@@ -48,7 +48,7 @@ template <class answer>
 class automata_inferring : public learning_algorithm<answer> {
 
 	protected:
-	
+
 	/**
 	 * The default output of a conjecture Moore machine (or DFA) on states that
 	 * are not determined by the sample, i.e., because the sample specifies no
@@ -59,7 +59,7 @@ class automata_inferring : public learning_algorithm<answer> {
 	automata_inferring() : learning_algorithm<answer>() {
 		default_output = answer();
 	}
-	
+
 	public:
 
 	/**
@@ -72,136 +72,136 @@ class automata_inferring : public learning_algorithm<answer> {
 	}
 
 	virtual conjecture * infer(unsigned int n) const {
-	
+
 		// Copy the data from the knowledgebase into our own internal data structure
 		prefix_tree<answer> t(*this->my_knowledge, this->alphabet_size);
-	
+
 		// Check whether we can easily compute a conjecture
 		conjecture * simple_conjecture = infer_simple_conjecture(t);
 		if(simple_conjecture != NULL) {
 			return simple_conjecture;
 		}
-	
+
 		return __infer(t, n);
-		
+
 	}
-	
+
 	virtual conjecture * infer_linear(unsigned int increment = 1) const {
-	
+
 		// Check increment
 		if(increment == 0) {
 			(*this->my_logger)(LOGGER_ERROR, "The increment in the linear seach function has to be greater than 0.\n");
 			return NULL;
 		}
-		
+
 		// Copy the data from the knowledgebase into our own internal data structure
 		prefix_tree<answer> t(*this->my_knowledge, this->alphabet_size);
-		
+
 		// Check whether we can easily compute a conjecture
 		conjecture * simple_conjecture = infer_simple_conjecture(t);
 		if(simple_conjecture != NULL) {
 			return simple_conjecture;
 		}
-		
+
 		unsigned int left = 1;
 		unsigned int right = 1;
-		
+
 		// First, increase the size until the problem is satisfiable
 		conjecture * result = NULL;
 		while(result == NULL) {
-		
+
 			//std::cout << "left=" << left << ", right= " << right << std::endl;
-		
+
 			result = __infer(t, right);
-		
+
 			if(result == NULL) {
-				
+
 				left = right + 1;
 				right += increment;
-				
+
 			}
-		
+
 		}
-		
+
 		// Now, use a binary search to find the minimal value
 		while(left < right) {
-		
+
 			unsigned int mid = left + (right - left) / 2;
-		
+
 			//std::cout << "left=" << left << ", right= " << right << ", mid=" << mid << std::endl;
-		
+
 			conjecture * tmp_result = __infer(t, mid);
-			
+
 			if(tmp_result == NULL) {
 				left = mid + 1;
 			} else {
-			
+
 				delete result;
 				result = tmp_result;
 				tmp_result = NULL;
-			
+
 				right = mid;
 			}
-		
+
 		}
-		
+
 		assert(result != NULL);
 		return result;
-	
+
 	}
-	
+
 	virtual conjecture * infer_binarysearch() const {
 
 		// Copy the data from the knowledgebase into our own internal data structure
 		prefix_tree<answer> t(*this->my_knowledge, this->alphabet_size);
-	
+
 		// Check whether we can easily compute a conjecture
 		conjecture * simple_conjecture = infer_simple_conjecture(t);
 		if(simple_conjecture != NULL) {
 			return simple_conjecture;
 		}
-	
+
 		unsigned int left = 1;
 		unsigned int right = 1;
-	
+
 		// First, double the size until the problem is satisfiable
 		conjecture * result = NULL;
 		while(result == NULL) {
-		
+
 			result = __infer(t, right);
-		
+
 			if(result == NULL) {
-				
+
 				left = right + 1;
 				right *= 2;
-				
+
 			}
-		
+
 		}
-		
+
 		// Now, use a binary search to find the minimal value
 		while(left < right) {
-		
+
 			unsigned int mid = left + (right - left) / 2;
-		
+
 			conjecture * tmp_result = __infer(t, mid);
-			
+
 			if(tmp_result == NULL) {
 				left = mid + 1;
 			} else {
-			
+
 				delete result;
 				result = tmp_result;
 				tmp_result = NULL;
-			
+
 				right = mid;
 			}
-		
+
 		}
-		
+
 		assert(result != NULL);
 		return result;
-	
+
 	}
 
 	/**
@@ -213,7 +213,7 @@ class automata_inferring : public learning_algorithm<answer> {
 	answer get_default_output() {
 		return default_output;
 	}
-	
+
 	/**
 	 * Sets the default output used for conjectures if the output of a state
 	 * is not determined by the given sample.
@@ -223,9 +223,9 @@ class automata_inferring : public learning_algorithm<answer> {
 	void set_default_output(answer new_default_output) {
 		this->default_output = new_default_output;
 	}
-	
+
 	private:
-	
+
 	virtual conjecture * __infer(const prefix_tree<answer> & t, unsigned int n) const = 0;
 
 	/**
@@ -243,13 +243,13 @@ class automata_inferring : public learning_algorithm<answer> {
 	 * @return Returns a simple conjecture.
 	 */
 	virtual conjecture * infer_simple_conjecture(prefix_tree<answer> const & t) const {
-	
+
 		return NULL;
-	
+
 	}
 
 	protected:
-	
+
 	/**
 	 * This method constructs a one-state Moore machine from a prefix tree with
 	 * only don't cares or with don't cares and only one other output. The
@@ -262,56 +262,56 @@ class automata_inferring : public learning_algorithm<answer> {
 	 * @return Returns a one-state Moore machine consistent with the prefix tree.
 	 */
 	moore_machine<answer> * infer_simple_moore_machine(prefix_tree<answer> const & t) const {
-	
+
 		/*
 		 * Check for classification
 		 */
 		bool has_output_specified = false;
 		answer output = default_output;
 		for(unsigned int i=0; i<t.node_count; i++) {
-		
+
 			if(t.specified[i]) {
-			
+
 				// First output discovered
 				if(!has_output_specified) {
 
 					has_output_specified = true;
 					output = t.output[i];
-					
+
 				}
-				
+
 				// Another output encountered
 				else {
-				
+
 					// Check whether the outputs are the same
 					if(output != t.output[i]) {
 						return NULL;
 					}
-				
+
 				}
-				
+
 			}
-		
+
 		}
-	
+
 		/*
 		 *Create one state automaton with found output
 		 */
-		
+
 		// Initial state
 		std::set<int> initial;
 		initial.insert(0);
-		
+
 		// Output mapping
 		std::map<int, answer> output_mapping;
 		output_mapping[0] = output;
-		
+
 		// Transitions
 		std::map<int, std::map<int, std::set<int> > > transitions;
 		for(unsigned int a=0; a<this->alphabet_size; a++) {
 			transitions[0][a].insert(0);
 		}
-		
+
 		// Create automaton
 		moore_machine<answer> * m = new moore_machine<answer>;
 		m->state_count = 1;
@@ -321,12 +321,12 @@ class automata_inferring : public learning_algorithm<answer> {
 		m->transitions = transitions;
 		m->is_deterministic = true;
 		m->valid = true;
-		
+
 		assert(m->calc_validity());
 		return m;
-		
+
 	}
-	
+
 	/**
 	 * This method constructs a one-state DFA from a prefix tree with only don't
 	 * cares or with don't cares and only one other output. The output of this
@@ -339,58 +339,58 @@ class automata_inferring : public learning_algorithm<answer> {
 	 * @return Returns a one-state DFA consistent with the prefix tree.
 	 */
 	finite_automaton * infer_simple_dfa(prefix_tree<bool> const & t) const {
-	
+
 		/*
 		 * Check for classification
 		 */
 		bool has_output_specified = false;
 		bool output = false;
 		for(unsigned int i=0; i<t.node_count; i++) {
-		
+
 			if(t.specified[i]) {
-			
+
 				// First output discovered
 				if(!has_output_specified) {
 
 					has_output_specified = true;
 					output = t.output[i];
-					
+
 				}
-				
+
 				// Another output encountered
 				else {
-				
+
 					// Check whether the outputs are the same
 					if(output != t.output[i]) {
 						return NULL;
 					}
-				
+
 				}
-				
+
 			}
-		
+
 		}
-	
+
 		/*
 		 * Create one state automaton with found output
 		 */
-		
+
 		// Initial state
 		std::set<int> initial;
 		initial.insert(0);
-		
+
 		// Output mapping
 		std::set<int> final;
 		if(output) {
 			final.insert(0);
 		}
-		
+
 		// Transitions
 		std::map<int, std::map<int, std::set<int> > > transitions;
 		for(unsigned int a=0; a<this->alphabet_size; a++) {
 			transitions[0][a].insert(0);
 		}
-		
+
 		// Create automaton
 		finite_automaton * dfa = new finite_automaton;
 		dfa->state_count = 1;
@@ -400,20 +400,20 @@ class automata_inferring : public learning_algorithm<answer> {
 		dfa->transitions = transitions;
 		dfa->is_deterministic = true;
 		dfa->valid = true;
-		
+
 		assert(dfa->calc_validity());
 		return dfa;
-		
+
 	}
-	
-	
+
+
 	/*
 	 * The following code are method stubs for much of libALF's functionality
 	 * that is not (yet) supported the the automata inferring algorithms.
 	 * That might change in the future.
 	 */
 	public:
-	
+
 	void increase_alphabet_size(int new_alphabet_size) {
 		this->alphabet_size = new_alphabet_size;
 	}
@@ -488,54 +488,54 @@ bool is_consistent(const prefix_tree<answer> & t, const moore_machine<answer> & 
 	std::list<std::pair<unsigned int, std::list<int> > > stack;
 	stack.push_back(std::pair<unsigned int, std::list<int> >(prefix_tree<answer>::root, std::list<int>()));
 	while(!stack.empty()) {
-	
+
 		// Get current node
 		std::pair<unsigned int, std::list<int> > back = stack.back();
 		unsigned int current_node = back.first;
 		std::list<int> current_word = back.second;
 		stack.pop_back();
-	
+
 		// Check current node
 		if(t.specified[current_node]) {
-			
+
 			// Get the states reached by the machine on the given word
 			std::set<int> states = machine.initial_states;
 			machine.run(states, current_word.begin(), current_word.end());
-			
+
 			// At least one state is reached
-			if(states.size() > 0) {	
+			if(states.size() > 0) {
 
 				// Check whether the output stored in the prefix tree is also
 				// produced by the machine
 				bool output_found = false;
 				for(std::set<int>::const_iterator it1=states.begin(); it1!=states.end(); it1++) {
-				
+
 					// Get output
 					typename std::map<int, answer>::const_iterator it2 = machine.output_mapping.find(*it1);
 					if(it2 != machine.output_mapping.end() && it2->second == t.output[current_node]) {
-					//temp	
+					//temp
 						output_found = true;
 						break;
-						
+
 					}
-				
+
 				}
 
 				if(!output_found) {
 					return false;
 				}
-			
+
 			}
 			// No state is reached
 			else {
-			
+
 				if(t.output[current_node] != default_output) {
 					return false;
 				}
-			
+
 			}
-		
-		}	
+
+		}
 
 		// Process children
 		for(unsigned int a=0; a<t.get_alphabet_size(); a++) {
@@ -549,9 +549,9 @@ bool is_consistent(const prefix_tree<answer> & t, const moore_machine<answer> & 
 			}
 
 		}
-	
+
 	}
-	
+
 	return true;
 
 }
@@ -592,14 +592,14 @@ bool is_consistent(libalf::knowledgebase<answer> & base, const libalf::moore_mac
 	std::list<typename libalf::knowledgebase<answer>::node *> stack;
 	stack.push_back(base.get_rootptr());
 	while(!stack.empty()) {
-	
+
 		// Get next node
 		typename libalf::knowledgebase<answer>::node * n = stack.back();
 		stack.pop_back();
-	
+
 		// Check whether word is classified correctly by machine
 		if(n->is_answered()) {
-			
+
 			std::list<int> word = n->get_word();
 			std::set<int> states = machine.initial_states;
 			machine.run(states, word.begin(), word.end());
@@ -615,42 +615,42 @@ bool is_consistent(libalf::knowledgebase<answer> & base, const libalf::moore_mac
 						output_found = true;
 						break;
 					}
-					
+
 				}
 				if(!output_found) {
 					return false;
 				}
-				
+
 			}
 			// No state is reached
 			else {
-			
+
 				if(n->get_answer() != default_output) {
 					return false;
 				}
-			
-			}			
-			
+
+			}
+
 		}
-	
+
 		// Add successors
 		int min = n->max_child_count() > machine.input_alphabet_size ? machine.input_alphabet_size : n->max_child_count();
 		for(int a=min-1; a>=0; a--) {
-		
+
 			typename libalf::knowledgebase<answer>::node * child = n->find_child(a);
 			if(child != NULL) {
-			
+
 				// We do not need to perform any check since the knowledgebase is a tree!
 				stack.push_back(child);
-			
+
 			}
-		
+
 		}
-	
+
 	}
-	
+
 	return true;
-	
+
 }
 
 /**
@@ -683,15 +683,15 @@ bool is_consistent(const std::map<std::list<int>, answer> & sample, const libalf
 
 	// Check all word in the sample
 	for(typename std::map<std::list<int>, answer>::const_iterator it1=sample.begin(); it1!=sample.end(); it1++) {
-	
+
 		// Get states reached by the machine on the given word
 		std::set<int> states = machine.initial_states;
-		machine.run(states, it1->first.begin(), it1->first.end());	
-	
+		machine.run(states, it1->first.begin(), it1->first.end());
+
 		// At least one state is reached
 		if(states.size() > 0) {
-	
-			// Check whether output of prefix tree is contained in the output of the reached states 
+
+			// Check whether output of prefix tree is contained in the output of the reached states
 			bool found_output = false;
 			for(std::set<int>::const_iterator it2=states.begin(); it2!=states.end(); it2++) {
 
@@ -701,7 +701,7 @@ bool is_consistent(const std::map<std::list<int>, answer> & sample, const libalf
 					found_output = true;
 					break;
 				}
-				
+
 			}
 			if(!found_output) {
 				return false;
@@ -710,13 +710,13 @@ bool is_consistent(const std::map<std::list<int>, answer> & sample, const libalf
 		}
 		// No state is reached
 		else {
-		
+
 			if(it1->second != default_output) {
 				return false;
 			}
-		
+
 		}
-		
+
 	}
 
 	return true;

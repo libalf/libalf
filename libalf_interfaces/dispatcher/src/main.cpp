@@ -202,7 +202,7 @@ int main(int argc, char**argv)
 		FD_SET(master->sock, &fds);
 		t.tv_sec = 1;
 		t.tv_usec = 0;
-		if(select(master->sock+1, &fds, &fds, &fds, &t)) {
+		if(select(master->sock+1, &fds, NULL, NULL, &t)) {
 			struct sockaddr_in remote_addr;
 			socklen_t sin_size = sizeof(struct sockaddr_in);
 			serversocket *cl = master->accept(remote_addr, sin_size);

@@ -114,13 +114,13 @@ co_learning_algorithm::co_learning_algorithm(enum libalf::learning_algorithm_typ
 			o = new deterministic_inferring_csp_Z3<bool>(NULL, NULL, alphabet_size);
 			break; 
 		case ALG_INFERRING_DFA_MINISAT:
-			o = new dfa_inferring_MiniSat<bool>(NULL, NULL, alphabet_size);
+			o = new dfa_inferring_MiniSat(NULL, NULL, alphabet_size);
 			break; 
 		case ALG_INFERRING_DFA_Z3:
-			o = new dfa_inferring_Z3<bool>(NULL, NULL, alphabet_size);
+			o = new dfa_inferring_Z3(NULL, NULL, alphabet_size);
 			break; 
 		case ALG_INFERRING_NFA_MINISAT:
-			o = new nfa_inferring_MiniSat<bool>(NULL, NULL, alphabet_size);
+			o = new nfa_inferring_MiniSat(NULL, NULL, alphabet_size);
 			break;
 		case ALG_COUNTEREXAMPLE_LEARNING:
 			o = new counterexample_learning(NULL, NULL, alphabet_size, NULL);
@@ -257,18 +257,14 @@ bool co_learning_algorithm::handle_command(int command, basic_string<int32_t> & 
 			this->deref_normalizer(referenced_normalizer);
 			return this->sv->send_errno(ERR_SUCCESS);
 		case LEARNING_ALGORITHM_GET_MEMORY_STATISTICS:
-			if(command_data.size() != 0)
-				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
-			if(!this->sv->send_errno(ERR_SUCCESS))
-				return false;
-			serial = this->o->get_memory_statistics().serialize();
-			return this->sv->client->stream_send_raw_blob(serial);
+			// fall through: FIXME: mem- and timing-stats are legacy. there are only stats now.
 		case LEARNING_ALGORITHM_GET_TIMING_STATISTICS:
+			/* FIXME this is the same as GET_MEMORY_STATISTICS */
 			if(command_data.size() != 0)
 				return this->sv->send_errno(ERR_BAD_PARAMETER_COUNT);
 			if(!this->sv->send_errno(ERR_SUCCESS))
 				return false;
-			serial = this->o->get_timing_statistics().serialize();
+			serial = serialize(this->o->get_statistics());
 			return this->sv->client->stream_send_raw_blob(serial);
 		case LEARNING_ALGORITHM_ENABLE_TIMING:
 			if(command_data.size() != 0)

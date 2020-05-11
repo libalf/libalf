@@ -1,4 +1,4 @@
-/* 
+/*
  * This file is part of libalf.
  *
  * libalf is free software: you can redistribute it and/or modify
@@ -29,7 +29,7 @@
 #ifndef __ALGORITHM_DETERMINISTIC_INFERRING_CSP_MINISAT_H__
 #define __ALGORITHM_DETERMINISTIC_INFERRING_CSP_MINISAT_H__
 
-// Standard includes 
+// Standard includes
 #include <iostream>
 #include <sstream>
 #include <list>
@@ -65,7 +65,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 	 * Indicates whether the computed model should be logged (to the algorithm loglevel)
 	 */
 	bool log_model;
-	
+
 	public:
 
 	/**
@@ -76,7 +76,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 		this->set_alphabet_size(alphabet_size);
 		this->set_logger(log);
 		this->set_knowledge_source(base);
-		
+
 		this->unary_encoding = unary_encoding;
 		this->log_model = false;
 
@@ -107,23 +107,23 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 	bool is_logging_model() {
 		return log_model;
 	}
-	
+
 	void set_log_model(bool log_model) {
 		this->log_model = log_model;
 	}
-	
+
 	void print(std::ostream & os) const {
-	
+
 		os << "(Minimal) DFA inferring algorithm via Biermann's CSP using the MiniSat SAT Solver. ";
 		os << "Alphabet size is " << this->alphabet_size;
 		os << ", using the " << (unary_encoding ? "unary" : "binary") << " encoding of the CSP.";
-		
+
 	}
 
 	private:
 
 	virtual conjecture * __infer(const prefix_tree<answer> & t, unsigned int n) const {
-	
+
 		// Check value for n
 		if(n == 0) {
 			(*this->my_logger)(LOGGER_ERROR, "The number 'n' of states has to be greater than 0.\n");
@@ -138,13 +138,13 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 		}
 
 	}
-	
+
 	virtual conjecture * infer_simple_conjecture(prefix_tree<answer> const & t) const {
-	
-		return infer_simple_moore_machine(t);
-		
+
+		return this->infer_simple_moore_machine(t);
+
 	}
-	
+
 	libalf::moore_machine<answer> * infer_unary_MiniSat(const prefix_tree<answer> & t, unsigned int n) const {
 
 		/*========================================
@@ -165,16 +165,16 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 			(*this->my_logger)(LOGGER_ALGORITHM, "deterministic Moore machine");
 		}
 		(*this->my_logger)(LOGGER_ALGORITHM, " with %u states and alphabet size %d.\n", n, this->alphabet_size);
-		
-		
+
+
 		/*========================================
 		 *
 		 * Create solver
 		 *
 		 *========================================*/
 		MiniSat::Solver solver;
-		
-		
+
+
 		/*========================================
 		 *
 		 * Create variables
@@ -190,31 +190,31 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 				var_count++;
 			}
 		}
-		
-		
+
+
 		/*========================================
 		 *
 		 * Create clauses
 		 *
 		 *========================================*/
 		unsigned long long clause_count = 0;
-		
+
 		// (1) For each prefix, at least one state is assumed
 		for(unsigned int u=0; u<t.node_count; u++) {
-			
+
 			MiniSat::vec<MiniSat::Lit> clause;
 			clause.growTo(n);
 
 			for(unsigned int q=0; q<n; q++) {
 				clause[q] = MiniSat::Lit(x[u][q]);
 			}
-			
+
 			solver.addClause(clause);
 
 			clause_count++;
 
 		}
-		
+
 		// (2) For each prefix, at most one state is assumed
 		for(unsigned int u=0; u<t.node_count; u++) {
 			for(unsigned int p=0; p<n; p++) {
@@ -236,7 +236,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 
 						for(unsigned int p=0; p<n; p++) {
 							for(unsigned int q=0; q<n; q++) {
-					
+
 								{
 
 									MiniSat::vec<MiniSat::Lit> clause;
@@ -246,13 +246,13 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 									clause[1] = ~MiniSat::Lit(x[v][q]);
 									clause[2] = MiniSat::Lit(x[t.edges[u][a]][p]);
 									clause[3] = ~MiniSat::Lit(x[t.edges[v][a]][p]);
-										
+
 									solver.addClause(clause);
 
 									clause_count++;
 
 								}
-						
+
 								{
 
 									MiniSat::vec<MiniSat::Lit> clause;
@@ -262,38 +262,38 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 									clause[1] = ~MiniSat::Lit(x[v][q]);
 									clause[2] = ~MiniSat::Lit(x[t.edges[u][a]][p]);
 									clause[3] = MiniSat::Lit(x[t.edges[v][a]][p]);
-										
+
 									solver.addClause(clause);
 
 									clause_count++;
 
 								}
-						
+
 							}
 						}
 					}
 				}
 			}
 		}
-		
+
 		// (4) Words with different classification cannot lead to the same state
 		for(unsigned int u=0; u<t.node_count; u++) {
 			for(unsigned int v=0; v<u; v++) {
 				if(t.specified[u] && t.specified[v] && (t.output[u] != t.output[v])) {
 
 					for(unsigned int q=0; q<n; q++) {
-						
+
 						solver.addBinary(~MiniSat::Lit(x[u][q]), ~MiniSat::Lit(x[v][q]));
 
 						clause_count++;
-						
+
 					}
-				
+
 				}
 			}
 		}
-		
-		
+
+
 		/*========================================
 		 *
 		 * Solve
@@ -308,7 +308,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 			(*this->my_logger)(LOGGER_ALGORITHM, "Formula is satisfiable.\n");
 		}
 
-		
+
 		/*========================================
 		 *
 		 * Compute result
@@ -323,15 +323,15 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 					(*this->my_logger)(LOGGER_ALGORITHM, "x[%u][%u] = %s\n", u, q, (solver.model[x[u][q]] == MiniSat::l_True ? "1" : (solver.model[x[u][q]] == MiniSat::l_False ? "0" : "?")));
 				}
 			}
-			
+
 		}
-		
+
 		// Transitions
 		std::map<int, std::map<int, std::set<int> > > transitions;
 		for(unsigned int u=0; u<t.node_count; u++) {
 			for(int a=0; a<this->alphabet_size; a++) {
 				if(t.edges[u][a] != prefix_tree<answer>::no_edge) {
-				
+
 					// Search for source state
 					bool source_found = false;
 					unsigned int source = 0;
@@ -354,9 +354,9 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 					bool dest_found = false;
 					unsigned int dest = 0;
 					for(unsigned int q=0; q<n; q++) {
-					
+
 						assert(solver.model[x[t.edges[u][a]][q]] != MiniSat::l_Undef);
-					
+
 						if(solver.model[x[t.edges[u][a]][q]] == MiniSat::l_True) {
 
 							assert(!dest_found);
@@ -367,35 +367,35 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 
 					}
 					assert(dest_found && dest <= n);
-					
+
 					// Check if a transition is defined and if so whether it is the same
 					if(transitions.count(source) > 0) {
-					
+
 						assert(transitions[source].count(a) <= 1);
-					
+
 						if(transitions[source].count(a) > 0) {
 							assert(*(transitions[source][a].begin()) == (int)dest);
 						} else {
 							transitions[source][a].insert(dest);
 						}
-					
+
 					} else {
 						transitions[source][a].insert(dest);
 					}
-				
+
 				}
 			}
 		}
-		
+
 		// Initial state
 		bool initial_found = false;
 		unsigned int tmp_initial = 0;
 		for(unsigned int q=0; q<n; q++) {
-			
+
 			assert(solver.model[x[0][q]] != MiniSat::l_Undef);
-			
+
 			if(solver.model[x[0][q]] == MiniSat::l_True) {
-				
+
 				assert(!initial_found);
 				initial_found = true;
 				tmp_initial = q;
@@ -406,21 +406,21 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 		assert(initial_found && tmp_initial < n);
 		std::set<int> initial;
 		initial.insert(tmp_initial);
-		
+
 		// Output
 		std::map<int, answer> output_mapping;
 		for(unsigned int u=0; u<t.node_count; u++) {
 			if(t.specified[u]) {
-			
+
 				// Get value from model
 				bool state_found = false;
 				unsigned int state = 0;
 				for(unsigned int q=0; q<n; q++) {
-				
+
 					assert(solver.model[x[u][q]] != MiniSat::l_Undef);
-				
+
 					if(solver.model[x[u][q]] == MiniSat::l_True) {
-						
+
 						assert(!state_found);
 						state_found = true;
 						state = q;
@@ -428,7 +428,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 					}
 
 				}
-		
+
 				// Add
 				assert(state_found && state < n);
 				if(output_mapping.count(state) > 0) {
@@ -445,7 +445,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 				output_mapping[q] = this->default_output;
 			}
 		}
-		
+
 		// Construct and return automaton
 		moore_machine<answer> * automaton;
 		if(typeid(answer) == typeid(bool)) {
@@ -463,9 +463,9 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 
 		assert(automaton->calc_validity());
 		return automaton;
-		
+
 	}
-	
+
 	libalf::moore_machine<answer> * infer_binary_MiniSat(const prefix_tree<answer> & t, unsigned int n) const {
 
 		/*========================================
@@ -506,8 +506,8 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 		 *
 		 *========================================*/
 		MiniSat::Solver solver;
-	
-	
+
+
 		/*========================================
 		 *
 		 * Create variables
@@ -515,7 +515,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 		 *========================================*/
 		unsigned long var_count = 0;
 		std::map<int, std::map<int, MiniSat::Var> > x; // x_{u,m} in binary encoding, least bit left
-		
+
 		// Labeling of the prefixes
 		for(unsigned int u=0; u<t.node_count; u++) {
 			for(unsigned int m=0; m<log_n; m++) {
@@ -523,19 +523,19 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 				var_count++;
 			}
 		}
-	
-	
+
+
 		/*========================================
 		 *
 		 * Create clauses
 		 *
 		 *========================================*/
 		unsigned long long clause_count = 0;
-		
+
 		// (1) For each prefix, a valid state (i.e. less than n) is assumed
 		// We do this by not allowing binary values greater of equal to n.
 		for(unsigned int u=0; u<t.node_count; u++) {
-			for(unsigned int q=n; q<pow(2, log_n); q++) {	
+			for(unsigned int q=n; q<pow(2, log_n); q++) {
 
 				// Get binary representation of q with log_n bits
 				std::vector<bool> binary = to_binary(q, log_n);
@@ -604,7 +604,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 								MiniSat::vec<MiniSat::Lit> clause1;
 								clause1.growTo(2 * log_n + 2);
 								for(unsigned int m=0; m<binary.size(); m++) {
-			
+
 									clause1[2*m] = binary[m] ? ~MiniSat::Lit(x[u][m]) : MiniSat::Lit(x[u][m]);
 									clause1[2*m+1] = binary[m] ? ~MiniSat::Lit(x[v][m]) : MiniSat::Lit(x[v][m]);
 
@@ -622,7 +622,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 								MiniSat::vec<MiniSat::Lit> clause2;
 								clause2.growTo(2 * log_n + 2);
 								for(unsigned int m=0; m<binary.size(); m++) {
-			
+
 									clause2[2*m] = binary[m] ? ~MiniSat::Lit(x[u][m]) : MiniSat::Lit(x[u][m]);
 									clause2[2*m+1] = binary[m] ? ~MiniSat::Lit(x[v][m]) : MiniSat::Lit(x[v][m]);
 
@@ -642,8 +642,8 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 				}
 			}
 		}
-	
-	
+
+
 		/*========================================
 		 *
 		 * Solve
@@ -658,7 +658,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 			(*this->my_logger)(LOGGER_ALGORITHM, "Formula is satisfiable.\n");
 		}
 
-		
+
 		/*========================================
 		 *
 		 * Compute result
@@ -673,9 +673,9 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 					(*this->my_logger)(LOGGER_ALGORITHM, "x[%u][%u] = %s\n", u, m, (solver.model[x[u][m]] == MiniSat::l_True ? "1" : (solver.model[x[u][m]] == MiniSat::l_False ? "0" : "?")));
 				}
 			}
-			
+
 		}
-		
+
 		// Transitions
 		std::map<int, std::map<int, std::set<int> > > transitions;
 		// Process each prefix and look for applied transition
@@ -684,13 +684,13 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 			// Decode source state
 			unsigned int source = 0;
 			for(unsigned int m=0; m<log_n; m++) {
-				
+
 				assert(solver.model[x[u][m]] != MiniSat::l_Undef);
-				
+
 				if(solver.model[x[u][m]] == MiniSat::l_True) {
 					source += pow(2, m);
-				} 
-				
+				}
+
 			}
 
 			for(int a=0; a<this->alphabet_size; a++) {
@@ -699,9 +699,9 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 					// Decode destination state
 					unsigned int dest = 0;
 					for(unsigned int m=0; m<log_n; m++) {
-					
+
 						assert(solver.model[x[u][m]] != MiniSat::l_Undef);
-					
+
 						if(solver.model[x[t.edges[u][a]][m]] == MiniSat::l_True) {
 							dest += pow(2, m);
 						}
@@ -716,21 +716,21 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 				}
 			}
 		}
-		 
+
 		// Initial states
 		unsigned int tmp_initial = 0;
 		for(unsigned int m=0; m<log_n; m++) {
-			
+
 			assert(solver.model[x[0][m]] != MiniSat::l_Undef);
-			
+
 			if(solver.model[x[0][m]] == MiniSat::l_True) {
 				tmp_initial += pow(2, m);
 			}
-			
+
 		}
 		std::set<int> initial;
 		initial.insert(tmp_initial);
-	
+
 		// Output
 		std::map<int, answer> output_mapping;
 		for(unsigned int u=0; u<t.node_count; u++) {
@@ -739,13 +739,13 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 				// Decode state
 				unsigned int state = 0;
 				for(unsigned int m=0; m<log_n; m++) {
-					
+
 					assert(solver.model[x[u][m]] != MiniSat::l_Undef);
-					
+
 					if(solver.model[x[u][m]] == MiniSat::l_True) {
 						state += pow(2, m);
 					}
-					
+
 				}
 
 				assert(state < n);
@@ -754,7 +754,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 				} else {
 					output_mapping[state] = t.output[u];
 				}
-				
+
 			}
 		}
 		//Add missing outputs
@@ -763,7 +763,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 				output_mapping[q] = this->default_output;
 			}
 		}
-		
+
 		// Construct and return automaton
 		moore_machine<answer> * automaton;
 		if(typeid(answer) == typeid(bool)) {
@@ -815,7 +815,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 	 */
 
 	std::vector<bool> to_binary(unsigned int number, unsigned int n) const {
-	
+
 		std::vector<bool> binary = to_binary(number);
 		assert(binary.size() <= n);
 
@@ -875,7 +875,7 @@ class deterministic_inferring_csp_MiniSat : public automata_inferring<answer> {
 		// Implementation type
 		if(!::deserialize(s, serial)) return false;
 		if(s != ALG_INFERRING_CSP_MINISAT) return false;
-		
+
 		// alphabet size
 		if(!::deserialize(s, serial)) return false;
 		if(s <= 0) return false;
