@@ -112,10 +112,12 @@ list<int> get_Samples(int alphabetsize) {
 	do {
 		ok = true;
 
-		cout << "Enter a Word: ";
+		cout << "Enter a Word (dot '.' as epsilon): ";
 		cin >> c;
+		if(c == ".")
+			c = "";
 
-		unsigned int i = 0;
+		unsigned int i;
 		for (i = 0; i < c.length(); i++) {
 			if (c.at(i) < '0' || c.at(i) > ('0' + alphabetsize - 1)) {
 				cout << "Found illegal character " << c.at(i) << endl;

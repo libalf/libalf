@@ -97,29 +97,31 @@ int get_AlphabetSize() {
  * contain illegal characters, i.e. not 0, ..., alphabetsize - 1.
  */
 list<int> get_CounterExample(int alphabetsize) {
-	list<int> ce;
+	list<int> cex;
 	string c;
 
 	bool ok;
 	do {
 		ok = true;
 
-		cout << "Please enter a counter example: ";
+		cout << "Please enter a counter example (dot '.' as epsilon): ";
 		cin >> c;
+		if(c == ".")
+			c = "";
 
 		unsigned int i;
 		for (i = 0; i < c.length(); i++) {
 			if (c.at(i) < '0' || c.at(i) > ('0' + alphabetsize - 1)) {
 				cout << "Found illegal character " << c.at(i) << endl;
 				ok = false;
-				ce.clear();
+				cex.clear();
 				break;
 			}
-			ce.push_back(c.at(i) - '0');
+			cex.push_back(c.at(i) - '0');
 		}
 	} while (!ok);
 
-	return ce;
+	return cex;
 }
 
 /*
