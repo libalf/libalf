@@ -27,11 +27,11 @@ import de.libalf.Logger;
 public class DispatcherAlgorithmInferringDFAZ3 extends DispatcherLearningAlgorithm {
 	private static final long serialVersionUID = 1L;
 
-		public DispatcherAlgorithmInferringDFAZ3(DispatcherFactory factory, Knowledgebase base, int alphabet_size, Logger logger) {
+	public DispatcherAlgorithmInferringDFAZ3(DispatcherFactory factory, Knowledgebase base, int alphabet_size, Logger logger) {
 		super(factory, DispatcherConstants.ALG_INFERRING_DFA_Z3, base, alphabet_size, logger);
 	}
 	
-	public DispatcherAlgorithmInferringZ3(DispatcherFactory factory, Knowledgebase base, int alphabet_size, Logger logger, boolean use_variables, boolean use_enum) {
+	public DispatcherAlgorithmInferringDFAZ3(DispatcherFactory factory, Knowledgebase base, int alphabet_size, Logger logger, boolean use_variables, boolean use_enum) {
 		super(factory, DispatcherConstants.ALG_INFERRING_DFA_Z3, base, alphabet_size, logger);
 		
 		set_using_variables(use_variables);
@@ -43,7 +43,7 @@ public class DispatcherAlgorithmInferringDFAZ3 extends DispatcherLearningAlgorit
 		int[] magic = deserialize_magic(new int[]{0});
 		if (magic.length != 1)
 			throw new DispatcherProtocolException("unexpected answer length");
-		return magic[0];
+		return 0 != magic[0];
 	}
 	
 	// Commmnd 1
@@ -60,7 +60,7 @@ public class DispatcherAlgorithmInferringDFAZ3 extends DispatcherLearningAlgorit
 		int[] magic = deserialize_magic(new int[]{2});
 		if (magic.length != 1)
 			throw new DispatcherProtocolException("unexpected answer length");
-		return magic[0];
+		return 0 != magic[0];
 	}
 	
 	// Commmnd 3

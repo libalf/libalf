@@ -462,7 +462,7 @@ public class DispatcherFactory implements LibALFFactory {
 			else
 				throw new AlfException("Invalid parameters for creating DeLeTe2 inference algorithm: " + args.length + ".");
 
-		case ALG_INFERRING_CSP_MINISAT:
+		case INFERRING_CSP_MINISAT:
 			/*
 			 * Create deterministic CSP MiniSat inference algorithm.
 			 */
@@ -473,7 +473,7 @@ public class DispatcherFactory implements LibALFFactory {
 			else
 				throw new AlfException("Invalid parameters for creating deterministic CSP MiniSat inference algorithm: " + args.length + ".");
 
-		case ALG_INFERRING_CSP_Z3:
+		case INFERRING_CSP_Z3:
 			/*
 			 * Create deterministic CSP MiniSat inference algorithm.
 			 */
@@ -484,7 +484,7 @@ public class DispatcherFactory implements LibALFFactory {
 			else
 				throw new AlfException("Invalid parameters for creating deterministic CSP Z3 inference algorithm: " + args.length + ".");
 
-		case ALG_INFERRING_MINISAT:
+		case INFERRING_MINISAT:
 			/*
 			 * Create deterministic MiniSat inference algorithm.
 			 */
@@ -495,7 +495,7 @@ public class DispatcherFactory implements LibALFFactory {
 			else
 				throw new AlfException("Invalid parameters for creating deterministic MiniSat inference algorithm: " + args.length + ".");
 
-		case ALG_INFERRING_Z3:
+		case INFERRING_Z3:
 			/*
 			 * Create deterministic CSP MiniSat inference algorithm.
 			 */
@@ -506,7 +506,7 @@ public class DispatcherFactory implements LibALFFactory {
 			else
 				throw new AlfException("Invalid parameters for creating deterministic Z3 inference algorithm: " + args.length + ".");
 
-		case ALG_INFERRING_DFA_MINISAT:
+		case INFERRING_DFA_MINISAT:
 			/*
 			 * Create deterministic MiniSat inference algorithm.
 			 */
@@ -517,7 +517,7 @@ public class DispatcherFactory implements LibALFFactory {
 			else
 				throw new AlfException("Invalid parameters for creating DFA MiniSat inference algorithm: " + args.length + ".");
 
-		case ALG_INFERRING_DFA_Z3:
+		case INFERRING_DFA_Z3:
 			/*
 			 * Create deterministic CSP MiniSat inference algorithm.
 			 */
@@ -528,7 +528,7 @@ public class DispatcherFactory implements LibALFFactory {
 			else
 				throw new AlfException("Invalid parameters for creating DFA Z3 inference algorithm: " + args.length + ".");
 
-		case ALG_INFERRING_NFA_MINISAT:
+		case INFERRING_NFA_MINISAT:
 			/*
 			 * Create deterministic MiniSat inference algorithm.
 			 */
@@ -539,7 +539,7 @@ public class DispatcherFactory implements LibALFFactory {
 			else
 				throw new AlfException("Invalid parameters for creating NFA MiniSat inference algorithm: " + args.length + ".");
 
-		case ALG_COUNTEREXAMPLE_LEARNING:
+		case COUNTEREXAMPLE_LEARNING:
 			/*
 			 * Create deterministic MiniSat inference algorithm.
 			 */

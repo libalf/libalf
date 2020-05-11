@@ -31,7 +31,7 @@ public class DispatcherAlgorithmInferringDFAMinisat extends DispatcherLearningAl
 		super(factory, DispatcherConstants.ALG_INFERRING_DFA_MINISAT, base, alphabet_size, logger);
 	}
 	
-	public DispatcherAlgorithmInferringMinisat(DispatcherFactory factory, Knowledgebase base, int alphabet_size, Logger logger, boolean symmetry_breaking) {
+	public DispatcherAlgorithmInferringDFAMinisat(DispatcherFactory factory, Knowledgebase base, int alphabet_size, Logger logger, boolean symmetry_breaking) {
 		super(factory, DispatcherConstants.ALG_INFERRING_DFA_MINISAT, base, alphabet_size, logger);
 		
 		set_symmetry_breaking(symmetry_breaking);
@@ -42,7 +42,7 @@ public class DispatcherAlgorithmInferringDFAMinisat extends DispatcherLearningAl
 		int[] magic = deserialize_magic(new int[]{0});
 		if (magic.length != 1)
 			throw new DispatcherProtocolException("unexpected answer length");
-		return magic[0];
+		return 0 != magic[0];
 	}
 	
 	// Commmnd 1

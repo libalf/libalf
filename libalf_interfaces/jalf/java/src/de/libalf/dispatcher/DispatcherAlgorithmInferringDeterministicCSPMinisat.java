@@ -42,7 +42,7 @@ public class DispatcherAlgorithmInferringDeterministicCSPMinisat extends Dispatc
 		int[] magic = deserialize_magic(new int[]{0});
 		if (magic.length != 1)
 			throw new DispatcherProtocolException("unexpected answer length");
-		return magic[0];
+		return 0 != magic[0];
 	}
 	
 	// Commmnd 1
