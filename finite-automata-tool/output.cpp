@@ -72,6 +72,7 @@ bool leaf_is_non_accepting(knowledgebase<bool>::node* n, list<int> & sample, boo
 bool generate_samples_rpni(amore::finite_automaton *& automaton, knowledgebase<bool> & base)
 {
 	do_transformation(automaton, trans_mdfa);
+	// FIXME: TO BE IMPLEMENTED
 	
 	return false;
 }
@@ -221,12 +222,14 @@ bool generate_samples_delete2(amore::finite_automaton *& automaton, knowledgebas
 bool generate_samples_biermann(amore::finite_automaton *& automaton, knowledgebase<bool> & base)
 {
 	do_transformation(automaton, trans_mdfa);
+	// FIXME: TO BE IMPLEMENTED
 	
 	return false;
 }
 
 bool generate_samples_random(amore::finite_automaton *& automaton, knowledgebase<bool> & base, unsigned int count)
 {
+	// FIXME: TO BE IMPLEMENTED
 	
 	return false;
 }

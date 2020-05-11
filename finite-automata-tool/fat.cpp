@@ -39,7 +39,7 @@ void usage()
 {{{
 	cerr << "Finite Automata Tool\n"
 		"\n"
-		"FAT version "VERSION "\n"
+		"FAT version " VERSION "\n"
 	     << libalf::libalf_version() << "\n"
 	     << liblangen::liblangen_version() << "\n"
 	     << amore::libamorepp_version() << "\n"
