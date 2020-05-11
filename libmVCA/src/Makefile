@@ -7,15 +7,14 @@ include ../config.mk
 
 VERSIONTAG:=$(shell cat "../version" 2>/dev/null)
 ifeq (${VERSIONTAG},)
-# subversion branch
-LOCALCHANGES:=$(shell test "`svn status | wc -c`" != "0" && echo "-LocalChanges")
-SVNREVISION:=$(shell LC_ALL=POSIX svn info | awk '/^Revision:/ {print $$2}')
-VERSION?=svn-r${SVNREVISION}${LOCALCHANGES}
-LIBVERSIONTAG?=.svn
+GITHASH := $(shell git --no-pager rev-parse --short HEAD)
+DIRTYFLAG := $(shell git --no-pager status -s | wc -c | sed -e 's/^[1-9][0-9]*$$/-DIRTY/' -e 's/^0$$//')
+VERSION := git-${GITHASH}${DIRTYFLAG}
+LIBVERSIONTAG := .git
 else
 # release branch
-VERSION?=v${VERSIONTAG}
-LIBVERSIONTAG?=.${VERSIONTAG}
+VERSION := v${VERSIONTAG}
+LIBVERSIONTAG := .${VERSIONTAG}
 endif
 
 # Choose OS
